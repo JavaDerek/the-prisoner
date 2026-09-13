@@ -1,7 +1,9 @@
 // The checkpoint (this task's brief; design §10 lands this as P6, but with
 // the warden a model too, per correction 1 -- P6's human CLI is out of
 // scope here). Five rounds = ten half-rounds, warden at even t, prisoner at
-// odd t, both minds against a local OpenAI-compatible endpoint. Writes a
+// odd t, both minds against a local OpenAI-compatible endpoint, driven by
+// `src/loop.ts`'s `runHalfRound` -- the same function `src/__tests__/
+// loop.test.ts` exercises deterministically with scripted minds. Writes a
 // Markdown transcript to checkpoints/<ISO timestamp>.md.
 //
 // The database is a fresh scratch file under /tmp -- never a default path
@@ -10,23 +12,32 @@
 // library/application split).
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  getDatabase,
-  ResolveProtocolError,
-  ConstraintViolationError,
-  type Outcome,
-  type Contradiction,
-} from "run-dmcp";
-import type { SilenceReason } from "mind-seam";
+import { getDatabase, initializeSchema, ResolveProtocolError, type Outcome, type Contradiction, type ConstraintViolationError } from "run-dmcp";
 import { buildWorld, type World } from "./world/setup.js";
-import { buildResolver, declareCutIfJustCut } from "./world/mechanics.js";
-import { authorPlan, recordSuccess, recordFailure, activeStepExpects, logRound, renderLedger, type Plan } from "./ledger/ledger.js";
+import { buildResolver } from "./world/mechanics.js";
+import { prisonerMigration } from "./world/schema.js";
+import { authorPlan, renderLedger } from "./ledger/ledger.js";
 import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
-import { createPrisonerMind, type PrisonerProposal } from "./mind/prisonerMind.js";
-import { createWardenMind, type WardenProposal } from "./mind/wardenMind.js";
+import { createPrisonerMind } from "./mind/prisonerMind.js";
+import { createWardenMind } from "./mind/wardenMind.js";
+import {
+  runHalfRound,
+  newSilenceTracker,
+  noteSilenceReason,
+  loudSilenceMessage,
+  type Principal,
+  type HalfRoundResult,
+} from "./loop.js";
 
 const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoint-${Date.now()}.db`;
 process.env.DMCP_DB_PATH = dbPath;
+// Never touch the default database (root CLAUDE.md hard rule 2): this is a
+// fresh scratch file, and initializeSchema brings up both run-dmcp's own
+// tables and this repository's own (plans/plan_steps/attempts/round_log,
+// the items.cut/concealed columns) in the same startup pass -- exactly what
+// world/testDb.ts's createTestDb() does for tests, reproduced here because
+// this script never runs through vitest's setup.
+initializeSchema({ migrations: [prisonerMigration] });
 
 const MODEL_URL = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
 const MODEL = process.env.PRISONER_MODEL ?? "qwen2.5:14b";
@@ -37,7 +48,7 @@ const ROUNDS = 5;
 
 interface Timing {
   round: number;
-  principal: "warden" | "prisoner";
+  principal: Principal;
   ms: number;
   silent: boolean;
 }
@@ -88,7 +99,10 @@ function describeContradiction(world: World, c: Contradiction): string {
 function describeRefusal(world: World, error: ResolveProtocolError | ConstraintViolationError): string {
   if (error instanceof ResolveProtocolError) {
     const contradictions = error.contradictions ?? [];
-    return `resolve protocol refused (${error.reason}):\n` + contradictions.map((c) => `  - ${describeContradiction(world, c)}`).join("\n");
+    return (
+      `resolve protocol refused (${error.reason}):\n` +
+      contradictions.map((c) => `  - ${describeContradiction(world, c)}`).join("\n")
+    );
   }
   const fact = error.contradictedFact;
   return (
@@ -107,78 +121,42 @@ function finalResourceValues(world: World): string[] {
   return lines;
 }
 
-async function runHalfRound(params: {
-  transcript: string[];
-  world: World;
-  resolver: ReturnType<typeof buildResolver>;
-  plan: Plan;
-  principal: "warden" | "prisoner";
-  roundN: number;
-  t: number;
-  briefing: string;
-  proposal: PrisonerProposal | WardenProposal | null;
-  silenceReason: SilenceReason | undefined;
-  silenceStreak: number;
-}): Promise<void> {
-  const { transcript, world, resolver, plan, principal, roundN, t, briefing, proposal, silenceReason, silenceStreak } = params;
+function renderHalfRound(world: World, half: HalfRoundResult): string[] {
+  const lines: string[] = [];
+  lines.push(`### Half-round ${half.t - world.clock.t0} (t=${half.t}) -- the ${half.principal}`);
+  lines.push("");
+  lines.push("**Briefing given, verbatim:**");
+  lines.push("```");
+  lines.push(half.context.briefing);
+  lines.push("```");
 
-  transcript.push(`### Half-round ${t - world.clock.t0} (t=${t}) -- the ${principal}`);
-  transcript.push("");
-  transcript.push("**Briefing given, verbatim:**");
-  transcript.push("```");
-  transcript.push(briefing);
-  transcript.push("```");
-
-  if (proposal === null) {
-    transcript.push(`**Silence.** SilenceReason: \`${silenceReason ?? "unknown"}\` (consecutive: ${silenceStreak}).`);
-    if (silenceStreak >= 2) {
-      transcript.push(
-        `**LOUD:** the ${principal}'s endpoint (${MODEL_URL}, model ${MODEL}) has been silent for ${silenceStreak} consecutive half-rounds. Last reason: \`${silenceReason}\`.`
-      );
+  const r = half.result;
+  if (r.kind === "silent") {
+    lines.push(`**Silence.** SilenceReason: \`${r.reason ?? "unknown"}\`.`);
+    if (r.loud) {
+      lines.push(`**${loudSilenceMessage(half.principal, MODEL_URL, MODEL, r.reason, 2)}**`);
     }
-    transcript.push("");
-    return;
-  }
-
-  transcript.push(`**Intent:** ${proposal.intent}`);
-  if (proposal.line) transcript.push(`**Line:** "${proposal.line}"`);
-
-  if (!proposal.choice) {
-    transcript.push("**No choice offered -- this half-round passes with no proposal to resolve.**");
-    transcript.push("");
-    return;
-  }
-
-  transcript.push(`**Choice:** ${proposal.choice}`);
-  const expects = activeStepExpects(plan.id);
-  try {
-    const outcome = resolver.resolve({ gameId: world.gameId, mechanic: proposal.choice, expects });
-    recordSuccess({ gameId: world.gameId, plan, t, move: proposal.choice, outcome, completesStep: true });
-    logRound({
-      gameId: world.gameId,
-      t,
-      roundN,
-      principal,
-      mechanic: proposal.choice,
-      description: resolutionDescription(outcome.eventId),
-    });
-    declareCutIfJustCut(world, outcome);
-    transcript.push("**Outcome:**");
-    transcript.push("```");
-    transcript.push(describeOutcome(world, outcome));
-    transcript.push("```");
-  } catch (err) {
-    if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
-      recordFailure({ gameId: world.gameId, plan, t, move: proposal.choice, error: err });
-      transcript.push("**Refused:**");
-      transcript.push("```");
-      transcript.push(describeRefusal(world, err));
-      transcript.push("```");
+  } else {
+    lines.push(`**Intent:** ${r.proposal.intent}`);
+    if (r.proposal.line) lines.push(`**Line:** "${r.proposal.line}"`);
+    if (r.kind === "no-choice") {
+      lines.push("**No choice offered -- this half-round passes with no proposal to resolve.**");
+    } else if (r.kind === "resolved") {
+      lines.push(`**Choice:** ${r.proposal.choice}`);
+      lines.push("**Outcome:**");
+      lines.push("```");
+      lines.push(describeOutcome(world, r.outcome));
+      lines.push("```");
     } else {
-      throw err;
+      lines.push(`**Choice:** ${r.proposal.choice}`);
+      lines.push("**Refused:**");
+      lines.push("```");
+      lines.push(describeRefusal(world, r.error));
+      lines.push("```");
     }
   }
-  transcript.push("");
+  lines.push("");
+  return lines;
 }
 
 async function main(): Promise<void> {
@@ -210,27 +188,21 @@ async function main(): Promise<void> {
     ],
   });
 
-  let wardenSilenceStreak = 0;
-  let prisonerSilenceStreak = 0;
-  let lastWardenSilenceReason: SilenceReason | undefined;
-  let lastPrisonerSilenceReason: SilenceReason | undefined;
+  const wardenTracker = newSilenceTracker();
+  const prisonerTracker = newSilenceTracker();
   const timings: Timing[] = [];
 
   const wardenMind = createWardenMind({
     baseUrl: MODEL_URL,
     model: MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
-    onSilence: (reason) => {
-      lastWardenSilenceReason = reason;
-    },
+    onSilence: (reason) => noteSilenceReason(wardenTracker, reason),
   });
   const prisonerMind = createPrisonerMind({
     baseUrl: MODEL_URL,
     model: MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
-    onSilence: (reason) => {
-      lastPrisonerSilenceReason = reason;
-    },
+    onSilence: (reason) => noteSilenceReason(prisonerTracker, reason),
   });
 
   const transcript: string[] = [];
@@ -243,7 +215,7 @@ async function main(): Promise<void> {
   transcript.push(
     "One cell. A warden and a prisoner, both model-driven, both proposing through the same seam " +
       "(`mind-seam@0.1.0`), both resolved through `run-dmcp`'s resolve protocol. The prisoner's " +
-      'authored plan: hone the spoon, file at the bar repeatedly, then hide the evidence. The ' +
+      "authored plan: hone the spoon, file at the bar repeatedly, then hide the evidence. The " +
       "warden's: watch closely, rotate the guard, service the lock."
   );
   transcript.push("");
@@ -260,44 +232,34 @@ async function main(): Promise<void> {
     const tw = world.clock.wardenT(n);
     const wardenContext = buildWardenContext(world, wardenPlan, tw);
     const wStart = performance.now();
-    const wardenProposal = await wardenMind.consider(wardenContext);
-    const wMs = performance.now() - wStart;
-    wardenSilenceStreak = wardenProposal === null ? wardenSilenceStreak + 1 : 0;
-    timings.push({ round: n, principal: "warden", ms: wMs, silent: wardenProposal === null });
-    await runHalfRound({
-      transcript,
+    const wardenHalf = await runHalfRound({
       world,
       resolver,
       plan: wardenPlan,
       principal: "warden",
-      roundN: n,
       t: tw,
-      briefing: wardenContext.briefing,
-      proposal: wardenProposal,
-      silenceReason: lastWardenSilenceReason,
-      silenceStreak: wardenSilenceStreak,
+      context: wardenContext,
+      mind: wardenMind,
+      tracker: wardenTracker,
     });
+    timings.push({ round: n, principal: "warden", ms: performance.now() - wStart, silent: wardenHalf.result.kind === "silent" });
+    transcript.push(...renderHalfRound(world, wardenHalf));
 
     const tp = world.clock.prisonerT(n);
     const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp);
     const pStart = performance.now();
-    const prisonerProposal = await prisonerMind.consider(prisonerContext);
-    const pMs = performance.now() - pStart;
-    prisonerSilenceStreak = prisonerProposal === null ? prisonerSilenceStreak + 1 : 0;
-    timings.push({ round: n, principal: "prisoner", ms: pMs, silent: prisonerProposal === null });
-    await runHalfRound({
-      transcript,
+    const prisonerHalf = await runHalfRound({
       world,
       resolver,
       plan: prisonerPlan,
       principal: "prisoner",
-      roundN: n,
       t: tp,
-      briefing: prisonerContext.briefing,
-      proposal: prisonerProposal,
-      silenceReason: lastPrisonerSilenceReason,
-      silenceStreak: prisonerSilenceStreak,
+      context: prisonerContext,
+      mind: prisonerMind,
+      tracker: prisonerTracker,
     });
+    timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
+    transcript.push(...renderHalfRound(world, prisonerHalf));
   }
 
   transcript.push("## Final state");
@@ -330,8 +292,11 @@ async function main(): Promise<void> {
   const file = join(dir, `${new Date().toISOString().replace(/[:.]/g, "-")}.md`);
   writeFileSync(file, transcript.join("\n") + "\n");
 
+  // eslint-disable-next-line no-console
   console.log(`Transcript written to ${file}`);
+  // eslint-disable-next-line no-console
   console.log(`Database: ${dbPath}`);
+  // eslint-disable-next-line no-console
   console.log(`Calls: ${timings.length}, silent: ${silentCount}, timeoutMs: ${THINK_TIMEOUT_MS ?? 12000}`);
 }
 
