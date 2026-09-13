@@ -83,9 +83,15 @@ export const prisonerMigration: SchemaMigration = {
           CHECK (status IN ('pending', 'active', 'done', 'failed', 'abandoned')),
         evidence TEXT,
         attempted_at_t INTEGER,
+        expects TEXT,
         FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
       )
     `);
+    try {
+      db.exec(`ALTER TABLE plan_steps ADD COLUMN expects TEXT`);
+    } catch {
+      // Column already exists.
+    }
 
     db.exec(`
       CREATE TABLE IF NOT EXISTS attempts (

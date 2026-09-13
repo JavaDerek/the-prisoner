@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { getResource, writeConstrainedValue, ConstraintViolationError, valueHistory } from "run-dmcp";
+import { getResource, writeConstrainedValue, ConstraintViolationError, valueHistory, getDatabase } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../testDb.js";
 import { buildWorld, type World } from "../setup.js";
 import {
@@ -160,6 +160,27 @@ describe("the-prisoner's mechanics -- every consequential change through resolve
     expect(getResource(world.resources.barIntegrity)?.value).toBe(100);
     const history = valueHistory(world.resources.barIntegrity, "value");
     expect(history.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("a parameters.note is appended to the outcome's description (opaque to the engine, read back from resolution.recorded)", () => {
+    fresh();
+    world.clock.wardenT(1);
+    const outcome = resolver.resolve({
+      gameId: world.gameId,
+      mechanic: "REPLACE_BAR",
+      parameters: { note: "seam-conformance-marker-xyz" },
+    });
+    const event = getDatabase()
+      .prepare(`SELECT description FROM events WHERE game_id = ? AND kind = 'resolution.recorded' AND at_t = ?`)
+      .get(world.gameId, outcome.t) as { description: string } | undefined;
+    expect(event?.description).toContain("seam-conformance-marker-xyz");
+
+    world.clock.wardenT(2);
+    const plainOutcome = resolver.resolve({ gameId: world.gameId, mechanic: "REPLACE_BAR" });
+    const plainEvent = getDatabase()
+      .prepare(`SELECT description FROM events WHERE game_id = ? AND kind = 'resolution.recorded' AND at_t = ?`)
+      .get(world.gameId, plainOutcome.t) as { description: string } | undefined;
+    expect(plainEvent?.description).not.toContain("(");
   });
 
   it("half-round alternation: the warden's writes land at even offsets from t0, the prisoner's at odd", () => {

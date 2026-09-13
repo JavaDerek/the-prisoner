@@ -1,5 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { getDatabase, ConstraintViolationError, ResolveProtocolError, type Outcome, type Contradiction } from "run-dmcp";
+import {
+  getDatabase,
+  ConstraintViolationError,
+  ResolveProtocolError,
+  type Outcome,
+  type Contradiction,
+  type Expectation,
+} from "run-dmcp";
 
 /**
  * The attempt ledger (design §4.4) -- plan memory as this repository's own,
@@ -28,6 +35,10 @@ export type StepStatus = "pending" | "active" | "done" | "failed" | "abandoned";
 export interface PlanStepSpec {
   move: string;
   description: string;
+  /** The preconditions this step's proposal declares (design §6.1: "Proposal{
+   *  mechanic: choice, expects: active step's declared expectations }") --
+   *  content, authored per scenario, never interpreted by this module. */
+  expects?: readonly Expectation[];
 }
 
 export interface Plan {
@@ -49,10 +60,18 @@ export function authorPlan(params: { gameId: string; characterId: string; t: num
   );
 
   const insertStep = db.prepare(
-    `INSERT INTO plan_steps (id, plan_id, step_index, move, description, status) VALUES (?, ?, ?, ?, ?, ?)`
+    `INSERT INTO plan_steps (id, plan_id, step_index, move, description, status, expects) VALUES (?, ?, ?, ?, ?, ?, ?)`
   );
   params.steps.forEach((step, index) => {
-    insertStep.run(randomUUID(), planId, index, step.move, step.description, index === 0 ? "active" : "pending");
+    insertStep.run(
+      randomUUID(),
+      planId,
+      index,
+      step.move,
+      step.description,
+      index === 0 ? "active" : "pending",
+      step.expects ? JSON.stringify(step.expects) : null
+    );
   });
 
   return { id: planId, gameId: params.gameId, characterId: params.characterId };
@@ -67,12 +86,22 @@ interface PlanStepRow {
   status: StepStatus;
   evidence: string | null;
   attempted_at_t: number | null;
+  expects: string | null;
 }
 
 function activeStep(planId: string): PlanStepRow | undefined {
   return getDatabase()
     .prepare(`SELECT * FROM plan_steps WHERE plan_id = ? AND status = 'active' ORDER BY step_index LIMIT 1`)
     .get(planId) as PlanStepRow | undefined;
+}
+
+/** The active step's declared `expects`, ready to hand to `resolver.resolve()`
+ *  (design §6.1) -- `undefined` when the plan has no active step, or the
+ *  active step declared none. */
+export function activeStepExpects(planId: string): readonly Expectation[] | undefined {
+  const step = activeStep(planId);
+  if (!step?.expects) return undefined;
+  return JSON.parse(step.expects) as Expectation[];
 }
 
 function nextPendingStep(planId: string): PlanStepRow | undefined {
@@ -106,6 +135,7 @@ interface RoundLogRow {
   round_n: number;
   principal: "warden" | "prisoner";
   mechanic: string;
+  description: string | null;
 }
 
 /** Design's correction 2: resolves "which move caused this fact" from this
@@ -117,7 +147,7 @@ interface RoundLogRow {
  *  guess. */
 export function causeAtT(gameId: string, t: number): RoundLogRow | null {
   const row = getDatabase()
-    .prepare(`SELECT t, round_n, principal, mechanic FROM round_log WHERE game_id = ? AND t = ?`)
+    .prepare(`SELECT t, round_n, principal, mechanic, description FROM round_log WHERE game_id = ? AND t = ?`)
     .get(gameId, t) as RoundLogRow | undefined;
   return row ?? null;
 }
@@ -308,7 +338,8 @@ function renderAttempt(gameId: string, row: AttemptRow): string {
   if (key !== null && value !== null && validFromT !== null) {
     const cause = causeAtT(gameId, validFromT);
     const attribution = cause
-      ? `set by the ${cause.principal}'s ${cause.mechanic} in round ${cause.round_n}`
+      ? `set by the ${cause.principal}'s ${cause.mechanic} in round ${cause.round_n}` +
+        (cause.description ? ` -- ${cause.description}` : "")
       : "cause unknown";
     factLine = `${key} was ${value}, ${attribution}`;
   }

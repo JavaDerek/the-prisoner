@@ -80,6 +80,24 @@ function writeFlag(entityId: string, key: string, value: 0 | 1): IntendedWrite {
   return { kind: "write", entityId, key, mode: "set", value };
 }
 
+/**
+ * Every mechanic's `description` optionally carries a caller-supplied note
+ * (`Proposal.parameters.note`) appended verbatim. `parameters` is opaque to
+ * the engine (`resolve.ts`'s own doc comment: "handed to the named mechanic
+ * verbatim, never inspected here"), so this is ordinary use of that field,
+ * not a second channel around it. It exists for one reason: the round log
+ * this repository renders a contradiction's cause from
+ * (`src/ledger/ledger.ts`, correction 2) carries a resolution's
+ * `description`, and the conformance suite's check 4 (the fog property's
+ * positive control) needs a plantable, per-test marker to prove a
+ * contradiction's attribution reaches one principal's briefing and not the
+ * other's -- see `src/mind/__tests__/seamConformance.*.test.ts`.
+ */
+function withNote(base: string, input: AdjudicationInput): string {
+  const note = input.parameters?.note;
+  return typeof note === "string" && note.length > 0 ? `${base} (${note})` : base;
+}
+
 /** Amount FILE removes from `bar_integrity` per attempt. */
 export const FILE_AMOUNT = 15;
 /** Amount SHIM removes from `lock_integrity` per attempt. */
@@ -115,10 +133,12 @@ export function buildMechanics(world: World): Mechanic[] {
       return {
         changes,
         result: { mechanic: "FILE", barIntegrityBefore: current },
-        description:
+        description: withNote(
           intended <= 0
             ? "The prisoner files at the bar -- it gives way. The bar is cut."
             : "The prisoner files at the bar.",
+          input
+        ),
       };
     },
   };
@@ -130,7 +150,7 @@ export function buildMechanics(world: World): Mechanic[] {
       return {
         changes: [setResource(resources.lockIntegrity, "value", current - SHIM_AMOUNT), suspicionBump(input, SUSPICION_BUMP)],
         result: { mechanic: "SHIM", lockIntegrityBefore: current },
-        description: "The prisoner works a shim into the lock.",
+        description: withNote("The prisoner works a shim into the lock.", input),
       };
     },
   };
@@ -142,18 +162,18 @@ export function buildMechanics(world: World): Mechanic[] {
       return {
         changes: [setResource(resources.spoonEdge, "value", current + HONE_AMOUNT), suspicionBump(input, SUSPICION_BUMP)],
         result: { mechanic: "HONE", spoonEdgeBefore: current },
-        description: "The prisoner hones the spoon's edge.",
+        description: withNote("The prisoner hones the spoon's edge.", input),
       };
     },
   };
 
   const CONCEAL: Mechanic = {
     name: "CONCEAL",
-    adjudicate(): Adjudication {
+    adjudicate(input: AdjudicationInput): Adjudication {
       return {
         changes: [writeFlag(looseTileId, CONCEALED_KEY, 1)],
         result: { mechanic: "CONCEAL", target: "the loose tile" },
-        description: "The prisoner hides something under the loose tile.",
+        description: withNote("The prisoner hides something under the loose tile.", input),
       };
     },
   };
@@ -169,40 +189,40 @@ export function buildMechanics(world: World): Mechanic[] {
           lockIntegrity: valueOf(input, resources.lockIntegrity, "value"),
           guardAttention: valueOf(input, resources.guardAttention, "value"),
         },
-        description: "The prisoner inspects the cell closely.",
+        description: withNote("The prisoner inspects the cell closely.", input),
       };
     },
   };
 
   const REPLACE_BAR: Mechanic = {
     name: "REPLACE_BAR",
-    adjudicate(): Adjudication {
+    adjudicate(input: AdjudicationInput): Adjudication {
       return {
         changes: [setResource(resources.barIntegrity, "value", 100), writeFlag(barId, CUT_KEY, 0)],
         result: { mechanic: "REPLACE_BAR" },
-        description: "The warden replaces the bar.",
+        description: withNote("The warden replaces the bar.", input),
       };
     },
   };
 
   const SERVICE_LOCK: Mechanic = {
     name: "SERVICE_LOCK",
-    adjudicate(): Adjudication {
+    adjudicate(input: AdjudicationInput): Adjudication {
       return {
         changes: [setResource(resources.lockIntegrity, "value", 100)],
         result: { mechanic: "SERVICE_LOCK" },
-        description: "The warden services the lock.",
+        description: withNote("The warden services the lock.", input),
       };
     },
   };
 
   const ROTATE_GUARD: Mechanic = {
     name: "ROTATE_GUARD",
-    adjudicate(): Adjudication {
+    adjudicate(input: AdjudicationInput): Adjudication {
       return {
         changes: [setResource(resources.guardAttention, "value", ROTATE_GUARD_LEVEL)],
         result: { mechanic: "ROTATE_GUARD" },
-        description: "The warden rotates the guard.",
+        description: withNote("The warden rotates the guard.", input),
       };
     },
   };
@@ -217,7 +237,7 @@ export function buildMechanics(world: World): Mechanic[] {
           spoonEdge: valueOf(input, resources.spoonEdge, "value"),
           bar: valueOf(input, resources.barIntegrity, "value"),
         },
-        description: "The warden observes the prisoner.",
+        description: withNote("The warden observes the prisoner.", input),
       };
     },
   };
@@ -236,7 +256,7 @@ export function buildMechanics(world: World): Mechanic[] {
           setResource(resources.wardenSuspicion, "value", suspicion - WAIT_DECAY),
         ],
         result: { mechanic: "WAIT" },
-        description: "Time passes.",
+        description: withNote("Time passes.", input),
       };
     },
   };
