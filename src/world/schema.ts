@@ -103,5 +103,25 @@ export const prisonerMigration: SchemaMigration = {
         FOREIGN KEY (step_id) REFERENCES plan_steps(id) ON DELETE SET NULL
       )
     `);
+
+    // This repository's own round log -- never the engine's. Logged once
+    // per SUCCESSFUL resolution by either principal, keyed on the half-round
+    // `t` it landed at. `ledger.ts`'s `causeAtT` reads this to resolve
+    // "which move caused this fact" for a contradiction's hop, because the
+    // hop itself only ever names a low-level projection event, never a
+    // `resolution.recorded` event (this project's correction 2; see
+    // ledger.ts's header comment).
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS round_log (
+        id TEXT PRIMARY KEY,
+        game_id TEXT NOT NULL,
+        t INTEGER NOT NULL,
+        round_n INTEGER NOT NULL,
+        principal TEXT NOT NULL CHECK (principal IN ('warden', 'prisoner')),
+        mechanic TEXT NOT NULL,
+        description TEXT,
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+      )
+    `);
   },
 };
