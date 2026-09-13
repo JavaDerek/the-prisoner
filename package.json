@@ -1,0 +1,35 @@
+{
+  "name": "the-prisoner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A model-driven prisoner and a model-driven warden play through run-dmcp's resolve protocol -- this repository's own game, and the resolve protocol's first production caller.",
+  "license": "MIT",
+  "author": "Derek Ferguson",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "run-dmcp": "0.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^4.0.16",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.7.4",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.51.0",
+    "vitest": "^4.0.16"
+  }
+}
