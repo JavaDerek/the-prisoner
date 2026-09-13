@@ -76,6 +76,34 @@ function ownerOf(
   };
 }
 
+/**
+ * BUG FOUND WHILE RUNNING THE CHECKPOINT SCRIPT, fixed here: `schema.ts`'s
+ * migration adds `cut` and `concealed` as plain columns on run-dmcp's
+ * `items` table -- which means EVERY item (the bar, the loose tile, AND
+ * the prisoner's spoon) carries BOTH columns, each defaulting to `0`, and
+ * therefore both facts. `createStateRenderer`'s vocabulary lookup is keyed
+ * only by `(factKey, factValue)` -- entity-blind, by the engine's own
+ * design ("never matches meaning", `render.ts`) -- so `PRISONER_VOCABULARY`
+ * happily rendered "intact bar" for the LOOSE TILE's own `cut=0` and
+ * "in plain view loose tile" for the BAR's own `concealed=0`, and the same
+ * two bogus nouns again for the SPOON. Filtering `rendered.nouns` by
+ * `entityId` alone (as this function already does) does not catch this,
+ * because the same entity carries both the real fact and the irrelevant
+ * one.
+ *
+ * The fix is a second, equally positive selection: which fact KEYS are
+ * meaningful for a GIVEN entity in this game. `cut` means something only
+ * for the bar; `concealed` only for the loose tile. Nothing here scans
+ * text or infers meaning from a value -- it is a caller-declared allowlist
+ * over this repository's own three items, the same shape as
+ * `selectedEntityIds` above.
+ */
+function relevantFactKeysFor(world: World, entityId: string): readonly string[] {
+  if (entityId === world.barId) return ["cut"];
+  if (entityId === world.looseTileId) return ["concealed"];
+  return [];
+}
+
 export function viewFor(world: World, characterId: string, t: number): View {
   if (characterId !== world.wardenId && characterId !== world.prisonerId) {
     throw new Error(`viewFor: '${characterId}' is neither the warden nor the prisoner in this world`);
@@ -109,7 +137,9 @@ export function viewFor(world: World, characterId: string, t: number): View {
   }
 
   const rendered = createStateRenderer({ vocabulary: PRISONER_VOCABULARY }).render({ gameId: world.gameId, t });
-  const nouns = rendered.nouns.filter((n) => selectedEntityIds.has(n.entityId));
+  const nouns = rendered.nouns.filter(
+    (n) => selectedEntityIds.has(n.entityId) && relevantFactKeysFor(world, n.entityId).includes(n.key)
+  );
 
   const resourceEntries: [string, string][] = [
     ["bar_integrity", world.resources.barIntegrity],
