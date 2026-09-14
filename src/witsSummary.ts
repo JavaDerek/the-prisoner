@@ -12,7 +12,7 @@
 // read is `causeAtT`) and carries no side effects, so it is safe to import
 // from a test without triggering `checkpoint.ts`'s own top-level `main()`.
 import { ResolveProtocolError, type ConstraintViolationError } from "run-dmcp";
-import { causeAtT } from "./ledger/ledger.js";
+import { causeAtT, nextRoundLogEntryFor } from "./ledger/ledger.js";
 import { SEEN_BY_OTHER_AS } from "./world/mechanics.js";
 import type { HalfRoundResult, Principal } from "./loop.js";
 
@@ -26,6 +26,15 @@ export interface RefusalEvent {
   /** "set by the warden's SERVICE_LOCK in round 3", or "cause unknown" when
    *  the error carries no contradiction detail at all (never a guess). */
   attribution: string;
+  /** The half-round clock `t` this refusal happened at (coordinator's fix,
+   *  item 4) -- kept so `renderWitsSummary` can look up this SAME
+   *  principal's own next `round_log` row after it, to say whether that
+   *  next move pivoted away from the refused one or repeated it. Never
+   *  computed here, at note time: the refused principal has not acted
+   *  again yet when a refusal is first recorded, so this is deliberately
+   *  deferred to render time, over the full `round_log` (`ledger.ts`'s
+   *  `nextRoundLogEntryFor`), once the whole run has happened. */
+  t: number;
 }
 
 export interface SearchEvent {
@@ -89,6 +98,7 @@ export function noteWitsEvent(summary: WitsSummary, gameId: string, half: HalfRo
       move: r.proposal.choice ?? "?",
       cause,
       attribution: attributionFor(gameId, r.error),
+      t: half.t,
     });
     return;
   }
@@ -113,16 +123,32 @@ export function noteWitsEvent(summary: WitsSummary, gameId: string, half: HalfRo
   }
 }
 
+/** Coordinator's fix, item 4: "a line per refusal saying whether the
+ *  refused principal's NEXT move differed from the refused move (a pivot)
+ *  or repeated it" -- derived ONLY from `round_log`
+ *  (`nextRoundLogEntryFor`), never from anything this summary itself
+ *  tracked as the game ran (`RefusalEvent` keeps just `t`, not a verdict).
+ *  Three positive outcomes, never a guess: pivoted, repeated, or no further
+ *  move was ever logged for this principal (the refusal was its last). */
+function pivotLine(gameId: string, r: RefusalEvent): string {
+  const next = nextRoundLogEntryFor(gameId, r.principal, r.t);
+  if (!next) return `    No further move by the ${r.principal} was recorded -- this was its last logged half-round.`;
+  return next.mechanic === r.move
+    ? `    Next move: ${next.mechanic} -- repeated the refused move.`
+    : `    Next move: ${next.mechanic} -- pivoted away from the refused move.`;
+}
+
 /** Positive prose, one line per event, grouped by kind -- the transcript's
  *  own "Wits summary" section (`checkpoint.ts`). Counts are stated even
  *  when zero (a real, positive fact: "Refusals: 0.", never silence about
  *  it). */
-export function renderWitsSummary(summary: WitsSummary): string[] {
+export function renderWitsSummary(summary: WitsSummary, gameId: string): string[] {
   const lines: string[] = [];
 
   lines.push(`Refusals: ${summary.refusals.length}.`);
   for (const r of summary.refusals) {
     lines.push(`  - round ${r.round}, ${r.principal}, ${r.move} refused (${r.cause}): ${r.attribution}`);
+    lines.push(pivotLine(gameId, r));
   }
 
   lines.push(`Searches: ${summary.searches.length}.`);

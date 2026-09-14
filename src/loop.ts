@@ -180,18 +180,23 @@ function applyBeliefUpdatesForSuccess(world: World, principal: Principal, move: 
   // writes exactly one A.2 resource); what is left here is channel (c),
   // the VISIBLE ones' effect on the PRISONER's belief, and CHECK_LOCK's own
   // channel (b) reveal.
+  //
+  // REVISION (this task's brief, finding (a): "REPLACE_BAR is visible, so a
+  // FILE belief never goes stale" -- the only real stale-belief path was
+  // SHIM after a covert SERVICE_LOCK; REPLACE_BAR being visible meant the
+  // prisoner's bar belief was corrected the instant it happened, so FILE
+  // could never collide with a stale one). REPLACE_BAR now happens while
+  // the prisoner is in the yard -- `SEEN_BY_OTHER_AS.REPLACE_BAR` is `null`
+  // (`world/mechanics.ts`) -- and this function no longer updates the
+  // prisoner's bar belief on it at all. The prisoner's own next FILE can
+  // now declare a stale bar belief and be refused by the warden's covert
+  // REPLACE_BAR, exactly the mirror of SHIM/SERVICE_LOCK's existing path
+  // (`src/__tests__/balance.test.ts`'s "the covert REPLACE_BAR irony path").
   if (move === "ROTATE_GUARD") {
     const v = transitionValue(outcome, world.resources.guardAttention, "value");
     // Visible to the prisoner: "a different guard" (design: "updates the
     // prisoner's guard belief").
     if (v !== undefined) setBelief(gameId, "prisoner", "guard_attention", v, roundN);
-    return;
-  }
-  if (move === "REPLACE_BAR") {
-    const v = transitionValue(outcome, world.resources.barIntegrity, "value");
-    // Visible to the prisoner (design: "updates the prisoner's bar belief
-    // to 100").
-    if (v !== undefined) setBelief(gameId, "prisoner", "bar_integrity", v, roundN);
     return;
   }
   if (move === "CHECK_LOCK") {

@@ -216,4 +216,69 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     const rendered = renderLedger(world.gameId, prisonerPlan);
     expect(rendered).toContain("warden's SERVICE_LOCK");
   });
+
+  it("the covert REPLACE_BAR irony path (coordinator's fix): prisoner FILE, warden OBSERVE, warden REPLACE_BAR covertly, prisoner FILE refused with the cause naming the warden's REPLACE_BAR, and its belief updates", async () => {
+    fresh();
+    const wardenTracker = newSilenceTracker();
+    const prisonerTracker = newSilenceTracker();
+
+    // Round 1: the prisoner FILEs (bar 100 -> 85). Its OWN belief updates
+    // immediately, from its own outcome (channel a).
+    const t1 = world.clock.prisonerT(1);
+    const fileMind = { async consider() { return { intent: "file", choice: "FILE" } as PrisonerProposal; } };
+    await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: t1, context: buildPrisonerContext(world, prisonerPlan, t1), mind: fileMind, tracker: prisonerTracker });
+    expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 85, asOfRound: 1 });
+
+    // The warden OBSERVEs -- sees the bar only as a band ("worn"), never an
+    // exact number a belief-based `expects` could rely on (design: "never an
+    // exact number, so it can never become a belief `expects` could rely
+    // on"). This is narrative motivation for the warden's decision, not
+    // what fixes its own belief -- REPLACE_BAR is symmetric with SHIM/
+    // SERVICE_LOCK (`EXPECTS_RESOURCE_FOR_MOVE`, `ledger/beliefs.ts`): the
+    // ACTING principal's own `expects` is equality against ITS OWN belief,
+    // and the warden's is still the round-0 seed (100).
+    const tw1 = world.clock.wardenT(2);
+    const observeMind = { async consider() { return { intent: "observe", choice: "OBSERVE" } as WardenProposal; } };
+    const observeHalf = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 2, t: tw1, context: buildWardenContext(world, wardenPlan, tw1), mind: observeMind, tracker: wardenTracker });
+    expect(observeHalf.result.kind).toBe("resolved");
+
+    // So the warden's FIRST REPLACE_BAR is refused -- by its OWN stale
+    // belief, exactly the same shape as the prisoner's own SHIM colliding
+    // with a stale belief in the sibling test above. There is no CHECK_LOCK
+    // equivalent for the bar (OBSERVE is deliberately imprecise), so this is
+    // the warden's OWN honest self-correction, not a second irony beat
+    // aimed at the prisoner -- and it is what teaches the warden the true
+    // value, via the SAME refusal-reveals-the-truth channel (d).
+    const tw2 = world.clock.wardenT(3);
+    const replaceMind = { async consider() { return { intent: "replace the bar", choice: "REPLACE_BAR" } as WardenProposal; } };
+    const firstReplace = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 3, t: tw2, context: buildWardenContext(world, wardenPlan, tw2), mind: replaceMind, tracker: wardenTracker });
+    expect(firstReplace.result.kind).toBe("refused");
+    expect(getBelief(world.gameId, "warden", "bar_integrity")).toEqual({ value: 85, asOfRound: 3 });
+
+    // Its SECOND REPLACE_BAR, now with an accurate belief, succeeds --
+    // covert (this task's revision: it happens while the prisoner is in the
+    // yard). The bar resets to 100; the prisoner is never told.
+    const tw3 = world.clock.wardenT(4);
+    const secondReplace = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 4, t: tw3, context: buildWardenContext(world, wardenPlan, tw3), mind: replaceMind, tracker: wardenTracker });
+    expect(secondReplace.result.kind).toBe("resolved");
+    expect(getResource(world.resources.barIntegrity)?.value).toBe(100);
+    // Still stale: the covert act did not touch the prisoner's belief.
+    expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 85, asOfRound: 1 });
+
+    // The prisoner FILEs again, expecting its own stale belief (85) --
+    // refused. This IS the intended dramatic-irony beat: the prisoner is
+    // contradicted by the WARDEN's covert act, never by its own.
+    const t2 = world.clock.prisonerT(5);
+    const fileAgainMind = { async consider() { return { intent: "file again", choice: "FILE" } as PrisonerProposal; } };
+    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 5, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: fileAgainMind, tracker: prisonerTracker });
+
+    expect(half.result.kind).toBe("refused");
+    // The refusal reveals the truth into the prisoner's own belief.
+    expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 100, asOfRound: 5 });
+
+    // The ledger names WHOSE act caused the refusal -- the warden's
+    // REPLACE_BAR, never the prisoner's own.
+    const rendered = renderLedger(world.gameId, prisonerPlan);
+    expect(rendered).toContain("warden's REPLACE_BAR");
+  });
 });

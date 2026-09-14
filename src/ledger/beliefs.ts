@@ -97,8 +97,14 @@ export function seedInitialBeliefs(world: World): void {
  *  every move that depends on `guard_attention` (it drifts every round --
  *  `expects` is equality-only and would misfire on ordinary time decay) and
  *  every move whose outcome the mechanic itself adjudicates from truth
- *  (ESCAPE, SEARCH, OBSERVE, INSPECT). */
-const EXPECTS_RESOURCE_FOR_MOVE: Partial<Record<string, BeliefResource>> = {
+ *  (ESCAPE, SEARCH, OBSERVE, INSPECT).
+ *
+ *  Exported for one second, purely cosmetic use (coordinator's fix, item 3):
+ *  `ledger.ts`'s refusal rendering turns a refused move's own key ("value")
+ *  into a friendly resource name ("bar integrity") by reading THIS table --
+ *  never a second, redeclared mapping. It is never used there to build or
+ *  check an expectation, only to label one already resolved. */
+export const EXPECTS_RESOURCE_FOR_MOVE: Partial<Record<string, BeliefResource>> = {
   FILE: "bar_integrity",
   SHIM: "lock_integrity",
   REPLACE_BAR: "bar_integrity",

@@ -1,6 +1,6 @@
 import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
-import { renderLedger, renderPlan, mostRecentVisibleActFor, type Plan } from "../ledger/ledger.js";
+import { renderLedger, renderPlan, mostRecentVisibleActFor, recentRefusalNote, type Plan } from "../ledger/ledger.js";
 import { getBelief, renderBeliefLine, type Principal } from "../ledger/beliefs.js";
 import { getNotes } from "../ledger/notes.js";
 import { PRISONER_MOVES, WARDEN_MOVES, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
@@ -66,6 +66,20 @@ export function buildBriefing(
   // floors both to the same n.
   const roundN = Math.floor((t - world.clock.t0) / 2);
   lines.push(`Round ${roundN} of ${totalRounds}.`);
+
+  // Refusals are news to the refused side (coordinator's fix, item 3): the
+  // first line under the clock, so a refusal a principal caused itself
+  // cannot be missed the way a line buried in the ledger's own round-by-
+  // round history can. `null` (and so nothing pushed) unless THIS
+  // principal's own most recent attempt was a refusal in the round
+  // immediately before this one -- never older news, never repeated
+  // forever. The permanent record stays in the ledger history below,
+  // unchanged.
+  if (plan) {
+    const refusalNote = recentRefusalNote(world.gameId, plan.id, roundN);
+    if (refusalNote) lines.push(refusalNote);
+  }
+
   lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
 
   // Notes to self, persisted (this task's brief, item 2): rendered near the

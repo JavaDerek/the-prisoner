@@ -1,7 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
+import { ResolveProtocolError } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildWorld, type World } from "../../world/setup.js";
-import { authorPlan } from "../../ledger/ledger.js";
+import { authorPlan, logRound, recordFailure } from "../../ledger/ledger.js";
 import { setBelief, seedInitialBeliefs } from "../../ledger/beliefs.js";
 import { setNotes } from "../../ledger/notes.js";
 import { buildPrisonerContext, buildWardenContext, buildBriefing } from "../briefing.js";
@@ -164,6 +165,76 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     fresh();
     const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1));
     expect(briefing).not.toContain("Your notes from last round");
+  });
+
+  it("refusals are news (coordinator's fix, item 3) -- the refused principal's VERY NEXT briefing states the cause prominently, the first line under the clock", () => {
+    fresh();
+    const resolver = buildResolver(world);
+    const plan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "FILE", description: "file" }] });
+
+    // Round 1: the prisoner FILEs for real (bar 100 -> 85).
+    world.clock.prisonerT(1);
+    resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+
+    // Round 2: the warden REPLACE_BARs -- covert (this task's revision) --
+    // resetting the bar to 100, logged so the ledger can attribute a later
+    // contradiction to it.
+    const tw = world.clock.wardenT(2);
+    resolver.resolve({ gameId: world.gameId, mechanic: "REPLACE_BAR" });
+    logRound({ gameId: world.gameId, t: tw, roundN: 2, principal: "warden", mechanic: "REPLACE_BAR", description: null });
+
+    // Round 2: the prisoner FILEs again with its own stale expectation (85)
+    // -- refused, since the bar is actually back to 100.
+    const tp = world.clock.prisonerT(2);
+    let caught: unknown;
+    try {
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE", expects: [{ entityId: world.resources.barIntegrity, key: "value", value: 85 }] });
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(ResolveProtocolError);
+    recordFailure({ gameId: world.gameId, plan, roundN: 2, t: tp, move: "FILE", error: caught as ResolveProtocolError });
+
+    // Round 3: the prisoner's VERY NEXT briefing states the refusal
+    // prominently -- the first line right under "Round N of R.", never
+    // buried only in the ledger history.
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(3), plan, 12);
+    const lines = briefing.split("\n");
+    expect(lines[0]).toBe("Round 3 of 12.");
+    expect(lines[1]).toBe("Last round your FILE was refused: bar integrity was 100, set by the warden's REPLACE_BAR in round 2.");
+  });
+
+  it("refusal news is absent once it is no longer the very next round, and absent when nothing was refused", () => {
+    fresh();
+    const resolver = buildResolver(world);
+    const plan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "FILE", description: "file" }] });
+
+    // Nothing refused at all -- no news line.
+    const freshBriefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1), plan, 12);
+    expect(freshBriefing).not.toContain("Last round your");
+
+    world.clock.prisonerT(1);
+    resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+    const tw = world.clock.wardenT(2);
+    resolver.resolve({ gameId: world.gameId, mechanic: "REPLACE_BAR" });
+    logRound({ gameId: world.gameId, t: tw, roundN: 2, principal: "warden", mechanic: "REPLACE_BAR", description: null });
+    const tp = world.clock.prisonerT(2);
+    let caught: unknown;
+    try {
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE", expects: [{ entityId: world.resources.barIntegrity, key: "value", value: 85 }] });
+    } catch (err) {
+      caught = err;
+    }
+    recordFailure({ gameId: world.gameId, plan, roundN: 2, t: tp, move: "FILE", error: caught as ResolveProtocolError });
+
+    // Round 4 (not round 3, the round immediately after): the news line
+    // itself is stale, so it is not repeated at the top -- only the
+    // ledger's own history keeps a permanent record ("Round 2: FILE was
+    // refused -- ..."), which is a DIFFERENT sentence from the news line's
+    // own "Last round your ... was refused" wording.
+    const laterBriefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(4), plan, 12);
+    expect(laterBriefing).not.toContain("Last round your");
+    expect(laterBriefing).toContain("FILE was refused"); // still in the ledger history.
   });
 
   it("item 4 -- says nothing about grounds while suspicion is below the threshold", () => {

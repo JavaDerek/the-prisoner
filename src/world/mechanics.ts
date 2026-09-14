@@ -250,7 +250,12 @@ export function buildMechanics(world: World): Mechanic[] {
       return {
         changes: [setResource(resources.barIntegrity, "value", 100), writeFlag(barId, CUT_KEY, 0)],
         result: { mechanic: "REPLACE_BAR" },
-        description: withNote("The warden replaces the bar.", input),
+        // REVISION (coordinator's fix, finding (a)): covert now -- done
+        // while the prisoner is in the yard, so it never reaches the
+        // prisoner's own perception (`SEEN_BY_OTHER_AS.REPLACE_BAR` below is
+        // `null`; `loop.ts` no longer updates the prisoner's bar belief on
+        // it either).
+        description: withNote("The warden replaces the bar while the prisoner is in the yard.", input),
       };
     },
   };
@@ -407,7 +412,7 @@ export const MOVE_DESCRIPTIONS: Record<string, string> = {
   INSPECT: "Looks closely at the cell; reveals the lock's true integrity and the guard's true attention -- quiet; raises no suspicion.",
   ESCAPE: `Attempts to leave the cell -- succeeds only if the bar is cut or lock_integrity is at 0, AND guard_attention is below ${ESCAPE_GUARD_MAX}; otherwise raises warden_suspicion by ${FAILED_ESCAPE_SUSPICION_BUMP} and is visible either way.`,
   WAIT: "Lets time pass, doing nothing else.",
-  REPLACE_BAR: "Replaces the bar, setting bar_integrity to 100; refused if the bar has already been cut.",
+  REPLACE_BAR: "Replaces the bar, setting bar_integrity to 100 -- done while the prisoner is in the yard; the prisoner does not see it. Refused if the bar has already been cut.",
   SERVICE_LOCK: "Services the lock, setting lock_integrity to 100 -- done outside the cell, unseen by the prisoner.",
   CHECK_LOCK: "Checks the lock's true integrity from outside the cell -- covert, unseen by the prisoner; no suspicion change; needs no grounds.",
   SEARCH: `Searches the cell for evidence -- only possible once warden_suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}. Catches the prisoner (the game ends) if bar_integrity is at or below ${SEARCH_CATCH_BAR_MAX}, or lock_integrity is at or below ${SEARCH_CATCH_LOCK_MAX}, or spoon_edge is at or above ${SEARCH_CATCH_SPOON_MIN} while the spoon is not concealed; otherwise resets warden_suspicion to 0 as a false alarm.`,
@@ -433,8 +438,9 @@ export const TIME_DECAY_RULE = `At the end of every round, after both of you hav
  * stays private, in the acting principal's own ledger prose), only that
  * something visible happened. `null` marks a covert move: it contributes
  * NOTHING to the other principal's perception. SHIM, CONCEAL, INSPECT, WAIT,
- * SERVICE_LOCK and CHECK_LOCK are covert (design: "done outside the cell"
- * for SERVICE_LOCK/CHECK_LOCK).
+ * SERVICE_LOCK, CHECK_LOCK and REPLACE_BAR are covert (design: "done outside
+ * the cell" for SERVICE_LOCK/CHECK_LOCK; REPLACE_BAR -- coordinator's fix,
+ * finding (a) -- "done while the prisoner is in the yard").
  */
 export const SEEN_BY_OTHER_AS: Record<string, string | null> = {
   FILE: "The warden hears a rhythmic scraping sound from the prisoner's side of the cell.",
@@ -444,7 +450,7 @@ export const SEEN_BY_OTHER_AS: Record<string, string | null> = {
   INSPECT: null,
   ESCAPE: "The prisoner makes a break for it.",
   WAIT: null,
-  REPLACE_BAR: "The prisoner watches the warden replace the bar.",
+  REPLACE_BAR: null,
   SERVICE_LOCK: null,
   CHECK_LOCK: null,
   SEARCH: "The prisoner watches the warden tear the cell apart, searching.",

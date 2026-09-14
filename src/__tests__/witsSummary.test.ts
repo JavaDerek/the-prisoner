@@ -79,7 +79,7 @@ describe("witsSummary -- machine-derived, never from prose", () => {
     // SHIM (round 1) is covert too.
     expect(summary.covertActs.some((c) => c.round === 1 && c.move === "SHIM")).toBe(true);
 
-    const rendered = renderWitsSummary(summary);
+    const rendered = renderWitsSummary(summary, world.gameId);
     expect(rendered.join("\n")).toContain("warden's SERVICE_LOCK");
     expect(rendered.join("\n")).toContain("round 3");
   });
@@ -107,7 +107,7 @@ describe("witsSummary -- machine-derived, never from prose", () => {
 
     expect(summary.searches).toContainEqual({ round: 5, grounds: true, caught: true });
 
-    const rendered = renderWitsSummary(summary).join("\n");
+    const rendered = renderWitsSummary(summary, world.gameId).join("\n");
     expect(rendered).toContain("found evidence");
   });
 
@@ -120,7 +120,7 @@ describe("witsSummary -- machine-derived, never from prose", () => {
     noteWitsEvent(summary, world.gameId, half, 1);
 
     expect(summary.escapeAttempts).toEqual([{ round: 1, success: false }]);
-    const rendered = renderWitsSummary(summary).join("\n");
+    const rendered = renderWitsSummary(summary, world.gameId).join("\n");
     expect(rendered).toContain("failed");
   });
 
@@ -135,5 +135,95 @@ describe("witsSummary -- machine-derived, never from prose", () => {
     };
     noteWitsEvent(summary, "game-1", half, 1);
     expect(summary.refusals[0].attribution).toBe("cause unknown");
+  });
+
+  describe("coordinator's fix, item 4 -- a line per refusal saying whether the refused principal's NEXT move pivoted or repeated", () => {
+    it("reports a PIVOT when the refused principal's next move differs from the refused move", async () => {
+      fresh();
+      const summary = newWitsSummary();
+
+      // Prisoner SHIM (round 1) -- belief updates to 80.
+      const t1 = world.clock.prisonerT(1);
+      const shimMind = { async consider() { return { intent: "shim", choice: "SHIM" } as PrisonerProposal; } };
+      await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: t1, context: buildPrisonerContext(world, prisonerPlan, t1), mind: shimMind, tracker: newSilenceTracker() });
+
+      // Warden CHECK_LOCK then SERVICE_LOCK (covert, accurate belief).
+      const tw1 = world.clock.wardenT(2);
+      const checkMind = { async consider() { return { intent: "check", choice: "CHECK_LOCK" } as WardenProposal; } };
+      await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 2, t: tw1, context: buildWardenContext(world, wardenPlan, tw1), mind: checkMind, tracker: newSilenceTracker() });
+
+      const tw2 = world.clock.wardenT(3);
+      const serviceMind = { async consider() { return { intent: "service", choice: "SERVICE_LOCK" } as WardenProposal; } };
+      await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 3, t: tw2, context: buildWardenContext(world, wardenPlan, tw2), mind: serviceMind, tracker: newSilenceTracker() });
+
+      // Prisoner SHIM again -- refused (stale belief).
+      const t2 = world.clock.prisonerT(4);
+      const half4 = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 4, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: shimMind, tracker: newSilenceTracker() });
+      expect(half4.result.kind).toBe("refused");
+      noteWitsEvent(summary, world.gameId, half4, 4);
+
+      // Warden WAITs.
+      const tw3 = world.clock.wardenT(5);
+      const waitMind = { async consider() { return { intent: "wait", choice: "WAIT" } as WardenProposal; } };
+      await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 5, t: tw3, context: buildWardenContext(world, wardenPlan, tw3), mind: waitMind, tracker: newSilenceTracker() });
+
+      // Prisoner PIVOTS: INSPECT instead of SHIM again.
+      const t3 = world.clock.prisonerT(5);
+      const inspectMind = { async consider() { return { intent: "inspect", choice: "INSPECT" } as PrisonerProposal; } };
+      await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 5, t: t3, context: buildPrisonerContext(world, prisonerPlan, t3), mind: inspectMind, tracker: newSilenceTracker() });
+
+      const rendered = renderWitsSummary(summary, world.gameId).join("\n");
+      expect(rendered.toLowerCase()).toContain("pivot");
+      expect(rendered).toContain("INSPECT");
+    });
+
+    it("reports a REPEAT when the refused principal's next move is the same as the refused move", async () => {
+      fresh();
+      const summary = newWitsSummary();
+
+      const t1 = world.clock.prisonerT(1);
+      const shimMind = { async consider() { return { intent: "shim", choice: "SHIM" } as PrisonerProposal; } };
+      await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: t1, context: buildPrisonerContext(world, prisonerPlan, t1), mind: shimMind, tracker: newSilenceTracker() });
+
+      const tw1 = world.clock.wardenT(2);
+      const checkMind = { async consider() { return { intent: "check", choice: "CHECK_LOCK" } as WardenProposal; } };
+      await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 2, t: tw1, context: buildWardenContext(world, wardenPlan, tw1), mind: checkMind, tracker: newSilenceTracker() });
+
+      const tw2 = world.clock.wardenT(3);
+      const serviceMind = { async consider() { return { intent: "service", choice: "SERVICE_LOCK" } as WardenProposal; } };
+      await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 3, t: tw2, context: buildWardenContext(world, wardenPlan, tw2), mind: serviceMind, tracker: newSilenceTracker() });
+
+      const t2 = world.clock.prisonerT(4);
+      const half4 = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 4, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: shimMind, tracker: newSilenceTracker() });
+      expect(half4.result.kind).toBe("refused");
+      noteWitsEvent(summary, world.gameId, half4, 4);
+
+      const tw3 = world.clock.wardenT(5);
+      const waitMind = { async consider() { return { intent: "wait", choice: "WAIT" } as WardenProposal; } };
+      await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 5, t: tw3, context: buildWardenContext(world, wardenPlan, tw3), mind: waitMind, tracker: newSilenceTracker() });
+
+      // Prisoner REPEATS: SHIM again, now with an accurate belief.
+      const t3 = world.clock.prisonerT(5);
+      const half5 = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 5, t: t3, context: buildPrisonerContext(world, prisonerPlan, t3), mind: shimMind, tracker: newSilenceTracker() });
+      expect(half5.result.kind).toBe("resolved");
+
+      const rendered = renderWitsSummary(summary, world.gameId).join("\n");
+      expect(rendered.toLowerCase()).toContain("repeat");
+    });
+
+    it("reports no further move when the refusal was the refused principal's last logged half-round", () => {
+      fresh();
+      const summary = newWitsSummary();
+      const error = new ResolveProtocolError("unknown-mechanic", "no mechanic named 'NOPE'");
+      const half = {
+        principal: "prisoner" as const,
+        t: 1,
+        context: { principalId: "p", identity: "i", motive: "m", briefing: "b", moves: [] },
+        result: { kind: "refused" as const, proposal: { intent: "x", choice: "NOPE" }, error },
+      };
+      noteWitsEvent(summary, "game-1-no-further-move", half, 1);
+      const rendered = renderWitsSummary(summary, "game-1-no-further-move").join("\n");
+      expect(rendered.toLowerCase()).toContain("no further move");
+    });
   });
 });

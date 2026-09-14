@@ -233,36 +233,30 @@ async function main(): Promise<void> {
   const resolver = buildResolver(world);
   seedInitialBeliefs(world);
 
-  // Short OPENING plans only (this task's brief: "authored plans are only
-  // starting intentions; give the warden standing orders plus a short
-  // opening plan") -- both minds can extend/replace the rest via their own
-  // `plan` proposal field (`src/ledger/ledger.ts`'s `revisePlan`) as the
-  // game actually unfolds, over up to ROUNDS rounds. Bare move names as
-  // descriptions (coordinator's fix, item 5: "plan display polish"), so an
-  // authored step and a revised one render identically -- "1. OBSERVE
-  // (done)", "2. SEARCH (next)" -- never a prose/bare-name mismatch.
+  // Mind-owned opening plans (coordinator's fix, finding (a): the authored
+  // opening plan -- hone, file, file, file, conceal -- steered EVERY
+  // prisoner onto the loud FILE path before it ever got a turn to decide
+  // anything, which is also why no refusal could occur: a mind that never
+  // reaches a genuine decision point never has a stale belief of its own to
+  // collide with). A single NEUTRAL first step each -- INSPECT for the
+  // prisoner, OBSERVE for the warden, both already the least committal move
+  // either side has (no state change, no suspicion). Both minds already
+  // revise their own plan every turn (`proposal.plan`, `src/ledger/
+  // ledger.ts`'s `revisePlan`); the route from here -- when to file, when to
+  // shim, when to search -- is now entirely theirs, chosen from motive, the
+  // stated rules, and their own persisted notes, never authored content
+  // steering them onto one path.
   const prisonerPlan = authorPlan({
     gameId: world.gameId,
     characterId: world.prisonerId,
     t: world.clock.t0,
-    steps: [
-      { move: "HONE", description: "HONE" },
-      { move: "FILE", description: "FILE" },
-      { move: "FILE", description: "FILE" },
-    ],
+    steps: [{ move: "INSPECT", description: "INSPECT" }],
   });
   const wardenPlan = authorPlan({
     gameId: world.gameId,
     characterId: world.wardenId,
     t: world.clock.t0,
-    steps: [
-      // Standing orders: watch by default; the warden's own plan revision
-      // is how it escalates to SEARCH/ROTATE_GUARD once suspicion warrants
-      // it.
-      { move: "OBSERVE", description: "OBSERVE" },
-      { move: "OBSERVE", description: "OBSERVE" },
-      { move: "ROTATE_GUARD", description: "ROTATE_GUARD" },
-    ],
+    steps: [{ move: "OBSERVE", description: "OBSERVE" }],
   });
 
   const wardenTracker = newSilenceTracker();
@@ -425,7 +419,7 @@ async function main(): Promise<void> {
   // (`witsSummary.ts`).
   transcript.push("### Wits summary");
   transcript.push("");
-  transcript.push(...renderWitsSummary(wits));
+  transcript.push(...renderWitsSummary(wits, world.gameId));
   transcript.push("");
   transcript.push("### Model call timings");
   transcript.push("");

@@ -7,6 +7,7 @@ import {
   type Contradiction,
   type Expectation,
 } from "run-dmcp";
+import { EXPECTS_RESOURCE_FOR_MOVE } from "./beliefs.js";
 
 /**
  * The attempt ledger (design §4.4) -- plan memory as this repository's own,
@@ -231,6 +232,22 @@ export function causeAtT(gameId: string, t: number): RoundLogRow | null {
   return row ?? null;
 }
 
+/**
+ * This SAME principal's own NEXT logged half-round after `afterT` -- "derive
+ * it from the round log only" (coordinator's fix, item 4): whether a
+ * refused principal's very next move pivoted away from the refused one or
+ * repeated it. `round_log` is logged for EVERY half-round (silent, refused,
+ * or resolved -- `loop.ts`'s `runHalfRound`), so this is always truly the
+ * next thing that principal did, never a stale skip-ahead. `null` when
+ * there is none (the refusal was this principal's last logged half-round).
+ */
+export function nextRoundLogEntryFor(gameId: string, principal: "warden" | "prisoner", afterT: number): RoundLogRow | null {
+  const row = getDatabase()
+    .prepare(`SELECT t, round_n, principal, mechanic, description FROM round_log WHERE game_id = ? AND principal = ? AND t > ? ORDER BY t ASC LIMIT 1`)
+    .get(gameId, principal, afterT) as RoundLogRow | undefined;
+  return row ?? null;
+}
+
 export type AttemptOutcome = "done" | "active" | "failed";
 
 interface RecordAttemptParams {
@@ -409,6 +426,56 @@ export function planAsOfT(planId: string, t: number): PlanStepRow[] {
   return result;
 }
 
+/**
+ * The positive "what got refused and why" clause shared by `renderAttempt`'s
+ * own failed-attempt line AND `recentRefusalNote`'s prominent briefing line
+ * (coordinator's fix, item 3) -- one parsing of the stored evidence, never
+ * two. `key` is the contradicted fact's own DB column ("value" for every
+ * A.2 resource, "cut" for the bar's irreversible flag); when it is "value",
+ * this turns it into a friendly resource name via `EXPECTS_RESOURCE_FOR_MOVE`
+ * (the SAME table `beliefExpectation` itself reads to build that move's own
+ * `expects` -- never a second, redeclared mapping), because a "value"-keyed
+ * contradiction against move M is, by construction, about the one resource
+ * `beliefExpectation` would have expected on for M. A non-"value" key (e.g.
+ * "cut", from a `ConstraintViolationError`) is left exactly as the engine
+ * named it -- this table has no opinion about anything but the four belief-
+ * gated resource moves. "the world refused it" when the evidence carries no
+ * usable fact detail at all (defensive; not expected from a real refusal).
+ */
+function refusalFactLine(gameId: string, row: AttemptRow): string {
+  const evidence = row.evidence ? (JSON.parse(row.evidence) as unknown) : null;
+  let key: string | null = null;
+  let value: string | null = null;
+  let validFromT: number | null = null;
+
+  if (Array.isArray(evidence) && evidence.length > 0) {
+    const contradiction = evidence[0] as Contradiction;
+    key = contradiction.fact.key;
+    value = contradiction.fact.value;
+    validFromT = contradiction.fact.validFromT;
+  } else if (evidence && typeof evidence === "object" && "contradictedFact" in evidence) {
+    const withFact = evidence as { contradictedFact: { key: string; value: string; validFromT: number } | null };
+    if (withFact.contradictedFact) {
+      key = withFact.contradictedFact.key;
+      value = withFact.contradictedFact.value;
+      validFromT = withFact.contradictedFact.validFromT;
+    }
+  }
+
+  if (key === null || value === null || validFromT === null) return "the world refused it";
+
+  const cause = causeAtT(gameId, validFromT);
+  const attribution = cause
+    ? `set by the ${cause.principal}'s ${cause.mechanic} in round ${cause.round_n}` +
+      (cause.description ? ` -- ${cause.description}` : "")
+    : "cause unknown";
+  const label = key === "value" ? (EXPECTS_RESOURCE_FOR_MOVE[row.move]?.replace(/_/g, " ") ?? key) : key;
+  // A.2 resources are stored numeric ("100.0"); rendered as a whole number
+  // when it is one -- positive, readable prose, never the storage format.
+  const displayValue = value.endsWith(".0") ? value.slice(0, -2) : value;
+  return `${label} was ${displayValue}, ${attribution}`;
+}
+
 /** Renders one attempt's row into one line of positive prose (design
  *  §4.4's examples), for `briefing`. Never "no longer"/"not"/"failed
  *  to" -- literal tokens this module would have had to write itself to
@@ -430,37 +497,26 @@ function renderAttempt(gameId: string, row: AttemptRow): string {
     return row.note ? `${base} ${row.note}` : base;
   }
 
-  const evidence = row.evidence ? (JSON.parse(row.evidence) as unknown) : null;
-  let factLine = "the world refused it";
-  let key: string | null = null;
-  let value: string | null = null;
-  let validFromT: number | null = null;
-
-  if (Array.isArray(evidence) && evidence.length > 0) {
-    const contradiction = evidence[0] as Contradiction;
-    key = contradiction.fact.key;
-    value = contradiction.fact.value;
-    validFromT = contradiction.fact.validFromT;
-  } else if (evidence && typeof evidence === "object" && "contradictedFact" in evidence) {
-    const withFact = evidence as { contradictedFact: { key: string; value: string; validFromT: number } | null };
-    if (withFact.contradictedFact) {
-      key = withFact.contradictedFact.key;
-      value = withFact.contradictedFact.value;
-      validFromT = withFact.contradictedFact.validFromT;
-    }
-  }
-
-  if (key !== null && value !== null && validFromT !== null) {
-    const cause = causeAtT(gameId, validFromT);
-    const attribution = cause
-      ? `set by the ${cause.principal}'s ${cause.mechanic} in round ${cause.round_n}` +
-        (cause.description ? ` -- ${cause.description}` : "")
-      : "cause unknown";
-    factLine = `${key} was ${value}, ${attribution}`;
-  }
-
-  const base = `Round ${roundLabel}: ${row.move} was refused -- ${factLine}.`;
+  const base = `Round ${roundLabel}: ${row.move} was refused -- ${refusalFactLine(gameId, row)}.`;
   return row.note ? `${base} ${row.note}` : base;
+}
+
+/**
+ * "Refusals are news to the refused side" (coordinator's fix, item 3): the
+ * exact positive sentence for the TOP of that same principal's very NEXT
+ * briefing -- `null` unless this plan's most recent attempt was a refusal
+ * AND it happened in the round immediately before `roundN` (never older
+ * news repeated forever, and never news from a round this principal has not
+ * reached yet). The permanent record stays exactly where it always was,
+ * unchanged, in `renderLedger`'s own round-by-round history -- this is a
+ * second, prominent rendering of the SAME evidence via the SAME
+ * `refusalFactLine`, not a replacement for it.
+ */
+export function recentRefusalNote(gameId: string, planId: string, roundN: number): string | null {
+  const attempts = attemptsFor(planId);
+  const last = attempts[attempts.length - 1];
+  if (!last || last.outcome !== "failed" || last.round_n !== roundN - 1) return null;
+  return `Last round your ${last.move} was refused: ${refusalFactLine(gameId, last)}.`;
 }
 
 /** One authored plan step, rendered positively with its own status marked
