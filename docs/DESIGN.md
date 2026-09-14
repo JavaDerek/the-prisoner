@@ -938,6 +938,66 @@ balance tests (`src/__tests__/balance.test.ts`) exercise directly.
 
 ---
 
+## Revision 2026-09-14 — the plan-revision loop, and other real-run findings
+
+All four real runs under the 2026-09-13 revision degenerated into a single move repeated for all 12
+rounds (the prisoner HONE-ing forever, the warden SERVICE_LOCK-ing an already-full lock forever). The
+cause was a bug in plan revision, not in the rules the previous revision changed. Diagnosed from the
+transcripts and fixed here, test-first, with no real runs while `mind-seam@0.3.0` was being built.
+
+**The bug.** A mind's proposal carried `choice` (this turn's move) AND a separate `plan` describing
+its whole intended sequence, current move included (e.g. `choice: "HONE"`, `plan: ["HONE", "FILE",
+"FILE", "CONCEAL"]`). `loop.ts` applied that whole `plan` array as the new PENDING steps, unconditionally,
+every round. So the step that had just been completed (`HONE`) was immediately re-inserted as a fresh
+pending step, and `recordSuccess`'s own "advance to the next pending step on completion" logic promptly
+made it active again. An honest mind, reading a briefing that genuinely said `HONE` was still its
+current step, had no reason to say anything else — the loop was the system's, not the model's.
+
+**The fix — one array, first entry is this turn.** There is no more separate `choice` field on the
+wire. A mind sends exactly one JSON array, `plan`: 1–6 move names, `plan[0]` being this turn's move and
+`plan[1..]` the moves it now intends afterward. `coercePrisonerProposal`/`coerceWardenProposal` derive
+`choice = plan[0]` (kept on the `PrisonerProposal`/`WardenProposal` TYPE only, for `loop.ts` and the
+conformance harnesses, which still address "the move to resolve" as `choice`; it is never sent or read
+separately). Matching is by exact equality after ASCII-uppercasing each entry — a literal, deterministic
+transformation of this repository's own enumerated tokens, not a fuzzy or meaning-based match (root
+CLAUDE.md hard rule 4): `"hone"` normalizes to `"HONE"` and matches; `"fil"` and `"FILE "` (trailing
+space survives uppercasing) do not. `plan[0]` missing or invalid after normalization is the whole
+proposal rejected (silence, reason `"rejected"`); a later entry that fails to normalize TRUNCATES the
+plan there, keeping `plan[0]` and everything valid before it; at most 6 entries are ever read.
+
+**Revision semantics.** `loop.ts`'s `planNoteFor` now revises the plan's remaining steps to
+`plan.slice(1)` alone — `plan[0]` is NEVER re-inserted as a pending step, which is the structural fix.
+A revision is recorded in the ledger (a "Revised plan: ..." note, and the DB write itself) ONLY when
+`plan.slice(1)` actually differs from `pendingMoves(plan.id)`; an unchanged plan produces neither. The
+briefing's own plan section (`renderPlan`) now shows only the CURRENT step (marked) and everything still
+ahead of it, plus AT MOST the single step immediately before it (done or failed) — never the accumulating
+full history a plan revised every round used to produce (a dozen lines of "Revised: HONE (completed)").
+The round-by-round history stays exactly where it always was: `renderLedger`, over `attempts`.
+
+**Own-move feedback.** Every ledger line for a principal's own move now states what it changed,
+positively: `"bar integrity 85 -> 70"`. A `mode: "set"` write to the SAME value still produces a
+transition in the outcome (`previousValue === newValue`) — that IS how a no-op is detected, named by
+its own unchanged value, e.g. `"the lock was already at integrity 100"` — never phrased as an absence
+(`src/world/revelations.ts`'s `describeResourceChange`/`describeResourceNoOp`, wired in by `loop.ts`'s
+`ownMoveFeedback`). Scoped to the six resource-moving mechanics (`FILE`, `SHIM`, `HONE`, `REPLACE_BAR`,
+`SERVICE_LOCK`, `ROTATE_GUARD`) plus `CONCEAL`'s flag; `INSPECT`/`OBSERVE` already have their own
+revelation text, and `WAIT`/`ESCAPE`/`SEARCH` either never change anything or already describe
+themselves.
+
+**Grounds, stated positively.** The warden's briefing now says `"You have grounds to search: suspicion
+45."` once `warden_suspicion` (its own, always-known number) reaches `SEARCH_SUSPICION_THRESHOLD`
+(40) — derived straight from that live number in `briefing.ts`, never from prose. Below the threshold,
+nothing is said at all.
+
+**Tests added**, per this revision's own brief: a mind that re-sends its whole intended sequence every
+round (echoing back the current step plus whatever remains pending, exactly the shape that looped
+before the fix) advances through all four steps of a plan without repeating any
+(`src/__tests__/loop.test.ts`, item 5(a)); `{"plan":["hone","FILE"]}` yields `choice: "HONE"`
+(`prisonerMind.test.ts`, item 5(b)); a proposal with no `plan` at all is rejected
+(item 5(c)); a no-op ledger line names the value that made it one (`loop.test.ts`, item 5(d)).
+
+---
+
 ## Appendix B — points for The Prisoner's own `CLAUDE.md`
 
 - What this is, in two sentences, and that `docs/DESIGN.md` is the authority.

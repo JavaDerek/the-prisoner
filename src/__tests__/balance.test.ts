@@ -5,7 +5,12 @@
 // directly (never through a principal's own belief/briefing) -- legitimate
 // for a test harness proving the MECHANICS are balanced, as distinct from
 // the production minds (`prisonerMind.ts`/`wardenMind.ts`), which never see
-// anything but their own context.
+// anything but their own context. These scripted minds also set `choice`
+// directly and never `plan` -- they implement `Mind` and hand `runHalfRound`
+// a `Proposal` object straight, bypassing `coercePrisonerProposal`/
+// `coerceWardenProposal` entirely (which is where the real wire's
+// `plan[0] -> choice` derivation, coordinator's fix, lives), so there is
+// nothing here for that schema change to affect.
 import { describe, it, expect, afterEach } from "vitest";
 import type { Mind } from "mind-seam";
 import { getResource, type Resolver } from "run-dmcp";
