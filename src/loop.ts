@@ -259,7 +259,13 @@ function revelationFor(principal: Principal, move: string, outcome: Outcome): st
  * "Record a revision in the ledger ONLY when it differs from the current
  * remaining steps" (item 2): compared against `pendingMoves(plan.id)`
  * before touching the database at all, so an unchanged plan produces
- * neither a DB write nor a repeated "Revised plan: ..." note every round.
+ * neither a DB write nor a repeated "Plan now: ..." note every round.
+ *
+ * Coordinator's fix, item 5 ("ledger wording"): the note states what the
+ * plan NOW is, positively -- never "this move is now the last planned
+ * step" (awkward, and it announces an absence by a roundabout route). An
+ * empty remaining plan is a genuine, positive fact too: there is a decision
+ * still to make, next turn.
  */
 function planNoteFor(plan: Plan, proposedPlan: readonly string[] | undefined): { note?: string; remaining?: readonly string[] } {
   if (!proposedPlan) return {};
@@ -269,10 +275,7 @@ function planNoteFor(plan: Plan, proposedPlan: readonly string[] | undefined): {
   if (unchanged) return {};
 
   revisePlan({ plan, moves: remaining });
-  const note =
-    remaining.length > 0
-      ? `Revised plan: ${remaining.join(" -> ")}.`
-      : "Revised plan: this move is now the last planned step.";
+  const note = remaining.length > 0 ? `Plan now: ${remaining.join(" -> ")}.` : "Plan now: to be decided next turn.";
   return { note, remaining };
 }
 

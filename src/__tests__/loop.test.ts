@@ -394,3 +394,51 @@ describe("coordinator's fix, item 1 -- own outcomes update own beliefs (never co
     expect(second.result.kind).toBe("resolved");
   });
 });
+
+describe("coordinator's fix, item 5 -- ledger wording states the plan positively, never 'this move is now the last planned step'", () => {
+  let world: World;
+  let resolver: ReturnType<typeof buildResolver>;
+  let plan: Plan;
+
+  function fresh(): void {
+    createTestDb();
+    world = buildWorld();
+    resolver = buildResolver(world);
+    plan = authorPlan({
+      gameId: world.gameId,
+      characterId: world.prisonerId,
+      t: world.clock.t0,
+      steps: [
+        { move: "HONE", description: "hone" },
+        { move: "FILE", description: "file" },
+      ],
+    });
+  }
+
+  afterEach(() => {
+    destroyTestDb();
+  });
+
+  it("a plan revision that empties the remaining steps (previously FILE) is worded positively", async () => {
+    fresh();
+    const mind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "hone, nothing planned after", choice: "HONE", plan: ["HONE"] });
+    const t = world.clock.prisonerT(1);
+    await runHalfRound({ world, resolver, plan, principal: "prisoner", roundN: 1, t, context: buildPrisonerContext(world, plan, t), mind, tracker: newSilenceTracker() });
+
+    const rendered = renderLedger(world.gameId, plan);
+    expect(rendered).toContain("Plan now: to be decided next turn.");
+    expect(rendered).not.toContain("this move is now the last planned step");
+  });
+
+  it("a plan revision that leaves steps remaining names them, positively", async () => {
+    fresh();
+    // The authored plan's own remaining step is FILE; this mind revises to
+    // CONCEAL instead -- a genuine change, worth a note.
+    const mind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "hone, then conceal", choice: "HONE", plan: ["HONE", "CONCEAL"] });
+    const t = world.clock.prisonerT(1);
+    await runHalfRound({ world, resolver, plan, principal: "prisoner", roundN: 1, t, context: buildPrisonerContext(world, plan, t), mind, tracker: newSilenceTracker() });
+
+    const rendered = renderLedger(world.gameId, plan);
+    expect(rendered).toContain("Plan now: CONCEAL.");
+  });
+});
