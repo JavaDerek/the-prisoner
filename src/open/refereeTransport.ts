@@ -94,7 +94,9 @@ function buildPrompt(request: ReadRequest): string {
       '"citation": {"sourceId": string, "quote": string}}, ...].',
     '"sourceId" is a source\'s label exactly as written above, such as "intent" -- no brackets, nothing added.',
     '"quote" is copied from that source character for character: the same capital letters and punctuation, ' +
-      'one unbroken span, never shortened with "...", never paraphrased, and never empty.',
+      'one unbroken span, never shortened with "...", never paraphrased, and never empty. A span taken from the ' +
+      "middle of a sentence keeps its small first letter and gains no full stop: if the source reads \"and the " +
+      "springs are held\", the quote is \"the springs are held\", never \"The springs are held.\".",
   ].join("\n");
 }
 

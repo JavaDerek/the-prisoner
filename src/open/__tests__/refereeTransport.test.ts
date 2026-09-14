@@ -152,6 +152,13 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       expect(await promptFor(REQUEST)).not.toContain("EARLIER RULINGS");
     });
 
+    it("a span from the middle of a sentence keeps its small first letter and gains no full stop (issue #4, step 5: the derive grounding rejected in game 1)", async () => {
+      const prompt = await promptFor(RICH);
+      expect(prompt).toMatch(/middle of a sentence/i);
+      expect(prompt).toMatch(/small first letter|lowercase/i);
+      expect(prompt).toMatch(/full stop/i);
+    });
+
     it("demands exact copies: capital letters and punctuation kept, no '...', never empty", async () => {
       const prompt = await promptFor(RICH);
       expect(prompt).toMatch(/capital letters/i);
