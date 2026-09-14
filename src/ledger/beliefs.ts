@@ -59,8 +59,19 @@ export function getBelief(gameId: string, principal: Principal, resource: string
   return row ? { value: row.value, asOfRound: row.as_of_round } : null;
 }
 
-/** Positive prose, with when it was learned -- e.g. "bar integrity: 85 (as
- *  of round 3)." `null` when there is nothing to render (never a guess). */
+/**
+ * Positive prose, with when it was learned -- e.g. "bar integrity: 85 (as
+ * of round 3)." `null` when there is nothing to render (never a guess).
+ *
+ * Coordinator's fix, item 4 ("beliefs that drift show their age honestly"):
+ * this function deliberately computes NOTHING beyond what was actually
+ * learned -- no projected/decayed value for `guard_attention` even though
+ * both prompts now state the exact decay rule (`TIME_DECAY_RULE`,
+ * mechanics.ts). The mind has the rule; reasoning from a stale number and a
+ * known rate to "what it probably is now" is the mind's own job, not this
+ * repository's -- adding that projection here would be a second, unaudited
+ * guess sitting next to the belief store's one honest one.
+ */
 export function renderBeliefLine(label: string, belief: Belief | null): string | null {
   if (!belief) return null;
   return `${label}: ${belief.value} (as of round ${belief.asOfRound}).`;
