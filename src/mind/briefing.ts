@@ -2,6 +2,7 @@ import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
 import { renderLedger, type Plan } from "../ledger/ledger.js";
 import { PRISONER_MOVES, WARDEN_MOVES } from "../world/mechanics.js";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
 import type { WardenContext } from "./wardenMind.js";
 
@@ -36,8 +37,8 @@ export function buildBriefing(world: World, characterId: string, t: number, plan
 export function buildPrisonerContext(world: World, plan: Plan, t: number): PrisonerContext {
   return {
     principalId: world.prisonerId,
-    identity: "the prisoner in this cell, counting the days",
-    motive: "to escape, without the warden noticing until it is too late",
+    identity: PRISONER_IDENTITY,
+    motive: PRISONER_MOTIVE,
     briefing: buildBriefing(world, world.prisonerId, t, plan),
     moves: PRISONER_MOVES,
   };
@@ -46,8 +47,8 @@ export function buildPrisonerContext(world: World, plan: Plan, t: number): Priso
 export function buildWardenContext(world: World, plan: Plan, t: number): WardenContext {
   return {
     principalId: world.wardenId,
-    identity: "the warden responsible for this cell",
-    motive: "to keep the prisoner secure and catch any attempt to escape",
+    identity: WARDEN_IDENTITY,
+    motive: WARDEN_MOTIVE,
     briefing: buildBriefing(world, world.wardenId, t, plan),
     moves: WARDEN_MOVES,
   };
