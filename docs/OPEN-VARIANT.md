@@ -520,3 +520,22 @@ Three generic effects join §4.2, each needing both citations like every other:
 The escape rule becomes physical: *Voss escapes the moment she is out of the cell, however she gets
 out.* The cell's ways out are named as the door and the window. The integrity threshold for escape is
 removed from both prompts.
+
+### 12.5 First games with physical escape
+
+Transcripts: `checkpoints/2026-09-14T20-56-01-836Z.md`, `checkpoints/2026-09-14T21-06-26-366Z.md`
+(same models, precedent with consequence on, the §11.4 referee prompt fix in place).
+
+- **The grind ended.** Game 1 spread across the tile, the spoon's edge, the bolt in the door gap, the
+  keyhole and the bar. Game 2 never touched the bar or the lock at all.
+- **First novelty in a real game:** game 2 cut the cot's spring wire to get a usable length (rounds 4
+  and 7), grounded on *"the springs are held to the frame by twists of wire"*. §5.3 item 2 asks for
+  this in two games; it has one.
+- **Neither game opened a way out or tried to leave.** Game 1's closest attempt, *"push or scrape the
+  visible bolt in the lock's gap, attempting to dislodge or manipulate it"*, was ruled `wear` on the
+  lock, not `open`: the referee followed "scrape".
+- **The minds are reaching past O1's world.** The wire is wanted *as a tool*, and the tile's hollow
+  was dug into four times for "hidden objects or materials" -- both are `derive` (§7, O3): making a
+  new thing from parts, which O1 cannot resolve, so it registers as wear on the cot or as impossible.
+- **The referee fix held.** Warden examinations were ruled possible 13 of 16 times (1 of 16 before
+  it), with cited magnitudes and perceptibility.
