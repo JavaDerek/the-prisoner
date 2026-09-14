@@ -100,7 +100,12 @@ function ownerOf(
  */
 function relevantFactKeysFor(world: World, entityId: string): readonly string[] {
   if (entityId === world.barId) return ["cut"];
-  if (entityId === world.looseTileId) return ["concealed"];
+  // REVISION (this task's brief): CONCEAL now hides the SPOON, not the
+  // loose tile (`world/mechanics.ts`'s `CONCEAL`) -- so `concealed` is
+  // meaningful for the spoon's own entity, and the loose tile carries no
+  // meaningful fact key at all (it still appears, via the item-6 bare-name
+  // fallback below).
+  if (entityId === world.spoonId) return ["concealed"];
   return [];
 }
 
@@ -166,6 +171,16 @@ export function viewFor(world: World, characterId: string, t: number): View {
     });
   }
 
+  // REVISION (this task's brief, "belief, not truth, in briefings"): a
+  // principal's view exposes ONLY the resource it owns and therefore always
+  // knows directly -- `spoon_edge` for the prisoner, `warden_suspicion` for
+  // the warden. The three SHARED/other-owned resources (`bar_integrity`,
+  // `lock_integrity`, `guard_attention`) are no longer read here as live
+  // truth: they were, before this revision, visible to BOTH principals every
+  // turn regardless of what either had actually learned, which is exactly
+  // the "no hidden information" bug this revision fixes. `briefing.ts` now
+  // renders those three from each principal's own BELIEF
+  // (`src/ledger/beliefs.ts`), never from this function.
   const resourceEntries: [string, string][] = [
     ["bar_integrity", world.resources.barIntegrity],
     ["lock_integrity", world.resources.lockIntegrity],
@@ -176,7 +191,7 @@ export function viewFor(world: World, characterId: string, t: number): View {
   const resources: Record<string, number> = {};
   for (const [name, resourceId] of resourceEntries) {
     const { ownerId } = ownerOf(snapshot, resourceId);
-    const visible = ownerId === world.cellId || ownerId === characterId;
+    const visible = ownerId === characterId;
     if (!visible) continue;
     const valueFact = snapshot.entities.find((e) => e.id === resourceId)?.facts.value;
     if (valueFact) {

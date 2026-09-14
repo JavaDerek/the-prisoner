@@ -859,6 +859,85 @@ Five fields to brink's four, one of them an array; a three-field proposal to bri
 
 ---
 
+## Revision 2026-09-13 — a battle of wits, not two scripts
+
+The first checkpoint runs (`checkpoints/2026-09-14T04-19-51-130Z.md`, `…04-21-16-754Z.md`) worked end
+to end but were two rigid, fully-informed scripts running side by side, not two adversaries. This
+revision changes the rules so wits are required, without touching `run-dmcp` or `mind-seam`.
+
+**Belief, not truth, in briefings.** Each principal's numbers now come from what it KNOWS, never from
+live world state: `viewFor()` (§5.1) exposes only the resource a principal owns directly (`spoon_edge`
+for the prisoner, `warden_suspicion` for the warden); every other A.2 resource
+(`bar_integrity`/`lock_integrity`/`guard_attention`, plus `spoon_edge` for the warden) is rendered
+from a new belief store, `src/ledger/beliefs.ts` — one row per `(game, principal, resource)`, upserted,
+rendered positively with WHEN it was learned ("bar integrity: 85 (as of round 3)"). A principal's
+belief updates only from: (a) its own move's outcome, (b) its own information move, (c) the OTHER
+principal's VISIBLE act (only where the act reveals an exact, known value — `ROTATE_GUARD` to 80,
+`REPLACE_BAR` to 100; a heard scrape or rub reveals nothing numeric), or (d) a refusal, which reveals
+the contradicted truth. Both principals' beliefs of the three shared/cross resources are seeded once,
+at round 0, to the world's own known starting values (Appendix A.2's initial numbers) — the one place
+this store is seeded from truth rather than an update channel, because the scenario's start is common
+knowledge by construction.
+
+**Expectations come from belief, not from an authored plan step.** `FILE`/`SHIM`/`REPLACE_BAR`/
+`SERVICE_LOCK` now declare `expects` from the ACTING principal's own current belief
+(`beliefExpectation`, `src/ledger/beliefs.ts`) — never from `PlanStepSpec.expects` (design §4.4's
+`activeStepExpects` still exists, but only the seam conformance harness's synthetic scenario uses it
+now). No move ever declares an expectation on `guard_attention` (`expects` is equality-only and
+`guard_attention` drifts every round via time decay). This is what makes the resolve protocol's
+refusal reachable in real play: a principal whose belief has gone stale relative to the other side's
+covert or unlearned actions will have its own proposal refused, and the refusal is itself the
+mechanism that repairs the belief.
+
+**Visibility table, revised.** `SEEN_BY_OTHER_AS` (`src/world/mechanics.ts`) now marks `SHIM`,
+`CONCEAL`, `INSPECT`, `WAIT` and `SERVICE_LOCK` (now explicitly covert: "done outside the cell") as
+covert; `FILE`, `HONE`, `OBSERVE`, `ROTATE_GUARD`, `REPLACE_BAR`, `SEARCH` and a failed `ESCAPE` remain
+visible. A principal's own spoken `line` relays to the other side's very next briefing REGARDLESS of
+covertness (speech isn't itself hidden) — a real bug in the first checkpoint run suppressed a covert
+act's line entirely; fixed in `ledger.ts`'s `mostRecentVisibleActFor`, which also now never falls back
+to an older, stale act: `loop.ts`'s `runHalfRound` logs every half-round (silent, refused, or
+resolved), so "the most recent row" is always truly the most recent half-round.
+
+**Mechanics retuned, two new.** `CONCEAL` now conceals the SPOON (not the loose tile) under the tile;
+`HONE` un-conceals it. `FILE` removes 15 (25 if `spoon_edge >= 30`) and raises suspicion by 10; `SHIM`
+removes 20 and raises no suspicion (quiet); `HONE` raises suspicion by 5. `INSPECT` reveals true
+`lock_integrity`/`guard_attention` (never `bar_integrity`, which the prisoner already knows directly
+after its own `FILE`). `OBSERVE` causes no suspicion change; reveals true `spoon_edge` only if
+unconcealed, and the bar as a three-band positive description (intact ≥ 90 / worn 50–89 / badly worn
+< 50) — never an exact number, so it can never become a belief `expects` could rely on. New: `ESCAPE`
+(prisoner) succeeds when the bar is cut or the lock is at 0, AND `guard_attention < 50`; otherwise
+suspicion +30 and it is visible. New: `SEARCH` (warden) needs `warden_suspicion >= 40` or it changes
+nothing and says so positively; catches the prisoner if the bar is at/below 50, the lock at/below 40,
+or the spoon's edge is at/above 20 while unconcealed; otherwise a false alarm resets suspicion to 0.
+New, internal: `TIME_DECAY`, never offered to either mind, called once per full round by the loop —
+lowers `guard_attention` by 10, an audited resolution, not a direct write. The game ends at `escaped`
+or `caught` (flags on the cell entity, exactly like `cut`/`concealed`), or after `PRISONER_ROUNDS`
+rounds (default 12) — a timeout is a warden win.
+
+**Minds own their plans.** A proposal may carry an optional `plan`: up to 6 move names, validated by
+literal membership in `context.moves`, that replaces the plan's remaining PENDING steps
+(`revisePlan`, `src/ledger/ledger.ts`) — the currently active step is untouched. An invalid `plan`
+drops only that field, never the whole proposal. Authored plans are now short opening intentions (3
+steps each) rather than a full script for the whole game; the warden's opener is standing orders
+(watch, watch, rotate) it is expected to revise once it has grounds to search.
+
+**Prompt fixes.** `choice` is now REQUIRED in both `coercePrisonerProposal`/`coerceWardenProposal` — a
+missing or invalid choice is silence (`SilenceReason: "rejected"`), never a quiet no-op; `WAIT` is the
+explicit way to do nothing. Both prompts now state both names ("You are Mara Voss. The other person in
+the cell is Warden Croft.") and instruct "speak only as yourself" — a real transcript bug had the
+prisoner once speak to itself as "Voss". `PRISONER_NAME`/`WARDEN_NAME` (`src/scenario.ts`) are static
+content, imported directly by each `build*Prompt`, the same way `MOVE_DESCRIPTIONS` already was —
+never added as a context field, so Appendix A.5's five fields are unchanged.
+
+**Retuning note.** The original design's `warden_suspicion` bump values (5 for every prisoner move, 10
+for `OBSERVE`) made suspicion rise regardless of what the prisoner actually did, which is why item 4 of
+the reviewer's brief found `OBSERVE` inflating suspicion "regardless of what the prisoner did". Removing
+`OBSERVE`'s bump and `SHIM`'s bump, and asymmetrizing `FILE` (10) vs `HONE` (5), makes suspicion (and
+therefore `SEARCH`'s availability) a function of what the prisoner actually risked, which is what the
+balance tests (`src/__tests__/balance.test.ts`) exercise directly.
+
+---
+
 ## Appendix B — points for The Prisoner's own `CLAUDE.md`
 
 - What this is, in two sentences, and that `docs/DESIGN.md` is the authority.

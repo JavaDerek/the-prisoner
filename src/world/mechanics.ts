@@ -9,7 +9,7 @@ import {
   type Outcome,
 } from "run-dmcp";
 import type { World } from "./setup.js";
-import { numericFactFrom } from "./facts.js";
+import { numericFactFrom, readNumericFact } from "./facts.js";
 
 /**
  * The registered mechanics of design Appendix A.4, minus custody. Every
@@ -17,33 +17,22 @@ import { numericFactFrom } from "./facts.js";
  * hands it -- there is no database handle anywhere in `AdjudicationInput`,
  * so a mechanic cannot write outside the `changes` it returns) and returns
  * `IntendedWrite`s over the five bounded/resolve_only resources of
- * Appendix A.2, plus the two plain flag columns `schema.ts` added
- * (`cut`, `concealed`) -- all numeric, per this checkpoint's correction 3
- * (custody, and therefore SEARCH/CONFISCATE, is out; `IntendedChange` is
- * numeric-only until engine issue E3).
+ * Appendix A.2, plus the plain flag columns `schema.ts` added (`cut`,
+ * `concealed`, and the cell's `escaped`/`caught`) -- all numeric, per this
+ * checkpoint's correction 3 (custody, and therefore CONFISCATE, is out).
  *
- * WHAT IS DELIBERATELY NOT HERE, AND WHY: Appendix A.3's `knows_<key>` facts
- * ("a character that does not know has no fact" -- root CLAUDE.md hard rule
- * 3) cannot be written through this checkpoint's only write path.
- * `writeConstrainedValue` (`run-dmcp`'s `constrained.ts`, `readLiveValue`)
- * throws when the column it is about to write currently reads SQL NULL --
- * "the caller asked for a NUMBER, and an absent one is a caller error to
- * report, not a caller error to guess past." A fact that must start absent
- * and later receive its first value can therefore never be written by a
- * mechanic's `IntendedChange`: there is no first write. This is a genuine
- * engine finding (reported in this project's final report, not filed as a
- * run-dmcp issue per this task's hard stop on editing that tracker) rather
- * than something to route around with a second write path (hard rule 7).
- * `INSPECT`/`OBSERVE` below are still real, audited resolutions --
- * `resolve()` still records a `resolution.recorded` event for each -- but
- * what was learned travels as the mechanic's own `result`, which this
- * repository's attempt ledger (`src/ledger/`) already exists to keep and
- * render into a principal's `briefing`. No unaudited path was added; the
- * ledger is reused for a job the fact store cannot do here.
+ * REVISION (this task's brief, "a battle of wits, not two scripts"): the
+ * numbers below were retuned so both endings are reachable and neither is
+ * trivial (see `src/__tests__/balance.test.ts`), and two new mechanics
+ * (ESCAPE, SEARCH) and one internal one (TIME_DECAY) were added. Every
+ * numeric intent still goes through `resolve()`; adjudication still reads
+ * only `input.constraint`.
  */
 
 const CUT_KEY = "cut";
 const CONCEALED_KEY = "concealed";
+const ESCAPED_KEY = "escaped";
+const CAUGHT_KEY = "caught";
 
 function valueOf(input: AdjudicationInput, entityId: string, key: string): number {
   const value = numericFactFrom(input.constraint.mustHonor, entityId, key);
@@ -72,10 +61,10 @@ function setResource(entityId: string, key: string, value: number): IntendedWrit
   return { kind: "write", entityId, key, mode: "set", value: clampToResource(value), bounds: { minValue: 0, maxValue: 100 } };
 }
 
-/** An unbounded flag write (0/1) -- `cut`/`concealed` carry no declared
- *  `resolve_only`/`bounded` constraint (Appendix A's constraint family
- *  applies to A.2's five resources only; a plain item column has none), so
- *  no `bounds` object is passed -- there is nothing to clamp against. */
+/** An unbounded flag write (0/1) -- `cut`/`concealed`/`escaped`/`caught`
+ *  carry no declared `resolve_only`/`bounded` constraint (Appendix A's
+ *  constraint family applies to A.2's five resources only; a plain flag
+ *  column has none), so no `bounds` object is passed. */
 function writeFlag(entityId: string, key: string, value: 0 | 1): IntendedWrite {
   return { kind: "write", entityId, key, mode: "set", value };
 }
@@ -83,38 +72,59 @@ function writeFlag(entityId: string, key: string, value: 0 | 1): IntendedWrite {
 /**
  * Every mechanic's `description` optionally carries a caller-supplied note
  * (`Proposal.parameters.note`) appended verbatim. `parameters` is opaque to
- * the engine (`resolve.ts`'s own doc comment: "handed to the named mechanic
- * verbatim, never inspected here"), so this is ordinary use of that field,
- * not a second channel around it. It exists for one reason: the round log
- * this repository renders a contradiction's cause from
- * (`src/ledger/ledger.ts`, correction 2) carries a resolution's
- * `description`, and the conformance suite's check 4 (the fog property's
- * positive control) needs a plantable, per-test marker to prove a
- * contradiction's attribution reaches one principal's briefing and not the
- * other's -- see `src/mind/__tests__/seamConformance.*.test.ts`.
+ * the engine, so this is ordinary use of that field, not a second channel
+ * around it -- see `src/mind/__tests__/seamConformance.*.test.ts`.
  */
 function withNote(base: string, input: AdjudicationInput): string {
   const note = input.parameters?.note;
   return typeof note === "string" && note.length > 0 ? `${base} (${note})` : base;
 }
 
-/** Amount FILE removes from `bar_integrity` per attempt. */
+/** Amount FILE removes from `bar_integrity` per ordinary attempt. */
 export const FILE_AMOUNT = 15;
+/** Amount FILE removes when `spoon_edge` is sharp enough to help (design:
+ *  "-25 if spoon_edge >= 30"). */
+export const FILE_AMOUNT_SHARP = 25;
+/** `spoon_edge` at or above which FILE uses the sharper amount. */
+export const FILE_SHARP_THRESHOLD = 30;
 /** Amount SHIM removes from `lock_integrity` per attempt. */
 export const SHIM_AMOUNT = 20;
 /** Amount HONE adds to `spoon_edge` per attempt. */
 export const HONE_AMOUNT = 10;
-/** Amount most prisoner moves-with-consequence raise `warden_suspicion`. */
-export const SUSPICION_BUMP = 5;
-/** Amount OBSERVE raises `warden_suspicion`. */
-export const OBSERVE_SUSPICION_BUMP = 10;
-/** Amount WAIT lowers `warden_suspicion` and `guard_attention`. */
-export const WAIT_DECAY = 5;
+/** Amount FILE raises `warden_suspicion` by. */
+export const FILE_SUSPICION_BUMP = 10;
+/** Amount HONE raises `warden_suspicion` by. */
+export const HONE_SUSPICION_BUMP = 5;
 /** The level ROTATE_GUARD sets `guard_attention` to. */
 export const ROTATE_GUARD_LEVEL = 80;
+/** Amount time decay lowers `guard_attention` by, once per full round. */
+export const TIME_DECAY_AMOUNT = 10;
+/** Amount a failed ESCAPE raises `warden_suspicion` by. */
+export const FAILED_ESCAPE_SUSPICION_BUMP = 30;
+/** `warden_suspicion` at or above which SEARCH is permitted at all. */
+export const SEARCH_SUSPICION_THRESHOLD = 40;
+/** SEARCH catches the prisoner when `bar_integrity` is at or below this. */
+export const SEARCH_CATCH_BAR_MAX = 50;
+/** SEARCH catches the prisoner when `lock_integrity` is at or below this. */
+export const SEARCH_CATCH_LOCK_MAX = 40;
+/** SEARCH catches the prisoner when `spoon_edge` is at or above this AND the
+ *  spoon is not concealed. */
+export const SEARCH_CATCH_SPOON_MIN = 20;
+/** ESCAPE succeeds only when `guard_attention` is below this. */
+export const ESCAPE_GUARD_MAX = 50;
+
+/** A positive, three-band description of `bar_integrity` -- what OBSERVE
+ *  reveals about the bar (design: "the bar's integrity as a band"), never
+ *  the exact number, because OBSERVE cannot give the warden the precision a
+ *  belief-worthy `expects` would need. */
+export function barBand(barIntegrity: number): "intact" | "worn" | "badly worn" {
+  if (barIntegrity >= 90) return "intact";
+  if (barIntegrity >= 50) return "worn";
+  return "badly worn";
+}
 
 export function buildMechanics(world: World): Mechanic[] {
-  const { resources, barId, looseTileId } = world;
+  const { resources, barId, spoonId, cellId } = world;
 
   function suspicionBump(input: AdjudicationInput, amount: number): IntendedWrite {
     const current = valueOf(input, resources.wardenSuspicion, "value");
@@ -125,8 +135,10 @@ export function buildMechanics(world: World): Mechanic[] {
     name: "FILE",
     adjudicate(input: AdjudicationInput): Adjudication {
       const current = valueOf(input, resources.barIntegrity, "value");
-      const intended = current - FILE_AMOUNT;
-      const changes = [setResource(resources.barIntegrity, "value", intended), suspicionBump(input, SUSPICION_BUMP)];
+      const spoonEdge = valueOf(input, resources.spoonEdge, "value");
+      const amount = spoonEdge >= FILE_SHARP_THRESHOLD ? FILE_AMOUNT_SHARP : FILE_AMOUNT;
+      const intended = current - amount;
+      const changes = [setResource(resources.barIntegrity, "value", intended), suspicionBump(input, FILE_SUSPICION_BUMP)];
       if (intended <= 0) {
         changes.push(writeFlag(barId, CUT_KEY, 1));
       }
@@ -148,7 +160,9 @@ export function buildMechanics(world: World): Mechanic[] {
     adjudicate(input: AdjudicationInput): Adjudication {
       const current = valueOf(input, resources.lockIntegrity, "value");
       return {
-        changes: [setResource(resources.lockIntegrity, "value", current - SHIM_AMOUNT), suspicionBump(input, SUSPICION_BUMP)],
+        // Quiet: SHIM raises no suspicion (design: "warden_suspicion +0
+        // (quiet)").
+        changes: [setResource(resources.lockIntegrity, "value", current - SHIM_AMOUNT)],
         result: { mechanic: "SHIM", lockIntegrityBefore: current },
         description: withNote("The prisoner works a shim into the lock.", input),
       };
@@ -160,7 +174,13 @@ export function buildMechanics(world: World): Mechanic[] {
     adjudicate(input: AdjudicationInput): Adjudication {
       const current = valueOf(input, resources.spoonEdge, "value");
       return {
-        changes: [setResource(resources.spoonEdge, "value", current + HONE_AMOUNT), suspicionBump(input, SUSPICION_BUMP)],
+        // HONE un-conceals the spoon (design: "un-conceals the spoon") --
+        // you cannot hone what you cannot reach.
+        changes: [
+          setResource(resources.spoonEdge, "value", current + HONE_AMOUNT),
+          suspicionBump(input, HONE_SUSPICION_BUMP),
+          writeFlag(spoonId, CONCEALED_KEY, 0),
+        ],
         result: { mechanic: "HONE", spoonEdgeBefore: current },
         description: withNote("The prisoner hones the spoon's edge.", input),
       };
@@ -170,10 +190,14 @@ export function buildMechanics(world: World): Mechanic[] {
   const CONCEAL: Mechanic = {
     name: "CONCEAL",
     adjudicate(input: AdjudicationInput): Adjudication {
+      // Conceals the SPOON under the loose tile (design: "conceals the
+      // spoon under the loose tile") -- the loose tile is where it is
+      // hidden, but the fact that matters to OBSERVE/SEARCH is the spoon's
+      // own `concealed` state.
       return {
-        changes: [writeFlag(looseTileId, CONCEALED_KEY, 1)],
-        result: { mechanic: "CONCEAL", target: "the loose tile" },
-        description: withNote("The prisoner hides something under the loose tile.", input),
+        changes: [writeFlag(spoonId, CONCEALED_KEY, 1)],
+        result: { mechanic: "CONCEAL" },
+        description: withNote("The prisoner hides the spoon under the loose tile.", input),
       };
     },
   };
@@ -181,15 +205,41 @@ export function buildMechanics(world: World): Mechanic[] {
   const INSPECT: Mechanic = {
     name: "INSPECT",
     adjudicate(input: AdjudicationInput): Adjudication {
+      // Reveals true lock_integrity and guard_attention (design Appendix A.4)
+      // -- never bar_integrity, which the prisoner already knows directly
+      // after its own FILE.
       return {
         changes: [],
         result: {
           mechanic: "INSPECT",
-          barIntegrity: valueOf(input, resources.barIntegrity, "value"),
           lockIntegrity: valueOf(input, resources.lockIntegrity, "value"),
           guardAttention: valueOf(input, resources.guardAttention, "value"),
         },
         description: withNote("The prisoner inspects the cell closely.", input),
+      };
+    },
+  };
+
+  const ESCAPE: Mechanic = {
+    name: "ESCAPE",
+    adjudicate(input: AdjudicationInput): Adjudication {
+      const cut = valueOf(input, barId, CUT_KEY) === 1;
+      const lockIntegrity = valueOf(input, resources.lockIntegrity, "value");
+      const guardAttention = valueOf(input, resources.guardAttention, "value");
+      const opening = cut || lockIntegrity <= 0;
+      const success = opening && guardAttention < ESCAPE_GUARD_MAX;
+
+      if (success) {
+        return {
+          changes: [writeFlag(cellId, ESCAPED_KEY, 1)],
+          result: { mechanic: "ESCAPE", success: 1 },
+          description: withNote("The prisoner slips free of the cell. Escaped.", input),
+        };
+      }
+      return {
+        changes: [suspicionBump(input, FAILED_ESCAPE_SUSPICION_BUMP)],
+        result: { mechanic: "ESCAPE", success: 0 },
+        description: withNote("The prisoner tries to escape and is caught short -- still inside the cell.", input),
       };
     },
   };
@@ -230,107 +280,147 @@ export function buildMechanics(world: World): Mechanic[] {
   const OBSERVE: Mechanic = {
     name: "OBSERVE",
     adjudicate(input: AdjudicationInput): Adjudication {
+      // No suspicion change (design: "No suspicion change"). Reveals true
+      // spoon_edge only if the spoon is not concealed; always reveals the
+      // bar as a band, never an exact number.
+      const concealed = valueOf(input, spoonId, CONCEALED_KEY) === 1;
+      const bar = valueOf(input, resources.barIntegrity, "value");
+      const result: Record<string, unknown> = { mechanic: "OBSERVE", barBand: barBand(bar) };
+      if (!concealed) {
+        result.spoonEdge = valueOf(input, resources.spoonEdge, "value");
+      }
       return {
-        changes: [suspicionBump(input, OBSERVE_SUSPICION_BUMP)],
-        result: {
-          mechanic: "OBSERVE",
-          spoonEdge: valueOf(input, resources.spoonEdge, "value"),
-          bar: valueOf(input, resources.barIntegrity, "value"),
-        },
+        changes: [],
+        result,
         description: withNote("The warden observes the prisoner.", input),
       };
     },
   };
 
+  const SEARCH: Mechanic = {
+    name: "SEARCH",
+    adjudicate(input: AdjudicationInput): Adjudication {
+      const suspicion = valueOf(input, resources.wardenSuspicion, "value");
+      if (suspicion < SEARCH_SUSPICION_THRESHOLD) {
+        return {
+          changes: [],
+          result: { mechanic: "SEARCH", grounds: false },
+          description: withNote("The warden has no grounds to search yet.", input),
+        };
+      }
+
+      const bar = valueOf(input, resources.barIntegrity, "value");
+      const lock = valueOf(input, resources.lockIntegrity, "value");
+      const spoonEdge = valueOf(input, resources.spoonEdge, "value");
+      const concealed = valueOf(input, spoonId, CONCEALED_KEY) === 1;
+
+      const caught = bar <= SEARCH_CATCH_BAR_MAX || lock <= SEARCH_CATCH_LOCK_MAX || (spoonEdge >= SEARCH_CATCH_SPOON_MIN && !concealed);
+
+      if (caught) {
+        return {
+          changes: [writeFlag(cellId, CAUGHT_KEY, 1)],
+          result: { mechanic: "SEARCH", grounds: true, caught: 1, barIntegrity: bar, lockIntegrity: lock, spoonEdge },
+          description: withNote("The warden searches the cell and finds the evidence. Caught.", input),
+        };
+      }
+      return {
+        changes: [setResource(resources.wardenSuspicion, "value", 0)],
+        result: { mechanic: "SEARCH", grounds: true, caught: 0, barIntegrity: bar, lockIntegrity: lock, spoonEdge },
+        description: withNote("The warden searches the cell and finds nothing. A false alarm.", input),
+      };
+    },
+  };
+
   // Shared by both principals -- the engine dispatches by name and has no
-  // notion of who proposed a mechanic (design §6.1; the same reasoning
-  // run-dmcp's own resolveAdversarial.test.ts uses for its two proposers).
+  // notion of who proposed a mechanic (design §6.1).
   const WAIT: Mechanic = {
     name: "WAIT",
     adjudicate(input: AdjudicationInput): Adjudication {
-      const guard = valueOf(input, resources.guardAttention, "value");
-      const suspicion = valueOf(input, resources.wardenSuspicion, "value");
       return {
-        changes: [
-          setResource(resources.guardAttention, "value", guard - WAIT_DECAY),
-          setResource(resources.wardenSuspicion, "value", suspicion - WAIT_DECAY),
-        ],
+        changes: [],
         result: { mechanic: "WAIT" },
         description: withNote("Time passes.", input),
       };
     },
   };
 
-  return [FILE, SHIM, HONE, CONCEAL, INSPECT, REPLACE_BAR, SERVICE_LOCK, ROTATE_GUARD, OBSERVE, WAIT];
+  // Never offered to either mind (absent from PRISONER_MOVES/WARDEN_MOVES),
+  // but still a REGISTERED, resolve()-dispatched mechanic -- design: "an
+  // audited referee resolution, not a direct write." The loop calls this
+  // once per full round, regardless of what either principal did that
+  // round.
+  const TIME_DECAY: Mechanic = {
+    name: "TIME_DECAY",
+    adjudicate(input: AdjudicationInput): Adjudication {
+      const guard = valueOf(input, resources.guardAttention, "value");
+      return {
+        changes: [setResource(resources.guardAttention, "value", guard - TIME_DECAY_AMOUNT)],
+        result: { mechanic: "TIME_DECAY" },
+        description: "Time passes; the guard's attention wanes.",
+      };
+    },
+  };
+
+  return [FILE, SHIM, HONE, CONCEAL, INSPECT, ESCAPE, REPLACE_BAR, SERVICE_LOCK, ROTATE_GUARD, OBSERVE, SEARCH, WAIT, TIME_DECAY];
 }
 
-export const PRISONER_MOVES = ["FILE", "SHIM", "HONE", "CONCEAL", "INSPECT", "WAIT"] as const;
-export const WARDEN_MOVES = ["REPLACE_BAR", "SERVICE_LOCK", "ROTATE_GUARD", "OBSERVE", "WAIT"] as const;
+export const PRISONER_MOVES = ["FILE", "SHIM", "HONE", "CONCEAL", "INSPECT", "ESCAPE", "WAIT"] as const;
+export const WARDEN_MOVES = ["REPLACE_BAR", "SERVICE_LOCK", "SEARCH", "ROTATE_GUARD", "OBSERVE", "WAIT"] as const;
 
 /**
  * One plain sentence per registered mechanic, saying what it does and what
- * it needs (item 2, over the owner's transcript finding: "bare move
- * names"). ONE source: `buildPrisonerPrompt`/`buildWardenPrompt`
+ * it needs. ONE source: `buildPrisonerPrompt`/`buildWardenPrompt`
  * (`src/mind/*Mind.ts`) render the prompt's move list from this table, and
  * `moveDescriptions.test.ts` asserts every entry in `PRISONER_MOVES`/
- * `WARDEN_MOVES` has one. Every sentence is checked against what the
- * mechanic above ACTUALLY does -- there is no bonus for an honed edge on
- * `FILE` today, so none is claimed here; if this ever drifts from the
- * mechanic's real behaviour, the fix is to the text, never the mechanic.
+ * `WARDEN_MOVES` has one.
  */
 export const MOVE_DESCRIPTIONS: Record<string, string> = {
-  FILE: "Files at the bar, wearing down its integrity by a fixed amount each time; also raises the warden's suspicion a little.",
-  SHIM: "Works a shim into the lock, wearing down its integrity by a fixed amount each time; also raises the warden's suspicion a little.",
-  HONE: "Hones the spoon's edge, raising it by a fixed amount each time; also raises the warden's suspicion a little.",
-  CONCEAL: "Hides something under the loose tile so it is no longer visible to the warden.",
-  INSPECT:
-    "Looks closely at the cell; reveals whether the warden has rotated the guard or serviced the lock since your last inspection.",
-  WAIT: "Lets time pass, lowering the guard's attention and the warden's suspicion a little.",
+  FILE: "Files at the bar, wearing down its integrity (more, if the spoon is sharp enough); raises the warden's suspicion.",
+  SHIM: "Works a shim into the lock, wearing down its integrity by a fixed amount each time -- quiet; raises no suspicion.",
+  HONE: "Hones the spoon's edge, raising it by a fixed amount each time; un-conceals the spoon; raises the warden's suspicion a little.",
+  CONCEAL: "Hides the spoon under the loose tile so it is no longer visible to the warden.",
+  INSPECT: "Looks closely at the cell; reveals the lock's true integrity and the guard's true attention.",
+  ESCAPE:
+    "Attempts to leave the cell -- succeeds only if the bar is cut or the lock is fully worn through, and the guard's attention is low; otherwise raises suspicion sharply and is visible.",
+  WAIT: "Lets time pass, doing nothing else.",
   REPLACE_BAR: "Replaces the bar, resetting its integrity to full; refused if the bar has already been cut.",
-  SERVICE_LOCK: "Services the lock, resetting its integrity to full.",
+  SERVICE_LOCK: "Services the lock, resetting its integrity to full -- done outside the cell, unseen by the prisoner.",
+  SEARCH:
+    "Searches the cell for evidence -- only possible once suspicion is high enough; catches the prisoner if the bar, lock or spoon give it away, otherwise resets suspicion as a false alarm.",
   ROTATE_GUARD: "Rotates the guard, setting the guard's attention to a fixed high level.",
   OBSERVE:
-    "Watches the prisoner closely; reveals the prisoner's current spoon edge and whether anything is concealed near the loose tile; also raises your own suspicion a little.",
+    "Watches the prisoner closely; reveals the spoon's true edge if it is not hidden, and the bar's integrity as a rough band (intact/worn/badly worn). No suspicion change.",
 };
 
 /**
  * A positive sentence for what each mechanic looks like FROM THE OUTSIDE,
- * authored per mechanic (item 5) -- never the content of what was learned
- * (that stays private, in the acting principal's own ledger prose), only
- * that something visible happened. `null` marks a covert move: it
- * contributes NOTHING to the other principal's perception (`loop.ts`'s
- * cross-perception step skips a `null` entry entirely) -- "say what is,
- * never what is absent" applies here too, so there is no "you did not see
- * anything" sentence for a covert act, there is simply no sentence.
- * CONCEAL is the one covert move in this game.
+ * authored per mechanic -- never the content of what was learned (that
+ * stays private, in the acting principal's own ledger prose), only that
+ * something visible happened. `null` marks a covert move: it contributes
+ * NOTHING to the other principal's perception. SHIM, CONCEAL, INSPECT, WAIT
+ * and SERVICE_LOCK are covert (design: "done outside the cell" for
+ * SERVICE_LOCK).
  */
 export const SEEN_BY_OTHER_AS: Record<string, string | null> = {
   FILE: "The warden hears a rhythmic scraping sound from the prisoner's side of the cell.",
-  SHIM: "The warden hears the prisoner fiddling with the lock.",
+  SHIM: null,
   HONE: "The warden sees the prisoner rubbing something against a hard surface.",
   CONCEAL: null,
-  INSPECT: "The warden sees the prisoner looking closely around the cell.",
-  WAIT: "A quiet moment passes.",
+  INSPECT: null,
+  ESCAPE: "The prisoner makes a break for it.",
+  WAIT: null,
   REPLACE_BAR: "The prisoner watches the warden replace the bar.",
-  SERVICE_LOCK: "The prisoner watches the warden service the lock.",
+  SERVICE_LOCK: null,
+  SEARCH: "The prisoner watches the warden tear the cell apart, searching.",
   ROTATE_GUARD: "The prisoner notices a different guard on watch.",
   OBSERVE: "The prisoner notices the warden watching closely.",
 };
 
 /**
  * The referee's own hand on irreversibility (design Appendix A.2, §6.3
- * point 3): "a mechanic cannot declare irreversibility... folded into E3's
- * scope for the engine to decide." Until E3, this is a library call made
- * AFTER a resolution's outcome, outside the transaction `resolve()` already
- * committed -- `declareIrreversible` needs a database handle, which a
- * mechanic's `adjudicate` is never given (run-dmcp's `resolve.ts` header).
- *
- * Called by the loop after every resolution, for every registered mechanic
- * -- not only `FILE` -- so this stays correct if a future mechanic ever
- * also drives `bar_integrity` to 0. It inspects the outcome's OWN
- * `transitions` (never re-reads live state), and only ever declares
- * irreversibility for `(barId, "cut")` reaching exactly `"1"` -- the one
- * island Appendix A names.
+ * point 3): a mechanic cannot declare irreversibility itself; done here,
+ * after the outcome, outside the transaction. Only ever declares
+ * irreversibility for `(barId, "cut")` reaching exactly `"1"`.
  */
 export function declareCutIfJustCut(world: World, outcome: Outcome): void {
   const justCut = outcome.transitions.some(
@@ -339,6 +429,25 @@ export function declareCutIfJustCut(world: World, outcome: Outcome): void {
   if (justCut) {
     declareIrreversible({ entityId: world.barId, key: CUT_KEY });
   }
+}
+
+/** Whether the game has ended, and how -- read directly off the cell's own
+ *  flags (never inferred, never guessed): `escaped`/`caught` are written by
+ *  ESCAPE/SEARCH through `resolve()` exactly like `cut`/`concealed`. Runs
+ *  OUTSIDE a resolution (the checkpoint loop calls this between
+ *  half-rounds), so it reads the live timeline directly, the same way
+ *  `facts.ts`'s `readNumericFact` already does for every other
+ *  post-resolution read in this repository -- never through
+ *  `AdjudicationInput`, which only exists inside one.
+ */
+export type GameEnd = { kind: "escaped" | "caught" } | null;
+
+export function checkGameEnd(world: World, atT: number): GameEnd {
+  const escaped = readNumericFact({ gameId: world.gameId, t: atT, entityId: world.cellId, key: ESCAPED_KEY });
+  if (escaped === 1) return { kind: "escaped" };
+  const caught = readNumericFact({ gameId: world.gameId, t: atT, entityId: world.cellId, key: CAUGHT_KEY });
+  if (caught === 1) return { kind: "caught" };
+  return null;
 }
 
 export function buildResolver(world: World): Resolver {

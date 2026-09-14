@@ -55,7 +55,7 @@ describe("item 5 -- cross-perception is fog-correct (planted marker, like confor
     expect(context.briefing.toLowerCase()).not.toContain("the the ");
   });
 
-  it("a covert act (CONCEAL) contributes NOTHING to the other principal's next briefing -- no line, no seenByOtherAs, no marker", () => {
+  it("a covert act (CONCEAL) contributes no 'visible act' sentence -- but a spoken LINE still relays (speech isn't itself hidden)", () => {
     fresh();
     const marker = `seam-marker-${Math.random().toString(36).slice(2, 10)}`;
     expect(SEEN_BY_OTHER_AS.CONCEAL).toBeNull();
@@ -76,8 +76,12 @@ describe("item 5 -- cross-perception is fog-correct (planted marker, like confor
     const wardenPlan = authorPlan({ gameId: world.gameId, characterId: world.wardenId, t: world.clock.t0, steps: [{ move: "WAIT", description: "wait" }] });
     const context = buildWardenContext(world, wardenPlan, world.clock.wardenT(2));
 
-    expect(context.briefing).not.toContain(marker);
-    expect(context.briefing).not.toContain("Hiding the");
+    // The line relays...
+    expect(context.briefing).toContain(`Hiding the ${marker} here.`);
+    // ...but nothing describes CONCEAL itself as something the warden saw.
+    for (const sentence of Object.values(SEEN_BY_OTHER_AS)) {
+      if (sentence) expect(context.briefing).not.toContain(sentence);
+    }
   });
 
   it("only the SINGLE most recent act is relayed -- an older act does not leak forward past a newer covert one", () => {

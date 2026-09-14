@@ -42,4 +42,27 @@ describe("the-prisoner's schema migration", () => {
     ).map((r) => r.name);
     expect(tableNames).toEqual(expect.arrayContaining(["plans", "plan_steps", "attempts"]));
   });
+
+  it("creates the beliefs table, one row per (game, principal, resource)", () => {
+    const db = createTestDb();
+    const tableNames = (
+      db.prepare(`SELECT name FROM sqlite_master WHERE type = 'table'`).all() as { name: string }[]
+    ).map((r) => r.name);
+    expect(tableNames).toContain("beliefs");
+  });
+
+  it("adds locations.escaped and locations.caught, both defaulting to 0", () => {
+    const db = createTestDb();
+    const cols = db.prepare(`SELECT name, dflt_value, "notnull" FROM pragma_table_info('locations')`).all() as {
+      name: string;
+      dflt_value: string | null;
+      notnull: number;
+    }[];
+    const escaped = cols.find((c) => c.name === "escaped");
+    const caught = cols.find((c) => c.name === "caught");
+    expect(escaped).toBeDefined();
+    expect(caught).toBeDefined();
+    expect(escaped?.notnull).toBe(1);
+    expect(caught?.notnull).toBe(1);
+  });
 });

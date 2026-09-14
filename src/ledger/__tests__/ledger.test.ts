@@ -14,6 +14,8 @@ import {
   renderLedger,
   renderPlan,
   causeAtT,
+  revisePlan,
+  mostRecentVisibleActFor,
 } from "../ledger.js";
 import type { Resolver } from "run-dmcp";
 
@@ -298,6 +300,90 @@ describe("the attempt ledger (design §4.4)", () => {
   it("causeAtT returns null for a t nothing was ever logged at", () => {
     fresh();
     expect(causeAtT(world.gameId, world.clock.t0 + 999)).toBeNull();
+  });
+
+  describe("mostRecentVisibleActFor -- this task's perception fix", () => {
+    it("relays a line even when the act itself is covert (speech isn't itself hidden)", () => {
+      fresh();
+      const tp = world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
+      logRound({
+        gameId: world.gameId,
+        t: tp,
+        roundN: 1,
+        principal: "prisoner",
+        mechanic: "CONCEAL",
+        description: null,
+        line: "Just stretching.",
+        seenByOtherAs: null,
+      });
+
+      const act = mostRecentVisibleActFor(world.gameId, "prisoner");
+      expect(act?.line).toBe("Just stretching.");
+      expect(act?.seen_by_other_as).toBeNull();
+    });
+
+    it("never repeats an older perception -- a half-round with nothing to report is still the most recent row", () => {
+      fresh();
+      const t1 = world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+      logRound({
+        gameId: world.gameId,
+        t: t1,
+        roundN: 1,
+        principal: "prisoner",
+        mechanic: "FILE",
+        description: null,
+        line: "old-marker",
+        seenByOtherAs: "scraping",
+      });
+
+      // A later half-round with nothing to report -- still logged, with
+      // both fields null (the fix: it must NOT be skipped in favour of the
+      // older, content-bearing row above).
+      const t2 = world.clock.prisonerT(2);
+      logRound({ gameId: world.gameId, t: t2, roundN: 2, principal: "prisoner", mechanic: "NONE", description: null, line: null, seenByOtherAs: null });
+
+      const act = mostRecentVisibleActFor(world.gameId, "prisoner");
+      expect(act?.line).toBeNull();
+      expect(act?.seen_by_other_as).toBeNull();
+    });
+  });
+
+  describe("revisePlan -- minds own their plans (this task's brief)", () => {
+    it("replaces the remaining PENDING steps, leaving the active one untouched", () => {
+      fresh();
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "hone the spoon" },
+          { move: "FILE", description: "file the bar" },
+          { move: "FILE", description: "file again" },
+        ],
+      });
+
+      revisePlan({ plan, moves: ["SHIM", "CONCEAL"] });
+
+      const steps = planSteps(plan.id);
+      expect(steps[0]).toMatchObject({ move: "HONE", status: "active" }); // untouched
+      expect(steps.filter((s) => s.status === "pending").map((s) => s.move)).toEqual(["SHIM", "CONCEAL"]);
+      expect(steps.some((s) => s.move === "FILE")).toBe(false);
+    });
+
+    it("appends after the highest existing step index, preserving order", () => {
+      fresh();
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [{ move: "HONE", description: "hone the spoon" }],
+      });
+      revisePlan({ plan, moves: ["FILE", "SHIM"] });
+      const rendered = renderPlan(plan.id);
+      expect(rendered.indexOf("Revised: FILE")).toBeLessThan(rendered.indexOf("Revised: SHIM"));
+    });
   });
 
   describe("renderPlan (item 3) -- the plan itself, shown as positive prose, current step marked", () => {

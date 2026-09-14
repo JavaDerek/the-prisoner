@@ -4,7 +4,20 @@
  * this one file so `briefing.ts` never hard-codes a principal's motive
  * inline, and so a future scenario can replace this file without touching
  * any code that reads it.
+ *
+ * `PRISONER_NAME`/`WARDEN_NAME` (this task's prompt fix): each mind is told
+ * BOTH names ("You are Mara Voss. The other person in the cell is Warden
+ * Croft.") and instructed to speak only as itself -- fixing a real
+ * transcript bug where the prisoner once spoke to itself as "Voss". These
+ * are static, authored content, imported directly by `buildPrisonerPrompt`/
+ * `buildWardenPrompt` the same way `MOVE_DESCRIPTIONS` already is (never
+ * added as a `PrisonerContext`/`WardenContext` field: they are not
+ * per-round data, and adding one would change Appendix A.5's declared five
+ * fields and the conformance suite's `fields` list for no runtime reason).
  */
+export const PRISONER_NAME = "Mara Voss";
+export const WARDEN_NAME = "Warden Croft";
+
 export const PRISONER_IDENTITY =
   "You are Mara Voss, three years into a sentence for a robbery that went wrong. " +
   "This cell has been the only home you have had since, and Warden Croft is the one who locks it every night.";

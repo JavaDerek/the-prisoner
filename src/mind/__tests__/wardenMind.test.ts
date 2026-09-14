@@ -35,9 +35,9 @@ describe("buildWardenPrompt -- pure, built from context alone", () => {
   });
 });
 
-describe("coerceWardenProposal -- choice by literal membership only", () => {
-  it("keeps a proposal with no choice at all", () => {
-    expect(coerceWardenProposal({ intent: "watch the cell" }, context)).toEqual({ intent: "watch the cell" });
+describe("coerceWardenProposal -- choice REQUIRED, by literal membership only", () => {
+  it("rejects a proposal with no choice at all -- choice is now required (this task's prompt fix)", () => {
+    expect(coerceWardenProposal({ intent: "watch the cell" }, context)).toBeNull();
   });
 
   it("keeps a proposal whose choice is a member of moves", () => {

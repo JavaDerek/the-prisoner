@@ -5,11 +5,21 @@ import { buildWorld, type World } from "../setup.js";
 import {
   buildResolver,
   declareCutIfJustCut,
+  checkGameEnd,
+  PRISONER_MOVES,
+  WARDEN_MOVES,
   FILE_AMOUNT,
+  FILE_AMOUNT_SHARP,
+  FILE_SHARP_THRESHOLD,
   SHIM_AMOUNT,
   HONE_AMOUNT,
-  SUSPICION_BUMP,
+  FILE_SUSPICION_BUMP,
   ROTATE_GUARD_LEVEL,
+  TIME_DECAY_AMOUNT,
+  FAILED_ESCAPE_SUSPICION_BUMP,
+  SEARCH_SUSPICION_THRESHOLD,
+  ESCAPE_GUARD_MAX,
+  barBand,
 } from "../mechanics.js";
 import { readNumericFact } from "../facts.js";
 import type { Resolver } from "run-dmcp";
@@ -34,9 +44,22 @@ describe("the-prisoner's mechanics -- every consequential change through resolve
     const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
 
     expect(getResource(world.resources.barIntegrity)?.value).toBe(100 - FILE_AMOUNT);
-    expect(getResource(world.resources.wardenSuspicion)?.value).toBe(SUSPICION_BUMP);
+    expect(getResource(world.resources.wardenSuspicion)?.value).toBe(FILE_SUSPICION_BUMP);
     expect(outcome.mechanic).toBe("FILE");
     expect(outcome.transitions).toHaveLength(2);
+  });
+
+  it("FILE removes more integrity when the spoon is sharp enough to help", () => {
+    fresh();
+    for (let n = 1; n <= 3; n++) {
+      world.clock.prisonerT(n);
+      resolver.resolve({ gameId: world.gameId, mechanic: "HONE" }); // spoon_edge -> 30
+    }
+    expect(getResource(world.resources.spoonEdge)?.value).toBeGreaterThanOrEqual(FILE_SHARP_THRESHOLD);
+    const before = getResource(world.resources.barIntegrity)?.value as number;
+    world.clock.prisonerT(4);
+    resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+    expect(getResource(world.resources.barIntegrity)?.value).toBe(before - FILE_AMOUNT_SHARP);
   });
 
   it("SHIM lowers lock_integrity", () => {
@@ -53,21 +76,31 @@ describe("the-prisoner's mechanics -- every consequential change through resolve
     expect(getResource(world.resources.spoonEdge)?.value).toBe(HONE_AMOUNT);
   });
 
-  it("CONCEAL marks the loose tile concealed", () => {
+  it("CONCEAL marks the SPOON concealed (design revision: hides the spoon under the loose tile)", () => {
     fresh();
     const t = world.clock.prisonerT(1);
     resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
-    expect(readNumericFact({ gameId: world.gameId, t, entityId: world.looseTileId, key: "concealed" })).toBe(1);
+    expect(readNumericFact({ gameId: world.gameId, t, entityId: world.spoonId, key: "concealed" })).toBe(1);
   });
 
-  it("INSPECT writes no state and still records one resolution event", () => {
+  it("HONE un-conceals the spoon", () => {
+    fresh();
+    world.clock.prisonerT(1);
+    resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
+    const t = world.clock.prisonerT(2);
+    resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
+    expect(readNumericFact({ gameId: world.gameId, t, entityId: world.spoonId, key: "concealed" })).toBe(0);
+  });
+
+  it("INSPECT writes no state and reveals true lock_integrity and guard_attention only (never bar_integrity)", () => {
     fresh();
     world.clock.prisonerT(1);
     const before = getResource(world.resources.barIntegrity)?.value;
     const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "INSPECT" });
     expect(outcome.transitions).toHaveLength(0);
     expect(getResource(world.resources.barIntegrity)?.value).toBe(before);
-    expect(outcome.result).toMatchObject({ mechanic: "INSPECT" });
+    expect(outcome.result).toMatchObject({ mechanic: "INSPECT", lockIntegrity: 100, guardAttention: 50 });
+    expect(outcome.result).not.toHaveProperty("barIntegrity");
   });
 
   it("REPLACE_BAR sets bar_integrity to 100", () => {
@@ -95,21 +128,146 @@ describe("the-prisoner's mechanics -- every consequential change through resolve
     expect(getResource(world.resources.guardAttention)?.value).toBe(ROTATE_GUARD_LEVEL);
   });
 
-  it("OBSERVE raises warden_suspicion and writes no other state", () => {
+  it("OBSERVE causes no suspicion change, reveals true spoon_edge when unconcealed, and the bar as a band", () => {
     fresh();
-    world.clock.wardenT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE" });
-    expect(getResource(world.resources.wardenSuspicion)?.value).toBeGreaterThan(0);
+    world.clock.prisonerT(1);
+    resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
+    const suspicionBefore = getResource(world.resources.wardenSuspicion)?.value as number;
+
+    world.clock.wardenT(2);
+    const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE" });
+    expect(getResource(world.resources.wardenSuspicion)?.value).toBe(suspicionBefore);
+    expect(outcome.result).toMatchObject({ mechanic: "OBSERVE", spoonEdge: HONE_AMOUNT, barBand: "intact" });
   });
 
-  it("WAIT lowers guard_attention and warden_suspicion", () => {
+  it("OBSERVE does not reveal spoon_edge when the spoon is concealed", () => {
     fresh();
-    world.clock.wardenT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE" }); // give suspicion something to lower
+    world.clock.prisonerT(1);
+    resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
+    world.clock.wardenT(2);
+    const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE" });
+    expect(outcome.result).not.toHaveProperty("spoonEdge");
+  });
+
+  it("WAIT does nothing", () => {
+    fresh();
+    world.clock.prisonerT(1);
+    const before = { ...world.resources };
+    void before;
+    const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "WAIT" });
+    expect(outcome.transitions).toHaveLength(0);
+  });
+
+  it("TIME_DECAY lowers guard_attention only, once called, and is not offered to either mind", () => {
+    fresh();
+    expect(PRISONER_MOVES).not.toContain("TIME_DECAY");
+    expect(WARDEN_MOVES).not.toContain("TIME_DECAY");
     world.clock.prisonerT(1);
     const before = getResource(world.resources.guardAttention)?.value as number;
-    resolver.resolve({ gameId: world.gameId, mechanic: "WAIT" });
-    expect(getResource(world.resources.guardAttention)?.value).toBeLessThan(before);
+    resolver.resolve({ gameId: world.gameId, mechanic: "TIME_DECAY" });
+    expect(getResource(world.resources.guardAttention)?.value).toBe(before - TIME_DECAY_AMOUNT);
+  });
+
+  it("barBand renders three positive ranges", () => {
+    expect(barBand(100)).toBe("intact");
+    expect(barBand(90)).toBe("intact");
+    expect(barBand(89)).toBe("worn");
+    expect(barBand(50)).toBe("worn");
+    expect(barBand(49)).toBe("badly worn");
+    expect(barBand(0)).toBe("badly worn");
+  });
+
+  describe("ESCAPE (new mechanic)", () => {
+    it("fails and raises suspicion sharply when the bar is not cut and the lock is not fully worn", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "ESCAPE" });
+      expect(outcome.result).toMatchObject({ mechanic: "ESCAPE", success: 0 });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(FAILED_ESCAPE_SUSPICION_BUMP);
+      expect(checkGameEnd(world, outcome.t)).toBeNull();
+    });
+
+    it("fails when the opening exists but guard_attention is not low enough", () => {
+      fresh();
+      for (let n = 1; n <= 100 / SHIM_AMOUNT; n++) {
+        world.clock.prisonerT(n);
+        resolver.resolve({ gameId: world.gameId, mechanic: "SHIM" });
+      }
+      expect(getResource(world.resources.lockIntegrity)?.value).toBe(0);
+      expect(getResource(world.resources.guardAttention)?.value).toBeGreaterThanOrEqual(ESCAPE_GUARD_MAX);
+
+      world.clock.prisonerT(100);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "ESCAPE" });
+      expect(outcome.result).toMatchObject({ mechanic: "ESCAPE", success: 0 });
+    });
+
+    it("succeeds when the lock is fully worn through and guard_attention is low, ending the game", () => {
+      fresh();
+      for (let n = 1; n <= 100 / SHIM_AMOUNT; n++) {
+        world.clock.prisonerT(n);
+        resolver.resolve({ gameId: world.gameId, mechanic: "SHIM" });
+      }
+      // Drive guard_attention below the threshold via TIME_DECAY.
+      for (let i = 0; i < 6; i++) {
+        world.clock.prisonerT(200 + i);
+        resolver.resolve({ gameId: world.gameId, mechanic: "TIME_DECAY" });
+      }
+      expect(getResource(world.resources.guardAttention)?.value).toBeLessThan(ESCAPE_GUARD_MAX);
+
+      const t = world.clock.prisonerT(300);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "ESCAPE" });
+      expect(outcome.result).toMatchObject({ mechanic: "ESCAPE", success: 1 });
+      expect(checkGameEnd(world, t)).toEqual({ kind: "escaped" });
+    });
+  });
+
+  describe("SEARCH (new mechanic)", () => {
+    it("has no grounds and changes nothing while suspicion is below the threshold", () => {
+      fresh();
+      world.clock.wardenT(1);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "SEARCH" });
+      expect(outcome.transitions).toHaveLength(0);
+      expect(outcome.result).toMatchObject({ mechanic: "SEARCH", grounds: false });
+    });
+
+    it("is a false alarm and resets suspicion to 0 when nothing incriminating is found", () => {
+      fresh();
+      // Raise suspicion to the threshold via HONE (+5 each) without leaving
+      // the bar/lock touched and without leaving the spoon exposed --
+      // conceal again after every hone, so the final state has the spoon
+      // hidden (spoon_edge ends high, but concealed, so SEARCH's spoon leg
+      // does not fire).
+      for (let n = 1; n <= 8; n++) {
+        world.clock.prisonerT(2 * n - 1);
+        resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
+        world.clock.prisonerT(2 * n);
+        resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
+      }
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBeGreaterThanOrEqual(SEARCH_SUSPICION_THRESHOLD);
+      expect(getResource(world.resources.barIntegrity)?.value).toBe(100);
+      expect(getResource(world.resources.lockIntegrity)?.value).toBe(100);
+
+      world.clock.wardenT(51);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "SEARCH" });
+      expect(outcome.result).toMatchObject({ mechanic: "SEARCH", grounds: true, caught: 0 });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+      expect(checkGameEnd(world, outcome.t)).toBeNull();
+    });
+
+    it("catches the prisoner and ends the game when the bar is worn down enough", () => {
+      fresh();
+      for (let n = 1; n <= 4; n++) {
+        world.clock.prisonerT(n);
+        resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+      }
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBeGreaterThanOrEqual(SEARCH_SUSPICION_THRESHOLD);
+      expect(getResource(world.resources.barIntegrity)?.value).toBeLessThanOrEqual(50);
+
+      const t = world.clock.wardenT(5);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "SEARCH" });
+      expect(outcome.result).toMatchObject({ mechanic: "SEARCH", grounds: true, caught: 1 });
+      expect(checkGameEnd(world, t)).toEqual({ kind: "caught" });
+    });
   });
 
   it("a direct write to a resolve_only A.2 resource outside a resolution is refused", () => {

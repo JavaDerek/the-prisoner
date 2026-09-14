@@ -34,8 +34,13 @@ export const PRISONER_VOCABULARY: RenderVocabulary = {
     "0": { noun: "bar", adjectives: ["intact"] },
     "1": { noun: "bar", adjectives: ["cut"] },
   },
+  // REVISION (this task's brief): CONCEAL now hides the SPOON under the
+  // loose tile, not the tile itself (`mechanics.ts`'s `CONCEAL` writes
+  // `concealed` onto the spoon's own entity) -- so the meaningful entity for
+  // this fact key is the spoon, and the loose tile is simply always present
+  // (`viewFor.ts`'s item-6 bare-name fallback covers it).
   concealed: {
-    "0": { noun: "loose tile", adjectives: ["visible"] },
-    "1": { noun: "loose tile", adjectives: ["concealed"] },
+    "0": { noun: "spoon", adjectives: ["visible"] },
+    "1": { noun: "spoon", adjectives: ["concealed"] },
   },
 };

@@ -1,93 +1,29 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { createTestDb, destroyTestDb } from "../testDb.js";
-import { buildWorld, type World } from "../setup.js";
-import { buildResolver } from "../mechanics.js";
-import { logRound } from "../../ledger/ledger.js";
+import { describe, it, expect } from "vitest";
 import { describeInspection, describeObservation } from "../revelations.js";
-import type { Resolver } from "run-dmcp";
 
-describe("item 4 -- INSPECT/OBSERVE reveal something the principal's numeric view does not already carry", () => {
-  let world: World;
-  let resolver: Resolver;
+/**
+ * REVISION: INSPECT/OBSERVE reveal exact numbers directly in the mechanic's
+ * own result now (design Appendix A.4), so these formatters are pure
+ * functions over that result -- no database, no round_log scan.
+ */
+describe("describeInspection -- pure prose over INSPECT's own result", () => {
+  it("states both revealed numbers positively", () => {
+    const text = describeInspection({ lockIntegrity: 65, guardAttention: 40 });
+    expect(text).toContain("lock integrity 65");
+    expect(text).toContain("guard attention 40");
+  });
+});
 
-  function fresh(): void {
-    createTestDb();
-    world = buildWorld();
-    resolver = buildResolver(world);
-  }
-
-  afterEach(() => {
-    destroyTestDb();
+describe("describeObservation -- pure prose over OBSERVE's own result", () => {
+  it("states the spoon edge when present, and the bar's band", () => {
+    const text = describeObservation({ spoonEdge: 30, barBand: "worn" });
+    expect(text).toContain("spoon edge 30");
+    expect(text).toContain("bar looks worn");
   });
 
-  it("describeInspection reports the stable state when nothing changed since sinceT", () => {
-    fresh();
-    const text = describeInspection(world, world.clock.t0, world.clock.t0);
-    expect(text.toLowerCase()).toContain("same as");
-  });
-
-  it("describeInspection reports a guard rotation that happened since sinceT", () => {
-    fresh();
-    const since = world.clock.t0;
-    const tw = world.clock.wardenT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "ROTATE_GUARD" });
-    logRound({ gameId: world.gameId, t: tw, roundN: 1, principal: "warden", mechanic: "ROTATE_GUARD", description: null });
-
-    const text = describeInspection(world, since, tw);
-    expect(text.toLowerCase()).toContain("guard rotation");
-    expect(text.toLowerCase()).toContain("fresh");
-  });
-
-  it("describeInspection reports a lock service that happened since sinceT", () => {
-    fresh();
-    const since = world.clock.t0;
-    const tw = world.clock.wardenT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "SERVICE_LOCK" });
-    logRound({ gameId: world.gameId, t: tw, roundN: 1, principal: "warden", mechanic: "SERVICE_LOCK", description: null });
-
-    const text = describeInspection(world, since, tw);
-    expect(text.toLowerCase()).toContain("lock");
-    expect(text.toLowerCase()).toContain("fresh");
-  });
-
-  it("describeInspection ignores a warden move BEFORE sinceT (only the window since last inspection matters)", () => {
-    fresh();
-    const tw1 = world.clock.wardenT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "ROTATE_GUARD" });
-    logRound({ gameId: world.gameId, t: tw1, roundN: 1, principal: "warden", mechanic: "ROTATE_GUARD", description: null });
-
-    // The prisoner's "last inspection" is AFTER that rotation.
-    const since = tw1;
-    const tw2 = world.clock.wardenT(2);
-
-    const text = describeInspection(world, since, tw2);
-    expect(text.toLowerCase()).toContain("same as");
-  });
-
-  it("describeObservation reveals the prisoner's current spoon edge, which the warden's own numeric view never carries", () => {
-    fresh();
-    world.clock.prisonerT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
-
-    const t = world.clock.wardenT(2);
-    const text = describeObservation(world, t);
-    expect(text).toMatch(/edge reading of 10/);
-  });
-
-  it("describeObservation reveals concealment near the loose tile when present", () => {
-    fresh();
-    world.clock.prisonerT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
-
-    const t = world.clock.wardenT(2);
-    const text = describeObservation(world, t);
-    expect(text.toLowerCase()).toContain("tucked out of sight");
-  });
-
-  it("describeObservation says nothing about concealment when there is none", () => {
-    fresh();
-    const t = world.clock.wardenT(1);
-    const text = describeObservation(world, t);
-    expect(text.toLowerCase()).not.toContain("tucked");
+  it("says nothing about the spoon edge when it is absent (concealed)", () => {
+    const text = describeObservation({ barBand: "intact" });
+    expect(text).not.toContain("spoon edge");
+    expect(text).toContain("bar looks intact");
   });
 });

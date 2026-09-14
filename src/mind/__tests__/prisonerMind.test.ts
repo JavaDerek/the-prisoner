@@ -35,10 +35,10 @@ describe("buildPrisonerPrompt -- pure, built from context alone", () => {
   });
 });
 
-describe("coercePrisonerProposal -- choice by literal membership only", () => {
-  it("keeps a proposal with no choice at all", () => {
+describe("coercePrisonerProposal -- choice REQUIRED, by literal membership only", () => {
+  it("rejects a proposal with no choice at all -- choice is now required (this task's prompt fix)", () => {
     const result = coercePrisonerProposal({ intent: "look around" }, context);
-    expect(result).toEqual({ intent: "look around" });
+    expect(result).toBeNull();
   });
 
   it("keeps a proposal whose choice is a member of moves", () => {
@@ -59,6 +59,34 @@ describe("coercePrisonerProposal -- choice by literal membership only", () => {
   it("never pattern-matches: a choice that is a substring or case-variant of a real move is rejected", () => {
     expect(coercePrisonerProposal({ intent: "x", choice: "file" }, context)).toBeNull();
     expect(coercePrisonerProposal({ intent: "x", choice: "FILE " }, context)).toBeNull();
+  });
+});
+
+describe("coercePrisonerProposal -- plan (minds own their plans, this task's brief)", () => {
+  it("keeps a valid plan, up to 6 moves, each a member of moves", () => {
+    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: ["HONE", "FILE", "CONCEAL"] }, context);
+    expect(result).toEqual({ intent: "x", choice: "WAIT", plan: ["HONE", "FILE", "CONCEAL"] });
+  });
+
+  it("drops only the plan field when it names a move never offered -- never the whole proposal", () => {
+    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: ["HONE", "SEARCH"] }, context);
+    expect(result).toEqual({ intent: "x", choice: "WAIT" });
+  });
+
+  it("drops only the plan field when it has more than 6 entries", () => {
+    const sevenMoves = ["HONE", "FILE", "HONE", "FILE", "HONE", "FILE", "HONE"];
+    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: sevenMoves }, context);
+    expect(result).toEqual({ intent: "x", choice: "WAIT" });
+  });
+
+  it("drops only the plan field when it is not an array at all", () => {
+    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: "HONE" }, context);
+    expect(result).toEqual({ intent: "x", choice: "WAIT" });
+  });
+
+  it("a proposal with no plan at all carries no plan field", () => {
+    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT" }, context);
+    expect(result).not.toHaveProperty("plan");
   });
 });
 

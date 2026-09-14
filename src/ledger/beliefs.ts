@@ -1,0 +1,121 @@
+import { getDatabase, type Expectation } from "run-dmcp";
+import type { World } from "../world/setup.js";
+
+/** Avoids a `loop.ts` <-> `beliefs.ts` import cycle -- structurally the same
+ *  two-member set `loop.ts`'s own `Principal` is, never imported from there. */
+export type Principal = "warden" | "prisoner";
+
+/**
+ * Belief, not truth, in briefings (this task's brief). Each principal's
+ * numbers come from what IT knows -- its own move's outcome, its own
+ * information moves, the OTHER principal's visible acts, or a refusal that
+ * reveals the contradicted truth (design: "Expectations come from belief").
+ * One row per (game, principal, resource), upserted -- a belief is current
+ * knowledge, not a history; `round_log`/`attempts` already carry history.
+ *
+ * A resource nobody has ever told this principal about is simply absent
+ * here -- `getBelief` returns `null`, never a guessed default (root
+ * CLAUDE.md hard rule 3, "say what is, never what is absent"). The one
+ * exception is the world's own KNOWN starting truths, seeded once at round 0
+ * by `seedInitialBeliefs` -- both principals genuinely do know the cell
+ * starts with an intact bar and a serviced lock, because that is the
+ * scenario itself, not a deduction either of them had to make.
+ */
+
+export interface Belief {
+  value: number;
+  asOfRound: number;
+}
+
+/** The resources this store ever tracks -- every A.2 resource a principal
+ *  can come to believe something about (never `warden_suspicion` for the
+ *  prisoner, who has no channel to learn it, and never `spoon_edge` for the
+ *  prisoner, who always knows it directly and so never needs a stored
+ *  belief for it -- see `viewFor.ts`). */
+export type BeliefResource = "bar_integrity" | "lock_integrity" | "guard_attention" | "spoon_edge";
+
+export function setBelief(gameId: string, principal: Principal, resource: string, value: number, asOfRound: number): void {
+  getDatabase()
+    .prepare(
+      `INSERT INTO beliefs (game_id, principal, resource, value, as_of_round)
+       VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT(game_id, principal, resource) DO UPDATE SET
+         value = excluded.value,
+         as_of_round = excluded.as_of_round
+       WHERE excluded.as_of_round >= beliefs.as_of_round`
+    )
+    .run(gameId, principal, resource, value, asOfRound);
+}
+
+interface BeliefRow {
+  value: number;
+  as_of_round: number;
+}
+
+export function getBelief(gameId: string, principal: Principal, resource: string): Belief | null {
+  const row = getDatabase()
+    .prepare(`SELECT value, as_of_round FROM beliefs WHERE game_id = ? AND principal = ? AND resource = ?`)
+    .get(gameId, principal, resource) as BeliefRow | undefined;
+  return row ? { value: row.value, asOfRound: row.as_of_round } : null;
+}
+
+/** Positive prose, with when it was learned -- e.g. "bar integrity: 85 (as
+ *  of round 3)." `null` when there is nothing to render (never a guess). */
+export function renderBeliefLine(label: string, belief: Belief | null): string | null {
+  if (!belief) return null;
+  return `${label}: ${belief.value} (as of round ${belief.asOfRound}).`;
+}
+
+/** The world's own known starting truths, at round 0 -- the one place this
+ *  store is seeded from truth rather than from an update channel, because
+ *  the scenario's starting state is common knowledge to both principals by
+ *  construction (design Appendix A.2's own initial values). */
+export function seedInitialBeliefs(world: World): void {
+  setBelief(world.gameId, "prisoner", "bar_integrity", 100, 0);
+  setBelief(world.gameId, "prisoner", "lock_integrity", 100, 0);
+  setBelief(world.gameId, "prisoner", "guard_attention", 50, 0);
+  setBelief(world.gameId, "warden", "bar_integrity", 100, 0);
+  setBelief(world.gameId, "warden", "lock_integrity", 100, 0);
+  setBelief(world.gameId, "warden", "guard_attention", 50, 0);
+  setBelief(world.gameId, "warden", "spoon_edge", 0, 0);
+}
+
+/** Which resource a move's `expects` is built against, and which principal's
+ *  belief it reads (design: "FILE: bar_integrity; SHIM: lock_integrity;
+ *  REPLACE_BAR, SERVICE_LOCK: the believed value"). Deliberately excludes
+ *  every move that depends on `guard_attention` (it drifts every round --
+ *  `expects` is equality-only and would misfire on ordinary time decay) and
+ *  every move whose outcome the mechanic itself adjudicates from truth
+ *  (ESCAPE, SEARCH, OBSERVE, INSPECT). */
+const EXPECTS_RESOURCE_FOR_MOVE: Partial<Record<string, BeliefResource>> = {
+  FILE: "bar_integrity",
+  SHIM: "lock_integrity",
+  REPLACE_BAR: "bar_integrity",
+  SERVICE_LOCK: "lock_integrity",
+};
+
+function entityIdForResource(world: World, resource: BeliefResource): string {
+  switch (resource) {
+    case "bar_integrity":
+      return world.resources.barIntegrity;
+    case "lock_integrity":
+      return world.resources.lockIntegrity;
+    case "guard_attention":
+      return world.resources.guardAttention;
+    case "spoon_edge":
+      return world.resources.spoonEdge;
+  }
+}
+
+/** Design: "Each consequential move declares `expects` built from the
+ *  acting principal's current belief of the values the move depends on."
+ *  `undefined` when the move declares no belief-based expectation at all,
+ *  OR when the principal has no belief yet for the resource it would
+ *  otherwise expect on -- never a guessed value standing in for one. */
+export function beliefExpectation(world: World, principal: Principal, move: string): readonly Expectation[] | undefined {
+  const resource = EXPECTS_RESOURCE_FOR_MOVE[move];
+  if (!resource) return undefined;
+  const belief = getBelief(world.gameId, principal, resource);
+  if (!belief) return undefined;
+  return [{ entityId: entityIdForResource(world, resource), key: "value", value: belief.value }];
+}

@@ -1,10 +1,20 @@
 // The checkpoint (this task's brief; design §10 lands this as P6, but with
 // the warden a model too, per correction 1 -- P6's human CLI is out of
-// scope here). Five rounds = ten half-rounds, warden at even t, prisoner at
-// odd t, both minds against a local OpenAI-compatible endpoint, driven by
-// `src/loop.ts`'s `runHalfRound` -- the same function `src/__tests__/
-// loop.test.ts` exercises deterministically with scripted minds. Writes a
-// Markdown transcript to checkpoints/<ISO timestamp>.md.
+// scope here). Up to PRISONER_ROUNDS full rounds (default 12), warden at
+// even t, prisoner at odd t, both minds against a local OpenAI-compatible
+// endpoint, driven by `src/loop.ts`'s `runHalfRound` -- the same function
+// `src/__tests__/loop.test.ts` and `src/__tests__/balance.test.ts` exercise
+// deterministically with scripted minds. Writes a Markdown transcript to
+// checkpoints/<ISO timestamp>.md.
+//
+// REVISION (this task's brief, "a battle of wits, not two scripts"): the
+// game now has real stakes (ESCAPE/SEARCH, an end condition), belief
+// (not truth) in each briefing, and minds that can revise their own plan.
+// This script's job grows to match: seed initial belief, run time decay
+// once per full round (an audited referee resolution -- design), check for
+// the game's end after every half-round, and record refusals, plan
+// revisions and silences richly enough that a reader can tell whether the
+// two sides actually contested anything.
 //
 // The database is a fresh scratch file under /tmp -- never a default path
 // (root CLAUDE.md hard rule 2 for this whole workspace) -- set before any
@@ -14,9 +24,10 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getDatabase, initializeSchema, ResolveProtocolError, type Outcome, type Contradiction, type ConstraintViolationError } from "run-dmcp";
 import { buildWorld, type World } from "./world/setup.js";
-import { buildResolver } from "./world/mechanics.js";
+import { buildResolver, checkGameEnd, type GameEnd } from "./world/mechanics.js";
 import { prisonerMigration } from "./world/schema.js";
 import { authorPlan, renderLedger } from "./ledger/ledger.js";
+import { seedInitialBeliefs } from "./ledger/beliefs.js";
 import { resolutionDescription } from "./world/facts.js";
 import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
@@ -36,10 +47,7 @@ const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoi
 process.env.DMCP_DB_PATH = dbPath;
 // Never touch the default database (root CLAUDE.md hard rule 2): this is a
 // fresh scratch file, and initializeSchema brings up both run-dmcp's own
-// tables and this repository's own (plans/plan_steps/attempts/round_log,
-// the items.cut/concealed columns) in the same startup pass -- exactly what
-// world/testDb.ts's createTestDb() does for tests, reproduced here because
-// this script never runs through vitest's setup.
+// tables and this repository's own in the same startup pass.
 initializeSchema({ migrations: [prisonerMigration] });
 
 const MODEL_URL = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
@@ -47,7 +55,7 @@ const MODEL = process.env.PRISONER_MODEL ?? "qwen2.5:14b";
 const THINK_TIMEOUT_MS = process.env.PRISONER_THINK_TIMEOUT_MS
   ? Number(process.env.PRISONER_THINK_TIMEOUT_MS)
   : undefined;
-const ROUNDS = 5;
+const ROUNDS = process.env.PRISONER_ROUNDS ? Number(process.env.PRISONER_ROUNDS) : 12;
 
 interface Timing {
   round: number;
@@ -131,6 +139,29 @@ function freshRawAnswerHolder(): RawAnswerHolder {
   return { captured: false, raw: undefined };
 }
 
+/** Tallies this task's report requirements as the run goes -- never
+ *  recomputed after the fact from prose, always from the same
+ *  `HalfRoundResult` the transcript itself renders from. */
+interface RunStats {
+  refusals: { round: number; principal: Principal; move: string; cause: string }[];
+  planRevisions: { round: number; principal: Principal; moves: readonly string[] }[];
+  silences: { round: number; principal: Principal; reason: string | undefined; rawAnswer: unknown }[];
+}
+
+function noteStats(stats: RunStats, half: HalfRoundResult, roundN: number, rawAnswer: RawAnswerHolder): void {
+  const r = half.result;
+  if (r.kind === "refused") {
+    const cause = r.error instanceof ResolveProtocolError ? r.error.reason : r.error.constraintKind;
+    stats.refusals.push({ round: roundN, principal: half.principal, move: r.proposal.choice ?? "?", cause });
+  }
+  if (r.kind === "silent") {
+    stats.silences.push({ round: roundN, principal: half.principal, reason: r.reason, rawAnswer: rawAnswer.captured ? rawAnswer.raw : undefined });
+  }
+  if (half.planRevision && half.planRevision.length > 0) {
+    stats.planRevisions.push({ round: roundN, principal: half.principal, moves: half.planRevision });
+  }
+}
+
 function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnswerHolder): string[] {
   const lines: string[] = [];
   lines.push(`### Half-round ${half.t - world.clock.t0} (t=${half.t}) -- the ${half.principal}`);
@@ -144,11 +175,6 @@ function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnsw
   if (r.kind === "silent") {
     lines.push(`**Silence.** SilenceReason: \`${r.reason ?? "unknown"}\`.`);
     if (r.reason === "rejected") {
-      // Item 9: the model's raw parsed answer, verbatim -- never a guess
-      // at what it "must have meant". `rejected` means coerce DID see a
-      // parsed object (a choice outside `moves`, or some other shape
-      // coerce refused), so there is always something captured here; if
-      // there genuinely were not, this says so rather than inventing one.
       lines.push("**Raw answer (rejected):**");
       lines.push("```json");
       lines.push(rawAnswer.captured ? JSON.stringify(rawAnswer.raw, null, 2) : "(no raw answer was captured)");
@@ -160,6 +186,9 @@ function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnsw
   } else {
     lines.push(`**Intent:** ${r.proposal.intent}`);
     if (r.proposal.line) lines.push(`**Line:** "${r.proposal.line}"`);
+    if (r.proposal.plan && r.proposal.plan.length > 0) {
+      lines.push(`**Plan revision:** ${r.proposal.plan.join(" -> ")}`);
+    }
     if (r.kind === "no-choice") {
       lines.push("**No choice offered -- this half-round passes with no proposal to resolve.**");
     } else if (r.kind === "resolved") {
@@ -183,7 +212,13 @@ function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnsw
 async function main(): Promise<void> {
   const world = buildWorld();
   const resolver = buildResolver(world);
+  seedInitialBeliefs(world);
 
+  // Short OPENING plans only (this task's brief: "authored plans are only
+  // starting intentions; give the warden standing orders plus a short
+  // opening plan") -- both minds can extend/replace the rest via their own
+  // `plan` proposal field (`src/ledger/ledger.ts`'s `revisePlan`) as the
+  // game actually unfolds, over up to ROUNDS rounds.
   const prisonerPlan = authorPlan({
     gameId: world.gameId,
     characterId: world.prisonerId,
@@ -192,8 +227,6 @@ async function main(): Promise<void> {
       { move: "HONE", description: "Hone the spoon into something sharper." },
       { move: "FILE", description: "File at the bar." },
       { move: "FILE", description: "Keep filing at the bar." },
-      { move: "FILE", description: "File until it gives." },
-      { move: "CONCEAL", description: "Hide the evidence under the loose tile." },
     ],
   });
   const wardenPlan = authorPlan({
@@ -201,22 +234,20 @@ async function main(): Promise<void> {
     characterId: world.wardenId,
     t: world.clock.t0,
     steps: [
+      // Standing orders: watch by default; the warden's own plan revision
+      // is how it escalates to SEARCH/ROTATE_GUARD once suspicion warrants
+      // it.
       { move: "OBSERVE", description: "Watch the prisoner closely." },
-      { move: "ROTATE_GUARD", description: "Rotate the guard." },
-      { move: "OBSERVE", description: "Watch again." },
-      { move: "SERVICE_LOCK", description: "Service the lock." },
       { move: "OBSERVE", description: "Keep watching." },
+      { move: "ROTATE_GUARD", description: "Rotate the guard." },
     ],
   });
 
   const wardenTracker = newSilenceTracker();
   const prisonerTracker = newSilenceTracker();
   const timings: Timing[] = [];
+  const stats: RunStats = { refusals: [], planRevisions: [], silences: [] };
 
-  // Item 9: mutable holders the checkpoint owns; reset before each round's
-  // call, read right after. `onRawAnswer` fires from inside coerce
-  // (prisonerMind.ts/wardenMind.ts), which is the only place with the raw
-  // parsed object.
   let wardenRawAnswer = freshRawAnswerHolder();
   let prisonerRawAnswer = freshRawAnswerHolder();
 
@@ -245,24 +276,24 @@ async function main(): Promise<void> {
   transcript.push(
     "One cell. A warden and a prisoner, both model-driven, both proposing through the same seam " +
       `(\`mind-seam@${pinnedDependencyVersion("mind-seam")}\`), both resolved through ` +
-      `\`run-dmcp@${pinnedDependencyVersion("run-dmcp")}\`'s resolve protocol. The prisoner's ` +
-      "authored plan: hone the spoon, file at the bar repeatedly, then hide the evidence. The " +
-      "warden's: watch closely, rotate the guard, service the lock."
+      `\`run-dmcp@${pinnedDependencyVersion("run-dmcp")}\`'s resolve protocol. Belief, not truth, in ` +
+      "each briefing; the warden wins by catching the prisoner or by the clock running out, the " +
+      "prisoner wins by escaping. Both minds may revise their own plan as the game unfolds."
   );
   transcript.push("");
   transcript.push(`Model: \`${MODEL}\` at \`${MODEL_URL}\`. Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}.`);
+  transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
-  // The doris GPU-sharing protocol (this session's own instruction): doris
-  // holds only one big model at a time, so every run records what
-  // /api/ps showed loaded, at start and end -- generated by the run
-  // itself, never added after the fact.
   const loadedAtStart = await fetchLoadedModelsSummary(MODEL_URL);
   transcript.push(`Models loaded on doris at start (/api/ps): ${loadedAtStart}`);
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
 
-  for (let n = 1; n <= ROUNDS; n++) {
+  let ended: GameEnd = null;
+  let endedAtRound = -1;
+
+  for (let n = 1; n <= ROUNDS && !ended; n++) {
     transcript.push(`## Round ${n}`);
     transcript.push("");
 
@@ -282,28 +313,55 @@ async function main(): Promise<void> {
       tracker: wardenTracker,
     });
     timings.push({ round: n, principal: "warden", ms: performance.now() - wStart, silent: wardenHalf.result.kind === "silent" });
+    noteStats(stats, wardenHalf, n, wardenRawAnswer);
     transcript.push(...renderHalfRound(world, wardenHalf, wardenRawAnswer));
 
-    const tp = world.clock.prisonerT(n);
-    const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp);
-    prisonerRawAnswer = freshRawAnswerHolder();
-    const pStart = performance.now();
-    const prisonerHalf = await runHalfRound({
-      world,
-      resolver,
-      plan: prisonerPlan,
-      principal: "prisoner",
-      roundN: n,
-      t: tp,
-      context: prisonerContext,
-      mind: prisonerMind,
-      tracker: prisonerTracker,
-    });
-    timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
-    transcript.push(...renderHalfRound(world, prisonerHalf, prisonerRawAnswer));
+    ended = checkGameEnd(world, tw);
+    if (ended) {
+      endedAtRound = n;
+    } else {
+      const tp = world.clock.prisonerT(n);
+      const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp);
+      prisonerRawAnswer = freshRawAnswerHolder();
+      const pStart = performance.now();
+      const prisonerHalf = await runHalfRound({
+        world,
+        resolver,
+        plan: prisonerPlan,
+        principal: "prisoner",
+        roundN: n,
+        t: tp,
+        context: prisonerContext,
+        mind: prisonerMind,
+        tracker: prisonerTracker,
+      });
+      timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
+      noteStats(stats, prisonerHalf, n, prisonerRawAnswer);
+      transcript.push(...renderHalfRound(world, prisonerHalf, prisonerRawAnswer));
+
+      ended = checkGameEnd(world, tp);
+      if (ended) endedAtRound = n;
+    }
+
+    if (!ended) {
+      // Time decay, once per full round -- an audited referee resolution
+      // (design), never a direct write.
+      resolver.resolve({ gameId: world.gameId, mechanic: "TIME_DECAY" });
+    }
   }
 
   const loadedAtEnd = await fetchLoadedModelsSummary(MODEL_URL);
+
+  transcript.push("## Result");
+  transcript.push("");
+  if (ended?.kind === "escaped") {
+    transcript.push(`**The prisoner escaped, at round ${endedAtRound}.**`);
+  } else if (ended?.kind === "caught") {
+    transcript.push(`**The warden caught the prisoner, at round ${endedAtRound}.**`);
+  } else {
+    transcript.push(`**Timeout after ${ROUNDS} rounds -- the warden wins by default.**`);
+  }
+  transcript.push("");
 
   transcript.push("## Final state");
   transcript.push("");
@@ -324,9 +382,23 @@ async function main(): Promise<void> {
   transcript.push("");
 
   const silentCount = timings.filter((t) => t.silent).length;
-  transcript.push("### Model call timings and silence counts");
+  transcript.push("### Summary");
   transcript.push("");
-  transcript.push(`Total calls: ${timings.length}. Silent: ${silentCount}. Timeout used: ${THINK_TIMEOUT_MS ?? 12000}ms.`);
+  transcript.push(`Total half-round calls: ${timings.length}. Silent: ${silentCount}. Timeout used: ${THINK_TIMEOUT_MS ?? 12000}ms.`);
+  transcript.push(`Refusals: ${stats.refusals.length}.`);
+  for (const r of stats.refusals) {
+    transcript.push(`  - round ${r.round}, ${r.principal}, ${r.move}: ${r.cause}`);
+  }
+  transcript.push(`Plan revisions: ${stats.planRevisions.length}.`);
+  for (const p of stats.planRevisions) {
+    transcript.push(`  - round ${p.round}, ${p.principal}: ${p.moves.join(" -> ")}`);
+  }
+  transcript.push(`Silences: ${stats.silences.length}.`);
+  for (const s of stats.silences) {
+    transcript.push(`  - round ${s.round}, ${s.principal}, reason ${s.reason ?? "unknown"}, raw answer: ${s.rawAnswer !== undefined ? JSON.stringify(s.rawAnswer) : "(none captured)"}`);
+  }
+  transcript.push("");
+  transcript.push("### Model call timings");
   transcript.push("");
   for (const timing of timings) {
     transcript.push(`- round ${timing.round}, ${timing.principal}: ${timing.ms.toFixed(0)}ms${timing.silent ? " (silent)" : ""}`);
@@ -342,7 +414,9 @@ async function main(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(`Database: ${dbPath}`);
   // eslint-disable-next-line no-console
-  console.log(`Calls: ${timings.length}, silent: ${silentCount}, timeoutMs: ${THINK_TIMEOUT_MS ?? 12000}`);
+  console.log(`Result: ${ended?.kind ?? "timeout"} at round ${endedAtRound > 0 ? endedAtRound : ROUNDS}`);
+  // eslint-disable-next-line no-console
+  console.log(`Calls: ${timings.length}, silent: ${silentCount}, refusals: ${stats.refusals.length}, plan revisions: ${stats.planRevisions.length}`);
 }
 
 main().catch((err) => {

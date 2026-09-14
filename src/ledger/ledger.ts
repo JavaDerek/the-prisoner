@@ -104,6 +104,32 @@ export function activeStepExpects(planId: string): readonly Expectation[] | unde
   return JSON.parse(step.expects) as Expectation[];
 }
 
+/**
+ * "Minds own their plans" (this task's brief): a proposal may carry an
+ * optional `plan` -- up to 6 move names -- that REPLACES the plan's
+ * remaining, not-yet-attempted steps. The currently active step (whatever
+ * is being attempted this very half-round) is left untouched; only steps
+ * still `pending` are discarded and replaced, appended after the highest
+ * existing `step_index` so ordering and the active step's place in the
+ * sequence are both preserved. Validation (literal membership in `moves`,
+ * length <= 6) happens in the caller's own `coerce` (`prisonerMind.ts`/
+ * `wardenMind.ts`) -- this function trusts what it is given, the same
+ * division of labour `authorPlan` already has with its own caller.
+ */
+export function revisePlan(params: { plan: Plan; moves: readonly string[] }): void {
+  const db = getDatabase();
+  db.prepare(`DELETE FROM plan_steps WHERE plan_id = ? AND status = 'pending'`).run(params.plan.id);
+  const row = db
+    .prepare(`SELECT COALESCE(MAX(step_index), -1) as m FROM plan_steps WHERE plan_id = ?`)
+    .get(params.plan.id) as { m: number };
+  const insertStep = db.prepare(
+    `INSERT INTO plan_steps (id, plan_id, step_index, move, description, status) VALUES (?, ?, ?, ?, ?, 'pending')`
+  );
+  params.moves.forEach((move, index) => {
+    insertStep.run(randomUUID(), params.plan.id, row.m + 1 + index, move, `Revised: ${move}.`);
+  });
+}
+
 function nextPendingStep(planId: string): PlanStepRow | undefined {
   return getDatabase()
     .prepare(`SELECT * FROM plan_steps WHERE plan_id = ? AND status = 'pending' ORDER BY step_index LIMIT 1`)
@@ -164,28 +190,28 @@ interface VisibleActRow {
 }
 
 /**
- * Item 5: the OTHER principal's most recent act, as it should be perceived
- * -- `null` when nothing has happened yet, OR when the most recent entry
- * was covert (`seen_by_other_as IS NULL`): a covert move "declares none and
- * contributes nothing" (this task's own instruction), so this function
- * returns nothing to relay rather than a row with a null field the caller
- * would have to remember to skip. Only ever the SINGLE most recent entry --
- * half-rounds strictly alternate, so "the other principal's next briefing"
- * means their one immediately preceding act, never a full history (that
- * history is each principal's OWN ledger, never the other's).
+ * Item 5 / this task's perception fix: the OTHER principal's most recent
+ * HALF-ROUND, exactly -- never an older one. `line` and `seen_by_other_as`
+ * are independent: a line (spoken aloud) relays regardless of whether the
+ * act itself was covert or even resolved at all (design: "its line (even
+ * from a WAIT or rejected turn, if a line was parsed) and its visible
+ * act"), while `seen_by_other_as` alone stays `null` for a covert move.
+ *
+ * CORRECTION (this task's bug (b)): the previous version returned `null`
+ * for the WHOLE row whenever `seen_by_other_as` was null, which both
+ * suppressed a covert move's own spoken line (wrong: speech isn't itself
+ * hidden) and -- for any half-round `logRound` was never called at all
+ * (silence, a refusal, a no-choice turn) -- let this query skip past that
+ * half-round entirely and surface an OLDER, unrelated act instead (a stale
+ * repeat). `runHalfRound` (`loop.ts`) now calls `logRound` for EVERY
+ * half-round, content or none, so "most recent row" is always truly the
+ * most recent half-round, and this function simply returns it, un-filtered.
  */
 export function mostRecentVisibleActFor(gameId: string, otherPrincipal: "warden" | "prisoner"): VisibleActRow | null {
-  // The single most recent act, covert or not -- filtering by
-  // seen_by_other_as IS NOT NULL at the query level would skip PAST a
-  // covert act and surface an older, non-covert one instead, which is
-  // exactly the leak this function exists to prevent: immediately after a
-  // covert act, the other principal must see nothing new, not something
-  // stale.
   const row = getDatabase()
     .prepare(`SELECT line, seen_by_other_as FROM round_log WHERE game_id = ? AND principal = ? ORDER BY t DESC LIMIT 1`)
     .get(gameId, otherPrincipal) as VisibleActRow | undefined;
-  if (!row || row.seen_by_other_as === null) return null;
-  return row;
+  return row ?? null;
 }
 
 /** Design's correction 2: resolves "which move caused this fact" from this
@@ -263,7 +289,7 @@ export function recordSuccess(params: RecordAttemptParams & { outcome: Outcome; 
  *  failed attempt against the active step (if it matches), evidence stored
  *  verbatim per design §4.3. */
 export function recordFailure(
-  params: RecordAttemptParams & { error: ResolveProtocolError | ConstraintViolationError }
+  params: RecordAttemptParams & { error: ResolveProtocolError | ConstraintViolationError; note?: string }
 ): void {
   const db = getDatabase();
   const active = activeStep(params.plan.id);
@@ -285,8 +311,8 @@ export function recordFailure(
   }
 
   db.prepare(
-    `INSERT INTO attempts (id, plan_id, step_id, game_id, move, on_plan, outcome, evidence, opened_by_event_id, at_t, round_n)
-     VALUES (?, ?, ?, ?, ?, ?, 'failed', ?, ?, ?, ?)`
+    `INSERT INTO attempts (id, plan_id, step_id, game_id, move, on_plan, outcome, evidence, opened_by_event_id, at_t, round_n, note)
+     VALUES (?, ?, ?, ?, ?, ?, 'failed', ?, ?, ?, ?, ?)`
   ).run(
     randomUUID(),
     params.plan.id,
@@ -297,7 +323,8 @@ export function recordFailure(
     JSON.stringify(evidence),
     openedByEventId,
     params.t,
-    params.roundN
+    params.roundN,
+    params.note ?? null
   );
 
   if (onPlanStep) {
@@ -429,7 +456,8 @@ function renderAttempt(gameId: string, row: AttemptRow): string {
     factLine = `${key} was ${value}, ${attribution}`;
   }
 
-  return `Round ${roundLabel}: ${row.move} was refused -- ${factLine}.`;
+  const base = `Round ${roundLabel}: ${row.move} was refused -- ${factLine}.`;
+  return row.note ? `${base} ${row.note}` : base;
 }
 
 /** One authored plan step, rendered positively with its own status marked

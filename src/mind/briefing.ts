@@ -1,44 +1,79 @@
 import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
 import { renderLedger, renderPlan, mostRecentVisibleActFor, type Plan } from "../ledger/ledger.js";
+import { getBelief, renderBeliefLine, type Principal } from "../ledger/beliefs.js";
 import { PRISONER_MOVES, WARDEN_MOVES } from "../world/mechanics.js";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
 import type { WardenContext } from "./wardenMind.js";
 
 /**
- * `briefing` = `viewFor(principal)` rendered, plus the ledger's prose
- * (design §4.4, §5.1) -- built positively, with no fact this principal was
- * never selected for and no negation this repository would have had to
- * write. Every line here is plain prose over data this repository already
- * computed; nothing here reaches a database or the engine a second time.
+ * `briefing` = `viewFor(principal)` rendered, plus BELIEF (not truth) for
+ * every resource this principal does not own directly, plus the ledger's
+ * prose (design §4.4, §5.1; this task's brief, "belief, not truth, in
+ * briefings"). Built positively, with no fact this principal was never
+ * selected for and no negation this repository would have had to write.
+ *
+ * REVISION: `viewFor` now exposes only a principal's OWN resource as live
+ * truth (`spoon_edge` for the prisoner, `warden_suspicion` for the warden).
+ * Every other A.2 resource this principal can have an opinion about
+ * (`bar_integrity`, `lock_integrity`, `guard_attention`) is rendered here
+ * from `src/ledger/beliefs.ts` instead -- "as of round N", never the live
+ * number -- which is precisely what makes the resolve protocol's stale-
+ * expectation refusal reachable: a principal can propose a move whose
+ * `expects` (built from this same belief store, `beliefExpectation`) no
+ * longer matches the world.
  */
+function ownResourceLabel(otherRole: "warden" | "prisoner"): string | null {
+  // The one resource `viewFor` still surfaces as live truth for this
+  // principal -- structural, over the OTHER principal's role, matching
+  // `viewFor.ts`'s own ownership rule (the prisoner's is spoon_edge, the
+  // warden's is warden_suspicion).
+  return otherRole === "warden" ? "spoon_edge" : "warden_suspicion";
+}
+
+const BELIEF_RESOURCES_FOR: Record<Principal, readonly string[]> = {
+  prisoner: ["bar_integrity", "lock_integrity", "guard_attention"],
+  warden: ["bar_integrity", "lock_integrity", "guard_attention", "spoon_edge"],
+};
+
 export function buildBriefing(world: World, characterId: string, t: number, plan?: Plan): string {
   const view = viewFor(world, characterId, t);
   const lines: string[] = [];
 
-  const otherRole: "warden" | "prisoner" = characterId === world.wardenId ? "prisoner" : "warden";
+  const principal: Principal = characterId === world.wardenId ? "warden" : "prisoner";
+  const otherRole: "warden" | "prisoner" = principal === "warden" ? "prisoner" : "warden";
 
   lines.push(`You share the cell with ${view.otherPrincipal.name ?? "the other person"}.`);
   for (const noun of view.nouns) {
     lines.push(`The ${noun.phrase} is here.`);
   }
+
+  // This principal's own, always-known resource -- live truth (viewFor
+  // already restricts `view.resources` to exactly this one entry).
+  const ownLabel = ownResourceLabel(otherRole);
   for (const [name, value] of Object.entries(view.resources)) {
-    lines.push(`${name.replace(/_/g, " ")}: ${value}.`);
+    if (name === ownLabel) lines.push(`${name.replace(/_/g, " ")}: ${value}.`);
   }
 
-  // Item 5: the two sides perceive each other. Only the OTHER principal's
-  // single most recent act (half-rounds strictly alternate, so there is
-  // exactly one to report), and only when it was not covert --
-  // `mostRecentVisibleActFor` already returns null for a covert act, so
-  // there is nothing to branch on here beyond "is there anything to say".
+  // Every other resource this principal can have an opinion about -- belief,
+  // never truth, rendered with when it was learned. Absent entirely (never
+  // a guessed line) until this principal has learned SOMETHING about it.
+  for (const resource of BELIEF_RESOURCES_FOR[principal]) {
+    if (resource === ownLabel) continue;
+    const belief = getBelief(world.gameId, principal, resource);
+    const line = renderBeliefLine(resource.replace(/_/g, " "), belief);
+    if (line) lines.push(line);
+  }
+
+  // Item 5 / this task's perception fix: the OTHER principal's single most
+  // recent half-round only -- its line (even from a silent/rejected turn,
+  // if one was parsed) and its visible act, independently. Never repeats an
+  // older perception; the ledger carries history.
   const visibleAct = mostRecentVisibleActFor(world.gameId, otherRole);
   if (visibleAct) {
     // Character names in this world are already "the warden"/"the
-    // prisoner" (world/setup.ts), so this must not prepend its own "The "
-    // -- found by reading a real transcript, which read "The the warden
-    // said:". Capitalize whatever the name is, rather than assume it
-    // starts with "the".
+    // prisoner" (world/setup.ts), so this must not prepend its own "The ".
     const otherName = view.otherPrincipal.name ?? otherRole;
     const otherNameCapitalized = otherName.charAt(0).toUpperCase() + otherName.slice(1);
     if (visibleAct.line) {

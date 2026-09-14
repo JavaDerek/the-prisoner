@@ -20,33 +20,52 @@ describe("viewFor() -- each principal's view, built positively (design §5.1)", 
     destroyTestDb();
   });
 
-  it("both principals see the bar as intact and the loose tile as visible, at t0, and EXACTLY those two vocabulary nouns", () => {
+  it("both principals see the bar as intact, at t0", () => {
     fresh();
     const t0 = world.clock.t0;
-
     for (const characterId of [world.wardenId, world.prisonerId]) {
       const view = viewFor(world, characterId, t0);
-      // Exact, not merely inclusive: schema.ts's migration adds BOTH `cut`
-      // and `concealed` as plain columns on run-dmcp's `items` table, so
-      // EVERY item (including the prisoner's own spoon) carries both facts,
-      // defaulting to 0. A regression here previously rendered a bogus
-      // "intact bar" noun for the loose tile's own irrelevant `cut=0` and a
-      // bogus "visible loose tile" for the bar's own irrelevant
-      // `concealed=0` (and a third bogus pair for the spoon in the
-      // prisoner's own view) -- caught by running the real checkpoint
-      // script and reading its transcript by eye. `arrayContaining` alone
-      // would never have caught it, so this test checks the exact set of
-      // VOCABULARY-backed nouns (the spoon's own presence noun, item 6, is
-      // asserted separately below, since it is not vocabulary-backed).
-      const vocabularyNouns = view.nouns.filter((n) => n.key === "cut" || n.key === "concealed");
-      expect(vocabularyNouns).toHaveLength(2);
-      expect(vocabularyNouns).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ entityId: world.barId, key: "cut", phrase: "intact bar" }),
-          expect.objectContaining({ entityId: world.looseTileId, key: "concealed", phrase: "visible loose tile" }),
-        ])
-      );
+      const cutNoun = view.nouns.find((n) => n.key === "cut");
+      expect(cutNoun).toMatchObject({ entityId: world.barId, phrase: "intact bar" });
     }
+  });
+
+  it("the prisoner sees their own spoon as visible (not concealed), and EXACTLY those two vocabulary nouns", () => {
+    fresh();
+    const t0 = world.clock.t0;
+    // Exact, not merely inclusive: schema.ts's migration adds BOTH `cut` and
+    // `concealed` as plain columns on run-dmcp's `items` table, so EVERY
+    // item carries both facts, defaulting to 0. A regression here
+    // previously rendered a bogus "intact bar" noun for an irrelevant
+    // `cut=0` on the wrong entity -- caught by reading a real transcript.
+    // `relevantFactKeysFor` (viewFor.ts) is the fix: only the bar's own
+    // `cut` and the SPOON's own `concealed` (design revision: CONCEAL now
+    // hides the spoon, not the loose tile) are ever rendered.
+    const view = viewFor(world, world.prisonerId, t0);
+    const vocabularyNouns = view.nouns.filter((n) => n.key === "cut" || n.key === "concealed");
+    expect(vocabularyNouns).toHaveLength(2);
+    expect(vocabularyNouns).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ entityId: world.barId, key: "cut", phrase: "intact bar" }),
+        expect.objectContaining({ entityId: world.spoonId, key: "concealed", phrase: "visible spoon" }),
+      ])
+    );
+  });
+
+  it("the warden never sees a concealed vocabulary noun for the spoon -- it is the prisoner's own item, never selected", () => {
+    fresh();
+    const view = viewFor(world, world.wardenId, world.clock.t0);
+    expect(view.nouns.some((n) => n.key === "concealed")).toBe(false);
+  });
+
+  it("once CONCEAL resolves, the prisoner's own view still shows the spoon, now with the concealed adjective (own items are always selected, concealed or not)", () => {
+    fresh();
+    const t = world.clock.prisonerT(1);
+    resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
+
+    const view = viewFor(world, world.prisonerId, t);
+    const spoonNoun = view.nouns.find((n) => n.entityId === world.spoonId && n.key === "concealed");
+    expect(spoonNoun?.phrase).toBe("concealed spoon");
   });
 
   it("item 6: the prisoner's own spoon appears as a noun in its own view -- the positive view selects its own items", () => {
@@ -63,38 +82,32 @@ describe("viewFor() -- each principal's view, built positively (design §5.1)", 
     expect(view.nouns.some((n) => n.entityId === world.spoonId)).toBe(false);
   });
 
-  it("a concealed item is absent from view once CONCEAL resolves", () => {
+  it("the loose tile stays visible in either view regardless of CONCEAL -- it is never itself the concealed entity", () => {
     fresh();
     const t = world.clock.prisonerT(1);
     resolver.resolve({ gameId: world.gameId, mechanic: "CONCEAL" });
 
     const wardenView = viewFor(world, world.wardenId, t);
-    expect(wardenView.nouns.some((n) => n.entityId === world.looseTileId)).toBe(false);
+    expect(wardenView.nouns.some((n) => n.entityId === world.looseTileId)).toBe(true);
   });
 
-  it("an unconcealed item stays visible after an unrelated resolution", () => {
-    fresh();
-    const t = world.clock.prisonerT(1);
-    resolver.resolve({ gameId: world.gameId, mechanic: "WAIT" });
-
-    const view = viewFor(world, world.wardenId, t);
-    expect(view.nouns.some((n) => n.entityId === world.looseTileId)).toBe(true);
-  });
-
-  it("each principal sees their own resource and the cell's shared resources, never the other principal's own", () => {
+  it("REVISION (belief, not truth, in briefings): a principal's view exposes ONLY its own resource -- the shared cell resources are no longer read as live truth here", () => {
     fresh();
     const t0 = world.clock.t0;
 
     const prisonerView = viewFor(world, world.prisonerId, t0);
     expect(prisonerView.resources).toHaveProperty("spoon_edge");
-    expect(prisonerView.resources).toHaveProperty("bar_integrity");
-    expect(prisonerView.resources).toHaveProperty("lock_integrity");
-    expect(prisonerView.resources).toHaveProperty("guard_attention");
+    expect(prisonerView.resources).not.toHaveProperty("bar_integrity");
+    expect(prisonerView.resources).not.toHaveProperty("lock_integrity");
+    expect(prisonerView.resources).not.toHaveProperty("guard_attention");
     expect(prisonerView.resources).not.toHaveProperty("warden_suspicion");
 
     const wardenView = viewFor(world, world.wardenId, t0);
     expect(wardenView.resources).toHaveProperty("warden_suspicion");
     expect(wardenView.resources).not.toHaveProperty("spoon_edge");
+    expect(wardenView.resources).not.toHaveProperty("bar_integrity");
+    expect(wardenView.resources).not.toHaveProperty("lock_integrity");
+    expect(wardenView.resources).not.toHaveProperty("guard_attention");
   });
 
   it("names the other principal by presence only -- no vocabulary noun is ever produced for a character entity", () => {

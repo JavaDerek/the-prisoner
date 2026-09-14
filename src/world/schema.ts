@@ -160,5 +160,44 @@ export const prisonerMigration: SchemaMigration = {
     } catch {
       // Column already exists.
     }
+
+    // A battle of wits requires belief, not truth, in each principal's
+    // briefing (this task's brief, over the reviewer's finding "no hidden
+    // information"): each principal's numbers come from what IT knows, not
+    // from the live world. One row per (game, principal, resource) --
+    // upserted, never appended, because a belief is "the current state of
+    // what I know", not a history (the round_log/attempts tables already
+    // carry history; this table carries only the latest). `as_of_round` is
+    // this repository's own 1-N round label (never the half-round t), so a
+    // stale belief renders as "bar integrity: 85 (as of round 3)" using the
+    // same round numbering a reader already sees in the ledger.
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS beliefs (
+        game_id TEXT NOT NULL,
+        principal TEXT NOT NULL CHECK (principal IN ('warden', 'prisoner')),
+        resource TEXT NOT NULL,
+        value REAL NOT NULL,
+        as_of_round INTEGER NOT NULL,
+        PRIMARY KEY (game_id, principal, resource)
+      )
+    `);
+
+    // The two end conditions (escaped/caught) are flags on the CELL --
+    // exactly the same positive-flag-column pattern as items.cut/concealed
+    // above, applied to run-dmcp's `locations` table, because the cell (not
+    // either character or either item) is the natural single place "the
+    // game is over" lives: both principals share one cell, and neither
+    // principal's own entity is a sensible owner of a fact about the OTHER
+    // side's victory.
+    try {
+      db.exec(`ALTER TABLE locations ADD COLUMN escaped INTEGER NOT NULL DEFAULT 0`);
+    } catch {
+      // Column already exists.
+    }
+    try {
+      db.exec(`ALTER TABLE locations ADD COLUMN caught INTEGER NOT NULL DEFAULT 0`);
+    } catch {
+      // Column already exists.
+    }
   },
 };
