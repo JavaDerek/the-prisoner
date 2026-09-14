@@ -10,7 +10,8 @@
     "2026-09-14T20-56-01-836Z",
     "2026-09-14T21-06-26-366Z",
     "2026-09-14T21-52-32-382Z",
-    "2026-09-14T22-05-39-248Z"
+    "2026-09-14T22-05-39-248Z",
+    "2026-09-14T22-15-20-246Z"
   ],
   "accounts": [
     {
@@ -282,6 +283,24 @@
       "actor": "prisoner",
       "observer": "warden",
       "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-14T22-15-20-246Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works a piece loose from the blanket."
+    },
+    {
+      "episode": "2026-09-14T22-15-20-246Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works a piece loose from the cot."
+    },
+    {
+      "episode": "2026-09-14T22-15-20-246Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner opens the door."
     }
   ]
 }
