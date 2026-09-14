@@ -383,7 +383,7 @@ describe("the attempt ledger (design §4.4)", () => {
       });
       revisePlan({ plan, moves: ["FILE", "SHIM"] });
       const rendered = renderPlan(plan.id);
-      expect(rendered.indexOf("Revised: FILE")).toBeLessThan(rendered.indexOf("Revised: SHIM"));
+      expect(rendered.indexOf("FILE")).toBeLessThan(rendered.indexOf("SHIM"));
     });
   });
 
@@ -409,8 +409,8 @@ describe("the attempt ledger (design §4.4)", () => {
       const lines = rendered.split("\n");
       const honeLine = lines.find((l) => l.includes("Hone the spoon"));
       const fileLine = lines.find((l) => l.includes("File at the bar"));
-      expect(honeLine).toContain("current step");
-      expect(fileLine).not.toContain("current step");
+      expect(honeLine).toContain("next");
+      expect(fileLine).not.toContain("next");
     });
 
     it("marks a completed step and advances the marker to the next one", () => {
@@ -434,8 +434,8 @@ describe("the attempt ledger (design §4.4)", () => {
       const lines = rendered.split("\n");
       const honeLine = lines.find((l) => l.includes("Hone the spoon"));
       const fileLine = lines.find((l) => l.includes("File at the bar"));
-      expect(honeLine).toContain("completed");
-      expect(fileLine).toContain("current step");
+      expect(honeLine).toContain("done");
+      expect(fileLine).toContain("next");
     });
 
     it("never renders a negation phrasing", () => {
@@ -453,6 +453,30 @@ describe("the attempt ledger (design §4.4)", () => {
       for (const forbidden of ["no longer", " not ", "failed to", "nothing"]) {
         expect(rendered).not.toContain(forbidden);
       }
+    });
+
+    it("coordinator's fix, item 5 -- bare move name, done/next labels: '1. OBSERVE (done)', '2. SEARCH (next)'", () => {
+      fresh();
+      const resolver = buildResolver(world);
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.wardenId,
+        t: world.clock.t0,
+        steps: [{ move: "OBSERVE", description: "OBSERVE" }],
+      });
+      // Real call order (loop.ts): the plan revision is applied BEFORE the
+      // move resolves, so "next pending step" promotion (inside
+      // recordSuccess) sees the freshly-revised SEARCH already there.
+      revisePlan({ plan, moves: ["SEARCH"] });
+      const t1 = world.clock.wardenT(1);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE" });
+      recordSuccess({ gameId: world.gameId, plan, roundN: 1, t: t1, move: "OBSERVE", outcome, completesStep: true });
+
+      const rendered = renderPlan(plan.id);
+      expect(rendered).not.toContain("Revised:");
+      const lines = rendered.split("\n");
+      expect(lines[0]).toBe("1. OBSERVE (done)");
+      expect(lines[1]).toBe("2. SEARCH (next)");
     });
 
     it("coordinator's fix -- shows at most the LAST completed step, never the whole history", () => {

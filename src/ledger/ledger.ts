@@ -125,8 +125,11 @@ export function revisePlan(params: { plan: Plan; moves: readonly string[] }): vo
   const insertStep = db.prepare(
     `INSERT INTO plan_steps (id, plan_id, step_index, move, description, status) VALUES (?, ?, ?, ?, ?, 'pending')`
   );
+  // Coordinator's fix, item 5: the bare move name, no "Revised: " prefix --
+  // `renderPlan` already marks status separately (`1. OBSERVE (next)`), so
+  // the prefix was never carrying information, only noise.
   params.moves.forEach((move, index) => {
-    insertStep.run(randomUUID(), params.plan.id, row.m + 1 + index, move, `Revised: ${move}.`);
+    insertStep.run(randomUUID(), params.plan.id, row.m + 1 + index, move, move);
   });
 }
 
@@ -464,13 +467,19 @@ function renderAttempt(gameId: string, row: AttemptRow): string {
  *  (item 3, over the owner's finding: "an invisible plan"). Never "not yet
  *  started" or "hasn't happened" -- "not yet reached" names a real,
  *  positive fact about a step's place in a known sequence, not an
- *  absence. */
+ *  absence.
+ *
+ *  Coordinator's fix, item 5 ("plan display polish"): `"done"`/`"next"`,
+ *  not `"completed"`/`"current step"` -- shorter, and `renderPlan` drops
+ *  the `"Revised: "` prefix a revised step's own `move` name used to carry
+ *  (`ledger.ts`'s `revisePlan`), so the whole line reads `1. OBSERVE
+ *  (done)`, `2. SEARCH (next)`. */
 function statusLabel(status: StepStatus): string {
   switch (status) {
     case "active":
-      return "current step";
+      return "next";
     case "done":
-      return "completed";
+      return "done";
     case "failed":
       return "failed";
     case "abandoned":

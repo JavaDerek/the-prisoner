@@ -230,15 +230,18 @@ async function main(): Promise<void> {
   // starting intentions; give the warden standing orders plus a short
   // opening plan") -- both minds can extend/replace the rest via their own
   // `plan` proposal field (`src/ledger/ledger.ts`'s `revisePlan`) as the
-  // game actually unfolds, over up to ROUNDS rounds.
+  // game actually unfolds, over up to ROUNDS rounds. Bare move names as
+  // descriptions (coordinator's fix, item 5: "plan display polish"), so an
+  // authored step and a revised one render identically -- "1. OBSERVE
+  // (done)", "2. SEARCH (next)" -- never a prose/bare-name mismatch.
   const prisonerPlan = authorPlan({
     gameId: world.gameId,
     characterId: world.prisonerId,
     t: world.clock.t0,
     steps: [
-      { move: "HONE", description: "Hone the spoon into something sharper." },
-      { move: "FILE", description: "File at the bar." },
-      { move: "FILE", description: "Keep filing at the bar." },
+      { move: "HONE", description: "HONE" },
+      { move: "FILE", description: "FILE" },
+      { move: "FILE", description: "FILE" },
     ],
   });
   const wardenPlan = authorPlan({
@@ -249,9 +252,9 @@ async function main(): Promise<void> {
       // Standing orders: watch by default; the warden's own plan revision
       // is how it escalates to SEARCH/ROTATE_GUARD once suspicion warrants
       // it.
-      { move: "OBSERVE", description: "Watch the prisoner closely." },
-      { move: "OBSERVE", description: "Keep watching." },
-      { move: "ROTATE_GUARD", description: "Rotate the guard." },
+      { move: "OBSERVE", description: "OBSERVE" },
+      { move: "OBSERVE", description: "OBSERVE" },
+      { move: "ROTATE_GUARD", description: "ROTATE_GUARD" },
     ],
   });
 
@@ -306,7 +309,7 @@ async function main(): Promise<void> {
     transcript.push("");
 
     const tw = world.clock.wardenT(n);
-    const wardenContext = buildWardenContext(world, wardenPlan, tw);
+    const wardenContext = buildWardenContext(world, wardenPlan, tw, ROUNDS);
     const wStart = performance.now();
     const wardenHalf = await runHalfRound({
       world,
@@ -329,7 +332,7 @@ async function main(): Promise<void> {
       endedAtRound = n;
     } else {
       const tp = world.clock.prisonerT(n);
-      const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp);
+      const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp, ROUNDS);
       const pStart = performance.now();
       const prisonerHalf = await runHalfRound({
         world,
