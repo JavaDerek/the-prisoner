@@ -3,6 +3,7 @@ import { createLocalMind, coerceProposal } from "mind-seam";
 import { MOVE_DESCRIPTIONS, WARDEN_MOVES, TIME_DECAY_RULE, WARDEN_PRESENCE_RULE, EVIDENCE_RULE } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import { normalizePlan, MAX_PLAN_LENGTH } from "./prisonerMind.js";
+import { composeRoleMind, VOICE_PROPOSAL_SCHEMA, type WitsProposal, type VoiceContext } from "./roleMind.js";
 
 /**
  * The warden as a model too (this checkpoint's correction 1 over DESIGN.md,
@@ -31,11 +32,22 @@ export type WardenContext = {
  *  warden's own future self -- both optional here, required in the JSON
  *  schema below, for the same "coerce tolerates absence" reason `plan`
  *  itself does not extend to `choice`. */
+/** See `PrisonerProposal` (`prisonerMind.ts`) for the full reasoning behind
+ *  the six role fields below -- identical here. */
 export type WardenProposal = Proposal & {
   readonly choice?: string;
   readonly plan?: readonly string[];
   readonly thoughts?: string;
   readonly notes?: string;
+  readonly witsModel?: string;
+  readonly voiceModel?: string;
+  readonly witsMs?: number;
+  readonly voiceMs?: number;
+  readonly witsSwapMs?: number;
+  readonly voiceSwapMs?: number;
+  readonly voiceSilenceReason?: SilenceReason;
+  readonly voiceSilenceText?: string;
+  readonly voiceSilenceParsed?: import("mind-seam").Inert;
 };
 
 export type WardenMind = Mind<WardenContext, WardenProposal>;
@@ -102,15 +114,19 @@ export function coerceWardenProposal(raw: unknown, context: WardenContext): Ward
   };
 }
 
+/** See `CreatePrisonerMindOptions` (`prisonerMind.ts`) for the full
+ *  reasoning behind every field -- identical shape here. */
 export interface CreateWardenMindOptions {
   baseUrl: string;
-  model: string;
+  model?: string;
+  witsModel?: string;
+  voiceModel?: string;
   temperature?: number;
   timeoutMs?: number;
   fetchFn?: typeof fetch;
-  /** See `CreatePrisonerMindOptions.onSilence` (`prisonerMind.ts`) for the
-   *  full reasoning -- identical shape here. */
+  ensureLoaded?: (model: string) => Promise<void>;
   onSilence?: (reason: SilenceReason, context: WardenContext, detail?: SilenceDetail) => void;
+  onVoiceSilence?: (reason: SilenceReason, context: VoiceContext, detail?: SilenceDetail) => void;
 }
 
 /** `mind-seam@0.4.0`: see `PRISONER_PROPOSAL_SCHEMA` (`prisonerMind.ts`) for
@@ -138,11 +154,163 @@ const WARDEN_PROPOSAL_SCHEMA: InertRecord = {
   additionalProperties: false,
 };
 
+/** Configurable model roles (this task's brief, item 1): the WITS call's
+ *  own schema and prompt -- see `PRISONER_WITS_SCHEMA`/`buildPrisonerWitsPrompt`
+ *  (`prisonerMind.ts`) for the full reasoning, identical here except for
+ *  `WARDEN_MOVES`. */
+const WARDEN_WITS_SCHEMA: InertRecord = {
+  type: "object",
+  properties: {
+    thoughts: { type: "string" },
+    plan: {
+      type: "array",
+      minItems: 1,
+      maxItems: MAX_PLAN_LENGTH,
+      items: { type: "string", enum: WARDEN_MOVES },
+    },
+    notes: { type: "string" },
+  },
+  required: ["thoughts", "plan", "notes"],
+  additionalProperties: false,
+};
+
+function buildWardenWitsPrompt(context: WardenContext): string {
+  const moveLines = context.moves.map((move) => `- ${move}: ${MOVE_DESCRIPTIONS[move] ?? "(no description on file)"}`);
+  return [
+    `You are ${WARDEN_NAME}. The other person in the cell is ${PRISONER_NAME}.`,
+    context.identity,
+    `Your motive: ${context.motive}`,
+    "",
+    context.briefing,
+    "",
+    "Your possible moves are exactly these, each with what it does:",
+    ...moveLines,
+    "",
+    `Also, a rule that never changes and is not one of your moves: ${TIME_DECAY_RULE}`,
+    WARDEN_PRESENCE_RULE,
+    EVIDENCE_RULE,
+    "",
+    "Decide what to do. Someone else will voice this decision in character afterward -- your job here is only the decision itself.",
+    'Answer with one JSON object: {"thoughts": string, "plan": string[], "notes": string}.',
+    '"thoughts" is REQUIRED -- your private reasoning: what you know, what the other person probably knows, ' +
+      "and what you plan to do. A few sentences. Nobody else ever sees this; think it through before you commit " +
+      "to the rest of your answer.",
+    '"plan" is REQUIRED -- a list of 1 to 6 of your possible moves, spelled exactly as given. The FIRST ' +
+      "entry is what you do THIS turn. Use WAIT as the first entry to do nothing this turn. Any further " +
+      "entries are what you now intend to do afterward, replacing whatever you intended before -- include " +
+      "only as many as you are confident about.",
+    '"notes" is REQUIRED -- at most about 300 characters: what you want to remember next turn. Nobody else ' +
+      "ever sees this either; it will be shown back to only you, at the top of your next briefing.",
+    "You never decide what happens next -- only the world decides that. Propose; do not narrate an outcome.",
+  ].join("\n");
+}
+
+function coerceWardenWitsProposal(raw: unknown, context: WardenContext): WitsProposal | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const record = raw as Record<string, unknown>;
+  const plan = normalizePlan(record.plan, context.moves);
+  if (!plan) return null;
+  const thoughts = coerceFreeText(record.thoughts);
+  const notes = coerceFreeText(record.notes);
+  return {
+    intent: "",
+    choice: plan[0],
+    plan,
+    ...(thoughts !== undefined ? { thoughts } : {}),
+    ...(notes !== undefined ? { notes } : {}),
+  };
+}
+
+/** Configurable model roles: the VOICE call's own prompt -- see
+ *  `buildPrisonerVoicePrompt` (`prisonerMind.ts`) for the full reasoning,
+ *  identical here. */
+function buildWardenVoicePrompt(context: VoiceContext): string {
+  const moveDescription = MOVE_DESCRIPTIONS[context.decision.choice] ?? "(no description on file)";
+  return [
+    `You are ${WARDEN_NAME}. The other person in the cell is ${PRISONER_NAME}.`,
+    context.identity,
+    `Your motive: ${context.motive}`,
+    "",
+    context.briefing,
+    "",
+    `You have already decided what to do this turn: ${context.decision.choice} -- ${moveDescription}`,
+    ...(context.decision.thoughts ? [`Your own private reasoning behind that decision, for tone only: ${context.decision.thoughts}`] : []),
+    "",
+    "Your only job now is to voice this decision in character. The move itself is already decided and cannot change.",
+    'Answer with one JSON object: {"intent": string, "line": string}.',
+    '"intent" is what you are doing, in your own words, consistent with the move already chosen.',
+    '"line" is REQUIRED -- one sentence spoken ALOUD to the other person, or an empty string ("") to ' +
+      "stay silent this turn. The other person hears every word of it; keep secrets out of it.",
+    "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
+  ].join("\n");
+}
+
+/** See `createPrisonerMind` for the full reasoning -- identical shape here:
+ *  `witsModel`/`voiceModel` resolve against `model`; equal, this is the
+ *  single, unmodified `createLocalMind` call this function has always
+ *  made; different, it composes two calls through `composeRoleMind`. */
 export function createWardenMind(options: CreateWardenMindOptions): WardenMind {
-  return createLocalMind<WardenContext, WardenProposal>({
-    ...options,
-    responseFormat: { jsonSchema: WARDEN_PROPOSAL_SCHEMA, name: "proposal" },
-    prompt: buildWardenPrompt,
-    coerce: coerceWardenProposal,
-  });
+  const witsModel = options.witsModel ?? options.model;
+  const voiceModel = options.voiceModel ?? options.model;
+  if (!witsModel || !voiceModel) {
+    throw new Error("createWardenMind: provide `model`, or both `witsModel` and `voiceModel`.");
+  }
+
+  if (witsModel === voiceModel) {
+    return createLocalMind<WardenContext, WardenProposal>({
+      baseUrl: options.baseUrl,
+      model: witsModel,
+      temperature: options.temperature,
+      timeoutMs: options.timeoutMs,
+      fetchFn: options.fetchFn,
+      responseFormat: { jsonSchema: WARDEN_PROPOSAL_SCHEMA, name: "proposal" },
+      prompt: buildWardenPrompt,
+      coerce: coerceWardenProposal,
+      onSilence: options.onSilence,
+    });
+  }
+
+  return composeRoleMind<WardenContext>(
+    {
+      baseUrl: options.baseUrl,
+      witsModel,
+      voiceModel,
+      witsSchema: WARDEN_WITS_SCHEMA,
+      voiceSchema: VOICE_PROPOSAL_SCHEMA,
+      buildWitsPrompt: buildWardenWitsPrompt,
+      buildVoicePrompt: buildWardenVoicePrompt,
+      coerceWits: coerceWardenWitsProposal,
+      coerceVoice: (raw) => coerceProposal(raw),
+      temperature: options.temperature,
+      timeoutMs: options.timeoutMs,
+      fetchFn: options.fetchFn,
+      ensureLoaded: options.ensureLoaded,
+      onWitsSilence: options.onSilence,
+      onVoiceSilence: options.onVoiceSilence,
+    },
+    (context, wits) => ({
+      principalId: context.principalId,
+      identity: context.identity,
+      motive: context.motive,
+      briefing: context.briefing,
+      decision: { choice: wits.choice ?? "", ...(wits.thoughts !== undefined ? { thoughts: wits.thoughts } : {}) },
+    }),
+    (_context, wits, voice, meta) => ({
+      intent: voice?.intent ?? "",
+      line: voice?.line ?? "",
+      choice: wits.choice,
+      plan: wits.plan,
+      ...(wits.thoughts !== undefined ? { thoughts: wits.thoughts } : {}),
+      ...(wits.notes !== undefined ? { notes: wits.notes } : {}),
+      witsModel,
+      voiceModel,
+      witsMs: meta.witsMs,
+      ...(meta.witsSwapMs !== undefined ? { witsSwapMs: meta.witsSwapMs } : {}),
+      ...(meta.voiceMs !== undefined ? { voiceMs: meta.voiceMs } : {}),
+      ...(meta.voiceSwapMs !== undefined ? { voiceSwapMs: meta.voiceSwapMs } : {}),
+      ...(meta.voiceSilenceReason !== undefined ? { voiceSilenceReason: meta.voiceSilenceReason } : {}),
+      ...(meta.voiceSilenceText !== undefined ? { voiceSilenceText: meta.voiceSilenceText } : {}),
+      ...(meta.voiceSilenceParsed !== undefined ? { voiceSilenceParsed: meta.voiceSilenceParsed } : {}),
+    })
+  ) as WardenMind;
 }

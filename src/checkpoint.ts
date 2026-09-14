@@ -33,7 +33,8 @@ import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
 import { pinnedDependencyVersion } from "./packageInfo.js";
-import { fetchLoadedModelsSummary } from "./ollamaStatus.js";
+import { summarizeLoadedModels, type OllamaPsResponse } from "./ollamaStatus.js";
+import { OllamaModelSwapper, nativeBaseUrl, detectPin, assertNoForeignModel } from "./ollamaSwap.js";
 import {
   runHalfRound,
   newSilenceTracker,
@@ -52,11 +53,42 @@ process.env.DMCP_DB_PATH = dbPath;
 initializeSchema({ migrations: [prisonerMigration] });
 
 const MODEL_URL = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
-const MODEL = process.env.PRISONER_MODEL ?? "qwen2.5:14b";
+/**
+ * Configurable model roles (this task's brief, item 1): `PRISONER_MODEL`
+ * alone, or `PRISONER_WITS_MODEL`/`PRISONER_VOICE_MODEL` set to the SAME
+ * value, is exactly today's behaviour -- `createPrisonerMind`/
+ * `createWardenMind` collapse to their original single-call path whenever
+ * the two resolved names are equal (`prisonerMind.ts`/`wardenMind.ts`).
+ */
+const DEFAULT_MODEL = "qwen2.5:14b";
+const MODEL = process.env.PRISONER_MODEL;
+const WITS_MODEL = process.env.PRISONER_WITS_MODEL ?? MODEL ?? DEFAULT_MODEL;
+const VOICE_MODEL = process.env.PRISONER_VOICE_MODEL ?? MODEL ?? DEFAULT_MODEL;
+const MODEL_LABEL = WITS_MODEL === VOICE_MODEL ? WITS_MODEL : `${WITS_MODEL} (wits) / ${VOICE_MODEL} (voice)`;
 const THINK_TIMEOUT_MS = process.env.PRISONER_THINK_TIMEOUT_MS
   ? Number(process.env.PRISONER_THINK_TIMEOUT_MS)
   : undefined;
 const ROUNDS = process.env.PRISONER_ROUNDS ? Number(process.env.PRISONER_ROUNDS) : 12;
+
+/** GPU-safe model swapping (this task's brief, item 2): one shared swapper
+ *  for every mind call this run makes, so its own mutex genuinely covers
+ *  "never allow two model calls in flight" across both principals and both
+ *  roles, not just within one. `NATIVE_BASE_URL` is `PRISONER_MODEL_URL`
+ *  with a trailing `/v1` stripped, or `PRISONER_OLLAMA_NATIVE_URL` verbatim
+ *  when set. */
+const NATIVE_BASE_URL = nativeBaseUrl(MODEL_URL, process.env.PRISONER_OLLAMA_NATIVE_URL);
+const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL });
+const ensureLoaded = (model: string): Promise<void> => swapper.withModel(model, async () => {});
+const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL])];
+
+async function safePsSummary(): Promise<{ ps: OllamaPsResponse | null; summary: string }> {
+  try {
+    const ps = await swapper.fetchPs();
+    return { ps, summary: summarizeLoadedModels(ps) };
+  } catch (err) {
+    return { ps: null, summary: `(could not query /api/ps: ${err instanceof Error ? err.message : String(err)})` };
+  }
+}
 
 interface Timing {
   round: number;
@@ -143,6 +175,14 @@ interface RunStats {
   refusals: { round: number; principal: Principal; move: string; cause: string }[];
   planRevisions: { round: number; principal: Principal; moves: readonly string[] }[];
   silences: { round: number; principal: Principal; reason: string | undefined; text: string | undefined; parsed: unknown }[];
+  /** Configurable model roles (this task's brief, item 1): a VOICE failure
+   *  -- separate from `silences` above, which is exclusively DECISION
+   *  (wits) silence. The turn still resolved; this is purely a report. */
+  voiceSilences: { round: number; principal: Principal; reason: string | undefined; text: string | undefined }[];
+  /** Item 3: per-call wall time, one entry per sub-call actually made, so
+   *  totals can be reported separately for wits vs. voice. Empty on the
+   *  default (single-call) path. */
+  roleCallTimings: { round: number; principal: Principal; role: "wits" | "voice"; model: string; ms: number }[];
 }
 
 function noteStats(stats: RunStats, half: HalfRoundResult, roundN: number): void {
@@ -156,6 +196,18 @@ function noteStats(stats: RunStats, half: HalfRoundResult, roundN: number): void
   }
   if (half.planRevision && half.planRevision.length > 0) {
     stats.planRevisions.push({ round: roundN, principal: half.principal, moves: half.planRevision });
+  }
+  if (r.kind !== "silent") {
+    const p = r.proposal;
+    if (p.witsModel !== undefined && p.witsMs !== undefined) {
+      stats.roleCallTimings.push({ round: roundN, principal: half.principal, role: "wits", model: p.witsModel, ms: p.witsMs });
+    }
+    if (p.voiceModel !== undefined && p.voiceMs !== undefined) {
+      stats.roleCallTimings.push({ round: roundN, principal: half.principal, role: "voice", model: p.voiceModel, ms: p.voiceMs });
+    }
+    if (p.voiceSilenceReason !== undefined) {
+      stats.voiceSilences.push({ round: roundN, principal: half.principal, reason: p.voiceSilenceReason, text: p.voiceSilenceText });
+    }
   }
 }
 
@@ -187,9 +239,34 @@ function renderHalfRound(world: World, half: HalfRoundResult): string[] {
       lines.push("```");
     }
     if (r.loud) {
-      lines.push(`**${loudSilenceMessage(half.principal, MODEL_URL, MODEL, r.reason, 2)}**`);
+      lines.push(`**${loudSilenceMessage(half.principal, MODEL_URL, MODEL_LABEL, r.reason, 2)}**`);
     }
   } else {
+    // Configurable model roles (this task's brief, items 1 and 3): which
+    // model produced which part, its own call time, and any swap wall time
+    // incurred right before it -- present ONLY on the two-call path
+    // (`witsModel`/`voiceModel` are unset on the single-call/default path,
+    // so none of this renders there, which is how "identical transcripts"
+    // in the default case stays true).
+    if (r.proposal.witsModel !== undefined) {
+      const swap = r.proposal.witsSwapMs !== undefined ? `, swap ${r.proposal.witsSwapMs.toFixed(0)}ms` : "";
+      lines.push(`**Wits model:** \`${r.proposal.witsModel}\` (${r.proposal.witsMs?.toFixed(0) ?? "?"}ms${swap})`);
+    }
+    if (r.proposal.voiceModel !== undefined) {
+      const swap = r.proposal.voiceSwapMs !== undefined ? `, swap ${r.proposal.voiceSwapMs.toFixed(0)}ms` : "";
+      lines.push(`**Voice model:** \`${r.proposal.voiceModel}\` (${r.proposal.voiceMs?.toFixed(0) ?? "?"}ms${swap})`);
+    }
+    if (r.proposal.voiceSilenceReason !== undefined) {
+      lines.push(
+        `**Voice silence.** SilenceReason: \`${r.proposal.voiceSilenceReason}\` -- the wits decision above was kept; line left empty.`
+      );
+      if (r.proposal.voiceSilenceText !== undefined) {
+        lines.push("**Voice raw text:**");
+        lines.push("```");
+        lines.push(r.proposal.voiceSilenceText);
+        lines.push("```");
+      }
+    }
     // Private thoughts, first (this task's brief, item 1): rendered in the
     // TRANSCRIPT only -- never stored, never fed into any context.
     if (r.proposal.thoughts) lines.push(`**Thoughts:** ${r.proposal.thoughts}`);
@@ -262,21 +339,41 @@ async function main(): Promise<void> {
   const wardenTracker = newSilenceTracker();
   const prisonerTracker = newSilenceTracker();
   const timings: Timing[] = [];
-  const stats: RunStats = { refusals: [], planRevisions: [], silences: [] };
+  const stats: RunStats = { refusals: [], planRevisions: [], silences: [], voiceSilences: [], roleCallTimings: [] };
   const wits = newWitsSummary();
 
+  // GPU-safe swapping (this task's brief, item 2): `ensureLoaded` is only
+  // ever a real swap check here, in the one script that talks to doris --
+  // every unit test constructs these minds without it. Both principals
+  // share the SAME `swapper`, so its mutex covers every call this run
+  // makes, not just one principal's.
   const wardenMind = createWardenMind({
     baseUrl: MODEL_URL,
-    model: MODEL,
+    witsModel: WITS_MODEL,
+    voiceModel: VOICE_MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
+    ensureLoaded,
     onSilence: (reason, _context, detail) => noteSilenceReason(wardenTracker, reason, detail),
   });
   const prisonerMind = createPrisonerMind({
     baseUrl: MODEL_URL,
-    model: MODEL,
+    witsModel: WITS_MODEL,
+    voiceModel: VOICE_MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
+    ensureLoaded,
     onSilence: (reason, _context, detail) => noteSilenceReason(prisonerTracker, reason, detail),
   });
+
+  // "That model belongs to someone else" (this task's brief, item 2): read
+  // /api/ps BEFORE playing a single half-round. A model loaded that this
+  // run did not configure and that is not pinned stops the run outright
+  // (`assertNoForeignModel` throws, uncaught -- loud, never a silent
+  // no-op). A `/api/ps` that cannot be reached at all is reported but does
+  // not itself stop the run (the very first mind call will fail loudly on
+  // its own if doris is really unreachable).
+  const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
+  const pinAtStart = initialPs ? detectPin(initialPs) : null;
+  if (initialPs) assertNoForeignModel(initialPs, CONFIGURED_MODELS);
 
   const transcript: string[] = [];
   transcript.push("# The Prisoner -- checkpoint transcript");
@@ -293,11 +390,20 @@ async function main(): Promise<void> {
       "prisoner wins by escaping. Both minds may revise their own plan as the game unfolds."
   );
   transcript.push("");
-  transcript.push(`Model: \`${MODEL}\` at \`${MODEL_URL}\`. Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}.`);
+  if (WITS_MODEL === VOICE_MODEL) {
+    transcript.push(`Model: \`${MODEL_LABEL}\` at \`${MODEL_URL}\`. Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}.`);
+  } else {
+    // Configurable model roles (this task's brief, item 1): two models,
+    // named separately -- never rendered as a single "Model:" line, so a
+    // reader can never mistake this for the single-call default.
+    transcript.push(`Wits model: \`${WITS_MODEL}\` at \`${MODEL_URL}\`.`);
+    transcript.push(`Voice model: \`${VOICE_MODEL}\` at \`${MODEL_URL}\`.`);
+    transcript.push(`Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}.`);
+  }
   transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
-  const loadedAtStart = await fetchLoadedModelsSummary(MODEL_URL);
   transcript.push(`Models loaded on doris at start (/api/ps): ${loadedAtStart}`);
+  if (pinAtStart) transcript.push(`Pinned at start (keep_alive -1): \`${pinAtStart.name}\`.`);
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
@@ -305,141 +411,202 @@ async function main(): Promise<void> {
   let ended: GameEnd = null;
   let endedAtRound = -1;
 
-  for (let n = 1; n <= ROUNDS && !ended; n++) {
-    transcript.push(`## Round ${n}`);
-    transcript.push("");
+  // Pin restore, in a `finally` (this task's brief, item 2): whatever the
+  // GPU held pinned (keep_alive -1) when THIS run started must be back and
+  // pinned when it ends, whether the game finished normally, ended early,
+  // or the round loop below threw. `pinAtStart` is `null` on the ordinary
+  // case (nothing was pinned), making this a no-op (`restorePin` returns
+  // immediately).
+  try {
+    for (let n = 1; n <= ROUNDS && !ended; n++) {
+      transcript.push(`## Round ${n}`);
+      transcript.push("");
 
-    const tw = world.clock.wardenT(n);
-    const wardenContext = buildWardenContext(world, wardenPlan, tw, ROUNDS);
-    const wStart = performance.now();
-    const wardenHalf = await runHalfRound({
-      world,
-      resolver,
-      plan: wardenPlan,
-      principal: "warden",
-      roundN: n,
-      t: tw,
-      context: wardenContext,
-      mind: wardenMind,
-      tracker: wardenTracker,
-    });
-    timings.push({ round: n, principal: "warden", ms: performance.now() - wStart, silent: wardenHalf.result.kind === "silent" });
-    noteStats(stats, wardenHalf, n);
-    noteWitsEvent(wits, world.gameId, wardenHalf, n);
-    transcript.push(...renderHalfRound(world, wardenHalf));
-
-    ended = checkGameEnd(world, tw);
-    if (ended) {
-      endedAtRound = n;
-    } else {
-      const tp = world.clock.prisonerT(n);
-      const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp, ROUNDS);
-      const pStart = performance.now();
-      const prisonerHalf = await runHalfRound({
+      const tw = world.clock.wardenT(n);
+      const wardenContext = buildWardenContext(world, wardenPlan, tw, ROUNDS);
+      const wStart = performance.now();
+      const wardenHalf = await runHalfRound({
         world,
         resolver,
-        plan: prisonerPlan,
-        principal: "prisoner",
+        plan: wardenPlan,
+        principal: "warden",
         roundN: n,
-        t: tp,
-        context: prisonerContext,
-        mind: prisonerMind,
-        tracker: prisonerTracker,
+        t: tw,
+        context: wardenContext,
+        mind: wardenMind,
+        tracker: wardenTracker,
       });
-      timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
-      noteStats(stats, prisonerHalf, n);
-      noteWitsEvent(wits, world.gameId, prisonerHalf, n);
-      transcript.push(...renderHalfRound(world, prisonerHalf));
+      timings.push({ round: n, principal: "warden", ms: performance.now() - wStart, silent: wardenHalf.result.kind === "silent" });
+      noteStats(stats, wardenHalf, n);
+      noteWitsEvent(wits, world.gameId, wardenHalf, n);
+      transcript.push(...renderHalfRound(world, wardenHalf));
 
-      ended = checkGameEnd(world, tp);
-      if (ended) endedAtRound = n;
+      ended = checkGameEnd(world, tw);
+      if (ended) {
+        endedAtRound = n;
+      } else {
+        const tp = world.clock.prisonerT(n);
+        const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp, ROUNDS);
+        const pStart = performance.now();
+        const prisonerHalf = await runHalfRound({
+          world,
+          resolver,
+          plan: prisonerPlan,
+          principal: "prisoner",
+          roundN: n,
+          t: tp,
+          context: prisonerContext,
+          mind: prisonerMind,
+          tracker: prisonerTracker,
+        });
+        timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
+        noteStats(stats, prisonerHalf, n);
+        noteWitsEvent(wits, world.gameId, prisonerHalf, n);
+        transcript.push(...renderHalfRound(world, prisonerHalf));
+
+        ended = checkGameEnd(world, tp);
+        if (ended) endedAtRound = n;
+      }
+
+      if (!ended) {
+        // Time decay, once per full round -- an audited referee resolution
+        // (design), never a direct write.
+        resolver.resolve({ gameId: world.gameId, mechanic: "TIME_DECAY" });
+      }
     }
 
-    if (!ended) {
-      // Time decay, once per full round -- an audited referee resolution
-      // (design), never a direct write.
-      resolver.resolve({ gameId: world.gameId, mechanic: "TIME_DECAY" });
+    const { summary: loadedAtEnd } = await safePsSummary();
+
+    transcript.push("## Result");
+    transcript.push("");
+    if (ended?.kind === "escaped") {
+      transcript.push(`**The prisoner escaped, at round ${endedAtRound}.**`);
+    } else if (ended?.kind === "caught") {
+      transcript.push(`**The warden caught the prisoner, at round ${endedAtRound}.**`);
+    } else {
+      transcript.push(`**Timeout after ${ROUNDS} rounds -- the warden wins by default.**`);
     }
-  }
+    transcript.push("");
 
-  const loadedAtEnd = await fetchLoadedModelsSummary(MODEL_URL);
+    transcript.push("## Final state");
+    transcript.push("");
+    transcript.push(`Models loaded on doris at end (/api/ps): ${loadedAtEnd}`);
+    transcript.push("");
+    transcript.push("### Constrained resources");
+    transcript.push(...finalResourceValues(world));
+    transcript.push("");
+    transcript.push("### Prisoner's ledger");
+    transcript.push("```");
+    transcript.push(renderLedger(world.gameId, prisonerPlan));
+    transcript.push("```");
+    transcript.push("");
+    transcript.push("### Warden's ledger");
+    transcript.push("```");
+    transcript.push(renderLedger(world.gameId, wardenPlan));
+    transcript.push("```");
+    transcript.push("");
 
-  transcript.push("## Result");
-  transcript.push("");
-  if (ended?.kind === "escaped") {
-    transcript.push(`**The prisoner escaped, at round ${endedAtRound}.**`);
-  } else if (ended?.kind === "caught") {
-    transcript.push(`**The warden caught the prisoner, at round ${endedAtRound}.**`);
-  } else {
-    transcript.push(`**Timeout after ${ROUNDS} rounds -- the warden wins by default.**`);
-  }
-  transcript.push("");
+    const silentCount = timings.filter((t) => t.silent).length;
+    transcript.push("### Summary");
+    transcript.push("");
+    transcript.push(`Total half-round calls: ${timings.length}. Silent: ${silentCount}. Timeout used: ${THINK_TIMEOUT_MS ?? 12000}ms.`);
+    transcript.push(`Refusals: ${stats.refusals.length}.`);
+    for (const r of stats.refusals) {
+      transcript.push(`  - round ${r.round}, ${r.principal}, ${r.move}: ${r.cause}`);
+    }
+    transcript.push(`Plan revisions: ${stats.planRevisions.length}.`);
+    for (const p of stats.planRevisions) {
+      transcript.push(`  - round ${p.round}, ${p.principal}: ${p.moves.join(" -> ")}`);
+    }
+    transcript.push(`Silences (decision): ${stats.silences.length}.`);
+    for (const s of stats.silences) {
+      const text = s.text !== undefined ? JSON.stringify(s.text) : "(no text)";
+      const parsed = s.parsed !== undefined ? JSON.stringify(s.parsed) : "(no parsed answer)";
+      transcript.push(`  - round ${s.round}, ${s.principal}, reason ${s.reason ?? "unknown"}, text: ${text}, parsed: ${parsed}`);
+    }
+    // Configurable model roles (this task's brief, item 1): a VOICE silence
+    // is counted and listed SEPARATELY from a decision silence above -- the
+    // turn still resolved in every one of these; only the line stayed
+    // empty. Always printed (even "0") the same way every other count here
+    // is, never omitted (root CLAUDE.md hard rule 3).
+    transcript.push(`Silences (voice): ${stats.voiceSilences.length}.`);
+    for (const s of stats.voiceSilences) {
+      const text = s.text !== undefined ? JSON.stringify(s.text) : "(no text)";
+      transcript.push(`  - round ${s.round}, ${s.principal}, reason ${s.reason ?? "unknown"}, text: ${text}`);
+    }
+    transcript.push("");
+    // Coordinator's fix, item 6: a short, machine-derived section -- every
+    // refusal with its cause and whose act caused it, every SEARCH, every
+    // covert act by each side, and any ESCAPE attempt -- built ONLY from
+    // structured HalfRoundResult fields, never from a resolution's own prose
+    // (`witsSummary.ts`).
+    transcript.push("### Wits summary");
+    transcript.push("");
+    transcript.push(...renderWitsSummary(wits, world.gameId));
+    transcript.push("");
+    transcript.push("### Model call timings");
+    transcript.push("");
+    for (const timing of timings) {
+      transcript.push(`- round ${timing.round}, ${timing.principal}: ${timing.ms.toFixed(0)}ms${timing.silent ? " (silent)" : ""}`);
+    }
 
-  transcript.push("## Final state");
-  transcript.push("");
-  transcript.push(`Models loaded on doris at end (/api/ps): ${loadedAtEnd}`);
-  transcript.push("");
-  transcript.push("### Constrained resources");
-  transcript.push(...finalResourceValues(world));
-  transcript.push("");
-  transcript.push("### Prisoner's ledger");
-  transcript.push("```");
-  transcript.push(renderLedger(world.gameId, prisonerPlan));
-  transcript.push("```");
-  transcript.push("");
-  transcript.push("### Warden's ledger");
-  transcript.push("```");
-  transcript.push(renderLedger(world.gameId, wardenPlan));
-  transcript.push("```");
-  transcript.push("");
+    // Configurable model roles (this task's brief, item 3): which model
+    // produced which part, per-call, and the totals -- present only when
+    // the two-call path actually ran (`stats.roleCallTimings` stays empty
+    // on the default single-call path).
+    if (stats.roleCallTimings.length > 0) {
+      transcript.push("");
+      transcript.push("### Role call timings (wits vs. voice)");
+      transcript.push("");
+      for (const t of stats.roleCallTimings) {
+        transcript.push(`- round ${t.round}, ${t.principal}, ${t.role} (\`${t.model}\`): ${t.ms.toFixed(0)}ms`);
+      }
+      for (const role of ["wits", "voice"] as const) {
+        const calls = stats.roleCallTimings.filter((t) => t.role === role);
+        const mean = calls.length > 0 ? calls.reduce((sum, t) => sum + t.ms, 0) / calls.length : 0;
+        transcript.push(`Total ${role} calls: ${calls.length}. Mean ${role} call time: ${mean.toFixed(0)}ms.`);
+      }
+    }
 
-  const silentCount = timings.filter((t) => t.silent).length;
-  transcript.push("### Summary");
-  transcript.push("");
-  transcript.push(`Total half-round calls: ${timings.length}. Silent: ${silentCount}. Timeout used: ${THINK_TIMEOUT_MS ?? 12000}ms.`);
-  transcript.push(`Refusals: ${stats.refusals.length}.`);
-  for (const r of stats.refusals) {
-    transcript.push(`  - round ${r.round}, ${r.principal}, ${r.move}: ${r.cause}`);
-  }
-  transcript.push(`Plan revisions: ${stats.planRevisions.length}.`);
-  for (const p of stats.planRevisions) {
-    transcript.push(`  - round ${p.round}, ${p.principal}: ${p.moves.join(" -> ")}`);
-  }
-  transcript.push(`Silences: ${stats.silences.length}.`);
-  for (const s of stats.silences) {
-    const text = s.text !== undefined ? JSON.stringify(s.text) : "(no text)";
-    const parsed = s.parsed !== undefined ? JSON.stringify(s.parsed) : "(no parsed answer)";
-    transcript.push(`  - round ${s.round}, ${s.principal}, reason ${s.reason ?? "unknown"}, text: ${text}, parsed: ${parsed}`);
-  }
-  transcript.push("");
-  // Coordinator's fix, item 6: a short, machine-derived section -- every
-  // refusal with its cause and whose act caused it, every SEARCH, every
-  // covert act by each side, and any ESCAPE attempt -- built ONLY from
-  // structured HalfRoundResult fields, never from a resolution's own prose
-  // (`witsSummary.ts`).
-  transcript.push("### Wits summary");
-  transcript.push("");
-  transcript.push(...renderWitsSummary(wits, world.gameId));
-  transcript.push("");
-  transcript.push("### Model call timings");
-  transcript.push("");
-  for (const timing of timings) {
-    transcript.push(`- round ${timing.round}, ${timing.principal}: ${timing.ms.toFixed(0)}ms${timing.silent ? " (silent)" : ""}`);
-  }
+    // GPU-safe swapping (this task's brief, item 2 and 3): every unload
+    // this run actually performed, with its own wall time, plus totals --
+    // empty on a run that only ever used one model throughout (nothing to
+    // swap between).
+    transcript.push("");
+    transcript.push("### GPU swaps");
+    transcript.push("");
+    const swapEvents = swapper.swapEvents;
+    transcript.push(`Swap count: ${swapEvents.length}.`);
+    for (const event of swapEvents) {
+      transcript.push(`  - loaded \`${event.model}\`, unload+poll wall time: ${event.unloadMs.toFixed(0)}ms.`);
+    }
+    if (swapEvents.length > 0) {
+      const meanUnloadMs = swapEvents.reduce((sum, e) => sum + e.unloadMs, 0) / swapEvents.length;
+      const totalUnloadMs = swapEvents.reduce((sum, e) => sum + e.unloadMs, 0);
+      transcript.push(`Mean unload+poll wall time: ${meanUnloadMs.toFixed(0)}ms. Total: ${totalUnloadMs.toFixed(0)}ms.`);
+    }
 
-  const dir = join(process.cwd(), "checkpoints");
-  mkdirSync(dir, { recursive: true });
-  const file = join(dir, `${new Date().toISOString().replace(/[:.]/g, "-")}.md`);
-  writeFileSync(file, transcript.join("\n") + "\n");
+    const dir = join(process.cwd(), "checkpoints");
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, `${new Date().toISOString().replace(/[:.]/g, "-")}.md`);
+    writeFileSync(file, transcript.join("\n") + "\n");
 
-  // eslint-disable-next-line no-console
-  console.log(`Transcript written to ${file}`);
-  // eslint-disable-next-line no-console
-  console.log(`Database: ${dbPath}`);
-  // eslint-disable-next-line no-console
-  console.log(`Result: ${ended?.kind ?? "timeout"} at round ${endedAtRound > 0 ? endedAtRound : ROUNDS}`);
-  // eslint-disable-next-line no-console
-  console.log(`Calls: ${timings.length}, silent: ${silentCount}, refusals: ${stats.refusals.length}, plan revisions: ${stats.planRevisions.length}`);
+    // eslint-disable-next-line no-console
+    console.log(`Transcript written to ${file}`);
+    // eslint-disable-next-line no-console
+    console.log(`Database: ${dbPath}`);
+    // eslint-disable-next-line no-console
+    console.log(`Result: ${ended?.kind ?? "timeout"} at round ${endedAtRound > 0 ? endedAtRound : ROUNDS}`);
+    // eslint-disable-next-line no-console
+    console.log(
+      `Calls: ${timings.length}, silent: ${silentCount}, refusals: ${stats.refusals.length}, plan revisions: ${stats.planRevisions.length}, voice silences: ${stats.voiceSilences.length}, swaps: ${swapEvents.length}`
+    );
+  } finally {
+    // Pin restore (this task's brief, item 2): runs whether the loop above
+    // finished normally or threw. `restorePin` itself is a no-op when
+    // `pinAtStart` is `null` (nothing was pinned when this run began).
+    await swapper.restorePin(pinAtStart);
+  }
 }
 
 main().catch((err) => {

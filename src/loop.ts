@@ -70,12 +70,28 @@ export type PrincipalContext = {
  *
  *  `thoughts`/`notes` (this task's brief, items 1-2): private reasoning and
  *  a persisted note, both optional here for the same reason `choice`/`plan`
- *  are -- a test's own scripted proposal need not supply them. */
+ *  are -- a test's own scripted proposal need not supply them.
+ *
+ *  Configurable model roles (this task's brief, item 1): the six fields
+ *  below `notes` are set only on the two-call (wits/voice) path -- see
+ *  `PrisonerProposal` (`prisonerMind.ts`) for the full reasoning. Declared
+ *  here, on the type BOTH principals' `HalfRoundOutcome`s actually carry
+ *  (not the generic `P` this module's own functions are parameterized
+ *  over), so `checkpoint.ts` can read them off `half.result`. */
 export type PrincipalProposal = Proposal & {
   readonly choice?: string;
   readonly plan?: readonly string[];
   readonly thoughts?: string;
   readonly notes?: string;
+  readonly witsModel?: string;
+  readonly voiceModel?: string;
+  readonly witsMs?: number;
+  readonly voiceMs?: number;
+  readonly witsSwapMs?: number;
+  readonly voiceSwapMs?: number;
+  readonly voiceSilenceReason?: SilenceReason;
+  readonly voiceSilenceText?: string;
+  readonly voiceSilenceParsed?: import("mind-seam").Inert;
 };
 
 /** Per-principal silence history. Two consecutive `null`s make the loop

@@ -1157,6 +1157,75 @@ knows, without inference, which of the two lines above its own plan is the fresh
 
 ---
 
+## Revision 2026-09-14 (continued) — configurable model roles, and GPU-safe swapping
+
+The owner's own finding, from the checkpoints so far: `ancient-awakening:12b` (a roleplay merge)
+writes the best lines and plays poor strategy; `qwen3:14b` plays well and writes flatly. Wanting
+both voice and wits means using two models, and doris (the owner's RTX 4090, Ollama 0.30.10) holds
+only one big model at a time -- so using two means swapping between them, on purpose, every
+half-round if the two roles differ.
+
+**Two model roles per half-round.** `PRISONER_WITS_MODEL`/`PRISONER_VOICE_MODEL` (env), read once in
+`checkpoint.ts`, falling back to `PRISONER_MODEL` when either is unset. **wits** produces `thoughts`,
+`notes` and `plan` (the decision, exactly as before this revision); **voice** produces `intent` and
+`line` in character, given the wits call's own decision (the chosen move and its `thoughts`) -- it
+never sees the move list and cannot change the move. Each principal is still one `Mind<C, P>` to
+`loop.ts` and to the conformance suite (design §9): the two calls are composed INSIDE the mind
+(`src/mind/roleMind.ts`'s `composeRoleMind`, used by `createPrisonerMind`/`createWardenMind` only
+when the two resolved model names differ), never exposed as a second mind the loop has to know
+about. **When the two names are equal -- including the case where only `PRISONER_MODEL` is set --
+`createPrisonerMind`/`createWardenMind` return the exact, unmodified `createLocalMind` call this
+repository has made since before this revision:** same schema object, same prompt function, same
+`coerce` function, one call. This is not merely equivalent behaviour; it is the same code path,
+which is what makes "one call per half-round, no swapping, identical transcripts" a fact about the
+diff rather than an empirical claim (`src/mind/__tests__/prisonerRoles.test.ts`,
+`wardenRoles.test.ts`).
+
+Both calls go through `mind-seam`'s own `createLocalMind`, each with its own strict JSON schema --
+wits: `{thoughts, plan, notes}`; voice: `{intent, line}` (`src/mind/roleMind.ts`'s
+`VOICE_PROPOSAL_SCHEMA`, shared by both principals since it carries no game vocabulary at all). A
+voice failure (silence) does NOT fail the half-round: the turn resolves with the wits decision and an
+empty `line`, and the failure is recorded as `voiceSilenceReason`/`voiceSilenceText` on the proposal
+-- a channel entirely separate from a wits (decision) silence, which still makes the whole
+`consider()` call return `null` exactly as it always has, counted by the same `SilenceTracker`
+(`loop.ts`) unchanged. `src/mind/__tests__/rolesFog.test.ts` plants a marker in one principal's own
+notes and proves it reaches neither the OTHER principal's wits request body nor its voice request
+body, with the positive control that it does reach this SAME principal's own next wits request.
+
+**GPU-safe swapping** is its own small module, `src/ollamaSwap.ts` -- Ollama-specific, so it stays in
+this repository rather than `mind-seam` (which knows no vendor) or `run-dmcp` (which knows no
+models). `OllamaModelSwapper.withModel(model, fn)` is wired as an `ensureLoaded` hook, called from
+INSIDE `composeRoleMind`'s `consider()` but OUTSIDE `createLocalMind`'s own `fetchFn` -- deliberately,
+so a swap-timeout error propagates out of `consider()` uncaught rather than being absorbed by
+`mind-seam`'s own silence handling, which exists for an unreachable MODEL, not a GPU left in an unsafe
+state. Before any call to model M: read `/api/ps`; already the sole model loaded, proceed; otherwise
+unload every loaded model (`keep_alive: 0`) and poll `/api/ps` until empty, bounded by a timeout that
+throws, loudly, naming what is still loaded, rather than ever proceeding with two models loaded. Every
+call is serialized behind one mutex (`OllamaModelSwapper`'s own `runExclusive`), one shared instance
+across both principals and both roles. At the start of a real run, `/api/ps` showing a model this run
+did not configure and that is not pinned (a far-future `expires_at`, `keep_alive: -1`'s own tell) stops
+the run before playing -- that model belongs to someone else. At the end of `npm run checkpoint`, in a
+`finally`, whatever was pinned at the start (if anything) is restored: unload, reload with
+`keep_alive: -1`, confirm via `/api/ps`. Unit-tested against an injected fake `fetch` and injected
+`delayFn`/`nowFn` (`src/__tests__/ollamaSwap.test.ts`): unload order, polling, the bounded timeout,
+no overlap between concurrent `withModel` calls, and restore-in-`finally` even after a thrown error --
+26 tests, none of them touching a real clock or a real network.
+
+The transcript (`checkpoint.ts`) now shows, only on the two-call path (never on the default,
+preserving the identical-transcript claim above): which model produced the decision vs. the line, each
+sub-call's own wall time, and any swap wall time incurred immediately before it, per half-round; a
+"Silences (voice)" count separate from "Silences (decision)"; a "Role call timings" section with mean
+call time per role; and a "GPU swaps" section listing every actual swap with its unload+poll wall time
+and the run's mean and total.
+
+No `run-dmcp` or `mind-seam` change. `thoughts`, `notes`, `plan`, `intent` and `line` are all fields
+this revision's own predecessor (2026-09-14, "private thoughts and persisted notes") already
+established as ordinary caller fields over the package's generic `Proposal`; splitting their
+production across two calls to two different models is a fact about how THIS repository composes its
+own mind, never a change to the seam's contract.
+
+---
+
 ## Appendix B — points for The Prisoner's own `CLAUDE.md`
 
 - What this is, in two sentences, and that `docs/DESIGN.md` is the authority.
