@@ -119,7 +119,8 @@ strips" is a move list wearing a costume, and would quietly rebuild the closed v
 
 The same intent in the same state should get the same ruling. The referee runs at temperature 0, and
 each question is shown the **precedent record** for the same `(object, effect kind)`: earlier rulings'
-keys and citations, never their reasoning. Consistency is measured, not assumed (§5.2).
+keys and citations, never their reasoning. Only rulings that **applied** enter it (owner's decision,
+2026-09-14, after §11.2): a failed ruling shown as an example gets copied. Consistency is measured, not assumed (§5.2).
 
 ---
 

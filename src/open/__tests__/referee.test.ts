@@ -183,6 +183,34 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(precedentSource?.text).toContain("effect=wear");
   });
 
+  it("precedent keeps only applicable rulings: an impossible ruling is never shown to a later question as an example", async () => {
+    const requests: (readonly { id: string; text: string }[])[] = [];
+    let call = 0;
+    const transport: ReaderTransport = async (request) => {
+      requests.push(request.sources);
+      call += 1;
+      // First ruling: target named, but the effect cites a quote absent from the intent -- inapplicable.
+      const effectQuote = call === 1 ? "PARAPHRASE_NOT_IN_INTENT" : "file it";
+      return [
+        { questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file it" } },
+        { questionId: "effect", answerKey: "wear", citation: { sourceId: "intent", quote: effectQuote } },
+        { questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+        { questionId: "magnitude", answerKey: "moderate", citation: { sourceId: "intent", quote: "file it" } },
+        { questionId: "perceptibility", answerKey: "audible", citation: { sourceId: "intent", quote: "file it" } },
+      ];
+    };
+    const referee = createReferee([transport]);
+    const first = await referee.rule("file it", [BAR]);
+    expect(first.applicable).toBe(false);
+
+    const second = await referee.rule("file it", [BAR]);
+    expect(requests[1].some((s) => s.id === "precedent:bar")).toBe(false); // the failure left no example
+    expect(second.applicable).toBe(true);
+
+    await referee.rule("file it", [BAR]);
+    expect(requests[2].find((s) => s.id === "precedent:bar")?.text).toContain("effect=wear"); // the success did
+  });
+
   it("precedent is scoped per object -- lock's request carries no precedent from the bar", async () => {
     const barTransport = scriptedTransport({
       target: { answerKey: "bar", citation: { sourceId: "intent", quote: "file it" } },

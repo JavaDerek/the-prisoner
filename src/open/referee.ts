@@ -274,7 +274,10 @@ export function createReferee(transports: readonly ReaderTransport[]): Referee {
       const reader = createTurnReader({ questions, transports });
       const result = await reader.read(sources);
       const ruling = computeRuling(result, { questions, sources });
-      precedent.record(ruling);
+      // Only rulings that applied become precedent. A failed ruling shown as
+      // an example is copied: the first real games (OPEN-VARIANT.md §11.2) had
+      // one bad bar ruling repeated turn after turn.
+      if (ruling.applicable) precedent.record(ruling);
       return ruling;
     },
   };
