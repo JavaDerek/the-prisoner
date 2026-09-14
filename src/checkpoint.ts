@@ -42,6 +42,7 @@ import {
   type Principal,
   type HalfRoundResult,
 } from "./loop.js";
+import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
 
 const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoint-${Date.now()}.db`;
 process.env.DMCP_DB_PATH = dbPath;
@@ -258,6 +259,7 @@ async function main(): Promise<void> {
   const prisonerTracker = newSilenceTracker();
   const timings: Timing[] = [];
   const stats: RunStats = { refusals: [], planRevisions: [], silences: [] };
+  const wits = newWitsSummary();
 
   const wardenMind = createWardenMind({
     baseUrl: MODEL_URL,
@@ -319,6 +321,7 @@ async function main(): Promise<void> {
     });
     timings.push({ round: n, principal: "warden", ms: performance.now() - wStart, silent: wardenHalf.result.kind === "silent" });
     noteStats(stats, wardenHalf, n);
+    noteWitsEvent(wits, world.gameId, wardenHalf, n);
     transcript.push(...renderHalfRound(world, wardenHalf));
 
     ended = checkGameEnd(world, tw);
@@ -341,6 +344,7 @@ async function main(): Promise<void> {
       });
       timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
       noteStats(stats, prisonerHalf, n);
+      noteWitsEvent(wits, world.gameId, prisonerHalf, n);
       transcript.push(...renderHalfRound(world, prisonerHalf));
 
       ended = checkGameEnd(world, tp);
@@ -403,6 +407,15 @@ async function main(): Promise<void> {
     const parsed = s.parsed !== undefined ? JSON.stringify(s.parsed) : "(no parsed answer)";
     transcript.push(`  - round ${s.round}, ${s.principal}, reason ${s.reason ?? "unknown"}, text: ${text}, parsed: ${parsed}`);
   }
+  transcript.push("");
+  // Coordinator's fix, item 6: a short, machine-derived section -- every
+  // refusal with its cause and whose act caused it, every SEARCH, every
+  // covert act by each side, and any ESCAPE attempt -- built ONLY from
+  // structured HalfRoundResult fields, never from a resolution's own prose
+  // (`witsSummary.ts`).
+  transcript.push("### Wits summary");
+  transcript.push("");
+  transcript.push(...renderWitsSummary(wits));
   transcript.push("");
   transcript.push("### Model call timings");
   transcript.push("");
