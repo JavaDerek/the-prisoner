@@ -45,6 +45,22 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     expect(context.motive.toLowerCase()).toContain("planning");
   });
 
+  it("the briefing shows the plan itself, current step marked (item 3)", () => {
+    fresh();
+    const plan = authorPlan({
+      gameId: world.gameId,
+      characterId: world.prisonerId,
+      t: world.clock.t0,
+      steps: [
+        { move: "HONE", description: "Hone the spoon into something sharper." },
+        { move: "FILE", description: "File at the bar." },
+      ],
+    });
+    const context = buildPrisonerContext(world, plan, world.clock.prisonerT(1));
+    expect(context.briefing).toContain("Hone the spoon into something sharper.");
+    expect(context.briefing).toContain("current step");
+  });
+
   it("each is authored short-form -- under about five sentences", () => {
     expect(sentenceCount(PRISONER_IDENTITY)).toBeLessThanOrEqual(5);
     expect(sentenceCount(PRISONER_MOTIVE)).toBeLessThanOrEqual(5);

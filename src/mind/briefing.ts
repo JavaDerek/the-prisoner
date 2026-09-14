@@ -1,6 +1,6 @@
 import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
-import { renderLedger, type Plan } from "../ledger/ledger.js";
+import { renderLedger, renderPlan, type Plan } from "../ledger/ledger.js";
 import { PRISONER_MOVES, WARDEN_MOVES } from "../world/mechanics.js";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
@@ -26,6 +26,9 @@ export function buildBriefing(world: World, characterId: string, t: number, plan
   }
 
   if (plan) {
+    lines.push("");
+    lines.push("Your plan:");
+    lines.push(renderPlan(plan.id));
     lines.push("");
     lines.push("What has happened so far:");
     lines.push(renderLedger(world.gameId, plan));

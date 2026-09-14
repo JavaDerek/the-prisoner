@@ -347,6 +347,37 @@ function renderAttempt(gameId: string, row: AttemptRow): string {
   return `Round ${row.at_t}: ${row.move} was refused -- ${factLine}.`;
 }
 
+/** One authored plan step, rendered positively with its own status marked
+ *  (item 3, over the owner's finding: "an invisible plan"). Never "not yet
+ *  started" or "hasn't happened" -- "not yet reached" names a real,
+ *  positive fact about a step's place in a known sequence, not an
+ *  absence. */
+function statusLabel(status: StepStatus): string {
+  switch (status) {
+    case "active":
+      return "current step";
+    case "done":
+      return "completed";
+    case "failed":
+      return "failed";
+    case "abandoned":
+      return "abandoned";
+    case "pending":
+      return "not yet reached";
+  }
+}
+
+/** Renders a principal's own authored plan into positive prose, current
+ *  step marked -- so "(off-plan)" in `renderLedger`'s own output refers to
+ *  something the mind has actually seen (item 3). Reads `plan_steps`'
+ *  live `status` directly (unlike `planAsOfT`, this is always "now": the
+ *  plan a principal is being handed IS the current one, not a historical
+ *  reconstruction). */
+export function renderPlan(planId: string): string {
+  const steps = planSteps(planId);
+  return steps.map((step, index) => `${index + 1}. ${step.description} (${statusLabel(step.status)})`).join("\n");
+}
+
 export function renderLedger(gameId: string, plan: Plan): string {
   const attempts = attemptsFor(plan.id);
   if (attempts.length === 0) return "No attempts yet.";

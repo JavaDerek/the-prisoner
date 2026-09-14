@@ -12,6 +12,7 @@ import {
   planSteps,
   planAsOfT,
   renderLedger,
+  renderPlan,
   causeAtT,
 } from "../ledger.js";
 import type { Resolver } from "run-dmcp";
@@ -297,5 +298,74 @@ describe("the attempt ledger (design §4.4)", () => {
   it("causeAtT returns null for a t nothing was ever logged at", () => {
     fresh();
     expect(causeAtT(world.gameId, world.clock.t0 + 999)).toBeNull();
+  });
+
+  describe("renderPlan (item 3) -- the plan itself, shown as positive prose, current step marked", () => {
+    it("renders every step's own description, in order, with the first marked current", () => {
+      fresh();
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "Hone the spoon into something sharper." },
+          { move: "FILE", description: "File at the bar." },
+        ],
+      });
+
+      const rendered = renderPlan(plan.id);
+      expect(rendered).toContain("Hone the spoon into something sharper.");
+      expect(rendered).toContain("File at the bar.");
+      // The order in the rendering matches step order.
+      expect(rendered.indexOf("Hone the spoon")).toBeLessThan(rendered.indexOf("File at the bar"));
+      // The first (only active) step is marked current; the second is not.
+      const lines = rendered.split("\n");
+      const honeLine = lines.find((l) => l.includes("Hone the spoon"));
+      const fileLine = lines.find((l) => l.includes("File at the bar"));
+      expect(honeLine).toContain("current step");
+      expect(fileLine).not.toContain("current step");
+    });
+
+    it("marks a completed step and advances the marker to the next one", () => {
+      fresh();
+      const resolver = buildResolver(world);
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "Hone the spoon into something sharper." },
+          { move: "FILE", description: "File at the bar." },
+        ],
+      });
+
+      const t1 = world.clock.prisonerT(1);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
+      recordSuccess({ gameId: world.gameId, plan, t: t1, move: "HONE", outcome, completesStep: true });
+
+      const rendered = renderPlan(plan.id);
+      const lines = rendered.split("\n");
+      const honeLine = lines.find((l) => l.includes("Hone the spoon"));
+      const fileLine = lines.find((l) => l.includes("File at the bar"));
+      expect(honeLine).toContain("completed");
+      expect(fileLine).toContain("current step");
+    });
+
+    it("never renders a negation phrasing", () => {
+      fresh();
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "Hone the spoon into something sharper." },
+          { move: "FILE", description: "File at the bar." },
+        ],
+      });
+      const rendered = renderPlan(plan.id).toLowerCase();
+      for (const forbidden of ["no longer", " not ", "failed to", "nothing"]) {
+        expect(rendered).not.toContain(forbidden);
+      }
+    });
   });
 });
