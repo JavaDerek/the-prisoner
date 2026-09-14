@@ -132,6 +132,25 @@ tile, an iron-framed cot with a wool blanket frayed at the hem, a tin bucket, th
 brings each round, and the warden's key ring (on the warden's belt). Descriptions are content, in the
 scenario file, and never in engine or seam code.
 
+**Draft descriptions for O1 — awaiting the owner's review before any real game runs.** Each says what
+a thing *is*: material, size, wear, how it is fixed. None says what it is *for*. Every phrase here is
+something a referee may quote, so a phrase that implies a use is a use the referee can grant.
+
+| Object | Held by | Description |
+|---|---|---|
+| bar | the window | One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked. |
+| lock | the cell door | A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap. |
+| spoon | Voss | A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor. |
+| loose tile | the floor | A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. |
+| cot | the wall | A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire. |
+| blanket | the cot | A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge. |
+| bucket | the floor | A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it. |
+| meal tray | passes through the door slot each round | A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round. |
+| key ring | Croft's belt | A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks. |
+
+Review notes for the owner: the cot's wire, the blanket's thread and the door's gap each open ideas
+nobody has written a move for. That is the intent, but each is also a line you may want to cut.
+
 ### 4.2 Effects (generic, and the only way the world changes)
 
 | Effect | What it does | Engine need |
@@ -209,12 +228,13 @@ The attack move (issue #1) waits until these hold.
   creation path exists.
 - **Then** issue #1, the attack move.
 
-## 8. Decisions for the owner before O1
+## 8. Decisions (made by the owner, 2026-09-14)
 
-1. **Referee model.** It runs at temperature 0 and is a third model role on a one-model GPU. Use the
-   wits model (fewer swaps, but it rules on the same model's ideas), or a separate model (more swaps,
-   more independence)?
-2. **Starting objects.** The list in §4.1, or a different cell?
-3. **Who writes object descriptions.** Hand-written for O1 is assumed. A later option is a model
-   drafting them for review, which would scale scenarios but puts a model upstream of the grounding
-   guard.
+1. **Referee model: a separate model, `qwen2.5:14b`, by default** (configurable). Independence from
+   the wits model means the referee is not ruling on ideas its own weights produced; it does not
+   think aloud, so a ruling is fast. The cost is a third model per half-round, handled by the
+   existing one-model-at-a-time swapper.
+2. **Starting objects: the full list in §4.1.**
+3. **Descriptions: Claude drafts, the owner reviews** before any real game runs (drafts in §4.1). A
+   model drafting descriptions at scenario-build time is deferred until the hand-written version is
+   proven, because it would put a model upstream of the grounding guard.
