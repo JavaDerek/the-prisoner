@@ -33,6 +33,21 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3, mapped before implementatio
     expect(checkOpenEscape(world, t)).toBe(true);
   });
 
+  it("escapes once the lock, worn through its own open-world property, reaches 0 AND guard_attention is below the threshold", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const resolver = buildOpenResolver();
+    const lockResource = resourceIdForProperty(world, "lock", "integrity") as string;
+
+    resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: lockResource, amount: 1000, min: 0, max: 100, description: "x" } });
+    resolver.resolve({
+      gameId: world.base.gameId,
+      mechanic: "OPEN_WEAR",
+      parameters: { resourceId: world.base.resources.guardAttention, amount: 20, min: 0, max: 100, description: "x" },
+    });
+    expect(checkOpenEscape(world, world.base.clock.wardenT(1))).toBe(true);
+  });
+
   it("does NOT escape at the starting guard_attention of 50, exactly AT the threshold (boundary: strictly less than, not less-or-equal)", () => {
     createTestDb();
     const world = buildOpenWorld();

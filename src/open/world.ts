@@ -49,10 +49,15 @@ export function buildOpenWorld(): OpenWorld {
   };
   const resourceIdFor: Record<string, string> = {
     [propertyToken("bar", "integrity")]: base.resources.barIntegrity,
+    // The lock too: `gameEnd.ts`'s escape check reads `base.resources.
+    // lockIntegrity`, so a second `lock_integrity` resource here would be
+    // one no escape could ever read.
+    [propertyToken("lock", "integrity")]: base.resources.lockIntegrity,
     [propertyToken("spoon", "edge")]: base.resources.spoonEdge,
   };
   const resourceNameById: Record<string, string> = {
     [base.resources.barIntegrity]: "bar_integrity",
+    [base.resources.lockIntegrity]: "lock_integrity",
     [base.resources.spoonEdge]: "spoon_edge",
   };
 

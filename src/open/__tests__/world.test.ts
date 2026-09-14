@@ -11,6 +11,7 @@ describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant bui
     createTestDb();
     const world = buildOpenWorld();
     expect(resourceIdForProperty(world, "bar", "integrity")).toBe(world.base.resources.barIntegrity);
+    expect(resourceIdForProperty(world, "lock", "integrity")).toBe(world.base.resources.lockIntegrity);
     expect(resourceIdForProperty(world, "spoon", "edge")).toBe(world.base.resources.spoonEdge);
   });
 
