@@ -16,7 +16,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
-    "checkpoint": "tsx src/checkpoint.ts"
+    "checkpoint": "tsx src/checkpoint.ts",
+    "referee-replay": "tsx src/open/refereeReplayCli.ts"
   },
   "dependencies": {
     "mind-seam": "0.4.0",
