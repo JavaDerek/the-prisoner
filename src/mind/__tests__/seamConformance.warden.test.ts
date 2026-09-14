@@ -6,18 +6,18 @@
 // attribution reaches the warden's own briefing only when it collided with
 // one of the WARDEN's own contradicted expectations.
 //
-// Same coordinator correction as seamConformance.prisoner.test.ts: ONE
-// marker per harness instance, planted identically on "shown" and
-// "withheld" (only the collision that attributes it differs), plus a
-// planted-violation test proving check 4 goes red if the collision ever
-// happened on "withheld" too. See that file's header for the full
-// reasoning.
+// mind-seam@0.2.0 fixed check 4 at the source: the suite now mints ONE
+// marker and hands it to both the "shown" and "withheld" passes as
+// `options.privateAct.marker` -- `PassReport.privateMarker` is gone. This
+// file just plants whatever marker it is handed; see
+// seamConformance.prisoner.test.ts's header for the full history.
 import { describe, it, expect } from "vitest";
 import { seamConformance, type SeamHarness } from "mind-seam/conformance";
+import type { Mind } from "mind-seam";
 import { getResource, ResolveProtocolError } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildWorld, type World } from "../../world/setup.js";
-import { buildResolver, SHIM_AMOUNT } from "../../world/mechanics.js";
+import { buildResolver } from "../../world/mechanics.js";
 import { authorPlan, recordFailure, recordSuccess, activeStepExpects, logRound } from "../../ledger/ledger.js";
 import { buildWardenContext } from "../briefing.js";
 import { createWardenMind, type WardenContext, type WardenProposal } from "../wardenMind.js";
@@ -33,9 +33,8 @@ function snapshotFive(world: World): Record<string, number | undefined> {
 }
 
 async function runScenario(
-  mind: import("mind-seam").Mind<WardenContext, WardenProposal>,
-  marker: string,
-  options: { privateAct?: "shown" | "withheld"; forceLeak?: boolean } | undefined
+  mind: Mind<WardenContext, WardenProposal>,
+  options: { privateAct?: { visibility: "shown" | "withheld"; marker: string }; forceLeak?: boolean } | undefined
 ) {
   createTestDb();
   const world = buildWorld();
@@ -49,43 +48,49 @@ async function runScenario(
       {
         move: "ROTATE_GUARD",
         description: "keep the guard rotation steady",
-        // The always-planted SHIM below runs before this step's own
-        // proposal in every pass, shown or withheld, so the expectation
-        // must match what it actually leaves behind, not the pristine 100.
-        expects: [{ entityId: world.resources.lockIntegrity, key: "value", value: 100 - SHIM_AMOUNT }],
+        // Pristine 100: unlike 0.1.0's harness, the SHIM below is now
+        // planted only when the suite supplies a privateAct (0.2.0's own
+        // shape), so the default passes (checks 1/2/3/6) never touch
+        // lock_integrity at all -- this step's own expects must match
+        // that, not the shim'd value the shown/withheld passes leave
+        // behind.
+        expects: [{ entityId: world.resources.lockIntegrity, key: "value", value: 100 }],
       },
     ],
   });
 
   let roundN = 0;
 
-  // Always planted, identically, regardless of shown/withheld.
-  roundN += 1;
-  const tp = world.clock.prisonerT(roundN);
-  resolver.resolve({ gameId: world.gameId, mechanic: "SHIM", parameters: { note: marker } });
-  logRound({
-    gameId: world.gameId,
-    t: tp,
-    roundN,
-    principal: "prisoner",
-    mechanic: "SHIM",
-    description: `The prisoner works a shim into the lock. (${marker})`,
-  });
+  if (options?.privateAct) {
+    const marker = options.privateAct.marker;
 
-  if (options?.privateAct === "shown" || options?.forceLeak) {
     roundN += 1;
-    const tCollide = world.clock.wardenT(roundN);
-    let caught: unknown;
-    try {
-      resolver.resolve({
-        gameId: world.gameId,
-        mechanic: "WAIT",
-        expects: [{ entityId: world.resources.lockIntegrity, key: "value", value: 100 }],
-      });
-    } catch (err) {
-      caught = err;
+    const tp = world.clock.prisonerT(roundN);
+    resolver.resolve({ gameId: world.gameId, mechanic: "SHIM", parameters: { note: marker } });
+    logRound({
+      gameId: world.gameId,
+      t: tp,
+      roundN,
+      principal: "prisoner",
+      mechanic: "SHIM",
+      description: `The prisoner works a shim into the lock. (${marker})`,
+    });
+
+    if (options.privateAct.visibility === "shown" || options.forceLeak) {
+      roundN += 1;
+      const tCollide = world.clock.wardenT(roundN);
+      let caught: unknown;
+      try {
+        resolver.resolve({
+          gameId: world.gameId,
+          mechanic: "WAIT",
+          expects: [{ entityId: world.resources.lockIntegrity, key: "value", value: 100 }],
+        });
+      } catch (err) {
+        caught = err;
+      }
+      recordFailure({ gameId: world.gameId, plan, t: tCollide, move: "WAIT", error: caught as ResolveProtocolError });
     }
-    recordFailure({ gameId: world.gameId, plan, t: tCollide, move: "WAIT", error: caught as ResolveProtocolError });
   }
 
   roundN += 1;
@@ -113,18 +118,16 @@ async function runScenario(
 
   const after = snapshotFive(world);
   destroyTestDb();
-  return { before, after, resolutions, privateMarker: marker };
+  return { before, after, resolutions };
 }
 
 function buildHarness(options?: { forceLeak?: boolean }): SeamHarness<WardenContext, WardenProposal> {
-  const marker = `seam-marker-${Math.random().toString(36).slice(2, 10)}`;
-
   return {
     fields: ["briefing", "identity", "motive", "moves", "principalId"],
     loudProposal: { intent: "confiscate everything and end the game" },
     actionableProposal: { intent: "rotate the guard", choice: "ROTATE_GUARD" },
     privateAct: "supported",
-    pass: (mind, passOptions) => runScenario(mind, marker, { ...passOptions, forceLeak: options?.forceLeak }),
+    pass: (mind, passOptions) => runScenario(mind, { ...passOptions, forceLeak: options?.forceLeak }),
     wire: {
       create: (o) => createWardenMind(o),
       context: {

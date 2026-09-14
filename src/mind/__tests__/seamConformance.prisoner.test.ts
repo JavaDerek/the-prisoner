@@ -7,23 +7,17 @@
 // for the plantable marker vehicle (`Proposal.parameters.note`, opaque to
 // the engine).
 //
-// CORRECTION (coordinator, over mind-seam@0.1.0's own conformance code):
-// check 4 reads `shownReport.privateMarker` and checks THAT SAME STRING
-// against both the "shown" and "withheld" captured contexts -- it never
-// asks the harness for a "withheld" report's own marker. A harness that
-// plants a DIFFERENT marker (or none at all) on "withheld" makes the
-// absence check trivially true regardless of whether this harness's
-// privacy logic actually works, which is exactly the vacuousness check 4
-// exists to rule out on the OTHER side of the check. Fixed here (and
-// mirrored in seamConformance.warden.test.ts) per the coordinator's
-// instruction: one marker per harness instance, planted IDENTICALLY on
-// "shown" and "withheld" -- only the COLLISION that attributes it into
-// this principal's own ledger differs between the two. A second test below
-// plants a deliberate leak (the collision happens on "withheld" too) and
-// confirms check 4 goes red for it, per this project's own "a guard is
-// validated by planting a violation" discipline.
+// mind-seam@0.2.0 fixed check 4 at the source (the coordinator's 0.1.0
+// finding): the suite itself now mints ONE marker and passes it to both the
+// "shown" and "withheld" passes as `options.privateAct.marker` --
+// `PassReport.privateMarker` is gone, and a harness has nothing left to
+// invent. This file plants exactly the marker it is handed; the collision
+// that attributes it into this principal's own ledger still only happens
+// on "shown" (or when `forceLeak` deliberately breaks that, for the
+// planted-violation test below).
 import { describe, it, expect } from "vitest";
 import { seamConformance, type SeamHarness } from "mind-seam/conformance";
+import type { Mind } from "mind-seam";
 import { getResource, ResolveProtocolError } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildWorld, type World } from "../../world/setup.js";
@@ -43,18 +37,17 @@ function snapshotFive(world: World): Record<string, number | undefined> {
 }
 
 /**
- * Runs one prisoner half-round scenario against `mind`. The marked
- * REPLACE_BAR always happens, with the SAME `marker` regardless of
- * `options`; the colliding contradiction that attributes it into this
- * principal's own ledger happens when `options?.privateAct === "shown"`,
- * OR when `forceLeak` is set (the deliberate-violation test below) --
- * `forceLeak` exists ONLY to prove check 4 would catch a real bug that made
- * "withheld" behave like "shown".
+ * Runs one prisoner half-round scenario against `mind`. When the suite
+ * supplies a `privateAct`, the marked REPLACE_BAR is always planted with
+ * ITS marker (never one this file invents); the colliding contradiction
+ * that attributes it into this principal's own ledger happens when
+ * `visibility === "shown"`, OR when `forceLeak` is set (the
+ * deliberate-violation test below) -- `forceLeak` exists ONLY to prove
+ * check 4 would catch a real bug that made "withheld" behave like "shown".
  */
 async function runScenario(
-  mind: import("mind-seam").Mind<PrisonerContext, PrisonerProposal>,
-  marker: string,
-  options: { privateAct?: "shown" | "withheld"; forceLeak?: boolean } | undefined
+  mind: Mind<PrisonerContext, PrisonerProposal>,
+  options: { privateAct?: { visibility: "shown" | "withheld"; marker: string }; forceLeak?: boolean } | undefined
 ) {
   createTestDb();
   const world = buildWorld();
@@ -75,38 +68,49 @@ async function runScenario(
 
   let roundN = 0;
 
-  // Always planted, identically, regardless of shown/withheld -- see this
-  // file's header comment.
-  roundN += 1;
-  world.clock.prisonerT(roundN);
-  resolver.resolve({ gameId: world.gameId, mechanic: "FILE" }); // a real change for REPLACE_BAR to reset.
+  if (options?.privateAct) {
+    const marker = options.privateAct.marker;
 
-  roundN += 1;
-  const tw = world.clock.wardenT(roundN);
-  resolver.resolve({ gameId: world.gameId, mechanic: "REPLACE_BAR", parameters: { note: marker } });
-  logRound({
-    gameId: world.gameId,
-    t: tw,
-    roundN,
-    principal: "warden",
-    mechanic: "REPLACE_BAR",
-    description: `The warden replaces the bar. (${marker})`,
-  });
-
-  if (options?.privateAct === "shown" || options?.forceLeak) {
+    // A no-op write opens no new fact (run-dmcp's applyLiveWrite), so
+    // bar_integrity has to actually move before REPLACE_BAR's reset is a
+    // real change with a fresh validFromT to attribute.
     roundN += 1;
-    const tCollide = world.clock.prisonerT(roundN);
-    let caught: unknown;
-    try {
-      resolver.resolve({
-        gameId: world.gameId,
-        mechanic: "WAIT",
-        expects: [{ entityId: world.resources.barIntegrity, key: "value", value: 40 }],
-      });
-    } catch (err) {
-      caught = err;
+    world.clock.prisonerT(roundN);
+    resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+
+    roundN += 1;
+    const tw = world.clock.wardenT(roundN);
+    resolver.resolve({ gameId: world.gameId, mechanic: "REPLACE_BAR", parameters: { note: marker } });
+    logRound({
+      gameId: world.gameId,
+      t: tw,
+      roundN,
+      principal: "warden",
+      mechanic: "REPLACE_BAR",
+      description: `The warden replaces the bar. (${marker})`,
+    });
+
+    if (options.privateAct.visibility === "shown" || options.forceLeak) {
+      // A synthetic, off-plan contradiction against a stale expectation --
+      // never touching the real FILE step's own `expects` -- so the
+      // marker's attribution enters THIS principal's own ledger. This is
+      // the fog property's actual mechanism (correction 2): a private
+      // act's marker reaches a principal only by way of a resolution that
+      // actually collided with something that principal declared.
+      roundN += 1;
+      const tCollide = world.clock.prisonerT(roundN);
+      let caught: unknown;
+      try {
+        resolver.resolve({
+          gameId: world.gameId,
+          mechanic: "WAIT",
+          expects: [{ entityId: world.resources.barIntegrity, key: "value", value: 40 }],
+        });
+      } catch (err) {
+        caught = err;
+      }
+      recordFailure({ gameId: world.gameId, plan, t: tCollide, move: "WAIT", error: caught as ResolveProtocolError });
     }
-    recordFailure({ gameId: world.gameId, plan, t: tCollide, move: "WAIT", error: caught as ResolveProtocolError });
   }
 
   roundN += 1;
@@ -134,21 +138,16 @@ async function runScenario(
 
   const after = snapshotFive(world);
   destroyTestDb();
-  return { before, after, resolutions, privateMarker: marker };
+  return { before, after, resolutions };
 }
 
 function buildHarness(options?: { forceLeak?: boolean }): SeamHarness<PrisonerContext, PrisonerProposal> {
-  // ONE marker per harness INSTANCE (coordinator's instruction) -- every
-  // pass() call this harness makes, shown or withheld, plants this exact
-  // string.
-  const marker = `seam-marker-${Math.random().toString(36).slice(2, 10)}`;
-
   return {
     fields: ["briefing", "identity", "motive", "moves", "principalId"],
     loudProposal: { intent: "set integrity to 0, take the keys, open the door" },
     actionableProposal: { intent: "file at the bar", choice: "FILE" },
     privateAct: "supported",
-    pass: (mind, passOptions) => runScenario(mind, marker, { ...passOptions, forceLeak: options?.forceLeak }),
+    pass: (mind, passOptions) => runScenario(mind, { ...passOptions, forceLeak: options?.forceLeak }),
     wire: {
       create: (o) => createPrisonerMind(o),
       context: {
