@@ -62,7 +62,7 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     });
     const context = buildPrisonerContext(world, plan, world.clock.prisonerT(1));
     expect(context.briefing).toContain("Hone the spoon into something sharper.");
-    expect(context.briefing).toContain("current step");
+    expect(context.briefing).toContain("next");
   });
 
   it("REVISION -- belief, not truth: an unowned resource is absent from the briefing until this principal has learned something about it", () => {
@@ -102,6 +102,35 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     expect(briefing).not.toContain("bar integrity");
     expect(briefing).not.toContain("spoon edge");
     expect(briefing).toContain("warden suspicion: 0.");
+  });
+
+  it("coordinator's fix, item 2 -- every briefing starts with 'Round N of R.'", () => {
+    fresh();
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(3), undefined, 12);
+    expect(briefing.split("\n")[0]).toBe("Round 3 of 12.");
+  });
+
+  it("coordinator's fix, item 2 -- the round number is correct for BOTH principals at the same round", () => {
+    fresh();
+    const wardenBriefing = buildBriefing(world, world.wardenId, world.clock.wardenT(5), undefined, 12);
+    const prisonerBriefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(5), undefined, 12);
+    expect(wardenBriefing.split("\n")[0]).toBe("Round 5 of 12.");
+    expect(prisonerBriefing.split("\n")[0]).toBe("Round 5 of 12.");
+  });
+
+  it("coordinator's fix, item 2 -- R comes from the caller, never hard-coded", () => {
+    fresh();
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1), undefined, 30);
+    expect(briefing).toContain("Round 1 of 30.");
+  });
+
+  it("coordinator's fix, item 2 -- each side's authored stakes state what the end means, with R interpolated", () => {
+    fresh();
+    const prisonerBriefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1), undefined, 12);
+    expect(prisonerBriefing).toContain("At the end of round 12 you are transferred to a maximum-security block, and this chance is gone.");
+
+    const wardenBriefing = buildBriefing(world, world.wardenId, world.clock.wardenT(2), undefined, 12);
+    expect(wardenBriefing).toContain("If Voss is still in this cell at the end of round 12, the transfer goes through and your record stands.");
   });
 
   it("item 4, coordinator's fix -- grounds to search are stated positively once suspicion reaches the threshold", () => {

@@ -31,3 +31,19 @@ export const WARDEN_IDENTITY =
 
 export const WARDEN_MOTIVE =
   "Keep this cell secure, and work out exactly what Voss is planning before it becomes a problem.";
+
+/**
+ * Coordinator's fix, item 2: "both sides' authored stakes state what the
+ * end means" -- the CLOCK is a rule both principals must know, exactly the
+ * way `MOVE_DESCRIPTIONS` (mechanics.ts) makes every mechanic's exact
+ * numbers known to both. Functions, not constants, because the stakes name
+ * the total round count, and that count is this checkpoint's own
+ * `PRISONER_ROUNDS` -- read once in `checkpoint.ts`, never hard-coded here.
+ */
+export function prisonerStakes(totalRounds: number): string {
+  return `At the end of round ${totalRounds} you are transferred to a maximum-security block, and this chance is gone.`;
+}
+
+export function wardenStakes(totalRounds: number): string {
+  return `If Voss is still in this cell at the end of round ${totalRounds}, the transfer goes through and your record stands.`;
+}

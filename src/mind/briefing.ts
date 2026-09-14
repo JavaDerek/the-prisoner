@@ -3,9 +3,17 @@ import { viewFor } from "../view/viewFor.js";
 import { renderLedger, renderPlan, mostRecentVisibleActFor, type Plan } from "../ledger/ledger.js";
 import { getBelief, renderBeliefLine, type Principal } from "../ledger/beliefs.js";
 import { PRISONER_MOVES, WARDEN_MOVES, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
-import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE } from "../scenario.js";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, prisonerStakes, wardenStakes } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
 import type { WardenContext } from "./wardenMind.js";
+
+/** Coordinator's fix: "Read R from PRISONER_ROUNDS; never hardcode 12" --
+ *  that rule binds `checkpoint.ts`, the one place that actually knows the
+ *  configured round count and must pass it explicitly. This default exists
+ *  only for callers (mostly tests) that do not care what the stakes text
+ *  says and would otherwise have to thread a value they have no opinion
+ *  about through every call site. */
+export const DEFAULT_TOTAL_ROUNDS = 12;
 
 /**
  * `briefing` = `viewFor(principal)` rendered, plus BELIEF (not truth) for
@@ -37,12 +45,27 @@ const BELIEF_RESOURCES_FOR: Record<Principal, readonly string[]> = {
   warden: ["bar_integrity", "lock_integrity", "guard_attention", "spoon_edge"],
 };
 
-export function buildBriefing(world: World, characterId: string, t: number, plan?: Plan): string {
+export function buildBriefing(
+  world: World,
+  characterId: string,
+  t: number,
+  plan?: Plan,
+  totalRounds: number = DEFAULT_TOTAL_ROUNDS
+): string {
   const view = viewFor(world, characterId, t);
   const lines: string[] = [];
 
   const principal: Principal = characterId === world.wardenId ? "warden" : "prisoner";
   const otherRole: "warden" | "prisoner" = principal === "warden" ? "prisoner" : "warden";
+
+  // Coordinator's fix, item 2: "the clock, visible to both." Half-rounds
+  // strictly alternate (`world/clock.ts`), so the round a `t` belongs to is
+  // always `floor((t - t0) / 2)` regardless of which principal it is --
+  // warden t = t0 + 2n, prisoner t = t0 + 2n + 1, and integer division
+  // floors both to the same n.
+  const roundN = Math.floor((t - world.clock.t0) / 2);
+  lines.push(`Round ${roundN} of ${totalRounds}.`);
+  lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
 
   lines.push(`You share the cell with ${view.otherPrincipal.name ?? "the other person"}.`);
   for (const noun of view.nouns) {
@@ -107,22 +130,32 @@ export function buildBriefing(world: World, characterId: string, t: number, plan
   return lines.join("\n");
 }
 
-export function buildPrisonerContext(world: World, plan: Plan, t: number): PrisonerContext {
+export function buildPrisonerContext(
+  world: World,
+  plan: Plan,
+  t: number,
+  totalRounds: number = DEFAULT_TOTAL_ROUNDS
+): PrisonerContext {
   return {
     principalId: world.prisonerId,
     identity: PRISONER_IDENTITY,
     motive: PRISONER_MOTIVE,
-    briefing: buildBriefing(world, world.prisonerId, t, plan),
+    briefing: buildBriefing(world, world.prisonerId, t, plan, totalRounds),
     moves: PRISONER_MOVES,
   };
 }
 
-export function buildWardenContext(world: World, plan: Plan, t: number): WardenContext {
+export function buildWardenContext(
+  world: World,
+  plan: Plan,
+  t: number,
+  totalRounds: number = DEFAULT_TOTAL_ROUNDS
+): WardenContext {
   return {
     principalId: world.wardenId,
     identity: WARDEN_IDENTITY,
     motive: WARDEN_MOTIVE,
-    briefing: buildBriefing(world, world.wardenId, t, plan),
+    briefing: buildBriefing(world, world.wardenId, t, plan, totalRounds),
     moves: WARDEN_MOVES,
   };
 }
