@@ -1,43 +1,16 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { scriptedMind } from "mind-seam";
-import { getResource, type ReaderTransport } from "run-dmcp";
+import { getResource } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { createReferee } from "../referee.js";
 import { runOpenGame } from "../game.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
+import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, WAIT } from "./helpers/scriptedReferee.js";
 
-/**
- * Full short games to each ending, with scripted minds and a scripted referee
- * transport (this issue's step 1). The transport is TEST content: it keys its
- * ruling off which scripted intent it is handed, the way a real referee model
- * would read it -- production code never does this.
- */
-type Script = { target: string; effect: string; property: string; magnitude: string; perceptibility: string; intentQuote: string; descQuote: string };
-
-function scriptedReferee(byIntent: Record<string, Script>): ReaderTransport {
-  return async (request) => {
-    const intent = request.sources.find((s) => s.id === "intent")?.text ?? "";
-    const script = byIntent[intent];
-    if (!script) return []; // every question falls to its safe default: the attempt does nothing
-    return request.questions.map((q) => ({
-      questionId: q.id,
-      answerKey: (script as Record<string, string>)[q.id],
-      citation: q.id === "property" ? { sourceId: `desc:${script.target}`, quote: script.descQuote } : { sourceId: "intent", quote: script.intentQuote },
-    }));
-  };
-}
-
-const SCRAPE = "I scrape at the rusted base of the bar with my spoon.";
-const EXAMINE = "I examine the bar closely.";
-const WAIT = "I sit on the cot and wait.";
-
-const RULINGS: Record<string, Script> = {
-  [SCRAPE]: { target: "bar", effect: "wear", property: "integrity", magnitude: "substantial", perceptibility: "audible", intentQuote: "scrape at the rusted base of the bar", descQuote: "Rust has pitted it near the bottom" },
-  [EXAMINE]: { target: "bar", effect: "reveal", property: "integrity", magnitude: "slight", perceptibility: "visible", intentQuote: "examine the bar closely", descQuote: "Rust has pitted it near the bottom" },
-};
-
+// Full short games to each ending (issue #2 step 1), with scripted minds and
+// the scripted referee transport in helpers/scriptedReferee.ts.
 function repeating(proposal: OpenProposal): OpenMind {
   return scriptedMind<OpenPrincipalContext, OpenProposal>(proposal);
 }

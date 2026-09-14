@@ -44,6 +44,15 @@ import {
   type HalfRoundResult,
 } from "./loop.js";
 import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
+import { getVariant } from "./variant.js";
+import { buildOpenWorld } from "./open/world.js";
+import { buildOpenResolver } from "./open/mechanics.js";
+import { createReferee } from "./open/referee.js";
+import { createRefereeTransport } from "./open/refereeTransport.js";
+import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
+import { runOpenGame } from "./open/game.js";
+import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, type SilenceNote } from "./open/checkpointTranscript.js";
+import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 
 const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoint-${Date.now()}.db`;
 process.env.DMCP_DB_PATH = dbPath;
@@ -93,7 +102,12 @@ const RESIDENT_MODELS = (process.env.PRISONER_OLLAMA_RESIDENT_MODELS ?? "")
   .split(",")
   .map((s) => s.trim())
   .filter((s) => s.length > 0);
-const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL])];
+const VARIANT = getVariant();
+/** Open variant only (OPEN-VARIANT.md §8.1): the referee is its own model,
+ *  swapped like the other two. */
+const REFEREE_MODEL = process.env.PRISONER_REFEREE_MODEL ?? "qwen2.5:14b";
+const REFEREE_TIMEOUT_MS = process.env.PRISONER_REFEREE_TIMEOUT_MS ? Number(process.env.PRISONER_REFEREE_TIMEOUT_MS) : THINK_TIMEOUT_MS;
+const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
 const ensureLoaded = (model: string): Promise<void> => swapper.withModel(model, async () => {});
@@ -633,7 +647,140 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
+/**
+ * The open variant's checkpoint (issue #2): the same scratch database, model
+ * roles, swapper and resident guard as `main()` above, with `runOpenGame`
+ * in place of the closed round loop. Writes the Markdown transcript and,
+ * beside it, `<same name>.referee.json` -- every referee request, the input
+ * `npm run referee-replay` reads for §5.2's consistency measurement.
+ */
+async function mainOpen(): Promise<void> {
+  const openWorld = buildOpenWorld();
+  const resolver = buildOpenResolver();
+  const referee = createReferee([
+    createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded }),
+  ]);
+
+  const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
+  const mindOptions = (principal: OpenPrincipal) => ({
+    baseUrl: MODEL_URL,
+    witsModel: WITS_MODEL,
+    voiceModel: VOICE_MODEL,
+    timeoutMs: THINK_TIMEOUT_MS,
+    ensureLoaded,
+    onSilence: (reason: string, _context: unknown, detail?: { text?: string; parsed?: unknown }) => {
+      lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
+    },
+  });
+  const wardenMind = createOpenWardenMind(mindOptions("warden"));
+  const prisonerMind = createOpenPrisonerMind(mindOptions("prisoner"));
+
+  const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
+  if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
+  const residentsAtStart = initialPs ? initialPs.models.map((m) => m.name).filter((name) => RESIDENT_MODELS.includes(name)) : [];
+
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const transcript: string[] = [];
+  transcript.push("# The Prisoner -- checkpoint transcript (open variant)");
+  transcript.push("");
+  transcript.push(`Generated: ${new Date().toISOString()}`);
+  transcript.push("");
+  transcript.push("## Scenario");
+  transcript.push("");
+  transcript.push(
+    "One cell. A warden and a prisoner, both model-driven, each proposing a free-text intent through " +
+      `\`mind-seam@${pinnedDependencyVersion("mind-seam")}\`; a separate referee model rules on each intent in closed ` +
+      `keys with verbatim citations through \`run-dmcp@${pinnedDependencyVersion("run-dmcp")}\`'s turn reader, and every ` +
+      "effect resolves through its resolve protocol (docs/OPEN-VARIANT.md). Warden presence is not modelled in O1 (§9.3)."
+  );
+  transcript.push("");
+  transcript.push(`Wits model: \`${WITS_MODEL}\`. Voice model: \`${VOICE_MODEL}\`. Referee model: \`${REFEREE_MODEL}\`. At \`${MODEL_URL}\`.`);
+  transcript.push(`Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}. Referee timeout: ${REFEREE_TIMEOUT_MS ?? "default (12000ms)"}.`);
+  transcript.push(`Rounds (max): ${ROUNDS}.`);
+  transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
+  transcript.push(`Models loaded at start (/api/ps): ${loadedAtStart}`);
+  if (residentsAtStart.length > 0) transcript.push(`Resident at start: ${residentsAtStart.map((n) => `\`${n}\``).join(", ")}.`);
+  transcript.push(`Referee requests for replay: \`checkpoints/${stamp}.referee.json\`.`);
+  transcript.push("");
+  transcript.push("## Rounds");
+  transcript.push("");
+
+  const timings: string[] = [];
+  let halfStart = performance.now();
+  const dir = join(process.cwd(), "checkpoints");
+  const file = join(dir, `${stamp}.md`);
+  let written = false;
+  try {
+    const game = await runOpenGame({
+      openWorld,
+      resolver,
+      referee,
+      wardenMind,
+      prisonerMind,
+      rounds: ROUNDS,
+      onHalfRound: (half) => {
+        const ms = performance.now() - halfStart;
+        timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
+        transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : lastSilence[half.principal]));
+        lastSilence[half.principal] = undefined;
+        // eslint-disable-next-line no-console
+        console.log(
+          `round ${half.roundN} ${half.principal}: ${half.proposal ? (half.ruling?.applicable ? "possible" : "impossible") : "silent"} (${ms.toFixed(0)}ms)`
+        );
+        halfStart = performance.now();
+      },
+    });
+
+    const { summary: loadedAtEnd } = await safePsSummary();
+    transcript.push(...renderOpenSummary(game, ROUNDS));
+    transcript.push("## Final state");
+    transcript.push("");
+    transcript.push(`Models loaded at end (/api/ps): ${loadedAtEnd}`);
+    transcript.push("");
+    transcript.push("### Resources");
+    transcript.push(...finalResourceValues(openWorld.base));
+    transcript.push("");
+    transcript.push("### Half-round timings");
+    transcript.push(...timings);
+    transcript.push("");
+    transcript.push("### GPU swaps");
+    transcript.push("");
+    const swapEvents = swapper.swapEvents;
+    transcript.push(`Swap count: ${swapEvents.length}.`);
+    if (swapEvents.length > 0) {
+      const totalUnloadMs = swapEvents.reduce((sum, e) => sum + e.unloadMs, 0);
+      transcript.push(`Mean unload+poll wall time: ${(totalUnloadMs / swapEvents.length).toFixed(0)}ms. Total: ${totalUnloadMs.toFixed(0)}ms.`);
+    }
+
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(file, transcript.join("\n") + "\n");
+    written = true;
+    writeFileSync(join(dir, `${stamp}.referee.json`), JSON.stringify(refereeRequestsFor(game.halves), null, 2) + "\n");
+    // eslint-disable-next-line no-console
+    console.log(`Transcript written to ${file}`);
+    // eslint-disable-next-line no-console
+    console.log(`Result: ${game.ended?.kind ?? "timeout"} at round ${game.endedAtRound ?? ROUNDS}`);
+  } catch (err) {
+    // A bad run is still evidence (CLAUDE.md: transcripts committed unedited,
+    // including bad runs): write what was played, and why it stopped.
+    if (!written) {
+      transcript.push("## Run aborted");
+      transcript.push("");
+      transcript.push("```");
+      transcript.push(err instanceof Error ? (err.stack ?? err.message) : String(err));
+      transcript.push("```");
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(file, transcript.join("\n") + "\n");
+      // eslint-disable-next-line no-console
+      console.log(`Partial transcript written to ${file}`);
+    }
+    throw err;
+  } finally {
+    await swapper.restoreResidents(residentsAtStart);
+  }
+}
+
+(VARIANT === "open" ? mainOpen() : main()).catch((err) => {
   console.error(err);
   process.exitCode = 1;
 });
