@@ -44,7 +44,8 @@ export function buildWardenPrompt(context: WardenContext): string {
     "",
     'Answer with one JSON object: {"intent": string, "line"?: string, "plan": string[]}.',
     '"intent" is what you are trying to do, in your own words.',
-    '"line" is optional -- something you might say aloud.',
+    '"line" is optional -- something you might say aloud. Anything in "line" is spoken ALOUD and the ' +
+      "other person hears every word; keep secrets out of it.",
     '"plan" is REQUIRED -- a list of 1 to 6 of your possible moves, spelled exactly as given. The FIRST ' +
       "entry is what you do THIS turn. Use WAIT as the first entry to do nothing this turn. Any further " +
       "entries are what you now intend to do afterward, replacing whatever you intended before -- include " +

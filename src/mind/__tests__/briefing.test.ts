@@ -139,6 +139,19 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     expect(wardenPrompt.toLowerCase()).toContain("speak only as yourself");
   });
 
+  it("coordinator's fix, item 3 -- both prompts warn that a line is heard aloud (the qwen prisoner once gave itself away this way)", () => {
+    fresh();
+    const plan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "WAIT", description: "wait" }] });
+    const prisonerPrompt = buildPrisonerPrompt(buildPrisonerContext(world, plan, world.clock.prisonerT(1)));
+    expect(prisonerPrompt.toLowerCase()).toContain("spoken aloud");
+    expect(prisonerPrompt.toLowerCase()).toContain("hears every word");
+
+    const wardenPlan = authorPlan({ gameId: world.gameId, characterId: world.wardenId, t: world.clock.t0, steps: [{ move: "WAIT", description: "wait" }] });
+    const wardenPrompt = buildWardenPrompt(buildWardenContext(world, wardenPlan, world.clock.wardenT(2)));
+    expect(wardenPrompt.toLowerCase()).toContain("spoken aloud");
+    expect(wardenPrompt.toLowerCase()).toContain("hears every word");
+  });
+
   it("each is authored short-form -- under about five sentences", () => {
     expect(sentenceCount(PRISONER_IDENTITY)).toBeLessThanOrEqual(5);
     expect(sentenceCount(PRISONER_MOTIVE)).toBeLessThanOrEqual(5);
