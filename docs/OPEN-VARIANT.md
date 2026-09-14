@@ -3,7 +3,8 @@
 *Status (2026-09-14): design approved, §8 decided, §4.1 descriptions approved by the owner. O1 is
 **playable** (`PRISONER_VARIANT=open npm run checkpoint`) and has run its first two real games; §10
 evaluates them against §5.3. **§5.3 does not hold yet** (§10.2). Escape is leaving the cell (§12).
-O3, `derive`, is designed in §13 and built on run-dmcp 0.8.0; §13.7 reports its first games.*
+O3, `derive`, is designed in §13 and built on run-dmcp 0.8.0; §13.7 reports its first games: two objects made
+in a real game, the door opened with the spoon, escape still not reached.*
 
 The closed variant proved that two local models can outwit each other **inside a fully specified
 game**: ten enumerated moves, every effect and threshold stated in the prompt. That is a board game,
@@ -672,3 +673,79 @@ wants this closed structurally, the fix is an engine `declare` intent, filed fro
 8. **What a derived object does is not declared.** §13.3.
 9. **Nothing comes away at the minimum.** A derive against a stripped parent creates nothing and
    says so positively; it is not refused, because the attempt was possible and happened.
+
+### 13.7 First games with derive (issue #4, 2026-09-14)
+
+Three games, `PRISONER_ROUNDS=12`, `qwen3:14b` wits, `ancient-awakening:12b` voice, `qwen2.5:14b` referee,
+precedent ledger on, on run-dmcp 0.8.0 with the step-1 `open` wording. Games 1 and 2 are one batch on
+one configuration. Game 3 was played after one referee-prompt fix that game 1 exposed (below), and is a
+separate condition. Transcripts, unedited: `checkpoints/2026-09-14T21-52-32-382Z.md`,
+`…22-05-39-248Z.md`, `…22-15-20-246Z.md`, each with its `.referee.json`; the replay of game 3 is
+`checkpoints/2026-09-14-open-referee-replay-derive-N5.txt`.
+
+| | Game 1 | Game 2 | Game 3 (after the fix) |
+|---|---|---|---|
+| Result | timeout | **caught, round 9** | timeout, **with the door open** |
+| Derive ruled | 1 (round 10) | 0 | 5 |
+| Objects made | 0 | 0 | **2** (a strip, round 2; a wire, round 7) |
+| Novel pairs (§5.2) | 0 | 0 | 7 |
+| Applied, fully cited | 15 of 15 | 11 of 11 | 15 of 15 |
+| Fog audit | 0 leaks in 24 | 0 in 17 | 0 in 24 |
+
+**Game 1.** The prisoner reached for derive from its first turn: the tile's hollow five times ("dig into
+the hollow", ruled `wear` or `reveal` against an object with no property, impossible each time) and the
+cot's wire twice. Round 10's *"Untwist the wire holding the cot's springs to obtain a usable piece of
+metal"* was ruled `derive`, product `wire`, cited from the intent: the first derive ruling in a real
+game. It died on the grounding citation: the referee wrote *"The springs are held to the frame by
+twists of wire."*, capitalising a mid-sentence span and adding a full stop, against the source's
+*"the springs are held to the frame by twists of wire"*. §11.4's class of failure, one more time. Round
+11 the prisoner acted as if it had the wire anyway. The fix, in the transport prompt with an example
+(*a span from the middle of a sentence keeps its small first letter and gains no full stop*), is a
+prompt change, not a change to what counts as a citation; §10.7's item 2 stays the owner's.
+
+**Game 2.** The first catch in a real open game: suspicion at 100 and the bar examined at 40. The
+prisoner never phrased an attempt as making something; it searched the hollow four times for hidden
+things, then worked the bar until the examination found it.
+
+**Game 3.** Two derives landed, each grounded on the parent's own text and resolved as one creating
+resolution: the strip on *"frayed along the hem, with a loose thread running down one edge"*, the wire
+on *"the springs are held to the frame by twists of wire"*. Both then appeared in both principals'
+perceived objects with their composed descriptions, and Croft's ledger now holds *A prisoner works a
+piece loose from the cot* and *from the blanket*. The prisoner used the wire at once: rounds 8 and 9,
+*"Use the wire to push the bolt back into the door through the gap, attempting to open the door"*,
+was ruled `open` (the step-1 wording held) and lost both turns to the effect citation, *"pushing the
+bolt back"* for the intent's *"push the bolt back"*. Round 11 it opened the door with the spoon:
+`door_passage` 0 to 1, the first way out opened in a real game. Round 12's briefing began *Your last
+attempt opened the door* and carried *door passage: 1 (as of round 11)*, and the prisoner spent the
+turn bending the wire into a hook "to open the door".
+
+Three more derives were ruled possible and did nothing, because the product's declared parent was
+not the target: a hook from the spoon (round 5), a longer string from the strip (round 6), a hook
+from the wire (round 10). Rendered to the actor as the target's own description, per §5.3.
+
+### 13.8 Against §5.3, and what the games ask for
+
+| | Criterion | Result |
+|---|---|---|
+| 1 | Zero §2 violations | **Held where measured**, all three games (table above). |
+| 2 | A closed-inexpressible attempt ruled possible in ≥ 2 games, and one ruled impossible with its positive reason | **Not met in this batch.** Game 3 alone has applied novelty (two derives, one open); game 1's derive ruling died on a citation. Impossible rulings with a positive reason: every game. |
+| 3 | Referee key agreement ≥ 80% on replay | **Met as measured on game 3: 99.7%** over 24 requests × 6 keys, N=5, with §10.5's caveats unchanged; the `product` key replayed at 100% on both derives that landed. |
+| 4 | Both endings reachable | **Catch reached in a real game for the first time** (game 2). Escape still not, though game 3 ended with the door open. |
+
+What the games ask for, for the owner:
+
+1. **Reshaping a held thing.** After the first derive, the most frequent derive-shaped intent was to
+   turn something the prisoner holds into something else (a hook from the wire, twice; a string from
+   the strip). §13.1 admits one parent, a §4.1 object, and §13.3's kinds have no shape. Whether a hook
+   is a kind derived from the wire (a chain of derivations), a property of the wire, or out of scope
+   is a design decision.
+2. **An open door is news once and then a number.** The briefing said *Your last attempt opened the
+   door* and *door passage: 1*, and the mind did not connect either to *escapes the moment she is out
+   of the cell*. A standing, positive state line while an exit is open (*The door stands open.*) costs
+   nothing and is one variable; not built here.
+3. **Citation mechanics still decide turns.** A verb re-inflected (*pushing* for *push*), a
+   sentence-start capital lowercased (*bend* for *Bend*, game 3 round 12). Each is a paraphrase the
+   code correctly refuses and a turn lost. §10.7 item 2 is unchanged and is the owner's.
+4. **The hollow.** Every game searched it for hidden things, ruled impossible for want of a property.
+   Grit was made only when the intent said what was taken; "examine the dry grit" (game 3, round 3)
+   was ruled `derive` with the product cited from words the intent did not contain, and refused.

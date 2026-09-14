@@ -1,0 +1,172 @@
+=== 2026-09-14T22-15-20-246Z (game 3 with derive, after ae44a5f)
+## round 1, warden: Examine the bar closely for signs of hidden damage or wear.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 1, prisoner: Use the spoon to pry the loose tile up and check underneath.
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 2, warden: Examine the bar closely for hidden damage beyond the visible rust.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 2, prisoner: Use the loose thread from the blanket to unravel a longer strand of wool.
+  - target: "blanket" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "strip" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 3, warden: Examine the bar closely for hidden damage beneath the rust.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 3, prisoner: Move the loose tile and examine the dry grit underneath.
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, warden: Examine the bar closely for hidden damage or wear beyond its current reported integrity of 100.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, prisoner: Attempt to bend the dented aluminium spoon into a more usable shape using the dry grit collected under the loose tile as an abrasive.
+  - target: "spoon" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 5, warden: Examine the bar closely for signs of hidden damage or tampering.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 5, prisoner: Attempt to bend the dented aluminium spoon into a hook shape to reach through the gap in the door and manipulate the bolt.
+  - target: "spoon" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "strip" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 6, warden: Examine the lock closely for signs of tampering or hidden damage.
+  - target: "lock" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 6, prisoner: Unravel the loose threads from the strip to create a longer string.
+  - target: "strip" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "strip" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 7, warden: Examine the bar closely for hidden damage or wear
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 7, prisoner: Untwist the wire holding the cot's springs to obtain a piece of wire.
+  - target: "cot" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "wire" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 8, warden: Closely examine the cot for hidden damage or signs of tampering.
+  - target: "cot" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 8, prisoner: Use the wire to push the bolt back into the door through the gap, attempting to open the door.
+  - target: "lock" agreed 100% of 5 replays.
+  - effect: "none" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 9, warden: Examine the bar closely for hidden damage or wear beyond the visible rust.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 9, prisoner: Use the wire to push the bolt back into the door through the gap, attempting to open the door.
+  - target: "lock" agreed 100% of 5 replays.
+  - effect: "open" agreed 80% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 80% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 10, warden: Examine the bar closely for hidden damage beneath the rust.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## round 10, prisoner: Bend the wire into a hook to attempt pulling the bolt back through the gap.
+  - target: "wire" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "wire" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 11, warden: Examine the bar closely for hidden weaknesses or signs of tampering.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 11, prisoner: Use the spoon to push the bolt back through the gap in the door.
+  - target: "lock" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 12, warden: Examine the bar closely for hidden damage or further rust degradation
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 12, prisoner: Bend the wire into a hook using the spoon, then push it through the gap in the door to manipulate the lock's mechanism.
+  - target: "wire" agreed 100% of 5 replays.
+  - effect: "none" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.7%.
+§5.3's target: at least 80%.
