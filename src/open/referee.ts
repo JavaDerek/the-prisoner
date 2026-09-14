@@ -156,7 +156,10 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
         "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise " +
         "or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose " +
         "(lower concealment), noise (a perceptible event with no state change), open (make a way out passable in " +
-        "one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Cite the exact words in " +
+        "one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. " +
+        "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
+        "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
+        "wear is for damage or dulling with no way out as its goal. Cite the exact words in " +
         "the actor's intent that describe the action.",
       answerKeys: [...EFFECT_KINDS],
       safeDefault: "none",

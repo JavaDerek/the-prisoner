@@ -263,4 +263,20 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(effect?.answerKeys).toEqual(expect.arrayContaining(["open", "close", "leave"]));
     expect(property?.prompt).toContain("passage");
   });
+
+  it("the effect question says the aim decides open: making a way out passable is open even when the method is scraping or prying (issue #4, step 1)", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("I scrape at the bolt through the gap until it slides back.", [LOCK]);
+    const effect = questions.find((q) => q.id === "effect");
+    // The goal outweighs the method's verb: OPEN-VARIANT.md §12.5's game 1
+    // was ruled `wear` on the lock for "push or scrape the visible bolt".
+    expect(effect?.prompt).toMatch(/aim|goal/i);
+    expect(effect?.prompt).toContain("scraping");
+    expect(effect?.prompt).toContain("prying");
+  });
 });
