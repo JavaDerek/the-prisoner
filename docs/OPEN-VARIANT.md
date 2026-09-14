@@ -2,7 +2,8 @@
 
 *Status (2026-09-14): design approved, §8 decided, §4.1 descriptions approved by the owner. O1 is
 **playable** (`PRISONER_VARIANT=open npm run checkpoint`) and has run its first two real games; §10
-evaluates them against §5.3. **§5.3 does not hold yet** (§10.2).*
+evaluates them against §5.3. **§5.3 does not hold yet** (§10.2). Escape is leaving the cell (§12).
+O3, `derive`, is designed in §13 and built on run-dmcp 0.8.0; §13.7 reports its first games.*
 
 The closed variant proved that two local models can outwit each other **inside a fully specified
 game**: ten enumerated moves, every effect and threshold stated in the prompt. That is a board game,
@@ -163,7 +164,7 @@ nobody has written a move for. That is the intent, but each is also a line you m
 | `conceal` / `expose` | change the target's perceptibility | today (numeric flag) |
 | `noise` | create a perceptible event with no state change (a distraction) | today |
 | `move` | change an object's holder or location | **run-dmcp non-numeric changes** (withdrawn #32) |
-| `derive` | create a new object from cited parents | later phase, engine entity creation through resolve |
+| `derive` | create a new object from a cited parent (§13) | run-dmcp 0.8.0's `create` intent (run-dmcp#34) |
 
 Numbers stay in the scenario: which properties exist, their bounds, what each magnitude key means per
 property. Escape and search remain **conditions on state**, not moves: the prisoner is out when the
@@ -539,3 +540,135 @@ Transcripts: `checkpoints/2026-09-14T20-56-01-836Z.md`, `checkpoints/2026-09-14T
   new thing from parts, which O1 cannot resolve, so it registers as wear on the cot or as impossible.
 - **The referee fix held.** Warden examinations were ruled possible 13 of 16 times (1 of 16 before
   it), with cited magnitudes and perceptibility.
+
+## 13. Derive: the minds make things (O3, designed before code, 2026-09-14)
+
+§12.5's games reached past O1's world twice: the cot's spring wire was cut "to extract a usable
+length of wire", and the tile's hollow was dug into four times for materials. Both are `derive`
+(§4.2, §7): a new thing from part of an existing one. O1 registered them as wear on the cot, or as
+impossible. This section fixes what a derive is before any of it is built. The engine side landed
+first: run-dmcp 0.8.0's `create` intent (run-dmcp#34) lets a resolution bring an entity into
+existence, name it by `ref` in a later leg of the same resolution, and roll all of it back together.
+
+### 13.1 What a derive ruling is
+
+`derive` joins §4.2's effect vocabulary, ruled by the same referee with the same discipline: closed
+keys, each cited verbatim against a named source, the safe default doing nothing. A derive ruling
+carries:
+
+| Key | Meaning | Citation |
+|---|---|---|
+| **target** | the **parent**: the object the new thing is taken from | the intent, as every target |
+| **product** | *new, sixth question*: which **declared derivable kind** (§13.3) the new thing is, or `none` | the intent span naming what is made |
+| **property** | the parent's property the derivation **consumes**, or `none` for a kind that consumes nothing | the parent's own description: the span naming the part that comes away. This is §3.2's grounding, and it becomes part of the new object's description (§13.2) |
+| **magnitude** | how much of the parent is consumed | the intent |
+| **perceptibility** | as every effect | the intent |
+
+A derive is applicable under every ordinary check (§3.3, §9.2) and two more, both decided by code
+from keys, never from prose: the product is not `none` and its intent citation verified, and the
+product's **declared parent is the target**. A wire ruled as coming from the blanket is an incoherent
+ruling and does nothing, exactly as a `conceal` naming `integrity` does (`effects.ts`).
+
+**Consumption** reuses the parent's own `wear` table: a derive at magnitude *m* wears the consumed
+property by exactly what a `wear` at *m* would. No new number is authored for it. A kind that
+consumes nothing (grit from the tile's hollow, whose parent has no property) still needs the
+description citation, as `noise` does. When the consumed property already stands at its minimum,
+nothing comes away: the resolution records the attempt and creates nothing, and the actor is told the
+parent's state (§13.4).
+
+**One parent per derive.** A thing made from two things (a wire lashed to a strip) is not O3; see
+§13.6.
+
+### 13.2 Where the new object's description comes from
+
+§8.3 defers any model writing descriptions, because it would put a model upstream of the grounding
+guard. That holds. A derived object's description is **composed by code from two authored texts**:
+
+1. the derivable kind's own physical description, content in the scenario file, written the way §4.1
+   writes everything (material, size, wear; never what it is for);
+2. the verbatim span the referee cited from the parent's description as the part that came away.
+
+The composed form is fixed: *`<kind description>` It came away from the `<parent>`, where
+"`<cited span>`".* Every later citation against the new object is therefore still a quote of text a
+human wrote, either in this repository or in §4.1.
+
+### 13.3 What a derived object can do later
+
+It is an object like any other: an id, a holder, a description, and the properties its kind
+declares, each with `min`/`max`/start and a `wear`/`restore` magnitude table, in the same shape as
+`scenarioObjects.ts`. The same generic effects act on it; the referee cites its composed description;
+`wear`/`restore`/`reveal`/`conceal`/`expose` are ruled against its declared properties and nothing
+else (§2 invariant 5). **What a derived object is *for* is not declared anywhere**, on §3.3's own
+principle: whether a length of wire pushes the bolt back is the referee's ruling on an `open` intent
+against the lock, grounded on the lock's text, with the wire visible to the referee among the actor's
+perceived objects. O1 never verified that the spoon was to hand for "file the bar with my spoon", and
+O3 does not start.
+
+The derivable kinds for The Prisoner, content the owner may cut:
+
+| Kind | Parent | Consumes | Description | Own properties |
+|---|---|---|---|---|
+| `wire` | `cot` | `integrity` | A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. | `integrity` 100, `concealment` 0 |
+| `strip` | `blanket` | `integrity` | A strip of coarse grey wool about an arm long, torn along the hem, with loose threads at both ends. | `integrity` 100, `concealment` 0 |
+| `grit` | `loose_tile` | nothing | A handful of dry grit from the hollow beneath the tile, coarse and sharp-grained. | `concealment` 0 |
+
+Each kind's `wear`/`restore` tables are authored in the same proportion as the blanket thread and cot
+wire (§9.1). Every derived kind carries `concealment` so §10.1's perception rule applies unchanged:
+its holder always perceives it, the other principal perceives it unless it is concealed at 50 or
+more. A wire left lying about is seen; a wire hidden under the tile is not. Ids are the kind's name,
+then `wire_2`, `wire_3` for a second and third of the same kind.
+
+### 13.4 Perception and precedent
+
+- **The actor** is told, by code from the outcome: *Your last attempt made a length of wire from the
+  cot: you hold it now. The cot's integrity went from 100 to 80.* When nothing came away: *Your last
+  attempt met the cot with its integrity at 0, already stripped.* The new object then appears in the
+  actor's perceived objects with its composed description.
+- **The other principal**, when the derive was not silent, perceives the act on the parent and
+  nothing about the product: *Voss works a piece loose from the cot.* What was made, it learns the
+  way it learns anything, by perceiving the new object in a later briefing if it is in view
+  (§13.3). Invariant 2 is untouched: no referee text, no product name, reaches it.
+- **Suspicion** accrues as for `wear`: a prisoner's non-silent derive bumps warden suspicion by the
+  magnitude-scaled amount (§9.3). A derive is physical work on a fixture.
+- **Precedent** (§11): the sentence Croft knows on sight names the parent, never the product: *A
+  prisoner works a piece loose from the cot.* The known-approach consequence applies to it.
+- **Catch is unchanged** (§12.3). A derived object is not a catch trigger in O3.
+- **Novelty** (§5.2): no closed move makes anything, so every applied derive is a novel
+  `(object, effect)` pair by the declared table.
+
+### 13.5 How it resolves
+
+One resolution per derive, through one generic mechanic (`OPEN_DERIVE`), whose legs are: a `write`
+wearing the consumed property (when the kind consumes one), a `create` of the item (held by the
+maker, its composed description carried in the row's `properties`), and one `create` per declared
+property as a resource, each leg naming the item by run-dmcp 0.8.0's `{ ref }`. Every leg lands or
+none does. The resolution's `created` list is what this repository then reads to register the new
+object for perception and later effects.
+
+**One thing happens after `resolve()` returns, and it is recorded here as the ambiguity it is.** The
+new resources must be `bounded` and `resolve_only`, like every property in the world. The engine
+has no intent that declares a constraint (the shape run-dmcp#32 left unbuilt), so the declaration is
+made by the same world-building call `buildOpenWorld` uses at setup, immediately after the derive
+resolves. A constraint declaration is not a change of world state and opens no second write path:
+nothing in this repository writes a resource outside `resolver.resolve()` (§2 invariant 1's guard),
+and the window between the resolution and the declaration holds no code that could. If the owner
+wants this closed structurally, the fix is an engine `declare` intent, filed from the caller.
+
+### 13.6 Ambiguities and what was decided
+
+1. **Product: a question, or inferred from (target, property)?** A question. Inferring "wire" from
+   `(cot, integrity)` is code deciding what prose meant (§2 invariant 6); a closed key with an intent
+   citation is the referee saying it.
+2. **One parent or several?** One. Multi-parent derivation is deferred until a real game wants it.
+3. **A new number for consumption, or the parent's wear table?** The parent's table. Nothing new
+   to author, and a derive costs the parent what working at it costs.
+4. **A new perception rule for derived objects?** No. Every derived kind carries `concealment` and
+   §10.1's rule does the rest.
+5. **Is the product question asked on every intent?** Yes, with `none` as its safe default; it is
+   read only when the effect is `derive`. One question set per read keeps replay (§5.2) meaningful.
+6. **Constraint declaration after the resolution.** See §13.5.
+7. **The mind prompt is unchanged.** One variable at a time: the minds already reach for making
+   things (§12.5). If they stop, that is a finding.
+8. **What a derived object does is not declared.** §13.3.
+9. **Nothing comes away at the minimum.** A derive against a stripped parent creates nothing and
+   says so positively; it is not refused, because the attempt was possible and happened.
