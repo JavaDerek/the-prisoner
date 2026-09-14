@@ -1,11 +1,11 @@
 import { describe, it, expect, afterEach } from "vitest";
 import type { Mind } from "mind-seam";
 import { SILENT_MIND, scriptedMind } from "mind-seam";
-import { ResolveProtocolError } from "run-dmcp";
+import { ResolveProtocolError, getResource } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../world/testDb.js";
 import { buildWorld, type World } from "../world/setup.js";
 import { buildResolver } from "../world/mechanics.js";
-import { authorPlan, planSteps, attemptsFor, renderLedger, type Plan } from "../ledger/ledger.js";
+import { authorPlan, planSteps, attemptsFor, renderLedger, mostRecentVisibleActFor, logRound, type Plan } from "../ledger/ledger.js";
 import { getBelief, seedInitialBeliefs } from "../ledger/beliefs.js";
 import { buildPrisonerContext, buildWardenContext } from "../mind/briefing.js";
 import type { PrisonerContext, PrisonerProposal } from "../mind/prisonerMind.js";
@@ -471,5 +471,76 @@ describe("coordinator's fix, item 1 -- an empty string is not rendered as speech
     const tw = world.clock.wardenT(2);
     const wardenContext = buildWardenContext(world, wardenPlan, tw);
     expect(wardenContext.briefing).not.toContain('said: ""');
+  });
+});
+
+describe("coordinator's fix, item 2 -- the loop derives warden presence from round_log and passes it to the resolver", () => {
+  let world: World;
+  let resolver: ReturnType<typeof buildResolver>;
+  let prisonerPlan: Plan;
+  let wardenPlan: Plan;
+
+  function fresh(): void {
+    createTestDb();
+    world = buildWorld();
+    resolver = buildResolver(world);
+    prisonerPlan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "WAIT", description: "placeholder" }] });
+    wardenPlan = authorPlan({ gameId: world.gameId, characterId: world.wardenId, t: world.clock.t0, steps: [{ move: "WAIT", description: "placeholder" }] });
+  }
+
+  afterEach(() => {
+    destroyTestDb();
+  });
+
+  it("FILE raises no suspicion, and its visible act never reaches the warden's next briefing, when the warden's own last move was AWAY (CHECK_LOCK)", async () => {
+    fresh();
+    const tw = world.clock.wardenT(1);
+    const checkMind = scriptedMind<WardenContext, WardenProposal>({ intent: "check", choice: "CHECK_LOCK", plan: ["CHECK_LOCK"] });
+    await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 1, t: tw, context: buildWardenContext(world, wardenPlan, tw), mind: checkMind, tracker: newSilenceTracker() });
+
+    const tp = world.clock.prisonerT(1);
+    const fileMind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "file", choice: "FILE", plan: ["FILE"] });
+    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: tp, context: buildPrisonerContext(world, prisonerPlan, tp), mind: fileMind, tracker: newSilenceTracker() });
+    expect(half.result.kind).toBe("resolved");
+
+    expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    const act = mostRecentVisibleActFor(world.gameId, "prisoner");
+    expect(act?.seen_by_other_as).toBeNull();
+  });
+
+  it("FILE raises suspicion as normal, and its visible act relays, when the warden's own last move was IN THE CELL (OBSERVE)", async () => {
+    fresh();
+    const tw = world.clock.wardenT(1);
+    const observeMind = scriptedMind<WardenContext, WardenProposal>({ intent: "observe", choice: "OBSERVE", plan: ["OBSERVE"] });
+    await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 1, t: tw, context: buildWardenContext(world, wardenPlan, tw), mind: observeMind, tracker: newSilenceTracker() });
+
+    const tp = world.clock.prisonerT(1);
+    const fileMind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "file", choice: "FILE", plan: ["FILE"] });
+    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: tp, context: buildPrisonerContext(world, prisonerPlan, tp), mind: fileMind, tracker: newSilenceTracker() });
+    expect(half.result.kind).toBe("resolved");
+
+    expect(getResource(world.resources.wardenSuspicion)?.value).toBeGreaterThan(0);
+    const act = mostRecentVisibleActFor(world.gameId, "prisoner");
+    expect(act?.seen_by_other_as).not.toBeNull();
+  });
+
+  it("defaults to PRESENT before the warden has ever acted -- the scenario's own starting presence", async () => {
+    fresh();
+    const tp = world.clock.prisonerT(1);
+    const fileMind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "file", choice: "FILE", plan: ["FILE"] });
+    await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: tp, context: buildPrisonerContext(world, prisonerPlan, tp), mind: fileMind, tracker: newSilenceTracker() });
+
+    expect(getResource(world.resources.wardenSuspicion)?.value).toBeGreaterThan(0);
+  });
+
+  it("presence gating is specific to prisoner half-rounds -- a warden move's own suspicion-bearing mechanics are unaffected (SEARCH's false alarm still resets to 0 regardless)", async () => {
+    fresh();
+    // Not a meaningful regression risk today (no warden mechanic reads
+    // wardenPresent), but locks the intent: this parameter is prisoner-only.
+    logRound({ gameId: world.gameId, t: world.clock.wardenT(1), roundN: 1, principal: "warden", mechanic: "CHECK_LOCK", description: null });
+    const tw = world.clock.wardenT(2);
+    const searchMind = scriptedMind<WardenContext, WardenProposal>({ intent: "search", choice: "SEARCH", plan: ["SEARCH"] });
+    const half = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 2, t: tw, context: buildWardenContext(world, wardenPlan, tw), mind: searchMind, tracker: newSilenceTracker() });
+    expect(half.result.kind).toBe("resolved");
   });
 });

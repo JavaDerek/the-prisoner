@@ -218,6 +218,25 @@ export function mostRecentVisibleActFor(gameId: string, otherPrincipal: "warden"
   return row ?? null;
 }
 
+/**
+ * Warden presence (coordinator's fix, item 2): the warden's own most recent
+ * REAL move -- "derived by the loop from its round log, never from prose."
+ * `mechanic != 'NONE'` excludes a silent or no-choice half-round, which is
+ * not a move at all and so changes nothing about where the warden
+ * physically is (unlike `mostRecentVisibleActFor`, which deliberately reads
+ * EVERY row, `NONE` included, because a stale visible-act repeat is the bug
+ * it guards against -- presence is a different question: "where is the
+ * warden right now," not "what was the last half-round"). `null` before the
+ * warden has ever acted; `loop.ts`/`briefing.ts` treat that as still being
+ * in the cell, the scenario's own starting presence.
+ */
+export function mostRecentWardenMechanic(gameId: string): string | null {
+  const row = getDatabase()
+    .prepare(`SELECT mechanic FROM round_log WHERE game_id = ? AND principal = 'warden' AND mechanic != 'NONE' ORDER BY t DESC LIMIT 1`)
+    .get(gameId) as { mechanic: string } | undefined;
+  return row?.mechanic ?? null;
+}
+
 /** Design's correction 2: resolves "which move caused this fact" from this
  *  repository's own round log, keyed on the hop's `validFromT` -- never on
  *  `openedByEventId`, which the engine only promises names *some* event,

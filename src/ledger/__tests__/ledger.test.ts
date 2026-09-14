@@ -16,6 +16,7 @@ import {
   causeAtT,
   revisePlan,
   mostRecentVisibleActFor,
+  mostRecentWardenMechanic,
   pendingMoves,
 } from "../ledger.js";
 import type { Resolver } from "run-dmcp";
@@ -348,6 +349,40 @@ describe("the attempt ledger (design §4.4)", () => {
       const act = mostRecentVisibleActFor(world.gameId, "prisoner");
       expect(act?.line).toBeNull();
       expect(act?.seen_by_other_as).toBeNull();
+    });
+  });
+
+  describe("mostRecentWardenMechanic -- warden presence, derived from round_log only (coordinator's fix, item 2)", () => {
+    it("null before the warden has ever acted", () => {
+      fresh();
+      expect(mostRecentWardenMechanic(world.gameId)).toBeNull();
+    });
+
+    it("returns the warden's own most recent REAL move", () => {
+      fresh();
+      const t1 = world.clock.wardenT(1);
+      logRound({ gameId: world.gameId, t: t1, roundN: 1, principal: "warden", mechanic: "OBSERVE", description: null });
+      const t2 = world.clock.wardenT(2);
+      logRound({ gameId: world.gameId, t: t2, roundN: 2, principal: "warden", mechanic: "CHECK_LOCK", description: null });
+
+      expect(mostRecentWardenMechanic(world.gameId)).toBe("CHECK_LOCK");
+    });
+
+    it("a silent or no-choice half-round (mechanic 'NONE') is not a move -- it changes nothing about where the warden is", () => {
+      fresh();
+      const t1 = world.clock.wardenT(1);
+      logRound({ gameId: world.gameId, t: t1, roundN: 1, principal: "warden", mechanic: "CHECK_LOCK", description: null });
+      const t2 = world.clock.wardenT(2);
+      logRound({ gameId: world.gameId, t: t2, roundN: 2, principal: "warden", mechanic: "NONE", description: null });
+
+      expect(mostRecentWardenMechanic(world.gameId)).toBe("CHECK_LOCK");
+    });
+
+    it("never reads the prisoner's own moves", () => {
+      fresh();
+      const t1 = world.clock.prisonerT(1);
+      logRound({ gameId: world.gameId, t: t1, roundN: 1, principal: "prisoner", mechanic: "FILE", description: null });
+      expect(mostRecentWardenMechanic(world.gameId)).toBeNull();
     });
   });
 

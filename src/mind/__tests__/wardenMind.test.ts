@@ -52,6 +52,13 @@ describe("buildWardenPrompt -- pure, built from context alone", () => {
     const prompt = buildWardenPrompt(context);
     expect(prompt.toLowerCase()).toContain("guard_attention falls by");
   });
+
+  it("coordinator's fix, item 2 -- states the warden presence rule (leaving the cell means not hearing what happens in it)", () => {
+    const prompt = buildWardenPrompt(context);
+    expect(prompt.toLowerCase()).toContain("corridor");
+    expect(prompt.toLowerCase()).toContain("yard");
+    expect(prompt.toLowerCase()).toContain("hears nothing");
+  });
 });
 
 describe("private thoughts and persisted notes (this task's brief, items 1-2)", () => {

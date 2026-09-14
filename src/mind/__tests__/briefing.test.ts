@@ -3,6 +3,7 @@ import { ResolveProtocolError } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildWorld, type World } from "../../world/setup.js";
 import { authorPlan, logRound, recordFailure } from "../../ledger/ledger.js";
+import { WARDEN_PRESENCE } from "../../world/mechanics.js";
 import { setBelief, seedInitialBeliefs } from "../../ledger/beliefs.js";
 import { setNotes } from "../../ledger/notes.js";
 import { buildPrisonerContext, buildWardenContext, buildBriefing } from "../briefing.js";
@@ -235,6 +236,33 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     const laterBriefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(4), plan, 12);
     expect(laterBriefing).not.toContain("Last round your");
     expect(laterBriefing).toContain("FILE was refused"); // still in the ledger history.
+  });
+
+  it("warden presence (coordinator's fix, item 2) -- the prisoner's briefing states the away-line when the warden's last move was AWAY", () => {
+    fresh();
+    logRound({ gameId: world.gameId, t: world.clock.wardenT(1), roundN: 1, principal: "warden", mechanic: "CHECK_LOCK", description: null });
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1));
+    expect(briefing).toContain(WARDEN_PRESENCE.CHECK_LOCK?.awayLine);
+  });
+
+  it("warden presence -- no away-line at all when the warden's last move was IN THE CELL", () => {
+    fresh();
+    logRound({ gameId: world.gameId, t: world.clock.wardenT(1), roundN: 1, principal: "warden", mechanic: "OBSERVE", description: null });
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1));
+    expect(briefing).not.toContain("footsteps");
+  });
+
+  it("warden presence -- no away-line before the warden has ever acted (defaults to present, the scenario's own start)", () => {
+    fresh();
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1));
+    expect(briefing).not.toContain("footsteps");
+  });
+
+  it("warden presence -- the WARDEN's own briefing never shows an away-line; it always knows where it itself is", () => {
+    fresh();
+    logRound({ gameId: world.gameId, t: world.clock.wardenT(1), roundN: 1, principal: "warden", mechanic: "REPLACE_BAR", description: null });
+    const briefing = buildBriefing(world, world.wardenId, world.clock.wardenT(2));
+    expect(briefing).not.toContain("footsteps");
   });
 
   it("item 4 -- says nothing about grounds while suspicion is below the threshold", () => {

@@ -91,24 +91,38 @@ export function seedInitialBeliefs(world: World): void {
   setBelief(world.gameId, "warden", "spoon_edge", 0, 0);
 }
 
-/** Which resource a move's `expects` is built against, and which principal's
- *  belief it reads (design: "FILE: bar_integrity; SHIM: lock_integrity;
- *  REPLACE_BAR, SERVICE_LOCK: the believed value"). Deliberately excludes
- *  every move that depends on `guard_attention` (it drifts every round --
- *  `expects` is equality-only and would misfire on ordinary time decay) and
- *  every move whose outcome the mechanic itself adjudicates from truth
- *  (ESCAPE, SEARCH, OBSERVE, INSPECT).
+/**
+ * Which resource a move's `expects` is built against, and which principal's
+ * belief it reads. Deliberately excludes every move that depends on
+ * `guard_attention` (it drifts every round -- `expects` is equality-only and
+ * would misfire on ordinary time decay) and every move whose outcome the
+ * mechanic itself adjudicates from truth (ESCAPE, SEARCH, OBSERVE, INSPECT).
  *
- *  Exported for one second, purely cosmetic use (coordinator's fix, item 3):
- *  `ledger.ts`'s refusal rendering turns a refused move's own key ("value")
- *  into a friendly resource name ("bar integrity") by reading THIS table --
- *  never a second, redeclared mapping. It is never used there to build or
- *  check an expectation, only to label one already resolved. */
+ * REVISION (coordinator's fix, item 1: "SET moves declare no expectation on
+ * the old value"): only FILE and SHIM remain. Both are DELTA moves -- their
+ * outcome is `current - amount`, read from the mechanic's own live
+ * `input.constraint` at adjudication time, so a stale belief about the
+ * PRIOR value is exactly what makes the acting principal's own next delta
+ * collide with reality; that collision is the prisoner's irony (the ledger
+ * example: FILE against a bar the warden covertly reset). REPLACE_BAR and
+ * SERVICE_LOCK are SET moves -- their outcome is a fixed `100` regardless of
+ * the current value, so declaring `expects` from the warden's OWN belief
+ * bought nothing but refusing an uninformed warden exactly when it most
+ * wanted to act (an OBSERVE-only "the bar looks worn" could never earn it
+ * an accurate belief, since OBSERVE deliberately gives only a band -- see
+ * `world/mechanics.ts`'s `barBand`). REPLACE_BAR keeps its OWN refusal once
+ * the bar's `cut` fact is open -- that is the irreversible constraint doing
+ * its job (`declareCutIfJustCut`), never a belief, and is untouched here.
+ *
+ * Exported for one second, purely cosmetic use (this task's brief, item 3):
+ * `ledger.ts`'s refusal rendering turns a refused move's own key ("value")
+ * into a friendly resource name ("bar integrity") by reading THIS table --
+ * never a second, redeclared mapping. It is never used there to build or
+ * check an expectation, only to label one already resolved.
+ */
 export const EXPECTS_RESOURCE_FOR_MOVE: Partial<Record<string, BeliefResource>> = {
   FILE: "bar_integrity",
   SHIM: "lock_integrity",
-  REPLACE_BAR: "bar_integrity",
-  SERVICE_LOCK: "lock_integrity",
 };
 
 function entityIdForResource(world: World, resource: BeliefResource): string {

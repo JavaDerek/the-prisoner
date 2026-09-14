@@ -1054,6 +1054,62 @@ about *why*, in the mind's own words, which the plan's bare move names were neve
 
 ---
 
+## Revision 2026-09-14 (continued) — SET moves declare no expects; warden presence
+
+Iteration 7's review: across 13 real runs, still zero refusals, and the reason was structural.
+**REPLACE_BAR and SERVICE_LOCK are SET moves** — their outcome is a fixed `100` regardless of the
+current value (unlike FILE/SHIM, which compute `current - amount` from the live world at adjudication
+time) — yet both declared `expects` from the acting principal's own belief, the same equality gate
+FILE/SHIM use. For a SET move that gate only ever refused an *uninformed* principal exactly when it
+most wanted to act, and OBSERVE (the warden's only way to learn anything about the bar without
+leaving the cell) deliberately gives just a band, never a number a belief `expects` could use — so
+the warden's belief was permanently stale and REPLACE_BAR permanently blocked, right up until the
+first fix's balance test papered over it with an extra refusal-then-retry beat. **Fixed at the
+source**: `EXPECTS_RESOURCE_FOR_MOVE` (`src/ledger/beliefs.ts`) now lists only FILE and SHIM — the
+two DELTA moves, where a stale belief about the *prior* value is exactly what makes a principal's own
+next attempt collide with reality, which is the prisoner's irony this design was built around.
+REPLACE_BAR keeps its own refusal once the bar's `cut` fact is open (`ConstraintViolationError`,
+irreversible) — that was never a belief, and is untouched.
+
+**Warden presence — "watching and checking can't happen at once."** OBSERVE was free, cost nothing,
+and was always available, so the prisoner's briefing said "the warden is watching closely" every
+single round and the prisoner hid every single round: a standoff neither side could break, and the
+real reason FILE-based suspicion never had a chance to matter. Every warden move now declares WHERE
+it happens — `src/world/mechanics.ts`'s `WARDEN_PRESENCE` table, beside `MOVE_DESCRIPTIONS`: `"cell"`
+(present, watching — OBSERVE, SEARCH, ROTATE_GUARD, WAIT) or away (`"corridor"` for CHECK_LOCK and
+SERVICE_LOCK, `"yard"` for REPLACE_BAR). Presence during the prisoner's half-round is the warden's own
+most recent *real* move in `round_log` (`ledger.ts`'s `mostRecentWardenMechanic` — a silent or
+no-choice half-round is not a move and changes nothing), defaulting to present before the warden has
+ever acted. `loop.ts` passes it to the resolver as an opaque `Proposal.parameters.wardenPresent`, and
+FILE/HONE/ESCAPE's own adjudication reads it to gate their suspicion bump — the physical act still
+happens (the bar still wears, the spoon still sharpens), but nothing raises `warden_suspicion` with
+nobody in the cell to notice, and a failed ESCAPE is unheard the same way. **The guard still governs
+success**: ESCAPE's own success condition (`cut` or `lock_integrity <= 0`, and `guard_attention` below
+its threshold) reads only `guard_attention`, the physical security staff, never the warden's own
+personal location, so presence never gates whether an escape attempt *works* — only whether a failed
+one costs anything. Positive perception, never a negation: `wardenAwayLine` renders
+`"The warden's footsteps fade down the corridor."` / `"...toward the yard."` into the prisoner's own
+next briefing while the warden is away — never "the warden isn't watching." `WARDEN_PRESENCE_RULE`
+states the same rule to both minds, built by interpolating `WARDEN_PRESENCE`'s own move names, so a
+retune can never desync the prompt text from the table (`src/world/__tests__/presence.test.ts` ties
+the two together directly).
+
+**Balance, reconfirmed.** Three tests (`src/__tests__/balance.test.ts`): a prisoner who files only
+while the warden is away, against a warden that mechanically alternates OBSERVE and CHECK_LOCK with
+no adaptation at all, escapes cleanly, suspicion never crossing the search threshold; a prisoner who
+files on every turn regardless of presence, against a warden that only ever watches, is caught, as
+before; the covert REPLACE_BAR irony path, updated for this revision — the warden's *first*
+REPLACE_BAR now succeeds directly (no stale-belief refusal of its own), and the prisoner's next FILE,
+still holding the pre-replacement belief, is refused naming it. No number needed tuning: the
+away-filing win condition resolved well within the test's own round budget against the fixed,
+non-adaptive warden the scenario specified, which is expected — a warden that never reacts to
+suspicion or grounds isn't a counterexample to balance, it's the control that proves the mechanism
+fires at all. Whether a *reactive* warden (ROTATE_GUARD to deny the guard-attention window, or
+alternating toward SEARCH once suspicion allows it) closes the gap is a real-run question, not a unit
+-test one, and belongs in the next checkpoint's findings rather than a tuned constant here.
+
+---
+
 ## Appendix B — points for The Prisoner's own `CLAUDE.md`
 
 - What this is, in two sentences, and that `docs/DESIGN.md` is the authority.

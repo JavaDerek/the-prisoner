@@ -16,8 +16,8 @@ import type { Mind } from "mind-seam";
 import { getResource, type Resolver } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../world/testDb.js";
 import { buildWorld, type World } from "../world/setup.js";
-import { buildResolver, checkGameEnd, ESCAPE_GUARD_MAX, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
-import { authorPlan, renderLedger, type Plan } from "../ledger/ledger.js";
+import { buildResolver, checkGameEnd, ESCAPE_GUARD_MAX, SEARCH_SUSPICION_THRESHOLD, isWardenAway } from "../world/mechanics.js";
+import { authorPlan, renderLedger, mostRecentWardenMechanic, type Plan } from "../ledger/ledger.js";
 import { seedInitialBeliefs, getBelief } from "../ledger/beliefs.js";
 import { buildPrisonerContext } from "../mind/briefing.js";
 import { buildWardenContext } from "../mind/briefing.js";
@@ -168,6 +168,78 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     expect(endedAtRound).toBeGreaterThan(2);
   });
 
+  it("coordinator's fix, item 2(a) -- a prisoner who files ONLY while the warden is away ESCAPES against a warden who alternates OBSERVE and CHECK_LOCK", async () => {
+    fresh();
+    // The warden alternates a cell move (OBSERVE) and an away move
+    // (CHECK_LOCK), oblivious to what the prisoner is doing -- it never
+    // adapts, so this is purely the presence rule's own effect, not a
+    // reactive warden being outsmarted move-by-move.
+    let wardenTurn = 0;
+    const wardenMind = adaptiveMind<WardenContext, WardenProposal>(() => {
+      wardenTurn += 1;
+      return wardenTurn % 2 === 1 ? "OBSERVE" : "CHECK_LOCK";
+    });
+    // The prisoner FILEs only when the warden's own last logged move was
+    // AWAY (never while watched, so warden_suspicion never rises and
+    // SEARCH never gets grounds); once the bar is worn through, it waits
+    // out guard_attention's own ordinary time-decay and escapes -- success
+    // depends only on the guard, never on presence (coordinator's fix,
+    // item 2's own "keep it simple" instruction).
+    const prisonerMind = adaptiveMind<PrisonerContext, PrisonerProposal>(() => {
+      const barIntegrity = getResource(world.resources.barIntegrity)?.value ?? 100;
+      const guard = getResource(world.resources.guardAttention)?.value ?? 100;
+      const cutEnough = barIntegrity <= 0;
+      if (cutEnough && guard < ESCAPE_GUARD_MAX) return "ESCAPE";
+      if (cutEnough) return "WAIT";
+      const away = isWardenAway(mostRecentWardenMechanic(world.gameId) ?? "");
+      return away ? "FILE" : "WAIT";
+    });
+
+    const wardenTracker = newSilenceTracker();
+    const prisonerTracker = newSilenceTracker();
+
+    let ended: ReturnType<typeof checkGameEnd> = null;
+    let endedAtRound = -1;
+    for (let n = 1; n <= 40 && !ended; n++) {
+      await runRound({ world, resolver, prisonerPlan, wardenPlan, n, wardenMind, prisonerMind, wardenTracker, prisonerTracker });
+      ended = checkGameEnd(world, world.clock.prisonerT(n));
+      if (ended) endedAtRound = n;
+    }
+
+    expect(ended).toEqual({ kind: "escaped" });
+    expect(endedAtRound).toBeGreaterThan(0);
+    // Never caught along the way: warden_suspicion should never have
+    // crossed the search threshold, since every FILE happened unheard.
+    expect(getResource(world.resources.wardenSuspicion)?.value ?? 0).toBeLessThan(SEARCH_SUSPICION_THRESHOLD);
+  });
+
+  it("coordinator's fix, item 2(b) -- a prisoner who files while WATCHED (the warden never leaves the cell) is CAUGHT", async () => {
+    fresh();
+    // The warden only ever uses cell moves (OBSERVE, then SEARCH once it
+    // has grounds) -- always present, always watching.
+    const wardenMind = adaptiveMind<WardenContext, WardenProposal>(() => {
+      const suspicion = getResource(world.resources.wardenSuspicion)?.value ?? 0;
+      return suspicion >= SEARCH_SUSPICION_THRESHOLD ? "SEARCH" : "OBSERVE";
+    });
+    // The prisoner files relentlessly regardless of presence -- exactly the
+    // mistake item 2(a)'s prisoner avoids.
+    const prisonerMind = adaptiveMind<PrisonerContext, PrisonerProposal>(() => "FILE");
+
+    const wardenTracker = newSilenceTracker();
+    const prisonerTracker = newSilenceTracker();
+
+    let ended: ReturnType<typeof checkGameEnd> = null;
+    let endedAtRound = -1;
+    for (let n = 1; n <= 12 && !ended; n++) {
+      await runRound({ world, resolver, prisonerPlan, wardenPlan, n, wardenMind, prisonerMind, wardenTracker, prisonerTracker });
+      ended = checkGameEnd(world, world.clock.prisonerT(n));
+      if (ended) endedAtRound = n;
+    }
+
+    expect(ended).toEqual({ kind: "caught" });
+    expect(endedAtRound).toBeGreaterThan(0);
+  });
+
   it("the irony path (coordinator's fix): prisoner SHIM, warden CHECK_LOCK, warden SERVICE_LOCK, prisoner SHIM refused with the cause naming the warden's SERVICE_LOCK, and its belief updates", async () => {
     fresh();
     const wardenTracker = newSilenceTracker();
@@ -217,7 +289,7 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     expect(rendered).toContain("warden's SERVICE_LOCK");
   });
 
-  it("the covert REPLACE_BAR irony path (coordinator's fix): prisoner FILE, warden OBSERVE, warden REPLACE_BAR covertly, prisoner FILE refused with the cause naming the warden's REPLACE_BAR, and its belief updates", async () => {
+  it("the covert REPLACE_BAR irony path (coordinator's fix, item 1 -- SET moves declare no expects): prisoner FILE, warden OBSERVE, warden's FIRST REPLACE_BAR succeeds covertly, prisoner FILE refused with the cause naming the warden's REPLACE_BAR, and its belief updates", async () => {
     fresh();
     const wardenTracker = newSilenceTracker();
     const prisonerTracker = newSilenceTracker();
@@ -230,37 +302,22 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 85, asOfRound: 1 });
 
     // The warden OBSERVEs -- sees the bar only as a band ("worn"), never an
-    // exact number a belief-based `expects` could rely on (design: "never an
-    // exact number, so it can never become a belief `expects` could rely
-    // on"). This is narrative motivation for the warden's decision, not
-    // what fixes its own belief -- REPLACE_BAR is symmetric with SHIM/
-    // SERVICE_LOCK (`EXPECTS_RESOURCE_FOR_MOVE`, `ledger/beliefs.ts`): the
-    // ACTING principal's own `expects` is equality against ITS OWN belief,
-    // and the warden's is still the round-0 seed (100).
+    // exact number. Purely narrative motivation now: REPLACE_BAR is a SET
+    // move (`EXPECTS_RESOURCE_FOR_MOVE`, `ledger/beliefs.ts`) and declares no
+    // expectation on the prior value at all, so the warden's own belief
+    // (accurate or not) plays no part in whether it succeeds.
     const tw1 = world.clock.wardenT(2);
     const observeMind = { async consider() { return { intent: "observe", choice: "OBSERVE" } as WardenProposal; } };
     const observeHalf = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 2, t: tw1, context: buildWardenContext(world, wardenPlan, tw1), mind: observeMind, tracker: wardenTracker });
     expect(observeHalf.result.kind).toBe("resolved");
 
-    // So the warden's FIRST REPLACE_BAR is refused -- by its OWN stale
-    // belief, exactly the same shape as the prisoner's own SHIM colliding
-    // with a stale belief in the sibling test above. There is no CHECK_LOCK
-    // equivalent for the bar (OBSERVE is deliberately imprecise), so this is
-    // the warden's OWN honest self-correction, not a second irony beat
-    // aimed at the prisoner -- and it is what teaches the warden the true
-    // value, via the SAME refusal-reveals-the-truth channel (d).
+    // The warden's FIRST REPLACE_BAR succeeds directly -- covert (this
+    // task's revision: it happens while the prisoner is in the yard). The
+    // bar resets to 100; the prisoner is never told.
     const tw2 = world.clock.wardenT(3);
     const replaceMind = { async consider() { return { intent: "replace the bar", choice: "REPLACE_BAR" } as WardenProposal; } };
-    const firstReplace = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 3, t: tw2, context: buildWardenContext(world, wardenPlan, tw2), mind: replaceMind, tracker: wardenTracker });
-    expect(firstReplace.result.kind).toBe("refused");
-    expect(getBelief(world.gameId, "warden", "bar_integrity")).toEqual({ value: 85, asOfRound: 3 });
-
-    // Its SECOND REPLACE_BAR, now with an accurate belief, succeeds --
-    // covert (this task's revision: it happens while the prisoner is in the
-    // yard). The bar resets to 100; the prisoner is never told.
-    const tw3 = world.clock.wardenT(4);
-    const secondReplace = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 4, t: tw3, context: buildWardenContext(world, wardenPlan, tw3), mind: replaceMind, tracker: wardenTracker });
-    expect(secondReplace.result.kind).toBe("resolved");
+    const replaceHalf = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 3, t: tw2, context: buildWardenContext(world, wardenPlan, tw2), mind: replaceMind, tracker: wardenTracker });
+    expect(replaceHalf.result.kind).toBe("resolved");
     expect(getResource(world.resources.barIntegrity)?.value).toBe(100);
     // Still stale: the covert act did not touch the prisoner's belief.
     expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 85, asOfRound: 1 });
@@ -268,13 +325,13 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     // The prisoner FILEs again, expecting its own stale belief (85) --
     // refused. This IS the intended dramatic-irony beat: the prisoner is
     // contradicted by the WARDEN's covert act, never by its own.
-    const t2 = world.clock.prisonerT(5);
+    const t2 = world.clock.prisonerT(4);
     const fileAgainMind = { async consider() { return { intent: "file again", choice: "FILE" } as PrisonerProposal; } };
-    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 5, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: fileAgainMind, tracker: prisonerTracker });
+    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 4, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: fileAgainMind, tracker: prisonerTracker });
 
     expect(half.result.kind).toBe("refused");
     // The refusal reveals the truth into the prisoner's own belief.
-    expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 100, asOfRound: 5 });
+    expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 100, asOfRound: 4 });
 
     // The ledger names WHOSE act caused the refusal -- the warden's
     // REPLACE_BAR, never the prisoner's own.

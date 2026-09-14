@@ -1,6 +1,6 @@
 import type { Mind, Proposal, SilenceReason, SilenceDetail, InertRecord } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
-import { MOVE_DESCRIPTIONS, PRISONER_MOVES, TIME_DECAY_RULE } from "../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, PRISONER_MOVES, TIME_DECAY_RULE, WARDEN_PRESENCE_RULE } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 
 /**
@@ -103,6 +103,7 @@ export function buildPrisonerPrompt(context: PrisonerContext): string {
     ...moveLines,
     "",
     `Also, a rule that never changes and is not one of your moves: ${TIME_DECAY_RULE}`,
+    WARDEN_PRESENCE_RULE,
     "",
     'Answer with one JSON object: {"thoughts": string, "intent": string, "line": string, "plan": string[], "notes": string}.',
     '"thoughts" is REQUIRED -- your private reasoning: what you know, what the other person probably knows, ' +

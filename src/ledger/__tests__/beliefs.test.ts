@@ -89,18 +89,16 @@ describe("the belief store", () => {
       expect(expects).toEqual([{ entityId: world.resources.lockIntegrity, key: "value", value: 60 }]);
     });
 
-    it("REPLACE_BAR expects the warden's own believed bar_integrity", () => {
+    it("REPLACE_BAR declares NO expects -- coordinator's fix, item 1: SET moves don't depend on the prior value, so an uninformed warden is never refused for want of a stale belief. Its own refusal-once-cut is the irreversible fact, not a belief.", () => {
       fresh();
-      setBelief(world.gameId, "warden", "bar_integrity", 100, 0);
-      const expects = beliefExpectation(world, "warden", "REPLACE_BAR");
-      expect(expects).toEqual([{ entityId: world.resources.barIntegrity, key: "value", value: 100 }]);
+      setBelief(world.gameId, "warden", "bar_integrity", 40, 0);
+      expect(beliefExpectation(world, "warden", "REPLACE_BAR")).toBeUndefined();
     });
 
-    it("SERVICE_LOCK expects the warden's own believed lock_integrity", () => {
+    it("SERVICE_LOCK declares NO expects, for the same reason (a SET move)", () => {
       fresh();
-      setBelief(world.gameId, "warden", "lock_integrity", 100, 0);
-      const expects = beliefExpectation(world, "warden", "SERVICE_LOCK");
-      expect(expects).toEqual([{ entityId: world.resources.lockIntegrity, key: "value", value: 100 }]);
+      setBelief(world.gameId, "warden", "lock_integrity", 40, 0);
+      expect(beliefExpectation(world, "warden", "SERVICE_LOCK")).toBeUndefined();
     });
 
     it("a move with no belief-dependent resource (e.g. WAIT, HONE) declares no expects", () => {

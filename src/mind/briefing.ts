@@ -1,9 +1,9 @@
 import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
-import { renderLedger, renderPlan, mostRecentVisibleActFor, recentRefusalNote, type Plan } from "../ledger/ledger.js";
+import { renderLedger, renderPlan, mostRecentVisibleActFor, recentRefusalNote, mostRecentWardenMechanic, type Plan } from "../ledger/ledger.js";
 import { getBelief, renderBeliefLine, type Principal } from "../ledger/beliefs.js";
 import { getNotes } from "../ledger/notes.js";
-import { PRISONER_MOVES, WARDEN_MOVES, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
+import { PRISONER_MOVES, WARDEN_MOVES, SEARCH_SUSPICION_THRESHOLD, isWardenAway, wardenAwayLine } from "../world/mechanics.js";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, prisonerStakes, wardenStakes } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
 import type { WardenContext } from "./wardenMind.js";
@@ -93,6 +93,22 @@ export function buildBriefing(
   }
 
   lines.push(`You share the cell with ${view.otherPrincipal.name ?? "the other person"}.`);
+
+  // Warden presence (coordinator's fix, item 2): positive perception, for
+  // the PRISONER'S OWN briefing only -- the warden always knows where it
+  // itself is, so this never applies to `principal === "warden"`. Derived
+  // from the warden's own most recent REAL move in round_log
+  // (`mostRecentWardenMechanic`), never from prose; absent entirely (never
+  // "the warden isn't watching") unless that move's own table entry
+  // declares an away-line.
+  if (principal === "prisoner") {
+    const wardenMove = mostRecentWardenMechanic(world.gameId);
+    if (wardenMove && isWardenAway(wardenMove)) {
+      const line = wardenAwayLine(wardenMove);
+      if (line) lines.push(line);
+    }
+  }
+
   for (const noun of view.nouns) {
     lines.push(`The ${noun.phrase} is here.`);
   }

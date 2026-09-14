@@ -131,6 +131,21 @@ export function buildMechanics(world: World): Mechanic[] {
     return setResource(resources.wardenSuspicion, "value", current + amount);
   }
 
+  /**
+   * Warden presence (coordinator's fix, item 2): `loop.ts` computes this
+   * caller-side, from the warden's own most recent `round_log` mechanic and
+   * `WARDEN_PRESENCE` (below), and passes it as an opaque
+   * `Proposal.parameters` entry -- never inspected or interpreted by the
+   * engine, exactly the way `withNote`'s own `parameters.note` already
+   * isn't. Defaults to `true` (present) when the caller omits it entirely,
+   * so every existing call site and test that never mentions presence keeps
+   * its original behaviour unchanged.
+   */
+  function wardenPresent(input: AdjudicationInput): boolean {
+    const value = input.parameters?.wardenPresent;
+    return typeof value === "boolean" ? value : true;
+  }
+
   const FILE: Mechanic = {
     name: "FILE",
     adjudicate(input: AdjudicationInput): Adjudication {
@@ -138,7 +153,13 @@ export function buildMechanics(world: World): Mechanic[] {
       const spoonEdge = valueOf(input, resources.spoonEdge, "value");
       const amount = spoonEdge >= FILE_SHARP_THRESHOLD ? FILE_AMOUNT_SHARP : FILE_AMOUNT;
       const intended = current - amount;
-      const changes = [setResource(resources.barIntegrity, "value", intended), suspicionBump(input, FILE_SUSPICION_BUMP)];
+      const changes = [setResource(resources.barIntegrity, "value", intended)];
+      // Unheard while the warden is away (coordinator's fix, item 2): the
+      // bar still wears down -- that is a physical fact -- but nothing
+      // raises warden_suspicion when there is nobody in the cell to notice.
+      if (wardenPresent(input)) {
+        changes.push(suspicionBump(input, FILE_SUSPICION_BUMP));
+      }
       if (intended <= 0) {
         changes.push(writeFlag(barId, CUT_KEY, 1));
       }
@@ -173,14 +194,18 @@ export function buildMechanics(world: World): Mechanic[] {
     name: "HONE",
     adjudicate(input: AdjudicationInput): Adjudication {
       const current = valueOf(input, resources.spoonEdge, "value");
+      // HONE un-conceals the spoon (design: "un-conceals the spoon") -- you
+      // cannot hone what you cannot reach.
+      const changes: IntendedWrite[] = [
+        setResource(resources.spoonEdge, "value", current + HONE_AMOUNT),
+        writeFlag(spoonId, CONCEALED_KEY, 0),
+      ];
+      // Unheard while the warden is away (coordinator's fix, item 2).
+      if (wardenPresent(input)) {
+        changes.push(suspicionBump(input, HONE_SUSPICION_BUMP));
+      }
       return {
-        // HONE un-conceals the spoon (design: "un-conceals the spoon") --
-        // you cannot hone what you cannot reach.
-        changes: [
-          setResource(resources.spoonEdge, "value", current + HONE_AMOUNT),
-          suspicionBump(input, HONE_SUSPICION_BUMP),
-          writeFlag(spoonId, CONCEALED_KEY, 0),
-        ],
+        changes,
         result: { mechanic: "HONE", spoonEdgeBefore: current },
         description: withNote("The prisoner hones the spoon's edge.", input),
       };
@@ -226,6 +251,10 @@ export function buildMechanics(world: World): Mechanic[] {
       const cut = valueOf(input, barId, CUT_KEY) === 1;
       const lockIntegrity = valueOf(input, resources.lockIntegrity, "value");
       const guardAttention = valueOf(input, resources.guardAttention, "value");
+      // Coordinator's fix, item 2: "the guard still governs success" --
+      // guard_attention is the physical security staff, never the warden's
+      // own personal presence, so the SUCCESS condition is entirely
+      // unaffected by whether the warden itself is in the cell right now.
       const opening = cut || lockIntegrity <= 0;
       const success = opening && guardAttention < ESCAPE_GUARD_MAX;
 
@@ -236,8 +265,11 @@ export function buildMechanics(world: World): Mechanic[] {
           description: withNote("The prisoner slips free of the cell. Escaped.", input),
         };
       }
+      // A FAILED attempt is unheard while the warden is away, like every
+      // other presence-gated move ("keep it simple: it's unheard too").
+      const changes = wardenPresent(input) ? [suspicionBump(input, FAILED_ESCAPE_SUSPICION_BUMP)] : [];
       return {
-        changes: [suspicionBump(input, FAILED_ESCAPE_SUSPICION_BUMP)],
+        changes,
         result: { mechanic: "ESCAPE", success: 0 },
         description: withNote("The prisoner tries to escape and is caught short -- still inside the cell.", input),
       };
@@ -457,6 +489,87 @@ export const SEEN_BY_OTHER_AS: Record<string, string | null> = {
   ROTATE_GUARD: "The prisoner notices a different guard on watch.",
   OBSERVE: "The prisoner notices the warden watching closely.",
 };
+
+/**
+ * Warden presence (coordinator's fix, item 2): "watching and checking can't
+ * happen at once." OBSERVE being free and always-on made every prisoner
+ * briefing say "the warden is watching closely," every turn, with no cost to
+ * the warden and no way for the prisoner to ever act unwatched -- a
+ * standoff neither side could break. Every warden move now declares WHERE
+ * it physically happens: `"cell"` (present, watching -- OBSERVE, SEARCH,
+ * ROTATE_GUARD, WAIT) or away (`"corridor"` for CHECK_LOCK/SERVICE_LOCK,
+ * `"yard"` for REPLACE_BAR). `awayLine` is the POSITIVE perception a
+ * prisoner gets while the warden's most recent move was an away one --
+ * never "the warden isn't watching" (root CLAUDE.md hard rule 3) --
+ * present only for away entries, since a cell move needs no line at all
+ * (the prisoner already sees the warden right there).
+ *
+ * `loop.ts` derives PRESENCE from this table plus the warden's own most
+ * recent `round_log` row (`ledger.ts`'s `mostRecentWardenMechanic`) --
+ * never from prose, never guessed. `briefing.ts` renders `awayLine` into
+ * the prisoner's OWN next briefing when it applies; `loop.ts` passes
+ * `wardenPresent` to the resolver as an opaque `Proposal.parameters` entry
+ * so FILE/HONE/ESCAPE's own adjudication can gate their suspicion bump on
+ * it (`world/mechanics.ts`'s own mechanics, below).
+ */
+export type WardenLocation = "cell" | "corridor" | "yard";
+
+export interface WardenPresenceEntry {
+  location: WardenLocation;
+  /** Only ever set for a non-"cell" location. */
+  awayLine?: string;
+}
+
+export const WARDEN_PRESENCE: Record<string, WardenPresenceEntry> = {
+  OBSERVE: { location: "cell" },
+  SEARCH: { location: "cell" },
+  ROTATE_GUARD: { location: "cell" },
+  WAIT: { location: "cell" },
+  CHECK_LOCK: { location: "corridor", awayLine: "The warden's footsteps fade down the corridor." },
+  SERVICE_LOCK: { location: "corridor", awayLine: "The warden's footsteps fade down the corridor." },
+  REPLACE_BAR: { location: "yard", awayLine: "The warden's footsteps fade toward the yard." },
+};
+
+/** `true` when `move`'s own entry (if any) is somewhere other than the
+ *  cell. A move this table has no opinion about (a prisoner move, or an
+ *  unrecognised name) is never away -- absence of an entry is never read as
+ *  "away" by default, only an explicit non-"cell" location is. */
+export function isWardenAway(move: string): boolean {
+  const entry = WARDEN_PRESENCE[move];
+  return entry !== undefined && entry.location !== "cell";
+}
+
+/** The positive line for the prisoner's briefing while the warden is away
+ *  on `move` -- `undefined` for a cell move or an unrecognised name (never
+ *  a guessed line). */
+export function wardenAwayLine(move: string): string | undefined {
+  return WARDEN_PRESENCE[move]?.awayLine;
+}
+
+/**
+ * Rules known to both (coordinator's fix, item 2): built FROM
+ * `WARDEN_PRESENCE` itself, interpolating its own move names and locations,
+ * so a retune of the table can never desync the rule text (the same
+ * discipline `TIME_DECAY_RULE` already has against its own constant).
+ * Rendered into both prompts (`buildPrisonerPrompt`/`buildWardenPrompt`):
+ * the prisoner knows the warden's corridor and yard work leaves the cell
+ * unwatched; the warden knows leaving the cell means not hearing what
+ * happens in it.
+ */
+const cellMoves = Object.entries(WARDEN_PRESENCE)
+  .filter(([, e]) => e.location === "cell")
+  .map(([move]) => move);
+const corridorMoves = Object.entries(WARDEN_PRESENCE)
+  .filter(([, e]) => e.location === "corridor")
+  .map(([move]) => move);
+const yardMoves = Object.entries(WARDEN_PRESENCE)
+  .filter(([, e]) => e.location === "yard")
+  .map(([move]) => move);
+
+export const WARDEN_PRESENCE_RULE =
+  `Also, a rule that never changes: the warden is IN THE CELL, present and watching, during ${cellMoves.join(", ")}. ` +
+  `The warden is AWAY from the cell during ${corridorMoves.join(" and ")} (the corridor) and ${yardMoves.join(", ")} (the yard). ` +
+  "While the warden is away, the warden hears nothing the prisoner does and sees none of it, and the prisoner is not watched.";
 
 /**
  * The referee's own hand on irreversibility (design Appendix A.2, §6.3

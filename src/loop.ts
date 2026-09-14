@@ -30,11 +30,12 @@ import {
   revisePlan,
   pendingMoves,
   logRound,
+  mostRecentWardenMechanic,
   type Plan,
 } from "./ledger/ledger.js";
 import { setBelief, beliefExpectation, type Principal, type BeliefResource } from "./ledger/beliefs.js";
 import { setNotes } from "./ledger/notes.js";
-import { declareCutIfJustCut, SEEN_BY_OTHER_AS } from "./world/mechanics.js";
+import { declareCutIfJustCut, SEEN_BY_OTHER_AS, isWardenAway } from "./world/mechanics.js";
 import {
   describeInspection,
   describeObservation,
@@ -398,9 +399,27 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
 
   const { note: planRevisionNote, remaining: planRevision } = planNoteFor(plan, proposal.plan);
 
+  // Warden presence (coordinator's fix, item 2): derived from the warden's
+  // own most recent REAL move in round_log, never from prose -- present
+  // (in the cell) by default, before the warden has ever acted (the
+  // scenario's own starting presence), or whenever its last move wasn't an
+  // away one. Only meaningful for the PRISONER's own half-round: it is
+  // passed to the resolver as an opaque `parameters` entry so FILE/HONE/
+  // ESCAPE's own adjudication can gate their suspicion bump on it
+  // (`world/mechanics.ts`), and it also gates whether THIS act's
+  // `seenByOtherAs` reaches the warden's own next briefing below -- a
+  // prisoner move made while the warden is away is unheard, not merely
+  // unremarked.
+  const wardenPresent = principal === "prisoner" ? !isWardenAway(mostRecentWardenMechanic(world.gameId) ?? "") : true;
+
   const expects = beliefExpectation(world, principal, proposal.choice);
   try {
-    const outcome = resolver.resolve({ gameId: world.gameId, mechanic: proposal.choice, expects });
+    const outcome = resolver.resolve({
+      gameId: world.gameId,
+      mechanic: proposal.choice,
+      expects,
+      ...(principal === "prisoner" ? { parameters: { wardenPresent } } : {}),
+    });
     const note = combineNotes(
       ownMoveFeedback(world, proposal.choice, outcome),
       revelationFor(principal, proposal.choice, outcome),
@@ -413,6 +432,9 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
     // Item 5: the two sides perceive each other -- logged for EVERY
     // successful resolution. `line` is relayed regardless of covertness;
     // `seenByOtherAs` is null for a covert move and contributes nothing.
+    // Unheard while away (item 2): a prisoner act is also forced to null
+    // here when the warden wasn't present to notice it, regardless of what
+    // `SEEN_BY_OTHER_AS` would otherwise say.
     logRound({
       gameId: world.gameId,
       t,
@@ -421,7 +443,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
       mechanic: proposal.choice,
       description: resolutionDescription(outcome.eventId),
       line: spokenLine(proposal.line),
-      seenByOtherAs: SEEN_BY_OTHER_AS[proposal.choice] ?? null,
+      seenByOtherAs: wardenPresent ? (SEEN_BY_OTHER_AS[proposal.choice] ?? null) : null,
     });
 
     return {
@@ -438,7 +460,8 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
 
       // The physical act still happened even though the engine refused the
       // bookkeeping (a stale expectation) -- the other side can still hear
-      // the scraping. The line, likewise, always relays.
+      // the scraping, if the warden was present to hear it. The line,
+      // likewise, always relays.
       logRound({
         gameId: world.gameId,
         t,
@@ -447,7 +470,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
         mechanic: proposal.choice,
         description: null,
         line: spokenLine(proposal.line),
-        seenByOtherAs: SEEN_BY_OTHER_AS[proposal.choice] ?? null,
+        seenByOtherAs: wardenPresent ? (SEEN_BY_OTHER_AS[proposal.choice] ?? null) : null,
       });
 
       return {

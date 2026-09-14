@@ -14,6 +14,7 @@ import {
   SHIM_AMOUNT,
   HONE_AMOUNT,
   FILE_SUSPICION_BUMP,
+  HONE_SUSPICION_BUMP,
   ROTATE_GUARD_LEVEL,
   TIME_DECAY_AMOUNT,
   FAILED_ESCAPE_SUSPICION_BUMP,
@@ -291,6 +292,69 @@ describe("the-prisoner's mechanics -- every consequential change through resolve
       const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "SEARCH" });
       expect(outcome.result).toMatchObject({ mechanic: "SEARCH", grounds: true, caught: 1 });
       expect(checkGameEnd(world, t)).toEqual({ kind: "caught" });
+    });
+  });
+
+  describe("warden presence gates FILE/HONE/ESCAPE's suspicion bump (coordinator's fix, item 2)", () => {
+    it("FILE still lowers bar_integrity but raises NO suspicion when parameters.wardenPresent is false", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE", parameters: { wardenPresent: false } });
+      expect(getResource(world.resources.barIntegrity)?.value).toBe(100 - FILE_AMOUNT);
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    });
+
+    it("FILE raises suspicion as before when wardenPresent is omitted -- default true, backward compatible", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(FILE_SUSPICION_BUMP);
+    });
+
+    it("FILE raises suspicion as before when wardenPresent is explicitly true", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE", parameters: { wardenPresent: true } });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(FILE_SUSPICION_BUMP);
+    });
+
+    it("HONE still sharpens the spoon but raises NO suspicion when the warden is away", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "HONE", parameters: { wardenPresent: false } });
+      expect(getResource(world.resources.spoonEdge)?.value).toBe(HONE_AMOUNT);
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    });
+
+    it("HONE raises suspicion as before when the warden is present", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(HONE_SUSPICION_BUMP);
+    });
+
+    it("a failed ESCAPE raises no suspicion while the warden is away -- unheard, like every other presence-gated move", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "ESCAPE", parameters: { wardenPresent: false } });
+      expect(outcome.result).toMatchObject({ success: 0 });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    });
+
+    it("ESCAPE's SUCCESS condition is unaffected by warden presence -- only guard_attention and the opening govern it", () => {
+      fresh();
+      for (let n = 1; n <= 100 / SHIM_AMOUNT; n++) {
+        world.clock.prisonerT(n);
+        resolver.resolve({ gameId: world.gameId, mechanic: "SHIM" });
+      }
+      for (let i = 0; i < 6; i++) {
+        world.clock.prisonerT(200 + i);
+        resolver.resolve({ gameId: world.gameId, mechanic: "TIME_DECAY" });
+      }
+      const t = world.clock.prisonerT(300);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "ESCAPE", parameters: { wardenPresent: false } });
+      expect(outcome.result).toMatchObject({ success: 1 });
+      expect(checkGameEnd(world, t)).toEqual({ kind: "escaped" });
     });
   });
 
