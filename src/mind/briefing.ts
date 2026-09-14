@@ -34,9 +34,15 @@ export function buildBriefing(world: World, characterId: string, t: number, plan
   // there is nothing to branch on here beyond "is there anything to say".
   const visibleAct = mostRecentVisibleActFor(world.gameId, otherRole);
   if (visibleAct) {
+    // Character names in this world are already "the warden"/"the
+    // prisoner" (world/setup.ts), so this must not prepend its own "The "
+    // -- found by reading a real transcript, which read "The the warden
+    // said:". Capitalize whatever the name is, rather than assume it
+    // starts with "the".
     const otherName = view.otherPrincipal.name ?? otherRole;
+    const otherNameCapitalized = otherName.charAt(0).toUpperCase() + otherName.slice(1);
     if (visibleAct.line) {
-      lines.push(`The ${otherName} said: "${visibleAct.line}"`);
+      lines.push(`${otherNameCapitalized} said: "${visibleAct.line}"`);
     }
     if (visibleAct.seen_by_other_as) {
       lines.push(visibleAct.seen_by_other_as);

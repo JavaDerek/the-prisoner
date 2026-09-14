@@ -48,6 +48,11 @@ describe("item 5 -- cross-perception is fog-correct (planted marker, like confor
 
     expect(context.briefing).toContain(marker);
     expect(context.briefing).toContain(SEEN_BY_OTHER_AS.OBSERVE as string);
+    // Grammar: the warden's own character name is already "the warden" --
+    // found by reading a real transcript, which read "The the warden
+    // said:" (a double "the").
+    expect(context.briefing).toContain(`The warden said: "I see you, ${marker}."`);
+    expect(context.briefing.toLowerCase()).not.toContain("the the ");
   });
 
   it("a covert act (CONCEAL) contributes NOTHING to the other principal's next briefing -- no line, no seenByOtherAs, no marker", () => {
