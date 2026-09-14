@@ -7,6 +7,7 @@ import { buildPrisonerContext, buildWardenContext, buildBriefing } from "../brie
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 import { buildPrisonerPrompt } from "../prisonerMind.js";
 import { buildWardenPrompt } from "../wardenMind.js";
+import { buildResolver, SEARCH_SUSPICION_THRESHOLD } from "../../world/mechanics.js";
 
 function sentenceCount(text: string): number {
   return text.split(/[.!?]+/).map((s) => s.trim()).filter((s) => s.length > 0).length;
@@ -101,6 +102,26 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     expect(briefing).not.toContain("bar integrity");
     expect(briefing).not.toContain("spoon edge");
     expect(briefing).toContain("warden suspicion: 0.");
+  });
+
+  it("item 4, coordinator's fix -- grounds to search are stated positively once suspicion reaches the threshold", () => {
+    fresh();
+    const resolver = buildResolver(world);
+    // FILE raises warden_suspicion by 10 each time (mechanics.ts); drive it
+    // to the threshold via the prisoner's own moves.
+    for (let n = 1; SEARCH_SUSPICION_THRESHOLD > (n - 1) * 10; n++) {
+      world.clock.prisonerT(n);
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+    }
+    const t = world.clock.wardenT(100);
+    const briefing = buildBriefing(world, world.wardenId, t);
+    expect(briefing).toContain(`You have grounds to search: suspicion ${SEARCH_SUSPICION_THRESHOLD}.`);
+  });
+
+  it("item 4 -- says nothing about grounds while suspicion is below the threshold", () => {
+    fresh();
+    const briefing = buildBriefing(world, world.wardenId, world.clock.wardenT(1));
+    expect(briefing.toLowerCase()).not.toContain("grounds");
   });
 
   it("both prompts state BOTH names, and instruct speaking only as yourself (bug: the prisoner once spoke as 'Voss')", () => {

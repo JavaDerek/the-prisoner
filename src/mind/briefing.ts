@@ -2,7 +2,7 @@ import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
 import { renderLedger, renderPlan, mostRecentVisibleActFor, type Plan } from "../ledger/ledger.js";
 import { getBelief, renderBeliefLine, type Principal } from "../ledger/beliefs.js";
-import { PRISONER_MOVES, WARDEN_MOVES } from "../world/mechanics.js";
+import { PRISONER_MOVES, WARDEN_MOVES, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
 import type { WardenContext } from "./wardenMind.js";
@@ -54,6 +54,17 @@ export function buildBriefing(world: World, characterId: string, t: number, plan
   const ownLabel = ownResourceLabel(otherRole);
   for (const [name, value] of Object.entries(view.resources)) {
     if (name === ownLabel) lines.push(`${name.replace(/_/g, " ")}: ${value}.`);
+  }
+
+  // Item 4, coordinator's fix: "grounds, stated positively" -- derived
+  // straight from the warden's own live number (never from prose, never
+  // guessed), and said only when it is actually true. Below the threshold,
+  // nothing is said at all (root CLAUDE.md hard rule 3).
+  if (principal === "warden") {
+    const suspicion = view.resources.warden_suspicion;
+    if (typeof suspicion === "number" && suspicion >= SEARCH_SUSPICION_THRESHOLD) {
+      lines.push(`You have grounds to search: suspicion ${suspicion}.`);
+    }
   }
 
   // Every other resource this principal can have an opinion about -- belief,
