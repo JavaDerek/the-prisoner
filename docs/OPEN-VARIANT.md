@@ -457,3 +457,20 @@ open and cost what they cost.
 Two variables changed at once for the next games, and the comparison must say so: this consequence,
 and the referee's precedent keeping only applicable rulings (§3.5, §11.2). The second mostly affects
 the warden; the prisoner's novelty is what the first is meant to move.
+
+### 11.4 Result with the consequence: the cost landed, the threat did not
+
+Transcripts: `checkpoints/2026-09-14T18-21-01-298Z.md`, `checkpoints/2026-09-14T18-31-08-658Z.md`.
+
+- **The prisoner still worked the bar every turn** (16 of 16), novelty 0. Once, it weighed the rule
+  explicitly and paid it: *"even though it's a known move that raises suspicion... Warden Croft's
+  suspicion is already high from prior attempts"* (game 1, round 7).
+- **The consequence worked mechanically.** Warden suspicion reached 100 in both games.
+- **The warden could not act on it.** Its examinations were ruled impossible in 15 of 16 turns, so a
+  catch never came within reach, and paying the cost was rational. The one that got through (round 8,
+  both games) was ruled `wear` on the bar, an examination read as damage: a misruling the code cannot
+  catch (§10.6). **Necessity needs a threat that can land, and the warden is the missing half.**
+- The rejected offers now say why the examinations fail, and none of it is physics: quotes the
+  referee lowercased (`"closely examine the bar..."` against "Closely examine"), quotes elided with
+  `...`, empty quotes, and source ids written `[desc:bar]` -- the transport prompt itself renders
+  sources as `[id] text`, which invites exactly that.
