@@ -266,6 +266,24 @@ export function buildMechanics(world: World): Mechanic[] {
     },
   };
 
+  // New (coordinator's fix, finding 2 -- "covert irony can't arise"):
+  // without a way to learn the lock's true integrity WITHOUT grounds, the
+  // warden never has a reason to SERVICE_LOCK covertly, so no covert warden
+  // act could ever make the prisoner's own belief stale. CHECK_LOCK closes
+  // that gap: covert (`SEEN_BY_OTHER_AS.CHECK_LOCK` is null), no suspicion
+  // change, no grounds required -- it only reads, through the mechanic's
+  // own `result`, exactly the way INSPECT/OBSERVE already do.
+  const CHECK_LOCK: Mechanic = {
+    name: "CHECK_LOCK",
+    adjudicate(input: AdjudicationInput): Adjudication {
+      return {
+        changes: [],
+        result: { mechanic: "CHECK_LOCK", lockIntegrity: valueOf(input, resources.lockIntegrity, "value") },
+        description: withNote("The warden checks the lock's condition from outside the cell.", input),
+      };
+    },
+  };
+
   const ROTATE_GUARD: Mechanic = {
     name: "ROTATE_GUARD",
     adjudicate(input: AdjudicationInput): Adjudication {
@@ -361,11 +379,11 @@ export function buildMechanics(world: World): Mechanic[] {
     },
   };
 
-  return [FILE, SHIM, HONE, CONCEAL, INSPECT, ESCAPE, REPLACE_BAR, SERVICE_LOCK, ROTATE_GUARD, OBSERVE, SEARCH, WAIT, TIME_DECAY];
+  return [FILE, SHIM, HONE, CONCEAL, INSPECT, ESCAPE, REPLACE_BAR, SERVICE_LOCK, CHECK_LOCK, ROTATE_GUARD, OBSERVE, SEARCH, WAIT, TIME_DECAY];
 }
 
 export const PRISONER_MOVES = ["FILE", "SHIM", "HONE", "CONCEAL", "INSPECT", "ESCAPE", "WAIT"] as const;
-export const WARDEN_MOVES = ["REPLACE_BAR", "SERVICE_LOCK", "SEARCH", "ROTATE_GUARD", "OBSERVE", "WAIT"] as const;
+export const WARDEN_MOVES = ["REPLACE_BAR", "SERVICE_LOCK", "CHECK_LOCK", "SEARCH", "ROTATE_GUARD", "OBSERVE", "WAIT"] as const;
 
 /**
  * One plain sentence per registered mechanic, saying what it does and what
@@ -373,23 +391,28 @@ export const WARDEN_MOVES = ["REPLACE_BAR", "SERVICE_LOCK", "SEARCH", "ROTATE_GU
  * (`src/mind/*Mind.ts`) render the prompt's move list from this table, and
  * `moveDescriptions.test.ts` asserts every entry in `PRISONER_MOVES`/
  * `WARDEN_MOVES` has one.
+ *
+ * Coordinator's fix, item 4: "both sides know the rules; they don't know
+ * the state" -- every threshold and exact amount a mechanic depends on is
+ * stated here, interpolated straight from the same exported constants the
+ * mechanic itself reads, so the prose can never drift from what the code
+ * actually does (the existing `moveDescriptions.test.ts` assertions --
+ * e.g. `FILE` mentions "bar" -- keep holding; this only adds precision).
  */
 export const MOVE_DESCRIPTIONS: Record<string, string> = {
-  FILE: "Files at the bar, wearing down its integrity (more, if the spoon is sharp enough); raises the warden's suspicion.",
-  SHIM: "Works a shim into the lock, wearing down its integrity by a fixed amount each time -- quiet; raises no suspicion.",
-  HONE: "Hones the spoon's edge, raising it by a fixed amount each time; un-conceals the spoon; raises the warden's suspicion a little.",
-  CONCEAL: "Hides the spoon under the loose tile so it is no longer visible to the warden.",
-  INSPECT: "Looks closely at the cell; reveals the lock's true integrity and the guard's true attention.",
-  ESCAPE:
-    "Attempts to leave the cell -- succeeds only if the bar is cut or the lock is fully worn through, and the guard's attention is low; otherwise raises suspicion sharply and is visible.",
+  FILE: `Files at the bar, lowering bar_integrity by ${FILE_AMOUNT} (by ${FILE_AMOUNT_SHARP} if spoon_edge is at or above ${FILE_SHARP_THRESHOLD}); raises warden_suspicion by ${FILE_SUSPICION_BUMP}.`,
+  SHIM: `Works a shim into the lock, lowering lock_integrity by ${SHIM_AMOUNT} -- quiet; raises no suspicion.`,
+  HONE: `Hones the spoon's edge, raising spoon_edge by ${HONE_AMOUNT}; un-conceals the spoon; raises warden_suspicion by ${HONE_SUSPICION_BUMP}.`,
+  CONCEAL: "Hides the spoon under the loose tile so it is no longer visible to the warden -- quiet; raises no suspicion.",
+  INSPECT: "Looks closely at the cell; reveals the lock's true integrity and the guard's true attention -- quiet; raises no suspicion.",
+  ESCAPE: `Attempts to leave the cell -- succeeds only if the bar is cut or lock_integrity is at 0, AND guard_attention is below ${ESCAPE_GUARD_MAX}; otherwise raises warden_suspicion by ${FAILED_ESCAPE_SUSPICION_BUMP} and is visible either way.`,
   WAIT: "Lets time pass, doing nothing else.",
-  REPLACE_BAR: "Replaces the bar, resetting its integrity to full; refused if the bar has already been cut.",
-  SERVICE_LOCK: "Services the lock, resetting its integrity to full -- done outside the cell, unseen by the prisoner.",
-  SEARCH:
-    "Searches the cell for evidence -- only possible once suspicion is high enough; catches the prisoner if the bar, lock or spoon give it away, otherwise resets suspicion as a false alarm.",
-  ROTATE_GUARD: "Rotates the guard, setting the guard's attention to a fixed high level.",
-  OBSERVE:
-    "Watches the prisoner closely; reveals the spoon's true edge if it is not hidden, and the bar's integrity as a rough band (intact/worn/badly worn). No suspicion change.",
+  REPLACE_BAR: "Replaces the bar, setting bar_integrity to 100; refused if the bar has already been cut.",
+  SERVICE_LOCK: "Services the lock, setting lock_integrity to 100 -- done outside the cell, unseen by the prisoner.",
+  CHECK_LOCK: "Checks the lock's true integrity from outside the cell -- covert, unseen by the prisoner; no suspicion change; needs no grounds.",
+  SEARCH: `Searches the cell for evidence -- only possible once warden_suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}. Catches the prisoner (the game ends) if bar_integrity is at or below ${SEARCH_CATCH_BAR_MAX}, or lock_integrity is at or below ${SEARCH_CATCH_LOCK_MAX}, or spoon_edge is at or above ${SEARCH_CATCH_SPOON_MIN} while the spoon is not concealed; otherwise resets warden_suspicion to 0 as a false alarm.`,
+  ROTATE_GUARD: `Rotates the guard, setting guard_attention to ${ROTATE_GUARD_LEVEL}.`,
+  OBSERVE: "Watches the prisoner closely; reveals the spoon's true edge if it is not hidden, and the bar's integrity as a rough band (intact/worn/badly worn). No suspicion change.",
 };
 
 /**
@@ -397,9 +420,9 @@ export const MOVE_DESCRIPTIONS: Record<string, string> = {
  * authored per mechanic -- never the content of what was learned (that
  * stays private, in the acting principal's own ledger prose), only that
  * something visible happened. `null` marks a covert move: it contributes
- * NOTHING to the other principal's perception. SHIM, CONCEAL, INSPECT, WAIT
- * and SERVICE_LOCK are covert (design: "done outside the cell" for
- * SERVICE_LOCK).
+ * NOTHING to the other principal's perception. SHIM, CONCEAL, INSPECT, WAIT,
+ * SERVICE_LOCK and CHECK_LOCK are covert (design: "done outside the cell"
+ * for SERVICE_LOCK/CHECK_LOCK).
  */
 export const SEEN_BY_OTHER_AS: Record<string, string | null> = {
   FILE: "The warden hears a rhythmic scraping sound from the prisoner's side of the cell.",
@@ -411,6 +434,7 @@ export const SEEN_BY_OTHER_AS: Record<string, string | null> = {
   WAIT: null,
   REPLACE_BAR: "The prisoner watches the warden replace the bar.",
   SERVICE_LOCK: null,
+  CHECK_LOCK: null,
   SEARCH: "The prisoner watches the warden tear the cell apart, searching.",
   ROTATE_GUARD: "The prisoner notices a different guard on watch.",
   OBSERVE: "The prisoner notices the warden watching closely.",

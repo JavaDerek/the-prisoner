@@ -6,6 +6,7 @@ import { createTestDb, destroyTestDb } from "../world/testDb.js";
 import { buildWorld, type World } from "../world/setup.js";
 import { buildResolver } from "../world/mechanics.js";
 import { authorPlan, planSteps, attemptsFor, renderLedger, type Plan } from "../ledger/ledger.js";
+import { getBelief, seedInitialBeliefs } from "../ledger/beliefs.js";
 import { buildPrisonerContext, buildWardenContext } from "../mind/briefing.js";
 import type { PrisonerContext, PrisonerProposal } from "../mind/prisonerMind.js";
 import type { WardenContext, WardenProposal } from "../mind/wardenMind.js";
@@ -325,5 +326,71 @@ describe("item 5(d), coordinator's fix -- the no-op ledger line names the value 
     for (const forbidden of ["no change", "nothing happened", "did not change"]) {
       expect(rendered.toLowerCase()).not.toContain(forbidden);
     }
+  });
+});
+
+describe("coordinator's fix, item 1 -- own outcomes update own beliefs (never contradicted by its own act)", () => {
+  let world: World;
+  let resolver: ReturnType<typeof buildResolver>;
+  let prisonerPlan: Plan;
+  let wardenPlan: Plan;
+
+  function fresh(): void {
+    createTestDb();
+    world = buildWorld();
+    resolver = buildResolver(world);
+    seedInitialBeliefs(world);
+    prisonerPlan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "WAIT", description: "placeholder" }] });
+    wardenPlan = authorPlan({ gameId: world.gameId, characterId: world.wardenId, t: world.clock.t0, steps: [{ move: "WAIT", description: "placeholder" }] });
+  }
+
+  afterEach(() => {
+    destroyTestDb();
+  });
+
+  it("SHIM twice in a row, with no warden action between, is never refused", async () => {
+    fresh();
+    const tracker = newSilenceTracker();
+    const shimMind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "shim", choice: "SHIM", plan: ["SHIM"] });
+
+    const t1 = world.clock.prisonerT(1);
+    const first = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: t1, context: buildPrisonerContext(world, prisonerPlan, t1), mind: shimMind, tracker });
+    expect(first.result.kind).toBe("resolved");
+    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 80, asOfRound: 1 });
+
+    const t2 = world.clock.prisonerT(2);
+    const second = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 2, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: shimMind, tracker });
+    expect(second.result.kind).toBe("resolved");
+    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 60, asOfRound: 2 });
+  });
+
+  it("FILE twice in a row, with no warden action between, is never refused", async () => {
+    fresh();
+    const tracker = newSilenceTracker();
+    const fileMind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "file", choice: "FILE", plan: ["FILE"] });
+
+    const t1 = world.clock.prisonerT(1);
+    const first = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: t1, context: buildPrisonerContext(world, prisonerPlan, t1), mind: fileMind, tracker });
+    expect(first.result.kind).toBe("resolved");
+    expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 85, asOfRound: 1 });
+
+    const t2 = world.clock.prisonerT(2);
+    const second = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 2, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: fileMind, tracker });
+    expect(second.result.kind).toBe("resolved");
+    expect(getBelief(world.gameId, "prisoner", "bar_integrity")).toEqual({ value: 70, asOfRound: 2 });
+  });
+
+  it("REPLACE_BAR twice in a row, with no prisoner action between, is never refused (the same fix, symmetric for the warden)", async () => {
+    fresh();
+    const tracker = newSilenceTracker();
+    const replaceMind = scriptedMind<WardenContext, WardenProposal>({ intent: "replace", choice: "REPLACE_BAR", plan: ["REPLACE_BAR"] });
+
+    const t1 = world.clock.wardenT(1);
+    const first = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 1, t: t1, context: buildWardenContext(world, wardenPlan, t1), mind: replaceMind, tracker });
+    expect(first.result.kind).toBe("resolved");
+
+    const t2 = world.clock.wardenT(2);
+    const second = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 2, t: t2, context: buildWardenContext(world, wardenPlan, t2), mind: replaceMind, tracker });
+    expect(second.result.kind).toBe("resolved");
   });
 });

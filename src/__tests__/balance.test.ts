@@ -17,7 +17,7 @@ import { getResource, type Resolver } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../world/testDb.js";
 import { buildWorld, type World } from "../world/setup.js";
 import { buildResolver, checkGameEnd, ESCAPE_GUARD_MAX, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
-import { authorPlan, type Plan } from "../ledger/ledger.js";
+import { authorPlan, renderLedger, type Plan } from "../ledger/ledger.js";
 import { seedInitialBeliefs, getBelief } from "../ledger/beliefs.js";
 import { buildPrisonerContext } from "../mind/briefing.js";
 import { buildWardenContext } from "../mind/briefing.js";
@@ -132,14 +132,14 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     expect(endedAtRound).toBeGreaterThan(0);
   });
 
-  it("a careful prisoner (hone, conceal, shim quietly -- inspecting between shims to keep its own belief accurate -- escape once guard attention is low) against a passive warden ESCAPES", async () => {
+  it("a careful prisoner (hone, conceal, shim repeatedly) against a passive warden ESCAPES", async () => {
     fresh();
     // SHIM's `expects` is the prisoner's OWN belief (design: "expects come
-    // from belief"), and SHIM never updates that belief itself (Appendix
-    // A.4: the prisoner only ever learns lock_integrity via INSPECT) -- so
-    // a careful prisoner interleaves INSPECT between SHIMs to keep its own
-    // expectation from going stale against its own hand.
-    const steps = ["HONE", "CONCEAL", "SHIM", "INSPECT", "SHIM", "INSPECT", "SHIM", "INSPECT", "SHIM", "INSPECT", "SHIM"];
+    // from belief"), and now (coordinator's fix, item 1) SHIM's own outcome
+    // updates that belief immediately -- no INSPECT interleaving needed for
+    // the prisoner to keep proposing SHIM against its own accurate
+    // expectation.
+    const steps = ["HONE", "CONCEAL", "SHIM", "SHIM", "SHIM", "SHIM", "SHIM"];
     let i = 0;
     const prisonerMind = adaptiveMind<PrisonerContext, PrisonerProposal>(() => {
       const lock = getResource(world.resources.lockIntegrity)?.value ?? 100;
@@ -168,47 +168,52 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     expect(endedAtRound).toBeGreaterThan(2);
   });
 
-  it("a SHIM following a covert SERVICE_LOCK is refused with the hop, and the prisoner's belief updates to the revealed truth", async () => {
+  it("the irony path (coordinator's fix): prisoner SHIM, warden CHECK_LOCK, warden SERVICE_LOCK, prisoner SHIM refused with the cause naming the warden's SERVICE_LOCK, and its belief updates", async () => {
     fresh();
     const wardenTracker = newSilenceTracker();
     const prisonerTracker = newSilenceTracker();
 
-    // Round 1: prisoner SHIMs (lock 100 -> 80), then INSPECTs to learn it.
+    // Round 1: the prisoner SHIMs (lock 100 -> 80). Its OWN belief updates
+    // immediately, from its own outcome (coordinator's fix, item 1) --
+    // no INSPECT needed for this.
     const t1 = world.clock.prisonerT(1);
     const shimMind = { async consider() { return { intent: "shim", choice: "SHIM" } as PrisonerProposal; } };
     await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t: t1, context: buildPrisonerContext(world, prisonerPlan, t1), mind: shimMind, tracker: prisonerTracker });
+    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 80, asOfRound: 1 });
 
-    const t2 = world.clock.prisonerT(2);
-    const inspectMind = { async consider() { return { intent: "inspect", choice: "INSPECT" } as PrisonerProposal; } };
-    await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 2, t: t2, context: buildPrisonerContext(world, prisonerPlan, t2), mind: inspectMind, tracker: prisonerTracker });
-    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 80, asOfRound: 2 });
+    // The warden CHECK_LOCKs -- covert, no grounds needed -- and learns the
+    // same truth the prisoner already knows, without the prisoner ever
+    // finding out it was checked.
+    const tw1 = world.clock.wardenT(2);
+    const checkMind = { async consider() { return { intent: "check the lock", choice: "CHECK_LOCK" } as WardenProposal; } };
+    await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 2, t: tw1, context: buildWardenContext(world, wardenPlan, tw1), mind: checkMind, tracker: wardenTracker });
+    expect(getBelief(world.gameId, "warden", "lock_integrity")).toEqual({ value: 80, asOfRound: 2 });
 
-    // The warden's OWN belief of lock_integrity is also stale (seeded 100,
-    // never updated since -- SHIM is covert to the warden too), so the
-    // warden's first SERVICE_LOCK attempt is itself refused, which reveals
-    // the truth (80) into the WARDEN's belief in exactly the same way.
+    // Now the warden SERVICE_LOCKs covertly, with an ACCURATE belief, so it
+    // succeeds on the first try -- the lock resets to 100. The prisoner is
+    // never told (SERVICE_LOCK is covert).
+    const tw2 = world.clock.wardenT(3);
     const serviceMind = { async consider() { return { intent: "service the lock", choice: "SERVICE_LOCK" } as WardenProposal; } };
-    const tw1 = world.clock.wardenT(3);
-    const firstAttempt = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 3, t: tw1, context: buildWardenContext(world, wardenPlan, tw1), mind: serviceMind, tracker: wardenTracker });
-    expect(firstAttempt.result.kind).toBe("refused");
-    expect(getBelief(world.gameId, "warden", "lock_integrity")).toEqual({ value: 80, asOfRound: 3 });
-
-    // Its second attempt, now with an accurate belief, succeeds -- the lock
-    // is serviced covertly (80 -> 100). The prisoner is never told.
-    const tw2 = world.clock.wardenT(4);
-    const secondAttempt = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 4, t: tw2, context: buildWardenContext(world, wardenPlan, tw2), mind: serviceMind, tracker: wardenTracker });
-    expect(secondAttempt.result.kind).toBe("resolved");
+    const serviceHalf = await runHalfRound({ world, resolver, plan: wardenPlan, principal: "warden", roundN: 3, t: tw2, context: buildWardenContext(world, wardenPlan, tw2), mind: serviceMind, tracker: wardenTracker });
+    expect(serviceHalf.result.kind).toBe("resolved");
     expect(getResource(world.resources.lockIntegrity)?.value).toBe(100);
     // Still stale: the covert act did not touch the prisoner's belief.
-    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 80, asOfRound: 2 });
+    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 80, asOfRound: 1 });
 
-    // The prisoner SHIMs again, expecting its stale belief (80) -- refused.
-    const t3 = world.clock.prisonerT(5);
+    // The prisoner SHIMs again, expecting its own stale belief (80) --
+    // refused. This IS the intended dramatic-irony beat: the prisoner is
+    // contradicted by the WARDEN's covert act, never by its own.
+    const t3 = world.clock.prisonerT(4);
     const shimAgainMind = { async consider() { return { intent: "shim again", choice: "SHIM" } as PrisonerProposal; } };
-    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 5, t: t3, context: buildPrisonerContext(world, prisonerPlan, t3), mind: shimAgainMind, tracker: prisonerTracker });
+    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 4, t: t3, context: buildPrisonerContext(world, prisonerPlan, t3), mind: shimAgainMind, tracker: prisonerTracker });
 
     expect(half.result.kind).toBe("refused");
     // The refusal reveals the truth into the prisoner's own belief.
-    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 100, asOfRound: 5 });
+    expect(getBelief(world.gameId, "prisoner", "lock_integrity")).toEqual({ value: 100, asOfRound: 4 });
+
+    // The ledger names WHOSE act caused the refusal -- the warden's
+    // SERVICE_LOCK, never the prisoner's own.
+    const rendered = renderLedger(world.gameId, prisonerPlan);
+    expect(rendered).toContain("warden's SERVICE_LOCK");
   });
 });

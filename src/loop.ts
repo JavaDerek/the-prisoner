@@ -128,15 +128,35 @@ function transitionValue(outcome: Outcome, entityId: string, key: string): numbe
  * SUCCESSFUL resolution; refusals are handled separately in `runHalfRound`
  * (channel (d), since a refusal never reaches this function -- there is no
  * `Outcome`).
+ *
+ * Coordinator's fix, item 1 ("own outcomes update own beliefs"): channel
+ * (a) is now GENERIC, not per-move -- every value the acting principal's OWN
+ * outcome actually wrote is, by construction, something it just did with
+ * its own hands, so its belief updates to the new true value, unconditionally.
+ * The earlier version special-cased only FILE (bar) for the prisoner and
+ * left SHIM (lock) out entirely on the theory that working a shim blind
+ * doesn't tell you the number -- but the prisoner's own ledger already
+ * stated the exact before/after (`ownMoveFeedback`), so withholding the
+ * SAME number from its belief made its own next SHIM collide with itself
+ * ("contradicted by its own act", never a real adversary). Channels (b) and
+ * (c) remain the special-cased blocks below: (b) an INFO move's reveal
+ * lives only in `outcome.result`, never in a transition, so it cannot be
+ * picked up generically; (c) a VISIBLE act updates the OTHER principal's
+ * belief, which by definition this function's own `principal` argument is
+ * not.
  */
 function applyBeliefUpdatesForSuccess(world: World, principal: Principal, move: string, outcome: Outcome, roundN: number): void {
   const gameId = world.gameId;
 
+  // Channel (a), generic: every A.2 resource this move's OWN outcome wrote
+  // is now known to the acting principal, exactly.
+  for (const transition of outcome.transitions) {
+    if (transition.key !== "value") continue;
+    const resource = resourceForEntity(world, transition.entityId);
+    if (resource) setBelief(gameId, principal, resource, Number(transition.newValue), roundN);
+  }
+
   if (principal === "prisoner") {
-    if (move === "FILE") {
-      const v = transitionValue(outcome, world.resources.barIntegrity, "value");
-      if (v !== undefined) setBelief(gameId, "prisoner", "bar_integrity", v, roundN);
-    }
     if (move === "INSPECT") {
       const result = outcome.result as unknown as InspectResult;
       setBelief(gameId, "prisoner", "lock_integrity", result.lockIntegrity, roundN);
@@ -145,32 +165,32 @@ function applyBeliefUpdatesForSuccess(world: World, principal: Principal, move: 
     return;
   }
 
-  // Warden's own moves.
+  // Warden's own moves -- the generic loop above already covers the ACTING
+  // principal's own belief for ROTATE_GUARD/REPLACE_BAR/SERVICE_LOCK (each
+  // writes exactly one A.2 resource); what is left here is channel (c),
+  // the VISIBLE ones' effect on the PRISONER's belief, and CHECK_LOCK's own
+  // channel (b) reveal.
   if (move === "ROTATE_GUARD") {
     const v = transitionValue(outcome, world.resources.guardAttention, "value");
-    if (v !== undefined) {
-      setBelief(gameId, "warden", "guard_attention", v, roundN);
-      // Visible to the prisoner: "a different guard" (design: "updates the
-      // prisoner's guard belief").
-      setBelief(gameId, "prisoner", "guard_attention", v, roundN);
-    }
+    // Visible to the prisoner: "a different guard" (design: "updates the
+    // prisoner's guard belief").
+    if (v !== undefined) setBelief(gameId, "prisoner", "guard_attention", v, roundN);
     return;
   }
   if (move === "REPLACE_BAR") {
     const v = transitionValue(outcome, world.resources.barIntegrity, "value");
-    if (v !== undefined) {
-      setBelief(gameId, "warden", "bar_integrity", v, roundN);
-      // Visible to the prisoner (design: "updates the prisoner's bar
-      // belief to 100").
-      setBelief(gameId, "prisoner", "bar_integrity", v, roundN);
-    }
+    // Visible to the prisoner (design: "updates the prisoner's bar belief
+    // to 100").
+    if (v !== undefined) setBelief(gameId, "prisoner", "bar_integrity", v, roundN);
     return;
   }
-  if (move === "SERVICE_LOCK") {
-    // Covert -- "done outside the cell" -- the prisoner's belief is NOT
-    // updated (design's covert list).
-    const v = transitionValue(outcome, world.resources.lockIntegrity, "value");
-    if (v !== undefined) setBelief(gameId, "warden", "lock_integrity", v, roundN);
+  if (move === "CHECK_LOCK") {
+    // Covert (coordinator's fix, item 2): the prisoner's belief is NOT
+    // touched -- only the warden's own, via this move's `result` (it
+    // writes nothing, so the generic loop above sees no transition for
+    // it).
+    const result = outcome.result as unknown as { lockIntegrity: number };
+    setBelief(gameId, "warden", "lock_integrity", result.lockIntegrity, roundN);
     return;
   }
   if (move === "OBSERVE") {

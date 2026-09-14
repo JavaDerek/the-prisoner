@@ -221,6 +221,30 @@ describe("the-prisoner's mechanics -- every consequential change through resolve
     });
   });
 
+  describe("CHECK_LOCK (coordinator's fix -- covert, no grounds needed, closes the covert-irony gap)", () => {
+    it("reveals the true lock_integrity, writes no state, and is covert", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "SHIM" }); // lock -> 80
+      world.clock.wardenT(2);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK" });
+      expect(outcome.transitions).toHaveLength(0);
+      expect(outcome.result).toMatchObject({ mechanic: "CHECK_LOCK", lockIntegrity: 80 });
+    });
+
+    it("needs no grounds -- works even at 0 suspicion", () => {
+      fresh();
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK" });
+      expect(outcome.result).toMatchObject({ lockIntegrity: 100 });
+    });
+
+    it("causes no suspicion change", () => {
+      fresh();
+      resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK" });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    });
+  });
+
   describe("SEARCH (new mechanic)", () => {
     it("has no grounds and changes nothing while suspicion is below the threshold", () => {
       fresh();
