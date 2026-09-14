@@ -443,3 +443,17 @@ ruling with a target, including inapplicable ones. Once `effect=none property=co
 entered it, later questions quoted that line back (game 2 rounds 4–6), and a referee that is shown a
 failed ruling as precedent repeats it. Two further causes appear: a citation labelled `lock` instead of
 `desc:lock`, and an effect quote copied from an earlier intent rather than the current one.
+
+### 11.3 Precedent with a consequence (owner's decision, 2026-09-14)
+
+§11.1's lesson: the minds reason from rules, so necessity has to be a rule. The owner chose a blend
+that states a consequence rather than a prohibition, to stay open to serendipity: a prisoner attempt
+whose perceived sentence matches one Croft knows on sight (`precedentTextFor`, exact equality on this
+repository's own generated sentence) is **noticed however quietly it is done** and raises warden
+suspicion by `KNOWN_APPROACH_SUSPICION_BUMP` (30, the closed variant's failed-escape bump) on top of any
+ordinary bump. The briefing says exactly that, and nothing about avoiding anything. Old approaches stay
+open and cost what they cost.
+
+Two variables changed at once for the next games, and the comparison must say so: this consequence,
+and the referee's precedent keeping only applicable rulings (§3.5, §11.2). The second mostly affects
+the warden; the prisoner's novelty is what the first is meant to move.

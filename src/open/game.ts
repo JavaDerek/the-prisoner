@@ -42,7 +42,7 @@ export async function runOpenGame(params: {
   rounds: number;
   /** Standing knowledge per principal, shown every turn -- the precedent
    *  condition (`precedent.ts`). Absent in the baseline. */
-  precedent?: { readonly warden: readonly string[]; readonly prisoner: readonly string[] };
+  precedent?: { readonly warden: readonly string[]; readonly prisoner: readonly string[]; readonly known: readonly string[] };
   onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
@@ -66,7 +66,17 @@ export async function runOpenGame(params: {
       inbox[principal] = { fromOther: [] };
       const context = buildOpenContext(openWorld, principal, t, n, rounds, news);
 
-      const half = await runOpenHalfRound({ openWorld, resolver, referee, principal, roundN: n, t, context, mind: minds[principal] });
+      const half = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee,
+        principal,
+        roundN: n,
+        t,
+        context,
+        mind: minds[principal],
+        ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
+      });
       halves.push(half);
 
       const ownOutcome = renderOwnOutcome(half);

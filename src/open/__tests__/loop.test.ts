@@ -5,7 +5,7 @@ import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty, type OpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { createReferee, type Referee, type RefereeRuling } from "../referee.js";
-import { runOpenHalfRound } from "../loop.js";
+import { runOpenHalfRound, precedentTextFor, KNOWN_APPROACH_SUSPICION_BUMP } from "../loop.js";
 import { getBelief, setBelief } from "../../ledger/beliefs.js";
 import { getNotes } from "../../ledger/notes.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
@@ -262,6 +262,62 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
     });
 
     expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(10);
+  });
+
+  describe("known approaches (the precedent condition's consequence)", () => {
+    const silentWear = {
+      target: { answerKey: "bar", citation: { sourceId: "intent", quote: "file at the bar" } },
+      effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "file at the bar" } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "file at the bar" } },
+      perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "file at the bar" } },
+    };
+    const silentReferee = () =>
+      createReferee([
+        async (request: { questions: readonly { id: string }[] }) =>
+          request.questions.map((q) => ({ questionId: q.id, ...(silentWear as Record<string, { answerKey: string; citation: { sourceId: string; quote: string } }>)[q.id] })),
+      ]);
+
+    async function prisonerHalf(openWorld: OpenWorld, referee: Referee, knownApproaches: readonly string[]) {
+      return runOpenHalfRound({
+        openWorld,
+        resolver: buildOpenResolver(),
+        referee,
+        principal: "prisoner",
+        roundN: 1,
+        t: openWorld.base.clock.prisonerT(1),
+        context: context(openWorld),
+        mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I file at the bar with my spoon." }),
+        knownApproaches,
+      });
+    }
+
+    it("a known approach is noticed however quietly it is done, and suspicion jumps by KNOWN_APPROACH_SUSPICION_BUMP", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const result = await prisonerHalf(openWorld, silentReferee(), ["A prisoner works at the bar."]);
+      expect(result.perceptionForOther).toContain("works at the bar");
+      expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(KNOWN_APPROACH_SUSPICION_BUMP);
+    });
+
+    it("stacks on the ordinary bump when the act was perceptible anyway", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      await prisonerHalf(openWorld, grounderReferee(), ["A prisoner works at the bar."]); // moderate, audible: 10
+      expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(10 + KNOWN_APPROACH_SUSPICION_BUMP);
+    });
+
+    it("an approach outside the known list costs only what it always did", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const result = await prisonerHalf(openWorld, silentReferee(), ["A prisoner works at the lock."]);
+      expect(result.perceptionForOther).toBeNull();
+      expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(0);
+    });
+
+    it("the known text is the role-neutral sentence the warden perceives", () => {
+      expect(precedentTextFor({ targetObjectId: "bar", effectKind: "wear" })).toBe("A prisoner works at the bar.");
+    });
   });
 
   it("a prisoner's SILENT effect does not bump warden_suspicion", async () => {

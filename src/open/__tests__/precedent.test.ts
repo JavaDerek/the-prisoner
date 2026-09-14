@@ -7,10 +7,14 @@ import { buildOpenResolver } from "../mechanics.js";
 import { createReferee } from "../referee.js";
 import { runOpenGame, type OpenGameResult } from "../game.js";
 import { recordGame, precedentLines } from "../precedent.js";
+import { KNOWN_APPROACH_SUSPICION_BUMP } from "../loop.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
 import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, WAIT } from "./helpers/scriptedReferee.js";
 
-async function play(prisonerIntent: string, precedent?: { warden: readonly string[]; prisoner: readonly string[] }): Promise<OpenGameResult> {
+async function play(
+  prisonerIntent: string,
+  precedent?: { warden: readonly string[]; prisoner: readonly string[]; known: readonly string[] }
+): Promise<OpenGameResult> {
   createTestDb();
   const game = await runOpenGame({
     openWorld: buildOpenWorld(),
@@ -47,10 +51,14 @@ describe("precedent: what the warden has already seen prisoners try (mother-of-i
     const precedents = [{ text: "A prisoner works at the bar.", times: 12, episodes: 2, lastEpisode: "g2" }];
     const lines = precedentLines(precedents);
     expect(lines.prisoner.join("\n")).toContain("Croft");
+    expect(lines.prisoner.join("\n")).toContain("however quietly");
+    expect(lines.prisoner.join("\n")).toContain(`jumps by ${KNOWN_APPROACH_SUSPICION_BUMP}`);
+    expect(lines.warden.join("\n")).toContain(`jumps by ${KNOWN_APPROACH_SUSPICION_BUMP}`);
+    expect(lines.known).toEqual(["A prisoner works at the bar."]);
     expect(lines.prisoner.join("\n")).toContain("A prisoner works at the bar. (seen 12 times, in 2 earlier attempts)");
     expect(lines.warden.join("\n")).toContain("You have seen");
     expect(lines.warden.join("\n")).toContain("A prisoner works at the bar.");
-    expect(precedentLines([])).toEqual({ prisoner: [], warden: [] });
+    expect(precedentLines([])).toEqual({ prisoner: [], warden: [], known: [] });
   });
 
   it("across two games: what the warden saw in the first is in both briefings of every round of the second", async () => {
@@ -62,5 +70,13 @@ describe("precedent: what the warden has already seen prisoners try (mother-of-i
     for (const half of second.halves) {
       expect(half.context.briefing, `${half.roundN} ${half.principal}`).toContain("A prisoner works at the bar. (seen 2 times, in 1 earlier attempt)");
     }
+  });
+
+  it("in a game, a known approach costs the prisoner the jump: the warden's next briefing shows it", async () => {
+    const known = precedentLines([{ text: "A prisoner works at the bar.", times: 9, episodes: 2, lastEpisode: "g2" }]);
+    const game = await play(SCRAPE, known);
+    const round2Warden = game.halves.find((h) => h.roundN === 2 && h.principal === "warden")?.context.briefing ?? "";
+    // round 1 scrape: substantial audible bump 30 + known approach 30.
+    expect(round2Warden).toContain(`warden suspicion: ${30 + KNOWN_APPROACH_SUSPICION_BUMP}.`);
   });
 });

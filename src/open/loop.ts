@@ -72,6 +72,20 @@ const SUSPICION_BUMP_FOR_MAGNITUDE: Record<Magnitude, number> = {
   substantial: FAILED_ESCAPE_SUSPICION_BUMP,
 };
 
+/** The precedent condition's consequence (OPEN-VARIANT.md §11.3): an approach
+ *  the warden already knows on sight is noticed however quietly it is done,
+ *  and suspicion jumps by this much on top of any ordinary bump. The closed
+ *  variant's own failed-escape bump: the largest single rise it has. */
+export const KNOWN_APPROACH_SUSPICION_BUMP = FAILED_ESCAPE_SUSPICION_BUMP;
+
+/** A prisoner attempt as the warden perceives it, with a role-neutral actor --
+ *  the text the precedent ledger records, and the text a known approach is
+ *  matched on. Built by code from ruling keys, so matching it is exact string
+ *  equality on this repository's own sentence, never a reading of prose. */
+export function precedentTextFor(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">): string {
+  return describeAttempt("prisoner", ruling, "A prisoner");
+}
+
 function suspicionEligible(effectKind: EffectKind): boolean {
   return effectKind === "wear" || effectKind === "restore" || effectKind === "expose";
 }
@@ -188,6 +202,9 @@ export async function runOpenHalfRound(params: {
   t: number;
   context: OpenPrincipalContext;
   mind: OpenMind;
+  /** Prisoner attempts the warden already knows on sight (`precedentTextFor`
+   *  texts). Absent outside the precedent condition. */
+  knownApproaches?: readonly string[];
 }): Promise<OpenHalfRoundResult> {
   const { openWorld, resolver, referee, principal, roundN, t, context, mind } = params;
   const base = { principal, t, roundN, context };
@@ -242,13 +259,17 @@ export async function runOpenHalfRound(params: {
       ...(expects ? { expects } : {}),
     });
     updateActorBelief(openWorld, principal, plan, outcome, roundN);
-    const perceptionForOther = ruling.perceptibility !== "silent" ? description : null;
+    const known = principal === "prisoner" && (params.knownApproaches ?? []).includes(precedentTextFor(ruling));
+    const perceptionForOther = ruling.perceptibility !== "silent" || known ? description : null;
 
     // OPEN-VARIANT.md §9.3, "grounds accrue": a prisoner's own non-silent
     // wear/restore/expose bumps warden_suspicion by a fixed, magnitude-scaled
     // amount -- a SEPARATE, audited resolve() call, never a side channel.
     if (principal === "prisoner" && suspicionEligible(ruling.effectKind) && ruling.perceptibility !== "silent") {
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
+    }
+    if (known) {
+      bumpWardenSuspicion(openWorld, resolver, KNOWN_APPROACH_SUSPICION_BUMP, "The warden recognises a known approach.");
     }
 
     let revealFor: OpenHalfRoundResult["revealFor"] = null;
