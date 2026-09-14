@@ -34,7 +34,7 @@ import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
 import { pinnedDependencyVersion } from "./packageInfo.js";
 import { summarizeLoadedModels, type OllamaPsResponse } from "./ollamaStatus.js";
-import { OllamaModelSwapper, nativeBaseUrl, detectPin, assertNoForeignModel } from "./ollamaSwap.js";
+import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "./ollamaSwap.js";
 import {
   runHalfRound,
   newSilenceTracker,
@@ -75,11 +75,28 @@ const ROUNDS = process.env.PRISONER_ROUNDS ? Number(process.env.PRISONER_ROUNDS)
  *  "never allow two model calls in flight" across both principals and both
  *  roles, not just within one. `NATIVE_BASE_URL` is `PRISONER_MODEL_URL`
  *  with a trailing `/v1` stripped, or `PRISONER_OLLAMA_NATIVE_URL` verbatim
- *  when set. */
+ *  when set.
+ *
+ *  Coordinator's fix, over the first real run: doris reports a multi-
+ *  century `expires_at` for EVERY model it loads, not only one this run
+ *  itself pinned with `keep_alive: -1` -- `expires_at` cannot tell those
+ *  apart, so it is never used for this guard any more. `RESIDENT_MODELS`
+ *  (`PRISONER_OLLAMA_RESIDENT_MODELS`, comma-separated) names models this
+ *  run is allowed to find already loaded and must restore afterward, even
+ *  though they are not one of ITS OWN roles -- typically the model the
+ *  owner keeps resident between runs. `ALLOWED_MODELS` (this run's own
+ *  roles plus the residents) is what `assertNoForeignModel` and the
+ *  swapper's own unload guard check against; nothing else loaded is ever
+ *  touched. */
 const NATIVE_BASE_URL = nativeBaseUrl(MODEL_URL, process.env.PRISONER_OLLAMA_NATIVE_URL);
-const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL });
-const ensureLoaded = (model: string): Promise<void> => swapper.withModel(model, async () => {});
+const RESIDENT_MODELS = (process.env.PRISONER_OLLAMA_RESIDENT_MODELS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter((s) => s.length > 0);
 const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL])];
+const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
+const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
+const ensureLoaded = (model: string): Promise<void> => swapper.withModel(model, async () => {});
 
 async function safePsSummary(): Promise<{ ps: OllamaPsResponse | null; summary: string }> {
   try {
@@ -366,14 +383,20 @@ async function main(): Promise<void> {
 
   // "That model belongs to someone else" (this task's brief, item 2): read
   // /api/ps BEFORE playing a single half-round. A model loaded that this
-  // run did not configure and that is not pinned stops the run outright
-  // (`assertNoForeignModel` throws, uncaught -- loud, never a silent
-  // no-op). A `/api/ps` that cannot be reached at all is reported but does
-  // not itself stop the run (the very first mind call will fail loudly on
-  // its own if doris is really unreachable).
+  // run neither configured nor lists in PRISONER_OLLAMA_RESIDENT_MODELS
+  // stops the run outright (`assertNoForeignModel` throws, uncaught --
+  // loud, never a silent no-op). A `/api/ps` that cannot be reached at all
+  // is reported but does not itself stop the run (the very first mind call
+  // will fail loudly on its own if doris is really unreachable).
+  //
+  // Coordinator's fix: `residentsAtStart` -- what `restoreResidents` puts
+  // back in the `finally` below -- is whichever of THIS run's own resident
+  // list was actually found loaded, by NAME only. Never `expires_at`: the
+  // first real run showed every model doris loads gets a multi-century
+  // expiry, pinned or not, so it carries no information here at all.
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
-  const pinAtStart = initialPs ? detectPin(initialPs) : null;
-  if (initialPs) assertNoForeignModel(initialPs, CONFIGURED_MODELS);
+  if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
+  const residentsAtStart = initialPs ? initialPs.models.map((m) => m.name).filter((name) => RESIDENT_MODELS.includes(name)) : [];
 
   const transcript: string[] = [];
   transcript.push("# The Prisoner -- checkpoint transcript");
@@ -403,7 +426,7 @@ async function main(): Promise<void> {
   transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
   transcript.push(`Models loaded on doris at start (/api/ps): ${loadedAtStart}`);
-  if (pinAtStart) transcript.push(`Pinned at start (keep_alive -1): \`${pinAtStart.name}\`.`);
+  if (residentsAtStart.length > 0) transcript.push(`Resident at start: ${residentsAtStart.map((n) => `\`${n}\``).join(", ")}.`);
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
@@ -602,10 +625,11 @@ async function main(): Promise<void> {
       `Calls: ${timings.length}, silent: ${silentCount}, refusals: ${stats.refusals.length}, plan revisions: ${stats.planRevisions.length}, voice silences: ${stats.voiceSilences.length}, swaps: ${swapEvents.length}`
     );
   } finally {
-    // Pin restore (this task's brief, item 2): runs whether the loop above
-    // finished normally or threw. `restorePin` itself is a no-op when
-    // `pinAtStart` is `null` (nothing was pinned when this run began).
-    await swapper.restorePin(pinAtStart);
+    // Resident restore (this task's brief, item 2): runs whether the loop
+    // above finished normally or threw. `restoreResidents` itself is a
+    // no-op when `residentsAtStart` is empty (nothing resident was loaded
+    // when this run began).
+    await swapper.restoreResidents(residentsAtStart);
   }
 }
 

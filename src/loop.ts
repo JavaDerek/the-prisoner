@@ -24,6 +24,7 @@
 import type { Mind, Proposal, SilenceReason, SilenceDetail } from "mind-seam";
 import { ResolveProtocolError, ConstraintViolationError, getResource, type Resolver, type Outcome } from "run-dmcp";
 import type { World } from "./world/setup.js";
+import type { VoiceSilenceReason } from "./mind/roleMind.js";
 import {
   recordSuccess,
   recordFailure,
@@ -89,7 +90,7 @@ export type PrincipalProposal = Proposal & {
   readonly voiceMs?: number;
   readonly witsSwapMs?: number;
   readonly voiceSwapMs?: number;
-  readonly voiceSilenceReason?: SilenceReason;
+  readonly voiceSilenceReason?: VoiceSilenceReason;
   readonly voiceSilenceText?: string;
   readonly voiceSilenceParsed?: import("mind-seam").Inert;
 };

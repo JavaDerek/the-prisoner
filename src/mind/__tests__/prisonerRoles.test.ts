@@ -8,7 +8,7 @@
 // generically; this file covers the prisoner's own wits/voice schemas,
 // prompts, and coercers, plus the default-equivalence proof itself).
 import { describe, it, expect, vi } from "vitest";
-import { createPrisonerMind, type PrisonerContext } from "../prisonerMind.js";
+import { createPrisonerMind, buildPrisonerVoicePrompt, type PrisonerContext } from "../prisonerMind.js";
 import { PRISONER_MOVES } from "../../world/mechanics.js";
 
 const context: PrisonerContext = {
@@ -168,6 +168,56 @@ describe("wits and voice name different models -- two calls, composed", () => {
     expect(result).not.toBeNull();
     expect(result).toMatchObject({ choice: "FILE", plan: ["FILE"], intent: "", line: "", voiceSilenceReason: "unreachable" });
     expect(voiceSilenceReason).toBe("unreachable");
+  });
+
+  it("the voice prompt offers no empty-string option, and requires a line (coordinator's fix, A/B verified against ancient-awakening:12b: the old wording produced empty lines 3/3)", () => {
+    const prompt = buildPrisonerVoicePrompt({
+      principalId: "prisoner-1",
+      identity: "id",
+      motive: "mot",
+      briefing: "brief",
+      decision: { choice: "SHIM", thoughts: "quiet work" },
+    });
+    expect(prompt.toLowerCase()).not.toContain("or an empty string");
+    expect(prompt.toLowerCase()).not.toContain("stay silent");
+    expect(prompt.toLowerCase()).not.toContain("keep secrets out of it");
+    expect(prompt).toContain("Never an empty string.");
+    expect(prompt).toContain("Warden Croft");
+    expect(prompt).toContain("Croft hears every word");
+  });
+
+  it("a voice call that succeeds but returns an empty line is recorded as a voice silence with reason 'empty-line' -- distinct from a wire failure", async () => {
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse(init?.body as string);
+      if (body.model === "wits-model") {
+        return jsonResponse(chatBody({ thoughts: "planning to shim", plan: ["SHIM"], notes: "n" }));
+      }
+      return jsonResponse(chatBody({ intent: "work the shim", line: "" }));
+    }) as unknown as typeof fetch;
+
+    const mind = createPrisonerMind({ baseUrl: "http://offline.invalid", witsModel: "wits-model", voiceModel: "voice-model", fetchFn });
+    const result = await mind.consider(context);
+
+    expect(result).toMatchObject({ choice: "SHIM", intent: "work the shim", line: "", voiceSilenceReason: "empty-line" });
+  });
+
+  it("an empty-line voice silence is NOT reported through onVoiceSilence -- the wire call itself succeeded", async () => {
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse(init?.body as string);
+      if (body.model === "wits-model") return jsonResponse(chatBody({ thoughts: "t", plan: ["SHIM"], notes: "n" }));
+      return jsonResponse(chatBody({ intent: "i", line: "" }));
+    }) as unknown as typeof fetch;
+
+    let onVoiceSilenceCalled = false;
+    const mind = createPrisonerMind({
+      baseUrl: "http://offline.invalid",
+      witsModel: "wits-model",
+      voiceModel: "voice-model",
+      fetchFn,
+      onVoiceSilence: () => (onVoiceSilenceCalled = true),
+    });
+    await mind.consider(context);
+    expect(onVoiceSilenceCalled).toBe(false);
   });
 
   it("a wits (decision) silence is still a full silence -- voice is never called", async () => {

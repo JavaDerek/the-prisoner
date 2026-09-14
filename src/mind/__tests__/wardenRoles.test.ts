@@ -5,7 +5,7 @@
 // path is untouched, the same two things `prisonerRoles.test.ts` proves for
 // the prisoner.
 import { describe, it, expect, vi } from "vitest";
-import { createWardenMind, type WardenContext } from "../wardenMind.js";
+import { createWardenMind, buildWardenVoicePrompt, type WardenContext } from "../wardenMind.js";
 import { WARDEN_MOVES } from "../../world/mechanics.js";
 
 const context: WardenContext = {
@@ -88,5 +88,30 @@ describe("wits and voice name different models", () => {
     const mind = createWardenMind({ baseUrl: "http://offline.invalid", witsModel: "wits-model", voiceModel: "voice-model", fetchFn });
     const result = await mind.consider(context);
     expect(result).toMatchObject({ choice: "OBSERVE", intent: "", line: "", voiceSilenceReason: "unreachable" });
+  });
+
+  it("the voice prompt offers no empty-string option, and names the prisoner by short name (coordinator's fix)", () => {
+    const prompt = buildWardenVoicePrompt({
+      principalId: "warden-1",
+      identity: "id",
+      motive: "mot",
+      briefing: "brief",
+      decision: { choice: "SERVICE_LOCK", thoughts: "covert" },
+    });
+    expect(prompt.toLowerCase()).not.toContain("or an empty string");
+    expect(prompt.toLowerCase()).not.toContain("stay silent");
+    expect(prompt).toContain("Never an empty string.");
+    expect(prompt).toContain("Voss hears every word");
+  });
+
+  it("a voice call that returns an empty line is a voice silence with reason 'empty-line'", async () => {
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse(init?.body as string);
+      if (body.model === "wits-model") return jsonResponse(chatBody({ thoughts: "t", plan: ["SERVICE_LOCK"], notes: "n" }));
+      return jsonResponse(chatBody({ intent: "service the lock", line: "" }));
+    }) as unknown as typeof fetch;
+    const mind = createWardenMind({ baseUrl: "http://offline.invalid", witsModel: "wits-model", voiceModel: "voice-model", fetchFn });
+    const result = await mind.consider(context);
+    expect(result).toMatchObject({ choice: "SERVICE_LOCK", intent: "service the lock", line: "", voiceSilenceReason: "empty-line" });
   });
 });

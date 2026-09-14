@@ -1,8 +1,8 @@
 import type { Mind, Proposal, SilenceReason, SilenceDetail, InertRecord } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
 import { MOVE_DESCRIPTIONS, PRISONER_MOVES, TIME_DECAY_RULE, WARDEN_PRESENCE_RULE, EVIDENCE_RULE } from "../world/mechanics.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
-import { composeRoleMind, VOICE_PROPOSAL_SCHEMA, type WitsProposal, type VoiceContext } from "./roleMind.js";
+import { PRISONER_NAME, WARDEN_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
+import { composeRoleMind, VOICE_PROPOSAL_SCHEMA, type WitsProposal, type VoiceContext, type VoiceSilenceReason } from "./roleMind.js";
 
 /**
  * The prisoner's declaration of `mind-seam`'s generic seam (design §A.5,
@@ -101,7 +101,7 @@ export type PrisonerProposal = Proposal & {
   readonly voiceMs?: number;
   readonly witsSwapMs?: number;
   readonly voiceSwapMs?: number;
-  readonly voiceSilenceReason?: SilenceReason;
+  readonly voiceSilenceReason?: VoiceSilenceReason;
   readonly voiceSilenceText?: string;
   readonly voiceSilenceParsed?: import("mind-seam").Inert;
 };
@@ -397,8 +397,22 @@ function coercePrisonerWitsProposal(raw: unknown, context: PrisonerContext): Wit
  *  thoughts)" (this task's brief, item 1), verbatim. Never the move list:
  *  voice does not choose (`roleMind.ts`'s `VoiceContext` carries no
  *  `moves` field at all, so there is structurally nothing here to offer a
- *  prompt-writing mistake). */
-function buildPrisonerVoicePrompt(context: VoiceContext): string {
+ *  prompt-writing mistake).
+ *
+ *  REVISION (coordinator's fix, A/B verified against `ancient-awakening:12b`
+ *  on doris, 3 calls each): the original wording offered "or an empty
+ *  string to stay silent" immediately after handing the model a COVERT
+ *  decision (e.g. "SHIM -- ... quiet") plus "keep secrets out of it" --
+ *  which read as permission to say nothing, and did, 3/3. Dropping the
+ *  silence option entirely and reframing what a line is FOR -- cover,
+ *  distraction, or unrelated small talk, never a confession -- produced a
+ *  line 3/3, unprompted, e.g. "I tried a new blend of tobacco today. The
+ *  contraband market is fascinating." over a quiet SHIM. `coerce` still
+ *  accepts `""` regardless (defence in depth, the same discipline every
+ *  other optional-in-practice field here has); `roleMind.ts`'s
+ *  `composeRoleMind` now records that case as a voice silence with reason
+ *  `"empty-line"`, distinct from an actual wire failure. */
+export function buildPrisonerVoicePrompt(context: VoiceContext): string {
   const moveDescription = MOVE_DESCRIPTIONS[context.decision.choice] ?? "(no description on file)";
   return [
     `You are ${PRISONER_NAME}. The other person in the cell is ${WARDEN_NAME}.`,
@@ -413,8 +427,9 @@ function buildPrisonerVoicePrompt(context: VoiceContext): string {
     "Your only job now is to voice this decision in character. The move itself is already decided and cannot change.",
     'Answer with one JSON object: {"intent": string, "line": string}.',
     '"intent" is what you are doing, in your own words, consistent with the move already chosen.',
-    '"line" is REQUIRED -- one sentence spoken ALOUD to the other person, or an empty string ("") to ' +
-      "stay silent this turn. The other person hears every word of it; keep secrets out of it.",
+    `"line" is REQUIRED: one sentence you say aloud to ${WARDEN_NAME} this turn, in your own voice. ` +
+      `${WARDEN_SHORT_NAME} hears every word, so it can cover for, distract from, or have nothing to do ` +
+      "with what you are really doing. Never an empty string.",
     "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
   ].join("\n");
 }

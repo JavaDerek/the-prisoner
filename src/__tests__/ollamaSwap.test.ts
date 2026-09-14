@@ -6,15 +6,20 @@
 // proceeding with two models loaded. Every test below runs against an
 // injected `fetchFn` and injected `delayFn`/`nowFn`, so none of it ever
 // touches a real clock or a real network.
+//
+// REVISION (coordinator's fix over the first real run): `expires_at` cannot
+// tell a genuinely pinned model apart from an ordinary one on doris -- the
+// server reports a multi-century expiry for EVERY model it loads, including
+// `qwen3:14b` loaded by an ordinary chat call, not only a deliberate
+// `keep_alive: -1`. The old `isFarFuturePin`/`detectPin` inference is
+// removed entirely (it was simply wrong against the real server); "which
+// models this run may touch" is now an explicit list -- this run's own
+// configured models plus `PRISONER_OLLAMA_RESIDENT_MODELS` -- and "which
+// models to restore at the end" is whichever of THAT resident list was
+// actually loaded when the run started, passed in by the caller
+// (`checkpoint.ts`) rather than inferred from any `/api/ps` field.
 import { describe, it, expect, vi } from "vitest";
-import {
-  OllamaModelSwapper,
-  nativeBaseUrl,
-  isFarFuturePin,
-  detectPin,
-  assertNoForeignModel,
-  type OllamaPsResponse,
-} from "../ollamaSwap.js";
+import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel, type OllamaPsResponse } from "../ollamaSwap.js";
 
 function psResponse(models: OllamaPsResponse["models"]): Response {
   return new Response(JSON.stringify({ models }), { status: 200, headers: { "content-type": "application/json" } });
@@ -42,52 +47,26 @@ describe("nativeBaseUrl -- derives the native /api base from the OpenAI-compatib
   });
 });
 
-describe("isFarFuturePin -- keep_alive -1's own tell, never a guess", () => {
-  it("an ordinary few-minutes-out expiry is not a pin", () => {
-    expect(isFarFuturePin("2026-09-14T08:05:00.000Z", new Date("2026-09-14T08:00:00.000Z"))).toBe(false);
-  });
-
-  it("a multi-century-out expiry (keep_alive -1's own signature) is a pin", () => {
-    expect(isFarFuturePin("2318-12-25T03:35:06.160747448Z", new Date("2026-09-14T08:00:00.000Z"))).toBe(true);
-  });
-
-  it("an unparseable expiry is never treated as a pin", () => {
-    expect(isFarFuturePin("not a date")).toBe(false);
-  });
-});
-
-describe("detectPin -- exactly one loaded model with a far-future expiry", () => {
-  it("no models loaded: no pin", () => {
-    expect(detectPin({ models: [] })).toBeNull();
-  });
-
-  it("one model, ordinary expiry: no pin", () => {
-    expect(detectPin({ models: [model("qwen3:14b")] })).toBeNull();
-  });
-
-  it("one model, far-future expiry: that model is the pin", () => {
-    expect(detectPin({ models: [model("qwen3:14b", "2318-01-01T00:00:00Z")] })).toEqual({ name: "qwen3:14b" });
-  });
-
-  it("two models loaded: never a pin, even if one has a far-future expiry", () => {
-    expect(detectPin({ models: [model("a", "2318-01-01T00:00:00Z"), model("b")] })).toBeNull();
-  });
-});
-
-describe("assertNoForeignModel -- 'that model belongs to someone else'", () => {
+describe("assertNoForeignModel -- 'that model belongs to someone else' (coordinator's fix: allowedModels is an explicit list, never inferred from expires_at)", () => {
   it("passes when nothing is loaded", () => {
     expect(() => assertNoForeignModel({ models: [] }, ["qwen3:14b"])).not.toThrow();
   });
 
-  it("passes when the loaded model is one of this run's own", () => {
+  it("passes when the loaded model is one of this run's own configured roles", () => {
     expect(() => assertNoForeignModel({ models: [model("qwen3:14b")] }, ["qwen3:14b", "ancient-awakening:12b"])).not.toThrow();
   });
 
-  it("passes when the loaded model is pinned, even though it is not configured for this run", () => {
-    expect(() => assertNoForeignModel({ models: [model("someone-elses-model", "2318-01-01T00:00:00Z")] }, ["qwen3:14b"])).not.toThrow();
+  it("passes when the loaded model is listed as a resident, even though it is not one of this run's own roles", () => {
+    expect(() => assertNoForeignModel({ models: [model("ancient-awakening:12b")] }, ["qwen3:14b", "ancient-awakening:12b"])).not.toThrow();
   });
 
-  it("throws, naming the model, when a foreign unpinned model is loaded", () => {
+  it("a far-future expires_at grants NO special allowance any more -- only membership in the passed-in list does", () => {
+    expect(() => assertNoForeignModel({ models: [model("someone-elses-model", "2318-01-01T00:00:00Z")] }, ["qwen3:14b"])).toThrow(
+      /someone-elses-model/
+    );
+  });
+
+  it("throws, naming the model, when a foreign model is loaded", () => {
     expect(() => assertNoForeignModel({ models: [model("someone-elses-model")] }, ["qwen3:14b"])).toThrow(/someone-elses-model/);
   });
 });
@@ -244,28 +223,78 @@ describe("OllamaModelSwapper.withModel -- unload order, polling, no overlap", ()
     // never interleaved, regardless of which is individually slower.
     expect(order).toEqual(["a-start", "a-end", "b-start", "b-end"]);
   });
+
+  it("(coordinator's fix) refuses to unload a model that is loaded but not in allowedModels -- never touches a foreign model even mid-run", async () => {
+    const { fetchFn, calls } = fakeOllama([{ name: "someone-elses-model" }]);
+    const swapper = new OllamaModelSwapper({
+      nativeBaseUrl: "http://doris:11434",
+      fetchFn,
+      delayFn: async () => {},
+      allowedModels: ["qwen3:14b", "ancient-awakening:12b"],
+    });
+
+    let ran = false;
+    await expect(
+      swapper.withModel("qwen3:14b", async () => {
+        ran = true;
+      })
+    ).rejects.toThrow(/someone-elses-model/);
+    expect(ran).toBe(false);
+    expect(calls.some((c) => c.url.endsWith("/api/generate"))).toBe(false);
+  });
+
+  it("with allowedModels configured, unloading a model that IS in the list still works normally", async () => {
+    const { fetchFn } = fakeOllama([{ name: "ancient-awakening:12b" }]);
+    const swapper = new OllamaModelSwapper({
+      nativeBaseUrl: "http://doris:11434",
+      fetchFn,
+      delayFn: async () => {},
+      allowedModels: ["qwen3:14b", "ancient-awakening:12b"],
+    });
+
+    let ran = false;
+    await swapper.withModel("qwen3:14b", async () => {
+      ran = true;
+    });
+    expect(ran).toBe(true);
+  });
+
+  it("with no allowedModels configured at all, unloading is unrestricted (defence in depth only -- checkpoint.ts always configures it)", async () => {
+    const { fetchFn } = fakeOllama([{ name: "anything-at-all" }]);
+    const swapper = new OllamaModelSwapper({ nativeBaseUrl: "http://doris:11434", fetchFn, delayFn: async () => {} });
+    let ran = false;
+    await swapper.withModel("qwen3:14b", async () => {
+      ran = true;
+    });
+    expect(ran).toBe(true);
+  });
 });
 
-describe("OllamaModelSwapper.restorePin -- 'finally', even after a thrown error", () => {
-  it("does nothing when there was no pin at start", async () => {
+describe("OllamaModelSwapper.restoreResidents -- 'finally', even after a thrown error (coordinator's fix: replaces restorePin)", () => {
+  it("does nothing when there were no residents loaded at start", async () => {
     const { fetchFn, calls } = fakeOllama([{ name: "qwen3:14b" }]);
     const swapper = new OllamaModelSwapper({ nativeBaseUrl: "http://doris:11434", fetchFn, delayFn: async () => {} });
-    await swapper.restorePin(null);
+    await swapper.restoreResidents([]);
     expect(calls).toHaveLength(0);
   });
 
-  it("is a no-op when the pinned model is already the sole one loaded, pinned", async () => {
-    const { fetchFn, calls } = fakeOllama([{ name: "ancient-awakening:12b", expiresAt: "2318-01-01T00:00:00Z" }]);
+  it("is a no-op when the resident model is already the sole one loaded", async () => {
+    const { fetchFn, calls } = fakeOllama([{ name: "ancient-awakening:12b" }]);
     const swapper = new OllamaModelSwapper({ nativeBaseUrl: "http://doris:11434", fetchFn, delayFn: async () => {} });
-    await swapper.restorePin({ name: "ancient-awakening:12b" });
+    await swapper.restoreResidents(["ancient-awakening:12b"]);
     expect(calls.filter((c) => c.url.endsWith("/api/generate"))).toHaveLength(0);
   });
 
-  it("unloads the current model and reloads the pinned one with keep_alive -1", async () => {
+  it("unloads the current model and reloads the resident one with keep_alive -1", async () => {
     const { fetchFn, calls, getLoaded } = fakeOllama([{ name: "qwen3:14b" }]);
-    const swapper = new OllamaModelSwapper({ nativeBaseUrl: "http://doris:11434", fetchFn, delayFn: async () => {} });
+    const swapper = new OllamaModelSwapper({
+      nativeBaseUrl: "http://doris:11434",
+      fetchFn,
+      delayFn: async () => {},
+      allowedModels: ["qwen3:14b", "ancient-awakening:12b"],
+    });
 
-    await swapper.restorePin({ name: "ancient-awakening:12b" });
+    await swapper.restoreResidents(["ancient-awakening:12b"]);
 
     const generateCalls = calls.filter((c) => c.url.endsWith("/api/generate")).map((c) => c.body);
     expect(generateCalls).toEqual([
@@ -275,11 +304,12 @@ describe("OllamaModelSwapper.restorePin -- 'finally', even after a thrown error"
     expect(getLoaded()).toEqual([{ name: "ancient-awakening:12b", size: 1, size_vram: 1, expires_at: "2318-01-01T00:00:00Z" }]);
   });
 
-  it("throws when the restore cannot be confirmed via /api/ps afterward", async () => {
+  it("throws when the restore cannot be confirmed via /api/ps afterward (by NAME only -- never by expires_at)", async () => {
     // A stateful double whose unload works normally, but whose "load"
     // stubbornly reports the WRONG model afterward -- simulating a server
-    // that did not actually honor the reload, which restorePin must catch
-    // by re-reading /api/ps rather than trusting its own request succeeded.
+    // that did not actually honor the reload, which restoreResidents must
+    // catch by re-reading /api/ps rather than trusting its own request
+    // succeeded.
     let loaded = [model("wrong-model")];
     const fetchFn = vi.fn(async (url: unknown, init?: RequestInit) => {
       const u = String(url);
@@ -292,11 +322,15 @@ describe("OllamaModelSwapper.restorePin -- 'finally', even after a thrown error"
       throw new Error(`unexpected URL ${u}`);
     }) as unknown as typeof fetch;
     const swapper = new OllamaModelSwapper({ nativeBaseUrl: "http://doris:11434", fetchFn, delayFn: async () => {} });
-    await expect(swapper.restorePin({ name: "ancient-awakening:12b" })).rejects.toThrow(/restore/i);
+    await expect(swapper.restoreResidents(["ancient-awakening:12b"])).rejects.toThrow(/restore/i);
   });
 
   it("runs even after withModel's own call threw -- the caller's finally, proven end to end", async () => {
-    const { fetchFn, calls } = fakeOllama([{ name: "qwen3:14b" }]);
+    // A DIFFERENT model resident at start than the one `withModel` needs,
+    // so both the swap-in (unload the resident) AND the eventual restore
+    // (reload the resident) each have real work to do -- proving the
+    // `finally` fires, not merely that it was reachable.
+    const { fetchFn, calls } = fakeOllama([{ name: "resident-model" }]);
     const swapper = new OllamaModelSwapper({ nativeBaseUrl: "http://doris:11434", fetchFn, delayFn: async () => {} });
 
     let restoreRan = false;
@@ -306,13 +340,24 @@ describe("OllamaModelSwapper.restorePin -- 'finally', even after a thrown error"
           throw new Error("boom -- the actual model call failed");
         });
       } finally {
-        await swapper.restorePin({ name: "qwen3:14b" });
+        await swapper.restoreResidents(["resident-model"]);
         restoreRan = true;
       }
     } catch (err) {
       expect((err as Error).message).toContain("boom");
     }
     expect(restoreRan).toBe(true);
-    expect(calls.some((c) => c.url.endsWith("/api/generate"))).toBe(true);
+    const loadCalls = calls.filter((c) => c.url.endsWith("/api/generate") && (c.body as { keep_alive: number }).keep_alive === -1);
+    expect(loadCalls.map((c) => (c.body as { model: string }).model)).toEqual(["resident-model"]);
+  });
+
+  it("sends a load request for every resident in the list, in order (doris itself only ever reports 0 or 1 loaded models, so a real run's own list has at most one entry; this proves the loop itself, not multi-model hardware)", async () => {
+    const { fetchFn, calls } = fakeOllama([{ name: "model-a" }]);
+    const swapper = new OllamaModelSwapper({ nativeBaseUrl: "http://doris:11434", fetchFn, delayFn: async () => {} });
+    await expect(swapper.restoreResidents(["model-a", "model-b"])).rejects.toThrow(/restore/i);
+    const loadCalls = calls
+      .filter((c) => c.url.endsWith("/api/generate") && (c.body as { keep_alive: number }).keep_alive === -1)
+      .map((c) => (c.body as { model: string }).model);
+    expect(loadCalls).toEqual(["model-a", "model-b"]);
   });
 });

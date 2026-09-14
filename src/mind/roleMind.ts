@@ -93,12 +93,21 @@ export type VoiceProposal = Proposal;
  *  the same "declare contexts as `type`, never `interface`" discipline
  *  `mind-seam`'s own design doc (§3.1) states for a caller's context,
  *  applied here to a caller's proposal field instead. */
+/** `"empty-line"` (coordinator's fix): the voice call SUCCEEDED -- it is
+ *  not a `mind-seam` wire failure and `onVoiceSilence` never fires for it
+ *  -- but the model chose (or defaulted to) an empty `line`. Recorded here
+ *  so it shows up in the transcript's voice-silence counts exactly like a
+ *  real failure, without being confused for one: the fix that keeps this
+ *  rare is the voice prompt's own wording (`buildPrisonerVoicePrompt`/
+ *  `buildWardenVoicePrompt`), not this bookkeeping. */
+export type VoiceSilenceReason = SilenceReason | "empty-line";
+
 export interface RoleCallMeta {
   witsMs: number;
   witsSwapMs?: number;
   voiceMs?: number;
   voiceSwapMs?: number;
-  voiceSilenceReason?: SilenceReason;
+  voiceSilenceReason?: VoiceSilenceReason;
   voiceSilenceText?: string;
   voiceSilenceParsed?: Inert;
 }
@@ -250,13 +259,18 @@ export function composeRoleMind<C extends RoleContext>(
         voiceSwapMs = now() - swapStart;
       }
       const voice = await voiceMind.consider(voiceContext);
+      // Coordinator's fix: the wire call can SUCCEED and still hand back an
+      // empty (or missing) line -- not a `mind-seam` failure, so
+      // `onVoiceSilence` never fires for it, but the transcript still needs
+      // to count it as a voice that didn't do its job.
+      const emptyLine = voice !== null && (!voice.line || voice.line.length === 0);
 
       return combine(context, wits, voice, {
         witsMs: witsCallMs,
         witsSwapMs,
         voiceMs: voiceCallMs,
         voiceSwapMs,
-        voiceSilenceReason: voice === null ? voiceSilence.reason : undefined,
+        voiceSilenceReason: voice === null ? voiceSilence.reason : emptyLine ? "empty-line" : undefined,
         voiceSilenceText: voice === null ? voiceSilence.text : undefined,
         voiceSilenceParsed: voice === null ? voiceSilence.parsed : undefined,
       });

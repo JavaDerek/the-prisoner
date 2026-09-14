@@ -1,9 +1,9 @@
 import type { Mind, Proposal, SilenceReason, SilenceDetail, InertRecord } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
 import { MOVE_DESCRIPTIONS, WARDEN_MOVES, TIME_DECAY_RULE, WARDEN_PRESENCE_RULE, EVIDENCE_RULE } from "../world/mechanics.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME } from "../scenario.js";
 import { normalizePlan, MAX_PLAN_LENGTH } from "./prisonerMind.js";
-import { composeRoleMind, VOICE_PROPOSAL_SCHEMA, type WitsProposal, type VoiceContext } from "./roleMind.js";
+import { composeRoleMind, VOICE_PROPOSAL_SCHEMA, type WitsProposal, type VoiceContext, type VoiceSilenceReason } from "./roleMind.js";
 
 /**
  * The warden as a model too (this checkpoint's correction 1 over DESIGN.md,
@@ -45,7 +45,7 @@ export type WardenProposal = Proposal & {
   readonly voiceMs?: number;
   readonly witsSwapMs?: number;
   readonly voiceSwapMs?: number;
-  readonly voiceSilenceReason?: SilenceReason;
+  readonly voiceSilenceReason?: VoiceSilenceReason;
   readonly voiceSilenceText?: string;
   readonly voiceSilenceParsed?: import("mind-seam").Inert;
 };
@@ -222,9 +222,10 @@ function coerceWardenWitsProposal(raw: unknown, context: WardenContext): WitsPro
 }
 
 /** Configurable model roles: the VOICE call's own prompt -- see
- *  `buildPrisonerVoicePrompt` (`prisonerMind.ts`) for the full reasoning,
+ *  `buildPrisonerVoicePrompt` (`prisonerMind.ts`) for the full reasoning
+ *  AND the coordinator's A/B-verified fix over the original wording,
  *  identical here. */
-function buildWardenVoicePrompt(context: VoiceContext): string {
+export function buildWardenVoicePrompt(context: VoiceContext): string {
   const moveDescription = MOVE_DESCRIPTIONS[context.decision.choice] ?? "(no description on file)";
   return [
     `You are ${WARDEN_NAME}. The other person in the cell is ${PRISONER_NAME}.`,
@@ -239,8 +240,9 @@ function buildWardenVoicePrompt(context: VoiceContext): string {
     "Your only job now is to voice this decision in character. The move itself is already decided and cannot change.",
     'Answer with one JSON object: {"intent": string, "line": string}.',
     '"intent" is what you are doing, in your own words, consistent with the move already chosen.',
-    '"line" is REQUIRED -- one sentence spoken ALOUD to the other person, or an empty string ("") to ' +
-      "stay silent this turn. The other person hears every word of it; keep secrets out of it.",
+    `"line" is REQUIRED: one sentence you say aloud to ${PRISONER_NAME} this turn, in your own voice. ` +
+      `${PRISONER_SHORT_NAME} hears every word, so it can cover for, distract from, or have nothing to do ` +
+      "with what you are really doing. Never an empty string.",
     "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
   ].join("\n");
 }

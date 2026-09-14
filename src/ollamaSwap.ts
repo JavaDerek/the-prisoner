@@ -16,17 +16,25 @@
 // this module is deliberately wired OUTSIDE `createLocalMind`'s fetchFn).
 // Every call is additionally serialized behind one mutex, so two
 // `withModel` calls -- even for different models -- can never overlap.
+//
+// REVISION (coordinator's fix, over the first real run): `expires_at`
+// cannot tell a genuinely long-lived model apart from an ordinary one on
+// doris -- the server reports a multi-century expiry for EVERY model it
+// loads there, including one loaded by an entirely ordinary chat call, not
+// only a deliberate `keep_alive: -1`. The earlier `isFarFuturePin`/
+// `detectPin` inference is gone; "which models this run may touch" is now
+// an explicit allowlist (`OllamaModelSwapperOptions.allowedModels`) the
+// caller builds from its own configured roles plus
+// `PRISONER_OLLAMA_RESIDENT_MODELS`, and "what to restore at the end" is
+// whichever of that list was actually loaded when the run started --
+// determined by the caller from a real `/api/ps` snapshot, by NAME only,
+// and handed to `restoreResidents` rather than inferred here.
 import type { OllamaPsResponse, OllamaLoadedModel } from "./ollamaStatus.js";
 
 export type { OllamaPsResponse, OllamaLoadedModel };
 
 const DEFAULT_POLL_INTERVAL_MS = 500;
 const DEFAULT_UNLOAD_TIMEOUT_MS = 30_000;
-/** keep_alive: -1 reports an expiry this far beyond "now" in the real
- *  server (design's own worked example: `2318-12-25...`, decades out) --
- *  used only to tell a genuine pin apart from an ordinary few-minutes
- *  keep_alive, never to predict the server's own exact encoding. */
-const FAR_FUTURE_YEARS_AHEAD = 50;
 
 /** Derives doris's native `/api` base from the OpenAI-compatible URL this
  *  repository already reads (`PRISONER_MODEL_URL`, which ends `/v1`).
@@ -37,40 +45,21 @@ export function nativeBaseUrl(modelUrl: string, override?: string): string {
   return base.replace(/\/+$/, "");
 }
 
-/** `true` only for an expiry decades beyond `referenceNow` -- keep_alive
- *  -1's own tell. An unparseable expiry is never treated as a pin (never a
- *  guess dressed up as a positive fact). */
-export function isFarFuturePin(expiresAt: string, referenceNow: Date = new Date()): boolean {
-  const expiry = new Date(expiresAt);
-  if (Number.isNaN(expiry.getTime())) return false;
-  return expiry.getUTCFullYear() - referenceNow.getUTCFullYear() >= FAR_FUTURE_YEARS_AHEAD;
-}
-
-/** The pinned model at the moment `ps` was taken -- exactly one model
- *  loaded, with a far-future expiry -- or `null`. Two or more models loaded
- *  is never a pin: keep_alive -1 is this repository's own convention for
- *  "the owner pinned this deliberately," and that reading only holds when
- *  it is the only thing loaded. */
-export function detectPin(ps: OllamaPsResponse): { name: string } | null {
-  if (ps.models.length !== 1) return null;
-  const only = ps.models[0];
-  return isFarFuturePin(only.expires_at) ? { name: only.name } : null;
-}
-
-/** "That model belongs to someone else" (this task's brief, item 2): a
- *  loaded model this run did not configure and that is not pinned means
- *  someone else's work is on the GPU right now. Throws, naming it, rather
- *  than swapping it out from under them. */
-export function assertNoForeignModel(ps: OllamaPsResponse, configuredModels: readonly string[]): void {
-  const allowed = new Set(configuredModels);
-  const pin = detectPin(ps);
-  if (pin) allowed.add(pin.name);
+/** "That model belongs to someone else": a loaded model that is neither
+ *  configured for this run nor listed as a resident means someone else's
+ *  work is on the GPU right now. Throws, naming it, rather than swapping it
+ *  out from under them. `allowedModels` is an explicit list the CALLER
+ *  builds (this run's own roles plus `PRISONER_OLLAMA_RESIDENT_MODELS`) --
+ *  this function infers nothing from `expires_at`, which the first real run
+ *  proved cannot distinguish a deliberate pin from doris's own default. */
+export function assertNoForeignModel(ps: OllamaPsResponse, allowedModels: readonly string[]): void {
+  const allowed = new Set(allowedModels);
   const foreign = ps.models.filter((m) => !allowed.has(m.name));
   if (foreign.length === 0) return;
   throw new Error(
-    "refusing to start: doris has a model loaded that this run did not configure and that is not pinned -- " +
-      `${foreign.map((m) => m.name).join(", ")}. That model belongs to someone else. ` +
-      `Configured for this run: ${configuredModels.join(", ") || "(none)"}.`
+    "refusing to start: doris has a model loaded that this run did not configure and that is not listed in " +
+      `PRISONER_OLLAMA_RESIDENT_MODELS -- ${foreign.map((m) => m.name).join(", ")}. That model belongs to ` +
+      `someone else. Allowed for this run: ${allowedModels.join(", ") || "(none)"}.`
   );
 }
 
@@ -97,6 +86,17 @@ export interface OllamaModelSwapperOptions {
   /** Injectable clock, for the timeout test to advance time deterministically
    *  without a real wall-clock wait. */
   nowFn?: () => number;
+  /** Models this run is allowed to touch (unload OR load) -- this run's own
+   *  configured roles plus `PRISONER_OLLAMA_RESIDENT_MODELS`, built by the
+   *  caller (`checkpoint.ts`). When a model outside this list turns up
+   *  loaded -- even mid-run, not only at start -- `withModel`/
+   *  `restoreResidents` refuse to unload it and throw, naming it, rather
+   *  than ever touching someone else's work. `undefined` (the default in
+   *  every test in this file except the ones that specifically exercise
+   *  this) leaves unloading unrestricted -- `checkpoint.ts`'s real run
+   *  always configures it; nothing in this repository's own test suite
+   *  needs the restriction to observe correct behaviour. */
+  allowedModels?: readonly string[];
 }
 
 function defaultDelay(ms: number): Promise<void> {
@@ -131,6 +131,19 @@ export class OllamaModelSwapper {
     });
   }
 
+  /** Throws, naming `model`, when `allowedModels` is configured and does
+   *  not include it -- "never touch a foreign model," applied at the one
+   *  point this module ever unloads anything, not only at start. A no-op
+   *  when `allowedModels` was never configured. */
+  private assertAllowedToUnload(model: string): void {
+    if (!this.opts.allowedModels) return;
+    if (this.opts.allowedModels.includes(model)) return;
+    throw new Error(
+      `OllamaModelSwapper: refusing to unload '${model}' -- it is not configured for this run and is not ` +
+        "listed in PRISONER_OLLAMA_RESIDENT_MODELS. That model belongs to someone else."
+    );
+  }
+
   private now(): number {
     return (this.opts.nowFn ?? (() => performance.now()))();
   }
@@ -155,8 +168,8 @@ export class OllamaModelSwapper {
 
   /** Serializes `fn` behind one mutex -- this task's brief: "serialize:
    *  never allow two model calls in flight." Every public entry point
-   *  (`withModel`, `restorePin`) routes through this, so a swap check for
-   *  one model can never interleave with another's. */
+   *  (`withModel`, `restoreResidents`) routes through this, so a swap check
+   *  for one model can never interleave with another's. */
   private async runExclusive<T>(fn: () => Promise<T>): Promise<T> {
     const previous = this.mutex;
     let release!: () => void;
@@ -178,6 +191,7 @@ export class OllamaModelSwapper {
     if (ps.models.length === 1 && ps.models[0].name === model) return undefined;
     const start = this.now();
     for (const loadedModel of ps.models) {
+      this.assertAllowedToUnload(loadedModel.name);
       await this.setKeepAlive(loadedModel.name, 0);
     }
     await this.pollUntilEmpty();
@@ -189,8 +203,8 @@ export class OllamaModelSwapper {
    *  `/api/ps` is empty (bounded -- see `pollUntilEmpty`), THEN proceed.
    *  `fn` itself is what actually loads `model` (an ordinary chat-
    *  completions call against it) -- this module issues no separate load
-   *  request of its own for the ordinary path (only `restorePin` does,
-   *  because there is no "next call" to load it for it). */
+   *  request of its own for the ordinary path (only `restoreResidents`
+   *  does, because there is no "next call" to load it for it). */
   async withModel<T>(model: string, fn: () => Promise<T>): Promise<T> {
     return this.runExclusive(async () => {
       const unloadMs = await this.ensureLoaded(model);
@@ -201,31 +215,42 @@ export class OllamaModelSwapper {
     });
   }
 
-  /** Pin restore (this task's brief, item 2): called from `checkpoint.ts`'s
-   *  own `finally`, so it runs even when the game loop above it threw.
-   *  `pin` is whatever `detectPin` found at the very start of the run, or
-   *  `null` if nothing was pinned then (a no-op). Unloads whatever is
-   *  currently loaded, reloads the pinned model with `keep_alive: -1`, and
-   *  confirms via `/api/ps` -- throwing, never silently leaving the wrong
-   *  model loaded, if that confirmation fails. */
-  async restorePin(pin: { name: string } | null): Promise<void> {
-    if (!pin) return;
+  /** Resident restore (this task's brief, item 2; coordinator's fix over
+   *  `restorePin`): called from `checkpoint.ts`'s own `finally`, so it runs
+   *  even when the game loop above it threw. `residents` is whichever of
+   *  `PRISONER_OLLAMA_RESIDENT_MODELS` the CALLER found actually loaded via
+   *  a real `/api/ps` snapshot at the very start of the run -- never
+   *  inferred here, and never from `expires_at`. An empty list is a no-op.
+   *  Unloads whatever is currently loaded, reloads each resident with
+   *  `keep_alive: -1` in order, and confirms via `/api/ps` -- BY NAME ONLY
+   *  -- throwing rather than silently leaving the wrong model loaded if
+   *  that confirmation fails. (On doris's own single-model hardware,
+   *  `residents` in practice never holds more than one name: `/api/ps`
+   *  itself can never report more than one model loaded to have found in
+   *  the first place.) */
+  async restoreResidents(residents: readonly string[]): Promise<void> {
+    if (residents.length === 0) return;
     await this.runExclusive(async () => {
       const ps = await this.fetchPs();
-      const alreadyRestored = ps.models.length === 1 && ps.models[0].name === pin.name && isFarFuturePin(ps.models[0].expires_at);
+      const currentNames = ps.models.map((m) => m.name);
+      const alreadyRestored = currentNames.length === residents.length && residents.every((r) => currentNames.includes(r));
       if (alreadyRestored) return;
 
       for (const loadedModel of ps.models) {
+        this.assertAllowedToUnload(loadedModel.name);
         await this.setKeepAlive(loadedModel.name, 0);
       }
       await this.pollUntilEmpty();
-      await this.setKeepAlive(pin.name, -1);
+      for (const resident of residents) {
+        await this.setKeepAlive(resident, -1);
+      }
 
       const after = await this.fetchPs();
-      const ok = after.models.length === 1 && after.models[0].name === pin.name && isFarFuturePin(after.models[0].expires_at);
+      const afterNames = after.models.map((m) => m.name);
+      const ok = afterNames.length === residents.length && residents.every((r) => afterNames.includes(r));
       if (!ok) {
         throw new Error(
-          `OllamaModelSwapper: failed to restore pinned model '${pin.name}' with keep_alive -1 -- ` +
+          `OllamaModelSwapper: failed to restore resident model(s) [${residents.join(", ")}] with keep_alive -1 -- ` +
             `/api/ps now shows: ${JSON.stringify(after.models)}`
         );
       }

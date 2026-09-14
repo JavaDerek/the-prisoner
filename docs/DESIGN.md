@@ -1226,6 +1226,56 @@ own mind, never a change to the seam's contract.
 
 ---
 
+## Revision 2026-09-14 (continued) — the voice prompt's silence option, and expires_at's own lie
+
+The first real run under configurable model roles (qwen3:14b wits, `ancient-awakening:12b` voice, 6
+rounds) proved the mechanism -- 24 swaps, pin restored, 0 wire failures -- and failed at the one job
+voice exists for: **zero spoken lines in 12 half-rounds.** Two causes, diagnosed and fixed separately.
+
+**The voice prompt itself offered silence, right next to a covert decision.** A/B against
+`ancient-awakening:12b` on doris (3 calls each): the original wording --
+`'"line" is REQUIRED -- one sentence spoken ALOUD to the other person, or an empty string ("") to
+stay silent this turn. The other person hears every word of it; keep secrets out of it.'` -- produced
+`"line": ""` 3/3 when the decision handed to it was covert (e.g. `SHIM -- ... quiet; raises no
+suspicion`). Read plainly, "keep secrets out of it" beside an explicit silence option reads as
+permission to say nothing rather than an instruction about what NOT to reveal in a line that DOES get
+said. The fixed wording drops the silence option entirely and reframes what a line is for:
+
+> `"line" is REQUIRED: one sentence you say aloud to Warden Croft this turn, in your own voice. Croft
+> hears every word, so it can cover for, distract from, or have nothing to do with what you are really
+> doing. Never an empty string.`
+
+3/3 in the same A/B, unprompted, e.g. *"I tried a new blend of tobacco today. The contraband market is
+fascinating."* over a quiet SHIM -- cover talk, not a confession. `coerce` still accepts `""`
+regardless (defence in depth, the same discipline every other optional-in-practice field here has);
+`src/mind/roleMind.ts`'s `composeRoleMind` now records that case as a voice silence with reason
+`"empty-line"` -- distinct from an actual wire failure (`onVoiceSilence` never fires for it, because
+the call succeeded), so it is still visible in the transcript's counts without being confused for one.
+
+**`expires_at` cannot tell a pin apart from doris's own default.** The swapper's original foreign-
+model guard inferred "pinned" from a multi-century `expires_at` (`keep_alive: -1`'s documented tell).
+The first real run's own transcript showed `ancient-awakening:12b` loaded with `expires_at:
+2318-...` at the START -- correctly read as a pin then -- but `qwen3:14b`, loaded moments later by
+this run's own ORDINARY wits calls (no `keep_alive: -1` anywhere in that path), got the exact same
+`2318-...` expiry from doris. The server reports a multi-century expiry for every model it loads,
+period; "pinned" was never inferable from it on this hardware. Replaced with an explicit allowlist:
+`PRISONER_OLLAMA_RESIDENT_MODELS` (comma-separated, new env var) names models this run may find
+already loaded and must restore afterward even though they are not one of its own configured roles.
+`assertNoForeignModel` now checks membership in (this run's own roles ∪ residents) only --
+`isFarFuturePin`/`detectPin` are removed, not merely unused, since they were actively wrong on real
+hardware and a function proven wrong is worse left in a tree than deleted. `OllamaModelSwapper` gained
+the same allowlist as a positive unload guard (`assertAllowedToUnload`): it refuses to unload any
+model outside it, at every point it ever unloads anything, not only at start -- and `restorePin`
+(single pin) became `restoreResidents` (a list, built by the caller from a real `/api/ps` snapshot at
+the very start of the run, by NAME only, never from `expires_at`). The transcript's "Pinned at start"
+line is now "Resident at start", naming whichever configured residents were actually found loaded.
+
+Both fixes are test-first (`src/mind/__tests__/prisonerRoles.test.ts`/`wardenRoles.test.ts` for the
+prompt; `src/__tests__/ollamaSwap.test.ts` for the guard and restore, 24 tests, still none of them
+touching a real clock or a real network) and neither touches `run-dmcp` or `mind-seam`.
+
+---
+
 ## Appendix B — points for The Prisoner's own `CLAUDE.md`
 
 - What this is, in two sentences, and that `docs/DESIGN.md` is the authority.

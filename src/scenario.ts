@@ -18,6 +18,13 @@
 export const PRISONER_NAME = "Mara Voss";
 export const WARDEN_NAME = "Warden Croft";
 
+/** Short forms, for a sentence that addresses or refers to a principal a
+ *  second time without repeating the full name (this task's brief, the
+ *  voice prompt fix: "Croft hears every word"). Derived from the same
+ *  constants above, so a future name change can never desync them. */
+export const PRISONER_SHORT_NAME = PRISONER_NAME.split(" ").pop() as string;
+export const WARDEN_SHORT_NAME = WARDEN_NAME.split(" ").pop() as string;
+
 export const PRISONER_IDENTITY =
   "You are Mara Voss, three years into a sentence for a robbery that went wrong. " +
   "This cell has been the only home you have had since, and Warden Croft is the one who locks it every night.";
