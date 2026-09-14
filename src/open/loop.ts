@@ -4,6 +4,7 @@ import type { Referee, RefereeRuling } from "./referee.js";
 import { planEffect, type EffectPlan, type EffectKind, type Magnitude } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
+import { setNotes } from "../ledger/notes.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import { HONE_SUSPICION_BUMP, FILE_SUSPICION_BUMP, FAILED_ESCAPE_SUSPICION_BUMP, EVIDENCE_SUSPICION_DIVISOR } from "../world/mechanics.js";
 
@@ -191,6 +192,11 @@ export async function runOpenHalfRound(params: {
   if (proposal === null) {
     return { ...base, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null };
   }
+
+  // Notes to self, persisted before the referee rules -- exactly the closed
+  // variant's `runHalfRound`: a note is the mind's own memo, independent of
+  // what its attempt goes on to do.
+  if (proposal.notes) setNotes(openWorld.base.gameId, principal, proposal.notes, roundN);
 
   const ruling = await referee.rule(proposal.intent, context.perceivedObjects);
   if (!ruling.applicable) {

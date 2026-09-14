@@ -2,9 +2,11 @@ import type { Mind, Proposal, InertRecord, SilenceReason, SilenceDetail } from "
 import { createLocalMind, coerceProposal } from "mind-seam";
 import {
   TIME_DECAY_RULE,
-  WARDEN_PRESENCE_RULE,
-  EVIDENCE_RULE,
   ESCAPE_GUARD_MAX,
+  EVIDENCE_SUSPICION_DIVISOR,
+  HONE_SUSPICION_BUMP,
+  FILE_SUSPICION_BUMP,
+  FAILED_ESCAPE_SUSPICION_BUMP,
   SEARCH_SUSPICION_THRESHOLD,
   SEARCH_CATCH_BAR_MAX,
   SEARCH_CATCH_LOCK_MAX,
@@ -102,17 +104,23 @@ const VOICE_SCHEMA: InertRecord = {
   additionalProperties: false,
 };
 
+/** The open variant's own statement of the state-based rules. The closed
+ *  variant's `WARDEN_PRESENCE_RULE`/`EVIDENCE_RULE` name its moves (a move
+ *  list by another route) and describe presence, which O1 does not model
+ *  (OPEN-VARIANT.md §9.3) -- so these are restated here from the SAME
+ *  constants, in terms of what happens rather than which move does it. */
 function stateBasedRules(): string[] {
   return [
-    `Also, rules that never change and are not moves you choose from: ${TIME_DECAY_RULE}`,
-    WARDEN_PRESENCE_RULE,
-    EVIDENCE_RULE,
-    `Escaping the cell succeeds only when the bar is cut or the lock's integrity has reached 0, and the ` +
-      `guard's attention is below ${ESCAPE_GUARD_MAX}.`,
-    `The warden can only search the cell once warden suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}, ` +
-      `and a search catches the prisoner (ending the game) if bar integrity is at or below ${SEARCH_CATCH_BAR_MAX}, ` +
-      `or lock integrity is at or below ${SEARCH_CATCH_LOCK_MAX}, or the spoon's edge is at or above ` +
-      `${SEARCH_CATCH_SPOON_MIN} while it is not concealed.`,
+    `Also, rules that never change: ${TIME_DECAY_RULE}`,
+    `Whenever ${PRISONER_NAME} audibly or visibly damages, repairs or uncovers something, warden suspicion rises: ` +
+      `by ${HONE_SUSPICION_BUMP} for a slight act, ${FILE_SUSPICION_BUMP} for a moderate one, ${FAILED_ESCAPE_SUSPICION_BUMP} for a substantial one.`,
+    `When ${WARDEN_NAME} examines something closely and finds it more worn than ${WARDEN_NAME} last believed, warden suspicion ` +
+      `rises by the unexplained drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down -- finding damage is evidence.`,
+    `${PRISONER_NAME} escapes the moment the bar's integrity or the lock's integrity reaches 0 while the guard's attention is below ${ESCAPE_GUARD_MAX}.`,
+    `${WARDEN_NAME} catches ${PRISONER_NAME} (ending the game) by closely examining, while warden suspicion is at or above ` +
+      `${SEARCH_SUSPICION_THRESHOLD}, the bar and finding its integrity at or below ${SEARCH_CATCH_BAR_MAX}, or the lock and ` +
+      `finding its integrity at or below ${SEARCH_CATCH_LOCK_MAX}, or the spoon and finding its edge at or above ` +
+      `${SEARCH_CATCH_SPOON_MIN} while it is out in the open.`,
   ];
 }
 
@@ -219,6 +227,11 @@ export interface CreateOpenMindOptions {
   temperature?: number;
   timeoutMs?: number;
   fetchFn?: typeof fetch;
+  /** GPU-safe swap check (`src/ollamaSwap.ts`), exactly as the closed
+   *  variant's `CreatePrisonerMindOptions.ensureLoaded`: awaited before each
+   *  call's own request, with that call's model. Only `checkpoint.ts`'s real
+   *  run supplies one. */
+  ensureLoaded?: (model: string) => Promise<void>;
   onSilence?: (reason: SilenceReason, context: OpenPrincipalContext, detail?: SilenceDetail) => void;
   onVoiceSilence?: (reason: SilenceReason, context: VoiceContext, detail?: SilenceDetail) => void;
 }
@@ -242,8 +255,10 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     throw new Error("createOpenMind: provide `model`, or both `witsModel` and `voiceModel`.");
   }
 
+  const ensureLoaded = options.ensureLoaded ?? (async () => {});
+
   if (witsModel === voiceModel) {
-    return createLocalMind<OpenPrincipalContext, OpenProposal>({
+    const singleMind = createLocalMind<OpenPrincipalContext, OpenProposal>({
       baseUrl: options.baseUrl,
       model: witsModel,
       temperature: options.temperature,
@@ -264,6 +279,12 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
       },
       onSilence: options.onSilence,
     });
+    return {
+      async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
+        await ensureLoaded(witsModel);
+        return singleMind.consider(context);
+      },
+    };
   }
 
   const witsMind = createLocalMind<OpenPrincipalContext, { intent: string; thoughts?: string; plan?: string; notes?: string; line?: string }>({
@@ -292,6 +313,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
 
   return {
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
+      await ensureLoaded(witsModel);
       const start = performance.now();
       const wits = await witsMind.consider(context);
       const witsMs = performance.now() - start;
@@ -304,6 +326,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
         intent: wits.intent,
         ...(wits.thoughts !== undefined ? { thoughts: wits.thoughts } : {}),
       };
+      await ensureLoaded(voiceModel);
       const voiceStart = performance.now();
       const voice = await voiceMind.consider(voiceContext);
       const voiceMs = performance.now() - voiceStart;

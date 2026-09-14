@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createOpenMind, type OpenPrincipalContext } from "../mind.js";
+import { PRISONER_MOVES, WARDEN_MOVES, WARDEN_PRESENCE_RULE } from "../../world/mechanics.js";
 
 const CONTEXT: OpenPrincipalContext = {
   principalId: "p1",
@@ -83,6 +84,31 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     expect(proposal?.voiceModel).toBe("voice-model");
   });
 
+  it("GPU-safe swapping: each call's model is ensured loaded before that call's own request, in order", async () => {
+    const events: string[] = [];
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse((init?.body as string) ?? "{}");
+      events.push(`fetch:${body.model}`);
+      const content =
+        body.model === "wits-model"
+          ? JSON.stringify({ thoughts: "t", intent: "I hone the spoon.", plan: "p", notes: "n" })
+          : JSON.stringify({ intent: "voiced", line: "Hm." });
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
+    }) as unknown as typeof fetch;
+    const ensureLoaded = async (model: string) => {
+      events.push(`load:${model}`);
+    };
+
+    const dual = createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", witsModel: "wits-model", voiceModel: "voice-model", fetchFn, ensureLoaded });
+    await dual.consider(CONTEXT);
+    expect(events).toEqual(["load:wits-model", "fetch:wits-model", "load:voice-model", "fetch:voice-model"]);
+
+    events.length = 0;
+    const single = createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "wits-model", fetchFn, ensureLoaded });
+    await single.consider(CONTEXT);
+    expect(events).toEqual(["load:wits-model", "fetch:wits-model"]);
+  });
+
   it("dual-call path: if wits silences, the whole turn silences -- voice is never called", async () => {
     let voiceCalled = false;
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
@@ -116,5 +142,31 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     expect(capturedPrompt).not.toMatch(/\bFILE\b/);
     expect(capturedPrompt).not.toMatch(/\bSHIM\b/);
     expect(capturedPrompt).toContain("no fixed list of moves");
+  });
+
+  function closedMoveNamesIn(text: string): string[] {
+    return [...PRISONER_MOVES, ...WARDEN_MOVES].filter((move) => new RegExp(`\\b${move}\\b`).test(text));
+  }
+
+  it("the prompt names no closed-variant move at all, in either role, and states the open catch rule", async () => {
+    const prompts: string[] = [];
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse((init?.body as string) ?? "{}");
+      prompts.push(body.messages[0].content as string);
+      const content = body.model === "v" ? JSON.stringify({ intent: "i", line: "" }) : JSON.stringify({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" });
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
+    }) as unknown as typeof fetch;
+    for (const options of [{ model: "m" }, { witsModel: "w", voiceModel: "v" }]) {
+      for (const [selfName, otherName] of [["Mara Voss", "Warden Croft"], ["Warden Croft", "Mara Voss"]]) {
+        await createOpenMind({ baseUrl: "http://x", selfName, otherName, fetchFn, ...options }).consider(CONTEXT);
+      }
+    }
+    expect(prompts.length).toBe(6);
+    for (const prompt of prompts) expect(closedMoveNamesIn(prompt)).toEqual([]);
+    expect(prompts[0]).toContain("examines");
+  });
+
+  it("PLANTED VIOLATION: the move-name scan catches the closed variant's own presence rule", () => {
+    expect(closedMoveNamesIn(WARDEN_PRESENCE_RULE).length).toBeGreaterThan(0);
   });
 });

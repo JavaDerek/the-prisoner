@@ -1,0 +1,95 @@
+import type { Resolver } from "run-dmcp";
+import type { OpenWorld } from "./world.js";
+import type { Referee } from "./referee.js";
+import type { OpenMind } from "./mind.js";
+import { runOpenHalfRound, type OpenHalfRoundResult } from "./loop.js";
+import { checkOpenGameEnd, type OpenGameEnd } from "./gameEnd.js";
+import { buildOpenContext, type OpenNews } from "./briefing.js";
+import { renderOwnOutcome, renderForOther } from "./perception.js";
+import { seedInitialBeliefs, type Principal } from "../ledger/beliefs.js";
+import { TIME_DECAY_AMOUNT } from "../world/mechanics.js";
+import { RESOURCE_MIN, RESOURCE_MAX } from "../world/setup.js";
+
+/**
+ * The open variant's round loop (issue #2, step 1) -- the closed checkpoint's
+ * loop shape, with the open action layer: warden then prisoner each round,
+ * `runOpenHalfRound` for each, `checkOpenGameEnd` after every half-round
+ * (catch only after a WARDEN's reveal, OPEN-VARIANT.md §9.3), and time decay
+ * once per full round that did not end the game.
+ *
+ * Shared with the closed variant, unchanged: the half-round clock, the belief
+ * store (seeded with the same starting truths), notes (persisted inside
+ * `runOpenHalfRound`). Warden presence is NOT modelled in O1 (§9.3's last
+ * bullet); every non-silent act reaches the other principal.
+ *
+ * News is held here, in memory, per principal: after each half-round the
+ * actor's own outcome goes to the actor's next briefing, and what the other
+ * could perceive goes to the other's. Each principal's inbox is emptied when
+ * its next briefing is built, so news is never repeated.
+ */
+export interface OpenGameResult {
+  halves: OpenHalfRoundResult[];
+  ended: OpenGameEnd;
+  endedAtRound: number | null;
+}
+
+export async function runOpenGame(params: {
+  openWorld: OpenWorld;
+  resolver: Resolver;
+  referee: Referee;
+  wardenMind: OpenMind;
+  prisonerMind: OpenMind;
+  rounds: number;
+  onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
+}): Promise<OpenGameResult> {
+  const { openWorld, resolver, referee, rounds } = params;
+  const gameId = openWorld.base.gameId;
+  const clock = openWorld.base.clock;
+  seedInitialBeliefs(openWorld.base);
+
+  const inbox: Record<Principal, { ownOutcome?: string; fromOther: string[] }> = {
+    warden: { fromOther: [] },
+    prisoner: { fromOther: [] },
+  };
+  const halves: OpenHalfRoundResult[] = [];
+  const minds: Record<Principal, OpenMind> = { warden: params.wardenMind, prisoner: params.prisonerMind };
+
+  for (let n = 1; n <= rounds; n++) {
+    for (const principal of ["warden", "prisoner"] as const) {
+      const other: Principal = principal === "warden" ? "prisoner" : "warden";
+      const t = principal === "warden" ? clock.wardenT(n) : clock.prisonerT(n);
+
+      const news: OpenNews = { ...inbox[principal] };
+      inbox[principal] = { fromOther: [] };
+      const context = buildOpenContext(openWorld, principal, t, n, rounds, news);
+
+      const half = await runOpenHalfRound({ openWorld, resolver, referee, principal, roundN: n, t, context, mind: minds[principal] });
+      halves.push(half);
+
+      const ownOutcome = renderOwnOutcome(half);
+      if (ownOutcome) inbox[principal].ownOutcome = ownOutcome;
+      inbox[other].fromOther.push(...renderForOther(half));
+
+      await params.onHalfRound?.(half);
+
+      const ended = checkOpenGameEnd(openWorld, t, principal === "warden" ? (half.revealFor ?? undefined) : undefined);
+      if (ended) return { halves, ended, endedAtRound: n };
+    }
+
+    // Time decay, once per full round -- an audited resolution through the
+    // same generic wear every other open effect uses, never a direct write.
+    resolver.resolve({
+      gameId,
+      mechanic: "OPEN_WEAR",
+      parameters: {
+        resourceId: openWorld.base.resources.guardAttention,
+        amount: TIME_DECAY_AMOUNT,
+        min: RESOURCE_MIN,
+        max: RESOURCE_MAX,
+        description: "Time passes; the guard's attention wanes.",
+      },
+    });
+  }
+
+  return { halves, ended: null, endedAtRound: null };
+}

@@ -7,6 +7,7 @@ import { buildOpenResolver } from "../mechanics.js";
 import { createReferee, type Referee, type RefereeRuling } from "../referee.js";
 import { runOpenHalfRound } from "../loop.js";
 import { getBelief, setBelief } from "../../ledger/beliefs.js";
+import { getNotes } from "../../ledger/notes.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
 
 const BAR_PERCEPTION = { id: "bar", description: "One of five vertical iron bars... Rust has pitted it near the bottom." };
@@ -62,6 +63,26 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
     expect(result.ruling).toBeNull();
     expect(result.outcome).toBeNull();
     expect(result.perceptionForOther).toBeNull();
+  });
+
+  it("a proposal's notes persist for this principal alone, even when its attempt is ruled impossible", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I will the bars apart.", notes: "Try the lock next." });
+
+    await runOpenHalfRound({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: inapplicableReferee(),
+      principal: "prisoner",
+      roundN: 2,
+      t: openWorld.base.clock.prisonerT(2),
+      context: context(openWorld),
+      mind,
+    });
+
+    expect(getNotes(openWorld.base.gameId, "prisoner")).toBe("Try the lock next.");
+    expect(getNotes(openWorld.base.gameId, "warden")).toBeNull();
   });
 
   it("an inapplicable ruling (no grounds) does nothing -- invariant 3", async () => {
