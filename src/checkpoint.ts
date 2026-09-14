@@ -116,7 +116,21 @@ function finalResourceValues(world: World): string[] {
   return lines;
 }
 
-function renderHalfRound(world: World, half: HalfRoundResult): string[] {
+/** Item 9: the checkpoint's own side channel (see prisonerMind.ts's/
+ *  wardenMind.ts's `onRawAnswer` for the wire-side half). Reset before
+ *  every `mind.consider()` call this script makes and read immediately
+ *  after, so a stale answer from a previous round can never be mistaken
+ *  for this one's. */
+interface RawAnswerHolder {
+  captured: boolean;
+  raw: unknown;
+}
+
+function freshRawAnswerHolder(): RawAnswerHolder {
+  return { captured: false, raw: undefined };
+}
+
+function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnswerHolder): string[] {
   const lines: string[] = [];
   lines.push(`### Half-round ${half.t - world.clock.t0} (t=${half.t}) -- the ${half.principal}`);
   lines.push("");
@@ -128,6 +142,17 @@ function renderHalfRound(world: World, half: HalfRoundResult): string[] {
   const r = half.result;
   if (r.kind === "silent") {
     lines.push(`**Silence.** SilenceReason: \`${r.reason ?? "unknown"}\`.`);
+    if (r.reason === "rejected") {
+      // Item 9: the model's raw parsed answer, verbatim -- never a guess
+      // at what it "must have meant". `rejected` means coerce DID see a
+      // parsed object (a choice outside `moves`, or some other shape
+      // coerce refused), so there is always something captured here; if
+      // there genuinely were not, this says so rather than inventing one.
+      lines.push("**Raw answer (rejected):**");
+      lines.push("```json");
+      lines.push(rawAnswer.captured ? JSON.stringify(rawAnswer.raw, null, 2) : "(no raw answer was captured)");
+      lines.push("```");
+    }
     if (r.loud) {
       lines.push(`**${loudSilenceMessage(half.principal, MODEL_URL, MODEL, r.reason, 2)}**`);
     }
@@ -187,17 +212,26 @@ async function main(): Promise<void> {
   const prisonerTracker = newSilenceTracker();
   const timings: Timing[] = [];
 
+  // Item 9: mutable holders the checkpoint owns; reset before each round's
+  // call, read right after. `onRawAnswer` fires from inside coerce
+  // (prisonerMind.ts/wardenMind.ts), which is the only place with the raw
+  // parsed object.
+  let wardenRawAnswer = freshRawAnswerHolder();
+  let prisonerRawAnswer = freshRawAnswerHolder();
+
   const wardenMind = createWardenMind({
     baseUrl: MODEL_URL,
     model: MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
     onSilence: (reason) => noteSilenceReason(wardenTracker, reason),
+    onRawAnswer: (raw) => (wardenRawAnswer = { captured: true, raw }),
   });
   const prisonerMind = createPrisonerMind({
     baseUrl: MODEL_URL,
     model: MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
     onSilence: (reason) => noteSilenceReason(prisonerTracker, reason),
+    onRawAnswer: (raw) => (prisonerRawAnswer = { captured: true, raw }),
   });
 
   const transcript: string[] = [];
@@ -227,6 +261,7 @@ async function main(): Promise<void> {
 
     const tw = world.clock.wardenT(n);
     const wardenContext = buildWardenContext(world, wardenPlan, tw);
+    wardenRawAnswer = freshRawAnswerHolder();
     const wStart = performance.now();
     const wardenHalf = await runHalfRound({
       world,
@@ -240,10 +275,11 @@ async function main(): Promise<void> {
       tracker: wardenTracker,
     });
     timings.push({ round: n, principal: "warden", ms: performance.now() - wStart, silent: wardenHalf.result.kind === "silent" });
-    transcript.push(...renderHalfRound(world, wardenHalf));
+    transcript.push(...renderHalfRound(world, wardenHalf, wardenRawAnswer));
 
     const tp = world.clock.prisonerT(n);
     const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp);
+    prisonerRawAnswer = freshRawAnswerHolder();
     const pStart = performance.now();
     const prisonerHalf = await runHalfRound({
       world,
@@ -257,7 +293,7 @@ async function main(): Promise<void> {
       tracker: prisonerTracker,
     });
     timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
-    transcript.push(...renderHalfRound(world, prisonerHalf));
+    transcript.push(...renderHalfRound(world, prisonerHalf, prisonerRawAnswer));
   }
 
   transcript.push("## Final state");
