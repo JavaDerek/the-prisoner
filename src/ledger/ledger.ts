@@ -531,11 +531,40 @@ function renderAttempt(gameId: string, row: AttemptRow): string {
  * second, prominent rendering of the SAME evidence via the SAME
  * `refusalFactLine`, not a replacement for it.
  */
-export function recentRefusalNote(gameId: string, planId: string, roundN: number): string | null {
+export interface RecentRefusal {
+  /** The refused move's own name -- e.g. "FILE", "SHIM". */
+  move: string;
+  /** The positive fact-and-attribution clause (`refusalFactLine`), with no
+   *  leading capital or trailing period -- callers compose their own
+   *  sentence around it. */
+  factLine: string;
+}
+
+/**
+ * "Refusals are news to the refused side" (coordinator's fix, item 3), and
+ * "stale notes, marked positively" (this task's brief, item 2) both read
+ * from the SAME structural fact: this plan's most recent attempt was a
+ * refusal, and it happened in the round immediately before `roundN` (never
+ * older news, never news from a round this principal has not reached yet).
+ * `null` otherwise. One parsing of the ledger, two renderings built from it
+ * (`recentRefusalNote` below; `briefing.ts`'s own notes-line annotation).
+ */
+export function recentRefusal(gameId: string, planId: string, roundN: number): RecentRefusal | null {
   const attempts = attemptsFor(planId);
   const last = attempts[attempts.length - 1];
   if (!last || last.outcome !== "failed" || last.round_n !== roundN - 1) return null;
-  return `Last round your ${last.move} was refused: ${refusalFactLine(gameId, last)}.`;
+  return { move: last.move, factLine: refusalFactLine(gameId, last) };
+}
+
+/** The exact positive sentence for the TOP of that same principal's very
+ *  NEXT briefing -- see `recentRefusal` for when this fires. The permanent
+ *  record stays exactly where it always was, unchanged, in `renderLedger`'s
+ *  own round-by-round history -- this is a second, prominent rendering of
+ *  the SAME evidence via the SAME `refusalFactLine`, not a replacement. */
+export function recentRefusalNote(gameId: string, planId: string, roundN: number): string | null {
+  const refusal = recentRefusal(gameId, planId, roundN);
+  if (!refusal) return null;
+  return `Last round your ${refusal.move} was refused: ${refusal.factLine}.`;
 }
 
 /** One authored plan step, rendered positively with its own status marked

@@ -20,6 +20,7 @@ import {
   FAILED_ESCAPE_SUSPICION_BUMP,
   SEARCH_SUSPICION_THRESHOLD,
   ESCAPE_GUARD_MAX,
+  EVIDENCE_SUSPICION_DIVISOR,
   barBand,
 } from "../mechanics.js";
 import { readNumericFact } from "../facts.js";
@@ -223,26 +224,91 @@ describe("the-prisoner's mechanics -- every consequential change through resolve
   });
 
   describe("CHECK_LOCK (coordinator's fix -- covert, no grounds needed, closes the covert-irony gap)", () => {
-    it("reveals the true lock_integrity, writes no state, and is covert", () => {
+    it("reveals the true lock_integrity, and writes no state when the revealed value matches the prior belief (no evidence found)", () => {
       fresh();
       world.clock.prisonerT(1);
       resolver.resolve({ gameId: world.gameId, mechanic: "SHIM" }); // lock -> 80
       world.clock.wardenT(2);
-      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK" });
+      // priorBelief matches the true value -- nothing unexplained, so still
+      // no state change (this task's brief, item 1: evidence only fires on
+      // a genuine unexplained drop).
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK", parameters: { priorBelief: 80 } });
       expect(outcome.transitions).toHaveLength(0);
       expect(outcome.result).toMatchObject({ mechanic: "CHECK_LOCK", lockIntegrity: 80 });
     });
 
     it("needs no grounds -- works even at 0 suspicion", () => {
       fresh();
-      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK" });
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK", parameters: { priorBelief: 100 } });
       expect(outcome.result).toMatchObject({ lockIntegrity: 100 });
     });
 
-    it("causes no suspicion change", () => {
+    it("causes no suspicion change when the revealed value matches the prior belief", () => {
       fresh();
-      resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK" });
+      resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK", parameters: { priorBelief: 100 } });
       expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    });
+  });
+
+  describe("evidence becomes grounds -- CHECK_LOCK/OBSERVE raise suspicion from an unexplained drop (coordinator's fix, item 1)", () => {
+    it("CHECK_LOCK raises suspicion by floor(drop / EVIDENCE_SUSPICION_DIVISOR) when the revealed lock_integrity is below the warden's prior belief", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "SHIM" }); // lock -> 80
+      world.clock.wardenT(2);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK", parameters: { priorBelief: 100 } });
+      expect(outcome.result).toMatchObject({ lockIntegrity: 80 });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(Math.floor(20 / EVIDENCE_SUSPICION_DIVISOR));
+    });
+
+    it("CHECK_LOCK defaults the prior belief to 100 when parameters.priorBelief is omitted -- 'or below 100 if it never knew'", () => {
+      fresh();
+      world.clock.prisonerT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "SHIM" }); // lock -> 80
+      world.clock.wardenT(2);
+      resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK" });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(Math.floor(20 / EVIDENCE_SUSPICION_DIVISOR));
+    });
+
+    it("CHECK_LOCK never raises suspicion when the lock is AT OR ABOVE the prior belief -- never a negative bump", () => {
+      fresh();
+      world.clock.wardenT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "CHECK_LOCK", parameters: { priorBelief: 60 } }); // lock is 100, above belief
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    });
+
+    it("OBSERVE raises suspicion by floor(drop / EVIDENCE_SUSPICION_DIVISOR) when the bar has worn down since the prior belief, and its result carries the raw value for the loop's own belief tracking (never shown to the mind as a number)", () => {
+      fresh();
+      for (let n = 1; n <= 2; n++) {
+        world.clock.prisonerT(n);
+        resolver.resolve({ gameId: world.gameId, mechanic: "FILE" }); // bar -> 70, and FILE's own suspicion bump
+      }
+      const suspicionBeforeObserve = getResource(world.resources.wardenSuspicion)?.value as number;
+      world.clock.wardenT(3);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE", parameters: { priorBelief: 100 } });
+      expect(outcome.result).toMatchObject({ barBand: "worn", barIntegrity: 70 });
+      // Isolate OBSERVE's own evidence bump from FILE's already-applied
+      // suspicion (a separate channel entirely).
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(suspicionBeforeObserve + Math.floor(30 / EVIDENCE_SUSPICION_DIVISOR));
+    });
+
+    it("OBSERVE raises no suspicion when the bar matches the prior belief", () => {
+      fresh();
+      world.clock.wardenT(1);
+      resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE", parameters: { priorBelief: 100 } });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(0);
+    });
+
+    it("OBSERVE defaults the prior belief to 100 when omitted", () => {
+      fresh();
+      for (let n = 1; n <= 2; n++) {
+        world.clock.prisonerT(n);
+        resolver.resolve({ gameId: world.gameId, mechanic: "FILE" }); // bar -> 70, and FILE's own suspicion bump
+      }
+      const suspicionBeforeObserve = getResource(world.resources.wardenSuspicion)?.value as number;
+      world.clock.wardenT(3);
+      resolver.resolve({ gameId: world.gameId, mechanic: "OBSERVE" });
+      expect(getResource(world.resources.wardenSuspicion)?.value).toBe(suspicionBeforeObserve + Math.floor(30 / EVIDENCE_SUSPICION_DIVISOR));
     });
   });
 

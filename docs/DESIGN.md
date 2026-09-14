@@ -1110,6 +1110,53 @@ alternating toward SEARCH once suspicion allows it) closes the gap is a real-run
 
 ---
 
+## Revision 2026-09-14 (continued) — evidence becomes grounds; stale notes marked
+
+Iteration 8's review: a real run's own warden said it in its thoughts — *"I can't directly raise
+suspicion."* SHIM is silent by design, so a quiet shimmer that never touches the bar gave the warden
+no channel at all toward grounds, no matter how long the game ran. Two fixes, one per side.
+
+**Evidence becomes grounds.** CHECK_LOCK and OBSERVE now compare what they reveal against the
+warden's own PRIOR belief of that resource (`lock_integrity` for CHECK_LOCK, `bar_integrity` for
+OBSERVE) — passed in by `loop.ts` as an opaque `Proposal.parameters.priorBelief`, read by the
+mechanic (`world/mechanics.ts`'s `evidenceBump`), never by a second belief-store read inside
+`AdjudicationInput`, which has no database handle at all. When the revealed value is BELOW that
+belief (or below 100, "if it never knew"), `warden_suspicion` rises by the unexplained drop divided
+by `EVIDENCE_SUSPICION_DIVISOR` (one constant, `= 2`), rounded down — never a negative bump when the
+value is at or above belief. After a successful resolution, `loop.ts` writes the newly revealed true
+value back into that SAME belief entry (CHECK_LOCK's own channel already did this for
+`lock_integrity`; OBSERVE now does it for `bar_integrity` too, via a new `barIntegrity` field on its
+own `result` — read by the loop alone, never rendered to any mind, which is still only ever told the
+band via `barBand`). This is what keeps evidence bounded: a later check only ever detects FURTHER
+wear, never rediscovers the same drop forever. The rule is stated to both sides — `MOVE_DESCRIPTIONS`
+for CHECK_LOCK/OBSERVE (the warden's own moves) and a new shared `EVIDENCE_RULE` (interpolated from
+the same divisor, rendered into both prompts, since the prisoner has neither move itself and would
+otherwise never read the per-move text at all).
+
+**What the balance tests found.** A quiet, naive shimmer against a warden that alternates
+CHECK_LOCK/WAIT and reactively SEARCHes once it has grounds gets caught cleanly: cumulative evidence
+crosses the threshold in the same round the lock finishes opening, so the prisoner's own turn that
+round is spent finishing the job, not escaping, and the warden's very next turn searches and catches
+(`SEARCH_CATCH_LOCK_MAX` is always already crossed by the time evidence alone reaches
+`SEARCH_SUSPICION_THRESHOLD`, given the current numbers — not a coincidence worth tuning around, a
+genuine trap for a mind that doesn't adapt). A prisoner that opens with one INSPECT — costing it a
+round, but shifting every later SHIM off the warden's own check parity — finishes with its LAST shim
+landing on a round the warden does NOT check; the warden's next check then reveals an already-fully-
+open lock, and the prisoner's OWN turn immediately after that same reveal (warden acts first each
+round) is free to escape, one full warden turn before a reactive SEARCH ever gets a chance to fire.
+No number needed tuning — the win condition is a genuine timing exploit, not a numeric gap, and both
+tests pass against the exact same warden script.
+
+**Stale notes, marked positively.** A proposal's `notes` and its `choice` come from the same
+`mind.consider()` call, so when that same half-round's move was refused, the notes were necessarily
+written before the mind ever learned of it. `ledger.ts`'s `recentRefusal` (a structural refactor of
+the refusal-news check, item 3's original `recentRefusalNote` now built from it) is read a second
+time by `briefing.ts` to mark the notes line itself: `"Your notes from last round (written before
+your SHIM was refused): …"` instead of the plain `"Your notes from last round: …"` — so the mind
+knows, without inference, which of the two lines above its own plan is the fresher one.
+
+---
+
 ## Appendix B — points for The Prisoner's own `CLAUDE.md`
 
 - What this is, in two sentences, and that `docs/DESIGN.md` is the authority.

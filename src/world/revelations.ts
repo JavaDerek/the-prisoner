@@ -19,6 +19,15 @@ export function describeInspection(result: InspectResult): string {
 export interface ObserveResult {
   barBand: string;
   spoonEdge?: number;
+  /** Evidence becomes grounds (coordinator's fix, item 1): the raw
+   *  `bar_integrity` the mechanic itself read to compute its own evidence
+   *  check and to render `barBand` -- read by `loop.ts` alone, to update
+   *  the warden's own belief store entry so a later OBSERVE only detects
+   *  FURTHER wear. Never rendered here: `describeObservation` below reads
+   *  only `barBand`/`spoonEdge`, so this number never reaches any ledger
+   *  note or prompt as a number -- the mind is still only ever told the
+   *  band. */
+  barIntegrity: number;
 }
 
 export function describeObservation(result: ObserveResult): string {

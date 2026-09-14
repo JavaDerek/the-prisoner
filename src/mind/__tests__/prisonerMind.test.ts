@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { buildPrisonerPrompt, coercePrisonerProposal, createPrisonerMind, type PrisonerContext } from "../prisonerMind.js";
-import { MOVE_DESCRIPTIONS, PRISONER_MOVES } from "../../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, PRISONER_MOVES, EVIDENCE_SUSPICION_DIVISOR } from "../../world/mechanics.js";
 
 const context: PrisonerContext = {
   principalId: "prisoner-1",
@@ -60,6 +60,12 @@ describe("buildPrisonerPrompt -- pure, built from context alone", () => {
     expect(prompt.toLowerCase()).toContain("corridor");
     expect(prompt.toLowerCase()).toContain("yard");
     expect(prompt.toLowerCase()).toContain("hears nothing");
+  });
+
+  it("coordinator's fix, item 1 -- states the evidence rule (CHECK_LOCK/OBSERVE turn an unexplained drop into suspicion), even though the prisoner has neither move itself", () => {
+    const prompt = buildPrisonerPrompt(context);
+    expect(prompt.toLowerCase()).toContain("evidence");
+    expect(prompt).toContain(String(EVIDENCE_SUSPICION_DIVISOR));
   });
 });
 

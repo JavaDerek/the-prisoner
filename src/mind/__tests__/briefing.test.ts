@@ -238,6 +238,53 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     expect(laterBriefing).toContain("FILE was refused"); // still in the ledger history.
   });
 
+  it("stale notes, marked positively (coordinator's fix, item 2) -- when the SAME half-round's move was refused, the notes line says so, naming the refused move", () => {
+    fresh();
+    const resolver = buildResolver(world);
+    const plan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "FILE", description: "file" }] });
+
+    // Round 1: the prisoner FILEs for real (bar 100 -> 85).
+    world.clock.prisonerT(1);
+    resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+
+    // Round 2: the warden REPLACE_BARs -- covert -- resetting the bar.
+    const tw = world.clock.wardenT(2);
+    resolver.resolve({ gameId: world.gameId, mechanic: "REPLACE_BAR" });
+    logRound({ gameId: world.gameId, t: tw, roundN: 2, principal: "warden", mechanic: "REPLACE_BAR", description: null });
+
+    // Round 2: the prisoner's proposal that round carried BOTH a stale-belief
+    // FILE (refused) AND notes -- exactly as a real proposal would (one
+    // mind.consider() call produces both fields together).
+    const tp = world.clock.prisonerT(2);
+    let caught: unknown;
+    try {
+      resolver.resolve({ gameId: world.gameId, mechanic: "FILE", expects: [{ entityId: world.resources.barIntegrity, key: "value", value: 85 }] });
+    } catch (err) {
+      caught = err;
+    }
+    recordFailure({ gameId: world.gameId, plan, roundN: 2, t: tp, move: "FILE", error: caught as ResolveProtocolError });
+    setNotes(world.gameId, "prisoner", "Bar should be at 70 now. Keep filing.", 2);
+
+    // Round 3: the notes line is marked positively -- the mind can tell its
+    // own notes were written BEFORE it learned of the refusal stated just
+    // above them.
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(3), plan, 12);
+    expect(briefing).toContain(
+      "Your notes from last round (written before your FILE was refused): Bar should be at 70 now. Keep filing."
+    );
+    // The plain, unmarked wording never also appears for this round.
+    expect(briefing).not.toContain("Your notes from last round: Bar should be at 70 now.");
+  });
+
+  it("stale notes -- when nothing was refused last round, the notes line stays plain, unmarked", () => {
+    fresh();
+    const plan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "WAIT", description: "wait" }] });
+    setNotes(world.gameId, "prisoner", "Keep an eye on suspicion.", 1);
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(2), plan, 12);
+    expect(briefing).toContain("Your notes from last round: Keep an eye on suspicion.");
+    expect(briefing).not.toContain("written before");
+  });
+
   it("warden presence (coordinator's fix, item 2) -- the prisoner's briefing states the away-line when the warden's last move was AWAY", () => {
     fresh();
     logRound({ gameId: world.gameId, t: world.clock.wardenT(1), roundN: 1, principal: "warden", mechanic: "CHECK_LOCK", description: null });

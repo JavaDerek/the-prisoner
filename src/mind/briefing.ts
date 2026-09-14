@@ -1,6 +1,6 @@
 import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
-import { renderLedger, renderPlan, mostRecentVisibleActFor, recentRefusalNote, mostRecentWardenMechanic, type Plan } from "../ledger/ledger.js";
+import { renderLedger, renderPlan, mostRecentVisibleActFor, recentRefusal, mostRecentWardenMechanic, type Plan } from "../ledger/ledger.js";
 import { getBelief, renderBeliefLine, type Principal } from "../ledger/beliefs.js";
 import { getNotes } from "../ledger/notes.js";
 import { PRISONER_MOVES, WARDEN_MOVES, SEARCH_SUSPICION_THRESHOLD, isWardenAway, wardenAwayLine } from "../world/mechanics.js";
@@ -74,10 +74,11 @@ export function buildBriefing(
   // principal's own most recent attempt was a refusal in the round
   // immediately before this one -- never older news, never repeated
   // forever. The permanent record stays in the ledger history below,
-  // unchanged.
-  if (plan) {
-    const refusalNote = recentRefusalNote(world.gameId, plan.id, roundN);
-    if (refusalNote) lines.push(refusalNote);
+  // unchanged. Kept (not just the rendered string) so the notes line below
+  // can mark itself stale against the SAME refusal, by name.
+  const refusal = plan ? recentRefusal(world.gameId, plan.id, roundN) : null;
+  if (refusal) {
+    lines.push(`Last round your ${refusal.move} was refused: ${refusal.factLine}.`);
   }
 
   lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
@@ -87,9 +88,21 @@ export function buildBriefing(
   // other's (the fog property `privateFields.test.ts` checks with a planted
   // marker). Absent entirely until this principal has left itself a note
   // (never a guessed or empty line, root CLAUDE.md hard rule 3).
+  //
+  // Stale notes, marked positively (coordinator's fix, item 2, this
+  // revision): a proposal's `notes` and its `choice` come from the SAME
+  // mind.consider() call, so when THAT call's move was refused (the exact
+  // `refusal` computed just above -- same round, same plan), these notes
+  // were necessarily written before the mind ever learned of the refusal
+  // stated right above them. Marking that ordering explicitly, rather than
+  // leaving the mind to guess which of the two is fresher.
   const notes = getNotes(world.gameId, principal);
   if (notes) {
-    lines.push(`Your notes from last round: ${notes}`);
+    lines.push(
+      refusal
+        ? `Your notes from last round (written before your ${refusal.move} was refused): ${notes}`
+        : `Your notes from last round: ${notes}`
+    );
   }
 
   lines.push(`You share the cell with ${view.otherPrincipal.name ?? "the other person"}.`);

@@ -11,6 +11,7 @@ import {
   SEARCH_CATCH_BAR_MAX,
   SEARCH_CATCH_LOCK_MAX,
   SEARCH_CATCH_SPOON_MIN,
+  EVIDENCE_SUSPICION_DIVISOR,
 } from "../mechanics.js";
 
 describe("MOVE_DESCRIPTIONS -- one plain sentence per registered mechanic (item 2)", () => {
@@ -53,6 +54,13 @@ describe("MOVE_DESCRIPTIONS -- one plain sentence per registered mechanic (item 
 
   it("ROTATE_GUARD's description states its exact level", () => {
     expect(MOVE_DESCRIPTIONS.ROTATE_GUARD).toContain(String(ROTATE_GUARD_LEVEL));
+  });
+
+  it("coordinator's fix, item 1 -- CHECK_LOCK and OBSERVE state the evidence rule with the exact divisor, tied to the constant so a retune can never desync the text", () => {
+    expect(MOVE_DESCRIPTIONS.CHECK_LOCK).toContain(String(EVIDENCE_SUSPICION_DIVISOR));
+    expect(MOVE_DESCRIPTIONS.CHECK_LOCK.toLowerCase()).toContain("evidence");
+    expect(MOVE_DESCRIPTIONS.OBSERVE).toContain(String(EVIDENCE_SUSPICION_DIVISOR));
+    expect(MOVE_DESCRIPTIONS.OBSERVE.toLowerCase()).toContain("evidence");
   });
 });
 

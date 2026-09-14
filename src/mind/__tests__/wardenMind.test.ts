@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { buildWardenPrompt, coerceWardenProposal, createWardenMind, type WardenContext } from "../wardenMind.js";
-import { MOVE_DESCRIPTIONS, WARDEN_MOVES } from "../../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, WARDEN_MOVES, EVIDENCE_SUSPICION_DIVISOR } from "../../world/mechanics.js";
 
 const context: WardenContext = {
   principalId: "warden-1",
@@ -58,6 +58,12 @@ describe("buildWardenPrompt -- pure, built from context alone", () => {
     expect(prompt.toLowerCase()).toContain("corridor");
     expect(prompt.toLowerCase()).toContain("yard");
     expect(prompt.toLowerCase()).toContain("hears nothing");
+  });
+
+  it("coordinator's fix, item 1 -- states the evidence rule with the exact divisor", () => {
+    const prompt = buildWardenPrompt(context);
+    expect(prompt.toLowerCase()).toContain("evidence");
+    expect(prompt).toContain(String(EVIDENCE_SUSPICION_DIVISOR));
   });
 });
 

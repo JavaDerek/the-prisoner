@@ -125,6 +125,26 @@ export const EXPECTS_RESOURCE_FOR_MOVE: Partial<Record<string, BeliefResource>> 
   SHIM: "lock_integrity",
 };
 
+/**
+ * Evidence becomes grounds (coordinator's fix, item 1): which belief
+ * resource a WARDEN move's own evidence check reads its "prior belief"
+ * from -- CHECK_LOCK reads `lock_integrity`, OBSERVE reads `bar_integrity`.
+ * `loop.ts` reads this table to compute the `priorBelief` it passes into
+ * `resolver.resolve()` as an opaque parameter (the mechanic itself has no
+ * database handle and never touches the belief store); after a successful
+ * resolution `loop.ts` also writes the newly revealed true value back into
+ * this SAME belief entry, so a later check only detects FURTHER change,
+ * never rediscovers the same drop forever. A separate table from
+ * `EXPECTS_RESOURCE_FOR_MOVE` on purpose: expects-gating is about the
+ * ACTING principal's own preconditions for a SET/DELTA move; evidence is
+ * about what a warden's own READ move teaches it, and the two move sets
+ * barely overlap (CHECK_LOCK/OBSERVE never appear in the other table).
+ */
+export const EVIDENCE_RESOURCE_FOR_MOVE: Partial<Record<string, BeliefResource>> = {
+  CHECK_LOCK: "lock_integrity",
+  OBSERVE: "bar_integrity",
+};
+
 function entityIdForResource(world: World, resource: BeliefResource): string {
   switch (resource) {
     case "bar_integrity":

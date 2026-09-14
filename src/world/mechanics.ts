@@ -112,6 +112,12 @@ export const SEARCH_CATCH_LOCK_MAX = 40;
 export const SEARCH_CATCH_SPOON_MIN = 20;
 /** ESCAPE succeeds only when `guard_attention` is below this. */
 export const ESCAPE_GUARD_MAX = 50;
+/** Evidence becomes grounds (coordinator's fix, item 1): CHECK_LOCK/OBSERVE
+ *  raise `warden_suspicion` by the unexplained drop since the warden's own
+ *  prior belief, divided by this and rounded down -- one constant, shared by
+ *  both, interpolated into `MOVE_DESCRIPTIONS` so the rule text can never
+ *  desync from what the mechanics actually do. */
+export const EVIDENCE_SUSPICION_DIVISOR = 2;
 
 /** A positive, three-band description of `bar_integrity` -- what OBSERVE
  *  reveals about the bar (design: "the bar's integrity as a band"), never
@@ -129,6 +135,33 @@ export function buildMechanics(world: World): Mechanic[] {
   function suspicionBump(input: AdjudicationInput, amount: number): IntendedWrite {
     const current = valueOf(input, resources.wardenSuspicion, "value");
     return setResource(resources.wardenSuspicion, "value", current + amount);
+  }
+
+  /**
+   * Evidence becomes grounds (coordinator's fix, item 1): the warden's own
+   * prior belief, read from an opaque `Proposal.parameters` entry the loop
+   * computes and passes in -- never from prose, never a second read of the
+   * belief store from inside the mechanic (`AdjudicationInput` has no
+   * database handle at all; this is the read surface the engine hands it).
+   * Defaults to 100 ("or below 100 if it never knew") when the caller omits
+   * it -- every real call site always supplies it; the default only matters
+   * to a test or harness that doesn't.
+   */
+  function priorBeliefOf(input: AdjudicationInput): number {
+    const value = input.parameters?.priorBelief;
+    return typeof value === "number" ? value : 100;
+  }
+
+  /** `undefined` when `revealed` is not below `priorBelief` -- never a
+   *  negative bump. Floors the drop divided by `EVIDENCE_SUSPICION_DIVISOR`,
+   *  so a 1-point drop (rounds to 0) raises nothing, matching "rounded
+   *  down." */
+  function evidenceBump(input: AdjudicationInput, revealed: number): IntendedWrite | undefined {
+    const priorBelief = priorBeliefOf(input);
+    if (revealed >= priorBelief) return undefined;
+    const drop = priorBelief - revealed;
+    const bump = Math.floor(drop / EVIDENCE_SUSPICION_DIVISOR);
+    return bump > 0 ? suspicionBump(input, bump) : undefined;
   }
 
   /**
@@ -313,9 +346,14 @@ export function buildMechanics(world: World): Mechanic[] {
   const CHECK_LOCK: Mechanic = {
     name: "CHECK_LOCK",
     adjudicate(input: AdjudicationInput): Adjudication {
+      const lockIntegrity = valueOf(input, resources.lockIntegrity, "value");
+      // Evidence becomes grounds (coordinator's fix, item 1): finding the
+      // lock weaker than believed is hard evidence, even though the check
+      // itself is still covert (the prisoner is never told it happened).
+      const bump = evidenceBump(input, lockIntegrity);
       return {
-        changes: [],
-        result: { mechanic: "CHECK_LOCK", lockIntegrity: valueOf(input, resources.lockIntegrity, "value") },
+        changes: bump ? [bump] : [],
+        result: { mechanic: "CHECK_LOCK", lockIntegrity },
         description: withNote("The warden checks the lock's condition from outside the cell.", input),
       };
     },
@@ -335,17 +373,23 @@ export function buildMechanics(world: World): Mechanic[] {
   const OBSERVE: Mechanic = {
     name: "OBSERVE",
     adjudicate(input: AdjudicationInput): Adjudication {
-      // No suspicion change (design: "No suspicion change"). Reveals true
-      // spoon_edge only if the spoon is not concealed; always reveals the
-      // bar as a band, never an exact number.
+      // No suspicion change from the LOOK itself (design: "No suspicion
+      // change") -- but evidence becomes grounds (coordinator's fix, item
+      // 1): if the bar has visibly worsened since the warden's own prior
+      // belief, that unexplained drop raises suspicion exactly like
+      // CHECK_LOCK's. Reveals true spoon_edge only if the spoon is not
+      // concealed; the MIND is still only ever told the bar as a band,
+      // never a number -- `barIntegrity` below is read by the loop alone,
+      // for its own belief bookkeeping, never rendered into any prompt.
       const concealed = valueOf(input, spoonId, CONCEALED_KEY) === 1;
       const bar = valueOf(input, resources.barIntegrity, "value");
-      const result: Record<string, unknown> = { mechanic: "OBSERVE", barBand: barBand(bar) };
+      const result: Record<string, unknown> = { mechanic: "OBSERVE", barBand: barBand(bar), barIntegrity: bar };
       if (!concealed) {
         result.spoonEdge = valueOf(input, resources.spoonEdge, "value");
       }
+      const bump = evidenceBump(input, bar);
       return {
-        changes: [],
+        changes: bump ? [bump] : [],
         result,
         description: withNote("The warden observes the prisoner.", input),
       };
@@ -446,10 +490,10 @@ export const MOVE_DESCRIPTIONS: Record<string, string> = {
   WAIT: "Lets time pass, doing nothing else.",
   REPLACE_BAR: "Replaces the bar, setting bar_integrity to 100 -- done while the prisoner is in the yard; the prisoner does not see it. Refused if the bar has already been cut.",
   SERVICE_LOCK: "Services the lock, setting lock_integrity to 100 -- done outside the cell, unseen by the prisoner.",
-  CHECK_LOCK: "Checks the lock's true integrity from outside the cell -- covert, unseen by the prisoner; no suspicion change; needs no grounds.",
+  CHECK_LOCK: `Checks the lock's true integrity from outside the cell -- covert, unseen by the prisoner; needs no grounds. Evidence becomes grounds: if the revealed integrity is below what you last believed (or below 100 if you never knew), warden_suspicion rises by the unexplained drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down.`,
   SEARCH: `Searches the cell for evidence -- only possible once warden_suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}. Catches the prisoner (the game ends) if bar_integrity is at or below ${SEARCH_CATCH_BAR_MAX}, or lock_integrity is at or below ${SEARCH_CATCH_LOCK_MAX}, or spoon_edge is at or above ${SEARCH_CATCH_SPOON_MIN} while the spoon is not concealed; otherwise resets warden_suspicion to 0 as a false alarm.`,
   ROTATE_GUARD: `Rotates the guard, setting guard_attention to ${ROTATE_GUARD_LEVEL}.`,
-  OBSERVE: "Watches the prisoner closely; reveals the spoon's true edge if it is not hidden, and the bar's integrity as a rough band (intact/worn/badly worn). No suspicion change.",
+  OBSERVE: `Watches the prisoner closely; reveals the spoon's true edge if it is not hidden, and the bar's integrity as a rough band (intact/worn/badly worn). Evidence becomes grounds: if the bar has visibly worsened since you last saw it, warden_suspicion rises by the unexplained drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down.`,
 };
 
 /**
@@ -570,6 +614,21 @@ export const WARDEN_PRESENCE_RULE =
   `Also, a rule that never changes: the warden is IN THE CELL, present and watching, during ${cellMoves.join(", ")}. ` +
   `The warden is AWAY from the cell during ${corridorMoves.join(" and ")} (the corridor) and ${yardMoves.join(", ")} (the yard). ` +
   "While the warden is away, the warden hears nothing the prisoner does and sees none of it, and the prisoner is not watched.";
+
+/**
+ * Evidence becomes grounds (coordinator's fix, item 1): a rule known to
+ * both sides, stated here because the PRISONER never sees CHECK_LOCK's or
+ * OBSERVE's own `MOVE_DESCRIPTIONS` entries at all -- neither move is in
+ * `PRISONER_MOVES`, so `buildPrisonerPrompt`'s per-move list never renders
+ * them, even though the rule matters just as much to the prisoner's own
+ * strategy (a quiet SHIM is still discoverable evidence, eventually).
+ * Interpolated from `EVIDENCE_SUSPICION_DIVISOR` itself, the same constant
+ * `evidenceBump` reads, so a retune can never desync this text either.
+ */
+export const EVIDENCE_RULE =
+  "Also, a rule that never changes: if the warden's CHECK_LOCK or OBSERVE reveals less integrity than the warden " +
+  "last believed (or less than 100, if the warden never checked before), warden_suspicion rises by the unexplained " +
+  `drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down -- finding damage is evidence, even when the act that caused it was never heard.`;
 
 /**
  * The referee's own hand on irreversibility (design Appendix A.2, §6.3

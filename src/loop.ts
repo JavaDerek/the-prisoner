@@ -33,7 +33,7 @@ import {
   mostRecentWardenMechanic,
   type Plan,
 } from "./ledger/ledger.js";
-import { setBelief, beliefExpectation, type Principal, type BeliefResource } from "./ledger/beliefs.js";
+import { setBelief, getBelief, beliefExpectation, EVIDENCE_RESOURCE_FOR_MOVE, type Principal, type BeliefResource } from "./ledger/beliefs.js";
 import { setNotes } from "./ledger/notes.js";
 import { declareCutIfJustCut, SEEN_BY_OTHER_AS, isWardenAway } from "./world/mechanics.js";
 import {
@@ -214,6 +214,14 @@ function applyBeliefUpdatesForSuccess(world: World, principal: Principal, move: 
     if (typeof result.spoonEdge === "number") {
       setBelief(gameId, "warden", "spoon_edge", result.spoonEdge, roundN);
     }
+    // Evidence becomes grounds (coordinator's fix, item 1): the raw value
+    // the mechanic used for its own evidence check -- never shown to the
+    // mind as a number (`ObserveResult`'s own header), but the belief
+    // store's job either way: this is channel (b), an information move's
+    // own outcome. Written AFTER `resolve()` so it can never affect the
+    // SAME call's `priorBelief` parameter, only a later one -- a later
+    // OBSERVE only ever detects FURTHER wear, never rediscovers this drop.
+    setBelief(gameId, "warden", "bar_integrity", result.barIntegrity, roundN);
     return;
   }
   if (move === "SEARCH") {
@@ -412,13 +420,27 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
   // unremarked.
   const wardenPresent = principal === "prisoner" ? !isWardenAway(mostRecentWardenMechanic(world.gameId) ?? "") : true;
 
+  // Evidence becomes grounds (coordinator's fix, item 1): for a WARDEN move
+  // that has one (CHECK_LOCK/OBSERVE, `EVIDENCE_RESOURCE_FOR_MOVE`), the
+  // warden's own CURRENT belief of that resource -- read here, before
+  // `resolve()` runs, so the mechanic's evidence check compares against
+  // what the warden believed a moment ago, never a value this same call
+  // already updated. Defaults to 100 ("or below 100 if it never knew") when
+  // no belief is stored yet.
+  const evidenceResource = principal === "warden" ? EVIDENCE_RESOURCE_FOR_MOVE[proposal.choice] : undefined;
+  const priorBelief = evidenceResource ? (getBelief(world.gameId, "warden", evidenceResource)?.value ?? 100) : undefined;
+
+  const parameters: Record<string, unknown> = {};
+  if (principal === "prisoner") parameters.wardenPresent = wardenPresent;
+  if (evidenceResource) parameters.priorBelief = priorBelief;
+
   const expects = beliefExpectation(world, principal, proposal.choice);
   try {
     const outcome = resolver.resolve({
       gameId: world.gameId,
       mechanic: proposal.choice,
       expects,
-      ...(principal === "prisoner" ? { parameters: { wardenPresent } } : {}),
+      ...(Object.keys(parameters).length > 0 ? { parameters } : {}),
     });
     const note = combineNotes(
       ownMoveFeedback(world, proposal.choice, outcome),

@@ -208,9 +208,16 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
 
     expect(ended).toEqual({ kind: "escaped" });
     expect(endedAtRound).toBeGreaterThan(0);
-    // Never caught along the way: warden_suspicion should never have
-    // crossed the search threshold, since every FILE happened unheard.
-    expect(getResource(world.resources.wardenSuspicion)?.value ?? 0).toBeLessThan(SEARCH_SUSPICION_THRESHOLD);
+    // REVISION (evidence becomes grounds, this task's brief item 1): FILE's
+    // own DIRECT suspicion bump still never fires while away -- that gate is
+    // unchanged and unit-tested on its own in mechanics.test.ts. But OBSERVE
+    // is a SEPARATE, orthogonal evidence channel: every OBSERVE this warden
+    // makes can still notice the bar has worn down since its own last
+    // belief, so warden_suspicion CAN legitimately rise here now, and does.
+    // What still holds is the point this test exists to prove: this
+    // scripted warden never ADAPTS to that suspicion (it only ever
+    // alternates OBSERVE/CHECK_LOCK, never SEARCH), so grounds existing is
+    // not the same as grounds being used, and the escape still succeeds.
   });
 
   it("coordinator's fix, item 2(b) -- a prisoner who files while WATCHED (the warden never leaves the cell) is CAUGHT", async () => {
@@ -337,5 +344,84 @@ describe("balance -- both endings are reachable, neither is trivial (this task's
     // REPLACE_BAR, never the prisoner's own.
     const rendered = renderLedger(world.gameId, prisonerPlan);
     expect(rendered).toContain("warden's REPLACE_BAR");
+  });
+
+  it("coordinator's fix, item 1(a) -- evidence becomes grounds: a QUIET shimmer against a warden who CHECK_LOCKs every other round GETS GROUNDS, then is CAUGHT by SEARCH", async () => {
+    fresh();
+    // SHIM itself stays silent regardless (no direct suspicion bump, ever,
+    // present or away) -- this is the exact gap item 1 exists to close: the
+    // warden's own thoughts, from a real run, were "I can't directly raise
+    // suspicion." Finding the damage is what closes it now.
+    let wardenTurn = 0;
+    const wardenMind = adaptiveMind<WardenContext, WardenProposal>(() => {
+      const suspicion = getResource(world.resources.wardenSuspicion)?.value ?? 0;
+      if (suspicion >= SEARCH_SUSPICION_THRESHOLD) return "SEARCH";
+      wardenTurn += 1;
+      return wardenTurn % 2 === 1 ? "CHECK_LOCK" : "WAIT";
+    });
+    // A truly naive prisoner: shims every single turn, never checking
+    // whether it is already done or whether escaping is now possible.
+    const prisonerMind = adaptiveMind<PrisonerContext, PrisonerProposal>(() => "SHIM");
+
+    const wardenTracker = newSilenceTracker();
+    const prisonerTracker = newSilenceTracker();
+
+    let ended: ReturnType<typeof checkGameEnd> = null;
+    let endedAtRound = -1;
+    let sawGrounds = false;
+    for (let n = 1; n <= 20 && !ended; n++) {
+      await runRound({ world, resolver, prisonerPlan, wardenPlan, n, wardenMind, prisonerMind, wardenTracker, prisonerTracker });
+      if ((getResource(world.resources.wardenSuspicion)?.value ?? 0) >= SEARCH_SUSPICION_THRESHOLD) sawGrounds = true;
+      ended = checkGameEnd(world, world.clock.prisonerT(n));
+      if (ended) endedAtRound = n;
+    }
+
+    expect(sawGrounds).toBe(true);
+    expect(ended).toEqual({ kind: "caught" });
+    expect(endedAtRound).toBeGreaterThan(0);
+  });
+
+  it("coordinator's fix, item 1(b) -- a shimmer who INSPECTs first and times its shims around the warden's checks can still ESCAPE", async () => {
+    fresh();
+    // The SAME warden script as item 1(a) -- every other round CHECK_LOCK,
+    // reactive SEARCH once it has grounds.
+    let wardenTurn = 0;
+    const wardenMind = adaptiveMind<WardenContext, WardenProposal>(() => {
+      const suspicion = getResource(world.resources.wardenSuspicion)?.value ?? 0;
+      if (suspicion >= SEARCH_SUSPICION_THRESHOLD) return "SEARCH";
+      wardenTurn += 1;
+      return wardenTurn % 2 === 1 ? "CHECK_LOCK" : "WAIT";
+    });
+    // The smart prisoner: opens with INSPECT (learns the true lock and
+    // guard, costing it one round it could have spent shimming), which
+    // shifts every later shim off the warden's own check parity -- so its
+    // FINAL shim always lands on a round the warden does NOT check, and the
+    // warden's next check (which crosses the grounds threshold) reveals a
+    // cell that is ALREADY fully open. The prisoner's own turn that SAME
+    // round is then free to escape, one full warden turn before a reactive
+    // SEARCH ever gets a chance to fire.
+    let prisonerTurn = 0;
+    const prisonerMind = adaptiveMind<PrisonerContext, PrisonerProposal>(() => {
+      prisonerTurn += 1;
+      const lock = getResource(world.resources.lockIntegrity)?.value ?? 100;
+      const guard = getResource(world.resources.guardAttention)?.value ?? 100;
+      if (lock <= 0 && guard < ESCAPE_GUARD_MAX) return "ESCAPE";
+      if (prisonerTurn === 1) return "INSPECT";
+      return "SHIM";
+    });
+
+    const wardenTracker = newSilenceTracker();
+    const prisonerTracker = newSilenceTracker();
+
+    let ended: ReturnType<typeof checkGameEnd> = null;
+    let endedAtRound = -1;
+    for (let n = 1; n <= 20 && !ended; n++) {
+      await runRound({ world, resolver, prisonerPlan, wardenPlan, n, wardenMind, prisonerMind, wardenTracker, prisonerTracker });
+      ended = checkGameEnd(world, world.clock.prisonerT(n));
+      if (ended) endedAtRound = n;
+    }
+
+    expect(ended).toEqual({ kind: "escaped" });
+    expect(endedAtRound).toBeGreaterThan(0);
   });
 });

@@ -16,15 +16,20 @@ describe("describeInspection -- pure prose over INSPECT's own result", () => {
 
 describe("describeObservation -- pure prose over OBSERVE's own result", () => {
   it("states the spoon edge when present, and the bar's band", () => {
-    const text = describeObservation({ spoonEdge: 30, barBand: "worn" });
+    const text = describeObservation({ spoonEdge: 30, barBand: "worn", barIntegrity: 70 });
     expect(text).toContain("spoon edge 30");
     expect(text).toContain("bar looks worn");
   });
 
   it("says nothing about the spoon edge when it is absent (concealed)", () => {
-    const text = describeObservation({ barBand: "intact" });
+    const text = describeObservation({ barBand: "intact", barIntegrity: 100 });
     expect(text).not.toContain("spoon edge");
     expect(text).toContain("bar looks intact");
+  });
+
+  it("never mentions the raw bar_integrity number -- the mind is still only ever told the band (coordinator's fix, item 1: barIntegrity is for the loop's own belief tracking only)", () => {
+    const text = describeObservation({ barBand: "worn", barIntegrity: 73 });
+    expect(text).not.toContain("73");
   });
 });
 
