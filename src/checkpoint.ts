@@ -21,6 +21,7 @@ import { resolutionDescription } from "./world/facts.js";
 import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
+import { pinnedDependencyVersion } from "./packageInfo.js";
 import {
   runHalfRound,
   newSilenceTracker,
@@ -208,7 +209,8 @@ async function main(): Promise<void> {
   transcript.push("");
   transcript.push(
     "One cell. A warden and a prisoner, both model-driven, both proposing through the same seam " +
-      "(`mind-seam@0.1.0`), both resolved through `run-dmcp`'s resolve protocol. The prisoner's " +
+      `(\`mind-seam@${pinnedDependencyVersion("mind-seam")}\`), both resolved through ` +
+      `\`run-dmcp@${pinnedDependencyVersion("run-dmcp")}\`'s resolve protocol. The prisoner's ` +
       "authored plan: hone the spoon, file at the bar repeatedly, then hide the evidence. The " +
       "warden's: watch closely, rotate the guard, service the lock."
   );
