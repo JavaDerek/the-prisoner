@@ -8,13 +8,20 @@ import type { RenderVocabulary } from "run-dmcp";
  * richness contract).
  *
  * Every entry is positive, including the "false" state of a flag
- * (`cut`="0" -> "intact", `concealed`="0" -> "in plain view") -- "say what
+ * (`cut`="0" -> "intact", `concealed`="0" -> "visible") -- "say what
  * is, never what is absent" (root CLAUDE.md hard rule 3) applies to a false
  * boolean exactly as it does to anything else: an intact bar is something
  * that IS true, not the absence of a cut one. See `mechanics.ts`'s header
  * for the one fact this repository could NOT give this treatment
  * (`knows_<key>`, which must start genuinely absent) and why it is kept out
  * of the fact store entirely instead.
+ *
+ * Item 7 fix: `concealed`="0" was originally "in plain view", a predicate
+ * PHRASE composed as a prenominal adjective ("The in plain view loose tile
+ * is here.") -- broken grammar, found by reading a real transcript.
+ * `adjectives` composes as `[...adjectives, noun].join(" ")`
+ * (run-dmcp's `render.ts`), so every entry here must be a genuine
+ * prenominal adjective. "visible" is.
  *
  * Values are the TEXT SQLite's own REAL-to-TEXT cast produces for a numeric
  * column (typically "1", "0" for the INTEGER flag columns this repository's
@@ -28,7 +35,7 @@ export const PRISONER_VOCABULARY: RenderVocabulary = {
     "1": { noun: "bar", adjectives: ["cut"] },
   },
   concealed: {
-    "0": { noun: "loose tile", adjectives: ["in plain view"] },
+    "0": { noun: "loose tile", adjectives: ["visible"] },
     "1": { noun: "loose tile", adjectives: ["concealed"] },
   },
 };

@@ -20,7 +20,7 @@ describe("viewFor() -- each principal's view, built positively (design §5.1)", 
     destroyTestDb();
   });
 
-  it("both principals see the bar as intact and the loose tile in plain view, at t0, and EXACTLY those two nouns", () => {
+  it("both principals see the bar as intact and the loose tile as visible, at t0, and EXACTLY those two vocabulary nouns", () => {
     fresh();
     const t0 = world.clock.t0;
 
@@ -31,24 +31,35 @@ describe("viewFor() -- each principal's view, built positively (design §5.1)", 
       // EVERY item (including the prisoner's own spoon) carries both facts,
       // defaulting to 0. A regression here previously rendered a bogus
       // "intact bar" noun for the loose tile's own irrelevant `cut=0` and a
-      // bogus "in plain view loose tile" for the bar's own irrelevant
+      // bogus "visible loose tile" for the bar's own irrelevant
       // `concealed=0` (and a third bogus pair for the spoon in the
       // prisoner's own view) -- caught by running the real checkpoint
       // script and reading its transcript by eye. `arrayContaining` alone
-      // would never have caught it, so this test checks the exact set.
-      expect(view.nouns).toHaveLength(2);
-      expect(view.nouns).toEqual(
+      // would never have caught it, so this test checks the exact set of
+      // VOCABULARY-backed nouns (the spoon's own presence noun, item 6, is
+      // asserted separately below, since it is not vocabulary-backed).
+      const vocabularyNouns = view.nouns.filter((n) => n.key === "cut" || n.key === "concealed");
+      expect(vocabularyNouns).toHaveLength(2);
+      expect(vocabularyNouns).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ entityId: world.barId, key: "cut", phrase: "intact bar" }),
-          expect.objectContaining({ entityId: world.looseTileId, key: "concealed", phrase: "in plain view loose tile" }),
+          expect.objectContaining({ entityId: world.looseTileId, key: "concealed", phrase: "visible loose tile" }),
         ])
       );
     }
   });
 
-  it("the prisoner's own spoon contributes no bogus cut/concealed noun, even though the column exists on every item", () => {
+  it("item 6: the prisoner's own spoon appears as a noun in its own view -- the positive view selects its own items", () => {
     fresh();
     const view = viewFor(world, world.prisonerId, world.clock.t0);
+    const spoonNoun = view.nouns.find((n) => n.entityId === world.spoonId);
+    expect(spoonNoun).toBeDefined();
+    expect(spoonNoun?.phrase.toLowerCase()).toContain("spoon");
+  });
+
+  it("the spoon is never in the WARDEN's view -- it is the prisoner's own item, not the cell's", () => {
+    fresh();
+    const view = viewFor(world, world.wardenId, world.clock.t0);
     expect(view.nouns.some((n) => n.entityId === world.spoonId)).toBe(false);
   });
 

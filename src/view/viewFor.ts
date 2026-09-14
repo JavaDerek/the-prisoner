@@ -141,6 +141,31 @@ export function viewFor(world: World, characterId: string, t: number): View {
     (n) => selectedEntityIds.has(n.entityId) && relevantFactKeysFor(world, n.entityId).includes(n.key)
   );
 
+  // Item 6: the positive view selects its own items -- an item with no
+  // meaningful cut/concealed state (the prisoner's spoon has neither) must
+  // still APPEAR, or "select, never subtract" would quietly subtract it by
+  // omission. This is not a vocabulary noun (there is no fact key/value to
+  // look up); it is the item's own name, exactly the way `otherPrincipal`
+  // below reports presence without a fact. Only added for a selected item
+  // that the vocabulary-backed nouns above produced nothing for, so a bar
+  // or a loose tile is never listed twice.
+  const namedEntityIds = new Set(nouns.map((n) => n.entityId));
+  for (const entity of snapshot.entities) {
+    if (entity.kind !== "item") continue;
+    if (!selectedEntityIds.has(entity.id) || namedEntityIds.has(entity.id)) continue;
+    const bareName = (entity.name ?? "item").replace(/^the\s+/i, "");
+    nouns.push({
+      entityId: entity.id,
+      entityKind: "item",
+      entityName: entity.name,
+      key: "presence",
+      value: "1",
+      noun: bareName,
+      adjectives: [],
+      phrase: bareName,
+    });
+  }
+
   const resourceEntries: [string, string][] = [
     ["bar_integrity", world.resources.barIntegrity],
     ["lock_integrity", world.resources.lockIntegrity],
