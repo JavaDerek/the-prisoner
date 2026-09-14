@@ -268,6 +268,56 @@ export const PRISONER_MOVES = ["FILE", "SHIM", "HONE", "CONCEAL", "INSPECT", "WA
 export const WARDEN_MOVES = ["REPLACE_BAR", "SERVICE_LOCK", "ROTATE_GUARD", "OBSERVE", "WAIT"] as const;
 
 /**
+ * One plain sentence per registered mechanic, saying what it does and what
+ * it needs (item 2, over the owner's transcript finding: "bare move
+ * names"). ONE source: `buildPrisonerPrompt`/`buildWardenPrompt`
+ * (`src/mind/*Mind.ts`) render the prompt's move list from this table, and
+ * `moveDescriptions.test.ts` asserts every entry in `PRISONER_MOVES`/
+ * `WARDEN_MOVES` has one. Every sentence is checked against what the
+ * mechanic above ACTUALLY does -- there is no bonus for an honed edge on
+ * `FILE` today, so none is claimed here; if this ever drifts from the
+ * mechanic's real behaviour, the fix is to the text, never the mechanic.
+ */
+export const MOVE_DESCRIPTIONS: Record<string, string> = {
+  FILE: "Files at the bar, wearing down its integrity by a fixed amount each time; also raises the warden's suspicion a little.",
+  SHIM: "Works a shim into the lock, wearing down its integrity by a fixed amount each time; also raises the warden's suspicion a little.",
+  HONE: "Hones the spoon's edge, raising it by a fixed amount each time; also raises the warden's suspicion a little.",
+  CONCEAL: "Hides something under the loose tile so it is no longer visible to the warden.",
+  INSPECT:
+    "Looks closely at the cell; reveals whether the warden has rotated the guard or serviced the lock since your last inspection.",
+  WAIT: "Lets time pass, lowering the guard's attention and the warden's suspicion a little.",
+  REPLACE_BAR: "Replaces the bar, resetting its integrity to full; refused if the bar has already been cut.",
+  SERVICE_LOCK: "Services the lock, resetting its integrity to full.",
+  ROTATE_GUARD: "Rotates the guard, setting the guard's attention to a fixed high level.",
+  OBSERVE:
+    "Watches the prisoner closely; reveals the prisoner's current spoon edge and whether anything is concealed near the loose tile; also raises your own suspicion a little.",
+};
+
+/**
+ * A positive sentence for what each mechanic looks like FROM THE OUTSIDE,
+ * authored per mechanic (item 5) -- never the content of what was learned
+ * (that stays private, in the acting principal's own ledger prose), only
+ * that something visible happened. `null` marks a covert move: it
+ * contributes NOTHING to the other principal's perception (`loop.ts`'s
+ * cross-perception step skips a `null` entry entirely) -- "say what is,
+ * never what is absent" applies here too, so there is no "you did not see
+ * anything" sentence for a covert act, there is simply no sentence.
+ * CONCEAL is the one covert move in this game.
+ */
+export const SEEN_BY_OTHER_AS: Record<string, string | null> = {
+  FILE: "The warden hears a rhythmic scraping sound from the prisoner's side of the cell.",
+  SHIM: "The warden hears the prisoner fiddling with the lock.",
+  HONE: "The warden sees the prisoner rubbing something against a hard surface.",
+  CONCEAL: null,
+  INSPECT: "The warden sees the prisoner looking closely around the cell.",
+  WAIT: "A quiet moment passes.",
+  REPLACE_BAR: "The prisoner watches the warden replace the bar.",
+  SERVICE_LOCK: "The prisoner watches the warden service the lock.",
+  ROTATE_GUARD: "The prisoner notices a different guard on watch.",
+  OBSERVE: "The prisoner notices the warden watching closely.",
+};
+
+/**
  * The referee's own hand on irreversibility (design Appendix A.2, §6.3
  * point 3): "a mechanic cannot declare irreversibility... folded into E3's
  * scope for the engine to decide." Until E3, this is a library call made

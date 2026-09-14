@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { buildPrisonerPrompt, coercePrisonerProposal, createPrisonerMind, type PrisonerContext } from "../prisonerMind.js";
+import { MOVE_DESCRIPTIONS } from "../../world/mechanics.js";
 
 const context: PrisonerContext = {
   principalId: "prisoner-1",
@@ -24,6 +25,13 @@ describe("buildPrisonerPrompt -- pure, built from context alone", () => {
     const prompt = buildPrisonerPrompt(context);
     expect(prompt).not.toContain(process.cwd());
     expect(prompt).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/); // no UUID leaks
+  });
+
+  it("describes every move (item 2) -- not just its bare name", () => {
+    const prompt = buildPrisonerPrompt(context);
+    for (const move of context.moves) {
+      expect(prompt).toContain(MOVE_DESCRIPTIONS[move]);
+    }
   });
 });
 
@@ -113,5 +121,61 @@ describe("createPrisonerMind -- the wire, offline", () => {
     const proposal = await mind.consider(context);
     expect(proposal).toBeNull();
     expect(silenced).toBe("rejected");
+  });
+});
+
+describe("createPrisonerMind's onRawAnswer -- item 9's side channel, owned by the caller", () => {
+  it("captures the raw parsed answer when the wire's coerce rejects it (choice not in moves)", async () => {
+    const fetchFn = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", choice: "SEARCH" }) } }] }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+    );
+    let captured: unknown;
+    const mind = createPrisonerMind({
+      baseUrl: "http://offline.invalid",
+      model: "test-model",
+      fetchFn: fetchFn as unknown as typeof fetch,
+      onRawAnswer: (raw) => (captured = raw),
+    });
+    const proposal = await mind.consider(context);
+    expect(proposal).toBeNull();
+    expect(captured).toEqual({ intent: "x", choice: "SEARCH" });
+  });
+
+  it("captures the raw answer on a successful call too (the caller decides what to do with it)", async () => {
+    const fetchFn = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait" }) } }] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })
+    );
+    let captured: unknown;
+    const mind = createPrisonerMind({
+      baseUrl: "http://offline.invalid",
+      model: "test-model",
+      fetchFn: fetchFn as unknown as typeof fetch,
+      onRawAnswer: (raw) => (captured = raw),
+    });
+    await mind.consider(context);
+    expect(captured).toEqual({ intent: "wait" });
+  });
+
+  it("is never called when the wire fails before any JSON is parsed (unreachable) -- there is no raw object to invent", async () => {
+    const fetchFn = vi.fn(async () => {
+      throw new Error("ECONNREFUSED");
+    });
+    let called = false;
+    const mind = createPrisonerMind({
+      baseUrl: "http://offline.invalid",
+      model: "test-model",
+      fetchFn: fetchFn as unknown as typeof fetch,
+      onRawAnswer: () => (called = true),
+    });
+    await mind.consider(context);
+    expect(called).toBe(false);
   });
 });

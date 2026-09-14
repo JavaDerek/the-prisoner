@@ -1,5 +1,6 @@
 import type { Mind, Proposal, SilenceReason } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
+import { MOVE_DESCRIPTIONS } from "../world/mechanics.js";
 
 /**
  * The prisoner's declaration of `mind-seam`'s generic seam (design §A.5,
@@ -46,13 +47,15 @@ export type PrisonerMind = Mind<PrisonerContext, PrisonerProposal>;
  * `src/mind/__tests__/prisonerMind.test.ts`).
  */
 export function buildPrisonerPrompt(context: PrisonerContext): string {
+  const moveLines = context.moves.map((move) => `- ${move}: ${MOVE_DESCRIPTIONS[move] ?? "(no description on file)"}`);
   return [
     `You are ${context.identity}.`,
     `Your motive: ${context.motive}`,
     "",
     context.briefing,
     "",
-    `Your possible moves are exactly: ${context.moves.join(", ")}.`,
+    "Your possible moves are exactly these, each with what it does:",
+    ...moveLines,
     "",
     'Answer with one JSON object: {"intent": string, "line"?: string, "choice"?: string}.',
     '"intent" is what you are trying to do, in your own words.',
@@ -98,6 +101,19 @@ export interface CreatePrisonerMindOptions {
   timeoutMs?: number;
   fetchFn?: typeof fetch;
   onSilence?: (reason: SilenceReason, context: PrisonerContext) => void;
+  /**
+   * Item 9: when a proposal is rejected because `choice` names a move never
+   * offered, the checkpoint wants the model's raw parsed answer in the
+   * transcript -- not a guess at what it "must have meant". This is the
+   * side channel: the CHECKPOINT owns the callback (and whatever variable
+   * it writes into), the wire's `coerce` step is the only place with the
+   * raw object to hand it, so this wrapper calls it there, on every
+   * successful JSON parse, whether `coercePrisonerProposal` goes on to
+   * accept or reject it. Never called when the wire fails before any JSON
+   * is parsed (unreachable/timeout/status/unparseable) -- there is no raw
+   * object to invent at that point, and this callback does not invent one.
+   */
+  onRawAnswer?: (raw: unknown) => void;
 }
 
 /**
@@ -108,9 +124,13 @@ export interface CreatePrisonerMindOptions {
  * knows nobody's box").
  */
 export function createPrisonerMind(options: CreatePrisonerMindOptions): PrisonerMind {
+  const { onRawAnswer, ...rest } = options;
   return createLocalMind<PrisonerContext, PrisonerProposal>({
-    ...options,
+    ...rest,
     prompt: buildPrisonerPrompt,
-    coerce: coercePrisonerProposal,
+    coerce: (raw, context) => {
+      onRawAnswer?.(raw);
+      return coercePrisonerProposal(raw, context);
+    },
   });
 }

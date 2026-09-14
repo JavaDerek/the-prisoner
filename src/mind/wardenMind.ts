@@ -1,5 +1,6 @@
 import type { Mind, Proposal, SilenceReason } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
+import { MOVE_DESCRIPTIONS } from "../world/mechanics.js";
 
 /**
  * The warden as a model too, for this checkpoint (this task's correction 1
@@ -26,13 +27,15 @@ export type WardenProposal = Proposal & { readonly choice?: string };
 export type WardenMind = Mind<WardenContext, WardenProposal>;
 
 export function buildWardenPrompt(context: WardenContext): string {
+  const moveLines = context.moves.map((move) => `- ${move}: ${MOVE_DESCRIPTIONS[move] ?? "(no description on file)"}`);
   return [
     `You are ${context.identity}.`,
     `Your motive: ${context.motive}`,
     "",
     context.briefing,
     "",
-    `Your possible moves are exactly: ${context.moves.join(", ")}.`,
+    "Your possible moves are exactly these, each with what it does:",
+    ...moveLines,
     "",
     'Answer with one JSON object: {"intent": string, "line"?: string, "choice"?: string}.',
     '"intent" is what you are trying to do, in your own words.',
@@ -64,12 +67,19 @@ export interface CreateWardenMindOptions {
   timeoutMs?: number;
   fetchFn?: typeof fetch;
   onSilence?: (reason: SilenceReason, context: WardenContext) => void;
+  /** Item 9: see `CreatePrisonerMindOptions.onRawAnswer` (`prisonerMind.ts`)
+   *  for the full reasoning -- identical shape here. */
+  onRawAnswer?: (raw: unknown) => void;
 }
 
 export function createWardenMind(options: CreateWardenMindOptions): WardenMind {
+  const { onRawAnswer, ...rest } = options;
   return createLocalMind<WardenContext, WardenProposal>({
-    ...options,
+    ...rest,
     prompt: buildWardenPrompt,
-    coerce: coerceWardenProposal,
+    coerce: (raw, context) => {
+      onRawAnswer?.(raw);
+      return coerceWardenProposal(raw, context);
+    },
   });
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { buildWardenPrompt, coerceWardenProposal, createWardenMind, type WardenContext } from "../wardenMind.js";
+import { MOVE_DESCRIPTIONS } from "../../world/mechanics.js";
 
 const context: WardenContext = {
   principalId: "warden-1",
@@ -24,6 +25,13 @@ describe("buildWardenPrompt -- pure, built from context alone", () => {
     const prompt = buildWardenPrompt(context);
     expect(prompt).not.toContain(process.cwd());
     expect(prompt).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
+  });
+
+  it("describes every move (item 2) -- not just its bare name", () => {
+    const prompt = buildWardenPrompt(context);
+    for (const move of context.moves) {
+      expect(prompt).toContain(MOVE_DESCRIPTIONS[move]);
+    }
   });
 });
 
@@ -77,5 +85,40 @@ describe("createWardenMind -- the wire, offline", () => {
     });
     expect(await mind.consider(context)).toBeNull();
     expect(silenced).toBe("status");
+  });
+});
+
+describe("createWardenMind's onRawAnswer -- item 9's side channel, owned by the caller", () => {
+  it("captures the raw parsed answer when the wire's coerce rejects it (choice not in moves)", async () => {
+    const fetchFn = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", choice: "FILE" }) } }] }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+    );
+    let captured: unknown;
+    const mind = createWardenMind({
+      baseUrl: "http://offline.invalid",
+      model: "test-model",
+      fetchFn: fetchFn as unknown as typeof fetch,
+      onRawAnswer: (raw) => (captured = raw),
+    });
+    const proposal = await mind.consider(context);
+    expect(proposal).toBeNull();
+    expect(captured).toEqual({ intent: "x", choice: "FILE" });
+  });
+
+  it("is never called when the wire fails before any JSON is parsed", async () => {
+    const fetchFn = vi.fn(async () => new Response("nope", { status: 503 }));
+    let called = false;
+    const mind = createWardenMind({
+      baseUrl: "http://offline.invalid",
+      model: "test-model",
+      fetchFn: fetchFn as unknown as typeof fetch,
+      onRawAnswer: () => (called = true),
+    });
+    await mind.consider(context);
+    expect(called).toBe(false);
   });
 });
