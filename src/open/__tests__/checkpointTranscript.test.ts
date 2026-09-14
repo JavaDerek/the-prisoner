@@ -8,7 +8,7 @@ import { runOpenGame, type OpenGameResult } from "../game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, fogAudit } from "../checkpointTranscript.js";
 import type { OpenHalfRoundResult } from "../loop.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
-import { scriptedReferee, RULINGS, SCRAPE, EXAMINE } from "./helpers/scriptedReferee.js";
+import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, OPEN_DOOR, LEAVE_DOOR } from "./helpers/scriptedReferee.js";
 
 const IMPOSSIBLE = "I pray for the walls to fall.";
 
@@ -144,4 +144,24 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain("Novel (object, effect) pairs with no closed-variant equivalent: 0.");
     expect(text).toContain("Fog audit: 7 contexts checked, 0 leaks.");
   });
+
+  it("a half-round that leaves the cell shows the move, not '(no state changed)' (OPEN-VARIANT.md §12)", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    let turn = 0;
+    const game = await runOpenGame({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: createReferee([scriptedReferee(RULINGS)]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I wait." }),
+      prisonerMind: { async consider() { turn += 1; return { intent: turn === 1 ? OPEN_DOOR : LEAVE_DOOR }; } },
+      rounds: 3,
+    });
+    const text = renderOpenHalfRound(find(game, 2, "prisoner")).join("\n");
+    expect(text).toContain("went out through the door");
+    expect(text).toContain(`location_id: ${openWorld.base.cellId} -> ${openWorld.exits.lock.destinationId}`);
+    expect(text).not.toContain("(no state changed)");
+    expect(renderOpenSummary(game).join("\n")).toContain("**The prisoner escaped, at round 2.**");
+  });
 });
+

@@ -117,6 +117,34 @@ export const OPEN_NOISE: Mechanic = {
   },
 };
 
+export interface LeaveParams {
+  characterId: string;
+  passageResourceId: string;
+  integrityResourceId: string;
+  destinationId: string;
+  description: string;
+}
+
+/** OPEN-VARIANT.md §12: move the actor through an exit, if it is passable
+ *  now -- its passage open (1), or its integrity spent (0). The move is a
+ *  `set` of the character's location (run-dmcp 0.7.0), inside the
+ *  resolution; a shut exit moves nothing and says so in `result`. Read only
+ *  from the constraint this mechanic is handed, like every other. */
+export const OPEN_LEAVE: Mechanic = {
+  name: "OPEN_LEAVE",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as LeaveParams;
+    const passage = numericFactFrom(input.constraint.mustHonor, p.passageResourceId, "value");
+    const integrity = numericFactFrom(input.constraint.mustHonor, p.integrityResourceId, "value");
+    const left = passage === 1 || integrity === 0;
+    return {
+      changes: left ? [{ kind: "set", entityId: p.characterId, key: "location_id", value: p.destinationId }] : [],
+      result: { mechanic: "OPEN_LEAVE", left, ...(left ? { destinationId: p.destinationId } : {}) },
+      description: p.description,
+    };
+  },
+};
+
 export function buildOpenResolver(): Resolver {
-  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE] });
+  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_LEAVE] });
 }

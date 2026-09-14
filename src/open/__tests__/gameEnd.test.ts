@@ -4,7 +4,7 @@ import { buildOpenWorld, resourceIdForProperty } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { checkOpenEscape, checkOpenCatch, checkOpenGameEnd } from "../gameEnd.js";
 
-describe("open-mode game end (OPEN-VARIANT.md §9.3, mapped before implementation)", () => {
+describe("open-mode game end (OPEN-VARIANT.md §9.3; escape revised by §12)", () => {
   afterEach(() => destroyTestDb());
 
   it("no escape while the bar and lock are both intact", () => {
@@ -13,65 +13,41 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3, mapped before implementatio
     expect(checkOpenEscape(world, world.base.clock.t0)).toBe(false);
   });
 
-  it("escapes once the bar reaches 0 AND guard_attention is below the threshold", () => {
+  // OPEN-VARIANT.md §12 (owner's decision): escape is leaving the cell. The
+  // integrity-and-guard condition these tests used to pin is gone; the
+  // routes it described now lead to an exit (leaving.test.ts).
+  function leaveThrough(world: ReturnType<typeof buildOpenWorld>, exit: "lock" | "bar") {
+    const e = world.exits[exit];
+    buildOpenResolver().resolve({
+      gameId: world.base.gameId,
+      mechanic: "OPEN_LEAVE",
+      parameters: { characterId: world.base.prisonerId, ...e, description: "x" },
+    });
+  }
+
+  it("a spent bar and lock with the guard long gone is still not escape: the prisoner has to leave", () => {
     createTestDb();
     const world = buildOpenWorld();
     const resolver = buildOpenResolver();
-    const barResource = resourceIdForProperty(world, "bar", "integrity") as string;
-
-    resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: barResource, amount: 1000, min: 0, max: 100, description: "x" } });
-    // Starting guard_attention is 50, equal to ESCAPE_GUARD_MAX -- not itself
-    // below it (the closed variant's own boundary: "< ESCAPE_GUARD_MAX", not
-    // "<="), so lower it first to isolate the opening condition from the
-    // guard condition.
+    for (const object of ["bar", "lock"]) {
+      const resourceId = resourceIdForProperty(world, object, "integrity") as string;
+      resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId, amount: 1000, min: 0, max: 100, description: "x" } });
+    }
     resolver.resolve({
       gameId: world.base.gameId,
       mechanic: "OPEN_WEAR",
-      parameters: { resourceId: world.base.resources.guardAttention, amount: 20, min: 0, max: 100, description: "x" },
+      parameters: { resourceId: world.base.resources.guardAttention, amount: 1000, min: 0, max: 100, description: "x" },
     });
-    const t = world.base.clock.wardenT(1);
-    expect(checkOpenEscape(world, t)).toBe(true);
+    expect(checkOpenEscape(world, world.base.clock.wardenT(1))).toBe(false);
   });
 
-  it("escapes once the lock, worn through its own open-world property, reaches 0 AND guard_attention is below the threshold", () => {
+  it("escapes once the prisoner is through an exit, with guard attention at its starting 50", () => {
     createTestDb();
     const world = buildOpenWorld();
-    const resolver = buildOpenResolver();
-    const lockResource = resourceIdForProperty(world, "lock", "integrity") as string;
-
-    resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: lockResource, amount: 1000, min: 0, max: 100, description: "x" } });
-    resolver.resolve({
-      gameId: world.base.gameId,
-      mechanic: "OPEN_WEAR",
-      parameters: { resourceId: world.base.resources.guardAttention, amount: 20, min: 0, max: 100, description: "x" },
-    });
+    const lock = resourceIdForProperty(world, "lock", "integrity") as string;
+    buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: lock, amount: 1000, min: 0, max: 100, description: "x" } });
+    leaveThrough(world, "lock");
     expect(checkOpenEscape(world, world.base.clock.wardenT(1))).toBe(true);
-  });
-
-  it("does NOT escape at the starting guard_attention of 50, exactly AT the threshold (boundary: strictly less than, not less-or-equal)", () => {
-    createTestDb();
-    const world = buildOpenWorld();
-    const resolver = buildOpenResolver();
-    const barResource = resourceIdForProperty(world, "bar", "integrity") as string;
-    resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: barResource, amount: 1000, min: 0, max: 100, description: "x" } });
-    const t = world.base.clock.wardenT(1);
-    expect(checkOpenEscape(world, t)).toBe(false);
-  });
-
-  it("does NOT escape when the opening exists but guard_attention is at or above the threshold", () => {
-    createTestDb();
-    const world = buildOpenWorld();
-    const resolver = buildOpenResolver();
-    const barResource = resourceIdForProperty(world, "bar", "integrity") as string;
-    resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: barResource, amount: 1000, min: 0, max: 100, description: "x" } });
-    // Raise guard_attention back up so it no longer satisfies "< ESCAPE_GUARD_MAX".
-    resolver.resolve({
-      gameId: world.base.gameId,
-      mechanic: "OPEN_RESTORE",
-      parameters: { resourceId: world.base.resources.guardAttention, amount: 100, min: 0, max: 100, description: "x" },
-    });
-    const t = world.base.clock.wardenT(1);
-    expect(checkOpenEscape(world, t)).toBe(false);
   });
 
   it("does not catch when warden_suspicion is below the grounds threshold, even if the revealed value would otherwise qualify", () => {
@@ -116,16 +92,12 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3, mapped before implementatio
   it("checkOpenGameEnd prefers escape over catch, and needs no `reveal` argument to detect escape", () => {
     createTestDb();
     const world = buildOpenWorld();
-    const resolver = buildOpenResolver();
-    const barResource = resourceIdForProperty(world, "bar", "integrity") as string;
-    resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: barResource, amount: 1000, min: 0, max: 100, description: "x" } });
-    resolver.resolve({
-      gameId: world.base.gameId,
-      mechanic: "OPEN_WEAR",
-      parameters: { resourceId: world.base.resources.guardAttention, amount: 20, min: 0, max: 100, description: "x" },
-    });
+    const bar = resourceIdForProperty(world, "bar", "integrity") as string;
+    buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: bar, amount: 1000, min: 0, max: 100, description: "x" } });
+    leaveThrough(world, "bar");
     const t = world.base.clock.wardenT(1);
     expect(checkOpenGameEnd(world, t)).toEqual({ kind: "escaped" });
+    expect(checkOpenGameEnd(world, t, { objectId: "bar", property: "integrity", value: 0 })).toEqual({ kind: "escaped" });
   });
 
   it("checkOpenGameEnd returns null when neither condition holds", () => {

@@ -87,7 +87,7 @@ export function precedentTextFor(ruling: Pick<RefereeRuling, "targetObjectId" | 
 }
 
 function suspicionEligible(effectKind: EffectKind): boolean {
-  return effectKind === "wear" || effectKind === "restore" || effectKind === "expose";
+  return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave";
 }
 
 /** Applies ONE further, audited `resolve()` call against `warden_suspicion`
@@ -108,6 +108,14 @@ function actorName(principal: Principal): string {
 
 function objectLabel(objectId: string): string {
   return objectId.replace(/_/g, " ");
+}
+
+/** OPEN-VARIANT.md §12: the way out each exit object is, as a bystander
+ *  names it. Exported for `perception.ts`, which tells the actor the same. */
+export const EXIT_LABEL: Readonly<Record<string, string>> = { lock: "door", bar: "window" };
+
+function exitLabel(objectId: string): string {
+  return EXIT_LABEL[objectId] ?? objectLabel(objectId);
 }
 
 /** One authored, positive sentence per effect kind -- used as BOTH the
@@ -138,6 +146,14 @@ export function describeAttempt(
       return `${actor} brings the ${obj} into view.`;
     case "noise":
       return `A sound rings out from the ${obj}.`;
+    case "open":
+      return `${actor} opens the ${exitLabel(ruling.targetObjectId)}.`;
+    case "close":
+      return `${actor} shuts the ${exitLabel(ruling.targetObjectId)}.`;
+    case "leave":
+      // True whether or not the way turns out to be open: what a bystander
+      // sees is the attempt.
+      return `${actor} makes for the ${exitLabel(ruling.targetObjectId)}.`;
     case "none":
       // Dead in the real pipeline: `runOpenHalfRound` only calls this once
       // `ruling.applicable` is true, which requires `effectKind !== "none"`
@@ -232,6 +248,8 @@ export async function runOpenHalfRound(params: {
     magnitude: ruling.magnitude,
     entityIdFor: openWorld.entityIdFor,
     resourceIdFor: openWorld.resourceIdFor,
+    exits: openWorld.exits,
+    actorId: principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId,
     description,
   });
   if (plan === null) {

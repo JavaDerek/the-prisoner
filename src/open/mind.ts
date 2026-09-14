@@ -2,7 +2,6 @@ import type { Mind, Proposal, InertRecord, SilenceReason, SilenceDetail } from "
 import { createLocalMind, coerceProposal } from "mind-seam";
 import {
   TIME_DECAY_RULE,
-  ESCAPE_GUARD_MAX,
   EVIDENCE_SUSPICION_DIVISOR,
   HONE_SUSPICION_BUMP,
   FILE_SUSPICION_BUMP,
@@ -116,7 +115,8 @@ function stateBasedRules(): string[] {
       `by ${HONE_SUSPICION_BUMP} for a slight act, ${FILE_SUSPICION_BUMP} for a moderate one, ${FAILED_ESCAPE_SUSPICION_BUMP} for a substantial one.`,
     `When ${WARDEN_NAME} examines something closely and finds it more worn than ${WARDEN_NAME} last believed, warden suspicion ` +
       `rises by the unexplained drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down -- finding damage is evidence.`,
-    `${PRISONER_NAME} escapes the moment the bar's integrity or the lock's integrity reaches 0 while the guard's attention is below ${ESCAPE_GUARD_MAX}.`,
+    // OPEN-VARIANT.md §12: escape is leaving the cell, however it comes about.
+    `${PRISONER_NAME} escapes the moment she is out of the cell, however she gets out. The cell's ways out are the door and the window.`,
     `${WARDEN_NAME} catches ${PRISONER_NAME} (ending the game) by closely examining, while warden suspicion is at or above ` +
       `${SEARCH_SUSPICION_THRESHOLD}, the bar and finding its integrity at or below ${SEARCH_CATCH_BAR_MAX}, or the lock and ` +
       `finding its integrity at or below ${SEARCH_CATCH_LOCK_MAX}, or the spoon and finding its edge at or above ` +

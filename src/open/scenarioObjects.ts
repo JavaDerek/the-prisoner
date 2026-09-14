@@ -38,7 +38,7 @@
  * not the tile itself").
  */
 
-export type OpenPropertyKey = "integrity" | "edge" | "concealment";
+export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage";
 
 export interface MagnitudeTable {
   slight: number;
@@ -106,6 +106,18 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         // move.
         restore: { slight: 20, moderate: 50, substantial: 100 },
       },
+      {
+        // OPEN-VARIANT.md §12: this object is also an exit. 0 shut, 1 open,
+        // changed only by `open`/`close` (effects.ts refuses wear/restore on
+        // it), so the wear/restore tables below are never read.
+        key: "passage",
+        resourceName: "window_passage",
+        min: 0,
+        max: 1,
+        initialValue: 0,
+        wear: { slight: 1, moderate: 1, substantial: 1 },
+        restore: { slight: 1, moderate: 1, substantial: 1 },
+      },
     ],
   },
   {
@@ -126,6 +138,18 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         // substantial=100 carries over SERVICE_LOCK's own `setResource(...,
         // 100)`.
         restore: { slight: 20, moderate: 50, substantial: 100 },
+      },
+      {
+        // OPEN-VARIANT.md §12: this object is also an exit. 0 shut, 1 open,
+        // changed only by `open`/`close` (effects.ts refuses wear/restore on
+        // it), so the wear/restore tables below are never read.
+        key: "passage",
+        resourceName: "door_passage",
+        min: 0,
+        max: 1,
+        initialValue: 0,
+        wear: { slight: 1, moderate: 1, substantial: 1 },
+        restore: { slight: 1, moderate: 1, substantial: 1 },
       },
     ],
   },

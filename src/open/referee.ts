@@ -155,7 +155,8 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
       prompt:
         "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise " +
         "or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose " +
-        "(lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in " +
+        "(lower concealment), noise (a perceptible event with no state change), open (make a way out passable in " +
+        "one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Cite the exact words in " +
         "the actor's intent that describe the action.",
       answerKeys: [...EFFECT_KINDS],
       safeDefault: "none",
@@ -164,8 +165,8 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
       id: "property",
       prompt:
         "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
-        "description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. " +
-        "noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET " +
+        "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none " +
+        "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
       answerKeys: [...PROPERTY_ANSWER_KEYS],
       safeDefault: "none",

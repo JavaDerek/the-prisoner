@@ -1,5 +1,5 @@
 import { ResolveProtocolError, type ReadRequest } from "run-dmcp";
-import type { OpenHalfRoundResult } from "./loop.js";
+import { EXIT_LABEL, type OpenHalfRoundResult } from "./loop.js";
 import type { OpenGameResult } from "./game.js";
 import { findProperty } from "./scenarioObjects.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
@@ -71,9 +71,16 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
   if (outcome) {
     lines.push(`Resolved \`${plan?.mechanic ?? "?"}\` (${ruling.effectKind}, ${ruling.magnitude}, ${ruling.perceptibility}):`);
     for (const t of outcome.transitions) lines.push(`  - ${resourceName}: ${t.previousValue} -> ${t.newValue}`);
-    const result = outcome.result as { value?: unknown };
+    for (const set of outcome.sets) lines.push(`  - ${set.key}: ${String(set.previousValue)} -> ${String(set.newValue)}`);
+    const result = outcome.result as { value?: unknown; left?: boolean };
     if (ruling.effectKind === "reveal" && result.value !== undefined) lines.push(`  - revealed ${resourceName} = ${String(result.value)}`);
-    if (outcome.transitions.length === 0 && ruling.effectKind !== "reveal") lines.push("  (no state changed)");
+    if (ruling.effectKind === "leave") {
+      const exit = EXIT_LABEL[ruling.targetObjectId] ?? ruling.targetObjectId;
+      lines.push(result.left ? `  - went out through the ${exit}` : `  - the ${exit} held shut`);
+    }
+    if (outcome.transitions.length === 0 && outcome.sets.length === 0 && ruling.effectKind !== "reveal" && ruling.effectKind !== "leave") {
+      lines.push("  (no state changed)");
+    }
   } else if (refusalError) {
     if (refusalError instanceof ResolveProtocolError) {
       lines.push(`Refused by the resolve protocol (${refusalError.reason}):`);

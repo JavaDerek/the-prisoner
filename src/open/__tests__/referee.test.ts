@@ -248,4 +248,19 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     await referee.rule("file it", [BAR]);
     for (const q of questions) expect(q.prompt, q.id).toMatch(/Cite the exact words in the (actor's intent|TARGET OBJECT'S OWN description)/);
   });
+
+  it("the effect and property questions name the ways out: open, close, leave, and passage (OPEN-VARIANT.md §12)", async () => {
+    let questions: readonly { id: string; prompt: string; answerKeys: readonly string[] }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("I slip out of the door.", [BAR]);
+    const effect = questions.find((q) => q.id === "effect");
+    const property = questions.find((q) => q.id === "property");
+    for (const word of ["open (", "close (", "leave ("]) expect(effect?.prompt).toContain(word);
+    expect(effect?.answerKeys).toEqual(expect.arrayContaining(["open", "close", "leave"]));
+    expect(property?.prompt).toContain("passage");
+  });
 });

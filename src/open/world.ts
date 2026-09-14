@@ -1,4 +1,4 @@
-import { createItem, createResource, declareBoundedConstraint, declareResolveOnlyConstraint } from "run-dmcp";
+import { createItem, createLocation, createResource, declareBoundedConstraint, declareResolveOnlyConstraint } from "run-dmcp";
 import { buildWorld, type World } from "../world/setup.js";
 import { OPEN_OBJECTS, type OpenObjectSpec } from "./scenarioObjects.js";
 
@@ -32,6 +32,18 @@ export interface OpenWorld {
    *  resource an open-mode effect just touched without a second, redeclared
    *  mapping. */
   resourceNameById: Record<string, string>;
+  /** OPEN-VARIANT.md §12: the cell's ways out, keyed by the object that is
+   *  the exit (the lock is the door's, the bar the window's). */
+  exits: Readonly<Record<string, OpenExit>>;
+}
+
+export interface OpenExit {
+  /** 0 shut, 1 open. */
+  passageResourceId: string;
+  /** Spent (0) also makes the exit passable. */
+  integrityResourceId: string;
+  /** The location a principal who leaves through this exit is in. */
+  destinationId: string;
 }
 
 function propertyToken(objectId: string, propertyKey: string): string {
@@ -99,7 +111,22 @@ export function buildOpenWorld(): OpenWorld {
     }
   }
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById };
+  const corridor = createLocation({ gameId, name: "the corridor", description: "The corridor outside the cell door." });
+  const outsideWindow = createLocation({ gameId, name: "outside the window", description: "Outside the cell's small window." });
+  const exits: Record<string, OpenExit> = {
+    lock: {
+      passageResourceId: resourceIdFor[propertyToken("lock", "passage")],
+      integrityResourceId: resourceIdFor[propertyToken("lock", "integrity")],
+      destinationId: corridor.id,
+    },
+    bar: {
+      passageResourceId: resourceIdFor[propertyToken("bar", "passage")],
+      integrityResourceId: resourceIdFor[propertyToken("bar", "integrity")],
+      destinationId: outsideWindow.id,
+    },
+  };
+
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {

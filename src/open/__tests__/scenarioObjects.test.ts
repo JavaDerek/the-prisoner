@@ -34,7 +34,8 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
 
   it("every property's magnitude table is strictly increasing, slight < moderate < substantial", () => {
     for (const object of OPEN_OBJECTS) {
-      for (const property of object.properties) {
+      // `passage` is exempt: open/close set it end to end and never read its tables (OPEN-VARIANT.md §12).
+      for (const property of object.properties.filter((p) => p.key !== "passage")) {
         expect(property.wear.slight).toBeLessThan(property.wear.moderate);
         expect(property.wear.moderate).toBeLessThan(property.wear.substantial);
         expect(property.restore.slight).toBeLessThan(property.restore.moderate);

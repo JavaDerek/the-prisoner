@@ -1,6 +1,5 @@
-import { readNumericFact } from "../world/facts.js";
+import { readNumericFact, readFactValue } from "../world/facts.js";
 import {
-  ESCAPE_GUARD_MAX,
   SEARCH_SUSPICION_THRESHOLD,
   SEARCH_CATCH_BAR_MAX,
   SEARCH_CATCH_LOCK_MAX,
@@ -17,17 +16,12 @@ import { resourceIdForProperty, type OpenWorld } from "./world.js";
  */
 export type OpenGameEnd = { kind: "escaped" | "caught" } | null;
 
-/** Escape: the bar's integrity or the lock's integrity has reached 0 (the
- *  closed variant's own "opening" condition), AND `guard_attention` is
- *  below `ESCAPE_GUARD_MAX` -- read live, off the SAME shared resources the
- *  open world reuses from the closed variant's `World` (no new resource). */
+/** Escape (OPEN-VARIANT.md §12): the prisoner is anywhere but the cell,
+ *  however it came about. Read from the character's location fact at `t`;
+ *  nothing else -- no integrity, no guard attention -- is part of it. */
 export function checkOpenEscape(openWorld: OpenWorld, t: number): boolean {
-  const gameId = openWorld.base.gameId;
-  const bar = readNumericFact({ gameId, t, entityId: openWorld.base.resources.barIntegrity, key: "value" });
-  const lock = readNumericFact({ gameId, t, entityId: openWorld.base.resources.lockIntegrity, key: "value" });
-  const guard = readNumericFact({ gameId, t, entityId: openWorld.base.resources.guardAttention, key: "value" });
-  const opening = (bar !== null && bar <= 0) || (lock !== null && lock <= 0);
-  return opening && guard !== null && guard < ESCAPE_GUARD_MAX;
+  const location = readFactValue({ gameId: openWorld.base.gameId, t, entityId: openWorld.base.prisonerId, key: "location_id" });
+  return location !== null && location !== openWorld.base.cellId;
 }
 
 /** Catch: checked only right after a WARDEN's `reveal` resolves, against

@@ -169,4 +169,17 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
   it("PLANTED VIOLATION: the move-name scan catches the closed variant's own presence rule", () => {
     expect(closedMoveNamesIn(WARDEN_PRESENCE_RULE).length).toBeGreaterThan(0);
   });
+
+  it("states escape physically -- out of the cell by the door or the window -- and never as a number reaching zero (OPEN-VARIANT.md §12)", async () => {
+    let prompt = "";
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      prompt = JSON.parse((init?.body as string) ?? "{}").messages[0].content as string;
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" }) } }] }) };
+    }) as unknown as typeof fetch;
+    await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn }).consider(CONTEXT);
+    expect(prompt).toContain("escapes the moment she is out of the cell, however she gets out");
+    expect(prompt).toContain("the door and the window");
+    expect(prompt).not.toMatch(/escapes the moment the bar's integrity/);
+    expect(prompt).not.toMatch(/guard's attention is below/);
+  });
 });

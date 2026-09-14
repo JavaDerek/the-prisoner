@@ -1,6 +1,7 @@
 import { ResolveProtocolError } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
 import { findObject } from "./scenarioObjects.js";
+import { EXIT_LABEL } from "./loop.js";
 import { PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
 
 /**
@@ -46,7 +47,15 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   }
 
   if (outcome !== null && plan !== null) {
-    const result = outcome.result as { before?: number; after?: number; value?: number };
+    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean };
+    const exit = EXIT_LABEL[ruling.targetObjectId] ?? obj;
+    if (ruling.effectKind === "leave") {
+      return result.left ? `You are out of the cell, through the ${exit}.` : `Your last attempt met the ${exit} shut: you are still in the cell.`;
+    }
+    if (ruling.effectKind === "open" || ruling.effectKind === "close") {
+      const verb = ruling.effectKind === "open" ? "opened" : "shut";
+      return result.before === result.after ? `The ${exit} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${exit}.`;
+    }
     if (ruling.effectKind === "reveal" && typeof result.value === "number") {
       return `Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`;
     }

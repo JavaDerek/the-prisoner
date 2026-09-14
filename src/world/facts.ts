@@ -43,6 +43,14 @@ export function readNumericFact(params: { gameId: string; t: number; entityId: s
   return fact ? parseNumericFactValue(fact.value) : null;
 }
 
+/** Reads one fact's raw value at `t`, for a column that is not a number
+ *  (a location, an owner). `null` when no fact holds. */
+export function readFactValue(params: { gameId: string; t: number; entityId: string; key: string }): string | null {
+  const snapshot = replay({ gameId: params.gameId, t: params.t });
+  const entity = snapshot.entities.find((e) => e.id === params.entityId);
+  return entity?.facts[params.key]?.value ?? null;
+}
+
 /** The `description` a resolution's own `resolution.recorded` event was
  *  stamped with (`resolve.ts`'s `Adjudication.description`, via
  *  `mechanics.ts`'s `withNote`) -- read back by `eventId` because `Outcome`

@@ -7,7 +7,7 @@ import { buildOpenResolver } from "../mechanics.js";
 import { createReferee } from "../referee.js";
 import { runOpenGame } from "../game.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
-import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, WAIT } from "./helpers/scriptedReferee.js";
+import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, WAIT, OPEN_DOOR, LEAVE_DOOR, LEAVE_WINDOW } from "./helpers/scriptedReferee.js";
 
 // Full short games to each ending (issue #2 step 1), with scripted minds and
 // the scripted referee transport in helpers/scriptedReferee.ts.
@@ -24,24 +24,37 @@ function setup() {
 describe("runOpenGame: the open variant's round loop, played to each ending", () => {
   afterEach(() => destroyTestDb());
 
-  it("escape: a prisoner who keeps wearing the bar gets out once it reaches 0 and the guard has waned", async () => {
+  it("escape: a prisoner who opens the door gets out on the next turn, through it (OPEN-VARIANT.md §12)", async () => {
     const { openWorld, resolver, referee } = setup();
-    const game = await runOpenGame({
-      openWorld,
-      resolver,
-      referee,
-      wardenMind: repeating({ intent: WAIT }),
-      prisonerMind: repeating({ intent: SCRAPE, line: "Just stretching." }),
-      rounds: 8,
-    });
+    let turn = 0;
+    const prisonerMind: OpenMind = {
+      async consider() {
+        turn += 1;
+        return turn === 1 ? { intent: OPEN_DOOR, line: "Just stretching." } : { intent: LEAVE_DOOR };
+      },
+    };
+    const game = await runOpenGame({ openWorld, resolver, referee, wardenMind: repeating({ intent: WAIT }), prisonerMind, rounds: 8 });
 
-    // bar 100 -> 75 -> 50 -> 25 -> 0 on the prisoner's 4th half-round; guard 50 -> 40 -> 30 -> 20 by then.
     expect(game.ended).toEqual({ kind: "escaped" });
-    expect(game.endedAtRound).toBe(4);
-    expect(game.halves.map((h) => `${h.roundN}:${h.principal}`)).toEqual([
-      "1:warden", "1:prisoner", "2:warden", "2:prisoner", "3:warden", "3:prisoner", "4:warden", "4:prisoner",
-    ]);
-    expect(getResource(openWorld.base.resources.guardAttention)?.value).toBe(20); // three full rounds of decay, none after the end
+    expect(game.endedAtRound).toBe(2);
+    expect(game.halves.map((h) => `${h.roundN}:${h.principal}`)).toEqual(["1:warden", "1:prisoner", "2:warden", "2:prisoner"]);
+  });
+
+  it("escape the long way: a prisoner who wears the bar through still has to leave by the window", async () => {
+    const { openWorld, resolver, referee } = setup();
+    let turn = 0;
+    const prisonerMind: OpenMind = {
+      async consider() {
+        turn += 1;
+        return turn <= 4 ? { intent: SCRAPE } : { intent: LEAVE_WINDOW };
+      },
+    };
+    const game = await runOpenGame({ openWorld, resolver, referee, wardenMind: repeating({ intent: WAIT }), prisonerMind, rounds: 8 });
+
+    // bar 100 -> 75 -> 50 -> 25 -> 0 over four turns; the fifth goes out.
+    expect(game.ended).toEqual({ kind: "escaped" });
+    expect(game.endedAtRound).toBe(5);
+    expect(getResource(openWorld.base.resources.guardAttention)?.value).toBe(10); // it decays, and nothing reads it for escape
   });
 
   it("catch: a warden who keeps examining the bar catches a prisoner who keeps wearing it, once suspicion gives grounds", async () => {
