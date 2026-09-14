@@ -227,7 +227,7 @@ describe("§2 invariant 7: the rendered outcome never states an absence", () => 
   const NEGATION_TOKENS = [" not ", " no ", "n't", "never", "nothing", "absence", "isn't", "doesn't", "cannot", "can't"];
 
   it("every real effect kind's description is free of negation tokens", () => {
-    const kinds: ("wear" | "restore" | "reveal" | "conceal" | "expose" | "noise")[] = ["wear", "restore", "reveal", "conceal", "expose", "noise"];
+    const kinds: ("wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive")[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive"];
     for (const principal of ["prisoner", "warden"] as const) {
       for (const effectKind of kinds) {
         const text = describeAttempt(principal, { targetObjectId: "bar", effectKind }).toLowerCase();

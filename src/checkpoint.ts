@@ -45,7 +45,7 @@ import {
 } from "./loop.js";
 import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
 import { getVariant } from "./variant.js";
-import { buildOpenWorld } from "./open/world.js";
+import { buildOpenWorld, declaredProperty } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { createReferee } from "./open/referee.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
@@ -665,9 +665,11 @@ async function main(): Promise<void> {
 async function mainOpen(): Promise<void> {
   const openWorld = buildOpenWorld();
   const resolver = buildOpenResolver();
-  const referee = createReferee([
-    createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded }),
-  ]);
+  const referee = createReferee(
+    [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })],
+    // Objects derived in this game (OPEN-VARIANT.md §13) are targets too.
+    { isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined }
+  );
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
   const mindOptions = (principal: OpenPrincipal) => ({
@@ -763,6 +765,11 @@ async function mainOpen(): Promise<void> {
     transcript.push("");
     transcript.push("### Resources");
     transcript.push(...finalResourceValues(openWorld.base));
+    transcript.push("");
+    transcript.push("### Derived objects (OPEN-VARIANT.md §13)");
+    transcript.push("");
+    transcript.push(`Made this game: ${openWorld.derived.length}.`);
+    for (const d of openWorld.derived) transcript.push(`- ${d.id} (${d.kindId}), held by the ${d.heldBy}: ${d.description}`);
     transcript.push("");
     transcript.push("### Half-round timings");
     transcript.push(...timings);

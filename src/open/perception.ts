@@ -1,7 +1,7 @@
 import { ResolveProtocolError } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
-import { findObject } from "./scenarioObjects.js";
 import { EXIT_LABEL } from "./loop.js";
+import { findKind } from "./derivedObjects.js";
 import { PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
 
 /**
@@ -62,6 +62,15 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
     if (ruling.effectKind === "noise") {
       return `Your last attempt made the ${obj} ring out.`;
     }
+    if (ruling.effectKind === "derive") {
+      // OPEN-VARIANT.md §13.4: the maker holds it now, and learns the
+      // parent's numbers; a stripped parent is stated as it is.
+      const made = (outcome.result as { made?: boolean }).made === true;
+      const label = findKind(ruling.product)?.label ?? ruling.product;
+      if (!made) return `Your last attempt met the ${obj} with its ${property} at ${result.before}, already stripped.`;
+      const wear = typeof result.before === "number" && typeof result.after === "number" ? ` The ${obj}'s ${property} went from ${result.before} to ${result.after}.` : "";
+      return `Your last attempt made a ${label} from the ${obj}: you hold it now, as ${half.derived?.id ?? ruling.product}.${wear}`;
+    }
     if (typeof result.before === "number" && typeof result.after === "number") {
       return result.before === result.after
         ? `Your last attempt left the ${obj}'s ${property} at ${result.after}, where it already stood.`
@@ -70,8 +79,10 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
     return `Your last attempt on the ${obj} took effect.`;
   }
 
-  // Ruled impossible (or ungrounded): the positive reason, from authored text.
-  const target = ruling.targetObjectId !== "none" ? findObject(ruling.targetObjectId) : undefined;
+  // Ruled impossible (or ungrounded): the positive reason, from authored text
+  // -- the description this principal was itself shown, which for an object
+  // derived in this game (OPEN-VARIANT.md §13) is its composed one.
+  const target = ruling.targetObjectId !== "none" ? half.context.perceivedObjects.find((o) => o.id === ruling.targetObjectId) : undefined;
   if (target) {
     return `Your last attempt (${quoted(proposal.intent)}) met the ${obj} as it is: ${target.description}`;
   }

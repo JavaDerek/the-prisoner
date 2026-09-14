@@ -13,6 +13,8 @@ export type ScriptedRuling = {
   property: string;
   magnitude: string;
   perceptibility: string;
+  /** OPEN-VARIANT.md §13.1's sixth question; `none` when absent. */
+  product?: string;
   intentQuote: string;
   descQuote: string;
 };
@@ -24,7 +26,7 @@ export function scriptedReferee(byIntent: Record<string, ScriptedRuling>): Reade
     if (!script) return [];
     return request.questions.map((q) => ({
       questionId: q.id,
-      answerKey: (script as Record<string, string>)[q.id],
+      answerKey: (script as Record<string, string | undefined>)[q.id] ?? "none",
       citation: q.id === "property" ? { sourceId: `desc:${script.target}`, quote: script.descQuote } : { sourceId: "intent", quote: script.intentQuote },
     }));
   };
@@ -36,6 +38,11 @@ export const WAIT = "I sit on the cot and wait.";
 export const OPEN_DOOR = "I work the flattened spoon into the gap and lever the bolt back.";
 export const LEAVE_DOOR = "I slip out through the open door.";
 export const LEAVE_WINDOW = "I climb out through the window where the bar was.";
+export const CUT_WIRE = "I untwist a length of wire from the cot's springs.";
+export const TAKE_GRIT = "I scoop a handful of grit from the hollow under the loose tile.";
+export const HIDE_WIRE = "I tuck the wire away under the loose tile.";
+export const BEND_WIRE = "I bend the wire back and forth to straighten it.";
+export const PUSH_BOLT_WITH_WIRE = "I push the wire into the gap and slide the bolt back.";
 
 export const RULINGS: Record<string, ScriptedRuling> = {
   [SCRAPE]: {
@@ -82,5 +89,52 @@ export const RULINGS: Record<string, ScriptedRuling> = {
     perceptibility: "visible",
     intentQuote: "climb out through the window",
     descQuote: "the cell's small window",
+  },
+  [CUT_WIRE]: {
+    target: "cot",
+    effect: "derive",
+    product: "wire",
+    property: "integrity",
+    magnitude: "moderate",
+    perceptibility: "audible",
+    intentQuote: "untwist a length of wire",
+    descQuote: "the springs are held to the frame by twists of wire",
+  },
+  [TAKE_GRIT]: {
+    target: "loose_tile",
+    effect: "derive",
+    product: "grit",
+    property: "none",
+    magnitude: "slight",
+    perceptibility: "silent",
+    intentQuote: "scoop a handful of grit",
+    descQuote: "a shallow hollow of dry grit",
+  },
+  [HIDE_WIRE]: {
+    target: "wire",
+    effect: "conceal",
+    property: "concealment",
+    magnitude: "substantial",
+    perceptibility: "silent",
+    intentQuote: "tuck the wire away",
+    descQuote: "A length of stiff iron wire",
+  },
+  [BEND_WIRE]: {
+    target: "wire",
+    effect: "wear",
+    property: "integrity",
+    magnitude: "slight",
+    perceptibility: "silent",
+    intentQuote: "bend the wire back and forth",
+    descQuote: "with a kink at one end",
+  },
+  [PUSH_BOLT_WITH_WIRE]: {
+    target: "lock",
+    effect: "open",
+    property: "passage",
+    magnitude: "moderate",
+    perceptibility: "silent",
+    intentQuote: "slide the bolt back",
+    descQuote: "the edge of the bolt shows in the gap",
   },
 };

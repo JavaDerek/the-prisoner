@@ -94,7 +94,7 @@ describe("open checkpoint transcript", () => {
 
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
-      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null },
+      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null },
       { reason: "unparseable", text: "RAW_MODEL_TEXT" }
     ).join("\n");
     expect(text).toContain("**Silence.** SilenceReason: `unparseable`");
@@ -107,7 +107,7 @@ describe("open checkpoint transcript", () => {
     expect(requests.length).toBe(game.halves.length);
     expect(requests[1].label).toBe(`round 1, prisoner: ${IMPOSSIBLE}`);
     expect(requests[1].request.sources.find((s) => s.id === "intent")?.text).toBe(IMPOSSIBLE);
-    expect(requests[1].request.questions.map((q) => q.id)).toEqual(["target", "effect", "property", "magnitude", "perceptibility"]);
+    expect(requests[1].request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
   });
 
   it("fog audit: no context holds the other principal's private text -- and a planted leak is caught", async () => {

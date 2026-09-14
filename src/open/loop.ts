@@ -1,5 +1,5 @@
 import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Outcome, type Expectation } from "run-dmcp";
-import type { OpenWorld } from "./world.js";
+import { adoptDerivedObject, nextDerivedId, declaredProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
 import type { Referee, RefereeRuling } from "./referee.js";
 import { planEffect, type EffectPlan, type EffectKind, type Magnitude } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
@@ -58,6 +58,9 @@ export interface OpenHalfRoundResult {
    *  other outcome (OPEN-VARIANT.md §9.3: catch is checked only right
    *  after a warden `reveal`). */
   revealFor: { objectId: string; property: string; value: number } | null;
+  /** Set only when this half-round's resolution was a `derive` that made
+   *  something (OPEN-VARIANT.md §13): the object the world now holds. */
+  derived: DerivedObjectRecord | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -87,7 +90,7 @@ export function precedentTextFor(ruling: Pick<RefereeRuling, "targetObjectId" | 
 }
 
 function suspicionEligible(effectKind: EffectKind): boolean {
-  return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave";
+  return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave" || effectKind === "derive";
 }
 
 /** Applies ONE further, audited `resolve()` call against `warden_suspicion`
@@ -154,6 +157,10 @@ export function describeAttempt(
       // True whether or not the way turns out to be open: what a bystander
       // sees is the attempt.
       return `${actor} makes for the ${exitLabel(ruling.targetObjectId)}.`;
+    case "derive":
+      // The act on the parent, and nothing about the product (OPEN-VARIANT.md
+      // §13.4): what was made, a bystander learns by perceiving it later.
+      return `${actor} works a piece loose from the ${obj}.`;
     case "none":
       // Dead in the real pipeline: `runOpenHalfRound` only calls this once
       // `ruling.applicable` is true, which requires `effectKind !== "none"`
@@ -227,7 +234,7 @@ export async function runOpenHalfRound(params: {
 
   const proposal = await mind.consider(context);
   if (proposal === null) {
-    return { ...base, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null };
+    return { ...base, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null };
   }
 
   // Notes to self, persisted before the referee rules -- exactly the closed
@@ -237,9 +244,10 @@ export async function runOpenHalfRound(params: {
 
   const ruling = await referee.rule(proposal.intent, context.perceivedObjects);
   if (!ruling.applicable) {
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null };
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null };
   }
 
+  const actorId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
   const description = describeAttempt(principal, ruling);
   const plan = planEffect({
     targetObjectId: ruling.targetObjectId,
@@ -249,13 +257,25 @@ export async function runOpenHalfRound(params: {
     entityIdFor: openWorld.entityIdFor,
     resourceIdFor: openWorld.resourceIdFor,
     exits: openWorld.exits,
-    actorId: principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId,
+    actorId,
+    declaredProperty: (objectId, key) => declaredProperty(openWorld, objectId, key),
+    ...(ruling.effectKind === "derive"
+      ? {
+          derive: {
+            product: ruling.product,
+            parentSpan: ruling.citations.property.citation?.quote ?? "",
+            actorId,
+            ownerLocationId: openWorld.base.cellId,
+            newObjectId: nextDerivedId(openWorld, ruling.product),
+          },
+        }
+      : {}),
     description,
   });
   if (plan === null) {
     // Declared applicable by the referee, but not a real (object, property)
     // pair in the scenario -- "no invented world" (invariant 6). Do nothing.
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null };
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null };
   }
 
   const expects = plan.isWearType && plan.resourceId ? wearExpectation(openWorld, principal, plan.resourceId) : undefined;
@@ -277,6 +297,15 @@ export async function runOpenHalfRound(params: {
       ...(expects ? { expects } : {}),
     });
     updateActorBelief(openWorld, principal, plan, outcome, roundN);
+
+    // OPEN-VARIANT.md §13.5: what the derive made, registered from its own
+    // outcome; the maker knows the new thing's starting state exactly.
+    let derived: DerivedObjectRecord | null = null;
+    if (plan.derived && outcome.result.made === true) {
+      derived = adoptDerivedObject(openWorld, { ...plan.derived, heldBy: principal, outcome });
+      for (const p of derived.properties) setBelief(openWorld.base.gameId, principal, p.resourceName, p.initialValue, roundN);
+    }
+
     const known = principal === "prisoner" && (params.knownApproaches ?? []).includes(precedentTextFor(ruling));
     const perceptionForOther = ruling.perceptibility !== "silent" || known ? description : null;
 
@@ -302,11 +331,11 @@ export async function runOpenHalfRound(params: {
       }
     }
 
-    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor };
+    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);
-      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null };
+      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null };
     }
     throw err;
   }

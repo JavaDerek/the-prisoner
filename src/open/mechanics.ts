@@ -1,4 +1,4 @@
-import { createResolver, type Mechanic, type AdjudicationInput, type Adjudication, type IntendedWrite, type Resolver } from "run-dmcp";
+import { createResolver, type Mechanic, type AdjudicationInput, type Adjudication, type IntendedWrite, type IntendedChange, type Resolver } from "run-dmcp";
 import { numericFactFrom } from "../world/facts.js";
 
 /**
@@ -145,6 +145,60 @@ export const OPEN_LEAVE: Mechanic = {
   },
 };
 
+export interface DeriveParams {
+  /** The parent's consumed property, or `null` for a kind that consumes nothing. */
+  parent: { resourceId: string; amount: number; min: number; max: number } | null;
+  item: { ownerId: string; name: string; properties: string };
+  resources: { ref: string; ownerId: string; name: string; value: number; min: number; max: number }[];
+  description: string;
+}
+
+/** OPEN-VARIANT.md §13.5: the parent worn by its own table, the item and
+ *  its property resources created, all in ONE resolution on run-dmcp 0.8.0's
+ *  `create` intent, later legs naming the item by `{ ref }`. A parent whose
+ *  consumed property already stands at its minimum yields nothing (§13.6,
+ *  decision 9): the resolution records the attempt and creates nothing.
+ *  Reads only the constraint it is handed, like every other. The engine
+ *  never learns what the new entity is for or what it was made from; the
+ *  item row's `properties` carries that, as this repository's own record. */
+export const OPEN_DERIVE: Mechanic = {
+  name: "OPEN_DERIVE",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as DeriveParams;
+    const changes: IntendedChange[] = [];
+    let before: number | null = null;
+    let after: number | null = null;
+    if (p.parent) {
+      before = currentValue(input, p.parent.resourceId);
+      if (before <= p.parent.min) {
+        return { changes: [], result: { mechanic: "OPEN_DERIVE", made: false, before, after: before }, description: p.description };
+      }
+      after = clamp(before - p.parent.amount, p.parent.min, p.parent.max);
+      changes.push(setResource(p.parent.resourceId, after, p.parent.min, p.parent.max));
+    }
+    changes.push({
+      kind: "create",
+      ref: "object",
+      entityKind: "item",
+      columns: { owner_id: p.item.ownerId, owner_type: "character", name: p.item.name, properties: p.item.properties },
+    });
+    const createdAt = new Date().toISOString();
+    for (const r of p.resources) {
+      changes.push({
+        kind: "create",
+        ref: r.ref,
+        entityKind: "resource",
+        columns: { owner_id: r.ownerId, owner_type: "location", name: r.name, value: r.value, min_value: r.min, max_value: r.max, created_at: createdAt },
+      });
+    }
+    return {
+      changes,
+      result: { mechanic: "OPEN_DERIVE", made: true, before, after },
+      description: p.description,
+    };
+  },
+};
+
 export function buildOpenResolver(): Resolver {
-  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_LEAVE] });
+  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_LEAVE, OPEN_DERIVE] });
 }

@@ -136,3 +136,41 @@ describe("planEffect (this task's brief: 'effects become resolutions')", () => {
     ).toBeNull();
   });
 });
+
+describe("planEffect: derive (OPEN-VARIANT.md §13.5)", () => {
+  const cotIds = { entityIdFor: { cot: "e-cot", loose_tile: "e-tile" }, resourceIdFor: { "cot.integrity": "r-cot" } };
+  const derive = { actorId: "c-prisoner", ownerLocationId: "l-cell", newObjectId: "wire", parentSpan: "the springs are held to the frame by twists of wire" };
+
+  it("builds OPEN_DERIVE: the parent's consumed property worn by the parent's own table, the item held by the maker, one resource per declared property, refs linking them", () => {
+    const plan = planEffect({ targetObjectId: "cot", effectKind: "derive", property: "integrity", magnitude: "moderate", ...cotIds, derive: { ...derive, product: "wire" }, description: "works a piece loose" });
+    expect(plan?.mechanic).toBe("OPEN_DERIVE");
+    expect(plan?.resourceId).toBe("r-cot");
+    expect(plan?.isWearType).toBe(true);
+    expect(plan?.parameters.parent).toEqual({ resourceId: "r-cot", amount: 20, min: 0, max: 100 }); // cot integrity wear moderate
+    expect(plan?.parameters.item).toEqual(expect.objectContaining({ ownerId: "c-prisoner", name: "the length of wire" }));
+    expect(JSON.parse((plan?.parameters.item as { properties: string }).properties)).toEqual(expect.objectContaining({ kind: "wire", derivedFrom: "cot" }));
+    const resources = plan?.parameters.resources as { ref: string; name: string; value: number; min: number; max: number; ownerId: string }[];
+    expect(resources.map((r) => r.ref)).toEqual(["property:integrity", "property:concealment"]);
+    expect(resources.map((r) => r.name)).toEqual(["wire_integrity", "wire_concealment"]);
+    expect(resources[1]).toEqual(expect.objectContaining({ value: 0, min: 0, max: 100, ownerId: "l-cell" }));
+    expect(plan?.derived).toEqual(expect.objectContaining({ id: "wire", kindId: "wire" }));
+    expect(plan?.derived?.description).toContain('It came away from the cot, where "the springs are held to the frame by twists of wire".');
+  });
+
+  it("a kind that consumes nothing has no parent leg and needs property none", () => {
+    const plan = planEffect({ targetObjectId: "loose_tile", effectKind: "derive", property: "none", magnitude: "slight", ...cotIds, derive: { ...derive, product: "grit", newObjectId: "grit" }, description: "x" });
+    expect(plan?.parameters.parent).toBeNull();
+    expect(plan?.resourceId).toBeNull();
+    expect(plan?.isWearType).toBe(false);
+    expect(planEffect({ targetObjectId: "loose_tile", effectKind: "derive", property: "integrity", magnitude: "slight", ...cotIds, derive: { ...derive, product: "grit" }, description: "x" })).toBeNull();
+  });
+
+  it("refuses: product none, an unknown product, a product whose parent is not the target, a property other than what the kind consumes, and no derive details at all", () => {
+    const base = { targetObjectId: "cot", effectKind: "derive" as const, magnitude: "moderate" as const, ...cotIds, description: "x" };
+    expect(planEffect({ ...base, property: "integrity", derive: { ...derive, product: "none" } })).toBeNull();
+    expect(planEffect({ ...base, property: "integrity", derive: { ...derive, product: "shiv" } })).toBeNull();
+    expect(planEffect({ ...base, property: "integrity", derive: { ...derive, product: "strip" } })).toBeNull();
+    expect(planEffect({ ...base, property: "none", derive: { ...derive, product: "wire" } })).toBeNull();
+    expect(planEffect({ ...base, property: "integrity" })).toBeNull();
+  });
+});

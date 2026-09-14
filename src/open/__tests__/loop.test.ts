@@ -30,8 +30,13 @@ function grounderReferee(): Referee {
     magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "file at the bar" } },
     perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "file at the bar" } },
   };
-  const transport = async (request: { questions: readonly { id: string }[] }) =>
-    request.questions.map((q) => ({ questionId: q.id, answerKey: (applicable as Record<string, { answerKey: string }>)[q.id].answerKey, citation: (applicable as Record<string, { citation: { sourceId: string; quote: string } }>)[q.id].citation }));
+  // Any question this fixture does not script (the product question,
+  // OPEN-VARIANT.md §13.1) gets its own safe default, cited from the intent.
+  const transport = async (request: { questions: readonly { id: string; safeDefault: string }[] }) =>
+    request.questions.map((q) => {
+      const scripted = (applicable as Record<string, { answerKey: string; citation: { sourceId: string; quote: string } } | undefined>)[q.id];
+      return { questionId: q.id, answerKey: scripted?.answerKey ?? q.safeDefault, citation: scripted?.citation ?? { sourceId: "intent", quote: "file at the bar" } };
+    });
   return createReferee([transport]);
 }
 
@@ -150,12 +155,11 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
       perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "file at the bar" } },
     };
     const referee = createReferee([
-      async (request: { questions: readonly { id: string }[] }) =>
-        request.questions.map((q) => ({
-          questionId: q.id,
-          answerKey: (silentApplicable as Record<string, { answerKey: string }>)[q.id].answerKey,
-          citation: (silentApplicable as Record<string, { citation: { sourceId: string; quote: string } }>)[q.id].citation,
-        })),
+      async (request: { questions: readonly { id: string; safeDefault: string }[] }) =>
+        request.questions.map((q) => {
+          const scripted = (silentApplicable as Record<string, { answerKey: string; citation: { sourceId: string; quote: string } } | undefined>)[q.id];
+          return { questionId: q.id, answerKey: scripted?.answerKey ?? q.safeDefault, citation: scripted?.citation ?? { sourceId: "intent", quote: "file at the bar" } };
+        }),
     ]);
 
     const result = await runOpenHalfRound({
@@ -218,11 +222,13 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
       property: "integrity", // meal_tray has no declared "integrity" property
       magnitude: "moderate",
       perceptibility: "audible",
+      product: "none",
       applicable: true,
       citations: {
         target: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
         effect: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
         property: { citation: { sourceId: "desc:meal_tray", quote: "x" }, requiredSourceId: "desc:meal_tray", verified: true },
+        product: { citation: null, requiredSourceId: "intent", verified: false },
       },
       raw: { answers: [], unmatched: [] },
       request: { questions: [], sources: [] },

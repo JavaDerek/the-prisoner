@@ -1,4 +1,5 @@
-import { findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
+import { findProperty, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
+import { findKind, composeDescription } from "./derivedObjects.js";
 
 /**
  * The open variant's effect vocabulary (OPEN-VARIANT.md §4.2, this task's
@@ -9,8 +10,8 @@ import { findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
  * non-empty `answerKeys` set; `none` is a member of it here, not an
  * absence).
  */
-export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "none";
-export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "none"];
+export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "none";
+export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "none"];
 
 export type Magnitude = "slight" | "moderate" | "substantial";
 export const MAGNITUDES: readonly Magnitude[] = ["slight", "moderate", "substantial"];
@@ -39,7 +40,20 @@ export function effectRequiresProperty(effectKind: EffectKind): boolean {
   );
 }
 
-export type OpenMechanicName = "OPEN_WEAR" | "OPEN_RESTORE" | "OPEN_REVEAL" | "OPEN_NOISE" | "OPEN_LEAVE";
+export type OpenMechanicName = "OPEN_WEAR" | "OPEN_RESTORE" | "OPEN_REVEAL" | "OPEN_NOISE" | "OPEN_LEAVE" | "OPEN_DERIVE";
+
+/** What a `derive` plan will register in the world once its resolution has
+ *  created the entities (OPEN-VARIANT.md §13.5) -- decided before the
+ *  resolution, from keys and authored text, never from the outcome. */
+export interface PlannedDerivation {
+  id: string;
+  kindId: string;
+  /** Composed by code (§13.2). */
+  description: string;
+  /** The parent's property the derivation consumes, or `null`. */
+  consumes: OpenPropertyKey | null;
+  parentObjectId: string;
+}
 
 export interface EffectPlan {
   mechanic: OpenMechanicName;
@@ -54,6 +68,8 @@ export interface EffectPlan {
    *  `concealment` property) -- the two directions the belief-gated
    *  `expects` applies to. */
   isWearType: boolean;
+  /** Set only for `derive`. */
+  derived?: PlannedDerivation;
 }
 
 /**
@@ -85,9 +101,27 @@ export function planEffect(params: {
    *  needed only by `leave`. */
   exits?: Readonly<Record<string, { passageResourceId: string; integrityResourceId: string; destinationId: string }>>;
   actorId?: string;
+  /** Which properties an object declares -- the §4.1 table by default; a
+   *  caller with a world hands in `declaredProperty` (`world.ts`) so an
+   *  object derived in this game (OPEN-VARIANT.md §13.3) takes effects too. */
+  declaredProperty?: (objectId: string, key: OpenPropertyKey) => OpenObjectProperty | undefined;
+  /** OPEN-VARIANT.md §13: the referee's `product` key and what the caller
+   *  decided for the new object -- needed only by `derive`. */
+  derive?: {
+    product: string;
+    /** The span the referee cited from the parent's description. */
+    parentSpan: string;
+    actorId: string;
+    /** The location the new object's property resources belong to, as
+     *  every §4.1 property's does (`world.ts`). */
+    ownerLocationId: string;
+    /** The scenario-local id the world has chosen (`wire`, `wire_2`). */
+    newObjectId: string;
+  };
   description: string;
 }): EffectPlan | null {
   const { targetObjectId, effectKind, property, magnitude, entityIdFor, resourceIdFor, description } = params;
+  const lookup = params.declaredProperty ?? findProperty;
   const entityId = entityIdFor[targetObjectId];
   if (!entityId) return null;
 
@@ -106,11 +140,12 @@ export function planEffect(params: {
       isWearType: false,
     };
   }
+  if (effectKind === "derive") return planDerive(params);
   if (effectKind === "none" || property === "none") return null;
   // `passage` changes by open/close alone, and open/close change nothing else.
   if ((effectKind === "open" || effectKind === "close") !== (property === "passage")) return null;
 
-  const declared = findProperty(targetObjectId, property);
+  const declared = lookup(targetObjectId, property);
   if (!declared) return null; // Not declared on this object -- "no invented world".
   const resourceId = resourceIdFor[`${targetObjectId}.${property}`];
   if (!resourceId) return null;
@@ -163,4 +198,55 @@ export function planEffect(params: {
     };
   }
   return null;
+}
+
+/**
+ * OPEN-VARIANT.md §13.5: one resolution -- a `write` wearing the consumed
+ * property by the parent's own table, a `create` of the item held by the
+ * maker, and one `create` per declared property, each naming the item by
+ * run-dmcp 0.8.0's `{ ref }`. Refuses, returning `null` like every other
+ * incoherent ruling: no product; a product not in the table; a product
+ * whose declared parent is not the target (§13.1); a property that is not
+ * what the kind consumes (`none` for a kind that consumes nothing).
+ */
+function planDerive(params: Parameters<typeof planEffect>[0]): EffectPlan | null {
+  const { targetObjectId, property, magnitude, resourceIdFor, description } = params;
+  const derive = params.derive;
+  if (!derive || derive.product === "none") return null;
+  const kind = findKind(derive.product);
+  if (!kind || kind.parent !== targetObjectId) return null;
+  if ((kind.consumes ?? "none") !== property) return null;
+
+  let parent: { resourceId: string; amount: number; min: number; max: number } | null = null;
+  if (kind.consumes !== null) {
+    const declared = findProperty(targetObjectId, kind.consumes);
+    const resourceId = resourceIdFor[`${targetObjectId}.${kind.consumes}`];
+    if (!declared || !resourceId) return null;
+    parent = { resourceId, amount: declared.wear[magnitude], min: declared.min, max: declared.max };
+  }
+
+  const composed = composeDescription(kind, targetObjectId.replace(/_/g, " "), derive.parentSpan);
+  return {
+    mechanic: "OPEN_DERIVE",
+    parameters: {
+      parent,
+      item: {
+        ownerId: derive.actorId,
+        name: `the ${kind.label}`,
+        properties: JSON.stringify({ description: composed, kind: kind.id, derivedFrom: targetObjectId }),
+      },
+      resources: kind.properties.map((p) => ({
+        ref: `property:${p.key}`,
+        ownerId: derive.ownerLocationId,
+        name: `${derive.newObjectId}_${p.key}`,
+        value: p.initialValue,
+        min: p.min,
+        max: p.max,
+      })),
+      description,
+    },
+    resourceId: parent?.resourceId ?? null,
+    isWearType: parent !== null,
+    derived: { id: derive.newObjectId, kindId: kind.id, description: composed, consumes: kind.consumes, parentObjectId: targetObjectId },
+  };
 }

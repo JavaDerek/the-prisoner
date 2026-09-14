@@ -31,14 +31,22 @@ import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, pri
 const OWNER_OF: Partial<Record<string, Principal>> = { spoon: "prisoner", key_ring: "warden" };
 
 export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number): ObjectPerception[] {
-  return OPEN_OBJECTS.filter((spec) => {
-    const owner = OWNER_OF[spec.id];
-    if (owner === principal) return true; // Always perceive your own things, concealed or not.
-    const concealmentResourceId = resourceIdForProperty(openWorld, spec.id, "concealment");
-    if (!concealmentResourceId) return true; // Not concealable at all.
-    const value = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: concealmentResourceId, key: "value" });
-    return value === null || value < 50;
-  }).map((spec) => ({ id: spec.id, description: spec.description }));
+  // The §4.1 objects, then every object derived in this game (OPEN-VARIANT.md
+  // §13.3), under one rule: the holder always perceives its own things; the
+  // other principal does unless the thing is concealed at 50 or more.
+  const candidates = [
+    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: spec.description, owner: OWNER_OF[spec.id] })),
+    ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, owner: d.heldBy as Principal | undefined })),
+  ];
+  return candidates
+    .filter((object) => {
+      if (object.owner === principal) return true;
+      const concealmentResourceId = resourceIdForProperty(openWorld, object.id, "concealment");
+      if (!concealmentResourceId) return true; // Not concealable at all.
+      const value = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: concealmentResourceId, key: "value" });
+      return value === null || value < 50;
+    })
+    .map((object) => ({ id: object.id, description: object.description }));
 }
 
 const DEFAULT_TOTAL_ROUNDS = 12;
@@ -58,9 +66,10 @@ export type OpenNews = {
  *  scenario's declared properties, plus `guard_attention` (a game-state
  *  resource, OPEN-VARIANT.md §9.1, seeded like the closed variant's). A line
  *  renders only where THIS principal holds a belief. */
-function beliefResourceNames(): string[] {
+function beliefResourceNames(openWorld: OpenWorld): string[] {
   const names = OPEN_OBJECTS.flatMap((spec) => spec.properties.map((p) => p.resourceName));
-  return [...new Set([...names, "guard_attention"])];
+  const derived = openWorld.derived.flatMap((d) => d.properties.map((p) => p.resourceName));
+  return [...new Set([...names, ...derived, "guard_attention"])];
 }
 
 /** Builds one principal's own briefing -- clock, stakes, this SAME
@@ -99,7 +108,7 @@ export function buildOpenBriefing(
       if (suspicion >= SEARCH_SUSPICION_THRESHOLD) lines.push(`You have grounds to search: suspicion ${suspicion}.`);
     }
   }
-  for (const name of beliefResourceNames()) {
+  for (const name of beliefResourceNames(openWorld)) {
     const line = renderBeliefLine(name.replace(/_/g, " "), getBelief(gameId, principal, name));
     if (line) lines.push(line);
   }

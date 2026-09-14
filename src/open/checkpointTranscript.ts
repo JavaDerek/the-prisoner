@@ -23,7 +23,7 @@ export interface SilenceNote {
   parsed?: unknown;
 }
 
-const QUESTION_IDS = ["target", "effect", "property", "magnitude", "perceptibility"] as const;
+const QUESTION_IDS = ["target", "effect", "product", "property", "magnitude", "perceptibility"] as const;
 
 function citationCell(citation: { sourceId: string; quote: string } | null | undefined): string {
   return citation ? `${citation.sourceId}: "${citation.quote}"` : "(none)";
@@ -36,6 +36,7 @@ function refereeTable(half: OpenHalfRoundResult): string[] {
     target: ruling.citations.target.verified,
     effect: ruling.citations.effect.verified,
     property: ruling.citations.property.verified,
+    product: ruling.effectKind === "derive" ? ruling.citations.product.verified : undefined,
   };
   const lines = ["| question | answer | citation | verified |", "|---|---|---|---|"];
   for (const id of QUESTION_IDS) {
@@ -72,13 +73,21 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
     lines.push(`Resolved \`${plan?.mechanic ?? "?"}\` (${ruling.effectKind}, ${ruling.magnitude}, ${ruling.perceptibility}):`);
     for (const t of outcome.transitions) lines.push(`  - ${resourceName}: ${t.previousValue} -> ${t.newValue}`);
     for (const set of outcome.sets) lines.push(`  - ${set.key}: ${String(set.previousValue)} -> ${String(set.newValue)}`);
-    const result = outcome.result as { value?: unknown; left?: boolean };
+    const result = outcome.result as { value?: unknown; left?: boolean; made?: boolean };
     if (ruling.effectKind === "reveal" && result.value !== undefined) lines.push(`  - revealed ${resourceName} = ${String(result.value)}`);
+    if (ruling.effectKind === "derive") {
+      if (half.derived) {
+        lines.push(`  - made ${half.derived.id} (${half.derived.kindId}), held by the ${half.derived.heldBy}: ${half.derived.description}`);
+        for (const c of outcome.created) lines.push(`  - created ${c.entityKind} ${c.entityId} (${c.ref})`);
+      } else {
+        lines.push(`  - the ${ruling.targetObjectId.replace(/_/g, " ")} was already stripped; made ${ruling.product}: none`);
+      }
+    }
     if (ruling.effectKind === "leave") {
       const exit = EXIT_LABEL[ruling.targetObjectId] ?? ruling.targetObjectId;
       lines.push(result.left ? `  - went out through the ${exit}` : `  - the ${exit} held shut`);
     }
-    if (outcome.transitions.length === 0 && outcome.sets.length === 0 && ruling.effectKind !== "reveal" && ruling.effectKind !== "leave") {
+    if (outcome.transitions.length === 0 && outcome.sets.length === 0 && outcome.created.length === 0 && ruling.effectKind !== "reveal" && ruling.effectKind !== "leave" && ruling.effectKind !== "derive") {
       lines.push("  (no state changed)");
     }
   } else if (refusalError) {

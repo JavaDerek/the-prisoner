@@ -1,6 +1,8 @@
-import { createItem, createLocation, createResource, declareBoundedConstraint, declareResolveOnlyConstraint } from "run-dmcp";
+import { createItem, createLocation, createResource, declareBoundedConstraint, declareResolveOnlyConstraint, type Outcome } from "run-dmcp";
 import { buildWorld, type World } from "../world/setup.js";
-import { OPEN_OBJECTS, type OpenObjectSpec } from "./scenarioObjects.js";
+import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey } from "./scenarioObjects.js";
+import { findKind } from "./derivedObjects.js";
+import type { Principal } from "../ledger/beliefs.js";
 
 /**
  * The open variant's world (OPEN-VARIANT.md §1: "Everything the closed
@@ -35,6 +37,21 @@ export interface OpenWorld {
   /** OPEN-VARIANT.md §12: the cell's ways out, keyed by the object that is
    *  the exit (the lock is the door's, the bar the window's). */
   exits: Readonly<Record<string, OpenExit>>;
+  /** OPEN-VARIANT.md §13: every object made during this game, in order.
+   *  Registered by `adoptDerivedObject` from a derive's own outcome. */
+  derived: DerivedObjectRecord[];
+}
+
+/** One derived object (OPEN-VARIANT.md §13.3): an object like any other --
+ *  id, holder, composed description, declared properties -- known to the
+ *  world from the resolution that created it. */
+export interface DerivedObjectRecord {
+  id: string;
+  kindId: string;
+  heldBy: Principal;
+  description: string;
+  entityId: string;
+  properties: readonly OpenObjectProperty[];
 }
 
 export interface OpenExit {
@@ -126,9 +143,61 @@ export function buildOpenWorld(): OpenWorld {
     },
   };
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits };
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [] };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {
   return world.resourceIdFor[propertyToken(objectId, propertyKey)];
+}
+
+/** A property declared on a §4.1 object or on an object derived in this
+ *  game (§13.3) -- the world-aware form of `findProperty`. */
+export function declaredProperty(world: OpenWorld, objectId: string, key: string): OpenObjectProperty | undefined {
+  const derived = world.derived.find((d) => d.id === objectId);
+  if (derived) return derived.properties.find((p) => p.key === key);
+  return findProperty(objectId, key as OpenPropertyKey);
+}
+
+/** The id the next derived object of `kindId` gets: the kind's name, then
+ *  `<kind>_2`, `<kind>_3` (§13.3). */
+export function nextDerivedId(world: OpenWorld, kindId: string): string {
+  const count = world.derived.filter((d) => d.kindId === kindId).length;
+  return count === 0 ? kindId : `${kindId}_${count + 1}`;
+}
+
+/**
+ * Registers what a derive's resolution just created (OPEN-VARIANT.md
+ * §13.5): reads the item and its property resources off `outcome.created`
+ * by the refs `effects.ts` gave them, declares each resource `bounded` and
+ * `resolve_only` by the same call `buildOpenWorld` makes at setup (the one
+ * thing that happens after `resolve()` returns -- §13.5 records it), and
+ * extends the world's maps so the new object is perceived, targeted and
+ * believed about like any §4.1 object.
+ */
+export function adoptDerivedObject(
+  world: OpenWorld,
+  params: { id: string; kindId: string; heldBy: Principal; description: string; outcome: Outcome }
+): DerivedObjectRecord {
+  const kind = findKind(params.kindId);
+  if (!kind) throw new Error(`open/world: '${params.kindId}' is not a derivable kind`);
+  const byRef = new Map(params.outcome.created.map((c) => [c.ref, c.entityId]));
+  const entityId = byRef.get("object");
+  if (!entityId) throw new Error(`open/world: the derive resolution created no item under ref 'object'`);
+
+  const properties: OpenObjectProperty[] = [];
+  for (const p of kind.properties) {
+    const resourceId = byRef.get(`property:${p.key}`);
+    if (!resourceId) throw new Error(`open/world: the derive resolution created no resource under ref 'property:${p.key}'`);
+    declareBoundedConstraint({ gameId: world.base.gameId, resourceId });
+    declareResolveOnlyConstraint({ gameId: world.base.gameId, resourceId });
+    const resourceName = `${params.id}_${p.key}`;
+    world.resourceIdFor[propertyToken(params.id, p.key)] = resourceId;
+    world.resourceNameById[resourceId] = resourceName;
+    properties.push({ ...p, resourceName });
+  }
+  world.entityIdFor[params.id] = entityId;
+
+  const record: DerivedObjectRecord = { id: params.id, kindId: kind.id, heldBy: params.heldBy, description: params.description, entityId, properties };
+  world.derived.push(record);
+  return record;
 }

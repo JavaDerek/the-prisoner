@@ -1,6 +1,7 @@
 import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion } from "run-dmcp";
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PROPERTY_ANSWER_KEYS, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
+import { DERIVABLE_KINDS } from "./derivedObjects.js";
 
 /**
  * The referee (OPEN-VARIANT.md §3, this task's brief "The referee"). A
@@ -64,6 +65,9 @@ export interface RefereeRuling {
   property: OpenPropertyKey | "none";
   magnitude: Magnitude;
   perceptibility: Perceptibility;
+  /** OPEN-VARIANT.md §13.1's sixth question: the declared derivable kind
+   *  the new thing is, or `none`. Read only when the effect is `derive`. */
+  product: string;
   /** Whether this ruling passed every citation and "declared in the
    *  scenario" check (this module's own check; `planEffect`, `effects.ts`,
    *  does the scenario-declaration half) -- when `false`, the intent does
@@ -77,6 +81,7 @@ export interface RefereeRuling {
     target: CitationCheck;
     effect: CitationCheck;
     property: CitationCheck;
+    product: CitationCheck;
   };
   /** The raw reader result, kept for the transcript. */
   raw: ReaderResult;
@@ -119,10 +124,10 @@ function precedentSourceId(objectId: string): string {
 export class PrecedentStore {
   private readonly byObject = new Map<string, string[]>();
 
-  record(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind" | "property" | "magnitude" | "citations">): void {
+  record(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind" | "property" | "magnitude" | "citations" | "product">): void {
     if (ruling.targetObjectId === "none") return;
     const line =
-      `effect=${ruling.effectKind} property=${ruling.property} magnitude=${ruling.magnitude}` +
+      `effect=${ruling.effectKind}${ruling.effectKind === "derive" ? ` product=${ruling.product}` : ""} property=${ruling.property} magnitude=${ruling.magnitude}` +
       ` target-citation="${ruling.citations.target.citation?.quote ?? ""}"` +
       ` property-citation="${ruling.citations.property.citation?.quote ?? ""}"`;
     const existing = this.byObject.get(ruling.targetObjectId) ?? [];
@@ -141,6 +146,11 @@ export class PrecedentStore {
 
 function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQuestion[] {
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
+  // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
+  // in the effect question by example and offered as the product keys.
+  const perceivedIds = new Set(perceivedObjects.map((o) => o.id));
+  const derivable = DERIVABLE_KINDS.filter((k) => perceivedIds.has(k.parent));
+  const deriveExamples = DERIVABLE_KINDS.map((k) => `a ${k.label} from the ${k.parent.replace(/_/g, " ")}`).join(", ");
   return [
     {
       id: "target",
@@ -159,9 +169,20 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
         "one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. " +
         "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
         "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
-        "wear is for damage or dulling with no way out as its goal. Cite the exact words in " +
+        "wear is for damage or dulling with no way out as its goal. " +
+        `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
+        "is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in " +
         "the actor's intent that describe the action.",
       answerKeys: [...EFFECT_KINDS],
+      safeDefault: "none",
+    },
+    {
+      id: "product",
+      prompt:
+        "If the effect is derive, which declared kind of thing does the actor make from the target? One of: " +
+        (derivable.length > 0 ? derivable.map((k) => `${k.id} (a ${k.label}, from the ${k.parent.replace(/_/g, " ")})`).join(", ") + ", or none" : "none") +
+        ". Answer none for every other effect. Cite the exact words in the actor's intent that name what is made.",
+      answerKeys: [...derivable.map((k) => k.id), "none"],
       safeDefault: "none",
     },
     {
@@ -169,7 +190,9 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
       prompt:
         "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
         "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none " +
-        "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET " +
+        "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). " +
+        "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
+        "that takes nothing from the target), and cite the words naming the part that comes away. Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
       answerKeys: [...PROPERTY_ANSWER_KEYS],
       safeDefault: "none",
@@ -215,16 +238,23 @@ function citationCheck(answer: AnsweredQuestion, requiredSourceId: string | null
   return { citation, requiredSourceId, verified };
 }
 
+/** Whether `(objectId, property)` is declared in the scenario -- the check
+ *  a property answer must pass. The default knows the §4.1 objects only; a
+ *  caller with a world hands in `declaredProperty` (`world.ts`) so objects
+ *  derived in this game (OPEN-VARIANT.md §13.3) count too. */
+export type DeclaredPropertyCheck = (objectId: string, property: string) => boolean;
+const declaredInScenario: DeclaredPropertyCheck = (objectId, property) => !!findProperty(objectId, property as OpenPropertyKey);
+
 /** Builds the ruling from a completed read -- pure, so it is unit-testable
- *  against a hand-built `ReaderResult` without ever constructing a reader
- *  (used directly by `replay.ts`, which re-runs the ladder itself and only
- *  needs this half). */
+ *  against a hand-built `ReaderResult` without ever constructing a reader. */
 export function computeRuling(
   result: ReaderResult,
-  request: { questions: readonly ReaderQuestion[]; sources: readonly ReaderSource[] }
+  request: { questions: readonly ReaderQuestion[]; sources: readonly ReaderSource[] },
+  isDeclared: DeclaredPropertyCheck = declaredInScenario
 ): RefereeRuling {
   const targetAnswer = answerFor(result, "target");
   const effectAnswer = answerFor(result, "effect");
+  const productAnswer = answerFor(result, "product");
   const propertyAnswer = answerFor(result, "property");
   const magnitudeAnswer = answerFor(result, "magnitude");
   const perceptibilityAnswer = answerFor(result, "perceptibility");
@@ -232,12 +262,18 @@ export function computeRuling(
   const targetObjectId = targetAnswer.answerKey;
   const effectKind = effectAnswer.answerKey as EffectKind;
   const property = propertyAnswer.answerKey as OpenPropertyKey | "none";
+  const product = productAnswer.answerKey;
 
   const targetCitation = citationCheck(targetAnswer, INTENT_SOURCE_ID);
   const effectCitation = citationCheck(effectAnswer, INTENT_SOURCE_ID);
   const propertyCitation = citationCheck(propertyAnswer, targetObjectId !== "none" ? descriptionSourceId(targetObjectId) : null);
+  const productCitation = citationCheck(productAnswer, INTENT_SOURCE_ID);
 
-  const propertyNamedWhenRequired = !effectRequiresProperty(effectKind) || (property !== "none" && !!findProperty(targetObjectId, property));
+  const propertyNamedWhenRequired = !effectRequiresProperty(effectKind) || (property !== "none" && isDeclared(targetObjectId, property));
+  // OPEN-VARIANT.md §13.1: a derive names a declared product, cited from the
+  // intent. Whether that product's parent is the target is `effects.ts`'s
+  // check, as every "declared in the scenario" check is.
+  const productNamedWhenRequired = effectKind !== "derive" || (product !== "none" && productCitation.verified);
 
   const applicable =
     targetObjectId !== "none" &&
@@ -245,7 +281,8 @@ export function computeRuling(
     targetCitation.verified &&
     effectCitation.verified &&
     propertyCitation.verified &&
-    propertyNamedWhenRequired;
+    propertyNamedWhenRequired &&
+    productNamedWhenRequired;
 
   return {
     targetObjectId,
@@ -253,8 +290,9 @@ export function computeRuling(
     property,
     magnitude: magnitudeAnswer.answerKey as Magnitude,
     perceptibility: perceptibilityAnswer.answerKey as Perceptibility,
+    product,
     applicable,
-    citations: { target: targetCitation, effect: effectCitation, property: propertyCitation },
+    citations: { target: targetCitation, effect: effectCitation, property: propertyCitation, product: productCitation },
     raw: result,
     request,
   };
@@ -272,8 +310,9 @@ export interface Referee {
  *  every test in this module for a scripted one). Temperature 0 is the
  *  TRANSPORT's own concern (`refereeTransport.ts`), not this module's --
  *  this module never itself calls a model. */
-export function createReferee(transports: readonly ReaderTransport[]): Referee {
+export function createReferee(transports: readonly ReaderTransport[], options: { isDeclared?: DeclaredPropertyCheck } = {}): Referee {
   const precedent = new PrecedentStore();
+  const isDeclared = options.isDeclared ?? declaredInScenario;
   return {
     precedent,
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
@@ -281,7 +320,7 @@ export function createReferee(transports: readonly ReaderTransport[]): Referee {
       const sources = buildSources(intentText, perceivedObjects, precedent);
       const reader = createTurnReader({ questions, transports });
       const result = await reader.read(sources);
-      const ruling = computeRuling(result, { questions, sources });
+      const ruling = computeRuling(result, { questions, sources }, isDeclared);
       // Only rulings that applied become precedent. A failed ruling shown as
       // an example is copied: the first real games (OPEN-VARIANT.md §11.2) had
       // one bad bar ruling repeated turn after turn.
