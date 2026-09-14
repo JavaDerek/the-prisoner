@@ -1,0 +1,1882 @@
+[
+  {
+    "label": "round 1, warden: Examine the bar closely for signs of hidden damage or wear",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the bar closely for signs of hidden damage or wear"
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 1, prisoner: Use the worn flat side of the spoon to scrape the rusted bottom of the bar.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Use the worn flat side of the spoon to scrape the rusted bottom of the bar."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 2, warden: Examine the bar closely for new scratches or signs of tampering near the rusted section.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the bar closely for new scratches or signs of tampering near the rusted section."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 2, prisoner: Scrape the bar with the spoon again to further reduce its integrity.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Scrape the bar with the spoon again to further reduce its integrity."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 3, warden: Examine the lock closely for signs of tampering or wear.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the lock closely for signs of tampering or wear."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 3, prisoner: Use the loose tile as a wedge to pry the bar from the mortar, increasing the damage to the bar's integrity.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Use the loose tile as a wedge to pry the bar from the mortar, increasing the damage to the bar's integrity."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 4, warden: Examine the bar closely for hidden damage or signs of tampering.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the bar closely for hidden damage or signs of tampering."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 4, prisoner: Use the loose tile as a wedge to gently pry the bar, causing minimal visible damage.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Use the loose tile as a wedge to gently pry the bar, causing minimal visible damage."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 5, warden: Examine the bar closely for hidden damage or signs of tampering.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the bar closely for hidden damage or signs of tampering."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 5, prisoner: Use the spoon to chip away at the rust-pitted bar, focusing on the mortar where it's set into the wall.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Use the spoon to chip away at the rust-pitted bar, focusing on the mortar where it's set into the wall."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\" property-citation=\"effect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 6, warden: Examine the bar closely for hidden damage or signs of tampering, focusing on the rusted and cracked areas.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the bar closely for hidden damage or signs of tampering, focusing on the rusted and cracked areas."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\" property-citation=\"effect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the spoon to chip away at the rust-pitted bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 6, prisoner: Use the worn flat side of the spoon to scrape rust and mortar from the bottom of the bar, targeting the weak point.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Use the worn flat side of the spoon to scrape rust and mortar from the bottom of the bar, targeting the weak point."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\" property-citation=\"effect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the spoon to chip away at the rust-pitted bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering\" property-citation=\"effect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\"\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 7, warden: Examine the bar's rusted and cracked areas again, checking for hidden damage or signs of tampering that may have been overlooked.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the bar's rusted and cracked areas again, checking for hidden damage or signs of tampering that may have been overlooked."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\" property-citation=\"effect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the spoon to chip away at the rust-pitted bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering\" property-citation=\"effect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 7, prisoner: Use the dented spoon to chip away at the rusted portion of the bar near the mortar.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Use the dented spoon to chip away at the rusted portion of the bar near the mortar."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\" property-citation=\"effect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the spoon to chip away at the rust-pitted bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering\" property-citation=\"effect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar's rusted and cracked areas again\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 8, warden: Examine the bar's rusted and cracked areas again, checking for hidden damage or signs of tampering that may have been overlooked.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Examine the bar's rusted and cracked areas again, checking for hidden damage or signs of tampering that may have been overlooked."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\" property-citation=\"effect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the spoon to chip away at the rust-pitted bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering\" property-citation=\"effect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar's rusted and cracked areas again\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the dented spoon to chip away at the rusted portion of the bar near the mortar.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  },
+  {
+    "label": "round 8, prisoner: Use the spoon to aggressively scrape the rusted sections of the bar, focusing on the weakened areas to reduce its integrity further.",
+    "request": {
+      "questions": [
+        {
+          "id": "target",
+          "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+          "answerKeys": [
+            "bar",
+            "lock",
+            "spoon",
+            "loose_tile",
+            "cot",
+            "blanket",
+            "bucket",
+            "meal_tray",
+            "key_ring",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "effect",
+          "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), or none. Cite the exact words in the actor's intent that describe the action.",
+          "answerKeys": [
+            "wear",
+            "restore",
+            "reveal",
+            "conceal",
+            "expose",
+            "noise",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "property",
+          "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.",
+          "answerKeys": [
+            "integrity",
+            "edge",
+            "concealment",
+            "none"
+          ],
+          "safeDefault": "none"
+        },
+        {
+          "id": "magnitude",
+          "prompt": "How large is the effect: slight, moderate, or substantial?",
+          "answerKeys": [
+            "slight",
+            "moderate",
+            "substantial"
+          ],
+          "safeDefault": "slight"
+        },
+        {
+          "id": "perceptibility",
+          "prompt": "Is the effect silent, audible, or visible to someone else present?",
+          "answerKeys": [
+            "silent",
+            "audible",
+            "visible"
+          ],
+          "safeDefault": "silent"
+        }
+      ],
+      "sources": [
+        {
+          "id": "intent",
+          "text": "Use the spoon to aggressively scrape the rusted sections of the bar, focusing on the weakened areas to reduce its integrity further."
+        },
+        {
+          "id": "desc:bar",
+          "text": "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        },
+        {
+          "id": "precedent:bar",
+          "text": "effect=none property=none magnitude=slight target-citation=\"for signs of hidden damage or wear\" property-citation=\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=none property=integrity magnitude=slight target-citation=\"Examine the bar closely for new scratches or signs of tampering near the rusted section.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Scrape the bar with the spoon again to further reduce its integrity.\" property-citation=\"effect=wear property=integrity magnitude=slight target-citation=\"the rusted bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=none magnitude=slight target-citation=\"Use the loose tile as a wedge to pry the bar from the mortar\" property-citation=\"\"\neffect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the loose tile as a wedge to gently pry the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\" property-citation=\"effect=none property=concealment magnitude=slight target-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the spoon to chip away at the rust-pitted bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering\" property-citation=\"effect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar closely for hidden damage or signs of tampering.\"\"\neffect=wear property=integrity magnitude=slight target-citation=\"the bottom of the bar\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar's rusted and cracked areas again\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=wear property=integrity magnitude=slight target-citation=\"Use the dented spoon to chip away at the rusted portion of the bar near the mortar.\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\"\neffect=reveal property=concealment magnitude=slight target-citation=\"Examine the bar's rusted and cracked areas again\" property-citation=\"Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.\""
+        },
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        },
+        {
+          "id": "precedent:lock",
+          "text": "effect=reveal property=none magnitude=slight target-citation=\"Examine the lock closely for signs of tampering or wear.\" property-citation=\"\""
+        },
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        },
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        },
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        },
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        },
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        },
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        },
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    }
+  }
+]
