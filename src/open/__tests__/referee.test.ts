@@ -236,4 +236,16 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(lockRequestSources.some((s) => s.id === "precedent:bar")).toBe(false);
     expect(lockRequestSources.some((s) => s.id === "precedent:lock")).toBe(false); // none recorded yet either
   });
+
+  it("every question tells the referee which source to cite from -- magnitude and perceptibility included", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    const referee = createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]);
+    await referee.rule("file it", [BAR]);
+    for (const q of questions) expect(q.prompt, q.id).toMatch(/Cite the exact words in the (actor's intent|TARGET OBJECT'S OWN description)/);
+  });
 });

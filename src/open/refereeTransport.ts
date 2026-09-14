@@ -58,23 +58,43 @@ const DEFAULT_TIMEOUT_MS = 12_000;
  *  quote}}` -- the exact shape `TransportAnswer[]` needs, so no translation
  *  step sits between "what the model said" and "what this function
  *  returns" beyond ordinary JSON parsing. */
+const PRECEDENT_SOURCE_PREFIX = "precedent:";
+
 function buildPrompt(request: ReadRequest): string {
-  const sourceLines = request.sources.map((s) => `[${s.id}] ${s.text}`);
+  // Earlier rulings are this referee's own precedent (`referee.ts`): shown for
+  // consistency, apart from the sources, because a referee shown them among
+  // the sources cites them -- and no answer may rest on one (OPEN-VARIANT.md
+  // §11.4). Ids are written as quoted labels, never in brackets, which the
+  // first games showed coming back as "[desc:bar]".
+  const citable = request.sources.filter((s) => !s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
+  const earlier = request.sources.filter((s) => s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
+  const sourceBlocks = citable.flatMap((s) => [`source "${s.id}":`, s.text, ""]);
   const questionLines = request.questions.map(
     (q) => `- id "${q.id}": ${q.prompt} Answer with exactly one of: ${q.answerKeys.join(", ")}.`
   );
+  const earlierBlock =
+    earlier.length > 0
+      ? [
+          "EARLIER RULINGS on the same objects, for consistency only. Never cite these; every citation comes from the SOURCES above:",
+          ...earlier.map((s) => s.text),
+          "",
+        ]
+      : [];
   return [
     "You are ruling on one attempted action in a physical scene, as a referee -- not a character. Answer every question below.",
     "",
-    "SOURCES (cite these verbatim; never paraphrase a citation):",
-    ...sourceLines,
+    "SOURCES (the only text you may cite):",
     "",
+    ...sourceBlocks,
+    ...earlierBlock,
     "QUESTIONS:",
     ...questionLines,
     "",
     'Answer with a JSON array, one entry per question: [{"questionId": string, "answerKey": string, ' +
-      '"citation": {"sourceId": string, "quote": string}}, ...]. Every "quote" must be copied EXACTLY, character ' +
-      "for character, from the named source's text above -- never summarised, never paraphrased.",
+      '"citation": {"sourceId": string, "quote": string}}, ...].',
+    '"sourceId" is a source\'s label exactly as written above, such as "intent" -- no brackets, nothing added.',
+    '"quote" is copied from that source character for character: the same capital letters and punctuation, ' +
+      'one unbroken span, never shortened with "...", never paraphrased, and never empty.',
   ].join("\n");
 }
 

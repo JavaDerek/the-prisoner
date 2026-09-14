@@ -166,19 +166,23 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
         "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
         "description -- one of: integrity, edge, concealment, or none (none if the effect needs no property, e.g. " +
         "noise, or if nothing in the description grounds the effect at all). Cite the exact words in the TARGET " +
-        "OBJECT'S OWN description that make it possible.",
+        "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
       answerKeys: [...PROPERTY_ANSWER_KEYS],
       safeDefault: "none",
     },
     {
       id: "magnitude",
-      prompt: "How large is the effect: slight, moderate, or substantial?",
+      prompt:
+        "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent " +
+        "that show how much force, time or care goes into it.",
       answerKeys: [...MAGNITUDES],
       safeDefault: "slight",
     },
     {
       id: "perceptibility",
-      prompt: "Is the effect silent, audible, or visible to someone else present?",
+      prompt:
+        "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's " +
+        "intent that show how it would or would not be noticed.",
       answerKeys: [...PERCEPTIBILITIES],
       safeDefault: "silent",
     },

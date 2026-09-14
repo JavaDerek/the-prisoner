@@ -111,4 +111,52 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
     await transport(REQUEST);
     expect(calls).toEqual(["qwen2.5:14b"]);
   });
+
+  describe("the prompt it builds (OPEN-VARIANT.md §11.4: citation mechanics)", () => {
+    const RICH: ReadRequest = {
+      questions: [{ id: "target", prompt: "Which object?", answerKeys: ["bar", "none"], safeDefault: "none" }],
+      sources: [
+        { id: "intent", text: "Closely examine the bar." },
+        { id: "desc:bar", text: "Rust has pitted it near the bottom." },
+        { id: "precedent:bar", text: "effect=reveal property=integrity magnitude=slight" },
+      ],
+    };
+
+    async function promptFor(request: ReadRequest): Promise<string> {
+      let prompt = "";
+      const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+        prompt = JSON.parse(init?.body as string).messages[0].content;
+        return { ok: true, json: async () => ({ choices: [{ message: { content: "[]" } }] }) };
+      }) as unknown as typeof fetch;
+      await createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn })(request);
+      return prompt;
+    }
+
+    it("never writes a source id inside brackets, which invites '[desc:bar]' as a citation", async () => {
+      const prompt = await promptFor(RICH);
+      expect(prompt).not.toMatch(/\[(intent|desc:bar|precedent:bar)\]/);
+      expect(prompt).toContain('source "desc:bar"');
+    });
+
+    it("shows earlier rulings apart from the citable sources, and says they are never cited", async () => {
+      const prompt = await promptFor(RICH);
+      const citable = prompt.slice(0, prompt.indexOf("EARLIER RULINGS"));
+      expect(citable).toContain('source "intent"');
+      expect(citable).not.toContain("precedent:bar");
+      const earlier = prompt.slice(prompt.indexOf("EARLIER RULINGS"));
+      expect(earlier).toContain("effect=reveal property=integrity magnitude=slight");
+      expect(earlier).toMatch(/never cite/i);
+    });
+
+    it("omits the earlier-rulings section when there are none", async () => {
+      expect(await promptFor(REQUEST)).not.toContain("EARLIER RULINGS");
+    });
+
+    it("demands exact copies: capital letters and punctuation kept, no '...', never empty", async () => {
+      const prompt = await promptFor(RICH);
+      expect(prompt).toMatch(/capital letters/i);
+      expect(prompt).toContain("...");
+      expect(prompt).toMatch(/never empty/i);
+    });
+  });
 });
