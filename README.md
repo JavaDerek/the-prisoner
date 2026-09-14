@@ -76,9 +76,11 @@ flatly.
   world's storage. Both of this game's minds, and the rival powers in a separate geopolitical game,
   pass the same conformance suite.
 
-Findings from The Prisoner have already changed both: mind-seam's conformance check for "a character
-cannot see another's secret" was proven unable to fail and fixed, and it gained schema-enforced JSON
-output after models here kept inventing keys.
+Work on The Prisoner has already changed both. run-dmcp now records the cause of a refusal at the
+moment it becomes true instead of reconstructing it later, and pins its referee's behaviour under two
+contending players. mind-seam's conformance check for "a character cannot see another's secret" was
+shown to be unable to fail and fixed, and the library gained schema-enforced JSON output after models
+here kept inventing keys.
 
 ## Running it
 
