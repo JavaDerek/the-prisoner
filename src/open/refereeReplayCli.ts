@@ -5,14 +5,16 @@
 // -- and re-asks each request `N` times (default 5) against the real
 // referee transport, reporting per-key agreement (OPEN-VARIANT.md §5.2).
 //
-// NEVER RUN AGAINST doris IN THIS TASK (the brief's own hard stop) -- this
-// script is complete and exercised by `replay.test.ts` with a scripted
-// transport; nobody has invoked it against a real model as part of this
-// work.
+// Real runs go through the same one-model-at-a-time swapper and resident
+// guard as `npm run checkpoint` (CLAUDE.md, "Real games use one model at a
+// time"): a model loaded that is neither the referee nor listed in
+// PRISONER_OLLAMA_RESIDENT_MODELS stops the replay, and residents found
+// loaded at the start are restored at the end.
 import { readFileSync } from "node:fs";
 import type { ReadRequest } from "run-dmcp";
 import { replayTranscript, renderReplayReport } from "./replay.js";
 import { createRefereeTransport } from "./refereeTransport.js";
+import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "../ollamaSwap.js";
 
 async function main(): Promise<void> {
   const [, , transcriptPath, nArg] = process.argv;
@@ -28,12 +30,33 @@ async function main(): Promise<void> {
 
   const baseUrl = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
   const model = process.env.PRISONER_REFEREE_MODEL ?? "qwen2.5:14b";
-  const transport = createRefereeTransport({ baseUrl, model });
+  const timeoutMs = process.env.PRISONER_REFEREE_TIMEOUT_MS ?? process.env.PRISONER_THINK_TIMEOUT_MS;
+  const residents = (process.env.PRISONER_OLLAMA_RESIDENT_MODELS ?? "")
+    .split(",")
+    .map((m) => m.trim())
+    .filter((m) => m.length > 0);
+  const allowedModels = [...new Set([model, ...residents])];
+  const swapper = new OllamaModelSwapper({ nativeBaseUrl: nativeBaseUrl(baseUrl, process.env.PRISONER_OLLAMA_NATIVE_URL), allowedModels });
 
-  const replayed = await replayTranscript(entries, [transport], n);
-  for (const line of renderReplayReport(replayed)) {
-    // eslint-disable-next-line no-console
-    console.log(line);
+  const ps = await swapper.fetchPs();
+  assertNoForeignModel(ps, allowedModels);
+  const residentsAtStart = ps.models.map((m) => m.name).filter((name) => residents.includes(name));
+
+  const transport = createRefereeTransport({
+    baseUrl,
+    model,
+    timeoutMs: timeoutMs ? Number(timeoutMs) : undefined,
+    ensureLoaded: (m) => swapper.withModel(m, async () => {}),
+  });
+
+  try {
+    const replayed = await replayTranscript(entries, [transport], n);
+    for (const line of renderReplayReport(replayed)) {
+      // eslint-disable-next-line no-console
+      console.log(line);
+    }
+  } finally {
+    await swapper.restoreResidents(residentsAtStart);
   }
 }
 
