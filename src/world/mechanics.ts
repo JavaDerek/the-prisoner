@@ -416,6 +416,18 @@ export const MOVE_DESCRIPTIONS: Record<string, string> = {
 };
 
 /**
+ * Coordinator's fix, item 3 ("rules known to both, including drift"):
+ * `TIME_DECAY` (above) is never offered to either mind, so it has no entry
+ * in `MOVE_DESCRIPTIONS` -- but its EFFECT is a rule both principals must
+ * know regardless (a belief about `guard_attention` from three rounds ago
+ * is only interpretable if the mind knows it decays). Rendered directly
+ * into both prompts (`buildPrisonerPrompt`/`buildWardenPrompt`), outside the
+ * per-move list, interpolated from the SAME constant `TIME_DECAY` itself
+ * reads, so a retune can never desync the rule from the text.
+ */
+export const TIME_DECAY_RULE = `At the end of every round, after both of you have acted, guard_attention falls by ${TIME_DECAY_AMOUNT}, regardless of what either of you does.`;
+
+/**
  * A positive sentence for what each mechanic looks like FROM THE OUTSIDE,
  * authored per mechanic -- never the content of what was learned (that
  * stays private, in the acting principal's own ledger prose), only that

@@ -1,6 +1,6 @@
 import type { Mind, Proposal, SilenceReason, SilenceDetail, InertRecord } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
-import { MOVE_DESCRIPTIONS, PRISONER_MOVES } from "../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, PRISONER_MOVES, TIME_DECAY_RULE } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 
 /**
@@ -70,10 +70,12 @@ export function buildPrisonerPrompt(context: PrisonerContext): string {
     "Your possible moves are exactly these, each with what it does:",
     ...moveLines,
     "",
-    'Answer with one JSON object: {"intent": string, "line"?: string, "plan": string[]}.',
+    `Also, a rule that never changes and is not one of your moves: ${TIME_DECAY_RULE}`,
+    "",
+    'Answer with one JSON object: {"intent": string, "line": string, "plan": string[]}.',
     '"intent" is what you are trying to do, in your own words.',
-    '"line" is optional -- something you might say aloud. Anything in "line" is spoken ALOUD and the ' +
-      "other person hears every word; keep secrets out of it.",
+    '"line" is REQUIRED -- one sentence spoken ALOUD to the other person, or an empty string ("") to ' +
+      "stay silent this turn. The other person hears every word of it; keep secrets out of it.",
     '"plan" is REQUIRED -- a list of 1 to 6 of your possible moves, spelled exactly as given. The FIRST ' +
       "entry is what you do THIS turn. Use WAIT as the first entry to do nothing this turn. Any further " +
       "entries are what you now intend to do afterward, replacing whatever you intended before -- include " +
@@ -166,7 +168,12 @@ export interface CreatePrisonerMindOptions {
  * keys. This narrows what usually arrives; `coercePrisonerProposal` still
  * runs on every answer regardless (defence in depth -- the package's own
  * documentation: "schema enforcement narrows the model but doesn't replace
- * coerce").
+ * coerce"). `line` is REQUIRED here too (coordinator's fix, item 1): under
+ * `additionalProperties: false`, a model asked for an OPTIONAL field tends
+ * to just omit it -- every real run under 0.4.0's own schema had zero lines
+ * spoken. `coercePrisonerProposal` (and `mind-seam`'s own `coerceProposal`)
+ * still accept a missing `line` regardless (defence in depth, the other
+ * direction: the schema asks, it does not enforce what `coerce` accepts).
  */
 const PRISONER_PROPOSAL_SCHEMA: InertRecord = {
   type: "object",
@@ -180,7 +187,7 @@ const PRISONER_PROPOSAL_SCHEMA: InertRecord = {
       items: { type: "string", enum: PRISONER_MOVES },
     },
   },
-  required: ["intent", "plan"],
+  required: ["intent", "line", "plan"],
   additionalProperties: false,
 };
 

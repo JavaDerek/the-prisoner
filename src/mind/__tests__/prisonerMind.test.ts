@@ -40,6 +40,20 @@ describe("buildPrisonerPrompt -- pure, built from context alone", () => {
     expect(prompt).toContain('"plan"');
     expect(prompt.toLowerCase()).toContain("first");
   });
+
+  it("coordinator's fix, item 1 -- line is REQUIRED, not optional, and says who hears it", () => {
+    const prompt = buildPrisonerPrompt(context);
+    expect(prompt).toContain('"line": string');
+    expect(prompt).not.toContain('"line"?:');
+    expect(prompt.toLowerCase()).toContain('"line" is required');
+    expect(prompt.toLowerCase()).toContain("empty string");
+    expect(prompt.toLowerCase()).toContain("hears every word");
+  });
+
+  it("coordinator's fix, item 3 -- states the time-decay rule, with the exact amount", () => {
+    const prompt = buildPrisonerPrompt(context);
+    expect(prompt.toLowerCase()).toContain("guard_attention falls by");
+  });
 });
 
 describe("coercePrisonerProposal -- plan REQUIRED, one array, plan[0] is this turn's move (coordinator's fix)", () => {
@@ -201,11 +215,15 @@ describe("createPrisonerMind -- the wire, offline", () => {
     await mind.consider(context);
     expect(fetchFn).toHaveBeenCalledTimes(1);
 
-    const responseFormat = capturedBody?.response_format as { type: string; json_schema: { name: string; strict: boolean; schema: { properties: { plan: { items: { enum: string[] } } } } } };
+    const responseFormat = capturedBody?.response_format as { type: string; json_schema: { name: string; strict: boolean; schema: { required: string[]; properties: { plan: { items: { enum: string[] } } } } } };
     expect(responseFormat.type).toBe("json_schema");
     expect(responseFormat.json_schema.name).toBe("proposal");
     expect(responseFormat.json_schema.strict).toBe(true);
     expect(responseFormat.json_schema.schema.properties.plan.items.enum).toEqual(PRISONER_MOVES);
+    // Coordinator's fix, item 1: line is required in the schema too, not
+    // just asked for in the prompt -- every real run under the OPTIONAL
+    // schema had zero lines spoken.
+    expect(responseFormat.json_schema.schema.required).toEqual(["intent", "line", "plan"]);
   });
 });
 

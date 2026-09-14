@@ -330,6 +330,16 @@ function combineNotes(...notes: (string | undefined)[]): string | undefined {
   return joined.length > 0 ? joined : undefined;
 }
 
+/** Coordinator's fix, item 1: "an empty string is not rendered as speech."
+ *  `line` is now REQUIRED on the wire (`prisonerMind.ts`/`wardenMind.ts`),
+ *  and an empty string ("") is the explicit way a mind stays silent this
+ *  turn -- never logged as a spoken line, so the other side's briefing
+ *  never shows `said: ""`. `undefined` (a proposal built without `line` at
+ *  all, e.g. a test's own scripted mind) is treated the same way. */
+function spokenLine(line: string | undefined): string | null {
+  return line && line.length > 0 ? line : null;
+}
+
 export async function runHalfRound<C extends PrincipalContext, P extends PrincipalProposal>(params: {
   world: World;
   resolver: Resolver;
@@ -358,7 +368,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
   tracker.streak = 0;
 
   if (!proposal.choice) {
-    logRound({ gameId: world.gameId, t, roundN, principal, mechanic: "NONE", description: null, line: proposal.line ?? null, seenByOtherAs: null });
+    logRound({ gameId: world.gameId, t, roundN, principal, mechanic: "NONE", description: null, line: spokenLine(proposal.line), seenByOtherAs: null });
     return { principal, t, context, result: { kind: "no-choice", proposal } };
   }
 
@@ -386,7 +396,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
       principal,
       mechanic: proposal.choice,
       description: resolutionDescription(outcome.eventId),
-      line: proposal.line ?? null,
+      line: spokenLine(proposal.line),
       seenByOtherAs: SEEN_BY_OTHER_AS[proposal.choice] ?? null,
     });
 
@@ -412,7 +422,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
         principal,
         mechanic: proposal.choice,
         description: null,
-        line: proposal.line ?? null,
+        line: spokenLine(proposal.line),
         seenByOtherAs: SEEN_BY_OTHER_AS[proposal.choice] ?? null,
       });
 

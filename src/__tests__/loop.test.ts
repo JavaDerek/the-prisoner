@@ -442,3 +442,34 @@ describe("coordinator's fix, item 5 -- ledger wording states the plan positively
     expect(rendered).toContain("Plan now: CONCEAL.");
   });
 });
+
+describe("coordinator's fix, item 1 -- an empty string is not rendered as speech", () => {
+  let world: World;
+  let resolver: ReturnType<typeof buildResolver>;
+  let prisonerPlan: Plan;
+  let wardenPlan: Plan;
+
+  function fresh(): void {
+    createTestDb();
+    world = buildWorld();
+    resolver = buildResolver(world);
+    prisonerPlan = authorPlan({ gameId: world.gameId, characterId: world.prisonerId, t: world.clock.t0, steps: [{ move: "WAIT", description: "placeholder" }] });
+    wardenPlan = authorPlan({ gameId: world.gameId, characterId: world.wardenId, t: world.clock.t0, steps: [{ move: "WAIT", description: "placeholder" }] });
+  }
+
+  afterEach(() => {
+    destroyTestDb();
+  });
+
+  it("a resolved move with line: '' relays no spoken line to the other side's next briefing", async () => {
+    fresh();
+    const mind = scriptedMind<PrisonerContext, PrisonerProposal>({ intent: "wait quietly", line: "", choice: "WAIT", plan: ["WAIT"] });
+    const t = world.clock.prisonerT(1);
+    const half = await runHalfRound({ world, resolver, plan: prisonerPlan, principal: "prisoner", roundN: 1, t, context: buildPrisonerContext(world, prisonerPlan, t), mind, tracker: newSilenceTracker() });
+    expect(half.result.kind).toBe("resolved");
+
+    const tw = world.clock.wardenT(2);
+    const wardenContext = buildWardenContext(world, wardenPlan, tw);
+    expect(wardenContext.briefing).not.toContain('said: ""');
+  });
+});
