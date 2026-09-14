@@ -109,7 +109,7 @@ async function runScenario(
       } catch (err) {
         caught = err;
       }
-      recordFailure({ gameId: world.gameId, plan, t: tCollide, move: "WAIT", error: caught as ResolveProtocolError });
+      recordFailure({ gameId: world.gameId, plan, roundN: 1, t: tCollide, move: "WAIT", error: caught as ResolveProtocolError });
     }
   }
 
@@ -125,11 +125,11 @@ async function runScenario(
     const expects = activeStepExpects(plan.id);
     try {
       const outcome = resolver.resolve({ gameId: world.gameId, mechanic: proposal.choice, expects });
-      recordSuccess({ gameId: world.gameId, plan, t, move: proposal.choice, outcome, completesStep: true });
+      recordSuccess({ gameId: world.gameId, plan, roundN: 1, t, move: proposal.choice, outcome, completesStep: true });
       resolutions = 1;
     } catch (err) {
       if (err instanceof ResolveProtocolError) {
-        recordFailure({ gameId: world.gameId, plan, t, move: proposal.choice, error: err });
+        recordFailure({ gameId: world.gameId, plan, roundN: 1, t, move: proposal.choice, error: err });
       } else {
         throw err;
       }

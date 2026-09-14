@@ -122,12 +122,32 @@ export function logRound(params: {
   principal: "warden" | "prisoner";
   mechanic: string;
   description: string | null;
+  /** Item 5: the acting principal's own spoken `line`, verbatim -- relayed
+   *  to the OTHER principal's next briefing when this act was not covert
+   *  (see `seenByOtherAs`). `null`/omitted when the mind offered none. */
+  line?: string | null;
+  /** Item 5: an authored, positive "what this looked like from outside"
+   *  sentence (`world/mechanics.ts`'s `SEEN_BY_OTHER_AS`) -- `null` marks a
+   *  covert act, which then contributes NOTHING to the other principal's
+   *  perception (neither this sentence nor the line above). */
+  seenByOtherAs?: string | null;
 }): void {
   getDatabase()
     .prepare(
-      `INSERT INTO round_log (id, game_id, t, round_n, principal, mechanic, description) VALUES (?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO round_log (id, game_id, t, round_n, principal, mechanic, description, line, seen_by_other_as)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
-    .run(randomUUID(), params.gameId, params.t, params.roundN, params.principal, params.mechanic, params.description);
+    .run(
+      randomUUID(),
+      params.gameId,
+      params.t,
+      params.roundN,
+      params.principal,
+      params.mechanic,
+      params.description,
+      params.line ?? null,
+      params.seenByOtherAs ?? null
+    );
 }
 
 interface RoundLogRow {
@@ -136,6 +156,36 @@ interface RoundLogRow {
   principal: "warden" | "prisoner";
   mechanic: string;
   description: string | null;
+}
+
+interface VisibleActRow {
+  line: string | null;
+  seen_by_other_as: string | null;
+}
+
+/**
+ * Item 5: the OTHER principal's most recent act, as it should be perceived
+ * -- `null` when nothing has happened yet, OR when the most recent entry
+ * was covert (`seen_by_other_as IS NULL`): a covert move "declares none and
+ * contributes nothing" (this task's own instruction), so this function
+ * returns nothing to relay rather than a row with a null field the caller
+ * would have to remember to skip. Only ever the SINGLE most recent entry --
+ * half-rounds strictly alternate, so "the other principal's next briefing"
+ * means their one immediately preceding act, never a full history (that
+ * history is each principal's OWN ledger, never the other's).
+ */
+export function mostRecentVisibleActFor(gameId: string, otherPrincipal: "warden" | "prisoner"): VisibleActRow | null {
+  // The single most recent act, covert or not -- filtering by
+  // seen_by_other_as IS NOT NULL at the query level would skip PAST a
+  // covert act and surface an older, non-covert one instead, which is
+  // exactly the leak this function exists to prevent: immediately after a
+  // covert act, the other principal must see nothing new, not something
+  // stale.
+  const row = getDatabase()
+    .prepare(`SELECT line, seen_by_other_as FROM round_log WHERE game_id = ? AND principal = ? ORDER BY t DESC LIMIT 1`)
+    .get(gameId, otherPrincipal) as VisibleActRow | undefined;
+  if (!row || row.seen_by_other_as === null) return null;
+  return row;
 }
 
 /** Design's correction 2: resolves "which move caused this fact" from this
@@ -158,6 +208,11 @@ interface RecordAttemptParams {
   gameId: string;
   plan: Plan;
   t: number;
+  /** Item 8: the round number (1-5 in this checkpoint), consistent with
+   *  the transcript -- never the half-round clock `t`, which is this
+   *  repository's own internal axis and not something a reader outside
+   *  this codebase should have to decode. */
+  roundN: number;
   move: string;
   /** Whether this move, once resolved, completes its plan step -- a
    *  caller policy (design §4.4: "the mechanic's own result decides done
@@ -167,15 +222,17 @@ interface RecordAttemptParams {
 }
 
 /** Records a successful resolution against the active step (if the move
- *  matches it) or as an off-plan attempt (otherwise). */
-export function recordSuccess(params: RecordAttemptParams & { outcome: Outcome }): void {
+ *  matches it) or as an off-plan attempt (otherwise). `note` (item 4) is
+ *  an info move's own authored revelation, positive prose, verbatim --
+ *  omitted for a move that reveals nothing new. */
+export function recordSuccess(params: RecordAttemptParams & { outcome: Outcome; note?: string }): void {
   const db = getDatabase();
   const active = activeStep(params.plan.id);
   const onPlanStep = active && active.move === params.move ? active : null;
 
   db.prepare(
-    `INSERT INTO attempts (id, plan_id, step_id, game_id, move, on_plan, outcome, evidence, opened_by_event_id, at_t)
-     VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)`
+    `INSERT INTO attempts (id, plan_id, step_id, game_id, move, on_plan, outcome, evidence, opened_by_event_id, at_t, round_n, note)
+     VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?)`
   ).run(
     randomUUID(),
     params.plan.id,
@@ -184,7 +241,9 @@ export function recordSuccess(params: RecordAttemptParams & { outcome: Outcome }
     params.move,
     onPlanStep ? 1 : 0,
     onPlanStep && params.completesStep ? "done" : "active",
-    params.t
+    params.t,
+    params.roundN,
+    params.note ?? null
   );
 
   if (onPlanStep) {
@@ -226,8 +285,8 @@ export function recordFailure(
   }
 
   db.prepare(
-    `INSERT INTO attempts (id, plan_id, step_id, game_id, move, on_plan, outcome, evidence, opened_by_event_id, at_t)
-     VALUES (?, ?, ?, ?, ?, ?, 'failed', ?, ?, ?)`
+    `INSERT INTO attempts (id, plan_id, step_id, game_id, move, on_plan, outcome, evidence, opened_by_event_id, at_t, round_n)
+     VALUES (?, ?, ?, ?, ?, ?, 'failed', ?, ?, ?, ?)`
   ).run(
     randomUUID(),
     params.plan.id,
@@ -237,7 +296,8 @@ export function recordFailure(
     onPlanStep ? 1 : 0,
     JSON.stringify(evidence),
     openedByEventId,
-    params.t
+    params.t,
+    params.roundN
   );
 
   if (onPlanStep) {
@@ -255,12 +315,27 @@ interface AttemptRow {
   evidence: string | null;
   opened_by_event_id: string | null;
   at_t: number;
+  round_n: number | null;
+  note: string | null;
 }
 
 export function attemptsFor(planId: string): AttemptRow[] {
   return getDatabase()
     .prepare(`SELECT * FROM attempts WHERE plan_id = ? ORDER BY at_t, rowid`)
     .all(planId) as AttemptRow[];
+}
+
+/** Item 4: the `at_t` of this plan's own most recent SUCCESSFUL attempt at
+ *  `move` -- the window an info move's own revelation is computed over
+ *  ("since your last inspection"). `null` when there is none yet, which
+ *  the caller reads as "since the start". */
+export function lastSuccessfulAttemptAtT(planId: string, move: string): number | null {
+  const row = getDatabase()
+    .prepare(
+      `SELECT at_t FROM attempts WHERE plan_id = ? AND move = ? AND outcome != 'failed' ORDER BY at_t DESC LIMIT 1`
+    )
+    .get(planId, move) as { at_t: number } | undefined;
+  return row?.at_t ?? null;
 }
 
 export function planSteps(planId: string): PlanStepRow[] {
@@ -311,8 +386,18 @@ export function planAsOfT(planId: string, t: number): PlanStepRow[] {
  *  "a literal check for a token we defined... is fine" applied here to
  *  our OWN generated prose, in `ledger.test.ts`). */
 function renderAttempt(gameId: string, row: AttemptRow): string {
+  // Item 8: the round number shown to a reader is the transcript's own
+  // 1-5, never the half-round clock t -- round_n is null only for rows
+  // written before this column existed (defensive, not expected in a
+  // fresh checkpoint run).
+  const roundLabel = row.round_n ?? row.at_t;
+
   if (row.outcome !== "failed") {
-    return `Round ${row.at_t}: you performed ${row.move}${row.on_plan === 1 ? "" : " (off-plan)"}.`;
+    const base = `Round ${roundLabel}: you performed ${row.move}${row.on_plan === 1 ? "" : " (off-plan)"}.`;
+    // Item 4: an info move's own authored revelation, positive prose,
+    // verbatim -- appended, never replacing the base line, so the ledger
+    // still says WHAT was done as well as what it revealed.
+    return row.note ? `${base} ${row.note}` : base;
   }
 
   const evidence = row.evidence ? (JSON.parse(row.evidence) as unknown) : null;
@@ -344,7 +429,7 @@ function renderAttempt(gameId: string, row: AttemptRow): string {
     factLine = `${key} was ${value}, ${attribution}`;
   }
 
-  return `Round ${row.at_t}: ${row.move} was refused -- ${factLine}.`;
+  return `Round ${roundLabel}: ${row.move} was refused -- ${factLine}.`;
 }
 
 /** One authored plan step, rendered positively with its own status marked

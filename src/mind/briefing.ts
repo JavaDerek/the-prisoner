@@ -1,6 +1,6 @@
 import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
-import { renderLedger, renderPlan, type Plan } from "../ledger/ledger.js";
+import { renderLedger, renderPlan, mostRecentVisibleActFor, type Plan } from "../ledger/ledger.js";
 import { PRISONER_MOVES, WARDEN_MOVES } from "../world/mechanics.js";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
@@ -17,12 +17,30 @@ export function buildBriefing(world: World, characterId: string, t: number, plan
   const view = viewFor(world, characterId, t);
   const lines: string[] = [];
 
+  const otherRole: "warden" | "prisoner" = characterId === world.wardenId ? "prisoner" : "warden";
+
   lines.push(`You share the cell with ${view.otherPrincipal.name ?? "the other person"}.`);
   for (const noun of view.nouns) {
     lines.push(`The ${noun.phrase} is here.`);
   }
   for (const [name, value] of Object.entries(view.resources)) {
     lines.push(`${name.replace(/_/g, " ")}: ${value}.`);
+  }
+
+  // Item 5: the two sides perceive each other. Only the OTHER principal's
+  // single most recent act (half-rounds strictly alternate, so there is
+  // exactly one to report), and only when it was not covert --
+  // `mostRecentVisibleActFor` already returns null for a covert act, so
+  // there is nothing to branch on here beyond "is there anything to say".
+  const visibleAct = mostRecentVisibleActFor(world.gameId, otherRole);
+  if (visibleAct) {
+    const otherName = view.otherPrincipal.name ?? otherRole;
+    if (visibleAct.line) {
+      lines.push(`The ${otherName} said: "${visibleAct.line}"`);
+    }
+    if (visibleAct.seen_by_other_as) {
+      lines.push(visibleAct.seen_by_other_as);
+    }
   }
 
   if (plan) {

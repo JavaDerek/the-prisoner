@@ -105,10 +105,25 @@ export const prisonerMigration: SchemaMigration = {
         evidence TEXT,
         opened_by_event_id TEXT,
         at_t INTEGER NOT NULL,
+        round_n INTEGER,
+        note TEXT,
         FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
         FOREIGN KEY (step_id) REFERENCES plan_steps(id) ON DELETE SET NULL
       )
     `);
+    // round_n (item 8: ledger labels show round numbers 1-5, consistent
+    // with the transcript, not the half-round clock t) and note (item 4:
+    // an info move's own authored revelation, positive prose, verbatim).
+    try {
+      db.exec(`ALTER TABLE attempts ADD COLUMN round_n INTEGER`);
+    } catch {
+      // Column already exists.
+    }
+    try {
+      db.exec(`ALTER TABLE attempts ADD COLUMN note TEXT`);
+    } catch {
+      // Column already exists.
+    }
 
     // This repository's own round log -- never the engine's. Logged once
     // per SUCCESSFUL resolution by either principal, keyed on the half-round
@@ -126,8 +141,24 @@ export const prisonerMigration: SchemaMigration = {
         principal TEXT NOT NULL CHECK (principal IN ('warden', 'prisoner')),
         mechanic TEXT NOT NULL,
         description TEXT,
+        line TEXT,
+        seen_by_other_as TEXT,
         FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
       )
     `);
+    // line and seen_by_other_as (item 5: the two sides perceive each
+    // other) -- the acting principal's own spoken line, and an authored,
+    // positive "what this looked like from outside" sentence, NULL for a
+    // covert mechanic (see world/mechanics.ts's SEEN_BY_OTHER_AS).
+    try {
+      db.exec(`ALTER TABLE round_log ADD COLUMN line TEXT`);
+    } catch {
+      // Column already exists.
+    }
+    try {
+      db.exec(`ALTER TABLE round_log ADD COLUMN seen_by_other_as TEXT`);
+    } catch {
+      // Column already exists.
+    }
   },
 };

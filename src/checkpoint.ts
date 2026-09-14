@@ -17,6 +17,7 @@ import { buildWorld, type World } from "./world/setup.js";
 import { buildResolver } from "./world/mechanics.js";
 import { prisonerMigration } from "./world/schema.js";
 import { authorPlan, renderLedger } from "./ledger/ledger.js";
+import { resolutionDescription } from "./world/facts.js";
 import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
@@ -68,13 +69,6 @@ function entityLabel(world: World, id: string): string {
     [world.resources.guardAttention]: "guard_attention",
   };
   return names[id] ?? id;
-}
-
-function resolutionDescription(eventId: string): string | null {
-  const row = getDatabase().prepare(`SELECT description FROM events WHERE id = ?`).get(eventId) as
-    | { description: string | null }
-    | undefined;
-  return row?.description ?? null;
 }
 
 function describeOutcome(world: World, outcome: Outcome): string {
@@ -237,6 +231,7 @@ async function main(): Promise<void> {
       resolver,
       plan: wardenPlan,
       principal: "warden",
+      roundN: n,
       t: tw,
       context: wardenContext,
       mind: wardenMind,
@@ -253,6 +248,7 @@ async function main(): Promise<void> {
       resolver,
       plan: prisonerPlan,
       principal: "prisoner",
+      roundN: n,
       t: tp,
       context: prisonerContext,
       mind: prisonerMind,

@@ -1,4 +1,4 @@
-import { replay, type ConstraintFact } from "run-dmcp";
+import { getDatabase, replay, type ConstraintFact } from "run-dmcp";
 
 /**
  * Numeric facts are stored as SQLite's own REAL-to-TEXT cast (typically
@@ -41,4 +41,16 @@ export function readNumericFact(params: { gameId: string; t: number; entityId: s
   const entity = snapshot.entities.find((e) => e.id === params.entityId);
   const fact = entity?.facts[params.key];
   return fact ? parseNumericFactValue(fact.value) : null;
+}
+
+/** The `description` a resolution's own `resolution.recorded` event was
+ *  stamped with (`resolve.ts`'s `Adjudication.description`, via
+ *  `mechanics.ts`'s `withNote`) -- read back by `eventId` because `Outcome`
+ *  itself does not carry `description`. Shared by `loop.ts` (round_log) and
+ *  `checkpoint.ts` (the transcript) so there is one reader, not two. */
+export function resolutionDescription(eventId: string): string | null {
+  const row = getDatabase().prepare(`SELECT description FROM events WHERE id = ?`).get(eventId) as
+    | { description: string | null }
+    | undefined;
+  return row?.description ?? null;
 }

@@ -17,8 +17,10 @@
 import type { Mind, Proposal, SilenceReason } from "mind-seam";
 import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Outcome } from "run-dmcp";
 import type { World } from "./world/setup.js";
-import { recordSuccess, recordFailure, activeStepExpects, type Plan } from "./ledger/ledger.js";
-import { declareCutIfJustCut } from "./world/mechanics.js";
+import { recordSuccess, recordFailure, activeStepExpects, lastSuccessfulAttemptAtT, logRound, type Plan } from "./ledger/ledger.js";
+import { declareCutIfJustCut, SEEN_BY_OTHER_AS } from "./world/mechanics.js";
+import { describeInspection, describeObservation } from "./world/revelations.js";
+import { resolutionDescription } from "./world/facts.js";
 
 export type Principal = "warden" | "prisoner";
 
@@ -69,17 +71,37 @@ export interface HalfRoundResult {
  * `prisonerT`). Mutates `tracker` in place (the caller owns its lifetime
  * across rounds) and never advances the clock itself.
  */
+/** Item 4's authored revelation for an info move's own successful
+ *  resolution, or `undefined` for every other move (nothing to add: the
+ *  base "you performed X" line already says what happened). Structural,
+ *  literal-equality dispatch on a move name this repository itself
+ *  defined -- not meaning inferred from prose (root CLAUDE.md hard rule
+ *  4), the same shape `declareCutIfJustCut` already uses for `cut`. */
+function revelationFor(world: World, plan: Plan, principal: Principal, move: string, t: number): string | undefined {
+  if (principal === "prisoner" && move === "INSPECT") {
+    const since = lastSuccessfulAttemptAtT(plan.id, "INSPECT") ?? world.clock.t0;
+    return describeInspection(world, since, t);
+  }
+  if (principal === "warden" && move === "OBSERVE") {
+    return describeObservation(world, t);
+  }
+  return undefined;
+}
+
 export async function runHalfRound<C extends PrincipalContext, P extends PrincipalProposal>(params: {
   world: World;
   resolver: Resolver;
   plan: Plan;
   principal: Principal;
+  /** Item 8: the round number (1-5), consistent with the transcript --
+   *  never the half-round clock `t`. */
+  roundN: number;
   t: number;
   context: C;
   mind: Mind<C, P>;
   tracker: SilenceTracker;
 }): Promise<HalfRoundResult> {
-  const { world, resolver, plan, principal, t, context, mind, tracker } = params;
+  const { world, resolver, plan, principal, roundN, t, context, mind, tracker } = params;
 
   const proposal = await mind.consider(context);
 
@@ -97,12 +119,32 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
   const expects = activeStepExpects(plan.id);
   try {
     const outcome = resolver.resolve({ gameId: world.gameId, mechanic: proposal.choice, expects });
-    recordSuccess({ gameId: world.gameId, plan, t, move: proposal.choice, outcome, completesStep: true });
+    const note = revelationFor(world, plan, principal, proposal.choice, t);
+    recordSuccess({ gameId: world.gameId, plan, t, roundN, move: proposal.choice, outcome, completesStep: true, note });
     declareCutIfJustCut(world, outcome);
+
+    // Item 5: the two sides perceive each other. Logged for EVERY
+    // successful resolution (this also closes a real gap: nothing wrote
+    // round_log from the production loop before this, so a contradiction's
+    // cause -- correction 2 -- could never actually be attributed during a
+    // real game). `line` is relayed regardless of covertness (speech isn't
+    // itself hidden); `seenByOtherAs` is null for a covert move and
+    // contributes nothing (`mostRecentVisibleActFor`, ledger.ts).
+    logRound({
+      gameId: world.gameId,
+      t,
+      roundN,
+      principal,
+      mechanic: proposal.choice,
+      description: resolutionDescription(outcome.eventId),
+      line: proposal.line ?? null,
+      seenByOtherAs: SEEN_BY_OTHER_AS[proposal.choice] ?? null,
+    });
+
     return { principal, t, context, result: { kind: "resolved", proposal, outcome } };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
-      recordFailure({ gameId: world.gameId, plan, t, move: proposal.choice, error: err });
+      recordFailure({ gameId: world.gameId, plan, t, roundN, move: proposal.choice, error: err });
       return { principal, t, context, result: { kind: "refused", proposal, error: err } };
     }
     throw err;

@@ -46,7 +46,7 @@ describe("the attempt ledger (design §4.4)", () => {
 
     const t = world.clock.prisonerT(1);
     const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "FILE" }); // off-plan: active step is SHIM
-    recordSuccess({ gameId: world.gameId, plan, t, move: "FILE", outcome, completesStep: false });
+    recordSuccess({ gameId: world.gameId, plan, roundN: 1, t, move: "FILE", outcome, completesStep: false });
 
     const steps = planSteps(plan.id);
     expect(steps[0]).toMatchObject({ move: "SHIM", status: "active" });
@@ -70,7 +70,7 @@ describe("the attempt ledger (design §4.4)", () => {
 
     const t = world.clock.prisonerT(1);
     const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
-    recordSuccess({ gameId: world.gameId, plan, t, move: "HONE", outcome, completesStep: true });
+    recordSuccess({ gameId: world.gameId, plan, roundN: 1, t, move: "HONE", outcome, completesStep: true });
 
     const steps = planSteps(plan.id);
     expect(steps[0]).toMatchObject({ move: "HONE", status: "done" });
@@ -112,7 +112,7 @@ describe("the attempt ledger (design §4.4)", () => {
       caught = err;
     }
     expect(caught).toBeInstanceOf(ResolveProtocolError);
-    recordFailure({ gameId: world.gameId, plan, t: tp, move: "FILE", error: caught as ResolveProtocolError });
+    recordFailure({ gameId: world.gameId, plan, roundN: 1, t: tp, move: "FILE", error: caught as ResolveProtocolError });
 
     const steps = planSteps(plan.id);
     expect(steps[0]).toMatchObject({ move: "FILE", status: "failed" });
@@ -181,7 +181,7 @@ describe("the attempt ledger (design §4.4)", () => {
     const error = caught as ResolveProtocolError;
     expect(error.contradictions?.[0]?.fact.openedByEventId).toBeNull();
 
-    recordFailure({ gameId: world.gameId, plan, t: tp, move: "WAIT", error });
+    recordFailure({ gameId: world.gameId, plan, roundN: 1, t: tp, move: "WAIT", error });
 
     const attempts = attemptsFor(plan.id);
     expect(attempts[0].opened_by_event_id).toBeNull();
@@ -205,7 +205,7 @@ describe("the attempt ledger (design §4.4)", () => {
     for (let n = 1; n <= 100 / FILE_AMOUNT + 2; n++) {
       const t = world.clock.prisonerT(n);
       const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
-      recordSuccess({ gameId: world.gameId, plan, t, move: "FILE", outcome, completesStep: false });
+      recordSuccess({ gameId: world.gameId, plan, roundN: 1, t, move: "FILE", outcome, completesStep: false });
       declareCutIfJustCut(world, outcome);
       if ((JSON.parse(JSON.stringify(outcome.constraint)) as { mustHonor: unknown[] }).mustHonor.length >= 0) {
         // no-op, just keeping the loop shape obvious
@@ -230,7 +230,7 @@ describe("the attempt ledger (design §4.4)", () => {
       caught = err;
     }
     expect(caught).toBeInstanceOf(ConstraintViolationError);
-    recordFailure({ gameId: world.gameId, plan: plan2Step, t: tw, move: "REPLACE_BAR", error: caught as ConstraintViolationError });
+    recordFailure({ gameId: world.gameId, plan: plan2Step, roundN: 1, t: tw, move: "REPLACE_BAR", error: caught as ConstraintViolationError });
 
     const attempts = attemptsFor(plan2Step.id);
     expect(attempts[0].outcome).toBe("failed");
@@ -253,11 +253,11 @@ describe("the attempt ledger (design §4.4)", () => {
 
     const t1 = world.clock.prisonerT(1);
     const outcome1 = resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
-    recordSuccess({ gameId: world.gameId, plan, t: t1, move: "HONE", outcome: outcome1, completesStep: true });
+    recordSuccess({ gameId: world.gameId, plan, roundN: 1, t: t1, move: "HONE", outcome: outcome1, completesStep: true });
 
     const t2 = world.clock.prisonerT(2);
     const outcome2 = resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
-    recordSuccess({ gameId: world.gameId, plan, t: t2, move: "FILE", outcome: outcome2, completesStep: false });
+    recordSuccess({ gameId: world.gameId, plan, roundN: 1, t: t2, move: "FILE", outcome: outcome2, completesStep: false });
 
     const asOfT1 = planAsOfT(plan.id, t1);
     expect(asOfT1.find((s) => s.move === "HONE")?.status).toBe("done");
@@ -287,7 +287,7 @@ describe("the attempt ledger (design §4.4)", () => {
     } catch (err) {
       caught = err;
     }
-    recordFailure({ gameId: world.gameId, plan, t: tp, move: "FILE", error: caught as ResolveProtocolError });
+    recordFailure({ gameId: world.gameId, plan, roundN: 1, t: tp, move: "FILE", error: caught as ResolveProtocolError });
 
     const rendered = renderLedger(world.gameId, plan);
     for (const forbidden of ["no longer", " not ", "failed to"]) {
@@ -341,7 +341,7 @@ describe("the attempt ledger (design §4.4)", () => {
 
       const t1 = world.clock.prisonerT(1);
       const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
-      recordSuccess({ gameId: world.gameId, plan, t: t1, move: "HONE", outcome, completesStep: true });
+      recordSuccess({ gameId: world.gameId, plan, roundN: 1, t: t1, move: "HONE", outcome, completesStep: true });
 
       const rendered = renderPlan(plan.id);
       const lines = rendered.split("\n");
