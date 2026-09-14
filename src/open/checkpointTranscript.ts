@@ -44,6 +44,22 @@ function refereeTable(half: OpenHalfRoundResult): string[] {
     const verifiedCell = verified === undefined ? "n/a" : verified ? "yes" : "no";
     lines.push(`| ${id} | \`${answer?.answerKey ?? "?"}\` | ${citationCell(answer?.citation)} | ${verifiedCell} |`);
   }
+  // What the reader discarded, and what was never offered: the difference
+  // between a referee that misquoted and one whose call returned nothing.
+  const offerLines: string[] = [];
+  const unoffered: string[] = [];
+  for (const answer of ruling.raw.answers) {
+    for (const r of answer.rejected) {
+      offerLines.push(`- ${answer.questionId}: rejected (${r.reason}) \`${r.offer.answerKey}\`, ${citationCell(r.offer.citation)}`);
+    }
+    if (answer.fromSafeDefault && answer.rejected.length === 0) unoffered.push(answer.questionId);
+  }
+  for (const r of ruling.raw.unmatched) {
+    offerLines.push(`- ${r.offer.questionId}: rejected (${r.reason}) \`${r.offer.answerKey}\`, ${citationCell(r.offer.citation)}`);
+  }
+  if (offerLines.length > 0 || unoffered.length > 0) lines.push("");
+  lines.push(...offerLines);
+  if (unoffered.length > 0) lines.push(`No offer from the referee for: ${unoffered.join(", ")}.`);
   return lines;
 }
 

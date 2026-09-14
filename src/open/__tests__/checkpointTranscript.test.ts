@@ -66,6 +66,32 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain("within your reach are:");
   });
 
+  it("offers the reader rejected are shown with their reason, and questions the referee offered nothing for are named", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const intent = "I scrape the bar with my spoon.";
+    // Property is offered with a paraphrased quote; perceptibility is never offered at all.
+    const transport = async (request: { questions: readonly { id: string }[] }) =>
+      request.questions
+        .filter((q) => q.id !== "perceptibility")
+        .map((q) => ({
+          questionId: q.id,
+          answerKey: { target: "bar", effect: "wear", property: "integrity", magnitude: "slight" }[q.id] as string,
+          citation: q.id === "property" ? { sourceId: "desc:bar", quote: "PARAPHRASED_RUST_QUOTE" } : { sourceId: "intent", quote: "scrape the bar" },
+        }));
+    const game = await runOpenGame({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: createReferee([transport]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>(null),
+      prisonerMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent }),
+      rounds: 1,
+    });
+    const text = renderOpenHalfRound(find(game, 1, "prisoner")).join("\n");
+    expect(text).toMatch(/property: rejected \(\S+\) `integrity`, desc:bar: "PARAPHRASED_RUST_QUOTE"/);
+    expect(text).toContain("No offer from the referee for: perceptibility.");
+  });
+
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
       { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null },
