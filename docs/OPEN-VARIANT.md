@@ -1,8 +1,8 @@
 # The Prisoner, open variant — design
 
-*Status (2026-09-14): design approved, §8 decided, §4.1 descriptions approved by the owner. **O1's
-mechanism is built and tested** (`src/open/`, §9) **but not yet playable end to end**: wiring it into
-`npm run checkpoint` and running the first real games is issue #2, which is the next step.*
+*Status (2026-09-14): design approved, §8 decided, §4.1 descriptions approved by the owner. O1 is
+**playable** (`PRISONER_VARIANT=open npm run checkpoint`) and has run its first two real games; §10
+evaluates them against §5.3. **§5.3 does not hold yet** (§10.2).*
 
 The closed variant proved that two local models can outwit each other **inside a fully specified
 game**: ten enumerated moves, every effect and threshold stated in the prompt. That is a board game,
@@ -314,3 +314,98 @@ written down first).**
   is a real simplification, not an oversight: presence in the open variant would need the warden's own
   `reveal`/`noise` targets to carry a location the way `WARDEN_PRESENCE` does for named moves, and nothing
   in §4.1's object table currently says where the warden physically is. Left for a later phase.
+
+## 10. First real games (issue #2, 2026-09-14)
+
+Two games, `PRISONER_ROUNDS=8`: `qwen3:14b` wits, `ancient-awakening:12b` voice, `qwen2.5:14b` referee,
+on one GPU through the swapper. Transcripts, unedited: `checkpoints/2026-09-14T16-08-26-355Z.md` and
+`checkpoints/2026-09-14T16-19-01-447Z.md`, each with its `.referee.json`; the replay output is
+`checkpoints/2026-09-14-open-referee-replay-N5.txt`.
+
+### 10.1 What the wiring added beyond O1's mechanism
+
+A half-round is not a game. Playing one needed: the round loop (`src/open/game.ts`); notes persisted in
+the open half-round; code-rendered news (`src/open/perception.ts`) telling the actor the exact number
+it moved or revealed, or for an impossible ruling the target's authored description, and telling the
+other principal a non-silent attempt and the spoken line; beliefs and the warden's live suspicion in the
+open briefing; open minds behind the swapper; time decay as a generic `OPEN_WEAR`. Two defects were
+found and fixed: the open world created a second `lock_integrity` that the escape check never read, and
+the open prompt carried the closed `WARDEN_PRESENCE_RULE`/`EVIDENCE_RULE`, which name closed moves and
+describe presence O1 does not model.
+
+### 10.2 Against §5.3
+
+| | Criterion | Result |
+|---|---|---|
+| 1 | Zero §2 violations | **Held where measured.** Fog audit 0 leaks in 32 contexts; all 19 applied effects carry every required citation, verified; no silence or referee failure became a success. |
+| 2 | A closed-inexpressible attempt ruled possible in ≥ 2 games, and one ruled impossible with its positive reason | **Not met.** Novelty 0 in both games by §5.2's `(object, effect)` table. 13 impossible rulings, each rendered with a positive reason. |
+| 3 | Referee key agreement ≥ 80% on replay | **Met as measured, 99.0% and 97.5%, but see 10.4.** |
+| 4 | Both endings reachable | **Not shown in real games.** Both timed out. Scripted integration tests reach escape, catch and timeout. |
+
+### 10.3 Novelty is zero, and the ideas were not
+
+The minds did invent: grit from under the loose tile as an abrasive (game 1, rounds 2–4, 7), chipping
+the cracked mortar rather than the metal (game 1, round 6), and scraping the lock's bolt through the gap
+in the door (game 2, round 8). Each resolved to a pair that has a closed equivalent: `bar`/`wear` (FILE)
+or `lock`/`wear` (SHIM). §5.2 measures novel *effects on objects*, and O1's six generic effects over
+three meaningful properties leave almost nothing a closed move cannot also express. That is a finding
+about the measure as much as about the models: until `move` (O2) or `derive` (O3) exist, novelty by
+this table is close to unreachable.
+
+### 10.4 Impossible rulings are mostly citation mechanics, not physics
+
+Of the 13 impossible rulings, the tables show near-duplicates of attempts ruled possible a round
+earlier ("scrape the rusted section of the bar with the spoon"). The causes are the reader rejecting
+the referee's offer, not the referee judging the act impossible:
+
+- the right quote with the wrong source label (game 1, round 1: the bar's description cited as
+  `precedent:bar`, where it also appears verbatim, instead of `desc:bar`);
+- a target cited from the description rather than the intent (game 2, round 2), leaving target `none`;
+- a property answer offered and discarded, or never offered (game 1 prisoner rounds 5, 6, 8; game 2 warden round 6, prisoner round 7, warden round 8;
+  game 1 warden round 8 had no offer accepted for any question).
+  The transcript from these games cannot say which; it now renders every rejected offer with the
+  reader's reason and names questions never offered (commit after game 1).
+
+The effect on play is large. The warden's attempts were ruled impossible in 8 of 16 warden turns across the two
+games, so suspicion rarely accrued and catch was never in reach; the prisoner lost 5 of 16 turns to the
+same mechanics and never approached escape. **This is fail-safe behaviour doing its
+job, and it is the main thing standing between O1 and a contested game.**
+
+### 10.5 What the replay number does and does not mean
+
+Replay re-asks the identical recorded request and measures per-key agreement across replays. At
+temperature 0 that is closer to determinism than to §3.5's consistency, and it misses two things:
+
+- **Replayed keys vs the keys actually ruled in-game** agree on 145 of 160 (90.6%). Four of the differing keys decide applicability (game 1 warden rounds 1 and 6, prisoner round 8;
+  game 2 warden round 4); three would turn an in-game possible ruling impossible.
+- **Keys are not rulings.** Game 1 round 1's prisoner property key replays as `integrity` 5/5, the same
+  key it got in-game, yet in-game the ruling was impossible because the citation named the wrong source.
+  Agreement on keys says nothing about citation validity.
+- **Similar intents in different states** are not replayed at all, and that is where the inconsistency
+  in 10.4 lives.
+
+### 10.6 Grounding quality (spot-check, by reading)
+
+The code verifies a grounding quote is verbatim and from the target's description; it cannot verify
+that the quote justifies the effect, and no lexical check was added. Read by hand:
+
+- **Sensible:** `wear lock.integrity` grounded on *"The door hangs a finger's width short of its frame,
+  and the edge of the bolt shows in the gap."* That is exactly what makes a spoon reach the bolt.
+- **Sensible but coarse:** every `bar` ruling in both games, wear and reveal alike, cites the whole
+  sentence *"Rust has pitted it near the bottom, where it is set into old mortar that is dry and
+  cracked."* It justifies wear; for `reveal` it is merely true of the object.
+- **Lazy:** game 2 round 7 warden cites the loose tile's *entire description* for `concealment`, a
+  property the tile does not have (ruled impossible for that reason, by code).
+- Magnitude was `slight` in all 19 applied effects, whatever the intent said ("aggressively scrape",
+  "strike repeatedly"). The referee under-rules size, which alone makes escape in 8 rounds unreachable
+  (bar wear slight = 8; from 100 that is 13 successful turns).
+
+### 10.7 Open questions for the owner
+
+1. Is §5.2's novelty table the right measure while O1 has no `move`/`derive`, or should O1 report
+   *novel means* (an attempt citing a description span no closed move uses) instead?
+2. The citation mechanics in 10.4 are the bottleneck. Options include prompting the referee with the
+   required source per question, or accepting a verbatim quote found in the required source whatever
+   label the referee gave. The second is a change to what counts as a citation, so it is a design
+   decision, not a fix.
+3. Should §5.3 item 3 replay near-duplicate intents across states, not only identical requests?
