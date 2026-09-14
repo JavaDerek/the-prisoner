@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { buildWardenPrompt, coerceWardenProposal, createWardenMind, type WardenContext } from "../wardenMind.js";
-import { MOVE_DESCRIPTIONS } from "../../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, WARDEN_MOVES } from "../../world/mechanics.js";
 
 const context: WardenContext = {
   principalId: "warden-1",
@@ -129,10 +129,12 @@ describe("createWardenMind -- the wire, offline", () => {
     expect(silenced).toBe("rejected");
   });
 
-  it("sends response_format: json_object (mind-seam@0.3.0)", async () => {
+  it("sends a strict json_schema response_format built from WARDEN_MOVES (mind-seam@0.4.0)", async () => {
+    // See prisonerMind.test.ts's sibling test for why the body is captured
+    // OUTSIDE the mock callback rather than asserted inside it.
+    let capturedBody: Record<string, unknown> | undefined;
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
-      const body = JSON.parse(init?.body as string);
-      expect(body.response_format).toEqual({ type: "json_object" });
+      capturedBody = JSON.parse(init?.body as string);
       return new Response(
         JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "observe", plan: ["OBSERVE"] }) } }] }),
         { status: 200, headers: { "content-type": "application/json" } }
@@ -141,6 +143,12 @@ describe("createWardenMind -- the wire, offline", () => {
     const mind = createWardenMind({ baseUrl: "http://offline.invalid", model: "test-model", fetchFn: fetchFn as unknown as typeof fetch });
     await mind.consider(context);
     expect(fetchFn).toHaveBeenCalledTimes(1);
+
+    const responseFormat = capturedBody?.response_format as { type: string; json_schema: { name: string; strict: boolean; schema: { properties: { plan: { items: { enum: string[] } } } } } };
+    expect(responseFormat.type).toBe("json_schema");
+    expect(responseFormat.json_schema.name).toBe("proposal");
+    expect(responseFormat.json_schema.strict).toBe(true);
+    expect(responseFormat.json_schema.schema.properties.plan.items.enum).toEqual(WARDEN_MOVES);
   });
 });
 

@@ -3,7 +3,7 @@ import { pinnedDependencyVersion } from "../packageInfo.js";
 
 describe("pinnedDependencyVersion (item 10) -- read the real pin, never hard-code it", () => {
   it("reads mind-seam's exact pinned version from package.json", () => {
-    expect(pinnedDependencyVersion("mind-seam")).toBe("0.3.0");
+    expect(pinnedDependencyVersion("mind-seam")).toBe("0.4.0");
   });
 
   it("reads run-dmcp's exact pinned version from package.json", () => {

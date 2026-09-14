@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { buildPrisonerPrompt, coercePrisonerProposal, createPrisonerMind, type PrisonerContext } from "../prisonerMind.js";
-import { MOVE_DESCRIPTIONS } from "../../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, PRISONER_MOVES } from "../../world/mechanics.js";
 
 const context: PrisonerContext = {
   principalId: "prisoner-1",
@@ -183,10 +183,15 @@ describe("createPrisonerMind -- the wire, offline", () => {
     expect(silenced).toBe("rejected");
   });
 
-  it("sends response_format: json_object (mind-seam@0.3.0)", async () => {
+  it("sends a strict json_schema response_format built from PRISONER_MOVES (mind-seam@0.4.0)", async () => {
+    // Deliberately capture the body OUTSIDE the mock callback: an
+    // assertion thrown INSIDE it is swallowed by createLocalMind's own
+    // try/catch (it looks like a fetch failure -> silent "unreachable"),
+    // so a test that asserts in there never actually fails, whatever the
+    // body contains -- caught by rewriting this test to check afterward.
+    let capturedBody: Record<string, unknown> | undefined;
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
-      const body = JSON.parse(init?.body as string);
-      expect(body.response_format).toEqual({ type: "json_object" });
+      capturedBody = JSON.parse(init?.body as string);
       return new Response(
         JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait", plan: ["WAIT"] }) } }] }),
         { status: 200, headers: { "content-type": "application/json" } }
@@ -195,6 +200,12 @@ describe("createPrisonerMind -- the wire, offline", () => {
     const mind = createPrisonerMind({ baseUrl: "http://offline.invalid", model: "test-model", fetchFn: fetchFn as unknown as typeof fetch });
     await mind.consider(context);
     expect(fetchFn).toHaveBeenCalledTimes(1);
+
+    const responseFormat = capturedBody?.response_format as { type: string; json_schema: { name: string; strict: boolean; schema: { properties: { plan: { items: { enum: string[] } } } } } };
+    expect(responseFormat.type).toBe("json_schema");
+    expect(responseFormat.json_schema.name).toBe("proposal");
+    expect(responseFormat.json_schema.strict).toBe(true);
+    expect(responseFormat.json_schema.schema.properties.plan.items.enum).toEqual(PRISONER_MOVES);
   });
 });
 
@@ -263,5 +274,46 @@ describe("createPrisonerMind's onSilence detail (mind-seam@0.3.0) -- retires thi
     await mind.consider(context);
     expect(called).toBe(true);
     expect(capturedDetail).toBeUndefined();
+  });
+});
+
+describe("mind-seam@0.4.0 -- the prisoner's and warden's json_schema enums differ", () => {
+  it("PRISONER_MOVES and WARDEN_MOVES -- the two schemas' enum source -- are different lists (both share only WAIT)", async () => {
+    const { WARDEN_MOVES } = await import("../../world/mechanics.js");
+    expect(PRISONER_MOVES).not.toEqual(WARDEN_MOVES);
+    // Each side has moves the other does not.
+    expect(PRISONER_MOVES).toContain("FILE");
+    expect(WARDEN_MOVES as readonly string[]).not.toContain("FILE");
+    expect(WARDEN_MOVES).toContain("SEARCH");
+    expect(PRISONER_MOVES as readonly string[]).not.toContain("SEARCH");
+  });
+
+  it("each mind's own request body carries its OWN principal's enum, not the other's", async () => {
+    const { createWardenMind } = await import("../wardenMind.js");
+    const { WARDEN_MOVES } = await import("../../world/mechanics.js");
+
+    let prisonerBody: Record<string, unknown> | undefined;
+    const prisonerFetch = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      prisonerBody = JSON.parse(init?.body as string);
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait", plan: ["WAIT"] }) } }] }), { status: 200, headers: { "content-type": "application/json" } });
+    });
+    const prisonerMind = createPrisonerMind({ baseUrl: "http://offline.invalid", model: "test-model", fetchFn: prisonerFetch as unknown as typeof fetch });
+    await prisonerMind.consider(context);
+
+    let wardenBody: Record<string, unknown> | undefined;
+    const wardenFetch = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      wardenBody = JSON.parse(init?.body as string);
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait", plan: ["WAIT"] }) } }] }), { status: 200, headers: { "content-type": "application/json" } });
+    });
+    const wardenContext = { principalId: "warden-1", identity: "the warden", motive: "secure", briefing: "b", moves: WARDEN_MOVES as unknown as string[] };
+    const wardenMind = createWardenMind({ baseUrl: "http://offline.invalid", model: "test-model", fetchFn: wardenFetch as unknown as typeof fetch });
+    await wardenMind.consider(wardenContext);
+
+    const prisonerEnum = (prisonerBody?.response_format as { json_schema: { schema: { properties: { plan: { items: { enum: string[] } } } } } }).json_schema.schema.properties.plan.items.enum;
+    const wardenEnum = (wardenBody?.response_format as { json_schema: { schema: { properties: { plan: { items: { enum: string[] } } } } } }).json_schema.schema.properties.plan.items.enum;
+
+    expect(prisonerEnum).toEqual(PRISONER_MOVES);
+    expect(wardenEnum).toEqual(WARDEN_MOVES);
+    expect(prisonerEnum).not.toEqual(wardenEnum);
   });
 });

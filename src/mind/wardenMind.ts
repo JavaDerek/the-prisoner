@@ -1,8 +1,8 @@
-import type { Mind, Proposal, SilenceReason, SilenceDetail } from "mind-seam";
+import type { Mind, Proposal, SilenceReason, SilenceDetail, InertRecord } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
-import { MOVE_DESCRIPTIONS } from "../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, WARDEN_MOVES } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
-import { normalizePlan } from "./prisonerMind.js";
+import { normalizePlan, MAX_PLAN_LENGTH } from "./prisonerMind.js";
 
 /**
  * The warden as a model too (this checkpoint's correction 1 over DESIGN.md,
@@ -77,12 +77,29 @@ export interface CreateWardenMindOptions {
   onSilence?: (reason: SilenceReason, context: WardenContext, detail?: SilenceDetail) => void;
 }
 
-/** `responseFormat: "json"` (`mind-seam@0.3.0`): see
- *  `createPrisonerMind` (`prisonerMind.ts`) for the full reasoning. */
+/** `mind-seam@0.4.0`: see `PRISONER_PROPOSAL_SCHEMA` (`prisonerMind.ts`) for
+ *  the full reasoning -- built from THIS principal's own move list,
+ *  `WARDEN_MOVES`, which is why the two schemas' `plan.items.enum` differ. */
+const WARDEN_PROPOSAL_SCHEMA: InertRecord = {
+  type: "object",
+  properties: {
+    intent: { type: "string" },
+    line: { type: "string" },
+    plan: {
+      type: "array",
+      minItems: 1,
+      maxItems: MAX_PLAN_LENGTH,
+      items: { type: "string", enum: WARDEN_MOVES },
+    },
+  },
+  required: ["intent", "plan"],
+  additionalProperties: false,
+};
+
 export function createWardenMind(options: CreateWardenMindOptions): WardenMind {
   return createLocalMind<WardenContext, WardenProposal>({
     ...options,
-    responseFormat: "json",
+    responseFormat: { jsonSchema: WARDEN_PROPOSAL_SCHEMA, name: "proposal" },
     prompt: buildWardenPrompt,
     coerce: coerceWardenProposal,
   });

@@ -1,6 +1,6 @@
-import type { Mind, Proposal, SilenceReason, SilenceDetail } from "mind-seam";
+import type { Mind, Proposal, SilenceReason, SilenceDetail, InertRecord } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
-import { MOVE_DESCRIPTIONS } from "../world/mechanics.js";
+import { MOVE_DESCRIPTIONS, PRISONER_MOVES } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 
 /**
@@ -157,21 +157,43 @@ export interface CreatePrisonerMindOptions {
 }
 
 /**
+ * `mind-seam@0.4.0`: a strict JSON schema, built from THIS principal's own
+ * closed move list (`PRISONER_MOVES`) -- static, because the move list
+ * itself is static; a per-context schema would be the same object every
+ * call. Verified on doris (Ollama 0.30.10): `strict: true` with a schema
+ * held `ancient-awakening` to exactly these keys and enum values even when
+ * the prompt asked for others -- `"json"` alone (0.3.0) still let it invent
+ * keys. This narrows what usually arrives; `coercePrisonerProposal` still
+ * runs on every answer regardless (defence in depth -- the package's own
+ * documentation: "schema enforcement narrows the model but doesn't replace
+ * coerce").
+ */
+const PRISONER_PROPOSAL_SCHEMA: InertRecord = {
+  type: "object",
+  properties: {
+    intent: { type: "string" },
+    line: { type: "string" },
+    plan: {
+      type: "array",
+      minItems: 1,
+      maxItems: MAX_PLAN_LENGTH,
+      items: { type: "string", enum: PRISONER_MOVES },
+    },
+  },
+  required: ["intent", "plan"],
+  additionalProperties: false,
+};
+
+/**
  * `createPrisonerMind` = the package's `createLocalMind` with this game's
  * two pure functions (design §7.3). The base URL comes from THIS
  * repository's own environment variable (`PRISONER_MODEL_URL`, read by
  * `src/checkpoint.ts` -- never here, and never a raw default).
- *
- * `responseFormat: "json"` (`mind-seam@0.3.0`): sends
- * `response_format: { type: "json_object" }`, verified on doris (Ollama
- * 0.30.10) to return clean JSON from `ancient-awakening` -- most of the
- * first real runs' `"unparseable"` silences were this, not a genuinely
- * broken answer.
  */
 export function createPrisonerMind(options: CreatePrisonerMindOptions): PrisonerMind {
   return createLocalMind<PrisonerContext, PrisonerProposal>({
     ...options,
-    responseFormat: "json",
+    responseFormat: { jsonSchema: PRISONER_PROPOSAL_SCHEMA, name: "proposal" },
     prompt: buildPrisonerPrompt,
     coerce: coercePrisonerProposal,
   });
