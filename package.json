@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "mind-seam": "0.4.0",
+    "mother-of-invention": "0.1.0",
     "run-dmcp": "0.6.0"
   },
   "devDependencies": {

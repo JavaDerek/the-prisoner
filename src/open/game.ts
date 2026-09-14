@@ -40,6 +40,9 @@ export async function runOpenGame(params: {
   wardenMind: OpenMind;
   prisonerMind: OpenMind;
   rounds: number;
+  /** Standing knowledge per principal, shown every turn -- the precedent
+   *  condition (`precedent.ts`). Absent in the baseline. */
+  precedent?: { readonly warden: readonly string[]; readonly prisoner: readonly string[] };
   onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
@@ -59,7 +62,7 @@ export async function runOpenGame(params: {
       const other: Principal = principal === "warden" ? "prisoner" : "warden";
       const t = principal === "warden" ? clock.wardenT(n) : clock.prisonerT(n);
 
-      const news: OpenNews = { ...inbox[principal] };
+      const news: OpenNews = { ...inbox[principal], standing: params.precedent?.[principal] };
       inbox[principal] = { fromOther: [] };
       const context = buildOpenContext(openWorld, principal, t, n, rounds, news);
 

@@ -20,7 +20,7 @@
 // (root CLAUDE.md hard rule 2 for this whole workspace) -- set before any
 // run-dmcp function is called (imports alone do nothing; see run-dmcp's own
 // library/application split).
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getDatabase, initializeSchema, ResolveProtocolError, type Outcome, type Contradiction, type ConstraintViolationError } from "run-dmcp";
 import { buildWorld, type World } from "./world/setup.js";
@@ -53,6 +53,8 @@ import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
 import { runOpenGame } from "./open/game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, type SilenceNote } from "./open/checkpointTranscript.js";
 import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
+import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
+import { recordGame, precedentLines } from "./open/precedent.js";
 
 const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoint-${Date.now()}.db`;
 process.env.DMCP_DB_PATH = dbPath;
@@ -107,6 +109,12 @@ const VARIANT = getVariant();
  *  swapped like the other two. */
 const REFEREE_MODEL = process.env.PRISONER_REFEREE_MODEL ?? "qwen2.5:14b";
 const REFEREE_TIMEOUT_MS = process.env.PRISONER_REFEREE_TIMEOUT_MS ? Number(process.env.PRISONER_REFEREE_TIMEOUT_MS) : THINK_TIMEOUT_MS;
+/** Open variant only: the precedent condition (`src/open/precedent.ts`). Set
+ *  to a ledger file (created if absent) to show both minds what the warden
+ *  has already seen prisoners try in earlier games, and to add this game's
+ *  perceived attempts afterwards. Unset: the baseline, unchanged. */
+const PRECEDENT_LEDGER = process.env.PRISONER_PRECEDENT_LEDGER;
+const PRECEDENT_LIMIT = 10;
 const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
@@ -680,6 +688,12 @@ async function mainOpen(): Promise<void> {
   const residentsAtStart = initialPs ? initialPs.models.map((m) => m.name).filter((name) => RESIDENT_MODELS.includes(name)) : [];
 
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const precedentLedger = PRECEDENT_LEDGER
+    ? beginEpisode(existsSync(PRECEDENT_LEDGER) ? parseLedger(JSON.parse(readFileSync(PRECEDENT_LEDGER, "utf8"))) : emptyLedger(), stamp)
+    : null;
+  const precedents = precedentLedger ? seenBefore(precedentLedger, { observer: "warden", actor: "prisoner", episode: stamp, limit: PRECEDENT_LIMIT }) : [];
+  const precedent = precedentLedger ? precedentLines(precedents) : undefined;
+
   const transcript: string[] = [];
   transcript.push("# The Prisoner -- checkpoint transcript (open variant)");
   transcript.push("");
@@ -701,6 +715,15 @@ async function mainOpen(): Promise<void> {
   transcript.push(`Models loaded at start (/api/ps): ${loadedAtStart}`);
   if (residentsAtStart.length > 0) transcript.push(`Resident at start: ${residentsAtStart.map((n) => `\`${n}\``).join(", ")}.`);
   transcript.push(`Referee requests for replay: \`checkpoints/${stamp}.referee.json\`.`);
+  if (precedentLedger) {
+    transcript.push(
+      `Precedent condition: ON. Ledger \`${PRECEDENT_LEDGER}\`, ${precedentLedger.episodes.length - 1} earlier episode(s); ` +
+        `${precedents.length} precedent(s) shown to both minds every turn (limit ${PRECEDENT_LIMIT}):`
+    );
+    for (const p of precedents) transcript.push(`- ${p.text} (times ${p.times}, episodes ${p.episodes}, last ${p.lastEpisode})`);
+  } else {
+    transcript.push("Precedent condition: OFF (baseline).");
+  }
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
@@ -718,6 +741,7 @@ async function mainOpen(): Promise<void> {
       wardenMind,
       prisonerMind,
       rounds: ROUNDS,
+      ...(precedent ? { precedent } : {}),
       onHalfRound: (half) => {
         const ms = performance.now() - halfStart;
         timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
@@ -756,6 +780,12 @@ async function mainOpen(): Promise<void> {
     writeFileSync(file, transcript.join("\n") + "\n");
     written = true;
     writeFileSync(join(dir, `${stamp}.referee.json`), JSON.stringify(refereeRequestsFor(game.halves), null, 2) + "\n");
+    if (precedentLedger && PRECEDENT_LEDGER) {
+      // Only a finished game adds to the warden's experience.
+      writeFileSync(PRECEDENT_LEDGER, JSON.stringify(recordGame(precedentLedger, stamp, game.halves), null, 2) + "\n");
+      // eslint-disable-next-line no-console
+      console.log(`Precedent ledger updated: ${PRECEDENT_LEDGER}`);
+    }
     // eslint-disable-next-line no-console
     console.log(`Transcript written to ${file}`);
     // eslint-disable-next-line no-console

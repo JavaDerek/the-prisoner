@@ -103,9 +103,13 @@ function objectLabel(objectId: string): string {
  *  "say what is, never what is absent" applies equally to "say only what
  *  was actually perceived," so this never leaks more than "something
  *  happened here," which is all a bystander -- as opposed to the actor --
- *  would genuinely take in. */
-export function describeAttempt(principal: Principal, ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">): string {
-  const actor = actorName(principal);
+ *  would genuinely take in. `actor` overrides the name, for a record that
+ *  must outlive this game's characters (`precedent.ts`). */
+export function describeAttempt(
+  principal: Principal,
+  ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">,
+  actor: string = actorName(principal)
+): string {
   const obj = objectLabel(ruling.targetObjectId);
   switch (ruling.effectKind) {
     case "wear":

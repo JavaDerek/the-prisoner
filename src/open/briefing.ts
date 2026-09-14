@@ -48,6 +48,8 @@ const DEFAULT_TOTAL_ROUNDS = 12;
  *  the other principal's. Strings only: the caller decides WHOSE news goes
  *  to whom, and this module only places it. */
 export type OpenNews = {
+  /** Standing knowledge for the whole game, repeated every turn (`precedent.ts`). */
+  readonly standing?: readonly string[];
   readonly ownOutcome?: string;
   readonly fromOther?: readonly string[];
 };
@@ -83,6 +85,7 @@ export function buildOpenBriefing(
   if (news.ownOutcome) lines.push(news.ownOutcome);
   for (const perceived of news.fromOther ?? []) lines.push(perceived);
   lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
+  for (const line of news.standing ?? []) lines.push(line);
 
   const notes = getNotes(gameId, principal);
   if (notes) lines.push(`Your notes from last round: ${notes}`);
