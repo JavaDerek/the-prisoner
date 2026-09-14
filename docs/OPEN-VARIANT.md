@@ -1,7 +1,8 @@
 # The Prisoner, open variant — design
 
-*Status: proposal, written 2026-09-14, before any code. Nothing here is built. The owner reviews this
-before implementation starts.*
+*Status (2026-09-14): design approved, §8 decided, §4.1 descriptions approved by the owner. **O1's
+mechanism is built and tested** (`src/open/`, §9) **but not yet playable end to end**: wiring it into
+`npm run checkpoint` and running the first real games is issue #2, which is the next step.*
 
 The closed variant proved that two local models can outwit each other **inside a fully specified
 game**: ten enumerated moves, every effect and threshold stated in the prompt. That is a board game,
@@ -132,7 +133,7 @@ tile, an iron-framed cot with a wool blanket frayed at the hem, a tin bucket, th
 brings each round, and the warden's key ring (on the warden's belt). Descriptions are content, in the
 scenario file, and never in engine or seam code.
 
-**Draft descriptions for O1 — awaiting the owner's review before any real game runs.** Each says what
+**Descriptions for O1 — approved by the owner, 2026-09-14.** Each says what
 a thing *is*: material, size, wear, how it is fixed. None says what it is *for*. Every phrase here is
 something a referee may quote, so a phrase that implies a use is a use the referee can grant.
 

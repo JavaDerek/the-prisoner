@@ -31,12 +31,34 @@ Not a rule to remember: `PrisonerContext`/`WardenContext` are `type` aliases ove
 refuse it (`C extends InertRecord`), and if you cast past `tsc`, the conformance suite's check 2
 will.
 
+## Two variants, one switch
+
+`PRISONER_VARIANT=closed|open`, default `closed`. **closed**: each mind picks `plan[0]` from an enum of
+moves with fully stated rules (`src/world/`, `src/mind/`, `src/loop.ts`). **open**: each mind proposes a
+free-text intent and a referee rules on it (`src/open/`), designed in `docs/OPEN-VARIANT.md`, which is
+the authority for that variant. Everything except the action layer is shared: cell, characters,
+beliefs, clock, presence, thoughts/notes, wits/voice model roles, swapper, engine, seam. Keep it that
+way; if the two variants diverge anywhere else, a comparison between them stops meaning anything.
+
+## Real games use one model at a time
+
+Model roles are configured by `PRISONER_WITS_MODEL`, `PRISONER_VOICE_MODEL` and (open variant)
+`PRISONER_REFEREE_MODEL`, against `PRISONER_MODEL_URL`. On a single consumer GPU only one model fits,
+so every call goes through `src/ollamaSwap.ts`, which unloads before loading and never lets two calls
+overlap. `PRISONER_OLLAMA_RESIDENT_MODELS` lists models a run may unload and must restore afterwards;
+**any other model found loaded stops the run** (it belongs to someone else). Do not infer "pinned"
+from Ollama's `expires_at`: some servers keep every model loaded indefinitely. Transcripts go to
+`checkpoints/`, committed unedited, including bad runs.
+
 ## Never pattern-match meaning
 
-The warden's commands and the prisoner's `choice` are both closed sets; `choice` is validated by
-literal membership in a list this repository wrote, inside this repository's own `coerce`. Free
-text, if ever added, goes through the engine's turn reader (`createTurnReader`), cited against a
-caller-declared answer set — never a regex, never a scan of generated prose for meaning.
+In the closed variant, a move is validated by literal membership (after ASCII uppercasing) in a list
+this repository wrote, inside this repository's own `coerce`. In the open variant, free text is ruled
+on only by the referee through the engine's turn reader (`createTurnReader`): closed answer keys, each
+answer cited verbatim against a named source (the actor's intent, or the target object's authored
+description) — never a regex, never code deciding what prose means. Code can verify that a citation
+is verbatim and from the right source; it cannot verify that the quote justifies the ruling, so that
+judgement is audited by humans in transcripts, never approximated by a lexical check.
 
 ## Never run against a real database
 
