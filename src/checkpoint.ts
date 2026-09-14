@@ -125,44 +125,40 @@ function finalResourceValues(world: World): string[] {
   return lines;
 }
 
-/** Item 9: the checkpoint's own side channel (see prisonerMind.ts's/
- *  wardenMind.ts's `onRawAnswer` for the wire-side half). Reset before
- *  every `mind.consider()` call this script makes and read immediately
- *  after, so a stale answer from a previous round can never be mistaken
- *  for this one's. */
-interface RawAnswerHolder {
-  captured: boolean;
-  raw: unknown;
-}
-
-function freshRawAnswerHolder(): RawAnswerHolder {
-  return { captured: false, raw: undefined };
-}
-
-/** Tallies this task's report requirements as the run goes -- never
- *  recomputed after the fact from prose, always from the same
- *  `HalfRoundResult` the transcript itself renders from. */
+/**
+ * Tallies this task's report requirements as the run goes -- never
+ * recomputed after the fact from prose, always from the same
+ * `HalfRoundResult` the transcript itself renders from.
+ *
+ * `mind-seam@0.3.0`: this repository's own raw-answer side channel
+ * (`onRawAnswer`) is retired. `SilenceDetail.text` is present for BOTH
+ * `"unparseable"` and `"rejected"` (the old side channel could only ever
+ * report the latter, because it fired inside `coerce`, which only runs once
+ * JSON parsing has already succeeded) and `SilenceDetail.parsed` for
+ * `"rejected"` IS the model's raw parsed answer -- there is nothing left
+ * for a side channel to add.
+ */
 interface RunStats {
   refusals: { round: number; principal: Principal; move: string; cause: string }[];
   planRevisions: { round: number; principal: Principal; moves: readonly string[] }[];
-  silences: { round: number; principal: Principal; reason: string | undefined; rawAnswer: unknown }[];
+  silences: { round: number; principal: Principal; reason: string | undefined; text: string | undefined; parsed: unknown }[];
 }
 
-function noteStats(stats: RunStats, half: HalfRoundResult, roundN: number, rawAnswer: RawAnswerHolder): void {
+function noteStats(stats: RunStats, half: HalfRoundResult, roundN: number): void {
   const r = half.result;
   if (r.kind === "refused") {
     const cause = r.error instanceof ResolveProtocolError ? r.error.reason : r.error.constraintKind;
     stats.refusals.push({ round: roundN, principal: half.principal, move: r.proposal.choice ?? "?", cause });
   }
   if (r.kind === "silent") {
-    stats.silences.push({ round: roundN, principal: half.principal, reason: r.reason, rawAnswer: rawAnswer.captured ? rawAnswer.raw : undefined });
+    stats.silences.push({ round: roundN, principal: half.principal, reason: r.reason, text: r.detail?.text, parsed: r.detail?.parsed });
   }
   if (half.planRevision && half.planRevision.length > 0) {
     stats.planRevisions.push({ round: roundN, principal: half.principal, moves: half.planRevision });
   }
 }
 
-function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnswerHolder): string[] {
+function renderHalfRound(world: World, half: HalfRoundResult): string[] {
   const lines: string[] = [];
   lines.push(`### Half-round ${half.t - world.clock.t0} (t=${half.t}) -- the ${half.principal}`);
   lines.push("");
@@ -174,10 +170,19 @@ function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnsw
   const r = half.result;
   if (r.kind === "silent") {
     lines.push(`**Silence.** SilenceReason: \`${r.reason ?? "unknown"}\`.`);
-    if (r.reason === "rejected") {
-      lines.push("**Raw answer (rejected):**");
+    // Shown for every silence that has one (unparseable AND rejected --
+    // `mind-seam@0.3.0` widens this past the old rejected-only side
+    // channel, which left "unparseable" blank in every earlier transcript).
+    if (r.detail?.text !== undefined) {
+      lines.push(`**Raw text (${r.reason}):**`);
+      lines.push("```");
+      lines.push(r.detail.text);
+      lines.push("```");
+    }
+    if (r.reason === "rejected" && r.detail?.parsed !== undefined) {
+      lines.push("**Parsed answer (rejected):**");
       lines.push("```json");
-      lines.push(rawAnswer.captured ? JSON.stringify(rawAnswer.raw, null, 2) : "(no raw answer was captured)");
+      lines.push(JSON.stringify(r.detail.parsed, null, 2));
       lines.push("```");
     }
     if (r.loud) {
@@ -254,22 +259,17 @@ async function main(): Promise<void> {
   const timings: Timing[] = [];
   const stats: RunStats = { refusals: [], planRevisions: [], silences: [] };
 
-  let wardenRawAnswer = freshRawAnswerHolder();
-  let prisonerRawAnswer = freshRawAnswerHolder();
-
   const wardenMind = createWardenMind({
     baseUrl: MODEL_URL,
     model: MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
-    onSilence: (reason) => noteSilenceReason(wardenTracker, reason),
-    onRawAnswer: (raw) => (wardenRawAnswer = { captured: true, raw }),
+    onSilence: (reason, _context, detail) => noteSilenceReason(wardenTracker, reason, detail),
   });
   const prisonerMind = createPrisonerMind({
     baseUrl: MODEL_URL,
     model: MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
-    onSilence: (reason) => noteSilenceReason(prisonerTracker, reason),
-    onRawAnswer: (raw) => (prisonerRawAnswer = { captured: true, raw }),
+    onSilence: (reason, _context, detail) => noteSilenceReason(prisonerTracker, reason, detail),
   });
 
   const transcript: string[] = [];
@@ -305,7 +305,6 @@ async function main(): Promise<void> {
 
     const tw = world.clock.wardenT(n);
     const wardenContext = buildWardenContext(world, wardenPlan, tw);
-    wardenRawAnswer = freshRawAnswerHolder();
     const wStart = performance.now();
     const wardenHalf = await runHalfRound({
       world,
@@ -319,8 +318,8 @@ async function main(): Promise<void> {
       tracker: wardenTracker,
     });
     timings.push({ round: n, principal: "warden", ms: performance.now() - wStart, silent: wardenHalf.result.kind === "silent" });
-    noteStats(stats, wardenHalf, n, wardenRawAnswer);
-    transcript.push(...renderHalfRound(world, wardenHalf, wardenRawAnswer));
+    noteStats(stats, wardenHalf, n);
+    transcript.push(...renderHalfRound(world, wardenHalf));
 
     ended = checkGameEnd(world, tw);
     if (ended) {
@@ -328,7 +327,6 @@ async function main(): Promise<void> {
     } else {
       const tp = world.clock.prisonerT(n);
       const prisonerContext = buildPrisonerContext(world, prisonerPlan, tp);
-      prisonerRawAnswer = freshRawAnswerHolder();
       const pStart = performance.now();
       const prisonerHalf = await runHalfRound({
         world,
@@ -342,8 +340,8 @@ async function main(): Promise<void> {
         tracker: prisonerTracker,
       });
       timings.push({ round: n, principal: "prisoner", ms: performance.now() - pStart, silent: prisonerHalf.result.kind === "silent" });
-      noteStats(stats, prisonerHalf, n, prisonerRawAnswer);
-      transcript.push(...renderHalfRound(world, prisonerHalf, prisonerRawAnswer));
+      noteStats(stats, prisonerHalf, n);
+      transcript.push(...renderHalfRound(world, prisonerHalf));
 
       ended = checkGameEnd(world, tp);
       if (ended) endedAtRound = n;
@@ -401,7 +399,9 @@ async function main(): Promise<void> {
   }
   transcript.push(`Silences: ${stats.silences.length}.`);
   for (const s of stats.silences) {
-    transcript.push(`  - round ${s.round}, ${s.principal}, reason ${s.reason ?? "unknown"}, raw answer: ${s.rawAnswer !== undefined ? JSON.stringify(s.rawAnswer) : "(none captured)"}`);
+    const text = s.text !== undefined ? JSON.stringify(s.text) : "(no text)";
+    const parsed = s.parsed !== undefined ? JSON.stringify(s.parsed) : "(no parsed answer)";
+    transcript.push(`  - round ${s.round}, ${s.principal}, reason ${s.reason ?? "unknown"}, text: ${text}, parsed: ${parsed}`);
   }
   transcript.push("");
   transcript.push("### Model call timings");

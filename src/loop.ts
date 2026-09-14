@@ -21,7 +21,7 @@
 // `logRound` for EVERY half-round -- silent, refused, or resolved -- so
 // `mostRecentVisibleActFor` (ledger.ts) is never left pointing at a stale,
 // older act (this task's bug (b)).
-import type { Mind, Proposal, SilenceReason } from "mind-seam";
+import type { Mind, Proposal, SilenceReason, SilenceDetail } from "mind-seam";
 import { ResolveProtocolError, ConstraintViolationError, getResource, type Resolver, type Outcome } from "run-dmcp";
 import type { World } from "./world/setup.js";
 import {
@@ -68,14 +68,20 @@ export type PrincipalContext = {
 export type PrincipalProposal = Proposal & { readonly choice?: string; readonly plan?: readonly string[] };
 
 /** Per-principal silence history. Two consecutive `null`s make the loop
- *  loud; the counter resets to 0 the moment a real proposal is heard. */
+ *  loud; the counter resets to 0 the moment a real proposal is heard.
+ *  `lastDetail` (`mind-seam@0.3.0`) is set by the SAME `onSilence` call
+ *  that sets `lastReason`, so by the time `runHalfRound` reads it (right
+ *  after `mind.consider()` resolves, single-threaded, no other call can
+ *  have run in between) it is always THIS half-round's detail -- present
+ *  for `"unparseable"`/`"rejected"`, `undefined` otherwise. */
 export interface SilenceTracker {
   streak: number;
   lastReason: SilenceReason | undefined;
+  lastDetail: SilenceDetail | undefined;
 }
 
 export function newSilenceTracker(): SilenceTracker {
-  return { streak: 0, lastReason: undefined };
+  return { streak: 0, lastReason: undefined, lastDetail: undefined };
 }
 
 /** The loud threshold (design §7.4): the SECOND consecutive silence, not
@@ -83,7 +89,7 @@ export function newSilenceTracker(): SilenceTracker {
 export const LOUD_AFTER_CONSECUTIVE_SILENCES = 2;
 
 export type HalfRoundOutcome =
-  | { kind: "silent"; reason: SilenceReason | undefined; loud: boolean }
+  | { kind: "silent"; reason: SilenceReason | undefined; detail: SilenceDetail | undefined; loud: boolean }
   | { kind: "no-choice"; proposal: PrincipalProposal }
   | { kind: "resolved"; proposal: PrincipalProposal; outcome: Outcome }
   | { kind: "refused"; proposal: PrincipalProposal; error: ResolveProtocolError | ConstraintViolationError };
@@ -324,7 +330,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
     // This task's perception fix: log EVERY half-round, even a silent one,
     // so `mostRecentVisibleActFor` never falls back to an older, stale act.
     logRound({ gameId: world.gameId, t, roundN, principal, mechanic: "NONE", description: null, line: null, seenByOtherAs: null });
-    return { principal, t, context, result: { kind: "silent", reason: tracker.lastReason, loud } };
+    return { principal, t, context, result: { kind: "silent", reason: tracker.lastReason, detail: tracker.lastDetail, loud } };
   }
   tracker.streak = 0;
 
@@ -400,13 +406,17 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
 }
 
 /**
- * Records a `SilenceReason` against the tracker it belongs to -- called
- * from a mind's `onSilence` callback, so the tracker knows WHY the most
- * recent silence happened even though `mind.consider()` itself only ever
- * returns `null`.
+ * Records a `SilenceReason` (and, `mind-seam@0.3.0`, its `detail`) against
+ * the tracker it belongs to -- called from a mind's `onSilence` callback,
+ * so the tracker knows WHY the most recent silence happened even though
+ * `mind.consider()` itself only ever returns `null`. `detail` is passed
+ * through UNCONDITIONALLY (including `undefined`, for `"unreachable"`/
+ * `"timeout"`/`"status"`), so a stale detail from an earlier silence can
+ * never survive into this one.
  */
-export function noteSilenceReason(tracker: SilenceTracker, reason: SilenceReason): void {
+export function noteSilenceReason(tracker: SilenceTracker, reason: SilenceReason, detail?: SilenceDetail): void {
   tracker.lastReason = reason;
+  tracker.lastDetail = detail;
 }
 
 /** The loud line itself (design §7.4) -- naming the endpoint and the last

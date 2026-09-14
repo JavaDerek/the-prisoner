@@ -1,4 +1,4 @@
-import type { Mind, Proposal, SilenceReason } from "mind-seam";
+import type { Mind, Proposal, SilenceReason, SilenceDetail } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
 import { MOVE_DESCRIPTIONS } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
@@ -141,18 +141,18 @@ export interface CreatePrisonerMindOptions {
   temperature?: number;
   timeoutMs?: number;
   fetchFn?: typeof fetch;
-  onSilence?: (reason: SilenceReason, context: PrisonerContext) => void;
   /**
-   * Item 9: when a proposal is rejected because `choice` is missing or names
-   * a move never offered, the checkpoint wants the model's raw parsed answer
-   * in the transcript -- not a guess at what it "must have meant". This is
-   * the side channel: the CHECKPOINT owns the callback, the wire's `coerce`
-   * step is the only place with the raw object to hand it, so this wrapper
-   * calls it there, on every successful JSON parse, whether
-   * `coercePrisonerProposal` goes on to accept or reject it. Never called
-   * when the wire fails before any JSON is parsed.
+   * `mind-seam@0.3.0`: `detail` is present for `"unparseable"` (`text` only)
+   * and `"rejected"` (`text` and `parsed`) -- `undefined` for
+   * `"unreachable"`/`"timeout"`/`"status"`, which have nothing more to say.
+   * This repository no longer needs its own raw-answer side channel (see
+   * `CreatePrisonerMindOptions`'s old `onRawAnswer`, retired in this
+   * revision): `detail.parsed` on a `"rejected"` silence IS the model's raw
+   * parsed answer, and `detail.text` additionally covers `"unparseable"`,
+   * which the old side channel could never report at all (it only ever saw
+   * a raw object once JSON parsing had already succeeded).
    */
-  onRawAnswer?: (raw: unknown) => void;
+  onSilence?: (reason: SilenceReason, context: PrisonerContext, detail?: SilenceDetail) => void;
 }
 
 /**
@@ -160,15 +160,18 @@ export interface CreatePrisonerMindOptions {
  * two pure functions (design §7.3). The base URL comes from THIS
  * repository's own environment variable (`PRISONER_MODEL_URL`, read by
  * `src/checkpoint.ts` -- never here, and never a raw default).
+ *
+ * `responseFormat: "json"` (`mind-seam@0.3.0`): sends
+ * `response_format: { type: "json_object" }`, verified on doris (Ollama
+ * 0.30.10) to return clean JSON from `ancient-awakening` -- most of the
+ * first real runs' `"unparseable"` silences were this, not a genuinely
+ * broken answer.
  */
 export function createPrisonerMind(options: CreatePrisonerMindOptions): PrisonerMind {
-  const { onRawAnswer, ...rest } = options;
   return createLocalMind<PrisonerContext, PrisonerProposal>({
-    ...rest,
+    ...options,
+    responseFormat: "json",
     prompt: buildPrisonerPrompt,
-    coerce: (raw, context) => {
-      onRawAnswer?.(raw);
-      return coercePrisonerProposal(raw, context);
-    },
+    coerce: coercePrisonerProposal,
   });
 }

@@ -1,4 +1,4 @@
-import type { Mind, Proposal, SilenceReason } from "mind-seam";
+import type { Mind, Proposal, SilenceReason, SilenceDetail } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
 import { MOVE_DESCRIPTIONS } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
@@ -71,20 +71,18 @@ export interface CreateWardenMindOptions {
   temperature?: number;
   timeoutMs?: number;
   fetchFn?: typeof fetch;
-  onSilence?: (reason: SilenceReason, context: WardenContext) => void;
-  /** Item 9: see `CreatePrisonerMindOptions.onRawAnswer` (`prisonerMind.ts`)
-   *  for the full reasoning -- identical shape here. */
-  onRawAnswer?: (raw: unknown) => void;
+  /** See `CreatePrisonerMindOptions.onSilence` (`prisonerMind.ts`) for the
+   *  full reasoning -- identical shape here. */
+  onSilence?: (reason: SilenceReason, context: WardenContext, detail?: SilenceDetail) => void;
 }
 
+/** `responseFormat: "json"` (`mind-seam@0.3.0`): see
+ *  `createPrisonerMind` (`prisonerMind.ts`) for the full reasoning. */
 export function createWardenMind(options: CreateWardenMindOptions): WardenMind {
-  const { onRawAnswer, ...rest } = options;
   return createLocalMind<WardenContext, WardenProposal>({
-    ...rest,
+    ...options,
+    responseFormat: "json",
     prompt: buildWardenPrompt,
-    coerce: (raw, context) => {
-      onRawAnswer?.(raw);
-      return coerceWardenProposal(raw, context);
-    },
+    coerce: coerceWardenProposal,
   });
 }

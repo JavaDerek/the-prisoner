@@ -182,10 +182,24 @@ describe("createPrisonerMind -- the wire, offline", () => {
     expect(await mind.consider(context)).toBeNull();
     expect(silenced).toBe("rejected");
   });
+
+  it("sends response_format: json_object (mind-seam@0.3.0)", async () => {
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse(init?.body as string);
+      expect(body.response_format).toEqual({ type: "json_object" });
+      return new Response(
+        JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait", plan: ["WAIT"] }) } }] }),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    });
+    const mind = createPrisonerMind({ baseUrl: "http://offline.invalid", model: "test-model", fetchFn: fetchFn as unknown as typeof fetch });
+    await mind.consider(context);
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
 });
 
-describe("createPrisonerMind's onRawAnswer -- item 9's side channel, owned by the caller", () => {
-  it("captures the raw parsed answer when the wire's coerce rejects it (plan[0] not in moves)", async () => {
+describe("createPrisonerMind's onSilence detail (mind-seam@0.3.0) -- retires this repository's own raw-answer side channel", () => {
+  it("passes detail.text and detail.parsed through on a 'rejected' silence -- this IS the model's raw answer, no side channel needed", async () => {
     const fetchFn = vi.fn(
       async () =>
         new Response(
@@ -193,49 +207,61 @@ describe("createPrisonerMind's onRawAnswer -- item 9's side channel, owned by th
           { status: 200, headers: { "content-type": "application/json" } }
         )
     );
-    let captured: unknown;
+    let capturedDetail: { text?: string; parsed?: unknown } | undefined;
     const mind = createPrisonerMind({
       baseUrl: "http://offline.invalid",
       model: "test-model",
       fetchFn: fetchFn as unknown as typeof fetch,
-      onRawAnswer: (raw) => (captured = raw),
+      onSilence: (_reason, _context, detail) => (capturedDetail = detail),
     });
     const proposal = await mind.consider(context);
     expect(proposal).toBeNull();
-    expect(captured).toEqual({ intent: "x", plan: ["SEARCH"] });
+    expect(capturedDetail?.parsed).toEqual({ intent: "x", plan: ["SEARCH"] });
+    expect(capturedDetail?.text).toContain("SEARCH");
   });
 
-  it("captures the raw answer on a successful call too (the caller decides what to do with it)", async () => {
+  it("passes detail.text (but no detail.parsed) on an 'unparseable' silence -- previously blank in this repository's own transcripts", async () => {
     const fetchFn = vi.fn(
       async () =>
-        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait", plan: ["WAIT"] }) } }] }), {
+        new Response(JSON.stringify({ choices: [{ message: { content: "not json at all, sorry" } }] }), {
           status: 200,
           headers: { "content-type": "application/json" },
         })
     );
-    let captured: unknown;
+    let capturedReason: string | undefined;
+    let capturedDetail: { text?: string; parsed?: unknown } | undefined;
     const mind = createPrisonerMind({
       baseUrl: "http://offline.invalid",
       model: "test-model",
       fetchFn: fetchFn as unknown as typeof fetch,
-      onRawAnswer: (raw) => (captured = raw),
+      onSilence: (reason, _context, detail) => {
+        capturedReason = reason;
+        capturedDetail = detail;
+      },
     });
-    await mind.consider(context);
-    expect(captured).toEqual({ intent: "wait", plan: ["WAIT"] });
+    expect(await mind.consider(context)).toBeNull();
+    expect(capturedReason).toBe("unparseable");
+    expect(capturedDetail?.text).toContain("not json at all");
+    expect(capturedDetail?.parsed).toBeUndefined();
   });
 
-  it("is never called when the wire fails before any JSON is parsed (unreachable) -- there is no raw object to invent", async () => {
+  it("passes no detail at all for 'unreachable'", async () => {
     const fetchFn = vi.fn(async () => {
       throw new Error("ECONNREFUSED");
     });
     let called = false;
+    let capturedDetail: unknown;
     const mind = createPrisonerMind({
       baseUrl: "http://offline.invalid",
       model: "test-model",
       fetchFn: fetchFn as unknown as typeof fetch,
-      onRawAnswer: () => (called = true),
+      onSilence: (_reason, _context, detail) => {
+        called = true;
+        capturedDetail = detail;
+      },
     });
     await mind.consider(context);
-    expect(called).toBe(false);
+    expect(called).toBe(true);
+    expect(capturedDetail).toBeUndefined();
   });
 });

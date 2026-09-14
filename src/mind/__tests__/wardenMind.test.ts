@@ -128,10 +128,24 @@ describe("createWardenMind -- the wire, offline", () => {
     expect(await mind.consider(context)).toBeNull();
     expect(silenced).toBe("rejected");
   });
+
+  it("sends response_format: json_object (mind-seam@0.3.0)", async () => {
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse(init?.body as string);
+      expect(body.response_format).toEqual({ type: "json_object" });
+      return new Response(
+        JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "observe", plan: ["OBSERVE"] }) } }] }),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    });
+    const mind = createWardenMind({ baseUrl: "http://offline.invalid", model: "test-model", fetchFn: fetchFn as unknown as typeof fetch });
+    await mind.consider(context);
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
 });
 
-describe("createWardenMind's onRawAnswer -- item 9's side channel, owned by the caller", () => {
-  it("captures the raw parsed answer when the wire's coerce rejects it (plan[0] not in moves)", async () => {
+describe("createWardenMind's onSilence detail (mind-seam@0.3.0) -- retires this repository's own raw-answer side channel", () => {
+  it("passes detail.text and detail.parsed through on a 'rejected' silence", async () => {
     const fetchFn = vi.fn(
       async () =>
         new Response(
@@ -139,28 +153,34 @@ describe("createWardenMind's onRawAnswer -- item 9's side channel, owned by the 
           { status: 200, headers: { "content-type": "application/json" } }
         )
     );
-    let captured: unknown;
+    let capturedDetail: { text?: string; parsed?: unknown } | undefined;
     const mind = createWardenMind({
       baseUrl: "http://offline.invalid",
       model: "test-model",
       fetchFn: fetchFn as unknown as typeof fetch,
-      onRawAnswer: (raw) => (captured = raw),
+      onSilence: (_reason, _context, detail) => (capturedDetail = detail),
     });
     const proposal = await mind.consider(context);
     expect(proposal).toBeNull();
-    expect(captured).toEqual({ intent: "x", plan: ["FILE"] });
+    expect(capturedDetail?.parsed).toEqual({ intent: "x", plan: ["FILE"] });
+    expect(capturedDetail?.text).toContain("FILE");
   });
 
-  it("is never called when the wire fails before any JSON is parsed", async () => {
+  it("passes no detail at all when the wire fails before any JSON is parsed (a non-200 status)", async () => {
     const fetchFn = vi.fn(async () => new Response("nope", { status: 503 }));
     let called = false;
+    let capturedDetail: unknown;
     const mind = createWardenMind({
       baseUrl: "http://offline.invalid",
       model: "test-model",
       fetchFn: fetchFn as unknown as typeof fetch,
-      onRawAnswer: () => (called = true),
+      onSilence: (_reason, _context, detail) => {
+        called = true;
+        capturedDetail = detail;
+      },
     });
     await mind.consider(context);
-    expect(called).toBe(false);
+    expect(called).toBe(true);
+    expect(capturedDetail).toBeUndefined();
   });
 });
