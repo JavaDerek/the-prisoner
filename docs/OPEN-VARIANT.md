@@ -474,3 +474,49 @@ Transcripts: `checkpoints/2026-09-14T18-21-01-298Z.md`, `checkpoints/2026-09-14T
   referee lowercased (`"closely examine the bar..."` against "Closely examine"), quotes elided with
   `...`, empty quotes, and source ids written `[desc:bar]` -- the transport prompt itself renders
   sources as `[id] text`, which invites exactly that.
+
+## 12. Escape is leaving the cell (owner's decision, 2026-09-14)
+
+§9.3 carried the closed variant's escape condition over: *bar or lock integrity at 0, guard attention
+below 50*. The probe in `checkpoints/2026-09-14-probe-round7-*.json` showed what that costs: a 31B
+model saw the bolt in the door gap and set it aside because "the lock integrity is 100". A rule that
+defines escape as a number reaching zero turns every attempt into wearing that number down. The
+owner's correction: **escape is when the prisoner is able to leave the cell, and leaves it.**
+
+### 12.1 State
+
+- **Where a principal is** is the character's `location_id`, changed only inside a resolution through
+  run-dmcp 0.7.0's `set` intent (run-dmcp#32). The open world adds two locations beyond the cell:
+  *the corridor* (through the door) and *outside the window*.
+- **Exits are the existing objects**, so no new authored description is needed: the **lock** is the
+  door's exit and the **bar** the window's. Each gains a `passage` property, `0` shut and `1` open,
+  bounded and `resolve_only`.
+- **An exit is passable** when its `passage` is `1`, or when its `integrity` has reached `0` (a bar
+  worn through, a lock destroyed): the old routes still lead out, they no longer define "out".
+
+### 12.2 Effects
+
+Three generic effects join §4.2, each needing both citations like every other:
+
+| Effect | What it does |
+|---|---|
+| `open` | sets the target's `passage` to `1` in one act -- the decisive effect §11's probe asked for |
+| `close` | sets the target's `passage` to `0` |
+| `leave` | moves the actor through the target exit to its destination, if and only if the exit is passable at that moment; otherwise nothing moves and the actor learns the exit is shut |
+
+`wear`/`restore` never act on `passage`, the same way `conceal`/`expose` act only on `concealment`.
+
+### 12.3 Ending
+
+- **Escape:** the prisoner's `location_id` is anywhere but the cell, checked from state after every
+  half-round, however it came about.
+- **Guard attention is no longer a gate on escape** (the owner: "why on Earth would we limit ourselves
+  any more than that?"). It stays in the world and keeps decaying; nothing reads it for escape.
+- **Catch is unchanged in this step** -- one variable at a time. Its own narrowness (only an
+  examination that finds damage) is the mirror problem, recorded for the next step.
+
+### 12.4 What the minds are told
+
+The escape rule becomes physical: *Voss escapes the moment she is out of the cell, however she gets
+out.* The cell's ways out are named as the door and the window. The integrity threshold for escape is
+removed from both prompts.
