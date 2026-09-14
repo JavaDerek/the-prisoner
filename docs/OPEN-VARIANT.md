@@ -409,3 +409,36 @@ that the quote justifies the effect, and no lexical check was added. Read by han
    label the referee gave. The second is a change to what counts as a citation, so it is a design
    decision, not a fix.
 3. Should §5.3 item 3 replay near-duplicate intents across states, not only identical requests?
+
+## 11. The precedent condition (2026-09-14)
+
+The owner's hypothesis: novelty is absent because nothing makes it necessary. First mechanism, from the
+new `mother-of-invention` package: `PRISONER_PRECEDENT_LEDGER` shows both minds, every turn, what Croft
+has already perceived prisoners try in earlier games, as Croft's eleven years of experience that Voss
+knows about. The ledger was seeded from the two baseline games (§10), then grew with each game.
+Transcripts: `checkpoints/2026-09-14T17-46-34-096Z.md`, `checkpoints/2026-09-14T17-56-55-870Z.md`.
+
+### 11.1 Result: no effect on the prisoner
+
+| | Baseline (§10) | Precedent |
+|---|---|---|
+| Prisoner attempts on the bar | 15 of 16 | 16 of 16 |
+| Novel (object, effect) pairs | 0 | 0 |
+| Prisoner thoughts that mention Croft knowing an approach | — | 0 of 16 |
+| New *means* | tile grit as abrasive; bolt through the door gap | tile grit again; the tile as a wedge to pry the bar |
+
+The briefing said Croft knows "works at the bar" on sight (seen 9, then 13 times). The prisoner's
+reasoning never engaged with it. Its thoughts reason entirely from the stated rules and numbers
+(integrity, guard attention, the suspicion bumps), and nothing in those rules makes a known approach
+fail or cost more. **Precedent that carries no consequence is flavour text.** Necessity has to live in
+the rules the minds actually reason from, or be stated as a demand.
+
+### 11.2 Confound: the referee copies its own failed rulings
+
+The warden's attempts were ruled impossible in all 16 turns (8 of 16 in the baseline), so these games
+did not test the warden side at all. The rejected offers now in the transcript show why:
+`PrecedentStore` (§3.5, the referee's own precedent, unrelated to the ledger above) records every
+ruling with a target, including inapplicable ones. Once `effect=none property=concealment` for the bar
+entered it, later questions quoted that line back (game 2 rounds 4–6), and a referee that is shown a
+failed ruling as precedent repeats it. Two further causes appear: a citation labelled `lock` instead of
+`desc:lock`, and an effect quote copied from an earlier intent rather than the current one.
