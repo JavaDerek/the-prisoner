@@ -199,5 +199,25 @@ export const prisonerMigration: SchemaMigration = {
     } catch {
       // Column already exists.
     }
+
+    // Notes to self, persisted (this task's brief, item 2): each principal's
+    // LATEST "what I want to remember next turn" -- one row per (game,
+    // principal), upserted exactly like `beliefs` above, never appended. A
+    // stateless half-round otherwise has no way to carry a strategy ("two
+    // more shims, then escape while guard attention is low") from one turn
+    // to the next; this table is the caller-side memory that closes that
+    // gap, rendered into that SAME principal's own next briefing only
+    // (`briefing.ts`) and never the other principal's -- the fog property
+    // planted-marker tests in `src/mind/__tests__/privateFields.test.ts`
+    // check exactly that. Code here never reads what `notes` says.
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS principal_notes (
+        game_id TEXT NOT NULL,
+        principal TEXT NOT NULL CHECK (principal IN ('warden', 'prisoner')),
+        notes TEXT NOT NULL,
+        updated_round INTEGER NOT NULL,
+        PRIMARY KEY (game_id, principal)
+      )
+    `);
   },
 };

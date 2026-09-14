@@ -190,6 +190,9 @@ function renderHalfRound(world: World, half: HalfRoundResult): string[] {
       lines.push(`**${loudSilenceMessage(half.principal, MODEL_URL, MODEL, r.reason, 2)}**`);
     }
   } else {
+    // Private thoughts, first (this task's brief, item 1): rendered in the
+    // TRANSCRIPT only -- never stored, never fed into any context.
+    if (r.proposal.thoughts) lines.push(`**Thoughts:** ${r.proposal.thoughts}`);
     lines.push(`**Intent:** ${r.proposal.intent}`);
     if (r.proposal.line) lines.push(`**Line:** "${r.proposal.line}"`);
     // Coordinator's fix, item 2: only shown when the plan actually CHANGED
@@ -201,6 +204,10 @@ function renderHalfRound(world: World, half: HalfRoundResult): string[] {
     if (half.planRevision && half.planRevision.length > 0) {
       lines.push(`**Plan revision:** ${half.planRevision.join(" -> ")}`);
     }
+    // Notes to self (this task's brief, item 2): rendered here too, so a
+    // reader can see what was persisted -- `briefing.ts` renders the same
+    // string back near the top of this principal's OWN next briefing.
+    if (r.proposal.notes) lines.push(`**Notes:** ${r.proposal.notes}`);
     if (r.kind === "no-choice") {
       lines.push("**No choice offered -- this half-round passes with no proposal to resolve.**");
     } else if (r.kind === "resolved") {

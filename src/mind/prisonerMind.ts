@@ -44,8 +44,40 @@ export type PrisonerContext = {
  * tells it is current necessarily kept re-proposing it forever. Under this
  * shape `plan[0]` is consumed as this turn's move and never re-enters the
  * pending steps at all; only `plan[1..]` becomes the new remaining plan
- * (`loop.ts`'s `planNoteFor`). */
-export type PrisonerProposal = Proposal & { readonly choice?: string; readonly plan?: readonly string[] };
+ * (`loop.ts`'s `planNoteFor`).
+ *
+ * REVISION (this task's brief, "a battle of wits, not two scripts", items
+ * 1-2): every half-round is otherwise STATELESS -- a mind sees its ledger of
+ * past ACTS, never its own past REASONING, so it cannot carry a strategy
+ * ("two more shims, then escape while guard attention is low") from one
+ * turn to the next except by re-deriving it from scratch. Two more optional
+ * fields close that gap, both `Inert`, neither ever written to storage
+ * through anything but this repository's own caller-side tables:
+ *
+ * `thoughts` -- private reasoning, rendered into the TRANSCRIPT only
+ * (`checkpoint.ts`) and never stored, never fed back into any context. It
+ * exists so a reader (and the model itself, mid-answer, since property
+ * order in a `strict` JSON schema is generation order) reasons before
+ * committing to `plan`.
+ *
+ * `notes` -- "what I want to remember next turn", persisted one row per
+ * (game, principal) in `src/ledger/notes.ts` (latest only, capped at 400
+ * characters by truncation on write) and rendered near the top of THAT SAME
+ * principal's own next briefing (`briefing.ts`) -- never the other
+ * principal's, which is the fog property `src/mind/__tests__/
+ * privateFields.test.ts` checks with a planted marker, the same way
+ * conformance check 4 checks the private-act fog.
+ *
+ * Both are optional on this TYPE (defence in depth: `coercePrisonerProposal`
+ * accepts a proposal that omits either or both, even though the JSON schema
+ * below marks both required) -- the same division `choice`/`plan` already
+ * have between "required in the schema" and "tolerated absent by coerce". */
+export type PrisonerProposal = Proposal & {
+  readonly choice?: string;
+  readonly plan?: readonly string[];
+  readonly thoughts?: string;
+  readonly notes?: string;
+};
 
 export type PrisonerMind = Mind<PrisonerContext, PrisonerProposal>;
 
@@ -72,7 +104,10 @@ export function buildPrisonerPrompt(context: PrisonerContext): string {
     "",
     `Also, a rule that never changes and is not one of your moves: ${TIME_DECAY_RULE}`,
     "",
-    'Answer with one JSON object: {"intent": string, "line": string, "plan": string[]}.',
+    'Answer with one JSON object: {"thoughts": string, "intent": string, "line": string, "plan": string[], "notes": string}.',
+    '"thoughts" is REQUIRED -- your private reasoning: what you know, what the other person probably knows, ' +
+      "and what you plan to do. A few sentences. Nobody else ever sees this; think it through before you commit " +
+      "to the rest of your answer.",
     '"intent" is what you are trying to do, in your own words.',
     '"line" is REQUIRED -- one sentence spoken ALOUD to the other person, or an empty string ("") to ' +
       "stay silent this turn. The other person hears every word of it; keep secrets out of it.",
@@ -80,6 +115,8 @@ export function buildPrisonerPrompt(context: PrisonerContext): string {
       "entry is what you do THIS turn. Use WAIT as the first entry to do nothing this turn. Any further " +
       "entries are what you now intend to do afterward, replacing whatever you intended before -- include " +
       "only as many as you are confident about.",
+    '"notes" is REQUIRED -- at most about 300 characters: what you want to remember next turn. Nobody else ' +
+      "ever sees this either; it will be shown back to only you, at the top of your next briefing.",
     "You never decide what happens next -- only the world decides that. Propose; do not narrate an outcome.",
     "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
   ].join("\n");
@@ -120,12 +157,29 @@ export function normalizePlan(raw: unknown, moves: readonly string[]): readonly 
   return plan;
 }
 
+/** A free-text field this repository never interprets (`thoughts`/`notes`):
+ *  a non-empty string after trimming, or `undefined` -- for anything that
+ *  is not a string at all, OR trims to nothing. Defence in depth (this
+ *  task's brief, item 4): the JSON schema below marks both REQUIRED, but a
+ *  raw answer missing either -- or sending the wrong type -- drops just
+ *  that field rather than rejecting the whole proposal, the same tolerance
+ *  `line` already has between "required in the schema" and "optional on
+ *  the wire". */
+function coerceFreeText(raw: unknown): string | undefined {
+  if (typeof raw !== "string") return undefined;
+  const trimmed = raw.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 /**
  * `coercePrisonerProposal` (design §7.3, §7.5, P5; coordinator's fix): the
  * package's `coerceProposal` for `intent`/`line`, then `plan` REQUIRED --
  * `plan[0]` missing or invalid is the whole proposal rejected (silence);
  * `choice` is derived as `plan[0]`, never read from the raw answer
- * directly.
+ * directly. `thoughts`/`notes` (this task's brief, items 1-2) are read the
+ * same way `line` always was: present when the raw answer offered a real
+ * string, silently absent otherwise -- never a reason to reject the rest of
+ * an otherwise-valid proposal.
  */
 export function coercePrisonerProposal(raw: unknown, context: PrisonerContext): PrisonerProposal | null {
   const base = coerceProposal(raw);
@@ -135,7 +189,16 @@ export function coercePrisonerProposal(raw: unknown, context: PrisonerContext): 
   const plan = normalizePlan(record.plan, context.moves);
   if (!plan) return null;
 
-  return { ...base, choice: plan[0], plan };
+  const thoughts = coerceFreeText(record.thoughts);
+  const notes = coerceFreeText(record.notes);
+
+  return {
+    ...base,
+    choice: plan[0],
+    plan,
+    ...(thoughts !== undefined ? { thoughts } : {}),
+    ...(notes !== undefined ? { notes } : {}),
+  };
 }
 
 export interface CreatePrisonerMindOptions {
@@ -174,10 +237,20 @@ export interface CreatePrisonerMindOptions {
  * spoken. `coercePrisonerProposal` (and `mind-seam`'s own `coerceProposal`)
  * still accept a missing `line` regardless (defence in depth, the other
  * direction: the schema asks, it does not enforce what `coerce` accepts).
+ *
+ * REVISION (this task's brief, item 1): `thoughts` is listed FIRST and
+ * `notes` LAST -- property order matters under `strict: true` because it is
+ * generation order, so the model reasons privately (`thoughts`) before it
+ * commits to `plan`, and leaves itself a note (`notes`) only after
+ * everything else is decided. Both are REQUIRED for the same reason `line`
+ * is (a model asked for an optional field tends to just omit it);
+ * `coercePrisonerProposal` still tolerates either missing (defence in
+ * depth, item 4).
  */
 const PRISONER_PROPOSAL_SCHEMA: InertRecord = {
   type: "object",
   properties: {
+    thoughts: { type: "string" },
     intent: { type: "string" },
     line: { type: "string" },
     plan: {
@@ -186,8 +259,9 @@ const PRISONER_PROPOSAL_SCHEMA: InertRecord = {
       maxItems: MAX_PLAN_LENGTH,
       items: { type: "string", enum: PRISONER_MOVES },
     },
+    notes: { type: "string" },
   },
-  required: ["intent", "line", "plan"],
+  required: ["thoughts", "intent", "line", "plan", "notes"],
   additionalProperties: false,
 };
 

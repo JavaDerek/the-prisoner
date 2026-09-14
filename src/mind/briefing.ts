@@ -2,6 +2,7 @@ import type { World } from "../world/setup.js";
 import { viewFor } from "../view/viewFor.js";
 import { renderLedger, renderPlan, mostRecentVisibleActFor, type Plan } from "../ledger/ledger.js";
 import { getBelief, renderBeliefLine, type Principal } from "../ledger/beliefs.js";
+import { getNotes } from "../ledger/notes.js";
 import { PRISONER_MOVES, WARDEN_MOVES, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, prisonerStakes, wardenStakes } from "../scenario.js";
 import type { PrisonerContext } from "./prisonerMind.js";
@@ -66,6 +67,16 @@ export function buildBriefing(
   const roundN = Math.floor((t - world.clock.t0) / 2);
   lines.push(`Round ${roundN} of ${totalRounds}.`);
   lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
+
+  // Notes to self, persisted (this task's brief, item 2): rendered near the
+  // top, and ONLY into this SAME principal's own briefing -- never the
+  // other's (the fog property `privateFields.test.ts` checks with a planted
+  // marker). Absent entirely until this principal has left itself a note
+  // (never a guessed or empty line, root CLAUDE.md hard rule 3).
+  const notes = getNotes(world.gameId, principal);
+  if (notes) {
+    lines.push(`Your notes from last round: ${notes}`);
+  }
 
   lines.push(`You share the cell with ${view.otherPrincipal.name ?? "the other person"}.`);
   for (const noun of view.nouns) {

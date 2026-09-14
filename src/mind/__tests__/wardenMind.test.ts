@@ -54,6 +54,37 @@ describe("buildWardenPrompt -- pure, built from context alone", () => {
   });
 });
 
+describe("private thoughts and persisted notes (this task's brief, items 1-2)", () => {
+  it("buildWardenPrompt asks for thoughts FIRST, notes LAST, and explains both", () => {
+    const prompt = buildWardenPrompt(context);
+    expect(prompt).toContain('"thoughts"');
+    expect(prompt).toContain('"notes"');
+    const objectLine = prompt.split("\n").find((l) => l.includes('"thoughts"') && l.includes('"notes"')) ?? "";
+    expect(objectLine).not.toBe("");
+    const order = ["thoughts", "intent", "line", "plan", "notes"];
+    const positions = order.map((key) => objectLine.indexOf(`"${key}"`));
+    for (let i = 1; i < positions.length; i++) {
+      expect(positions[i]).toBeGreaterThan(positions[i - 1]);
+    }
+    expect(prompt.toLowerCase()).toContain("private reasoning");
+    expect(prompt.toLowerCase()).toContain("remember next turn");
+  });
+
+  it("coerceWardenProposal keeps thoughts and notes when present, drops them when missing or non-string", () => {
+    expect(
+      coerceWardenProposal({ intent: "observe", plan: ["OBSERVE"], thoughts: "watching closely", notes: "suspicion rising" }, context)
+    ).toEqual({ intent: "observe", choice: "OBSERVE", plan: ["OBSERVE"], thoughts: "watching closely", notes: "suspicion rising" });
+
+    const missing = coerceWardenProposal({ intent: "observe", plan: ["OBSERVE"] }, context);
+    expect(missing).not.toHaveProperty("thoughts");
+    expect(missing).not.toHaveProperty("notes");
+
+    const wrongType = coerceWardenProposal({ intent: "observe", plan: ["OBSERVE"], thoughts: 1, notes: null }, context);
+    expect(wrongType).not.toHaveProperty("thoughts");
+    expect(wrongType).not.toHaveProperty("notes");
+  });
+});
+
 describe("coerceWardenProposal -- plan REQUIRED, one array, plan[0] is this turn's move (coordinator's fix)", () => {
   it("rejects a proposal with no plan at all", () => {
     expect(coerceWardenProposal({ intent: "watch the cell" }, context)).toBeNull();
@@ -162,7 +193,7 @@ describe("createWardenMind -- the wire, offline", () => {
     expect(responseFormat.json_schema.name).toBe("proposal");
     expect(responseFormat.json_schema.strict).toBe(true);
     expect(responseFormat.json_schema.schema.properties.plan.items.enum).toEqual(WARDEN_MOVES);
-    expect(responseFormat.json_schema.schema.required).toEqual(["intent", "line", "plan"]);
+    expect(responseFormat.json_schema.schema.required).toEqual(["thoughts", "intent", "line", "plan", "notes"]);
   });
 });
 

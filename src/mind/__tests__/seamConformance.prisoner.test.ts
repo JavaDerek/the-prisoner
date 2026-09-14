@@ -148,8 +148,16 @@ function buildHarness(options?: { forceLeak?: boolean }): SeamHarness<PrisonerCo
     // `choice` is scripted directly here (this harness's `runScenario`
     // bypasses `coercePrisonerProposal` entirely, per `scriptedMind`'s own
     // contract), so it stands in for what a real proposal would have
-    // derived from `plan[0]` -- `plan` is included for shape-realism only.
-    actionableProposal: { intent: "file at the bar", choice: "FILE", plan: ["FILE"] },
+    // derived from `plan[0]` -- `plan`/`thoughts`/`notes` are included for
+    // shape-realism only (this task's brief, item 4: both are optional on
+    // `PrisonerProposal`, so their absence elsewhere in this file is fine).
+    actionableProposal: {
+      intent: "file at the bar",
+      choice: "FILE",
+      plan: ["FILE"],
+      thoughts: "the bar is intact; filing now costs little suspicion",
+      notes: "keep filing until the cut lands",
+    },
     privateAct: "supported",
     pass: (mind, passOptions) => runScenario(mind, { ...passOptions, forceLeak: options?.forceLeak }),
     wire: {

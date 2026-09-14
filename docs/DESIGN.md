@@ -998,6 +998,62 @@ before the fix) advances through all four steps of a plan without repeating any
 
 ---
 
+## Revision 2026-09-14 (continued) — private thoughts and persisted notes, across a stateless turn
+
+The reviewer's diagnosis of the first four real runs under the 2026-09-13 revision (belief, not
+truth; minds own their plans): zero silences, lines spoken, a visible clock, rules known to both --
+but across 8 real runs, **zero refusals**, so the dramatic-irony path (the warden covertly services
+the lock, then the prisoner's stale-belief `SHIM` is refused) never fired. `ancient-awakening`'s
+prisoner drifted into `HONE`/`CONCEAL`/`WAIT` busywork and attempted `ESCAPE` with its lock belief
+still 100; its warden tried `SEARCH` without grounds four times. The diagnosis: **each half-round is
+stateless.** A mind sees its own ledger of past *acts* (`renderLedger`) and its own current *plan*
+(`renderPlan`), never its own past *reasoning* -- so a 12B model cannot carry a strategy ("two more
+shims, then escape while guard attention is low") from one turn to the next except by re-deriving it
+from scratch, under time pressure, every single call.
+
+Two caller-side additions close that gap, both ordinary fields on `PrisonerProposal`/`WardenProposal`
+(`mind-seam`'s own `Proposal` already allows a caller to add fields -- neither the package nor
+`run-dmcp` changes):
+
+**`thoughts`** -- required in both JSON schemas, listed **first** (property order is generation order
+under `strict: true`, so the model reasons before it commits to `plan`). Private prose: what it
+knows, what the other side probably knows, what it plans to do. Rendered into the transcript only
+(`checkpoint.ts`'s `renderHalfRound`) and never stored anywhere -- it cannot leak into any future
+context because nothing keeps it past the half-round that produced it.
+
+**`notes`** -- required in both schemas, listed **last** (after everything else is decided). At most
+about 300 characters: what the mind wants to remember next turn. Persisted one row per
+`(game, principal)` in a new table, `principal_notes` (`src/world/schema.ts`, brought up through
+`initializeSchema({ migrations })` exactly like `beliefs`/`plans` already are) -- latest only, upserted,
+capped at 400 characters by truncation on write (`src/ledger/notes.ts`'s `MAX_STORED_NOTES_LENGTH`).
+Rendered near the top of that SAME principal's own next briefing as `"Your notes from last round: …"`
+(`briefing.ts`) -- never the other principal's. Code in this repository never reads what `notes` says;
+it is opaque prose a mind writes for its own later self, the same discipline the ledger's own
+`note`/`description` fields already have.
+
+Both fields are **optional on the TypeScript type** (`PrisonerProposal`/`WardenProposal`) even though
+both are **required in the JSON schema** -- the same split `plan`/`choice` already have.
+`coercePrisonerProposal`/`coerceWardenProposal` accept a raw answer missing either, or sending the
+wrong type, by dropping just that field (`coerceFreeText`: a non-empty string after trimming, or
+`undefined`) -- never by rejecting the whole proposal. Only `plan[0]` being invalid does that.
+
+**The fog property, extended.** Conformance check 4 (§9.1) already proves the *context* the package
+builds carries no other principal's private act. `thoughts` and `notes` are a second, caller-only
+channel the suite does not see (they live on the *proposal*, not the context), so this repository
+tests it itself, the same way: `src/mind/__tests__/privateFields.test.ts` plants a marker in one
+principal's `thoughts` and `notes`, runs one half-round through `runHalfRound`, and asserts the marker
+never appears in any string leaf of the *other* principal's next context -- and, the positive control
+without which absence proves nothing, that a `notes` marker **does** appear in the *same* principal's
+own next context. `thoughts` gets no positive control: by construction it never re-enters any context,
+including its own author's, which the tests assert directly.
+
+**What this does not change.** No `run-dmcp` or `mind-seam` change -- `thoughts` and `notes` are
+ordinary caller fields over the package's generic `Proposal`. The resolve protocol, belief, the plan
+ledger, and the clock are untouched; `notes` supplements the plan (which move comes next) with prose
+about *why*, in the mind's own words, which the plan's bare move names were never meant to carry.
+
+---
+
 ## Appendix B — points for The Prisoner's own `CLAUDE.md`
 
 - What this is, in two sentences, and that `docs/DESIGN.md` is the authority.

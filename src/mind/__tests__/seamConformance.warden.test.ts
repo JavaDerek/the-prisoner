@@ -126,9 +126,16 @@ function buildHarness(options?: { forceLeak?: boolean }): SeamHarness<WardenCont
     fields: ["briefing", "identity", "motive", "moves", "principalId"],
     loudProposal: { intent: "confiscate everything and end the game" },
     // `choice` is scripted directly here (bypasses `coerceWardenProposal`,
-    // per `scriptedMind`'s own contract); `plan` included for shape-realism
-    // only -- see the sibling prisoner harness for the full reasoning.
-    actionableProposal: { intent: "rotate the guard", choice: "ROTATE_GUARD", plan: ["ROTATE_GUARD"] },
+    // per `scriptedMind`'s own contract); `plan`/`thoughts`/`notes` included
+    // for shape-realism only -- see the sibling prisoner harness for the
+    // full reasoning.
+    actionableProposal: {
+      intent: "rotate the guard",
+      choice: "ROTATE_GUARD",
+      plan: ["ROTATE_GUARD"],
+      thoughts: "standing orders call for a rotation now",
+      notes: "watch for suspicion crossing the search threshold",
+    },
     privateAct: "supported",
     pass: (mind, passOptions) => runScenario(mind, { ...passOptions, forceLeak: options?.forceLeak }),
     wire: {

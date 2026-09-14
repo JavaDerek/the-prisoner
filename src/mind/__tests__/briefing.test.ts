@@ -3,6 +3,7 @@ import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildWorld, type World } from "../../world/setup.js";
 import { authorPlan } from "../../ledger/ledger.js";
 import { setBelief, seedInitialBeliefs } from "../../ledger/beliefs.js";
+import { setNotes } from "../../ledger/notes.js";
 import { buildPrisonerContext, buildWardenContext, buildBriefing } from "../briefing.js";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 import { buildPrisonerPrompt } from "../prisonerMind.js";
@@ -145,6 +146,24 @@ describe("authored identity and motive (item 1) -- content, not code logic", () 
     const t = world.clock.wardenT(100);
     const briefing = buildBriefing(world, world.wardenId, t);
     expect(briefing).toContain(`You have grounds to search: suspicion ${SEARCH_SUSPICION_THRESHOLD}.`);
+  });
+
+  it("notes to self (this task's brief, item 2) -- a principal's OWN persisted notes render near the top of its OWN next briefing", () => {
+    fresh();
+    setNotes(world.gameId, "prisoner", "two more shims, then escape while guard attention is low", 1);
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(2));
+    expect(briefing).toContain("Your notes from last round: two more shims, then escape while guard attention is low");
+    // Near the top: within the first few lines, not buried past the ledger.
+    const lines = briefing.split("\n");
+    const noteIndex = lines.findIndex((l) => l.startsWith("Your notes from last round:"));
+    expect(noteIndex).toBeGreaterThanOrEqual(0);
+    expect(noteIndex).toBeLessThan(5);
+  });
+
+  it("notes to self -- absent entirely when this principal has never left one (never a guessed or empty line)", () => {
+    fresh();
+    const briefing = buildBriefing(world, world.prisonerId, world.clock.prisonerT(1));
+    expect(briefing).not.toContain("Your notes from last round");
   });
 
   it("item 4 -- says nothing about grounds while suspicion is below the threshold", () => {

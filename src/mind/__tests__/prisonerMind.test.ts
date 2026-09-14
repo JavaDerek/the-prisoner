@@ -56,6 +56,76 @@ describe("buildPrisonerPrompt -- pure, built from context alone", () => {
   });
 });
 
+describe("private thoughts and persisted notes (this task's brief, items 1-2)", () => {
+  it("buildPrisonerPrompt asks for thoughts FIRST, notes LAST, and explains both", () => {
+    const prompt = buildPrisonerPrompt(context);
+    expect(prompt).toContain('"thoughts"');
+    expect(prompt).toContain('"notes"');
+    // Property order in the answer object itself: thoughts before intent
+    // before line before plan before notes (property order matters -- the
+    // model reasons before it commits to a plan).
+    const objectLine = prompt.split("\n").find((l) => l.includes('"thoughts"') && l.includes('"notes"')) ?? "";
+    expect(objectLine).not.toBe("");
+    const order = ["thoughts", "intent", "line", "plan", "notes"];
+    const positions = order.map((key) => objectLine.indexOf(`"${key}"`));
+    for (let i = 1; i < positions.length; i++) {
+      expect(positions[i]).toBeGreaterThan(positions[i - 1]);
+    }
+    expect(prompt.toLowerCase()).toContain("private reasoning");
+    expect(prompt.toLowerCase()).toContain("remember next turn");
+  });
+
+  it("coercePrisonerProposal keeps thoughts and notes when present", () => {
+    const result = coercePrisonerProposal(
+      { intent: "wait", plan: ["WAIT"], thoughts: "I should wait and watch.", notes: "watch guard attention" },
+      context
+    );
+    expect(result).toEqual({
+      intent: "wait",
+      choice: "WAIT",
+      plan: ["WAIT"],
+      thoughts: "I should wait and watch.",
+      notes: "watch guard attention",
+    });
+  });
+
+  it("coercePrisonerProposal accepts a MISSING thoughts/notes -- defence in depth, the schema requires them but coerce does not", () => {
+    const result = coercePrisonerProposal({ intent: "wait", plan: ["WAIT"] }, context);
+    expect(result).toEqual({ intent: "wait", choice: "WAIT", plan: ["WAIT"] });
+    expect(result).not.toHaveProperty("thoughts");
+    expect(result).not.toHaveProperty("notes");
+  });
+
+  it("a non-string thoughts/notes is dropped, never coerced into a string", () => {
+    const result = coercePrisonerProposal({ intent: "wait", plan: ["WAIT"], thoughts: 5, notes: [] }, context);
+    expect(result).not.toHaveProperty("thoughts");
+    expect(result).not.toHaveProperty("notes");
+  });
+
+  it("the strict json_schema requires thoughts and notes, thoughts listed FIRST and notes LAST (mind-seam@0.4.0)", async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      capturedBody = JSON.parse(init?.body as string);
+      return new Response(
+        JSON.stringify({
+          choices: [
+            { message: { content: JSON.stringify({ thoughts: "t", intent: "wait", line: "", plan: ["WAIT"], notes: "n" }) } },
+          ],
+        }),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    });
+    const mind = createPrisonerMind({ baseUrl: "http://offline.invalid", model: "test-model", fetchFn: fetchFn as unknown as typeof fetch });
+    await mind.consider(context);
+
+    const responseFormat = capturedBody?.response_format as {
+      json_schema: { schema: { required: string[]; properties: Record<string, unknown> } };
+    };
+    expect(responseFormat.json_schema.schema.required).toEqual(["thoughts", "intent", "line", "plan", "notes"]);
+    expect(Object.keys(responseFormat.json_schema.schema.properties)).toEqual(["thoughts", "intent", "line", "plan", "notes"]);
+  });
+});
+
 describe("coercePrisonerProposal -- plan REQUIRED, one array, plan[0] is this turn's move (coordinator's fix)", () => {
   it("rejects a proposal with no plan at all -- item 5(c)", () => {
     const result = coercePrisonerProposal({ intent: "look around" }, context);
@@ -223,7 +293,7 @@ describe("createPrisonerMind -- the wire, offline", () => {
     // Coordinator's fix, item 1: line is required in the schema too, not
     // just asked for in the prompt -- every real run under the OPTIONAL
     // schema had zero lines spoken.
-    expect(responseFormat.json_schema.schema.required).toEqual(["intent", "line", "plan"]);
+    expect(responseFormat.json_schema.schema.required).toEqual(["thoughts", "intent", "line", "plan", "notes"]);
   });
 });
 

@@ -33,6 +33,7 @@ import {
   type Plan,
 } from "./ledger/ledger.js";
 import { setBelief, beliefExpectation, type Principal, type BeliefResource } from "./ledger/beliefs.js";
+import { setNotes } from "./ledger/notes.js";
 import { declareCutIfJustCut, SEEN_BY_OTHER_AS } from "./world/mechanics.js";
 import {
   describeInspection,
@@ -64,8 +65,17 @@ export type PrincipalContext = {
  *  way. A proposal built by a test's own `scriptedMind` may still set
  *  `choice` with no `plan` at all -- this module tolerates that (the
  *  "no-choice"/no-plan defensive paths below), but neither production
- *  `coerce` ever produces one. */
-export type PrincipalProposal = Proposal & { readonly choice?: string; readonly plan?: readonly string[] };
+ *  `coerce` ever produces one.
+ *
+ *  `thoughts`/`notes` (this task's brief, items 1-2): private reasoning and
+ *  a persisted note, both optional here for the same reason `choice`/`plan`
+ *  are -- a test's own scripted proposal need not supply them. */
+export type PrincipalProposal = Proposal & {
+  readonly choice?: string;
+  readonly plan?: readonly string[];
+  readonly thoughts?: string;
+  readonly notes?: string;
+};
 
 /** Per-principal silence history. Two consecutive `null`s make the loop
  *  loud; the counter resets to 0 the moment a real proposal is heard.
@@ -366,6 +376,15 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
     return { principal, t, context, result: { kind: "silent", reason: tracker.lastReason, detail: tracker.lastDetail, loud } };
   }
   tracker.streak = 0;
+
+  // Notes to self, persisted (this task's brief, item 2): stored regardless
+  // of whether this half-round goes on to resolve, refuse, or has no choice
+  // at all -- a note is the mind's own memo to itself, independent of what
+  // else happened this turn. Never touched when the mind offered none
+  // (`coerce*Proposal` already drops an empty/non-string `notes`).
+  if (proposal.notes) {
+    setNotes(world.gameId, principal, proposal.notes, roundN);
+  }
 
   if (!proposal.choice) {
     logRound({ gameId: world.gameId, t, roundN, principal, mechanic: "NONE", description: null, line: spokenLine(proposal.line), seenByOtherAs: null });
