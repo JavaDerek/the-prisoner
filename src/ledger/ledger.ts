@@ -480,15 +480,46 @@ function statusLabel(status: StepStatus): string {
   }
 }
 
-/** Renders a principal's own authored plan into positive prose, current
- *  step marked -- so "(off-plan)" in `renderLedger`'s own output refers to
- *  something the mind has actually seen (item 3). Reads `plan_steps`'
- *  live `status` directly (unlike `planAsOfT`, this is always "now": the
- *  plan a principal is being handed IS the current one, not a historical
- *  reconstruction). */
+/**
+ * Renders a principal's own CURRENT intended steps -- the next move marked,
+ * and at most the single step immediately before it (whether it completed
+ * or failed), never the full history (coordinator's fix, item 2: a plan
+ * revised every round previously grew into a dozen-line wall of "Revised:
+ * HONE (completed)" repeats). `renderLedger` already carries the full,
+ * round-by-round history; this is a snapshot of "where the plan stands
+ * now," which is what a mind actually needs to decide its next move.
+ *
+ * Reads `plan_steps`' live `status` directly (unlike `planAsOfT`, this is
+ * always "now"). `abandoned` steps (left behind by a revision) are never
+ * shown -- they were superseded, not history worth repeating.
+ */
 export function renderPlan(planId: string): string {
-  const steps = planSteps(planId);
-  return steps.map((step, index) => `${index + 1}. ${step.description} (${statusLabel(step.status)})`).join("\n");
+  const steps = planSteps(planId).filter((s) => s.status !== "abandoned");
+  const activeIndex = steps.findIndex((s) => s.status === "active");
+
+  let window: PlanStepRow[];
+  if (activeIndex === -1) {
+    // Nothing active (every step done/failed, or none yet exist) -- show
+    // only the single most recent one, if any.
+    window = steps.length > 0 ? [steps[steps.length - 1]] : [];
+  } else {
+    const previous = steps[activeIndex - 1];
+    const showPrevious = previous && (previous.status === "done" || previous.status === "failed");
+    window = showPrevious ? steps.slice(activeIndex - 1) : steps.slice(activeIndex);
+  }
+
+  return window.map((step, index) => `${index + 1}. ${step.description} (${statusLabel(step.status)})`).join("\n");
+}
+
+/** The moves of this plan's currently PENDING steps, in order -- what the
+ *  plan intends to do after whatever is active right now. Used by
+ *  `loop.ts`'s `planNoteFor` to decide whether a proposed revision actually
+ *  changes anything (coordinator's fix, item 2: "record a revision in the
+ *  ledger ONLY when it differs from the current remaining steps"). */
+export function pendingMoves(planId: string): string[] {
+  return planSteps(planId)
+    .filter((s) => s.status === "pending")
+    .map((s) => s.move);
 }
 
 export function renderLedger(gameId: string, plan: Plan): string {

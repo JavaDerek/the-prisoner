@@ -1,12 +1,14 @@
 import { describe, it, expect, afterEach } from "vitest";
+import type { Mind } from "mind-seam";
 import { SILENT_MIND, scriptedMind } from "mind-seam";
 import { ResolveProtocolError } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../world/testDb.js";
 import { buildWorld, type World } from "../world/setup.js";
 import { buildResolver } from "../world/mechanics.js";
-import { authorPlan, planSteps, type Plan } from "../ledger/ledger.js";
-import { buildPrisonerContext } from "../mind/briefing.js";
+import { authorPlan, planSteps, attemptsFor, renderLedger, type Plan } from "../ledger/ledger.js";
+import { buildPrisonerContext, buildWardenContext } from "../mind/briefing.js";
 import type { PrisonerContext, PrisonerProposal } from "../mind/prisonerMind.js";
+import type { WardenContext, WardenProposal } from "../mind/wardenMind.js";
 import {
   runHalfRound,
   newSilenceTracker,
@@ -197,5 +199,131 @@ describe("the loop -- deterministic, scripted minds only (design §6.1, §7.4)",
     expect(world.clock.prisonerT(1) - t0).toBe(3);
     expect(world.clock.wardenT(2) - t0).toBe(4);
     expect(world.clock.prisonerT(2) - t0).toBe(5);
+  });
+});
+
+describe("item 5(a), coordinator's fix -- a mind that re-sends the same overall plan every turn advances through it, rather than looping", () => {
+  let world: World;
+  let resolver: ReturnType<typeof buildResolver>;
+  let plan: Plan;
+
+  function fresh(): void {
+    createTestDb();
+    world = buildWorld();
+    resolver = buildResolver(world);
+    plan = authorPlan({
+      gameId: world.gameId,
+      characterId: world.prisonerId,
+      t: world.clock.t0,
+      steps: [
+        { move: "HONE", description: "hone" },
+        { move: "FILE", description: "file 1" },
+        { move: "FILE", description: "file 2" },
+        { move: "CONCEAL", description: "conceal" },
+      ],
+    });
+  }
+
+  afterEach(() => {
+    destroyTestDb();
+  });
+
+  it("an 'obedient' mind that always echoes back [current step, ...remaining pending] as its plan advances through all four steps", async () => {
+    fresh();
+    // This mind does not track anything of its own -- every call it reads
+    // the CURRENT active step and the CURRENT remaining pending steps
+    // straight off the plan (standing in for a real model correctly
+    // reporting whatever its own briefing's "current step" and plan
+    // section say) and echoes them back verbatim as `plan`. Under the
+    // PRE-FIX loop, this exact behaviour looped forever on the first step:
+    // `plan[0]` (the just-decided current move) was re-inserted as a fresh
+    // pending step, so it came back as "current" again next round.
+    const obedientMind: Mind<PrisonerContext, PrisonerProposal> = {
+      async consider(): Promise<PrisonerProposal> {
+        const steps = planSteps(plan.id);
+        const active = steps.find((s) => s.status === "active");
+        if (!active) throw new Error("test setup: no active step");
+        const remaining = steps.filter((s) => s.status === "pending").map((s) => s.move);
+        return { intent: `doing ${active.move}`, choice: active.move, plan: [active.move, ...remaining] };
+      },
+    };
+
+    const tracker = newSilenceTracker();
+    const expectedOrder = ["HONE", "FILE", "FILE", "CONCEAL"];
+    for (let n = 1; n <= expectedOrder.length; n++) {
+      const t = world.clock.prisonerT(n);
+      const before = planSteps(plan.id).find((s) => s.status === "active");
+      expect(before?.move).toBe(expectedOrder[n - 1]);
+
+      const half = await runHalfRound({
+        world,
+        resolver,
+        plan,
+        principal: "prisoner",
+        roundN: n,
+        t,
+        context: buildPrisonerContext(world, plan, t),
+        mind: obedientMind,
+        tracker,
+      });
+      expect(half.result.kind).toBe("resolved");
+    }
+
+    // All four steps completed, in order -- none repeated, none skipped.
+    const finalSteps = planSteps(plan.id);
+    expect(finalSteps.every((s) => s.status === "done")).toBe(true);
+  });
+});
+
+describe("item 5(d), coordinator's fix -- the no-op ledger line names the value that made it one", () => {
+  let world: World;
+  let resolver: ReturnType<typeof buildResolver>;
+  let plan: Plan;
+
+  function fresh(): void {
+    createTestDb();
+    world = buildWorld();
+    resolver = buildResolver(world);
+    plan = authorPlan({
+      gameId: world.gameId,
+      characterId: world.wardenId,
+      t: world.clock.t0,
+      steps: [{ move: "SERVICE_LOCK", description: "service the lock" }],
+    });
+  }
+
+  afterEach(() => {
+    destroyTestDb();
+  });
+
+  it("SERVICE_LOCK on an already-full lock records a positive no-op line, never an absence", async () => {
+    fresh();
+    const mind: Mind<WardenContext, WardenProposal> = scriptedMind<WardenContext, WardenProposal>({
+      intent: "service the lock",
+      choice: "SERVICE_LOCK",
+      plan: ["SERVICE_LOCK"],
+    });
+    const t = world.clock.wardenT(1);
+    const half = await runHalfRound({
+      world,
+      resolver,
+      plan,
+      principal: "warden",
+      roundN: 1,
+      t,
+      context: buildWardenContext(world, plan, t),
+      mind,
+      tracker: newSilenceTracker(),
+    });
+
+    expect(half.result.kind).toBe("resolved");
+    const attempts = attemptsFor(plan.id);
+    expect(attempts[0].note).toBe("the lock was already at integrity 100");
+
+    const rendered = renderLedger(world.gameId, plan);
+    expect(rendered).toContain("the lock was already at integrity 100");
+    for (const forbidden of ["no change", "nothing happened", "did not change"]) {
+      expect(rendered.toLowerCase()).not.toContain(forbidden);
+    }
   });
 });

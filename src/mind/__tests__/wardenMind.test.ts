@@ -33,22 +33,45 @@ describe("buildWardenPrompt -- pure, built from context alone", () => {
       expect(prompt).toContain(MOVE_DESCRIPTIONS[move]);
     }
   });
+
+  it("describes plan as one required array, never a separate choice field (coordinator's fix)", () => {
+    const prompt = buildWardenPrompt(context);
+    expect(prompt).not.toContain('"choice"');
+    expect(prompt).toContain('"plan"');
+  });
 });
 
-describe("coerceWardenProposal -- choice REQUIRED, by literal membership only", () => {
-  it("rejects a proposal with no choice at all -- choice is now required (this task's prompt fix)", () => {
+describe("coerceWardenProposal -- plan REQUIRED, one array, plan[0] is this turn's move (coordinator's fix)", () => {
+  it("rejects a proposal with no plan at all", () => {
     expect(coerceWardenProposal({ intent: "watch the cell" }, context)).toBeNull();
   });
 
-  it("keeps a proposal whose choice is a member of moves", () => {
-    expect(coerceWardenProposal({ intent: "replace the bar", choice: "REPLACE_BAR" }, context)).toEqual({
+  it("derives choice from plan[0] and keeps the plan", () => {
+    expect(coerceWardenProposal({ intent: "replace the bar", plan: ["REPLACE_BAR", "WAIT"] }, context)).toEqual({
       intent: "replace the bar",
       choice: "REPLACE_BAR",
+      plan: ["REPLACE_BAR", "WAIT"],
     });
   });
 
-  it("rejects the whole proposal when choice names a move never offered", () => {
-    expect(coerceWardenProposal({ intent: "file it myself", choice: "FILE" }, context)).toBeNull();
+  it("rejects the whole proposal when plan[0] names a move never offered", () => {
+    expect(coerceWardenProposal({ intent: "file it myself", plan: ["FILE"] }, context)).toBeNull();
+  });
+
+  it("matches plan[0] by exact equality after ASCII uppercasing", () => {
+    expect(coerceWardenProposal({ intent: "observe", plan: ["observe"] }, context)).toEqual({
+      intent: "observe",
+      choice: "OBSERVE",
+      plan: ["OBSERVE"],
+    });
+  });
+
+  it("truncates at the first invalid later entry, keeping plan[0]", () => {
+    expect(coerceWardenProposal({ intent: "x", plan: ["OBSERVE", "FILE", "WAIT"] }, context)).toEqual({
+      intent: "x",
+      choice: "OBSERVE",
+      plan: ["OBSERVE"],
+    });
   });
 });
 
@@ -59,7 +82,7 @@ describe("createWardenMind -- the wire, offline", () => {
       expect(body.tools).toEqual([]);
       expect(body.stream).toBe(false);
       return new Response(
-        JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "observe", choice: "OBSERVE" }) } }] }),
+        JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "observe", plan: ["OBSERVE"] }) } }] }),
         { status: 200, headers: { "content-type": "application/json" } }
       );
     });
@@ -71,7 +94,7 @@ describe("createWardenMind -- the wire, offline", () => {
     });
 
     const proposal = await mind.consider(context);
-    expect(proposal).toEqual({ intent: "observe", choice: "OBSERVE" });
+    expect(proposal).toEqual({ intent: "observe", choice: "OBSERVE", plan: ["OBSERVE"] });
   });
 
   it("every failure is null: a non-200 status", async () => {
@@ -86,14 +109,33 @@ describe("createWardenMind -- the wire, offline", () => {
     expect(await mind.consider(context)).toBeNull();
     expect(silenced).toBe("status");
   });
+
+  it("a missing plan is silence with reason 'rejected'", async () => {
+    const fetchFn = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x" }) } }] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })
+    );
+    let silenced: string | undefined;
+    const mind = createWardenMind({
+      baseUrl: "http://offline.invalid",
+      model: "test-model",
+      fetchFn: fetchFn as unknown as typeof fetch,
+      onSilence: (reason) => (silenced = reason),
+    });
+    expect(await mind.consider(context)).toBeNull();
+    expect(silenced).toBe("rejected");
+  });
 });
 
 describe("createWardenMind's onRawAnswer -- item 9's side channel, owned by the caller", () => {
-  it("captures the raw parsed answer when the wire's coerce rejects it (choice not in moves)", async () => {
+  it("captures the raw parsed answer when the wire's coerce rejects it (plan[0] not in moves)", async () => {
     const fetchFn = vi.fn(
       async () =>
         new Response(
-          JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", choice: "FILE" }) } }] }),
+          JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", plan: ["FILE"] }) } }] }),
           { status: 200, headers: { "content-type": "application/json" } }
         )
     );
@@ -106,7 +148,7 @@ describe("createWardenMind's onRawAnswer -- item 9's side channel, owned by the 
     });
     const proposal = await mind.consider(context);
     expect(proposal).toBeNull();
-    expect(captured).toEqual({ intent: "x", choice: "FILE" });
+    expect(captured).toEqual({ intent: "x", plan: ["FILE"] });
   });
 
   it("is never called when the wire fails before any JSON is parsed", async () => {

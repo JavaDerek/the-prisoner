@@ -33,60 +33,73 @@ describe("buildPrisonerPrompt -- pure, built from context alone", () => {
       expect(prompt).toContain(MOVE_DESCRIPTIONS[move]);
     }
   });
+
+  it("describes plan as one required array, never a separate choice field (coordinator's fix)", () => {
+    const prompt = buildPrisonerPrompt(context);
+    expect(prompt).not.toContain('"choice"');
+    expect(prompt).toContain('"plan"');
+    expect(prompt.toLowerCase()).toContain("first");
+  });
 });
 
-describe("coercePrisonerProposal -- choice REQUIRED, by literal membership only", () => {
-  it("rejects a proposal with no choice at all -- choice is now required (this task's prompt fix)", () => {
+describe("coercePrisonerProposal -- plan REQUIRED, one array, plan[0] is this turn's move (coordinator's fix)", () => {
+  it("rejects a proposal with no plan at all -- item 5(c)", () => {
     const result = coercePrisonerProposal({ intent: "look around" }, context);
     expect(result).toBeNull();
   });
 
-  it("keeps a proposal whose choice is a member of moves", () => {
-    const result = coercePrisonerProposal({ intent: "file the bar", choice: "FILE" }, context);
-    expect(result).toEqual({ intent: "file the bar", choice: "FILE" });
+  it("derives choice from plan[0] and keeps the plan", () => {
+    const result = coercePrisonerProposal({ intent: "file the bar", plan: ["FILE", "CONCEAL"] }, context);
+    expect(result).toEqual({ intent: "file the bar", choice: "FILE", plan: ["FILE", "CONCEAL"] });
   });
 
-  it("rejects the whole proposal when choice names a move never offered", () => {
-    const result = coercePrisonerProposal({ intent: "search the warden", choice: "SEARCH" }, context);
+  it("a single-entry plan is valid: choice is that entry, plan is that one entry", () => {
+    const result = coercePrisonerProposal({ intent: "wait it out", plan: ["WAIT"] }, context);
+    expect(result).toEqual({ intent: "wait it out", choice: "WAIT", plan: ["WAIT"] });
+  });
+
+  it("rejects the whole proposal when plan[0] names a move never offered", () => {
+    const result = coercePrisonerProposal({ intent: "search the warden", plan: ["SEARCH"] }, context);
     expect(result).toBeNull();
   });
 
-  it("rejects a proposal with no intent at all, regardless of choice", () => {
-    const result = coercePrisonerProposal({ choice: "FILE" }, context);
+  it("rejects a proposal with no intent at all, regardless of plan", () => {
+    const result = coercePrisonerProposal({ plan: ["FILE"] }, context);
     expect(result).toBeNull();
   });
 
-  it("never pattern-matches: a choice that is a substring or case-variant of a real move is rejected", () => {
-    expect(coercePrisonerProposal({ intent: "x", choice: "file" }, context)).toBeNull();
-    expect(coercePrisonerProposal({ intent: "x", choice: "FILE " }, context)).toBeNull();
-  });
-});
-
-describe("coercePrisonerProposal -- plan (minds own their plans, this task's brief)", () => {
-  it("keeps a valid plan, up to 6 moves, each a member of moves", () => {
-    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: ["HONE", "FILE", "CONCEAL"] }, context);
-    expect(result).toEqual({ intent: "x", choice: "WAIT", plan: ["HONE", "FILE", "CONCEAL"] });
+  it("rejects when plan is present but empty", () => {
+    expect(coercePrisonerProposal({ intent: "x", plan: [] }, context)).toBeNull();
   });
 
-  it("drops only the plan field when it names a move never offered -- never the whole proposal", () => {
-    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: ["HONE", "SEARCH"] }, context);
-    expect(result).toEqual({ intent: "x", choice: "WAIT" });
+  it("rejects when plan is not an array at all", () => {
+    expect(coercePrisonerProposal({ intent: "x", plan: "FILE" }, context)).toBeNull();
   });
 
-  it("drops only the plan field when it has more than 6 entries", () => {
-    const sevenMoves = ["HONE", "FILE", "HONE", "FILE", "HONE", "FILE", "HONE"];
-    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: sevenMoves }, context);
-    expect(result).toEqual({ intent: "x", choice: "WAIT" });
+  describe("item 5(b): plan[0] matches by exact equality after ASCII uppercasing", () => {
+    it('{"plan":["hone","FILE"]} yields choice HONE', () => {
+      const result = coercePrisonerProposal({ intent: "hone then file", plan: ["hone", "FILE"] }, context);
+      expect(result).toEqual({ intent: "hone then file", choice: "HONE", plan: ["HONE", "FILE"] });
+    });
+
+    it("this is a literal character transformation, not fuzzy matching -- a real substring is still rejected", () => {
+      expect(coercePrisonerProposal({ intent: "x", plan: ["fil"] }, context)).toBeNull();
+      expect(coercePrisonerProposal({ intent: "x", plan: ["FILE "] }, context)).toBeNull(); // trailing space survives uppercasing
+    });
   });
 
-  it("drops only the plan field when it is not an array at all", () => {
-    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT", plan: "HONE" }, context);
-    expect(result).toEqual({ intent: "x", choice: "WAIT" });
-  });
+  describe("truncation: a later invalid entry truncates the plan, but plan[0] is always kept", () => {
+    it("keeps plan[0] and everything valid before the first invalid entry", () => {
+      const result = coercePrisonerProposal({ intent: "x", plan: ["HONE", "FILE", "SEARCH", "CONCEAL"] }, context);
+      expect(result).toEqual({ intent: "x", choice: "HONE", plan: ["HONE", "FILE"] });
+    });
 
-  it("a proposal with no plan at all carries no plan field", () => {
-    const result = coercePrisonerProposal({ intent: "x", choice: "WAIT" }, context);
-    expect(result).not.toHaveProperty("plan");
+    it("more than 6 entries: only the first 6 are ever read", () => {
+      const eight = ["HONE", "FILE", "HONE", "FILE", "HONE", "FILE", "HONE", "FILE"];
+      const result = coercePrisonerProposal({ intent: "x", plan: eight }, context);
+      expect(result?.plan).toHaveLength(6);
+      expect(result?.plan).toEqual(eight.slice(0, 6));
+    });
   });
 });
 
@@ -99,7 +112,7 @@ describe("createPrisonerMind -- the wire, offline", () => {
       const headers = (init?.headers ?? {}) as Record<string, string>;
       expect(Object.keys(headers).some((h) => h.toLowerCase() === "authorization")).toBe(false);
       return new Response(
-        JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait quietly", choice: "WAIT" } ) } }] }),
+        JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait quietly", plan: ["WAIT"] }) } }] }),
         { status: 200, headers: { "content-type": "application/json" } }
       );
     });
@@ -111,7 +124,7 @@ describe("createPrisonerMind -- the wire, offline", () => {
     });
 
     const proposal = await mind.consider(context);
-    expect(proposal).toEqual({ intent: "wait quietly", choice: "WAIT" });
+    expect(proposal).toEqual({ intent: "wait quietly", choice: "WAIT", plan: ["WAIT"] });
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
@@ -131,10 +144,10 @@ describe("createPrisonerMind -- the wire, offline", () => {
     expect(silenced).toBe("unreachable");
   });
 
-  it("a choice naming a move not offered is silence with reason 'rejected'", async () => {
+  it("a plan[0] naming a move not offered is silence with reason 'rejected'", async () => {
     const fetchFn = vi.fn(
       async () =>
-        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", choice: "SEARCH" }) } }] }), {
+        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", plan: ["SEARCH"] }) } }] }), {
           status: 200,
           headers: { "content-type": "application/json" },
         })
@@ -150,14 +163,33 @@ describe("createPrisonerMind -- the wire, offline", () => {
     expect(proposal).toBeNull();
     expect(silenced).toBe("rejected");
   });
+
+  it("a missing plan entirely is silence with reason 'rejected'", async () => {
+    const fetchFn = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x" }) } }] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })
+    );
+    let silenced: string | undefined;
+    const mind = createPrisonerMind({
+      baseUrl: "http://offline.invalid",
+      model: "test-model",
+      fetchFn: fetchFn as unknown as typeof fetch,
+      onSilence: (reason) => (silenced = reason),
+    });
+    expect(await mind.consider(context)).toBeNull();
+    expect(silenced).toBe("rejected");
+  });
 });
 
 describe("createPrisonerMind's onRawAnswer -- item 9's side channel, owned by the caller", () => {
-  it("captures the raw parsed answer when the wire's coerce rejects it (choice not in moves)", async () => {
+  it("captures the raw parsed answer when the wire's coerce rejects it (plan[0] not in moves)", async () => {
     const fetchFn = vi.fn(
       async () =>
         new Response(
-          JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", choice: "SEARCH" }) } }] }),
+          JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x", plan: ["SEARCH"] }) } }] }),
           { status: 200, headers: { "content-type": "application/json" } }
         )
     );
@@ -170,13 +202,13 @@ describe("createPrisonerMind's onRawAnswer -- item 9's side channel, owned by th
     });
     const proposal = await mind.consider(context);
     expect(proposal).toBeNull();
-    expect(captured).toEqual({ intent: "x", choice: "SEARCH" });
+    expect(captured).toEqual({ intent: "x", plan: ["SEARCH"] });
   });
 
   it("captures the raw answer on a successful call too (the caller decides what to do with it)", async () => {
     const fetchFn = vi.fn(
       async () =>
-        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait" }) } }] }), {
+        new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "wait", plan: ["WAIT"] }) } }] }), {
           status: 200,
           headers: { "content-type": "application/json" },
         })
@@ -189,7 +221,7 @@ describe("createPrisonerMind's onRawAnswer -- item 9's side channel, owned by th
       onRawAnswer: (raw) => (captured = raw),
     });
     await mind.consider(context);
-    expect(captured).toEqual({ intent: "wait" });
+    expect(captured).toEqual({ intent: "wait", plan: ["WAIT"] });
   });
 
   it("is never called when the wire fails before any JSON is parsed (unreachable) -- there is no raw object to invent", async () => {

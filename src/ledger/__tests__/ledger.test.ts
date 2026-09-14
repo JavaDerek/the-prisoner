@@ -16,6 +16,7 @@ import {
   causeAtT,
   revisePlan,
   mostRecentVisibleActFor,
+  pendingMoves,
 } from "../ledger.js";
 import type { Resolver } from "run-dmcp";
 
@@ -452,6 +453,111 @@ describe("the attempt ledger (design §4.4)", () => {
       for (const forbidden of ["no longer", " not ", "failed to", "nothing"]) {
         expect(rendered).not.toContain(forbidden);
       }
+    });
+
+    it("coordinator's fix -- shows at most the LAST completed step, never the whole history", () => {
+      fresh();
+      const resolver = buildResolver(world);
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "step one" },
+          { move: "FILE", description: "step two" },
+          { move: "FILE", description: "step three" },
+        ],
+      });
+
+      const t1 = world.clock.prisonerT(1);
+      const outcome1 = resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
+      recordSuccess({ gameId: world.gameId, plan, roundN: 1, t: t1, move: "HONE", outcome: outcome1, completesStep: true });
+
+      const t2 = world.clock.prisonerT(2);
+      const outcome2 = resolver.resolve({ gameId: world.gameId, mechanic: "FILE" });
+      recordSuccess({ gameId: world.gameId, plan, roundN: 2, t: t2, move: "FILE", outcome: outcome2, completesStep: true });
+
+      const rendered = renderPlan(plan.id);
+      // "step one" (two steps back) is gone; "step two" (immediately before
+      // the current one) is the one and only completed step shown.
+      expect(rendered).not.toContain("step one");
+      expect(rendered).toContain("step two");
+      expect(rendered).toContain("step three");
+    });
+  });
+
+  describe("pendingMoves -- what the plan intends after whatever is active now (coordinator's fix)", () => {
+    it("lists the pending steps' moves, in order", () => {
+      fresh();
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "active" },
+          { move: "FILE", description: "pending 1" },
+          { move: "CONCEAL", description: "pending 2" },
+        ],
+      });
+      expect(pendingMoves(plan.id)).toEqual(["FILE", "CONCEAL"]);
+    });
+
+    it("is empty once nothing is left pending", () => {
+      fresh();
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [{ move: "WAIT", description: "only step" }],
+      });
+      expect(pendingMoves(plan.id)).toEqual([]);
+    });
+  });
+
+  describe("revisePlan -- coordinator's fix: plan[0] (this turn's move) is never re-inserted as a future step", () => {
+    it("replacing pending steps with an empty list leaves nothing pending, and does not touch the active step", () => {
+      fresh();
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "active" },
+          { move: "FILE", description: "old pending" },
+        ],
+      });
+      revisePlan({ plan, moves: [] });
+      const steps = planSteps(plan.id);
+      expect(steps.find((s) => s.move === "HONE")?.status).toBe("active");
+      expect(pendingMoves(plan.id)).toEqual([]);
+    });
+
+    it("the just-completed move is never among the newly revised pending steps -- this is the exact loop the coordinator diagnosed", () => {
+      fresh();
+      const resolver = buildResolver(world);
+      const plan = authorPlan({
+        gameId: world.gameId,
+        characterId: world.prisonerId,
+        t: world.clock.t0,
+        steps: [
+          { move: "HONE", description: "active" },
+          { move: "FILE", description: "old pending" },
+        ],
+      });
+
+      // A mind proposes plan = [HONE, FILE, FILE, CONCEAL] -- HONE is this
+      // turn's move (plan[0]); the caller must revise remaining steps to
+      // plan[1..] = [FILE, FILE, CONCEAL], NEVER re-adding HONE itself.
+      revisePlan({ plan, moves: ["FILE", "FILE", "CONCEAL"] });
+
+      const t1 = world.clock.prisonerT(1);
+      const outcome = resolver.resolve({ gameId: world.gameId, mechanic: "HONE" });
+      recordSuccess({ gameId: world.gameId, plan, roundN: 1, t: t1, move: "HONE", outcome, completesStep: true });
+
+      // The step that becomes active next is FILE, never HONE again.
+      const active = planSteps(plan.id).find((s) => s.status === "active");
+      expect(active?.move).toBe("FILE");
+      expect(planSteps(plan.id).some((s) => s.move === "HONE" && s.status === "pending")).toBe(false);
     });
   });
 });

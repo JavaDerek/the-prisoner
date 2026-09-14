@@ -2,7 +2,7 @@ import type { Mind, Proposal, SilenceReason } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
 import { MOVE_DESCRIPTIONS } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
-import { MAX_PLAN_LENGTH } from "./prisonerMind.js";
+import { normalizePlan } from "./prisonerMind.js";
 
 /**
  * The warden as a model too (this checkpoint's correction 1 over DESIGN.md,
@@ -23,8 +23,9 @@ export type WardenContext = {
 };
 
 /** See `PrisonerProposal` (`prisonerMind.ts`) for the full reasoning --
- *  identical shape here: `choice` REQUIRED by this repository's `coerce`,
- *  `plan` optional and validated the same way. */
+ *  identical shape here: `plan` REQUIRED (`plan[0]` is this turn's move,
+ *  `plan[1..]` the revised remaining plan); `choice` is derived as
+ *  `plan[0]` and never read from the raw answer directly. */
 export type WardenProposal = Proposal & { readonly choice?: string; readonly plan?: readonly string[] };
 
 export type WardenMind = Mind<WardenContext, WardenProposal>;
@@ -41,21 +42,16 @@ export function buildWardenPrompt(context: WardenContext): string {
     "Your possible moves are exactly these, each with what it does:",
     ...moveLines,
     "",
-    'Answer with one JSON object: {"intent": string, "line"?: string, "choice": string, "plan"?: string[]}.',
+    'Answer with one JSON object: {"intent": string, "line"?: string, "plan": string[]}.',
     '"intent" is what you are trying to do, in your own words.',
     '"line" is optional -- something you might say aloud.',
-    '"choice" is REQUIRED -- exactly one of your possible moves, spelled exactly as given. Use WAIT to do nothing.',
-    '"plan" is optional -- up to 6 of your possible moves, in order, replacing the rest of your current plan, ' +
-      "if you want to change what you intend to do next.",
+    '"plan" is REQUIRED -- a list of 1 to 6 of your possible moves, spelled exactly as given. The FIRST ' +
+      "entry is what you do THIS turn. Use WAIT as the first entry to do nothing this turn. Any further " +
+      "entries are what you now intend to do afterward, replacing whatever you intended before -- include " +
+      "only as many as you are confident about.",
     "You never decide what happens next -- only the world decides that. Propose; do not narrate an outcome.",
     "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
   ].join("\n");
-}
-
-function validPlan(raw: unknown, moves: readonly string[]): readonly string[] | undefined {
-  if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_PLAN_LENGTH) return undefined;
-  if (!raw.every((m) => typeof m === "string" && moves.includes(m))) return undefined;
-  return raw as readonly string[];
 }
 
 export function coerceWardenProposal(raw: unknown, context: WardenContext): WardenProposal | null {
@@ -63,14 +59,10 @@ export function coerceWardenProposal(raw: unknown, context: WardenContext): Ward
   if (base === null) return null;
 
   const record = raw as Record<string, unknown>;
-  const rawChoice = record.choice;
-  if (typeof rawChoice !== "string" || !context.moves.includes(rawChoice)) {
-    return null;
-  }
+  const plan = normalizePlan(record.plan, context.moves);
+  if (!plan) return null;
 
-  const proposal: WardenProposal = { ...base, choice: rawChoice };
-  const plan = validPlan(record.plan, context.moves);
-  return plan ? { ...proposal, plan } : proposal;
+  return { ...base, choice: plan[0], plan };
 }
 
 export interface CreateWardenMindOptions {

@@ -25,23 +25,31 @@ export type PrisonerContext = {
   readonly moves: readonly string[];
 };
 
-/** `choice` is now REQUIRED by this repository's own `coerce` (this task's
- *  prompt fix: "choice is REQUIRED; WAIT is the explicit way to do
- *  nothing"), even though the field itself stays optional at the type level
- *  -- `mind-seam`'s base `Proposal` never requires it, and requiring it
- *  structurally would also outlaw a caller-authored test proposal with no
- *  choice at all (`loop.test.ts`'s "no-choice" defensive path). The
- *  REQUIREMENT is enforced by `coercePrisonerProposal` returning `null`
- *  when `choice` is missing or invalid, exactly as it already does for an
- *  unrecognised move name. `plan` (this task's brief, "minds own their
- *  plans"): an optional list of up to 6 move names that replaces the
- *  remaining steps of this principal's own plan -- validated the same way
- *  `choice` is, by literal membership in `context.moves`. */
+/**
+ * REVISION (coordinator's fix, over the first real runs' plan-revision
+ * loop): there is no separate `choice` field on the wire anymore. A mind
+ * sends exactly ONE array, `plan`: 1-6 move names, where `plan[0]` is what
+ * it is doing THIS half-round and `plan[1..]` is what it now intends to do
+ * after that. `choice` stays on this TYPE (`= plan[0]` once coerced) purely
+ * so `loop.ts` and the conformance harnesses keep addressing "the move to
+ * resolve" the way they always have -- it is never sent or read separately
+ * on the wire.
+ *
+ * Why this fixes the loop: the old shape had a mind repeat its CURRENT move
+ * as the first element of a plan that otherwise also described the future,
+ * and the loop's plan revision naively re-inserted the WHOLE array
+ * (including that just-decided current move) as new pending steps -- so the
+ * step that had just been completed came right back as "current" the very
+ * next round, and an honest mind that keeps reporting what the briefing
+ * tells it is current necessarily kept re-proposing it forever. Under this
+ * shape `plan[0]` is consumed as this turn's move and never re-enters the
+ * pending steps at all; only `plan[1..]` becomes the new remaining plan
+ * (`loop.ts`'s `planNoteFor`). */
 export type PrisonerProposal = Proposal & { readonly choice?: string; readonly plan?: readonly string[] };
 
 export type PrisonerMind = Mind<PrisonerContext, PrisonerProposal>;
 
-/** Up to this many moves in a revised plan (this task's brief). */
+/** The whole `plan` array, `plan[0]` included, is 1-6 entries. */
 export const MAX_PLAN_LENGTH = 6;
 
 /**
@@ -62,47 +70,69 @@ export function buildPrisonerPrompt(context: PrisonerContext): string {
     "Your possible moves are exactly these, each with what it does:",
     ...moveLines,
     "",
-    'Answer with one JSON object: {"intent": string, "line"?: string, "choice": string, "plan"?: string[]}.',
+    'Answer with one JSON object: {"intent": string, "line"?: string, "plan": string[]}.',
     '"intent" is what you are trying to do, in your own words.',
     '"line" is optional -- something you might say aloud.',
-    '"choice" is REQUIRED -- exactly one of your possible moves, spelled exactly as given. Use WAIT to do nothing.',
-    '"plan" is optional -- up to 6 of your possible moves, in order, replacing the rest of your current plan, ' +
-      "if you want to change what you intend to do next.",
+    '"plan" is REQUIRED -- a list of 1 to 6 of your possible moves, spelled exactly as given. The FIRST ' +
+      "entry is what you do THIS turn. Use WAIT as the first entry to do nothing this turn. Any further " +
+      "entries are what you now intend to do afterward, replacing whatever you intended before -- include " +
+      "only as many as you are confident about.",
     "You never decide what happens next -- only the world decides that. Propose; do not narrate an outcome.",
     "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
   ].join("\n");
 }
 
-function validPlan(raw: unknown, moves: readonly string[]): readonly string[] | undefined {
-  if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_PLAN_LENGTH) return undefined;
-  if (!raw.every((m) => typeof m === "string" && moves.includes(m))) return undefined;
-  return raw as readonly string[];
+/** Matches `raw` against `moves` by exact equality after ASCII
+ *  uppercasing -- a literal, deterministic normalization of this
+ *  repository's OWN enumerated move tokens (never fuzzy, never a scan of
+ *  meaning; root CLAUDE.md hard rule 4 covers case exactly the way it
+ *  covers a substring: "file" is not read as meaning FILE by inference, it
+ *  is transformed by one fixed character rule and then checked by literal
+ *  equality against a list this repository wrote). `undefined` when `raw`
+ *  is not a string, or uppercasing it still names no real move. */
+export function normalizeMove(raw: unknown, moves: readonly string[]): string | undefined {
+  if (typeof raw !== "string") return undefined;
+  const upper = raw.toUpperCase();
+  return moves.includes(upper) ? upper : undefined;
 }
 
 /**
- * `coercePrisonerProposal` (design §7.3, §7.5, P5; this task's prompt fix):
- * the package's `coerceProposal` for `intent`/`line`, then `choice` REQUIRED
- * and kept only by literal membership in `context.moves` -- never
- * pattern-matched. `plan`, when present, is validated the same way; an
- * invalid `plan` drops only that field, never the whole proposal (this
- * task's brief: "if any entry is invalid, drop the plan field only, never
- * the proposal").
+ * `plan[0]` (this turn's move) must normalize to a real move, or the whole
+ * plan -- and with it the whole proposal -- is invalid (the caller treats
+ * this as rejected silence: "If plan[0] is invalid or missing"). A later
+ * entry that fails to normalize TRUNCATES the plan there (`plan[0]` is
+ * always kept); at most `MAX_PLAN_LENGTH` entries are ever read.
+ */
+export function normalizePlan(raw: unknown, moves: readonly string[]): readonly string[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) return undefined;
+  const first = normalizeMove(raw[0], moves);
+  if (!first) return undefined;
+
+  const plan: string[] = [first];
+  for (let i = 1; i < raw.length && plan.length < MAX_PLAN_LENGTH; i++) {
+    const next = normalizeMove(raw[i], moves);
+    if (!next) break; // Truncate at the first invalid entry.
+    plan.push(next);
+  }
+  return plan;
+}
+
+/**
+ * `coercePrisonerProposal` (design §7.3, §7.5, P5; coordinator's fix): the
+ * package's `coerceProposal` for `intent`/`line`, then `plan` REQUIRED --
+ * `plan[0]` missing or invalid is the whole proposal rejected (silence);
+ * `choice` is derived as `plan[0]`, never read from the raw answer
+ * directly.
  */
 export function coercePrisonerProposal(raw: unknown, context: PrisonerContext): PrisonerProposal | null {
   const base = coerceProposal(raw);
   if (base === null) return null;
 
   const record = raw as Record<string, unknown>;
-  const rawChoice = record.choice;
-  if (typeof rawChoice !== "string" || !context.moves.includes(rawChoice)) {
-    // choice is REQUIRED: missing, non-string, or naming a move never
-    // offered is all silence ("rejected") -- never a quiet acceptance.
-    return null;
-  }
+  const plan = normalizePlan(record.plan, context.moves);
+  if (!plan) return null;
 
-  const proposal: PrisonerProposal = { ...base, choice: rawChoice };
-  const plan = validPlan(record.plan, context.moves);
-  return plan ? { ...proposal, plan } : proposal;
+  return { ...base, choice: plan[0], plan };
 }
 
 export interface CreatePrisonerMindOptions {

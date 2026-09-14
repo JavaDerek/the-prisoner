@@ -186,8 +186,14 @@ function renderHalfRound(world: World, half: HalfRoundResult, rawAnswer: RawAnsw
   } else {
     lines.push(`**Intent:** ${r.proposal.intent}`);
     if (r.proposal.line) lines.push(`**Line:** "${r.proposal.line}"`);
-    if (r.proposal.plan && r.proposal.plan.length > 0) {
-      lines.push(`**Plan revision:** ${r.proposal.plan.join(" -> ")}`);
+    // Coordinator's fix, item 2: only shown when the plan actually CHANGED
+    // (`half.planRevision`, set only by `loop.ts`'s `planNoteFor` when it
+    // differs from what was already pending) -- never `r.proposal.plan`
+    // itself, which is present on every successfully coerced proposal now
+    // (`plan[0]` is always this turn's move) and would otherwise claim a
+    // "revision" every single half-round.
+    if (half.planRevision && half.planRevision.length > 0) {
+      lines.push(`**Plan revision:** ${half.planRevision.join(" -> ")}`);
     }
     if (r.kind === "no-choice") {
       lines.push("**No choice offered -- this half-round passes with no proposal to resolve.**");

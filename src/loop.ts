@@ -22,18 +22,26 @@
 // `mostRecentVisibleActFor` (ledger.ts) is never left pointing at a stale,
 // older act (this task's bug (b)).
 import type { Mind, Proposal, SilenceReason } from "mind-seam";
-import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Outcome } from "run-dmcp";
+import { ResolveProtocolError, ConstraintViolationError, getResource, type Resolver, type Outcome } from "run-dmcp";
 import type { World } from "./world/setup.js";
 import {
   recordSuccess,
   recordFailure,
   revisePlan,
+  pendingMoves,
   logRound,
   type Plan,
 } from "./ledger/ledger.js";
 import { setBelief, beliefExpectation, type Principal, type BeliefResource } from "./ledger/beliefs.js";
 import { declareCutIfJustCut, SEEN_BY_OTHER_AS } from "./world/mechanics.js";
-import { describeInspection, describeObservation, type InspectResult, type ObserveResult } from "./world/revelations.js";
+import {
+  describeInspection,
+  describeObservation,
+  describeResourceChange,
+  describeResourceNoOp,
+  type InspectResult,
+  type ObserveResult,
+} from "./world/revelations.js";
 import { resolutionDescription } from "./world/facts.js";
 
 export type { Principal };
@@ -49,6 +57,14 @@ export type PrincipalContext = {
   readonly moves: readonly string[];
 };
 
+/** `plan` is the whole array a mind sent, `plan[0]` included; `choice` is
+ *  derived from `plan[0]` by each mind's own `coerce`
+ *  (`prisonerMind.ts`/`wardenMind.ts`) and kept here so this module and the
+ *  conformance harnesses keep addressing "the move to resolve" the same
+ *  way. A proposal built by a test's own `scriptedMind` may still set
+ *  `choice` with no `plan` at all -- this module tolerates that (the
+ *  "no-choice"/no-plan defensive paths below), but neither production
+ *  `coerce` ever produces one. */
 export type PrincipalProposal = Proposal & { readonly choice?: string; readonly plan?: readonly string[] };
 
 /** Per-principal silence history. Two consecutive `null`s make the loop
@@ -206,14 +222,78 @@ function revelationFor(principal: Principal, move: string, outcome: Outcome): st
   return undefined;
 }
 
-/** "Minds own their plans": validates and applies a proposal's `plan` field
- *  (already validated by the caller's own `coerce` for membership/length --
- *  this just applies it and returns the revision note). `undefined` when
- *  the proposal carried no plan. */
-function applyPlanRevision(plan: Plan, proposedPlan: readonly string[] | undefined): string | undefined {
-  if (!proposedPlan || proposedPlan.length === 0) return undefined;
-  revisePlan({ plan, moves: proposedPlan });
-  return `Revised plan: ${proposedPlan.join(" -> ")}.`;
+/**
+ * "Minds own their plans" -- coordinator's fix over the first real runs'
+ * plan-revision LOOP: `proposedPlan[0]` is THIS turn's move (already being
+ * resolved as `choice`) and must NEVER become a new pending step itself --
+ * that re-insertion is exactly what made the just-completed step come back
+ * as "current" again next round, forever. The remaining, intended plan is
+ * `proposedPlan.slice(1)` alone.
+ *
+ * "Record a revision in the ledger ONLY when it differs from the current
+ * remaining steps" (item 2): compared against `pendingMoves(plan.id)`
+ * before touching the database at all, so an unchanged plan produces
+ * neither a DB write nor a repeated "Revised plan: ..." note every round.
+ */
+function planNoteFor(plan: Plan, proposedPlan: readonly string[] | undefined): { note?: string; remaining?: readonly string[] } {
+  if (!proposedPlan) return {};
+  const remaining = proposedPlan.slice(1);
+  const current = pendingMoves(plan.id);
+  const unchanged = remaining.length === current.length && remaining.every((move, i) => move === current[i]);
+  if (unchanged) return {};
+
+  revisePlan({ plan, moves: remaining });
+  const note =
+    remaining.length > 0
+      ? `Revised plan: ${remaining.join(" -> ")}.`
+      : "Revised plan: this move is now the last planned step.";
+  return { note, remaining };
+}
+
+/** Own-move feedback (coordinator's fix, item 3): "each principal's ledger
+ *  line for its own move states what changed, positively... when nothing
+ *  changed, it names the value that made it a no-op." A real change is
+ *  read from the outcome's own `transitions` (never a second query); a
+ *  no-op (no transition -- "a no-op write opens no new fact") reads the
+ *  live value directly, because that IS the value that made it one.
+ *  `undefined` for a move this table has no opinion about (INSPECT/OBSERVE
+ *  already get their own revelation via `revelationFor`; WAIT/ESCAPE/SEARCH
+ *  either never change anything or already describe themselves). */
+const OWN_MOVE_RESOURCE: Partial<Record<string, { entityId: (world: World) => string; subject: string; quality: string }>> = {
+  FILE: { entityId: (world) => world.resources.barIntegrity, subject: "bar", quality: "integrity" },
+  REPLACE_BAR: { entityId: (world) => world.resources.barIntegrity, subject: "bar", quality: "integrity" },
+  SHIM: { entityId: (world) => world.resources.lockIntegrity, subject: "lock", quality: "integrity" },
+  SERVICE_LOCK: { entityId: (world) => world.resources.lockIntegrity, subject: "lock", quality: "integrity" },
+  HONE: { entityId: (world) => world.resources.spoonEdge, subject: "spoon", quality: "edge" },
+  ROTATE_GUARD: { entityId: (world) => world.resources.guardAttention, subject: "guard", quality: "attention" },
+};
+
+function ownMoveFeedback(world: World, move: string, outcome: Outcome): string | undefined {
+  const spec = OWN_MOVE_RESOURCE[move];
+  if (spec) {
+    const entityId = spec.entityId(world);
+    const transition = outcome.transitions.find((t) => t.entityId === entityId && t.key === "value");
+    if (transition) {
+      // A `mode: "set"` write to the SAME value still produces a
+      // transition (previousValue === newValue) -- that IS the no-op,
+      // named by its own (unchanged) value, never by an absent transition.
+      const before = Number(transition.previousValue);
+      const after = Number(transition.newValue);
+      return before === after
+        ? describeResourceNoOp(spec.subject, spec.quality, after)
+        : describeResourceChange(spec.subject, spec.quality, before, after);
+    }
+    // No transition at all for this resource (defensive) -- the live value
+    // is the value that made it a no-op.
+    const current = getResource(entityId)?.value ?? 0;
+    return describeResourceNoOp(spec.subject, spec.quality, current);
+  }
+  if (move === "CONCEAL") {
+    const transition = outcome.transitions.find((t) => t.key === "concealed");
+    const justConcealed = transition ? transition.previousValue !== transition.newValue : false;
+    return justConcealed ? "the spoon is now concealed" : "the spoon was already concealed";
+  }
+  return undefined;
 }
 
 function combineNotes(...notes: (string | undefined)[]): string | undefined {
@@ -253,12 +333,16 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
     return { principal, t, context, result: { kind: "no-choice", proposal } };
   }
 
-  const planRevisionNote = applyPlanRevision(plan, proposal.plan);
+  const { note: planRevisionNote, remaining: planRevision } = planNoteFor(plan, proposal.plan);
 
   const expects = beliefExpectation(world, principal, proposal.choice);
   try {
     const outcome = resolver.resolve({ gameId: world.gameId, mechanic: proposal.choice, expects });
-    const note = combineNotes(revelationFor(principal, proposal.choice, outcome), planRevisionNote);
+    const note = combineNotes(
+      ownMoveFeedback(world, proposal.choice, outcome),
+      revelationFor(principal, proposal.choice, outcome),
+      planRevisionNote
+    );
     recordSuccess({ gameId: world.gameId, plan, t, roundN, move: proposal.choice, outcome, completesStep: true, note });
     declareCutIfJustCut(world, outcome);
     applyBeliefUpdatesForSuccess(world, principal, proposal.choice, outcome, roundN);
@@ -282,7 +366,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
       t,
       context,
       result: { kind: "resolved", proposal, outcome },
-      planRevision: proposal.plan,
+      planRevision,
     };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
@@ -308,7 +392,7 @@ export async function runHalfRound<C extends PrincipalContext, P extends Princip
         t,
         context,
         result: { kind: "refused", proposal, error: err },
-        planRevision: proposal.plan,
+        planRevision,
       };
     }
     throw err;

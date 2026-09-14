@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { describeInspection, describeObservation } from "../revelations.js";
+import { describeInspection, describeObservation, describeResourceChange, describeResourceNoOp } from "../revelations.js";
 
 /**
  * REVISION: INSPECT/OBSERVE reveal exact numbers directly in the mechanic's
@@ -25,5 +25,19 @@ describe("describeObservation -- pure prose over OBSERVE's own result", () => {
     const text = describeObservation({ barBand: "intact" });
     expect(text).not.toContain("spoon edge");
     expect(text).toContain("bar looks intact");
+  });
+});
+
+describe("describeResourceChange / describeResourceNoOp -- own-move feedback (coordinator's fix, item 3)", () => {
+  it("states a real change as before -> after", () => {
+    expect(describeResourceChange("bar", "integrity", 85, 70)).toBe("bar integrity 85 -> 70");
+  });
+
+  it("states a no-op by naming the value that made it one -- never as an absence", () => {
+    const text = describeResourceNoOp("lock", "integrity", 100);
+    expect(text).toBe("the lock was already at integrity 100");
+    for (const forbidden of ["no change", "nothing happened", "did not"]) {
+      expect(text.toLowerCase()).not.toContain(forbidden);
+    }
   });
 });

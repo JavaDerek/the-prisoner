@@ -29,3 +29,19 @@ export function describeObservation(result: ObserveResult): string {
   parts.push(`The bar looks ${result.barBand}.`);
   return parts.join(" ");
 }
+
+/**
+ * Own-move feedback (coordinator's fix, item 3): "each principal's ledger
+ * line for its own move states what changed, positively." Pure formatters
+ * over numbers the CALLER (`loop.ts`) already read from the outcome's own
+ * transitions (a change) or the live resource (a no-op) -- never a database
+ * read here, and never phrased as an absence: a no-op names the value that
+ * made it one, it does not say nothing happened.
+ */
+export function describeResourceChange(subject: string, quality: string, before: number, after: number): string {
+  return `${subject} ${quality} ${before} -> ${after}`;
+}
+
+export function describeResourceNoOp(subject: string, quality: string, value: number): string {
+  return `the ${subject} was already at ${quality} ${value}`;
+}
