@@ -238,3 +238,78 @@ The attack move (issue #1) waits until these hold.
 3. **Descriptions: Claude drafts, the owner reviews** before any real game runs (drafts in §4.1). A
    model drafting descriptions at scenario-build time is deferred until the hand-written version is
    proven, because it would put a model upstream of the grounding guard.
+
+## 9. Revision notes (O1 implementation, 2026-09-14)
+
+**9.1 The property and magnitude table.** §4.1's objects need bounded numeric properties before any
+generic effect can act on them, and this was not authored above. `src/open/scenarioObjects.ts` adds,
+per object: which properties it has (a closed set across the whole scenario: `integrity`, `edge`,
+`concealment`), each one's `min`/`max`/starting value, and a `slight`/`moderate`/`substantial` table
+for both `wear` and `restore`. The closed variant's own numbers are carried over as the `moderate`
+(and, where the closed variant already had a "set to max" move, `substantial`) entries, cited inline
+against the constant they come from: bar integrity wear moderate=15/substantial=25 (`FILE_AMOUNT`/
+`FILE_AMOUNT_SHARP`), restore substantial=100 (`REPLACE_BAR`); lock integrity wear moderate=20
+(`SHIM_AMOUNT`), restore substantial=100 (`SERVICE_LOCK`); spoon edge restore moderate=10
+(`HONE_AMOUNT`). `slight` and every number with no closed-variant original (the cot's wire, the
+blanket's thread, the spoon's own `concealment` scale, and every `wear` direction the closed variant
+never modelled, since it only ever raised or reset) are new content, authored in the same proportion
+as their nearest carried-over sibling, never invented in isolation. `concealment` is a NEW bounded
+0-100 property replacing the closed variant's binary `concealed` flag (0/1 survive as this property's
+own `min`/`max`), so `conceal`/`expose` can be ruled at a magnitude like every other effect, per §4.2's
+own "today (numeric flag)" framing. `bucket`, `meal_tray`, `key_ring` and `loose_tile` carry NO
+numeric property in O1 -- `bucket` exists only for `noise`; `meal_tray`/`key_ring` are custody-shaped
+(`move`, out of scope); `loose_tile`'s own hiding function is carried by the spoon's `concealment`,
+mirroring the closed variant's own choice (`world/vocabulary.ts`'s header).
+
+`guard_attention` and `warden_suspicion` are **not** objects in §4.1's table and so are never
+referee-targetable properties -- they are carried over as fixed side-effect magnitudes instead (see
+9.3), using the closed variant's own constants (`HONE_SUSPICION_BUMP`=5, `FILE_SUSPICION_BUMP`=10,
+`FAILED_ESCAPE_SUSPICION_BUMP`=30, `EVIDENCE_SUSPICION_DIVISOR`=2), never a property in the scenario
+table. This is the one place §1's "Carry over the closed variant's numbers... (bar integrity, lock
+integrity, spoon edge, concealment, guard attention, warden suspicion)" instruction could not be
+satisfied literally as a *scenario property*, because the two are game-state resources, not physical
+objects a referee can cite a description against -- recorded here as the ambiguity it was, and the
+decision taken.
+
+**9.2 Reconciling this task's brief with §3.2's five questions.** §3.2 names a "grounding" question --
+a verbatim span of the target's description, or `none`, which rules the intent impossible -- as its
+third question; the engineering brief that commissioned O1 instead names "the property" as the third
+question. `src/open/referee.ts` treats these as the same question under one name: the answer key is a
+property name (or `none`), and the REQUIRED CITATION on that answer -- a verbatim span of the TARGET's
+own description -- is what actually carries §3.2's grounding requirement, independent of which key was
+chosen. This lets `noise` (which has no property at all) still be held to the "cite the object's own
+description" discipline: its `property` answer is legitimately `none`, but it still needs a verified
+description citation to count as grounded. See `referee.ts`'s own header comment for the full
+reasoning.
+
+**9.3 Game end, mapped to open-mode state, before implementation (this task's brief requires this be
+written down first).**
+
+- **Escape** stays exactly what §1 promises: a condition on state, not a move. The loop checks, after
+  every half-round (never as an effect a referee rules on, since O1 has no `move` to relocate the
+  prisoner): the bar's `integrity` has reached 0 *or* the lock's `integrity` has reached 0 (the closed
+  variant's own "opening" condition -- a cut bar or a bottomed-out lock), **and** `guard_attention` is
+  below `ESCAPE_GUARD_MAX` (50, unchanged). Both numbers are read live off the shared resources the
+  open world reuses from the closed variant's own `World` -- no new resource, no new mechanic.
+- **Catch** stays tied to the warden's own `reveal` effects, mirroring SEARCH/OBSERVE/CHECK_LOCK: a
+  catch is checked only immediately after a WARDEN's `reveal` resolves, and only when two things both
+  hold -- (a) *grounds*: `warden_suspicion` (live) is at or above `SEARCH_SUSPICION_THRESHOLD` (40,
+  unchanged), and (b) the just-revealed value crosses the closed variant's own per-property catch
+  threshold (bar integrity <= `SEARCH_CATCH_BAR_MAX` 50; lock integrity <= `SEARCH_CATCH_LOCK_MAX` 40;
+  spoon edge >= `SEARCH_CATCH_SPOON_MIN` 20 while its own `concealment` is below 50). All four
+  thresholds are the closed variant's own constants, imported, never retyped.
+- **Grounds accrue** (`warden_suspicion` rises) exactly as the closed variant's own "evidence becomes
+  grounds" rule, generalised past FILE/HONE/CHECK_LOCK/OBSERVE to any effect: a PRISONER's non-`silent`
+  `wear`/`restore`/`expose` bumps `warden_suspicion` by a magnitude-scaled amount
+  (slight=`HONE_SUSPICION_BUMP`, moderate=`FILE_SUSPICION_BUMP`, substantial=`FAILED_ESCAPE_SUSPICION_BUMP`);
+  a WARDEN's `reveal` that finds a property lower than the warden's own prior belief of it bumps
+  suspicion by the unexplained drop divided by `EVIDENCE_SUSPICION_DIVISOR`, rounded down -- the
+  identical rule, the identical constant, applied generically instead of per named move. Each bump is
+  its own `resolve()` call (`OPEN_RESTORE` against `warden_suspicion`), so it is still an audited
+  resolution, never a side channel outside the resolve protocol (invariant 1).
+- What this deliberately leaves out of O1: the closed variant's warden-presence rule (whether the
+  warden is physically in the cell to notice a prisoner act at all) is not modelled for the open
+  variant's suspicion bump -- every non-silent prisoner effect is treated as potentially noticed. This
+  is a real simplification, not an oversight: presence in the open variant would need the warden's own
+  `reveal`/`noise` targets to carry a location the way `WARDEN_PRESENCE` does for named moves, and nothing
+  in §4.1's object table currently says where the warden physically is. Left for a later phase.
