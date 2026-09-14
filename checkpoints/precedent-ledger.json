@@ -6,7 +6,9 @@
     "2026-09-14T17-46-34-096Z",
     "2026-09-14T17-56-55-870Z",
     "2026-09-14T18-21-01-298Z",
-    "2026-09-14T18-31-08-658Z"
+    "2026-09-14T18-31-08-658Z",
+    "2026-09-14T20-56-01-836Z",
+    "2026-09-14T21-06-26-366Z"
   ],
   "accounts": [
     {
@@ -188,6 +190,48 @@
       "actor": "prisoner",
       "observer": "warden",
       "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-14T20-56-01-836Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works to restore the spoon."
+    },
+    {
+      "episode": "2026-09-14T20-56-01-836Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the lock."
+    },
+    {
+      "episode": "2026-09-14T20-56-01-836Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the lock."
+    },
+    {
+      "episode": "2026-09-14T20-56-01-836Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-14T20-56-01-836Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-14T21-06-26-366Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the cot."
+    },
+    {
+      "episode": "2026-09-14T21-06-26-366Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the cot."
     }
   ]
 }
