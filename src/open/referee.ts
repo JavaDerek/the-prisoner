@@ -159,7 +159,11 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
       id: "target",
       prompt:
         "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the " +
-        "intent names no object the actor can reach or perceive. Cite the exact words in the actor's intent that name it.",
+        "intent names no object the actor can reach or perceive. " +
+        // OPEN-VARIANT.md §30: §19's lesson a third time -- the effect question's own rule about ways
+        // out never reached this question, and an intent that goes THROUGH something acts on nothing.
+        "An intent that goes out through a way out acts on that way out: name it, never none. " +
+        "Cite the exact words in the actor's intent that name it.",
       answerKeys: targetKeys,
       safeDefault: "none",
     },
@@ -178,6 +182,8 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         "examining a bar for signs of damage or wear is reveal, not wear. " +
         // OPEN-VARIANT.md §17.2, verbatim.
         "For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. " +
+        // OPEN-VARIANT.md §30: every climb-out in a real game came back as `open`.
+        "Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. " +
         `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
         "is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in " +
         "the actor's intent that describe the action.",

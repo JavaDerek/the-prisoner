@@ -1586,3 +1586,23 @@ out seven times and the referee never once ruled it.**
   says open/close/leave target the way out, and the **target** question's prompt says only "which object
   does the actor's intent act on" -- going out through a window acts on nothing, so the model answers
   nothing; and going through an already-open way out reads to it as `open` rather than `leave`.
+
+## 30. Why `leave` had never been ruled: a short intent cannot be cited (2026-09-15)
+
+§29.1's seven attempts to climb out were not a reasoning failure and not, in the end, a prompt failure.
+Asked again, the referee's raw answer names the window: `{"questionId":"target","answerKey":"window",
+"citation":{"sourceId":"intent","from":3,"to":7}}` — on an intent of **four** words. `rebuildRanged`
+(`refereeTransport.ts`, §18.1) dropped any range with `to` past the last word, so the answer lost its
+citation, fell to the safe default `none`, and the transcript recorded "no offer for target" against an
+object the referee had in fact named. Going out through a way out is the shortest intent a mind ever
+writes, which is why `leave` bore the whole cost and had never once been ruled in a real game.
+
+- **The span now ends where the source does.** A range whose `from` is a real word and whose `to` runs
+  past the end is clamped to the last word; a `from` past the end is still no citation. The quote stays a
+  verbatim substring, and the transcript shows the range used.
+- **Two prompt sentences** were added first (target: "an intent that goes out through a way out acts on
+  that way out: name it, never none"; effect: "going out through a way out is leave, even when it already
+  stands open"). Alone they fixed nothing — re-ruled live, round 21 came back identical — but with the
+  clamp the effect sentence shows: three of the seven now rule `leave`, where every one before was `open`.
+- **Re-ruled live, the seven climb-outs:** all seven now name the window (4 fixed, 3 unchanged), 3 as
+  `leave`. The one ruling the prompt sentences had broken (a dig at the tile's hollow) is back.

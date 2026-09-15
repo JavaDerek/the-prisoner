@@ -221,10 +221,16 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       expect(answers[1].citation.quote).toBe("A heavy door of iron-bound planks in a stone frame.");
     });
 
+    it("a range whose end runs past the last word is clamped to it: the referee's own first word stands, the span ends where the source does (OPEN-VARIANT.md §30)", async () => {
+      // §29.1/§30: "Climb through the window" is four words, and the referee cited 3-7; the whole answer
+      // was dropped, so seven attempts to leave were ruled against an object the referee had named.
+      const answers = await answersFor([{ sourceId: "intent", from: 3, to: 7 }]);
+      expect(answers).toEqual([{ questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "the bolt\tback, slowly.", from: 3, to: 6 } }]);
+    });
+
     it("drops a range out of bounds, reversed, non-integer, or naming a source not in the request", async () => {
       const bad = [
         { sourceId: "intent", from: 0, to: 2 },
-        { sourceId: "intent", from: 1, to: 7 },
         { sourceId: "intent", from: 3, to: 2 },
         { sourceId: "intent", from: 1.5, to: 2 },
         { sourceId: "intent", from: "1", to: "2" },

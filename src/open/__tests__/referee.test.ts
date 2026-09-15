@@ -298,6 +298,23 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     );
   });
 
+  it("the target and effect questions both say that going out through a way out is leave, and names it (OPEN-VARIANT.md §30)", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("Climb through the window.", [{ id: "window", description: "A small window set in the wall at shoulder height." }]);
+    // §29.1: seven attempts to climb out were answered with no target at all and `open`, never `leave`.
+    expect(questions.find((q) => q.id === "target")?.prompt).toContain(
+      "An intent that goes out through a way out acts on that way out: name it, never none."
+    );
+    expect(questions.find((q) => q.id === "effect")?.prompt).toContain(
+      "Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open."
+    );
+  });
+
   it("the property question lists each object's own properties and asks for one the target has (OPEN-VARIANT.md §24)", async () => {
     let questions: readonly { id: string; prompt: string }[] = [];
     const TILE: ObjectPerception = { id: "loose_tile", description: "A square clay floor tile, cracked across one corner." };

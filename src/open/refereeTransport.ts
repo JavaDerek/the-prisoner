@@ -169,8 +169,13 @@ function rebuildRanged(citation: { sourceId: string; from?: unknown; to?: unknow
   const source = request.sources.find((s) => s.id === citation.sourceId);
   if (!source || typeof from !== "number" || typeof to !== "number" || !Number.isInteger(from) || !Number.isInteger(to)) return null;
   const words = wordsOf(source.text);
-  if (from < 1 || from > to || to > words.length) return null;
-  return { sourceId: source.id, quote: source.text.slice(words[from - 1].start, words[to - 1].end), from, to };
+  if (from < 1 || from > to || from > words.length) return null;
+  // OPEN-VARIANT.md §30: a referee that names a real first word and runs past the
+  // source's last one is citing what is there plus nothing; the span ends where the
+  // source does. Dropping it instead cost seven attempts to leave (§29.1), each on an
+  // intent short enough to overshoot. A `from` past the end is still no citation at all.
+  const end = Math.min(to, words.length);
+  return { sourceId: source.id, quote: source.text.slice(words[from - 1].start, words[end - 1].end), from, to: end };
 }
 
 function coerceAnswers(raw: unknown, request: ReadRequest): TransportAnswer[] {
