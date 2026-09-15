@@ -1567,3 +1567,22 @@ window's description no longer claims it. Window: *"A small window set in the wa
 a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest
 gap: with that bar gone, a person could climb through."* The next passive game runs 30 rounds rather
 than 20: wearing the bar through takes about nine, and §28.1 ran out of rounds one step short.
+
+### 29.1 The fourth passive game (`checkpoints/2026-09-15T22-35-11-786Z.md`): the last mile is `leave`
+
+30 rounds, settings as §28.1, with §29's description. Result: **timeout at round 30. She tried to climb
+out seven times and the referee never once ruled it.**
+
+- **Everything up to the last step worked.** The bar reached 0 in round 12 and she was told the window
+  can be climbed through; §29's rewording did its job (no more turns spent making the cot a step after
+  round 20).
+- **Rounds 21, 23, 24, 25, 26, 28 and 30 were "Climb through the window"** and variations. Every one was
+  answered `target: none` -- **the referee offered no target at all**, so the safe default stood -- with
+  `effect: open`, never `leave`. The outcome she was given each time was either "the bar is already free
+  of the window" or "reached past what is here", while the window stood open beside her.
+- **`leave` has still never been ruled in any real game** (§19 noted it then; this transcript contains
+  zero `leave` answers).
+- Two questions are failing at once, and it is §19's shape a third time: the effect question's own prompt
+  says open/close/leave target the way out, and the **target** question's prompt says only "which object
+  does the actor's intent act on" -- going out through a window acts on nothing, so the model answers
+  nothing; and going through an already-open way out reads to it as `open` rather than `leave`.
