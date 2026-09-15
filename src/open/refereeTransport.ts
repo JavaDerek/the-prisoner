@@ -101,8 +101,10 @@ function buildPrompt(request: ReadRequest): string {
   const citable = request.sources.filter((s) => !s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
   const earlier = request.sources.filter((s) => s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
   // OPEN-VARIANT.md §18.1: every citable source with its words numbered, so a
-  // citation names a range instead of retyping text.
-  const sourceBlocks = citable.flatMap((s) => [`source "${s.id}":`, numberedWords(s.text), ""]);
+  // citation names a range instead of retyping text. §18.4: the plain text
+  // comes first -- a referee shown numbered words alone misread the intents
+  // themselves (examinations ruled wear) in the first game that tried it.
+  const sourceBlocks = citable.flatMap((s) => [`source "${s.id}":`, s.text, `words: ${numberedWords(s.text)}`, ""]);
   const questionLines = request.questions.map(
     (q) => `- id "${q.id}": ${q.prompt} Answer with exactly one of: ${q.answerKeys.join(", ")}.`
   );

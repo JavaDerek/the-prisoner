@@ -168,8 +168,9 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
           { id: "precedent:bar", text: "effect=reveal property=integrity magnitude=slight" },
         ],
       });
-      expect(prompt).toContain('source "intent":\n1:Closely 2:examine 3:the 4:bar.\n');
-      expect(prompt).toContain('source "desc:door":\n1:A 2:heavy 3:door 4:of 5:iron-bound 6:planks\n');
+      // §18.4: the plain text first, to be read; the numbered words after, only to cite.
+      expect(prompt).toContain('source "intent":\nClosely  examine the bar.\nwords: 1:Closely 2:examine 3:the 4:bar.\n');
+      expect(prompt).toContain('source "desc:door":\nA heavy door of iron-bound planks\nwords: 1:A 2:heavy 3:door 4:of 5:iron-bound 6:planks\n');
       // Earlier rulings are never cited, so they are not numbered.
       expect(prompt).toContain("effect=reveal property=integrity magnitude=slight");
       expect(prompt).not.toContain("1:effect=reveal");
