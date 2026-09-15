@@ -1097,3 +1097,23 @@ game 1 `wear` 10 of 11 (1 `restore`, 0 `reveal`); game 2 `wear` 8 of 10 (1 `rest
 `reveal`). The warden's examinations of the bar stayed `reveal` in every applicable turn in both
 games -- §18.5 is unaffected, only the prisoner-side copying is gone. This closes §18.6/§18.7's open
 question; nothing is awaiting the owner here now.
+
+### 18.9 One live game since §18.8, full roster (2026-09-15)
+
+§18.8's re-rule held the actions fixed. One genuinely live game after it (`qwen3:14b` wits,
+`ancient-awakening:12b` voice, `qwen2.5:14b` referee, `PRISONER_THINK_TIMEOUT_MS=180000`, same
+precedent ledger) checks the fix under real intent variety rather than a replayed sequence:
+`checkpoints/2026-09-15T14-45-03-829Z.md`. Result: timeout at round 12.
+
+The warden's 12 examinations of the bar were `reveal` in every one, as before. The prisoner's 12
+turns, this time genuinely varied in wording (not the earlier games' near-identical "scrape the bar"
+text), got a genuinely varied ruling back: `wear` 3, `reveal` 3, `open` 2 (grounded on `integrity`,
+which `open` does not accept per §12.1 -- ruled applicable but did nothing, a separate, already-
+documented grounding-quality gap, §10.7 item 2), `derive` 2 (a length of wire from the cot, twice --
+the second is the FIRST re-derivation of an already-derived kind's source object seen in any game),
+`none` 1, ruled impossible 1. That spread, not a repeat of one verdict, is the actual sign the fix
+holds live: nothing here is the referee locking onto its own earlier answer for the bar regardless of
+what the current intent says. First game to reach an `open` ruling on two different ways out in one
+game (round 8 the window's mortar, round 12 the door's bolt gap) and the first to re-derive wire after
+deriving it once already (round 9, from the cot's remaining springs) -- both closer to §5.3's still-
+unmet items than any earlier game, though neither exit opened and no escape was attempted.
