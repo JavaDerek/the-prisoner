@@ -913,3 +913,78 @@ could not verify against a `none` target.
   closed it.
 - Caveat: the lock's description (*"The door hangs a finger's width short of its frame"*) contradicts a
   door open from round 1; another reason this is a diagnostic, not a game.
+
+## 17. The ways out are objects of their own (owner's decision, 2026-09-14, designed before code)
+
+§16 found the exit unnamable: the minds and §12's rules say *door* and *window*, but the exits are the
+objects `lock` and `bar`, and the referee's target keys are object ids. **The owner said yes to
+splitting the lock from the door.** The window has the identical mismatch (`EXIT_LABEL` in
+`loop.ts` already maps `bar` to "window" for perception, and the referee never sees that map), so it
+is split the same way; leaving it would ship a known copy of §16's failure.
+
+### 17.1 Objects
+
+| Object | Held by | Description (awaiting the owner's approval of wording) | Properties |
+|---|---|---|---|
+| `door` | the cell wall | A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap. | `passage` (0 shut, 1 open), was `lock.passage` |
+| `lock` | the cell door | A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame. | `integrity`, unchanged |
+| `window` | the cell wall | A small window high in the wall, a little wider than a person's shoulders, barred by five vertical iron bars. | `passage`, was `bar.passage` |
+| `bar` | the window | Unchanged. | `integrity`, unchanged |
+
+Resource names (`door_passage`, `window_passage`, `lock_integrity`, `bar_integrity`) and every number
+are unchanged; only which object declares `passage` moves.
+
+### 17.2 Rules
+
+- An exit is keyed by the **way-out object** (`door`, `window`), and names its **part** (`lock`,
+  `bar`) for §12's other way through: leaving is possible when the way out's `passage` is 1 **or** its
+  part's `integrity` is 0, exactly as today. `EXIT_LABEL` is no longer needed (the ids are the names).
+- `open`, `close` and `leave` target **the way out itself**, even when the method works on its part.
+  The effect question says so: *for open, close and leave, the target is the way out (the door, the
+  window), even when the method works on a part of it such as its lock or a bar.* `wear`, `restore`
+  and `reveal` of `integrity` still target the part.
+- Catch (§12.3: a close examination of the lock's integrity) is unchanged: it targets `lock`.
+
+### 17.3 Comparability
+
+Every open-variant transcript before §17 is a different world for the exit. Precedent sentences
+already recorded (*works at the lock*) stay true and are not rewritten.
+
+## 18. Citations by word range (owner's decision, 2026-09-14, designed before code)
+
+§10.7 item 2 and §16: turns are lost to citations that are right in substance and wrong in bytes
+(*pushing* for *push*, *bend* for *Bend*). The byte-exact check is run-dmcp's (`turnReader.ts`), on
+purpose (its hard rule 4), and **is not loosened**. The owner chose instead to make an exact quote
+effortless: the referee stops retyping text.
+
+### 18.1 What the referee sees and returns
+
+The transport (`refereeTransport.ts`, this repository) renders every citable source with its words
+numbered, a word being a maximal run of non-whitespace:
+
+```
+source "desc:door":
+1:A 2:heavy 3:door 4:of 5:iron-bound 6:planks …
+```
+
+A citation is `{"sourceId": "...", "from": n, "to": m}`. The transport rebuilds the quote as the
+source text **sliced from the first character of word n to the last character of word m**, so the
+quote is an exact substring of the source by construction, and hands the engine
+`{sourceId, quote}` as today. The engine's verbatim check still runs, unchanged.
+
+### 18.2 Failure stays safe
+
+- A range out of bounds, reversed (`from > to`), non-integer, or naming a source not in the request
+  is dropped by the transport, so the question falls to its safe default, as any bad offer does.
+- A citation that still arrives as `{"sourceId", "quote"}` is passed through untouched and checked
+  byte-exact by the engine, as today. Nothing that verifies now stops verifying.
+- §11.4's mid-sentence instruction becomes unnecessary for ranged citations and is removed from the
+  prompt; the character-for-character instruction stays for the quote fallback.
+
+### 18.3 What this does and does not change
+
+The guarantee that a quote is real text moves from a check that can fail to a construction that
+cannot. What stays a human audit is unchanged (CLAUDE.md "never pattern-match meaning"): whether the
+words the referee chose justify its ruling. Numbering is lexical rendering of this repository's own
+prompt; no code reads what the words mean. Transcripts show both the range and the rebuilt quote.
+Replay (`refereeReplayCli.ts`) goes through the same transport and needs no change of its own.
