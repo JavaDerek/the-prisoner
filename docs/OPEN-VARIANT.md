@@ -1448,3 +1448,22 @@ Same models and settings as §22.1, no pick. Result: **caught at round 7**, bar 
   a warden examination at suspicion 100 end the game. The warden moves first, examined the bar in round
   7, and caught her before she could act. As set, escaping through the window needs two consecutive
   warden turns that do not examine the bar once it is at or below 50.
+
+## 26. Can escape be done at all? A passive warden (owner's decision, 2026-09-15)
+
+§5.3's "both endings still reachable" mixes two questions. Whether escape **can be done** is about the
+world, the referee and the prisoner's reasoning; whether it can be done **against a competent warden**
+is balance, and a constant, competent watch could make it realistically impossible. The owner's framing
+settles which matters: this repository is a test harness for `mind-seam` and `mother-of-invention`, not
+a game to balance. So the criterion splits:
+
+- **1a, escape is possible:** in a live game with a passive warden, the prisoner escapes within a
+  generous number of rounds.
+- **1b, a catch is possible:** already shown live (§22.1, §23.1, §25.1).
+- Escape rate against the model warden is not a goal.
+
+`PRISONER_WARDEN=passive` (`src/open/passiveWarden.ts`) gives the warden a mind that attempts nothing:
+each warden half-round is silent, with no model call and no referee call. The prisoner's briefing,
+the referee, the rules and the models are unchanged. A passive game is run against a **copy** of the
+precedent ledger, so the prisoner sees the same precedents while the shared ledger records nothing a
+passive warden "saw".

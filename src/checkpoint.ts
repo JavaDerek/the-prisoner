@@ -57,6 +57,7 @@ import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
 import { recordGame, precedentLines } from "./open/precedent.js";
 import { readPickCondition } from "./open/pickCondition.js";
+import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 
 const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoint-${Date.now()}.db`;
 process.env.DMCP_DB_PATH = dbPath;
@@ -123,6 +124,9 @@ const PRECEDENT_LIMIT = 10;
 /** Open variant only: the pick condition (`src/open/pickCondition.ts`,
  *  OPEN-VARIANT.md §21). Unset: the baseline, unchanged. */
 const PICK = readPickCondition(process.env.PRISONER_PICK);
+/** Open variant only: `passive` takes the warden out of the question
+ *  (`src/open/passiveWarden.ts`, OPEN-VARIANT.md §26). Unset: the model warden. */
+const WARDEN_MODE = readWardenMode(process.env.PRISONER_WARDEN);
 const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
@@ -694,7 +698,7 @@ async function mainOpen(): Promise<void> {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
     },
   });
-  const wardenMind = createOpenWardenMind(mindOptions("warden"));
+  const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind(mindOptions("warden"));
   const prisonerMind = createOpenPrisonerMind(mindOptions("prisoner"));
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
@@ -745,6 +749,11 @@ async function mainOpen(): Promise<void> {
         : `Pick condition: ON (\`PRISONER_PICK=${process.env.PRISONER_PICK}\`): every even-numbered prisoner turn is forced off anything the warden has seen, in earlier games or this one (§21).`
       : "Pick condition: OFF (baseline)."
   );
+  transcript.push(
+    WARDEN_MODE === "passive"
+      ? "Warden: PASSIVE (`PRISONER_WARDEN=passive`): attempts nothing every turn, no model or referee call; the prisoner's briefing is unchanged (§26)."
+      : "Warden: the model warden."
+  );
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
@@ -767,7 +776,8 @@ async function mainOpen(): Promise<void> {
       onHalfRound: (half) => {
         const ms = performance.now() - halfStart;
         timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
-        transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : lastSilence[half.principal]));
+        const passive = WARDEN_MODE === "passive" && half.principal === "warden" ? { reason: "passive warden (§26)" } : undefined;
+        transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal])));
         lastSilence[half.principal] = undefined;
         // eslint-disable-next-line no-console
         console.log(
