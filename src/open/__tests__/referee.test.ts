@@ -162,7 +162,7 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(ruling.applicable).toBe(false);
   });
 
-  it("precedent: a second ruling for the same object sees a precedent source built from the first ruling", async () => {
+  it("OPEN-VARIANT.md §18.6/§18.7: a DIFFERENT intent on the same object is never shown an earlier ruling as precedent -- the confound that made the referee copy reveal onto the prisoner's wear", async () => {
     let secondRequestSources: readonly { id: string; text: string }[] = [];
     const transport: ReaderTransport = async (request) => {
       secondRequestSources = request.sources;
@@ -176,24 +176,19 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     };
     const referee = createReferee([transport]);
     await referee.rule("file it", [BAR]);
-    await referee.rule("file it again", [BAR]);
+    await referee.rule("file it again", [BAR]); // a DIFFERENT intent, same object
 
-    const precedentSource = secondRequestSources.find((s) => s.id === "precedent:bar");
-    expect(precedentSource).toBeTruthy();
-    expect(precedentSource?.text).toContain("effect=wear");
+    expect(secondRequestSources.some((s) => s.id.startsWith("precedent:"))).toBe(false);
+    expect(secondRequestSources.map((s) => s.id)).toEqual(["intent", "desc:bar"]);
   });
 
-  it("precedent keeps only applicable rulings: an impossible ruling is never shown to a later question as an example", async () => {
-    const requests: (readonly { id: string; text: string }[])[] = [];
-    let call = 0;
-    const transport: ReaderTransport = async (request) => {
-      requests.push(request.sources);
-      call += 1;
-      // First ruling: target named, but the effect cites a quote absent from the intent -- inapplicable.
-      const effectQuote = call === 1 ? "PARAPHRASE_NOT_IN_INTENT" : "file it";
+  it("the SAME intent in the SAME state is answered from cache: the transport is asked only once (OPEN-VARIANT.md §3.5's 'same intent, same state, same ruling', by construction rather than by prompt)", async () => {
+    let calls = 0;
+    const transport: ReaderTransport = async () => {
+      calls += 1;
       return [
         { questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file it" } },
-        { questionId: "effect", answerKey: "wear", citation: { sourceId: "intent", quote: effectQuote } },
+        { questionId: "effect", answerKey: "wear", citation: { sourceId: "intent", quote: "file it" } },
         { questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
         { questionId: "magnitude", answerKey: "moderate", citation: { sourceId: "intent", quote: "file it" } },
         { questionId: "perceptibility", answerKey: "audible", citation: { sourceId: "intent", quote: "file it" } },
@@ -201,40 +196,29 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     };
     const referee = createReferee([transport]);
     const first = await referee.rule("file it", [BAR]);
-    expect(first.applicable).toBe(false);
+    const second = await referee.rule("file it", [BAR]); // same intent, same perceived state
 
-    const second = await referee.rule("file it", [BAR]);
-    expect(requests[1].some((s) => s.id === "precedent:bar")).toBe(false); // the failure left no example
-    expect(second.applicable).toBe(true);
-
-    await referee.rule("file it", [BAR]);
-    expect(requests[2].find((s) => s.id === "precedent:bar")?.text).toContain("effect=wear"); // the success did
+    expect(calls).toBe(1);
+    expect(second).toEqual(first);
   });
 
-  it("precedent is scoped per object -- lock's request carries no precedent from the bar", async () => {
-    const barTransport = scriptedTransport({
-      target: { answerKey: "bar", citation: { sourceId: "intent", quote: "file it" } },
-      effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "file it" } },
-      property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
-      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "file it" } },
-      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "file it" } },
-    });
-    const referee = createReferee([barTransport]);
-    await referee.rule("file it", [BAR]);
-
-    let lockRequestSources: readonly { id: string; text: string }[] = [];
-    const captureTransport: ReaderTransport = async (request) => {
-      lockRequestSources = request.sources;
-      return [];
+  it("a repeated intent still asks again once the perceived state has changed -- the cache key is (intent, state), not intent alone", async () => {
+    let calls = 0;
+    const transport: ReaderTransport = async () => {
+      calls += 1;
+      return [
+        { questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file it" } },
+        { questionId: "effect", answerKey: "wear", citation: { sourceId: "intent", quote: "file it" } },
+        { questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+        { questionId: "magnitude", answerKey: "moderate", citation: { sourceId: "intent", quote: "file it" } },
+        { questionId: "perceptibility", answerKey: "audible", citation: { sourceId: "intent", quote: "file it" } },
+      ];
     };
-    const refereeWithCapture = createReferee([captureTransport]);
-    // Reuse the SAME precedent store is not possible across two referees by
-    // construction (one referee = one precedent store, by design) -- this
-    // asserts the negative case directly: a FRESH referee's first call for
-    // "lock" carries no bar precedent, because it has recorded none.
-    await refereeWithCapture.rule("shim the lock", [LOCK]);
-    expect(lockRequestSources.some((s) => s.id === "precedent:bar")).toBe(false);
-    expect(lockRequestSources.some((s) => s.id === "precedent:lock")).toBe(false); // none recorded yet either
+    const referee = createReferee([transport]);
+    await referee.rule("file it", [BAR]);
+    await referee.rule("file it", [BAR, LOCK]); // same intent, a DIFFERENT perceived state
+
+    expect(calls).toBe(2);
   });
 
   it("every question tells the referee which source to cite from -- magnitude and perceptibility included", async () => {

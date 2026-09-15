@@ -110,41 +110,23 @@ const INTENT_SOURCE_ID = "intent";
 function descriptionSourceId(objectId: string): string {
   return `desc:${objectId}`;
 }
-function precedentSourceId(objectId: string): string {
-  return `precedent:${objectId}`;
-}
 
 /**
- * Precedent (OPEN-VARIANT.md §3.5): "each question is shown the precedent
- * record for the same (object, effect kind): earlier rulings' keys and
- * citations, never their reasoning." An in-memory, per-referee-instance
- * store -- consistency is measured by replaying a RECORDED transcript
- * (`replay.ts`), not by this store surviving a process restart, so nothing
- * here needs to be a database table (root CLAUDE.md's "in-memory or
- * scratch databases only" is satisfied trivially: there is no database
- * here at all).
+ * §3.5's actual requirement -- "the same intent in the same state should get
+ * the same ruling" -- by construction, not by showing the referee its own
+ * earlier work as a prompt example. OPEN-VARIANT.md §18.6/§18.7: a block of
+ * "EARLIER RULINGS on the same object" was tried for this and made the
+ * referee copy an earlier ruling onto a DIFFERENT intent on the same object
+ * (the prisoner's scrape read as the warden's earlier reveal); prefixing
+ * each line with the intent it was ruled on did not fix it (§18.7's
+ * live re-rule: still 8 of 11 reveal). The owner's remaining option
+ * (§18.7's "awaiting the owner: drop the block") is this: no block, no
+ * prompt exposure -- an exact repeat is served from an in-memory cache
+ * instead of asked again, so it cannot diverge, and anything that is not an
+ * exact repeat is judged with no precedent text at all.
  */
-export class PrecedentStore {
-  private readonly byObject = new Map<string, string[]>();
-
-  record(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind" | "property" | "magnitude" | "citations" | "product">): void {
-    if (ruling.targetObjectId === "none") return;
-    const line =
-      `effect=${ruling.effectKind}${ruling.effectKind === "derive" ? ` product=${ruling.product}` : ""} property=${ruling.property} magnitude=${ruling.magnitude}` +
-      ` target-citation="${ruling.citations.target.citation?.quote ?? ""}"` +
-      ` property-citation="${ruling.citations.property.citation?.quote ?? ""}"`;
-    const existing = this.byObject.get(ruling.targetObjectId) ?? [];
-    existing.push(line);
-    this.byObject.set(ruling.targetObjectId, existing);
-  }
-
-  /** One source per perceived object that has precedent, `undefined`
-   *  otherwise (never an empty source -- nothing to cite against). */
-  sourceFor(objectId: string): ReaderSource | undefined {
-    const lines = this.byObject.get(objectId);
-    if (!lines || lines.length === 0) return undefined;
-    return { id: precedentSourceId(objectId), text: lines.join("\n") };
-  }
+function cacheKeyFor(intentText: string, perceivedObjects: readonly ObjectPerception[]): string {
+  return JSON.stringify({ intentText, perceivedObjects });
 }
 
 /** The recorded kind of an object derived in this game, or `undefined` --
@@ -237,12 +219,10 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
   ];
 }
 
-function buildSources(intentText: string, perceivedObjects: readonly ObjectPerception[], precedent: PrecedentStore): ReaderSource[] {
+function buildSources(intentText: string, perceivedObjects: readonly ObjectPerception[]): ReaderSource[] {
   const sources: ReaderSource[] = [{ id: INTENT_SOURCE_ID, text: intentText }];
   for (const object of perceivedObjects) {
     sources.push({ id: descriptionSourceId(object.id), text: object.description });
-    const precedentSource = precedent.sourceFor(object.id);
-    if (precedentSource) sources.push(precedentSource);
   }
   return sources;
 }
@@ -344,7 +324,6 @@ function withRanges(result: ReaderResult, offered: readonly unknown[]): ReaderRe
 
 export interface Referee {
   rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling>;
-  precedent: PrecedentStore;
 }
 
 /** Builds one referee for the lifetime of a game -- `transports` is the
@@ -355,14 +334,17 @@ export interface Referee {
  *  TRANSPORT's own concern (`refereeTransport.ts`), not this module's --
  *  this module never itself calls a model. */
 export function createReferee(transports: readonly ReaderTransport[], options: { isDeclared?: DeclaredPropertyCheck; kindOf?: KindOf } = {}): Referee {
-  const precedent = new PrecedentStore();
   const isDeclared = options.isDeclared ?? declaredInScenario;
   const kindOf = options.kindOf ?? noKinds;
+  const cache = new Map<string, RefereeRuling>();
   return {
-    precedent,
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
+      const key = cacheKeyFor(intentText, perceivedObjects);
+      const cached = cache.get(key);
+      if (cached) return cached;
+
       const questions = buildQuestions(perceivedObjects, kindOf);
-      const sources = buildSources(intentText, perceivedObjects, precedent);
+      const sources = buildSources(intentText, perceivedObjects);
       // OPEN-VARIANT.md §18.3: the engine keeps an accepted citation as
       // `{sourceId, quote}` only, so what each rung offered is kept here, to
       // put the word range back beside the quote it was rebuilt into.
@@ -375,10 +357,7 @@ export function createReferee(transports: readonly ReaderTransport[], options: {
       const reader = createTurnReader({ questions, transports: recording });
       const result = withRanges(await reader.read(sources), offered);
       const ruling = computeRuling(result, { questions, sources }, isDeclared);
-      // Only rulings that applied become precedent. A failed ruling shown as
-      // an example is copied: the first real games (OPEN-VARIANT.md §11.2) had
-      // one bad bar ruling repeated turn after turn.
-      if (ruling.applicable) precedent.record(ruling);
+      cache.set(key, ruling);
       return ruling;
     },
   };

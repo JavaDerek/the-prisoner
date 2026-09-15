@@ -60,7 +60,6 @@ const DEFAULT_TIMEOUT_MS = 12_000;
  *  returns" beyond ordinary JSON parsing. OPEN-VARIANT.md §18 changed the
  *  citation to a word range `{sourceId, from, to}`, rebuilt into that shape
  *  by `coerceAnswers`; a `{sourceId, quote}` still passes through. */
-const PRECEDENT_SOURCE_PREFIX = "precedent:";
 
 /** A citation as this transport hands it on (OPEN-VARIANT.md §18): the
  *  engine's `{sourceId, quote}`, plus the word range the quote was rebuilt
@@ -93,36 +92,28 @@ function numberedWords(text: string): string {
 }
 
 function buildPrompt(request: ReadRequest): string {
-  // Earlier rulings are this referee's own precedent (`referee.ts`): shown for
-  // consistency, apart from the sources, because a referee shown them among
-  // the sources cites them -- and no answer may rest on one (OPEN-VARIANT.md
-  // §11.4). Ids are written as quoted labels, never in brackets, which the
+  // OPEN-VARIANT.md §18.6/§18.7: this used to split off any `precedent:`
+  // source into a separate "EARLIER RULINGS ... for consistency only" block.
+  // The referee copied one intent's ruling onto a different one just
+  // because the block named the same object; rewording it to include the
+  // ruled intent did not fix that (§18.7's live re-rule: still 8 of 11
+  // reveal). `referee.ts` no longer builds one -- every source here is an
+  // ordinary citable one. Ids are written as quoted labels, never in brackets, which the
   // first games showed coming back as "[desc:bar]".
-  const citable = request.sources.filter((s) => !s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
-  const earlier = request.sources.filter((s) => s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
-  // OPEN-VARIANT.md §18.1: every citable source with its words numbered, so a
+  // OPEN-VARIANT.md §18.1: every source with its words numbered, so a
   // citation names a range instead of retyping text. §18.4: the plain text
   // comes first -- a referee shown numbered words alone misread the intents
   // themselves (examinations ruled wear) in the first game that tried it.
-  const sourceBlocks = citable.flatMap((s) => [`source "${s.id}":`, s.text, `words: ${numberedWords(s.text)}`, ""]);
+  const sourceBlocks = request.sources.flatMap((s) => [`source "${s.id}":`, s.text, `words: ${numberedWords(s.text)}`, ""]);
   const questionLines = request.questions.map(
     (q) => `- id "${q.id}": ${q.prompt} Answer with exactly one of: ${q.answerKeys.join(", ")}.`
   );
-  const earlierBlock =
-    earlier.length > 0
-      ? [
-          "EARLIER RULINGS on the same objects, for consistency only. Never cite these; every citation comes from the SOURCES above:",
-          ...earlier.map((s) => s.text),
-          "",
-        ]
-      : [];
   return [
     "You are ruling on one attempted action in a physical scene, as a referee -- not a character. Answer every question below.",
     "",
     "SOURCES (the only text you may cite):",
     "",
     ...sourceBlocks,
-    ...earlierBlock,
     "QUESTIONS:",
     ...questionLines,
     "",

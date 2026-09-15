@@ -233,7 +233,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
       raw: { answers: [], unmatched: [] },
       request: { questions: [], sources: [] },
     };
-    const referee: Referee = { rule: async () => manualRuling, precedent: grounderReferee().precedent };
+    const referee: Referee = { rule: async () => manualRuling };
 
     const result = await runOpenHalfRound({
       openWorld,

@@ -1,0 +1,64 @@
+§18.8: re-ruling both §18.6 games' recorded intent sequences, in order, through referee.ts with the
+EARLIER RULINGS block removed for good (no prompt exposure at all) and an exact-repeat cache in its
+place, against qwen2.5:14b on doris. Temporary script (src/open/tmpRerule.ts), not committed, run and
+deleted the same session. Source transcripts: checkpoints/2026-09-15T01-39-22-411Z.referee.json,
+checkpoints/2026-09-15T01-52-09-684Z.referee.json (the same two games behind §18.6/§18.7).
+
+=== checkpoints/2026-09-15T01-39-22-411Z.referee.json (game 1) ===
+round 1, warden: Examine the bar closely for signs of hidden damage or wear. => target=none effect=none applicable=false
+round 1, prisoner: Use the spoon to scrape rust off the bottom of the bar. => target=bar effect=wear applicable=true
+round 2, warden: Examine the bar closely for any signs of tampering or hidden damage. => target=bar effect=reveal applicable=true
+round 2, prisoner: Use the grit from under the loose tile to scrape the bar's rusted section. => target=bar effect=wear applicable=true
+round 3, warden: Examine the bar closely for signs of hidden damage or tampering. => target=bar effect=reveal applicable=true
+round 3, prisoner: Use the spoon to scrape rust off the bar near the bottom where it's pitted. => target=bar effect=wear applicable=true
+round 4, warden: Examine the bar closely for signs of hidden damage or further rust progression. => target=bar effect=reveal applicable=true
+round 4, prisoner: Collect dry grit from the loose tile with the spoon and use it to abrade the bar's rusted section. => target=bar effect=wear applicable=true
+round 5, warden: Examine the bar closely for hidden wear or damage => target=bar effect=reveal applicable=true
+round 5, prisoner: Use the grit from the loose tile to gently abrade the bar further, avoiding obvious signs of tampering. => target=bar effect=wear applicable=true
+round 6, warden: Examine the bar closely for hidden wear or damage. => target=bar effect=reveal applicable=true
+round 6, prisoner: Use the spoon to collect dry grit from under the loose tile and rub it onto the rusted part of the bar. => target=bar effect=restore applicable=true
+round 7, warden: Examine the bar closely for hidden wear or damage beyond the visible rust. => target=bar effect=reveal applicable=true
+round 7, prisoner: Scrape the bar with the spoon, using the grit from the loose tile to wear it down. => target=bar effect=wear applicable=true
+round 8, warden: Examine the bar closely for signs of additional wear or tampering => target=bar effect=reveal applicable=true
+round 8, prisoner: Use the dented spoon to scrape grit from the loose tile and apply it to the rusted part of the bar, accelerating wear. => target=bar effect=wear applicable=true
+round 9, warden: Examine the bar closely for signs of hidden wear or damage. => target=bar effect=reveal applicable=true
+round 9, prisoner: Use the grit from the loose tile to abrade the bar, focusing on the rust-pitted area. => target=bar effect=wear applicable=true
+round 10, warden: Examine the bar closely for hidden damage or tampering. => target=bar effect=reveal applicable=true
+round 10, prisoner: Use the grit from the loose tile to abrade the bar's rusted section. => target=bar effect=wear applicable=true
+round 11, warden: Search the loose tile for hidden objects or damage indicators. => target=loose_tile effect=reveal applicable=false
+round 11, prisoner: Apply the grit from the loose tile to the bar's rusted area again to further weaken it. => target=bar effect=wear applicable=true
+round 12, warden: Examine the bar closely for signs of tampering or hidden damage. => target=bar effect=reveal applicable=true
+
+prisoner-on-bar effect kinds = [wear, wear, wear, wear, wear, restore, wear, wear, wear, wear, wear]
+wear 10 of 11
+
+=== checkpoints/2026-09-15T01-52-09-684Z.referee.json (game 2) ===
+round 1, warden: Examine the bar closely for signs of wear or tampering. => target=bar effect=reveal applicable=true
+round 1, prisoner: Use the spoon to scrape the dry grit under the loose tile. => target=loose_tile effect=wear applicable=false
+round 2, warden: Examine the bar for signs of hidden damage or tampering => target=bar effect=reveal applicable=true
+round 2, prisoner: Use the grit from the loose tile to abrade the bar's surface, focusing on its rusted areas. => target=bar effect=wear applicable=true
+round 3, warden: Examine the bar closely for signs of hidden damage or increased rust. => target=bar effect=reveal applicable=true
+round 3, prisoner: Apply grit from the loose tile to the rusted areas of the bar, focusing on the bottom where it's set into mortar. => target=bar effect=restore applicable=true
+round 4, warden: Examine the bar closely for hidden damage and inspect the loose tile under the cot for tampering. => target=bar effect=reveal applicable=true
+round 4, prisoner: Use the loose tile's dry grit to abrade the rusted portion of the bar, aiming to increase corrosion. => target=bar effect=none applicable=false
+round 5, warden: Examine the loose tile under the cot closely for signs of tampering or hidden objects. => target=loose_tile effect=reveal applicable=false
+round 5, prisoner: Use the spoon to dig into the dry mortar near the bottom of the bar, aiming to loosen the bar's hold in the wall. => target=bar effect=wear applicable=true
+round 6, warden: Examine the bar closely for signs of hidden damage or tampering. => target=bar effect=reveal applicable=true
+round 6, prisoner: Use the spoon to carefully dig at the cracked mortar near the bar, aiming to weaken it further. => target=bar effect=wear applicable=true
+round 7, warden: Examine the loose tile closely for hidden items or signs of tampering. => target=loose_tile effect=reveal applicable=false
+round 7, prisoner: Use the worn spoon to scrape at the dry, cracked mortar beneath the bar, focusing on the rust-pitted section near the bottom. => target=bar effect=wear applicable=true
+round 8, warden: Examine the bar closely for rust progression or hidden damage => target=bar effect=reveal applicable=true
+round 8, prisoner: Examine the loose tile closely and attempt to lift it to check for hidden tools or grit underneath. => target=loose_tile effect=reveal applicable=false
+round 9, warden: Examine the bar closely for new pitting or weakened points near the rusted area. => target=bar effect=reveal applicable=true
+round 9, prisoner: Use the dented spoon to scrape the dry, cracked mortar around the bar, incorporating the grit from the loose tile to enhance abrasion. => target=bar effect=wear applicable=true
+round 10, warden: Examine the bar closely, focusing on the rusted section near the bottom. => target=bar effect=reveal applicable=true
+round 10, prisoner: Use the dented spoon to scrape the dry, cracked mortar around the bar, incorporating grit from the loose tile to further erode the mortar without visible damage to the bar itself. => target=bar effect=wear applicable=true
+round 11, warden: Examine the bar closely, focusing on the rusted section and dry mortar near the bottom to check for hidden damage or weakening. => target=bar effect=reveal applicable=true
+round 11, prisoner: Use the spoon to scrape grit from the loose tile and apply it to the mortar around the bar, accelerating erosion. => target=bar effect=wear applicable=true
+round 12, warden: Examine the bar closely, focusing on the rusted section and mortar to check for hidden damage or tampering. => target=bar effect=reveal applicable=true
+round 12, prisoner: Use grit from the loose tile to erode the mortar beneath the bar, aiming to weaken it further without visible damage to the bar. => target=bar effect=wear applicable=true
+
+prisoner-on-bar effect kinds = [wear, restore, none, wear, wear, wear, wear, wear, wear, wear]
+wear 8 of 10
+
+Warden examinations of the bar remained reveal in every applicable turn in both games -- §18.5 unaffected.

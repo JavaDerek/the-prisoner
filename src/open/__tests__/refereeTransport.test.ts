@@ -118,6 +118,10 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       sources: [
         { id: "intent", text: "Closely examine the bar." },
         { id: "desc:bar", text: "Rust has pitted it near the bottom." },
+        // referee.ts never sends a source shaped like this any more
+        // (§18.6/§18.7), but this transport treats every source uniformly
+        // regardless of what a caller names it -- there is no id this
+        // transport singles out.
         { id: "precedent:bar", text: "effect=reveal property=integrity magnitude=slight" },
       ],
     };
@@ -138,17 +142,11 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       expect(prompt).toContain('source "desc:bar"');
     });
 
-    it("shows earlier rulings apart from the citable sources, and says they are never cited", async () => {
+    it("OPEN-VARIANT.md §18.6/§18.7: never shows an EARLIER RULINGS block, and treats every source as an ordinary citable one -- dropped for good, not just unused, after prompt rewording (§18.7) failed to stop the referee copying one intent's ruling onto a different one", async () => {
       const prompt = await promptFor(RICH);
-      const citable = prompt.slice(0, prompt.indexOf("EARLIER RULINGS"));
-      expect(citable).toContain('source "intent"');
-      expect(citable).not.toContain("precedent:bar");
-      const earlier = prompt.slice(prompt.indexOf("EARLIER RULINGS"));
-      expect(earlier).toContain("effect=reveal property=integrity magnitude=slight");
-      expect(earlier).toMatch(/never cite/i);
-    });
-
-    it("omits the earlier-rulings section when there are none", async () => {
+      expect(prompt).not.toContain("EARLIER RULINGS");
+      expect(prompt).not.toMatch(/never cite/i);
+      expect(prompt).toContain('source "precedent:bar"'); // an ordinary source now, cited like any other
       expect(await promptFor(REQUEST)).not.toContain("EARLIER RULINGS");
     });
 
@@ -159,21 +157,17 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       expect(prompt).not.toContain("The springs are held.");
     });
 
-    it("renders every citable source with its words numbered, a word being a maximal run of non-whitespace (OPEN-VARIANT.md §18.1)", async () => {
+    it("renders every source with its words numbered, a word being a maximal run of non-whitespace (OPEN-VARIANT.md §18.1)", async () => {
       const prompt = await promptFor({
         questions: RICH.questions,
         sources: [
           { id: "intent", text: "Closely  examine the bar." },
           { id: "desc:door", text: "A heavy door of iron-bound planks" },
-          { id: "precedent:bar", text: "effect=reveal property=integrity magnitude=slight" },
         ],
       });
       // §18.4: the plain text first, to be read; the numbered words after, only to cite.
       expect(prompt).toContain('source "intent":\nClosely  examine the bar.\nwords: 1:Closely 2:examine 3:the 4:bar.\n');
       expect(prompt).toContain('source "desc:door":\nA heavy door of iron-bound planks\nwords: 1:A 2:heavy 3:door 4:of 5:iron-bound 6:planks\n');
-      // Earlier rulings are never cited, so they are not numbered.
-      expect(prompt).toContain("effect=reveal property=integrity magnitude=slight");
-      expect(prompt).not.toContain("1:effect=reveal");
     });
 
     it("asks for citations as a word range, and keeps the character-for-character rule for a quote given instead (OPEN-VARIANT.md §18.1, §18.2)", async () => {

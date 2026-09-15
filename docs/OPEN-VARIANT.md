@@ -1074,3 +1074,26 @@ was the warden's examination *with its intent shown*, was still ruled `reveal`. 
 ruling whether or not it can see the act it was made on. The change was reverted and is not in the
 code; §18.6's replay with the block removed (prisoner `wear` 10 of 11) remains the only evidence of a
 fix. Awaiting the owner: drop the block.
+
+### 18.8 The block dropped; an exact-repeat cache in its place (2026-09-15)
+
+The owner's remaining option from §18.6/§18.7: drop the block. §3.5's actual requirement is narrower
+than a prompt block ever needed to be -- "the same intent in the same state should get the same
+ruling" -- so instead of showing the referee its own earlier work as text (which is what caused the
+copying, wording or no wording), `referee.ts` now serves an EXACT repeat of a prior `(intentText,
+perceivedObjects)` pair straight from an in-memory cache, without asking the referee again, and shows
+NO earlier-ruling text for anything that is not an exact repeat. `PrecedentStore` and the "EARLIER
+RULINGS" block are gone from both `referee.ts` and `refereeTransport.ts`, not merely unused. Built
+test-first: a red test asserted a different intent on the same object gets no `precedent:*` source
+(failed against the old code, since that is exactly what it did), and a second asserted an exact
+repeat calls the transport only once. 558 tests green.
+
+Checked the same way as §18.6/§18.7: re-ruled both games' recorded intent sequences, in order, through
+one fresh referee per game against the live model (temporary script, not committed; full output in
+`checkpoints/2026-09-15-open-referee-rerule-185games-no-earlier-rulings-cache-N1.txt`).
+
+**Result: fixed, matching §18.6's manual strip and slightly ahead of it.** Prisoner work on the bar:
+game 1 `wear` 10 of 11 (1 `restore`, 0 `reveal`); game 2 `wear` 8 of 10 (1 `restore`, 1 `none`, 0
+`reveal`). The warden's examinations of the bar stayed `reveal` in every applicable turn in both
+games -- §18.5 is unaffected, only the prisoner-side copying is gone. This closes §18.6/§18.7's open
+question; nothing is awaiting the owner here now.
