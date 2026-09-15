@@ -1345,3 +1345,24 @@ Two changes on top of §22, measured together against §22.1 (same models, plans
 
 For the first game: does the replan count now match what a reader sees, do sent-back plans start
 somewhere new and still hold, and is the outcome better, worse or the same as §22.1?
+
+### 23.1 The first game (`checkpoints/2026-09-15T20-12-07-154Z.md`)
+
+Same models and settings as §22.1, `PRISONER_PICK=replan`. Result: **caught at round 11**, bar 47,
+suspicion 100 (§22.1: caught at 12, bar 39).
+
+- **The yes/no `replanned` works.** "Replanned 5 of 9" matches a reading of the plans: rounds 5 to 9
+  each show a different plan with a reason; round 2's move from the tile to the bar was the round-1
+  plan's own "if not" branch and was answered `false`. No "following my plan" reasons remain.
+- **Pick at replan time made play worse.** 6 new plans checked, 3 sent back, all 3 changed first step.
+  But the plan churn §22 fixed came back: a new plan every turn from round 5 to 9, against §22.1's one
+  plan for eight turns. The sent-back and unfamiliar first steps were mostly ruled impossible (round 5,
+  scratching the door's bolt; 6, scattering grit; 7, unravelling the blanket thread), and each
+  impossible ruling triggered another replan. Round 9's send-back (from the cot's wire) answered with
+  mortar work on the bar, itself seen; by rule the second answer stood. The prisoner ended back on the
+  bar, and several replan reasons cite the send-back ("avoid actions Croft has already seen") rather
+  than anything observed in the world.
+- **Reading:** the mind will move off known approaches when made to, but the moves it finds either get
+  ruled impossible or do nothing, and failure drives churn. Same conclusion as §21.3 from a different
+  mechanism: the constraint is what the referee and world will let a new idea do, not the mind's
+  willingness to try one.
