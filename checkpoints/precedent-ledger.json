@@ -13,7 +13,9 @@
     "2026-09-14T22-05-39-248Z",
     "2026-09-14T22-15-20-246Z",
     "2026-09-15T00-50-03-121Z",
-    "2026-09-15T01-03-35-960Z"
+    "2026-09-15T01-03-35-960Z",
+    "2026-09-15T01-39-22-411Z",
+    "2026-09-15T01-52-09-684Z"
   ],
   "accounts": [
     {
@@ -345,6 +347,120 @@
       "actor": "prisoner",
       "observer": "warden",
       "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-15T01-39-22-411Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works to restore the bar."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner works at the bar."
+    },
+    {
+      "episode": "2026-09-15T01-52-09-684Z",
+      "actor": "prisoner",
+      "observer": "warden",
+      "text": "A prisoner examines the bar closely."
     }
   ]
 }
