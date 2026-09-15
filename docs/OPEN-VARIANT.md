@@ -1606,3 +1606,20 @@ writes, which is why `leave` bore the whole cost and had never once been ruled i
   clamp the effect sentence shows: three of the seven now rule `leave`, where every one before was `open`.
 - **Re-ruled live, the seven climb-outs:** all seven now name the window (4 fixed, 3 unchanged), 3 as
   `leave`. The one ruling the prompt sentences had broken (a dig at the tile's hollow) is back.
+
+### 30.1 She escaped (`checkpoints/2026-09-15T23-00-39-402Z.md`)
+
+30 rounds, passive warden, settings as §29.1, with §30's clamp. **Escape at round 16**, the first in any
+real game of this variant. §5.3's criterion 1a, as split in §26, is met live.
+
+- **The route:** round 2 worked a handful of grit loose from the tile; rounds 3 to 11 wore the bar from
+  100 to 9 with the grit; round 12's pry worked the bar free ("the window can be climbed through now");
+  rounds 13 to 16 tried to climb out, and round 16 was ruled `leave` -- "You are out of the cell, through
+  the window."
+- **Nothing was ruled impossible all game**, every applied effect carried verified citations, and the fog
+  audit is clean. One replan in fifteen turns.
+- **`leave` is still the flakiest ruling:** rounds 13, 14 and 15 were the same act in different words and
+  came back `open` on an already-open window; the fourth phrasing got `leave`. Escape took four attempts
+  once the way was open, which is worth watching in the next games rather than fixing blind.
+- The derive of grit (§25) and the descriptions (§27, §29) all appear in the winning line; every fix
+  since §24 is load-bearing in it.
