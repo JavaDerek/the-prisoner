@@ -1,0 +1,171 @@
+## round 1, warden: Examine the bar closely for signs of damage or tampering
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "reveal" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "concealment" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 1, prisoner: Use the spoon to scrape the rusted section of the bar near the bottom.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "audible" agreed 100% of 1 replays.
+## round 2, warden: Examine the bar closely for signs of additional wear or tampering.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "silent" agreed 100% of 1 replays.
+## round 2, prisoner: Use the grit from the loose tile to abrade the bar's surface, focusing on the rust-pitted areas.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 3, warden: Examine the bar closely for rust progression and signs of tampering.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 3, prisoner: Use the grit from the loose tile and the spoon to scrape the rusted portion of the bar, focusing on the dry mortar crack.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 4, warden: Examine the bar closely for signs of additional damage or wear.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 4, prisoner: Use the dry grit from the loose tile to sharpen the edge of the spoon.
+  - target: "spoon" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 5, warden: Closely examine the bar for further damage or signs of tampering
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "silent" agreed 100% of 1 replays.
+## round 5, prisoner: Work the loose tile to collect the grit beneath it.
+  - target: "loose_tile" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "audible" agreed 100% of 1 replays.
+## round 6, warden: Examine the bar closely for signs of additional damage or wear.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 6, prisoner: Use the grit from the loose tile to sharpen the spoon's edge.
+  - target: "spoon" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "audible" agreed 100% of 1 replays.
+## round 7, warden: Examine the bar closely for signs of further damage or wear.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 7, prisoner: Collect dry grit from the loose tile and use it to sharpen the spoon's edge.
+  - target: "spoon" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 8, warden: Examine the loose tile closely for signs of tampering or hidden items.
+  - target: "loose_tile" agreed 100% of 1 replays.
+  - effect: "reveal" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "concealment" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 8, prisoner: Use the grit beneath the loose tile to sharpen the spoon further.
+  - target: "spoon" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "slight" agreed 100% of 1 replays.
+  - perceptibility: "audible" agreed 100% of 1 replays.
+## round 9, warden: Examine the bar closely for signs of damage or tampering.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "reveal" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "concealment" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 9, prisoner: Use the grit from the loose tile to sharpen the spoon, then attempt to damage the bar further with the sharpened spoon.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 10, warden: Closely examine the bar for any hidden damage or signs of tampering.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "reveal" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "concealment" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 10, prisoner: Use the grit from the loose tile to sharpen the spoon further, then carefully chip at the mortar under the bar to loosen it.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 11, warden: Examine the loose tile for hidden damage or concealed tools.
+  - target: "loose_tile" agreed 100% of 1 replays.
+  - effect: "reveal" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "concealment" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 11, prisoner: Use the spoon to cut the wire holding the cot’s springs.
+  - target: "cot" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "audible" agreed 100% of 1 replays.
+## round 12, warden: Examine the bar closely to check its integrity.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "reveal" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "concealment" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+## round 12, prisoner: Use the dented spoon to scrape the dry, cracked mortar around the bar, attempting to dislodge it from the wall.
+  - target: "bar" agreed 100% of 1 replays.
+  - effect: "wear" agreed 100% of 1 replays.
+  - product: "none" agreed 100% of 1 replays.
+  - property: "integrity" agreed 100% of 1 replays.
+  - magnitude: "moderate" agreed 100% of 1 replays.
+  - perceptibility: "visible" agreed 100% of 1 replays.
+
+Overall mean agreement across every question, every intent: 100.0%.
+§5.3's target: at least 80%.

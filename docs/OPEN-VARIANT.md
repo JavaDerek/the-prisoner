@@ -988,3 +988,29 @@ cannot. What stays a human audit is unchanged (CLAUDE.md "never pattern-match me
 words the referee chose justify its ruling. Numbering is lexical rendering of this repository's own
 prompt; no code reads what the words mean. Transcripts show both the range and the rebuilt quote.
 Replay (`refereeReplayCli.ts`) goes through the same transport and needs no change of its own.
+
+### 18.4 The first games on §18, and a fix (2026-09-14)
+
+Two 12-round games on §17 + §18 as first built (`checkpoints/2026-09-15T00-50-03-121Z.md`,
+`…01-03-35-960Z.md`), same models and precedent ledger as §13.7. Both timeouts; every applied effect
+fully cited (17 of 17, 13 of 13); the banknotes never perceived (§15.4: warden never, prisoner never);
+no reshape; no attempt on either way out. **But the rulings got worse**: the warden's *"Examine the bar
+closely…"* ruled `wear` in 10 of 12 turns in each game, and target citations stopped supporting their
+answers (target `bar` cited as *"spoon to scrape the"*).
+
+**Cause: the transport showed each source only as numbered words** (§18.1 as written did not say to
+keep the plain text, and the build followed it). Fixed: plain text first, then `words: 1:… 2:…` for
+citing. Evidence, replaying game 1's 24 recorded requests (same questions and sources, only the
+transport differing; N=1 at temperature 0), `checkpoints/2026-09-15-open-referee-replay-game1-transport-*-N1.txt`:
+
+| | Quote transport (9c7b9c9) | Numbered only (b814f7c) | Plain + numbered (fix) |
+|---|---|---|---|
+| Warden *examine the bar* ruled `reveal` | 3 of 9 (2 `none`, 4 `wear`) | 0 of 9 | 4 of 9 |
+| *sharpen the spoon* targeted at `spoon` | 5 of 5 | 0 of 5 | 4 of 5 |
+
+The fix restores parity with quoted citations. **What it does not fix, and what predates §18:** a
+warden examination ruled `wear` about half the time on these requests, where §13.7's game 3 ruled every
+one `reveal`. These requests differ from game 3's in both intent wording (*"for signs of additional
+wear or tampering"*) and question text (§14's and §17's additions to the effect and property
+questions), and the replays above cannot separate the two. Open; it matters because a warden whose
+examinations are wear never reaches catch and wears the bar for the prisoner.
