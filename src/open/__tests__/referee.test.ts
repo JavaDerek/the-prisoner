@@ -279,4 +279,18 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(effect?.prompt).toContain("scraping");
     expect(effect?.prompt).toContain("prying");
   });
+
+  it("the effect question says open, close and leave target the way out itself, even when the method works on its part (OPEN-VARIANT.md §17.2)", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("I push the bolt back through the gap.", [LOCK]);
+    const effect = questions.find((q) => q.id === "effect");
+    expect(effect?.prompt).toContain(
+      "open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar."
+    );
+  });
 });

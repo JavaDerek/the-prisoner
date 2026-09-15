@@ -159,7 +159,7 @@ describe("open checkpoint transcript", () => {
     });
     const text = renderOpenHalfRound(find(game, 2, "prisoner")).join("\n");
     expect(text).toContain("went out through the door");
-    expect(text).toContain(`location_id: ${openWorld.base.cellId} -> ${openWorld.exits.lock.destinationId}`);
+    expect(text).toContain(`location_id: ${openWorld.base.cellId} -> ${openWorld.exits.door.destinationId}`);
     expect(text).not.toContain("(no state changed)");
     expect(renderOpenSummary(game).join("\n")).toContain("**The prisoner escaped, at round 2.**");
   });

@@ -14,7 +14,15 @@ import type { Principal } from "../ledger/beliefs.js";
 
 /** OPEN-VARIANT.md §5.2, "Novelty": the declared table of `(object,
  *  effect)` pairs that have a closed-variant move equivalent -- content,
- *  authored here, never inferred. Everything else counts as novel. */
+ *  authored here, never inferred. Everything else counts as novel.
+ *
+ *  OPEN-VARIANT.md §17 moved `passage` to the ways out (`door`, `window`) and
+ *  left `integrity` on their parts. Every row below is integrity or edge work
+ *  on a part -- what FILE, SHIM, REPLACE_BAR, SERVICE_LOCK and CHECK_LOCK did,
+ *  and §17.2 still targets the part -- so none moves. No closed move set a
+ *  passage, and the closed ESCAPE named no object, so no `open`/`close`/
+ *  `leave` row existed for the lock or the bar before §17 and none is added
+ *  for the door or the window now: one variable at a time. */
 export const CLOSED_EQUIVALENTS: readonly { object: string; effect: EffectKind }[] = [
   { object: "bar", effect: "wear" }, // FILE
   { object: "bar", effect: "restore" }, // REPLACE_BAR

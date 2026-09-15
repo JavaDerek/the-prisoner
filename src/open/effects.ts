@@ -114,8 +114,8 @@ export function planEffect(params: {
   magnitude: Magnitude;
   entityIdFor: Readonly<Record<string, string>>;
   resourceIdFor: Readonly<Record<string, string>>;
-  /** The cell's ways out (OPEN-VARIANT.md §12), and who is acting -- both
-   *  needed only by `leave`. */
+  /** The cell's ways out (OPEN-VARIANT.md §12), keyed by the way-out object
+   *  (§17.2), and who is acting -- both needed only by `leave`. */
   exits?: Readonly<Record<string, { passageResourceId: string; integrityResourceId: string; destinationId: string }>>;
   actorId?: string;
   /** Which properties an object declares -- the §4.1 table by default; a
@@ -148,13 +148,15 @@ export function planEffect(params: {
     return { mechanic: "OPEN_NOISE", parameters: { entityId, description }, resourceId: null, isWearType: false };
   }
   if (effectKind === "leave") {
-    // Through an exit, and only an exit: an object that is not one is not a
-    // way out, whatever the referee said ("no invented world").
+    // Through a way out, and only a way out: an object that is not one -- a
+    // lock or a bar, the part of one (§17.2) -- is not, whatever the referee
+    // said ("no invented world").
     const exit = params.exits?.[targetObjectId];
     if (!exit || !params.actorId) return null;
+    const { passageResourceId, integrityResourceId, destinationId } = exit;
     return {
       mechanic: "OPEN_LEAVE",
-      parameters: { characterId: params.actorId, ...exit, description },
+      parameters: { characterId: params.actorId, passageResourceId, integrityResourceId, destinationId, description },
       resourceId: null,
       isWearType: false,
     };

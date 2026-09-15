@@ -1,6 +1,5 @@
 import { ResolveProtocolError } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
-import { EXIT_LABEL } from "./loop.js";
 import { findKind } from "./derivedObjects.js";
 import { PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
 
@@ -48,7 +47,8 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
 
   if (outcome !== null && plan !== null) {
     const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean };
-    const exit = EXIT_LABEL[ruling.targetObjectId] ?? obj;
+    // OPEN-VARIANT.md §17.2: open, close and leave target the way out, and its id is its name.
+    const exit = obj;
     if (ruling.effectKind === "leave") {
       return result.left ? `You are out of the cell, through the ${exit}.` : `Your last attempt met the ${exit} shut: you are still in the cell.`;
     }

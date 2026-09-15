@@ -16,7 +16,7 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3; escape revised by §12)", (
   // OPEN-VARIANT.md §12 (owner's decision): escape is leaving the cell. The
   // integrity-and-guard condition these tests used to pin is gone; the
   // routes it described now lead to an exit (leaving.test.ts).
-  function leaveThrough(world: ReturnType<typeof buildOpenWorld>, exit: "lock" | "bar") {
+  function leaveThrough(world: ReturnType<typeof buildOpenWorld>, exit: "door" | "window") {
     const e = world.exits[exit];
     buildOpenResolver().resolve({
       gameId: world.base.gameId,
@@ -46,7 +46,7 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3; escape revised by §12)", (
     const world = buildOpenWorld();
     const lock = resourceIdForProperty(world, "lock", "integrity") as string;
     buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: lock, amount: 1000, min: 0, max: 100, description: "x" } });
-    leaveThrough(world, "lock");
+    leaveThrough(world, "door");
     expect(checkOpenEscape(world, world.base.clock.wardenT(1))).toBe(true);
   });
 
@@ -94,7 +94,7 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3; escape revised by §12)", (
     const world = buildOpenWorld();
     const bar = resourceIdForProperty(world, "bar", "integrity") as string;
     buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: bar, amount: 1000, min: 0, max: 100, description: "x" } });
-    leaveThrough(world, "bar");
+    leaveThrough(world, "window");
     const t = world.base.clock.wardenT(1);
     expect(checkOpenGameEnd(world, t)).toEqual({ kind: "escaped" });
     expect(checkOpenGameEnd(world, t, { objectId: "bar", property: "integrity", value: 0 })).toEqual({ kind: "escaped" });

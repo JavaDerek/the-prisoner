@@ -2,9 +2,11 @@ import { describe, it, expect } from "vitest";
 import { OPEN_OBJECTS, OPEN_OBJECT_IDS, findObject, findProperty } from "../scenarioObjects.js";
 
 describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
-  it("has exactly the nine objects of the §4.1 table, in order, then the banknotes of §15.3", () => {
+  it("has the §4.1 objects in order, each way out (§17.1) just before its part, then the banknotes of §15.3", () => {
     expect(OPEN_OBJECT_IDS).toEqual([
+      "window",
       "bar",
+      "door",
       "lock",
       "spoon",
       "loose_tile",
@@ -75,6 +77,34 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
     for (const object of held) {
       expect(findProperty(object.heldIn as string, "concealment"), `${object.id} held in ${object.heldIn}`).toBeDefined();
     }
+  });
+
+  it("the ways out are objects of their own, with §17.1's descriptions verbatim; passage moved to them, integrity stayed on their parts (§17.1)", () => {
+    const door = findObject("door");
+    expect(door?.heldBy).toBe("the cell wall");
+    expect(door?.description).toBe(
+      "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    );
+    expect(door?.properties.map((p) => p.key)).toEqual(["passage"]);
+    expect(findProperty("door", "passage")).toEqual(expect.objectContaining({ resourceName: "door_passage", min: 0, max: 1, initialValue: 0 }));
+
+    const lock = findObject("lock");
+    expect(lock?.heldBy).toBe("the cell door");
+    expect(lock?.description).toBe("A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.");
+    expect(lock?.properties.map((p) => p.key)).toEqual(["integrity"]);
+
+    const window = findObject("window");
+    expect(window?.heldBy).toBe("the cell wall");
+    expect(window?.description).toBe("A small window high in the wall, a little wider than a person's shoulders, barred by five vertical iron bars.");
+    expect(window?.properties.map((p) => p.key)).toEqual(["passage"]);
+    expect(findProperty("window", "passage")).toEqual(expect.objectContaining({ resourceName: "window_passage", min: 0, max: 1, initialValue: 0 }));
+
+    const bar = findObject("bar");
+    expect(bar?.heldBy).toBe("the window");
+    expect(bar?.description).toBe(
+      "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+    );
+    expect(bar?.properties.map((p) => p.key)).toEqual(["integrity"]);
   });
 
   it("findObject/findProperty return undefined for anything outside the scenario", () => {

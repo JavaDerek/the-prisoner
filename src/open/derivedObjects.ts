@@ -11,7 +11,8 @@ import type { OpenObjectProperty, OpenPropertyKey } from "./scenarioObjects.js";
  *
  * WHAT A DERIVED OBJECT IS FOR IS NOT DECLARED (§13.3). Whether a length of
  * wire pushes a bolt back is the referee's ruling on an `open` intent
- * against the lock, grounded on the lock's own text -- exactly as O1 never
+ * against the door (OPEN-VARIANT.md §17.2: the way out, not its lock),
+ * grounded on the door's own text -- exactly as O1 never
  * verified the spoon was to hand for "file the bar with my spoon".
  *
  * EVERY KIND CARRIES `concealment` so §10.1's perception rule applies

@@ -87,6 +87,29 @@ export interface OpenObjectSpec {
 
 export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
   {
+    // OPEN-VARIANT.md §17.1: a way out is an object of its own, so the ids the
+    // referee answers with are the names the minds and §12's rules use. It
+    // declares `passage` (moved here from its part, resource name unchanged);
+    // its part keeps `integrity` (`world.ts` joins the two into an exit).
+    id: "window",
+    heldBy: "the cell wall",
+    description:
+      "A small window high in the wall, a little wider than a person's shoulders, barred by five vertical iron bars.",
+    properties: [
+      {
+        // 0 shut, 1 open, changed only by `open`/`close` (effects.ts refuses
+        // wear/restore on it), so the wear/restore tables below are never read.
+        key: "passage",
+        resourceName: "window_passage",
+        min: 0,
+        max: 1,
+        initialValue: 0,
+        wear: { slight: 1, moderate: 1, substantial: 1 },
+        restore: { slight: 1, moderate: 1, substantial: 1 },
+      },
+    ],
+  },
+  {
     id: "bar",
     heldBy: "the window",
     description:
@@ -111,12 +134,23 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         // move.
         restore: { slight: 20, moderate: 50, substantial: 100 },
       },
+    ],
+  },
+  {
+    // OPEN-VARIANT.md §17.1: a way out is an object of its own, so the ids the
+    // referee answers with are the names the minds and §12's rules use. It
+    // declares `passage` (moved here from its part, resource name unchanged);
+    // its part keeps `integrity` (`world.ts` joins the two into an exit).
+    id: "door",
+    heldBy: "the cell wall",
+    description:
+      "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap.",
+    properties: [
       {
-        // OPEN-VARIANT.md §12: this object is also an exit. 0 shut, 1 open,
-        // changed only by `open`/`close` (effects.ts refuses wear/restore on
-        // it), so the wear/restore tables below are never read.
+        // 0 shut, 1 open, changed only by `open`/`close` (effects.ts refuses
+        // wear/restore on it), so the wear/restore tables below are never read.
         key: "passage",
-        resourceName: "window_passage",
+        resourceName: "door_passage",
         min: 0,
         max: 1,
         initialValue: 0,
@@ -128,9 +162,8 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
   {
     id: "lock",
     heldBy: "the cell door",
-    description:
-      "A steel lock set in the cell door, its keyhole on the corridor side. The door hangs a finger's " +
-      "width short of its frame, and the edge of the bolt shows in the gap.",
+    // OPEN-VARIANT.md §17.1: the door's gap and the bolt's edge moved to the door.
+    description: "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
     properties: [
       {
         key: "integrity",
@@ -143,18 +176,6 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         // substantial=100 carries over SERVICE_LOCK's own `setResource(...,
         // 100)`.
         restore: { slight: 20, moderate: 50, substantial: 100 },
-      },
-      {
-        // OPEN-VARIANT.md §12: this object is also an exit. 0 shut, 1 open,
-        // changed only by `open`/`close` (effects.ts refuses wear/restore on
-        // it), so the wear/restore tables below are never read.
-        key: "passage",
-        resourceName: "door_passage",
-        min: 0,
-        max: 1,
-        initialValue: 0,
-        wear: { slight: 1, moderate: 1, substantial: 1 },
-        restore: { slight: 1, moderate: 1, substantial: 1 },
       },
     ],
   },

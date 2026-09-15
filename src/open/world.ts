@@ -13,7 +13,7 @@ import type { Principal } from "../ledger/beliefs.js";
  * the same entities the closed variant's own mechanics read and write.
  *
  * On top of that, this module creates one `run-dmcp` item per §4.1 object
- * that the closed variant did not already create (`lock`, `cot`, `blanket`,
+ * that the closed variant did not already create (`window`, `door`, `lock`, `cot`, `blanket`,
  * `bucket`, `meal_tray`, `key_ring` -- `bar`, `spoon` and `loose_tile`
  * already exist on `base`), and one bounded/`resolve_only` resource per
  * declared property (`scenarioObjects.ts`) that the closed variant did not
@@ -34,8 +34,8 @@ export interface OpenWorld {
    *  resource an open-mode effect just touched without a second, redeclared
    *  mapping. */
   resourceNameById: Record<string, string>;
-  /** OPEN-VARIANT.md §12: the cell's ways out, keyed by the object that is
-   *  the exit (the lock is the door's, the bar the window's). */
+  /** OPEN-VARIANT.md §12, §17.2: the cell's ways out, keyed by the way-out
+   *  object itself (`door`, `window`), each naming its part (`lock`, `bar`). */
   exits: Readonly<Record<string, OpenExit>>;
   /** OPEN-VARIANT.md §13: every object made during this game, in order.
    *  Registered by `adoptDerivedObject` from a derive's own outcome. */
@@ -59,9 +59,11 @@ export interface DerivedObjectRecord {
 }
 
 export interface OpenExit {
-  /** 0 shut, 1 open. */
+  /** The object whose `integrity` is §12's other way through (§17.2). */
+  part: string;
+  /** The way out's own `passage`: 0 shut, 1 open. */
   passageResourceId: string;
-  /** Spent (0) also makes the exit passable. */
+  /** The part's integrity: spent (0) also makes the exit passable. */
   integrityResourceId: string;
   /** The location a principal who leaves through this exit is in. */
   destinationId: string;
@@ -134,17 +136,15 @@ export function buildOpenWorld(): OpenWorld {
 
   const corridor = createLocation({ gameId, name: "the corridor", description: "The corridor outside the cell door." });
   const outsideWindow = createLocation({ gameId, name: "outside the window", description: "Outside the cell's small window." });
+  const exit = (wayOut: string, part: string, destinationId: string): OpenExit => ({
+    part,
+    passageResourceId: resourceIdFor[propertyToken(wayOut, "passage")],
+    integrityResourceId: resourceIdFor[propertyToken(part, "integrity")],
+    destinationId,
+  });
   const exits: Record<string, OpenExit> = {
-    lock: {
-      passageResourceId: resourceIdFor[propertyToken("lock", "passage")],
-      integrityResourceId: resourceIdFor[propertyToken("lock", "integrity")],
-      destinationId: corridor.id,
-    },
-    bar: {
-      passageResourceId: resourceIdFor[propertyToken("bar", "passage")],
-      integrityResourceId: resourceIdFor[propertyToken("bar", "integrity")],
-      destinationId: outsideWindow.id,
-    },
+    door: exit("door", "lock", corridor.id),
+    window: exit("window", "bar", outsideWindow.id),
   };
 
   return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [] };

@@ -127,14 +127,6 @@ function objectLabel(objectId: string): string {
   return objectId.replace(/_/g, " ");
 }
 
-/** OPEN-VARIANT.md §12: the way out each exit object is, as a bystander
- *  names it. Exported for `perception.ts`, which tells the actor the same. */
-export const EXIT_LABEL: Readonly<Record<string, string>> = { lock: "door", bar: "window" };
-
-function exitLabel(objectId: string): string {
-  return EXIT_LABEL[objectId] ?? objectLabel(objectId);
-}
-
 /** One authored, positive sentence per effect kind -- used as BOTH the
  *  resolved mechanic's own `description` (the ledger/transcript record) AND,
  *  when perceptibility allows it, the sentence relayed to the other
@@ -166,13 +158,14 @@ export function describeAttempt(
     case "noise":
       return `A sound rings out from the ${obj}.`;
     case "open":
-      return `${actor} opens the ${exitLabel(ruling.targetObjectId)}.`;
+      return `${actor} opens the ${obj}.`;
     case "close":
-      return `${actor} shuts the ${exitLabel(ruling.targetObjectId)}.`;
+      return `${actor} shuts the ${obj}.`;
     case "leave":
+      // OPEN-VARIANT.md §17.2: the target is the way out, whose id is its name.
       // True whether or not the way turns out to be open: what a bystander
       // sees is the attempt.
-      return `${actor} makes for the ${exitLabel(ruling.targetObjectId)}.`;
+      return `${actor} makes for the ${obj}.`;
     case "derive":
       if (reshapeOf !== undefined) return `${actor} works at the ${reshapeOf}.`;
       // The act on the parent, and nothing about the product (OPEN-VARIANT.md

@@ -1,5 +1,5 @@
 import { ResolveProtocolError, type ReadRequest } from "run-dmcp";
-import { EXIT_LABEL, type OpenHalfRoundResult } from "./loop.js";
+import type { OpenHalfRoundResult } from "./loop.js";
 import type { OpenGameResult } from "./game.js";
 import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
@@ -86,7 +86,7 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
       }
     }
     if (ruling.effectKind === "leave") {
-      const exit = EXIT_LABEL[ruling.targetObjectId] ?? ruling.targetObjectId;
+      const exit = ruling.targetObjectId.replace(/_/g, " ");
       lines.push(result.left ? `  - went out through the ${exit}` : `  - the ${exit} held shut`);
     }
     if (outcome.transitions.length === 0 && outcome.sets.length === 0 && outcome.created.length === 0 && ruling.effectKind !== "reveal" && ruling.effectKind !== "leave" && ruling.effectKind !== "derive") {

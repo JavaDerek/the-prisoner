@@ -180,6 +180,8 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
         "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
         "wear is for damage or dulling with no way out as its goal. " +
+        // OPEN-VARIANT.md §17.2, verbatim.
+        "For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. " +
         `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
         "is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in " +
         "the actor's intent that describe the action.",
