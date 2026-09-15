@@ -46,15 +46,18 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   }
 
   if (outcome !== null && plan !== null) {
-    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean };
+    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean; opened?: boolean; wayOut?: string };
     // OPEN-VARIANT.md §17.2: open, close and leave target the way out, and its id is its name.
     const exit = obj;
     if (ruling.effectKind === "leave") {
       return result.left ? `You are out of the cell, through the ${exit}.` : `Your last attempt met the ${exit} shut: you are still in the cell.`;
     }
     if (ruling.effectKind === "open" || ruling.effectKind === "close") {
+      // §19: resolved through the way out even when the referee named its part.
+      const wayOut = result.wayOut?.replace(/_/g, " ") ?? exit;
+      if (ruling.effectKind === "open" && result.opened === false) return `Your last attempt met the ${wayOut} shut: it will not open yet.`;
       const verb = ruling.effectKind === "open" ? "opened" : "shut";
-      return result.before === result.after ? `The ${exit} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${exit}.`;
+      return result.before === result.after ? `The ${wayOut} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${wayOut}.`;
     }
     if (ruling.effectKind === "reveal" && typeof result.value === "number") {
       return `Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`;

@@ -1,6 +1,6 @@
 import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type TransportAnswer } from "run-dmcp";
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PROPERTY_ANSWER_KEYS, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
-import { findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
+import { findObject, findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
 import type { RangedCitation } from "./refereeTransport.js";
 
@@ -134,7 +134,15 @@ function cacheKeyFor(intentText: string, perceivedObjects: readonly ObjectPercep
 export type KindOf = (objectId: string) => string | undefined;
 const noKinds: KindOf = () => undefined;
 
-function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: KindOf): ReaderQuestion[] {
+/** The property keys an object declares -- the §4.1 objects by default; a
+ *  caller with a world hands in one that knows objects derived in this game. */
+export type PropertiesOf = (objectId: string) => readonly string[];
+const scenarioProperties: PropertiesOf = (objectId) => findObject(objectId)?.properties.map((p) => p.key) ?? [];
+
+function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: KindOf, propertiesOf: PropertiesOf): ReaderQuestion[] {
+  // OPEN-VARIANT.md §24: the property keys are the same for every target, so
+  // the question says which ones each object in view actually has.
+  const propertyList = perceivedObjects.map((o) => `${o.id}: ${propertiesOf(o.id).join(", ") || "none"}`).join("; ");
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
   // in the effect question by example and offered as the product keys. A
@@ -195,6 +203,9 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. " +
         // OPEN-VARIANT.md §18.5.
         "For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. " +
+        // OPEN-VARIANT.md §24.
+        "Or concealment for what may be hidden in, under or beneath it. " +
+        `The properties each object has: ${propertyList}. Name only a property the target has; if it has none that fits, answer none. ` +
         "Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
       answerKeys: [...PROPERTY_ANSWER_KEYS],
@@ -333,9 +344,10 @@ export interface Referee {
  *  every test in this module for a scripted one). Temperature 0 is the
  *  TRANSPORT's own concern (`refereeTransport.ts`), not this module's --
  *  this module never itself calls a model. */
-export function createReferee(transports: readonly ReaderTransport[], options: { isDeclared?: DeclaredPropertyCheck; kindOf?: KindOf } = {}): Referee {
+export function createReferee(transports: readonly ReaderTransport[], options: { isDeclared?: DeclaredPropertyCheck; kindOf?: KindOf; propertiesOf?: PropertiesOf } = {}): Referee {
   const isDeclared = options.isDeclared ?? declaredInScenario;
   const kindOf = options.kindOf ?? noKinds;
+  const propertiesOf = options.propertiesOf ?? scenarioProperties;
   const cache = new Map<string, RefereeRuling>();
   return {
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
@@ -343,7 +355,7 @@ export function createReferee(transports: readonly ReaderTransport[], options: {
       const cached = cache.get(key);
       if (cached) return cached;
 
-      const questions = buildQuestions(perceivedObjects, kindOf);
+      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf);
       const sources = buildSources(intentText, perceivedObjects);
       // OPEN-VARIANT.md §18.3: the engine keeps an accepted citation as
       // `{sourceId, quote}` only, so what each rung offered is kept here, to

@@ -3,6 +3,7 @@ import { buildWorld, type World } from "../world/setup.js";
 import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
+import { SEARCH_CATCH_BAR_MAX } from "../world/mechanics.js";
 
 /**
  * The open variant's world (OPEN-VARIANT.md §1: "Everything the closed
@@ -67,7 +68,15 @@ export interface OpenExit {
   integrityResourceId: string;
   /** The location a principal who leaves through this exit is in. */
   destinationId: string;
+  /** OPEN-VARIANT.md §24: the part's integrity at or below which `open` can
+   *  make this way out passable; `null` when nothing but the way out's own
+   *  description gates it. */
+  openWhenPartAtMost: number | null;
 }
+
+/** OPEN-VARIANT.md §24: the window opens only once its bar is worn to the line
+ *  a catch already treats as visibly compromised. */
+export const OPEN_WINDOW_BAR_MAX = SEARCH_CATCH_BAR_MAX;
 
 function propertyToken(objectId: string, propertyKey: string): string {
   return `${objectId}.${propertyKey}`;
@@ -136,15 +145,17 @@ export function buildOpenWorld(): OpenWorld {
 
   const corridor = createLocation({ gameId, name: "the corridor", description: "The corridor outside the cell door." });
   const outsideWindow = createLocation({ gameId, name: "outside the window", description: "Outside the cell's small window." });
-  const exit = (wayOut: string, part: string, destinationId: string): OpenExit => ({
+  const exit = (wayOut: string, part: string, destinationId: string, openWhenPartAtMost: number | null): OpenExit => ({
     part,
+    openWhenPartAtMost,
     passageResourceId: resourceIdFor[propertyToken(wayOut, "passage")],
     integrityResourceId: resourceIdFor[propertyToken(part, "integrity")],
     destinationId,
   });
   const exits: Record<string, OpenExit> = {
-    door: exit("door", "lock", corridor.id),
-    window: exit("window", "bar", outsideWindow.id),
+    // The door's own description grounds opening it: the bolt shows in the gap.
+    door: exit("door", "lock", corridor.id, null),
+    window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX),
   };
 
   return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [] };
@@ -160,6 +171,14 @@ export function declaredProperty(world: OpenWorld, objectId: string, key: string
   const derived = world.derived.find((d) => d.id === objectId);
   if (derived) return derived.properties.find((p) => p.key === key);
   return findProperty(objectId, key as OpenPropertyKey);
+}
+
+/** Every property key an object declares, derived in this game or §4.1 --
+ *  what the referee's property question lists per object (OPEN-VARIANT.md §24). */
+export function declaredPropertyKeys(world: OpenWorld, objectId: string): string[] {
+  const derived = world.derived.find((d) => d.id === objectId);
+  if (derived) return derived.properties.map((p) => p.key);
+  return OPEN_OBJECTS.find((o) => o.id === objectId)?.properties.map((p) => p.key) ?? [];
 }
 
 /** The id the next derived object of `kindId` gets: the kind's name, then

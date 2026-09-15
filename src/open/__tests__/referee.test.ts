@@ -298,6 +298,37 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     );
   });
 
+  it("the property question lists each object's own properties and asks for one the target has (OPEN-VARIANT.md §24)", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    const TILE: ObjectPerception = { id: "loose_tile", description: "A square clay floor tile, cracked across one corner." };
+    const BUCKET: ObjectPerception = { id: "bucket", description: "A tin slop bucket." };
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("Examine the loose tile closely.", [BAR, TILE, BUCKET]);
+    const property = questions.find((q) => q.id === "property");
+    // §23.1: 17 of 24 failed moves named integrity for the tile, which declares only concealment.
+    expect(property?.prompt).toContain("The properties each object has: bar: integrity; loose_tile: concealment; bucket: none.");
+    expect(property?.prompt).toContain("Name only a property the target has; if it has none that fits, answer none.");
+    expect(property?.prompt).toContain("concealment for what may be hidden in, under or beneath it");
+  });
+
+  it("an object made in this game lists its own properties, from the caller's world (OPEN-VARIANT.md §24)", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee(
+      [
+        async (request) => {
+          questions = request.questions;
+          return [];
+        },
+      ],
+      { propertiesOf: (id) => (id === "wire" ? ["integrity", "concealment"] : []) }
+    ).rule("Bend the wire.", [{ id: "wire", description: "A length of wire." }]);
+    expect(questions.find((q) => q.id === "property")?.prompt).toContain("The properties each object has: wire: integrity, concealment.");
+  });
+
   it("a ruling's citations carry the word range they were rebuilt from, taken only from the offer the reader accepted (OPEN-VARIANT.md §18.3)", async () => {
     const intent = "I file the bar with my spoon.";
     const transport: ReaderTransport = async (request) =>

@@ -41,7 +41,7 @@ export function effectRequiresProperty(effectKind: EffectKind): boolean {
   );
 }
 
-export type OpenMechanicName = "OPEN_WEAR" | "OPEN_RESTORE" | "OPEN_REVEAL" | "OPEN_NOISE" | "OPEN_LEAVE" | "OPEN_DERIVE";
+export type OpenMechanicName = "OPEN_WEAR" | "OPEN_RESTORE" | "OPEN_REVEAL" | "OPEN_NOISE" | "OPEN_PASSAGE" | "OPEN_LEAVE" | "OPEN_DERIVE";
 
 /** What a `derive` plan will register in the world once its resolution has
  *  created the entities (OPEN-VARIANT.md §13.5) -- decided before the
@@ -116,7 +116,7 @@ export function planEffect(params: {
   resourceIdFor: Readonly<Record<string, string>>;
   /** The cell's ways out (OPEN-VARIANT.md §12), keyed by the way-out object
    *  (§17.2), and who is acting -- both needed only by `leave`. */
-  exits?: Readonly<Record<string, { passageResourceId: string; integrityResourceId: string; destinationId: string; part: string }>>;
+  exits?: Readonly<Record<string, { passageResourceId: string; integrityResourceId: string; destinationId: string; part: string; openWhenPartAtMost: number | null }>>;
   actorId?: string;
   /** Which properties an object declares -- the §4.1 table by default; a
    *  caller with a world hands in `declaredProperty` (`world.ts`) so an
@@ -180,10 +180,13 @@ export function planEffect(params: {
     const resourceId = resourceIdFor[`${exitId}.passage`];
     if (!declared || !resourceId) return null;
     // One act, to the end of the range: open is fully open, close fully shut.
-    const amount = declared.max - declared.min;
+    // §24: an open is held to the way out's threshold on its part, whichever
+    // object the referee named.
+    const exit = exits[exitId];
+    const gate = effectKind === "open" && exit?.openWhenPartAtMost !== null && exit?.openWhenPartAtMost !== undefined ? { integrityResourceId: exit.integrityResourceId, atMost: exit.openWhenPartAtMost } : undefined;
     return {
-      mechanic: effectKind === "open" ? "OPEN_RESTORE" : "OPEN_WEAR",
-      parameters: { resourceId, amount, min: declared.min, max: declared.max, description },
+      mechanic: "OPEN_PASSAGE",
+      parameters: { resourceId, wayOut: exitId, open: effectKind === "open", min: declared.min, max: declared.max, ...(gate ? { gate } : {}), description },
       resourceId,
       isWearType: false,
     };

@@ -117,6 +117,40 @@ export const OPEN_NOISE: Mechanic = {
   },
 };
 
+export interface PassageParams {
+  resourceId: string;
+  /** The way out this acts on, whichever object the referee named (§19). */
+  wayOut: string;
+  /** true for open (to `max`), false for close (to `min`). */
+  open: boolean;
+  min: number;
+  max: number;
+  /** OPEN-VARIANT.md §24: open only while the part's integrity is at or below
+   *  `atMost`. Absent for close and for a way out with no threshold. */
+  gate?: { integrityResourceId: string; atMost: number };
+  description: string;
+}
+
+/** OPEN-VARIANT.md §19/§24: open or close a way out in one act. An open whose
+ *  way out has a threshold changes nothing while its part still holds, and
+ *  says so in `result.opened`. Read only from the constraint it is handed. */
+export const OPEN_PASSAGE: Mechanic = {
+  name: "OPEN_PASSAGE",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as PassageParams;
+    const before = currentValue(input, p.resourceId);
+    if (p.open && p.gate && currentValue(input, p.gate.integrityResourceId) > p.gate.atMost) {
+      return { changes: [], result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, opened: false }, description: p.description };
+    }
+    const after = p.open ? p.max : p.min;
+    return {
+      changes: [setResource(p.resourceId, after, p.min, p.max)],
+      result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after, ...(p.open ? { opened: true } : {}) },
+      description: p.description,
+    };
+  },
+};
+
 export interface LeaveParams {
   characterId: string;
   passageResourceId: string;
@@ -210,5 +244,5 @@ export const OPEN_DERIVE: Mechanic = {
 };
 
 export function buildOpenResolver(): Resolver {
-  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_LEAVE, OPEN_DERIVE] });
+  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE] });
 }

@@ -5,6 +5,7 @@ import { buildOpenWorld, resourceIdForProperty, type OpenWorld } from "../world.
 import { buildOpenResolver } from "../mechanics.js";
 import { planEffect } from "../effects.js";
 import { checkOpenEscape, checkOpenGameEnd, checkOpenCatch } from "../gameEnd.js";
+import { OPEN_WINDOW_BAR_MAX } from "../world.js";
 import { EFFECT_KINDS, PROPERTY_ANSWER_KEYS } from "../effects.js";
 import { scriptedMind } from "mind-seam";
 import { createReferee } from "../referee.js";
@@ -36,6 +37,15 @@ function plan(openWorld: OpenWorld, effectKind: "open" | "close" | "leave" | "we
     exits: openWorld.exits,
     actorId: actor === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId,
     description: "x",
+  });
+}
+
+/** Wears the bar down to `value` through the resolve protocol, as play would. */
+function wearBarTo(openWorld: OpenWorld, value: number) {
+  buildOpenResolver().resolve({
+    gameId: openWorld.base.gameId,
+    mechanic: "OPEN_WEAR",
+    parameters: { resourceId: openWorld.base.resources.barIntegrity, amount: 100 - value, min: 0, max: 100, description: "worn" },
   });
 }
 
@@ -105,6 +115,7 @@ describe("leaving the cell (OPEN-VARIANT.md §12)", () => {
   it("open/close resolve the way out's passage even when the referee's own property answer names the part's integrity -- exactly what real games produced (§19)", () => {
     createTestDb();
     const w = buildOpenWorld();
+    wearBarTo(w, OPEN_WINDOW_BAR_MAX); // §24: the window opens only once the bar is worn this far
     resolvePlan(w, plan(w, "open", "bar", "integrity"));
     expect(getResource(w.exits.window.passageResourceId)?.value).toBe(1);
     resolvePlan(w, plan(w, "close", "lock", "integrity"));
@@ -238,6 +249,7 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
   it("the window, opened and left through, is told as the window (§17.2: the ids are the names)", async () => {
     createTestDb();
     const w = buildOpenWorld();
+    wearBarTo(w, OPEN_WINDOW_BAR_MAX); // §24
     const opened = await half(w, "I lever the bars out of the window.", scripted("window", "open", "passage", "lever the bars out of the window", "barred by five vertical iron bars"), 1);
     expect(renderOwnOutcome(opened)).toBe("Your last attempt opened the window.");
     const left = await half(w, "I climb out of the window.", scripted("window", "leave", "none", "climb out of the window", "A small window high in the wall"), 2);
@@ -256,5 +268,89 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     expect(precedentTextFor({ targetObjectId: "window", effectKind: "leave" })).toBe("A prisoner makes for the window.");
     // Work on a part stays work on the part (§17.3: "works at the lock" stays true).
     expect(precedentTextFor({ targetObjectId: "lock", effectKind: "wear" })).toBe("A prisoner works at the lock.");
+  });
+});
+
+describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", () => {
+  afterEach(() => destroyTestDb());
+
+  it("each way out declares its threshold: the window's bar at or below 50, the same line a catch uses; the door none", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    expect(OPEN_WINDOW_BAR_MAX).toBe(50);
+    expect(w.exits.window.openWhenPartAtMost).toBe(OPEN_WINDOW_BAR_MAX);
+    expect(w.exits.door.openWhenPartAtMost).toBeNull();
+  });
+
+  it("§21.3's round 1, replayed: an open through the bar at full integrity leaves the window shut, and says so in its result", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    const outcome = resolvePlan(w, plan(w, "open", "bar", "integrity"));
+    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+    expect(outcome.result).toEqual(expect.objectContaining({ opened: false }));
+    expect(outcome.transitions).toEqual([]);
+  });
+
+  it("naming the window itself is held to the same threshold: the bar is the only thing keeping it shut", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    resolvePlan(w, plan(w, "open", "window", "passage"));
+    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+    wearBarTo(w, 51);
+    resolvePlan(w, plan(w, "open", "window", "passage"));
+    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+    wearBarTo(w, 50);
+    resolvePlan(w, plan(w, "open", "window", "passage"));
+    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(1);
+  });
+
+  it("the door has no threshold: the bolt pushed back through the gap still opens it through the lock at full integrity (the one real open, 2026-09-14)", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    resolvePlan(w, plan(w, "open", "lock", "integrity"));
+    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(1);
+  });
+
+  it("close is never gated", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    wearBarTo(w, 0);
+    resolvePlan(w, plan(w, "open", "window", "passage"));
+    wearBarTo(w, 0);
+    resolvePlan(w, plan(w, "close", "bar", "integrity"));
+    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+  });
+
+  it("the actor is told the way out held, never that it opened or was already open", async () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    const t = w.base.clock.prisonerT(1);
+    const referee = createReferee([
+      async (request) =>
+        request.questions.map((q) => ({
+          questionId: q.id,
+          answerKey: ({ target: "bar", effect: "open", property: "integrity", magnitude: "moderate", perceptibility: "audible" } as Record<string, string>)[q.id] ?? "none",
+          citation: q.id === "property" ? { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } : { sourceId: "intent", quote: "Scrape the rusted bar with the spoon to loosen it" },
+        })),
+    ]);
+    const half = await runOpenHalfRound({
+      openWorld: w,
+      resolver: buildOpenResolver(),
+      referee,
+      principal: "prisoner",
+      roundN: 1,
+      t,
+      context: buildOpenContext(w, "prisoner", t, 1),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "Scrape the rusted bar with the spoon to loosen it" }),
+    });
+    expect(renderOwnOutcome(half)).toBe("Your last attempt met the window shut: it will not open yet.");
+  });
+
+  it("once the bar allows it, the same act through the bar tells the actor it opened the window, not the bar (§24; half of #6)", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    wearBarTo(w, 40);
+    const outcome = resolvePlan(w, plan(w, "open", "bar", "integrity"));
+    expect(outcome.result).toEqual(expect.objectContaining({ opened: true, wayOut: "window" }));
   });
 });

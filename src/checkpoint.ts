@@ -46,7 +46,7 @@ import {
 } from "./loop.js";
 import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
 import { getVariant } from "./variant.js";
-import { buildOpenWorld, declaredProperty, derivedKindOf } from "./open/world.js";
+import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { createReferee } from "./open/referee.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
@@ -676,7 +676,11 @@ async function mainOpen(): Promise<void> {
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })],
     // Objects derived in this game (OPEN-VARIANT.md §13) are targets too.
-    { isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined, kindOf: (objectId) => derivedKindOf(openWorld, objectId) }
+    {
+      isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined,
+      kindOf: (objectId) => derivedKindOf(openWorld, objectId),
+      propertiesOf: (objectId) => declaredPropertyKeys(openWorld, objectId),
+    }
   );
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };

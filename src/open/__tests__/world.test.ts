@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { getResource } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
-import { buildOpenWorld, resourceIdForProperty } from "../world.js";
+import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys } from "../world.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 
 describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant built stays)", () => {
@@ -44,6 +44,15 @@ describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant bui
     const world = buildOpenWorld();
     expect(resourceIdForProperty(world, "bucket", "integrity")).toBeUndefined();
     expect(resourceIdForProperty(world, "key_ring", "integrity")).toBeUndefined();
+  });
+
+  it("declaredPropertyKeys lists a scenario object's own property keys, and none for an object with none (OPEN-VARIANT.md §24)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    expect(declaredPropertyKeys(world, "loose_tile")).toEqual(["concealment"]);
+    expect(declaredPropertyKeys(world, "spoon")).toEqual(["edge", "concealment"]);
+    expect(declaredPropertyKeys(world, "bucket")).toEqual([]);
+    expect(declaredPropertyKeys(world, "nothing_here")).toEqual([]);
   });
 
   it("the key ring is owned by the warden, not the cell", () => {
