@@ -47,9 +47,25 @@ export type OpenPrincipalContext = {
   readonly perceivedObjects: readonly ObjectPerception[];
 };
 
+/** One concrete, attemptable thing a mind said it could try, before
+ *  committing to `intent` (mother-of-invention#1's "iterate" half, driven
+ *  here first per that issue's own note that a real caller should shape it
+ *  before the package commits to anything). Deliberately the smallest
+ *  useful shape: no ranking, no relation to any ledger -- `seenBefore`
+ *  crossing, if it happens at all, is the still-open "pick" half. */
+export type Candidate = {
+  readonly text: string;
+  readonly reason?: string;
+};
+
 export type OpenProposal = Proposal & {
   readonly thoughts?: string;
   readonly notes?: string;
+  /** What the mind said it considered before choosing `intent` -- shown in
+   *  transcripts for a human to audit, exactly like everything else here;
+   *  never read by any code to decide what `intent` means. Undefined when
+   *  the mind's answer had nothing usable, never an empty array. */
+  readonly candidates?: readonly Candidate[];
   /** A SHORT FREE-TEXT plan the mind keeps for itself (this task's brief:
    *  "a short free-text plan the mind keeps for itself") -- never a list of
    *  enumerated moves (there are none to enumerate in the open variant).
@@ -71,15 +87,28 @@ function coerceFreeText(raw: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+const CANDIDATES_SCHEMA: InertRecord = {
+  type: "array",
+  minItems: 2,
+  maxItems: 5,
+  items: {
+    type: "object",
+    properties: { text: { type: "string" }, reason: { type: "string" } },
+    required: ["text", "reason"],
+    additionalProperties: false,
+  },
+};
+
 const OPEN_WITS_SCHEMA: InertRecord = {
   type: "object",
   properties: {
     thoughts: { type: "string" },
+    candidates: CANDIDATES_SCHEMA,
     intent: { type: "string" },
     plan: { type: "string" },
     notes: { type: "string" },
   },
-  required: ["thoughts", "intent", "plan", "notes"],
+  required: ["thoughts", "candidates", "intent", "plan", "notes"],
   additionalProperties: false,
 };
 
@@ -87,12 +116,13 @@ const OPEN_SINGLE_CALL_SCHEMA: InertRecord = {
   type: "object",
   properties: {
     thoughts: { type: "string" },
+    candidates: CANDIDATES_SCHEMA,
     intent: { type: "string" },
     line: { type: "string" },
     plan: { type: "string" },
     notes: { type: "string" },
   },
-  required: ["thoughts", "intent", "line", "plan", "notes"],
+  required: ["thoughts", "candidates", "intent", "line", "plan", "notes"],
   additionalProperties: false,
 };
 
@@ -144,10 +174,15 @@ function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenP
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
-    'Answer with one JSON object: {"thoughts": string, "intent": string, "plan": string, "notes": string}.',
+    'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "plan": string, "notes": string}.',
     '"thoughts" is REQUIRED -- your private reasoning. Nobody else ever sees this.',
+    '"candidates" is REQUIRED -- 2 to 5 DIFFERENT concrete things you could try this turn, each grounded only in ' +
+      "what you can currently reach or perceive above -- never anything you cannot perceive. Each entry is " +
+      '{"text": string, "reason": string}: "text" is the attempt itself, concrete enough for a referee to judge; ' +
+      '"reason" is one short phrase for why you considered it. List these before committing to one.',
     '"intent" is REQUIRED -- exactly what you are trying to do this turn, in plain words, concrete enough that ' +
-      "a referee could judge it against what you can perceive. This is not narration of an outcome -- only an attempt.",
+      "a referee could judge it against what you can perceive. This is not narration of an outcome -- only an " +
+      "attempt. It may match one of your candidates above, or refine one.",
     '"plan" is REQUIRED -- a short free-text note to yourself about what you mean to do after this, for your own use next turn.',
     '"notes" is REQUIRED -- at most about 300 characters: what you want to remember next turn. Nobody else ever sees this.',
     "You never decide what happens next -- only the world decides that.",
@@ -166,9 +201,14 @@ function buildOpenSingleCallPrompt(selfName: string, otherName: string, context:
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
-    'Answer with one JSON object: {"thoughts": string, "intent": string, "line": string, "plan": string, "notes": string}.',
+    'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "line": string, "plan": string, "notes": string}.',
     '"thoughts" is REQUIRED -- your private reasoning. Nobody else ever sees this.',
-    '"intent" is REQUIRED -- exactly what you are trying to do this turn, concrete enough for a referee to judge.',
+    '"candidates" is REQUIRED -- 2 to 5 DIFFERENT concrete things you could try this turn, each grounded only in ' +
+      "what you can currently reach or perceive above -- never anything you cannot perceive. Each entry is " +
+      '{"text": string, "reason": string}: "text" is the attempt itself, concrete enough for a referee to judge; ' +
+      '"reason" is one short phrase for why you considered it. List these before committing to one.',
+    '"intent" is REQUIRED -- exactly what you are trying to do this turn, concrete enough for a referee to judge. ' +
+      "It may match one of your candidates above, or refine one.",
     '"line" is REQUIRED -- one sentence spoken ALOUD to the other person, or an empty string ("") to stay silent this turn.',
     '"plan" is REQUIRED -- a short free-text note to yourself about what you mean to do after this.',
     '"notes" is REQUIRED -- at most about 300 characters: what you want to remember next turn.',
@@ -204,7 +244,29 @@ function buildVoicePrompt(selfName: string, otherName: string, context: VoiceCon
   ].join("\n");
 }
 
-function coerceWits(raw: unknown): { thoughts?: string; intent: string; plan?: string; notes?: string } | null {
+/** Tolerant, per mother-of-invention's own rule against judging what text
+ *  means: two candidates match only when their `text` is byte-identical
+ *  (`Account`'s own rule in `ledger.ts`, mirrored here since this shape is
+ *  meant to become that package's, once a real caller has shaped it).
+ *  Malformed entries are dropped, not fatal to the whole turn -- `intent` is
+ *  the only field a bad candidate list can never take down. */
+function coerceCandidates(raw: unknown): Candidate[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const seen = new Set<string>();
+  const candidates: Candidate[] = [];
+  for (const item of raw) {
+    if (typeof item !== "object" || item === null) continue;
+    const record = item as Record<string, unknown>;
+    const text = coerceFreeText(record.text);
+    if (text === undefined || seen.has(text)) continue;
+    seen.add(text);
+    const reason = coerceFreeText(record.reason);
+    candidates.push(reason !== undefined ? { text, reason } : { text });
+  }
+  return candidates.length > 0 ? candidates : undefined;
+}
+
+function coerceWits(raw: unknown): { thoughts?: string; candidates?: Candidate[]; intent: string; plan?: string; notes?: string } | null {
   if (typeof raw !== "object" || raw === null) return null;
   const record = raw as Record<string, unknown>;
   const intent = coerceFreeText(record.intent);
@@ -212,6 +274,7 @@ function coerceWits(raw: unknown): { thoughts?: string; intent: string; plan?: s
   return {
     intent,
     ...(coerceFreeText(record.thoughts) !== undefined ? { thoughts: coerceFreeText(record.thoughts) } : {}),
+    ...(coerceCandidates(record.candidates) !== undefined ? { candidates: coerceCandidates(record.candidates) } : {}),
     ...(coerceFreeText(record.plan) !== undefined ? { plan: coerceFreeText(record.plan) } : {}),
     ...(coerceFreeText(record.notes) !== undefined ? { notes: coerceFreeText(record.notes) } : {}),
   };
@@ -273,6 +336,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
         return {
           ...base,
           ...(coerceFreeText(record.thoughts) !== undefined ? { thoughts: coerceFreeText(record.thoughts) } : {}),
+          ...(coerceCandidates(record.candidates) !== undefined ? { candidates: coerceCandidates(record.candidates) } : {}),
           ...(coerceFreeText(record.plan) !== undefined ? { plan: coerceFreeText(record.plan) } : {}),
           ...(coerceFreeText(record.notes) !== undefined ? { notes: coerceFreeText(record.notes) } : {}),
         };
@@ -287,7 +351,10 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     };
   }
 
-  const witsMind = createLocalMind<OpenPrincipalContext, { intent: string; thoughts?: string; plan?: string; notes?: string; line?: string }>({
+  const witsMind = createLocalMind<
+    OpenPrincipalContext,
+    { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; notes?: string; line?: string }
+  >({
     baseUrl: options.baseUrl,
     model: witsModel,
     temperature: options.temperature,
@@ -295,7 +362,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     fetchFn: options.fetchFn,
     responseFormat: { jsonSchema: OPEN_WITS_SCHEMA, name: "wits" },
     prompt: (context) => buildOpenWitsPrompt(options.selfName, options.otherName, context),
-    coerce: (raw) => coerceWits(raw) as { intent: string; thoughts?: string; plan?: string; notes?: string; line?: string } | null,
+    coerce: (raw) => coerceWits(raw) as { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; notes?: string; line?: string } | null,
     onSilence: options.onSilence,
   });
 
@@ -335,6 +402,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
         intent: wits.intent,
         line: voice?.line ?? "",
         ...(wits.thoughts !== undefined ? { thoughts: wits.thoughts } : {}),
+        ...(wits.candidates !== undefined ? { candidates: wits.candidates } : {}),
         ...(wits.plan !== undefined ? { plan: wits.plan } : {}),
         ...(wits.notes !== undefined ? { notes: wits.notes } : {}),
         witsModel,

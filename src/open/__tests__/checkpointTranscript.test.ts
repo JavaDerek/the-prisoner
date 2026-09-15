@@ -126,6 +126,33 @@ describe("open checkpoint transcript", () => {
     expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 18-24: "Rust has pitted it near the bottom,"');
   });
 
+  it("candidates the mind considered are shown for audit, never silently dropped (mother-of-invention#1, 'iterate' half)", () => {
+    const text = renderOpenHalfRound({
+      principal: "warden",
+      t: 2,
+      roundN: 1,
+      context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
+      proposal: {
+        intent: "Examine the lock closely.",
+        candidates: [
+          { text: "Examine the bar closely.", reason: "check for damage" },
+          { text: "Examine the lock closely.", reason: "check the other exit" },
+        ],
+      },
+      ruling: null,
+      plan: null,
+      outcome: null,
+      refusalError: null,
+      perceptionForOther: null,
+      revealFor: null,
+      derived: null,
+      reshaped: null,
+    }).join("\n");
+    expect(text).toContain("**Candidates:**");
+    expect(text).toContain("Examine the bar closely. (check for damage)");
+    expect(text).toContain("Examine the lock closely. (check the other exit)");
+  });
+
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
       { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null },
@@ -152,6 +179,21 @@ describe("open checkpoint transcript", () => {
       h.roundN === 2 && h.principal === "warden" ? { ...h, context: { ...h.context, briefing: `${h.context.briefing} PRISONER_NOTES_MARKER` } } : h
     );
     expect(fogAudit(planted).leaks).toEqual([{ roundN: 2, principal: "warden", field: "notes" }]);
+  });
+
+  it("fog audit: a candidate the mind considered but did not act on still counts as private text, and a leak of one is caught", async () => {
+    const game = await playCatchGame();
+    const withCandidate = game.halves.map((h) =>
+      h.roundN === 2 && h.principal === "prisoner" && h.proposal
+        ? { ...h, proposal: { ...h.proposal, candidates: [{ text: "PRISONER_CANDIDATE_MARKER_NOT_CHOSEN", reason: "considered, not picked" }] } }
+        : h
+    );
+    expect(fogAudit(withCandidate).leaks).toEqual([]);
+
+    const planted = withCandidate.map((h) =>
+      h.roundN === 3 && h.principal === "warden" ? { ...h, context: { ...h.context, briefing: `${h.context.briefing} PRISONER_CANDIDATE_MARKER_NOT_CHOSEN` } } : h
+    );
+    expect(fogAudit(planted).leaks).toEqual([{ roundN: 3, principal: "warden", field: "candidates" }]);
   });
 
   it("fog audit: text BOTH principals wrote themselves is theirs to see, never a leak", async () => {

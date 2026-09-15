@@ -142,6 +142,10 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   if (p.witsModel !== undefined) lines.push(`**Wits model:** \`${p.witsModel}\` (${p.witsMs?.toFixed(0) ?? "?"}ms)`);
   if (p.voiceModel !== undefined) lines.push(`**Voice model:** \`${p.voiceModel}\` (${p.voiceMs?.toFixed(0) ?? "?"}ms)`);
   if (p.thoughts) lines.push(`**Thoughts:** ${p.thoughts}`);
+  if (p.candidates && p.candidates.length > 0) {
+    lines.push("**Candidates:**");
+    for (const c of p.candidates) lines.push(`- ${c.text}${c.reason ? ` (${c.reason})` : ""}`);
+  }
   lines.push(`**Intent:** ${p.intent}`);
   if (p.line) lines.push(`**Line:** "${p.line}"`);
   if (p.plan) lines.push(`**Plan:** ${p.plan}`);
@@ -180,7 +184,7 @@ export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { la
 /** Private strings shorter than this are not audited: a two-word intent can
  *  appear in the other side's briefing by coincidence (both may "wait"). */
 const FOG_AUDIT_MIN_LENGTH = 12;
-const PRIVATE_FIELDS = ["thoughts", "intent", "plan", "notes"] as const;
+const PRIVATE_FIELDS = ["thoughts", "intent", "plan", "notes", "candidates"] as const;
 
 /**
  * OPEN-VARIANT.md §5.1's fog audit over a finished game: no string in any
@@ -198,8 +202,13 @@ export function fogAudit(halves: readonly OpenHalfRoundResult[]): {
   for (const h of halves) {
     if (!h.proposal) continue;
     for (const field of PRIVATE_FIELDS) {
-      const text = h.proposal[field];
-      if (typeof text === "string" && text.length >= FOG_AUDIT_MIN_LENGTH) privateBy[h.principal].push({ field, text });
+      const value = h.proposal[field];
+      if (typeof value === "string" && value.length >= FOG_AUDIT_MIN_LENGTH) {
+        privateBy[h.principal].push({ field, text: value });
+      } else if (field === "candidates" && Array.isArray(value)) {
+        // Considered but not necessarily acted on -- still private until said aloud.
+        for (const candidate of value) if (candidate.text.length >= FOG_AUDIT_MIN_LENGTH) privateBy[h.principal].push({ field, text: candidate.text });
+      }
     }
   }
   const leaks: { roundN: number; principal: Principal; field: (typeof PRIVATE_FIELDS)[number] }[] = [];

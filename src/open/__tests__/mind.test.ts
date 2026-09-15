@@ -170,6 +170,116 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     expect(closedMoveNamesIn(WARDEN_PRESENCE_RULE).length).toBeGreaterThan(0);
   });
 
+  it("the wits call asks for grounded candidates before intent, and the proposal carries them (mother-of-invention#1, 'iterate' half)", async () => {
+    const content = JSON.stringify({
+      thoughts: "t",
+      candidates: [
+        { text: "Examine the bar closely.", reason: "check for damage" },
+        { text: "Examine the lock closely.", reason: "check the other exit" },
+      ],
+      intent: "Examine the lock closely.",
+      line: "",
+      plan: "p",
+      notes: "n",
+    });
+    const mind = createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn: fakeFetch(content) });
+    const proposal = await mind.consider(CONTEXT);
+    expect(proposal?.candidates).toEqual([
+      { text: "Examine the bar closely.", reason: "check for damage" },
+      { text: "Examine the lock closely.", reason: "check the other exit" },
+    ]);
+  });
+
+  it("the wits prompt asks for candidates grounded only in what can be perceived, before committing to intent", async () => {
+    let prompt = "";
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      prompt = JSON.parse((init?.body as string) ?? "{}").messages[0].content as string;
+      const content = JSON.stringify({
+        thoughts: "t",
+        candidates: [
+          { text: "a", reason: "r" },
+          { text: "b", reason: "r" },
+        ],
+        intent: "i",
+        line: "",
+        plan: "p",
+        notes: "n",
+      });
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
+    }) as unknown as typeof fetch;
+    await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn }).consider(CONTEXT);
+    expect(prompt).toContain("candidates");
+    expect(prompt).toMatch(/grounded/i);
+  });
+
+  it("exact-duplicate candidate text collapses to one (kept first), entries without usable text are dropped", async () => {
+    const content = JSON.stringify({
+      thoughts: "t",
+      candidates: [
+        { text: "Examine the bar closely.", reason: "r1" },
+        { text: "Examine the bar closely.", reason: "r2, a repeat" },
+        { text: "   ", reason: "blank, dropped" },
+        { reason: "no text at all, dropped" },
+        { text: "Examine the lock closely.", reason: "r3" },
+      ],
+      intent: "Examine the lock closely.",
+      line: "",
+      plan: "p",
+      notes: "n",
+    });
+    const mind = createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn: fakeFetch(content) });
+    const proposal = await mind.consider(CONTEXT);
+    expect(proposal?.candidates).toEqual([
+      { text: "Examine the bar closely.", reason: "r1" },
+      { text: "Examine the lock closely.", reason: "r3" },
+    ]);
+  });
+
+  it("missing or entirely malformed candidates still let a valid intent through, with candidates left undefined", async () => {
+    const content = JSON.stringify({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" });
+    const mind = createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn: fakeFetch(content) });
+    const proposal = await mind.consider(CONTEXT);
+    expect(proposal?.intent).toBe("i");
+    expect(proposal?.candidates).toBeUndefined();
+  });
+
+  it("dual-call path: candidates come from the wits call, never the voice call", async () => {
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse((init?.body as string) ?? "{}");
+      if (body.model === "wits-model") {
+        return {
+          ok: true,
+          text: async () =>
+            JSON.stringify({
+              choices: [
+                {
+                  message: {
+                    content: JSON.stringify({
+                      thoughts: "t",
+                      candidates: [
+                        { text: "Hone the spoon.", reason: "sharpen it" },
+                        { text: "Examine the bar.", reason: "check it" },
+                      ],
+                      intent: "Hone the spoon.",
+                      plan: "p",
+                      notes: "n",
+                    }),
+                  },
+                },
+              ],
+            }),
+        };
+      }
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "voiced", line: "Hm." }) } }] }) };
+    }) as unknown as typeof fetch;
+    const mind = createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", witsModel: "wits-model", voiceModel: "voice-model", fetchFn });
+    const proposal = await mind.consider(CONTEXT);
+    expect(proposal?.candidates).toEqual([
+      { text: "Hone the spoon.", reason: "sharpen it" },
+      { text: "Examine the bar.", reason: "check it" },
+    ]);
+  });
+
   it("states escape physically -- out of the cell by the door or the window -- and never as a number reaching zero (OPEN-VARIANT.md §12)", async () => {
     let prompt = "";
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
