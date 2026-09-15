@@ -1540,3 +1540,22 @@ Once open, every further open says "The bar is already free of the window: the w
 through now." (`OPEN_PASSAGE`'s result carries `freedPart`, from `world.ts`'s pairing.) The door, whose
 lock does not close its gap, is still told "opened the door". The bar's own integrity is not changed by
 the open, so what a warden examination finds is as before.
+
+### 28.1 The third passive game (`checkpoints/2026-09-15T22-21-27-688Z.md`)
+
+Settings as §27.1, with §28's wording. Result: **timeout at round 20, one step short.**
+
+- **She understood the window was open and planned to go through it.** Round 13's outcome said "The
+  window can be climbed through now"; round 14 replanned "because ... now the window is open"; round 19
+  was told "worked the bar free of the window: the window can be climbed through now"; round 20, the
+  last, was "Climb onto the cot to reach the window", with the plan "1. Use the cot as a step to climb
+  to the window. 2. Climb through the window to escape."
+- **Cause: "high in the wall".** The window's description says it is high, and nothing in the world
+  models height or reach: leaving needs only a passable way out. So from round 14 she spent turns making
+  the cot a step ("weaken the cot's bolts to enable movement", ruled impossible) and the final turn
+  climbing onto it (ruled `open` on the window, already open). The same lesson as §27, a second time: a
+  description claimed something the world does not model, and a model planned around it.
+- **A misruling helped her.** Rounds 13 and 17, "Work a piece loose from the cot's frame" and "...from
+  the cot's wire", were ruled `wear` on the **bar**, with verified citations (a target citation only has
+  to be words from the intent, not the object's name). Round 13's took the bar from 9 to 0. Code cannot
+  catch this (§10.6); it is recorded, not fixed.
