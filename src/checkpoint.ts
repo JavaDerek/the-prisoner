@@ -33,6 +33,7 @@ import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
 import { pinnedDependencyVersion } from "./packageInfo.js";
+import { readSkipVoice, resolveVoiceModel } from "./modelRoles.js";
 import { summarizeLoadedModels, type OllamaPsResponse } from "./ollamaStatus.js";
 import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "./ollamaSwap.js";
 import {
@@ -74,7 +75,10 @@ const MODEL_URL = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
 const DEFAULT_MODEL = "qwen2.5:14b";
 const MODEL = process.env.PRISONER_MODEL;
 const WITS_MODEL = process.env.PRISONER_WITS_MODEL ?? MODEL ?? DEFAULT_MODEL;
-const VOICE_MODEL = process.env.PRISONER_VOICE_MODEL ?? MODEL ?? DEFAULT_MODEL;
+// `PRISONER_SKIP_VOICE` (`modelRoles.ts`, CLAUDE.md "Test runs skip the
+// voice model for reasoning-only work"): collapses voice onto the wits
+// model for a run that doesn't need a readable transcript.
+const VOICE_MODEL = resolveVoiceModel(WITS_MODEL, process.env.PRISONER_VOICE_MODEL ?? MODEL ?? DEFAULT_MODEL, readSkipVoice(process.env.PRISONER_SKIP_VOICE));
 const MODEL_LABEL = WITS_MODEL === VOICE_MODEL ? WITS_MODEL : `${WITS_MODEL} (wits) / ${VOICE_MODEL} (voice)`;
 const THINK_TIMEOUT_MS = process.env.PRISONER_THINK_TIMEOUT_MS
   ? Number(process.env.PRISONER_THINK_TIMEOUT_MS)

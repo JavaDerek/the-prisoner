@@ -50,6 +50,19 @@ overlap. `PRISONER_OLLAMA_RESIDENT_MODELS` lists models a run may unload and mus
 from Ollama's `expires_at`: some servers keep every model loaded indefinitely. Transcripts go to
 `checkpoints/`, committed unedited, including bad runs.
 
+## Test runs skip the voice model for reasoning-only work
+
+The voice role exists to write one line of in-character dialogue for a human reading the transcript
+afterward, and nothing else: `open/mind.ts`'s own comment records that "the wits call's `intent` is
+always what reaches the referee," so voice never touches the world, the referee, or anything a test
+asserts on. A run whose purpose is testing reasoning -- the wits decision, the world, the referee --
+rather than producing a transcript meant to be read should set `PRISONER_SKIP_VOICE=1`
+(`src/modelRoles.ts`): it collapses the voice model onto the wits model, the same single-call path
+`createOpenMind` already gives two equal model names, skipping a whole model call and GPU swap per
+half-round. Leave it unset (the default) for a run whose transcript IS the point -- a checkpoint
+meant to be read, a demonstration, or anything going into `docs/OPEN-VARIANT.md` as evidence of what
+a game looked like to a person.
+
 ## Never pattern-match meaning
 
 In the closed variant, a move is validated by literal membership (after ASCII uppercasing) in a list
