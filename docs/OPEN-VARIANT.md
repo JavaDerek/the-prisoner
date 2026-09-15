@@ -1467,3 +1467,25 @@ each warden half-round is silent, with no model call and no referee call. The pr
 the referee, the rules and the models are unchanged. A passive game is run against a **copy** of the
 precedent ledger, so the prisoner sees the same precedents while the shared ledger records nothing a
 passive warden "saw".
+
+### 26.1 The first passive game (`checkpoints/2026-09-15T21-48-08-804Z.md`)
+
+20 rounds, passive warden, pick off, models as §22.1, precedent ledger copied. Result: **timeout at
+round 20. The prisoner never tried to leave.**
+
+- **The route out was open for the last six rounds.** The bar reached 0 in round 15, which makes the
+  window passable (§12). Round 19's "lever the bar out of the window frame" was ruled `open` and the
+  prisoner was told "Your last attempt opened the window." No attempt was ruled impossible all game.
+  So the rules and the referee permit escape. This is not what stopped her.
+- **The descriptions told her one bar is not enough.** The window is "barred by five vertical iron
+  bars" and the bar is "One of five vertical iron bars"; the world models that one bar as the whole
+  obstacle. From round 16 her plans are "remove another bar ... once enough bars are removed, escape
+  through the window", three turns in a row of wear on a bar already at 0. Her reasoning followed the
+  text; the text and the mechanism disagree.
+- **No outcome says the way out is passable.** Round 15 was told "its integrity went from 2 to 0", and
+  nothing in any briefing says the window can now be climbed through. Round 19's "opened the window" came
+  after four turns of believing more bars stood between her and it, and round 20, the last, went to
+  "another bar".
+- Smaller: `replanned` was false for all 19 turns while the plan visibly moved (wedge, then distraction,
+  then more bars), so the mind's own yes/no also under-reports; "throw the loose tile into the bucket"
+  was ruled `conceal` on the tile; the gate (§24) correctly refused two opens at bar 77.
