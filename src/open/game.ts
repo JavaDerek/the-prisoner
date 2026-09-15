@@ -60,13 +60,16 @@ export async function runOpenGame(params: {
   };
   const halves: OpenHalfRoundResult[] = [];
   const minds: Record<Principal, OpenMind> = { warden: params.wardenMind, prisoner: params.prisonerMind };
+  // OPEN-VARIANT.md §22: each principal's own latest plan, shown back to it
+  // next turn; a silent turn keeps the one before.
+  const plans: Record<Principal, string | undefined> = { warden: undefined, prisoner: undefined };
 
   for (let n = 1; n <= rounds; n++) {
     for (const principal of ["warden", "prisoner"] as const) {
       const other: Principal = principal === "warden" ? "prisoner" : "warden";
       const t = principal === "warden" ? clock.wardenT(n) : clock.prisonerT(n);
 
-      const news: OpenNews = { ...inbox[principal], standing: params.precedent?.[principal] };
+      const news: OpenNews = { ...inbox[principal], standing: params.precedent?.[principal], ...(plans[principal] ? { plan: plans[principal] } : {}) };
       inbox[principal] = { fromOther: [] };
       const context = buildOpenContext(openWorld, principal, t, n, rounds, news);
 
@@ -83,6 +86,7 @@ export async function runOpenGame(params: {
         ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []), ...seenAttempts(halves)] } } : {}),
       });
       halves.push(half);
+      if (half.proposal?.plan) plans[principal] = half.proposal.plan;
 
       const ownOutcome = renderOwnOutcome(half);
       if (ownOutcome) inbox[principal].ownOutcome = ownOutcome;

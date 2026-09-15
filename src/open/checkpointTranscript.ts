@@ -153,6 +153,7 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   }
   lines.push(`**Intent:** ${p.intent}`);
   if (p.line) lines.push(`**Line:** "${p.line}"`);
+  if (p.replanBecause) lines.push(`**Replanned because:** ${p.replanBecause}`);
   if (p.plan) lines.push(`**Plan:** ${p.plan}`);
   if (p.notes) lines.push(`**Notes:** ${p.notes}`);
 
@@ -189,7 +190,7 @@ export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { la
 /** Private strings shorter than this are not audited: a two-word intent can
  *  appear in the other side's briefing by coincidence (both may "wait"). */
 const FOG_AUDIT_MIN_LENGTH = 12;
-const PRIVATE_FIELDS = ["thoughts", "intent", "plan", "notes", "candidates"] as const;
+const PRIVATE_FIELDS = ["thoughts", "intent", "plan", "replanBecause", "notes", "candidates"] as const;
 
 /**
  * OPEN-VARIANT.md §5.1's fog audit over a finished game: no string in any
@@ -286,6 +287,22 @@ export function renderOpenSummary(game: OpenGameResult, rounds?: number): string
   const fog = fogAudit(game.halves);
   lines.push(`Fog audit: ${fog.checked} contexts checked, ${fog.leaks.length} leaks.`);
   for (const leak of fog.leaks) lines.push(`  - round ${leak.roundN}, ${leak.principal}'s context holds the other's ${leak.field}`);
+  lines.push("");
+
+  // OPEN-VARIANT.md §22: of the prisoner turns that had a plan of its own to
+  // keep, how many said an observation broke it. Never a judgement of whether
+  // two plans differ in meaning -- only whether the mind said it replanned.
+  let hadPlan = false;
+  let withPlan = 0;
+  let replanned = 0;
+  for (const h of game.halves.filter((x) => x.principal === "prisoner" && x.proposal)) {
+    if (hadPlan) {
+      withPlan += 1;
+      if (h.proposal?.replanBecause) replanned += 1;
+    }
+    if (h.proposal?.plan) hadPlan = true;
+  }
+  lines.push(`Prisoner plans (§22): replanned ${replanned} of ${withPlan} turns that had a plan, kept ${withPlan - replanned}.`);
   lines.push("");
 
   // OPEN-VARIANT.md §21: forced turns are novel by construction, so novelty

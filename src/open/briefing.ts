@@ -81,6 +81,8 @@ export type OpenNews = {
   readonly standing?: readonly string[];
   readonly ownOutcome?: string;
   readonly fromOther?: readonly string[];
+  /** This principal's own plan from its last turn that had one (OPEN-VARIANT.md §22). */
+  readonly plan?: string;
 };
 
 /** Every resource name a belief can be held about in the open world: the
@@ -119,6 +121,7 @@ export function buildOpenBriefing(
 
   const notes = getNotes(gameId, principal);
   if (notes) lines.push(`Your notes from last round: ${notes}`);
+  if (news.plan) lines.push(`Your plan, from your last turn: ${news.plan}`);
 
   // The warden's own suspicion is its own state, live -- the closed
   // briefing's rule; everything else is belief, with its age.

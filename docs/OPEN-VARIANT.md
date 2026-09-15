@@ -1288,3 +1288,24 @@ Result: **timeout at round 12**; bar 47, warden suspicion 100, no catch.
   the bar's integrity of 100 -- with "Your last attempt opened the bar." Worth checking against §19's
   redirection to the way out before the next game: it may have opened the window at round 1, unnoticed.
 - The warden varied its target 3 times (lock in round 2, tile in 9 and 12; both tile turns impossible).
+
+## 22. Plan, act, observe: a plan persists until an observation breaks it (owner's decision, 2026-09-15)
+
+§21.3's transcript showed the prisoner's plan changing between turns with nothing observed to justify
+it (rounds 5 to 8: the bar, then the spoon, then the hollow, then the window bar). The cause was
+partly a bug: `plan` was asked for every turn and never shown again -- only `notes` reached the next
+briefing, whatever `mind.ts`'s comment claimed. Every turn planned from nothing.
+
+- **The plan is carried forward** (`game.ts`, in memory like news): each principal's own latest plan
+  appears in its own next briefing as "Your plan, from your last turn"; a silent turn keeps the one
+  before. Never the other principal's (fog audit covers it).
+- **Replanning names its cause:** the prompt says this turn's intent is the next step of the plan, to
+  be changed only when something observed since shows it will not work or a better one is open, and
+  asks for `replanBecause` (`""` when following the plan). No code judges whether the reason holds;
+  the transcript shows it and the summary counts replans among turns that had a plan to keep.
+- **Both principals get it**, since the minds are shared. Pick (§21) is unchanged and off for the first
+  game, so this step is measured alone; §21's rule forces single turns, which fights a plan by design,
+  and is to be revisited as a force at replan time once plans are seen to hold.
+
+For the first game: do plans hold across turns, do stated reasons point at real observations, and does
+the prisoner's play become more coherent -- compared against §20.2 (same models, no pick).
