@@ -1429,3 +1429,22 @@ Every recorded intent from the three games (67) was re-ruled once with the new p
 Re-ruled live (`qwen2.5:14b`): the bucket strike works again, and all three grit gatherings now make
 grit. "Scoop dry grit from the loose tile into the hollow" is still ruled a `reveal`, a look rather than
 the gathering.
+
+### 25.1 The first game after §24 and §25 (`checkpoints/2026-09-15T21-35-43-447Z.md`)
+
+Same models and settings as §22.1, no pick. Result: **caught at round 7**, bar 47, suspicion 100.
+
+- **Ruled impossible: 2 of 13** (§22.1: 9 of 22; §23.1: 6 of 21). **The prisoner had none.** Both
+  impossible rulings were the warden's, and both were the referee leaving the effect blank ("Examine
+  the bar's integrity closely", "Examine the wire's kink closely"), not a property mismatch.
+- **Examining the tile works:** round 1 revealed its concealment. The prisoner read "concealment is 100"
+  as "no hidden resources" and replanned, which is a misreading (100 is the hollow still covered), but
+  a reason drawn from a real outcome.
+- **The first made object used in a plan:** round 2 derived a wire from the cot, and rounds 3 to 6 wore
+  the bar with it (100 to 47), one plan held throughout. The wire changed nothing about the wear: it
+  resolved exactly as the spoon does (#5).
+- **The window threshold met the catch line.** The prisoner's plan was to wear the bar below 50 "then
+  attempt removal". Round 6 reached 47, which is what makes the window openable (§24) and also what lets
+  a warden examination at suspicion 100 end the game. The warden moves first, examined the bar in round
+  7, and caught her before she could act. As set, escaping through the window needs two consecutive
+  warden turns that do not examine the bar once it is at or below 50.
