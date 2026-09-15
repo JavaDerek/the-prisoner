@@ -251,7 +251,8 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     const w = buildOpenWorld();
     wearBarTo(w, OPEN_WINDOW_BAR_MAX); // §24
     const opened = await half(w, "I lever the bars out of the window.", scripted("window", "open", "passage", "lever the bars out of the window", "a single rusted bar closes its widest gap"), 1);
-    expect(renderOwnOutcome(opened)).toBe("Your last attempt opened the window.");
+    // §28: the window opens only by its bar coming free, and the actor is told that, as the action it opens up.
+    expect(renderOwnOutcome(opened)).toBe("Your last attempt worked the bar free of the window: the window can be climbed through now.");
     const left = await half(w, "I climb out of the window.", scripted("window", "leave", "none", "climb out of the window", "A small window high in the wall"), 2);
     expect(renderOwnOutcome(left)).toBe("You are out of the cell, through the window.");
     expect(left.perceptionForOther).toBe("Mara Voss makes for the window.");
@@ -388,5 +389,46 @@ describe("a way out's part worn through is told as the way out it frees (OPEN-VA
     expect(renderOwnOutcome(short)).toBe("Your last attempt worked on the bar: its integrity went from 20 to 5.");
     const through = await wearBar(w, 2); // 5 -> 0
     expect(renderOwnOutcome(through)).toBe("Your last attempt worked on the bar: its integrity went from 5 to 0. The window can be climbed through now.");
+  });
+});
+
+describe("a window opened through its bar is told as the bar out of the way (OPEN-VARIANT.md §28)", () => {
+  afterEach(() => destroyTestDb());
+
+  async function pry(w: OpenWorld, roundN: number) {
+    const t = w.base.clock.prisonerT(roundN);
+    const referee = createReferee([
+      async (request) =>
+        request.questions.map((q) => ({
+          questionId: q.id,
+          answerKey: ({ target: "bar", effect: "open", property: "integrity", magnitude: "moderate", perceptibility: "audible" } as Record<string, string>)[q.id] ?? "none",
+          citation: q.id === "property" ? { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } : { sourceId: "intent", quote: "Pry the bar with the spoon" },
+        })),
+    ]);
+    return runOpenHalfRound({
+      openWorld: w,
+      resolver: buildOpenResolver(),
+      referee,
+      principal: "prisoner",
+      roundN,
+      t,
+      context: buildOpenContext(w, "prisoner", t, roundN),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "Pry the bar with the spoon" }),
+    });
+  }
+
+  it("§27.1's round 10, replayed: the pry that opens the window says the bar is free and the window can be climbed through; every pry after says it again", async () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    wearBarTo(w, 24);
+    expect(renderOwnOutcome(await pry(w, 1))).toBe("Your last attempt worked the bar free of the window: the window can be climbed through now.");
+    expect(renderOwnOutcome(await pry(w, 2))).toBe("The bar is already free of the window: the window can be climbed through now.");
+  });
+
+  it("the door, whose lock is not what closes its gap, is still told as opened", async () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    const outcome = resolvePlan(w, plan(w, "open", "lock", "integrity"));
+    expect(outcome.result).toEqual(expect.not.objectContaining({ freedPart: expect.anything() }));
   });
 });

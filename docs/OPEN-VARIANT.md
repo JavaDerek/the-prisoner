@@ -1530,3 +1530,13 @@ was passable from round 10; she never tried to climb through.**
   way the same window becomes passable.
 - Plans held (18 of 19 kept) and nothing was ruled impossible, so everything short of the last step
   worked.
+
+## 28. A window opened through its bar is told as the bar out of the way (owner's decision, 2026-09-15)
+
+§27.1's fix, wording only; the rules are unchanged. When `open` resolves on a way out that has a
+threshold on its part (§24: today, the window and its bar), the actor is told the part came free and the
+new action: "Your last attempt worked the bar free of the window: the window can be climbed through now."
+Once open, every further open says "The bar is already free of the window: the window can be climbed
+through now." (`OPEN_PASSAGE`'s result carries `freedPart`, from `world.ts`'s pairing.) The door, whose
+lock does not close its gap, is still told "opened the door". The bar's own integrity is not changed by
+the open, so what a warden examination finds is as before.

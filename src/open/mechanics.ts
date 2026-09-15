@@ -127,7 +127,7 @@ export interface PassageParams {
   max: number;
   /** OPEN-VARIANT.md §24: open only while the part's integrity is at or below
    *  `atMost`. Absent for close and for a way out with no threshold. */
-  gate?: { integrityResourceId: string; atMost: number };
+  gate?: { integrityResourceId: string; atMost: number; part: string };
   description: string;
 }
 
@@ -145,7 +145,7 @@ export const OPEN_PASSAGE: Mechanic = {
     const after = p.open ? p.max : p.min;
     return {
       changes: [setResource(p.resourceId, after, p.min, p.max)],
-      result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after, ...(p.open ? { opened: true } : {}) },
+      result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after, ...(p.open ? { opened: true } : {}), ...(p.open && p.gate ? { freedPart: p.gate.part } : {}) },
       description: p.description,
     };
   },

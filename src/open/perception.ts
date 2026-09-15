@@ -46,7 +46,7 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   }
 
   if (outcome !== null && plan !== null) {
-    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean; opened?: boolean; wayOut?: string };
+    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean; opened?: boolean; wayOut?: string; freedPart?: string };
     // OPEN-VARIANT.md §17.2: open, close and leave target the way out, and its id is its name.
     const exit = obj;
     if (ruling.effectKind === "leave") {
@@ -56,6 +56,14 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       // §19: resolved through the way out even when the referee named its part.
       const wayOut = result.wayOut?.replace(/_/g, " ") ?? exit;
       if (ruling.effectKind === "open" && result.opened === false) return `Your last attempt met the ${wayOut} shut: it will not open yet.`;
+      // OPEN-VARIANT.md §28: a way out whose part closes its gap opens by that part coming free, and is told
+      // as the action it opens up (§27.1: "opened the window" left her prying a bar still in the way).
+      if (ruling.effectKind === "open" && result.freedPart) {
+        const part = result.freedPart.replace(/_/g, " ");
+        return result.before === result.after
+          ? `The ${part} is already free of the ${wayOut}: the ${wayOut} can be climbed through now.`
+          : `Your last attempt worked the ${part} free of the ${wayOut}: the ${wayOut} can be climbed through now.`;
+      }
       const verb = ruling.effectKind === "open" ? "opened" : "shut";
       return result.before === result.after ? `The ${wayOut} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${wayOut}.`;
     }

@@ -187,7 +187,7 @@ export function planEffect(params: {
     // §24: an open is held to the way out's threshold on its part, whichever
     // object the referee named.
     const exit = exits[exitId];
-    const gate = effectKind === "open" && exit?.openWhenPartAtMost !== null && exit?.openWhenPartAtMost !== undefined ? { integrityResourceId: exit.integrityResourceId, atMost: exit.openWhenPartAtMost } : undefined;
+    const gate = effectKind === "open" && exit?.openWhenPartAtMost !== null && exit?.openWhenPartAtMost !== undefined ? { integrityResourceId: exit.integrityResourceId, atMost: exit.openWhenPartAtMost, part: exit.part } : undefined;
     return {
       mechanic: "OPEN_PASSAGE",
       parameters: { resourceId, wayOut: exitId, open: effectKind === "open", min: declared.min, max: declared.max, ...(gate ? { gate } : {}), description },
