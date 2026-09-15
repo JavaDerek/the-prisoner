@@ -1309,3 +1309,20 @@ briefing, whatever `mind.ts`'s comment claimed. Every turn planned from nothing.
 
 For the first game: do plans hold across turns, do stated reasons point at real observations, and does
 the prisoner's play become more coherent -- compared against §20.2 (same models, no pick).
+
+### 22.1 The first game (`checkpoints/2026-09-15T19-53-39-106Z.md`)
+
+Same models and settings as §20.2, no pick. Result: **caught at round 12**, bar 39, suspicion 100.
+
+- **Plans held.** After two early changes (round 2: the tile dig was ruled impossible, so the cot's
+  wire; round 4: grit on the bar, unannounced), the prisoner kept one plan for eight turns (rounds 4 to
+  11): use the tile's grit on the bar, then a diversion with the bucket, then out by the window. It
+  survived two impossible rulings on gathering grit by rephrasing the same step. Compare §21.3's
+  bar-spoon-hollow-window drift. The warden's plans also held, and it varied its targets (lock, tile,
+  spoon, bar), most of them ruled impossible.
+- **`replanBecause` is not being used as asked.** The summary's "replanned 5 of 10" is wrong in
+  meaning: four of the prisoner's five non-empty reasons say "Following the original plan...", and
+  round 4's real change left it empty. The warden does the same. Code counts a non-empty string, and
+  the model fills the string either way.
+- **The plan never reached its later steps.** The prisoner stayed on step 1 until caught; its plan
+  set "break the bar below 50" as the trigger for escaping, which is not the escape rule (§12).
