@@ -201,7 +201,22 @@ describe("deriving, through a half-round (OPEN-VARIANT.md §13.1, §13.5)", () =
     expect(w.resourceNameById[w.resourceIdFor["wire_2.integrity"]]).toBe("wire_2_integrity");
   });
 
-  it("a product whose declared parent is not the target does nothing (an incoherent ruling), as does a property that is not what the kind consumes", async () => {
+  it("what a kind consumes is the kind's own, whatever property the referee named: grit ruled with concealment still comes away, the tile untouched (OPEN-VARIANT.md §25)", async () => {
+    // §24.2: with the tile's properties listed, the live referee answered concealment for grit, every time.
+    const { openWorld: w, resolver, referee } = setup({ ...RULINGS, [TAKE_GRIT]: { ...RULINGS[TAKE_GRIT], property: "concealment" } });
+    const made = await half(w, resolver, referee, "prisoner", TAKE_GRIT, 1);
+    expect(made.derived?.id).toBe("grit");
+    expect(made.outcome?.transitions).toEqual([]);
+  });
+
+  it("a wire ruled with property none still wears the cot's integrity, the property the kind consumes (OPEN-VARIANT.md §25)", async () => {
+    const { openWorld: w, resolver, referee } = setup({ ...RULINGS, [CUT_WIRE]: { ...RULINGS[CUT_WIRE], property: "none" } });
+    const made = await half(w, resolver, referee, "prisoner", CUT_WIRE, 1);
+    expect(made.derived?.id).toBe("wire");
+    expect(getResource(w.resourceIdFor["cot.integrity"])?.value).toBeLessThan(100);
+  });
+
+  it("a product whose declared parent is not the target does nothing (an incoherent ruling)", async () => {
     const { openWorld: w, resolver, referee } = setup({
       ...RULINGS,
       [CUT_WIRE]: { ...RULINGS[CUT_WIRE], product: "strip" },
@@ -212,8 +227,8 @@ describe("deriving, through a half-round (OPEN-VARIANT.md §13.1, §13.5)", () =
     expect(wrongParent.plan).toBeNull();
     expect(wrongParent.outcome).toBeNull();
     expect(w.derived).toEqual([]);
-    const wrongProperty = await half(w, resolver, referee, "prisoner", TAKE_GRIT, 2);
-    expect(wrongProperty.plan).toBeNull();
+    const wrongParentAgain = await half(w, resolver, referee, "prisoner", TAKE_GRIT, 2);
+    expect(wrongParentAgain.plan).toBeNull();
     expect(itemsOwnedBy(w.base.prisonerId)).toHaveLength(1);
   });
 

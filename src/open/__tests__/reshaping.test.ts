@@ -132,7 +132,7 @@ describe("reshaping, through a half-round (OPEN-VARIANT.md §14.2)", () => {
     expect(renderOwnOutcome(twisted)).toBe("Your last attempt made a cord from the strip of wool: you hold it now, as cord, and the strip of wool is gone.");
   });
 
-  it("the product's declared parent must be the target's recorded kind; a reshape names property none; a §4.1 object is never a kind's parent", async () => {
+  it("the product's declared parent must be the target's recorded kind; a §4.1 object is never a kind's parent; a reshape with a property named still reshapes (§25)", async () => {
     const wrongKind = setup([
       scriptedReferee({
         ...RULINGS,
@@ -145,10 +145,10 @@ describe("reshaping, through a half-round (OPEN-VARIANT.md §14.2)", () => {
     const hookFromStrip = await half(wrongKind.openWorld, wrongKind.resolver, wrongKind.referee, "prisoner", BEND_HOOK, 2);
     expect(hookFromStrip.plan).toBeNull();
     const cordWithProperty = await half(wrongKind.openWorld, wrongKind.resolver, wrongKind.referee, "prisoner", TWIST_CORD, 3);
-    expect(cordWithProperty.plan).toBeNull();
+    expect(cordWithProperty.derived?.kindId).toBe("cord");
     const hookFromCot = await half(wrongKind.openWorld, wrongKind.resolver, wrongKind.referee, "prisoner", CUT_WIRE + " again", 4);
     expect(hookFromCot.plan).toBeNull();
-    expect(wrongKind.openWorld.derived.map((d) => d.id)).toEqual(["strip"]);
+    expect(wrongKind.openWorld.derived.map((d) => d.kindId)).toEqual(["cord"]);
   });
 
   it("a destroyed object's id is never reused: the next wire after a reshaped one is wire_2", async () => {

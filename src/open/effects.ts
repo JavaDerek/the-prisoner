@@ -258,7 +258,7 @@ export function planEffect(params: {
  * facts it is handed, so the number is copied from a fact, never chosen.
  */
 function planDerive(params: Parameters<typeof planEffect>[0]): EffectPlan | null {
-  const { targetObjectId, property, magnitude, resourceIdFor, description } = params;
+  const { targetObjectId, magnitude, resourceIdFor, description } = params;
   const lookup = params.declaredProperty ?? findProperty;
   const derive = params.derive;
   if (!derive || derive.product === "none") return null;
@@ -266,7 +266,9 @@ function planDerive(params: Parameters<typeof planEffect>[0]): EffectPlan | null
   if (!kind) return null;
   const parentIsKind = findKind(kind.parent) !== undefined;
   if (parentIsKind ? derive.parent?.kindId !== kind.parent : kind.parent !== targetObjectId) return null;
-  if ((kind.consumes ?? "none") !== property) return null;
+  // OPEN-VARIANT.md §25: what comes away is the kind's own declaration, never
+  // the referee's separate property answer -- the same choice §19 made for a
+  // way out's passage. The answer's citation still grounds it (`referee.ts`).
   const replaced = kind.replacesParent ? derive.parent : undefined;
   if (kind.replacesParent && (!replaced || kind.consumes !== null)) return null;
 

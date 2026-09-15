@@ -157,20 +157,20 @@ describe("planEffect: derive (OPEN-VARIANT.md §13.5)", () => {
     expect(plan?.derived?.description).toContain('It came away from the cot, where "the springs are held to the frame by twists of wire".');
   });
 
-  it("a kind that consumes nothing has no parent leg and needs property none", () => {
+  it("a kind that consumes nothing has no parent leg, whatever property the referee named (§25)", () => {
     const plan = planEffect({ targetObjectId: "loose_tile", effectKind: "derive", property: "none", magnitude: "slight", ...cotIds, derive: { ...derive, product: "grit", newObjectId: "grit" }, description: "x" });
     expect(plan?.parameters.parent).toBeNull();
     expect(plan?.resourceId).toBeNull();
     expect(plan?.isWearType).toBe(false);
-    expect(planEffect({ targetObjectId: "loose_tile", effectKind: "derive", property: "integrity", magnitude: "slight", ...cotIds, derive: { ...derive, product: "grit" }, description: "x" })).toBeNull();
+    expect(planEffect({ targetObjectId: "loose_tile", effectKind: "derive", property: "concealment", magnitude: "slight", ...cotIds, derive: { ...derive, product: "grit" }, description: "x" })?.parameters.parent).toBeNull();
   });
 
-  it("refuses: product none, an unknown product, a product whose parent is not the target, a property other than what the kind consumes, and no derive details at all", () => {
+  it("refuses: product none, an unknown product, a product whose parent is not the target, and no derive details at all; a property answer never decides (§25)", () => {
     const base = { targetObjectId: "cot", effectKind: "derive" as const, magnitude: "moderate" as const, ...cotIds, description: "x" };
     expect(planEffect({ ...base, property: "integrity", derive: { ...derive, product: "none" } })).toBeNull();
     expect(planEffect({ ...base, property: "integrity", derive: { ...derive, product: "shiv" } })).toBeNull();
     expect(planEffect({ ...base, property: "integrity", derive: { ...derive, product: "strip" } })).toBeNull();
-    expect(planEffect({ ...base, property: "none", derive: { ...derive, product: "wire" } })).toBeNull();
+    expect(planEffect({ ...base, property: "none", derive: { ...derive, product: "wire" } })?.parameters.parent).not.toBeNull();
     expect(planEffect({ ...base, property: "integrity" })).toBeNull();
   });
 });
@@ -205,10 +205,10 @@ describe("planEffect: reshaping (OPEN-VARIANT.md §14.2)", () => {
     expect(plan?.derived?.description).toContain('It came away from the length of wire, where "with a kink at one end".');
   });
 
-  it("refuses: a target with no recorded kind, a target of another kind, a property named, and a kind parent matched by id alone", () => {
+  it("refuses: a target with no recorded kind, a target of another kind, and a kind parent matched by id alone; a property named does not refuse (§25)", () => {
     expect(planEffect({ ...base, property: "none", derive })).toBeNull();
     expect(planEffect({ ...base, property: "none", derive: { ...derive, parent: { ...wireParent, kindId: "strip" } } })).toBeNull();
-    expect(planEffect({ ...base, property: "integrity", derive: { ...derive, parent: wireParent } })).toBeNull();
+    expect(planEffect({ ...base, property: "integrity", derive: { ...derive, parent: wireParent } })).not.toBeNull();
     expect(planEffect({ ...base, targetObjectId: "wire", entityIdFor: { wire: "e-wire" }, property: "none", derive })).toBeNull();
   });
 

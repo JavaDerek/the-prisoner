@@ -313,6 +313,8 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(property?.prompt).toContain("The properties each object has: bar: integrity; loose_tile: concealment; bucket: none.");
     expect(property?.prompt).toContain("Name only a property the target has; if it has none that fits, answer none.");
     expect(property?.prompt).toContain("concealment for what may be hidden in, under or beneath it");
+    // §24.2: the bucket's struck noise came back with no property answer at all, so no grounding.
+    expect(property?.prompt).toContain("An answer of none still needs the words in the target's description that make the effect possible");
   });
 
   it("an object made in this game lists its own properties, from the caller's world (OPEN-VARIANT.md §24)", async () => {

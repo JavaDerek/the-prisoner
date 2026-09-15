@@ -1412,3 +1412,20 @@ Every recorded intent from the three games (67) was re-ruled once with the new p
 - **Unchanged referee omissions:** the three blank targets (the lock, the bar's mortar, the blanket
   thread) and the grit-scatter blank effect stay blank; two tile examinations lost their target and
   two their effect.
+
+## 25. What a derive consumes is the kind's; an answer of none still cites (2026-09-15)
+
+§24.2's two remaining failures, fixed the way each allowed:
+
+- **Grit:** the three `derive`/`grit` rulings named `concealment`, and `planDerive` refused any property
+  answer other than what the kind consumes. What comes away is now the kind's own declaration
+  (`consumes`), never the referee's separate answer, the same choice §19 made for a way out's passage;
+  the answer's description citation still grounds the derive (§13.1). This also means a reshape or a
+  wire ruled with a mismatched property now resolves, where it was refused.
+- **Noise:** the bucket's property came back as the safe default with no citation at all, so the
+  fix could not be code without allowing an ungrounded ruling (§2 invariant 3). The property question
+  now says an answer of none still needs the description words that make the effect possible.
+
+Re-ruled live (`qwen2.5:14b`): the bucket strike works again, and all three grit gatherings now make
+grit. "Scoop dry grit from the loose tile into the hollow" is still ruled a `reveal`, a look rather than
+the gathering.

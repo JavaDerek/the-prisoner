@@ -206,6 +206,7 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         // OPEN-VARIANT.md §24.
         "Or concealment for what may be hidden in, under or beneath it. " +
         `The properties each object has: ${propertyList}. Name only a property the target has; if it has none that fits, answer none. ` +
+        "An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). " +
         "Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
       answerKeys: [...PROPERTY_ANSWER_KEYS],
