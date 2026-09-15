@@ -56,6 +56,7 @@ import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, type Silenc
 import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
 import { recordGame, precedentLines } from "./open/precedent.js";
+import { readPickCondition } from "./open/pickCondition.js";
 
 const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoint-${Date.now()}.db`;
 process.env.DMCP_DB_PATH = dbPath;
@@ -119,6 +120,9 @@ const REFEREE_TIMEOUT_MS = process.env.PRISONER_REFEREE_TIMEOUT_MS ? Number(proc
  *  perceived attempts afterwards. Unset: the baseline, unchanged. */
 const PRECEDENT_LEDGER = process.env.PRISONER_PRECEDENT_LEDGER;
 const PRECEDENT_LIMIT = 10;
+/** Open variant only: the pick condition (`src/open/pickCondition.ts`,
+ *  OPEN-VARIANT.md §21). Unset: the baseline, unchanged. */
+const PICK = readPickCondition(process.env.PRISONER_PICK);
 const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
@@ -730,6 +734,11 @@ async function mainOpen(): Promise<void> {
   } else {
     transcript.push("Precedent condition: OFF (baseline).");
   }
+  transcript.push(
+    PICK
+      ? `Pick condition: ON (\`PRISONER_PICK=${process.env.PRISONER_PICK}\`): every even-numbered prisoner turn is forced off anything the warden has seen, in earlier games or this one (§21).`
+      : "Pick condition: OFF (baseline)."
+  );
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
@@ -748,6 +757,7 @@ async function mainOpen(): Promise<void> {
       prisonerMind,
       rounds: ROUNDS,
       ...(precedent ? { precedent } : {}),
+      ...(PICK ? { pick: PICK } : {}),
       onHalfRound: (half) => {
         const ms = performance.now() - halfStart;
         timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);

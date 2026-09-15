@@ -5,6 +5,7 @@ import { computePerceivedObjects } from "./briefing.js";
 import type { Referee, RefereeRuling } from "./referee.js";
 import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
+import { pick, type Verdict } from "./pick.js";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
@@ -67,6 +68,11 @@ export interface OpenHalfRoundResult {
    *  (OPEN-VARIANT.md §14.2): the object now gone, and whether the other
    *  principal perceived it when the act began (§14.4). */
   reshaped: { parent: DerivedObjectRecord; seenByOther: boolean } | null;
+  /** The pick condition (OPEN-VARIANT.md §21), on a forced turn only: the
+   *  mind's own intent and every candidate's verdict. When `overridden`,
+   *  `proposal.intent` is the chosen candidate, the text actually ruled on.
+   *  `null` on a free turn, and always outside the condition. */
+  pick: { own: string; forced: boolean; overridden: boolean; verdicts: readonly { candidate: string; verdict: Verdict }[] } | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -238,14 +244,38 @@ export async function runOpenHalfRound(params: {
   /** Prisoner attempts the warden already knows on sight (`precedentTextFor`
    *  texts). Absent outside the precedent condition. */
   knownApproaches?: readonly string[];
+  /** The pick condition (OPEN-VARIANT.md §21), present only on a forced
+   *  prisoner turn: every approach counted as seen -- the ledger's known
+   *  approaches plus what the warden saw earlier this game. Recognition only:
+   *  the known-approach cost still reads `knownApproaches` alone. */
+  forcePick?: { readonly seen: readonly string[] };
 }): Promise<OpenHalfRoundResult> {
   const { openWorld, resolver, referee, principal, roundN, t, context, mind } = params;
-  const base = { principal, t, roundN, context };
 
-  const proposal = await mind.consider(context);
-  if (proposal === null) {
-    return { ...base, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
+  const considered = await mind.consider(context);
+  if (considered === null) {
+    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
   }
+
+  // §21: the recogniser is the referee itself, so "seen" means exactly what
+  // the precedent ledger would have recorded for that text. A reshaping is
+  // not recognised here (it needs the parent's kind, §14.4).
+  let picked: OpenHalfRoundResult["pick"] = null;
+  let proposal: OpenProposal = considered;
+  if (principal === "prisoner" && params.forcePick) {
+    const known = params.forcePick.seen;
+    const result = await pick(considered.intent, (considered.candidates ?? []).map((c) => c.text), {
+      force: true,
+      recognise: async (text) => {
+        const ruling = await referee.rule(text, context.perceivedObjects);
+        if (!ruling.applicable) return "unavailable";
+        return known.includes(precedentTextFor(ruling)) ? "seen" : "unseen";
+      },
+    });
+    picked = { own: considered.intent, forced: result.forced, overridden: result.overridden, verdicts: result.verdicts };
+    if (result.overridden) proposal = { ...considered, intent: result.chosen };
+  }
+  const base = { principal, t, roundN, context, pick: picked };
 
   // Notes to self, persisted before the referee rules -- exactly the closed
   // variant's `runHalfRound`: a note is the mind's own memo, independent of

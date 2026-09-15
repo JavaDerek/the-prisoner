@@ -1226,3 +1226,41 @@ Exactly what §20 set out to answer, no more: iterate is real, grounded, reusabl
 proven with a real caller before `mother-of-invention` commits to a shape for it. Pick -- forcing a
 choice biased against `seenBefore`, or costing a known one explicitly -- is untouched, reproduces the
 same failure §11 already named, and is deliberately left for a later step.
+
+## 21. Pick: forced turns away from what the warden has seen (owner's decision, 2026-09-15, designed before a live game)
+
+§20.2 showed listing alternatives does not change the choice; §11.4 showed a stated cost does not
+either. The owner chose a **partial, declared force**: a consequence was already tried, so this step
+tests whether actually doing an unseen thing changes anything, while keeping half the turns free so
+the mind's own choices are still measured.
+
+### 21.1 The mechanism
+
+- **`src/open/pick.ts`, generic by intent** (mother-of-invention#1's "pick" half, driven here first):
+  `pick(own, candidates, { force, recognise })`. The caller injects `recognise`, which returns `seen`,
+  `unseen` or `unavailable` per text, because whether a text is a known approach is a judgement about
+  meaning and code never makes one. On a free turn the recogniser is never called and the mind's choice
+  stands. On a forced turn, a choice that is not `unseen` is replaced by the first `unseen` candidate in
+  the mind's own order; with none, the mind's choice stands. Code picks among the mind's own texts and
+  never writes one.
+- **The recogniser is the referee itself** (`loop.ts`): each candidate is ruled (cached, no
+  resolution); inapplicable is `unavailable`, so a forced turn is never spent on something impossible;
+  otherwise `precedentTextFor(ruling)` against the seen list decides `seen`. A reshaping is not
+  recognised (it needs the parent's kind, §14.4). Cost: up to six referee calls on a forced turn.
+- **Seen means what the warden saw, in earlier games or this one** (owner's decision): the ledger's
+  known approaches plus `seenAttempts(halves so far)` (`precedent.ts`, the same function `recordGame`
+  now uses, so the two meanings cannot drift). The scripted demonstration without this-game sightings
+  forced the same tile lift three times, the last two doing nothing. A silent attempt is never seen, so
+  a forced turn can still repeat one.
+- **The known-approach cost (§11.3) is unchanged**: it still reads the ledger alone. One variable.
+- **Switch:** `PRISONER_PICK=even` forces even-numbered prisoner turns; unset is the baseline
+  (`pickCondition.ts`). The transcript shows every forced turn's own intent and verdicts, and the
+  summary splits novelty into forced and free turns. **Forced novelty is novel by construction and is
+  not evidence; only free-turn novelty is.**
+
+### 21.2 What the first live game is for
+
+Compare against §20.2 (same models, precedent ledger now one episode longer): does the prisoner's
+choice on **free** turns move off bar work once forced turns have made other things happen, and do
+forced moves get ruled possible and change the world, or is necessity pointed at a room with nothing
+else worth doing?

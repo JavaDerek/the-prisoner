@@ -3,6 +3,7 @@ import type { OpenWorld } from "./world.js";
 import type { Referee } from "./referee.js";
 import type { OpenMind } from "./mind.js";
 import { runOpenHalfRound, type OpenHalfRoundResult } from "./loop.js";
+import { seenAttempts } from "./precedent.js";
 import { checkOpenGameEnd, type OpenGameEnd } from "./gameEnd.js";
 import { buildOpenContext, type OpenNews } from "./briefing.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
@@ -43,6 +44,9 @@ export async function runOpenGame(params: {
   /** Standing knowledge per principal, shown every turn -- the precedent
    *  condition (`precedent.ts`). Absent in the baseline. */
   precedent?: { readonly warden: readonly string[]; readonly prisoner: readonly string[]; readonly known: readonly string[] };
+  /** The pick condition (OPEN-VARIANT.md §21): which prisoner turns are
+   *  forced away from a known approach. Absent in the baseline. */
+  pick?: { readonly force: (roundN: number) => boolean };
   onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
@@ -76,6 +80,7 @@ export async function runOpenGame(params: {
         context,
         mind: minds[principal],
         ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
+        ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []), ...seenAttempts(halves)] } } : {}),
       });
       halves.push(half);
 

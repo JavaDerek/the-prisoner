@@ -126,6 +126,21 @@ describe("open checkpoint transcript", () => {
     expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 18-24: "Rust has pitted it near the bottom,"');
   });
 
+  it("a forced pick shows the mind's own intent and every candidate's verdict, so an override is never silent (§21)", () => {
+    const text = renderOpenHalfRound({
+      principal: "prisoner",
+      t: 3,
+      roundN: 2,
+      context: { principalId: "p", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
+      proposal: { intent: "Lift the tile." },
+      pick: { own: "Scrape the bar.", forced: true, overridden: true, verdicts: [{ candidate: "Scrape the bar.", verdict: "seen" }, { candidate: "Lift the tile.", verdict: "unseen" }] },
+      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null,
+    }).join("\n");
+    expect(text).toContain("**Forced pick:** overrode the mind's own intent: Scrape the bar.");
+    expect(text).toContain("- seen: Scrape the bar.");
+    expect(text).toContain("- unseen: Lift the tile.");
+  });
+
   it("candidates the mind considered are shown for audit, never silently dropped (mother-of-invention#1, 'iterate' half)", () => {
     const text = renderOpenHalfRound({
       principal: "warden",
@@ -146,7 +161,7 @@ describe("open checkpoint transcript", () => {
       perceptionForOther: null,
       revealFor: null,
       derived: null,
-      reshaped: null,
+      reshaped: null, pick: null,
     }).join("\n");
     expect(text).toContain("**Candidates:**");
     expect(text).toContain("Examine the bar closely. (check for damage)");
@@ -155,7 +170,7 @@ describe("open checkpoint transcript", () => {
 
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
-      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null },
+      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null },
       { reason: "unparseable", text: "RAW_MODEL_TEXT" }
     ).join("\n");
     expect(text).toContain("**Silence.** SilenceReason: `unparseable`");

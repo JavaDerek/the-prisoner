@@ -23,14 +23,23 @@ import { findKind } from "./derivedObjects.js";
 
 export function recordGame(ledger: Ledger, episode: string, halves: readonly OpenHalfRoundResult[]): Ledger {
   let next = ledger;
+  for (const text of seenAttempts(halves)) next = witness(next, { episode, actor: "prisoner", observer: "warden", text });
+  return next;
+}
+
+/** What the warden saw of the prisoner's attempts in these half-rounds, in
+ *  the ledger's own words, one entry per attempt. The pick condition reads
+ *  it mid-game (OPEN-VARIANT.md §21), so "seen" there and here never differ. */
+export function seenAttempts(halves: readonly OpenHalfRoundResult[]): string[] {
+  const texts: string[] = [];
   for (const half of halves) {
     if (half.principal !== "prisoner" || half.perceptionForOther === null || half.ruling === null) continue;
     // A reshaping the warden could not see reached it as noise (§14.4): heard, never seen.
     if (half.reshaped && !half.reshaped.seenByOther) continue;
     const reshapeOf = half.reshaped ? findKind(half.reshaped.parent.kindId)?.label : undefined;
-    next = witness(next, { episode, actor: "prisoner", observer: "warden", text: precedentTextFor(half.ruling, reshapeOf) });
+    texts.push(precedentTextFor(half.ruling, reshapeOf));
   }
-  return next;
+  return texts;
 }
 
 function plural(n: number, word: string): string {

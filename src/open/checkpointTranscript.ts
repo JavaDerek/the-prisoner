@@ -146,6 +146,11 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
     lines.push("**Candidates:**");
     for (const c of p.candidates) lines.push(`- ${c.text}${c.reason ? ` (${c.reason})` : ""}`);
   }
+  // OPEN-VARIANT.md §21: an override is shown, never silent.
+  if (half.pick) {
+    lines.push(half.pick.overridden ? `**Forced pick:** overrode the mind's own intent: ${half.pick.own}` : `**Forced pick:** kept the mind's own intent.`);
+    for (const v of half.pick.verdicts) lines.push(`- ${v.verdict}: ${v.candidate}`);
+  }
   lines.push(`**Intent:** ${p.intent}`);
   if (p.line) lines.push(`**Line:** "${p.line}"`);
   if (p.plan) lines.push(`**Plan:** ${p.plan}`);
@@ -282,5 +287,20 @@ export function renderOpenSummary(game: OpenGameResult, rounds?: number): string
   lines.push(`Fog audit: ${fog.checked} contexts checked, ${fog.leaks.length} leaks.`);
   for (const leak of fog.leaks) lines.push(`  - round ${leak.roundN}, ${leak.principal}'s context holds the other's ${leak.field}`);
   lines.push("");
+
+  // OPEN-VARIANT.md §21: forced turns are novel by construction, so novelty
+  // is split -- only a change on free turns says anything about the mind.
+  const prisonerTurns = game.halves.map((h, i) => ({ h, novel: records[i].novel })).filter((x) => x.h.principal === "prisoner");
+  const forced = prisonerTurns.filter((x) => x.h.pick?.forced);
+  if (forced.length > 0) {
+    const free = prisonerTurns.filter((x) => !x.h.pick?.forced);
+    const overridden = forced.filter((x) => x.h.pick?.overridden).length;
+    const stuck = forced.filter((x) => x.h.pick && !x.h.pick.overridden && x.h.pick.verdicts.every((v) => v.verdict !== "unseen")).length;
+    lines.push("## Pick condition (OPEN-VARIANT.md §21)");
+    lines.push("");
+    lines.push(`Forced prisoner turns: ${forced.length} (overridden ${overridden}, nothing unseen to force to ${stuck}). Novel: ${forced.filter((x) => x.novel).length}.`);
+    lines.push(`Free prisoner turns: ${free.length}. Novel: ${free.filter((x) => x.novel).length}.`);
+    lines.push("");
+  }
   return lines;
 }
