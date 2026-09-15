@@ -1511,3 +1511,22 @@ fixes:
 The general lesson, that a description implying more of something than the world models misleads a
 model into planning for what is not there, is added to run-dmcp's `docs/AUTHORING-GUIDE.md` in that
 repository's neutral vocabulary, per this repository's CLAUDE.md.
+
+### 27.1 The second passive game (`checkpoints/2026-09-15T22-07-56-761Z.md`)
+
+Settings as §26.1, with §27's descriptions and outcome line. Result: **timeout at round 20. The window
+was passable from round 10; she never tried to climb through.**
+
+- **Round 10's pry opened the window** (bar 24, under §24's threshold) and she was told "Your last
+  attempt opened the window." Rounds 11 to 19 went to prying the bar further, nine times, each told only
+  "The window was already open." Her plan throughout: "1. Finish removing the bar with the spoon.
+  2. Climb through the window." Round 20 wore the bar to 0 and got §27's "The window can be climbed
+  through now", on the last turn.
+- **Cause: this document's own two changes disagree.** §27 says a person can climb through "with that
+  bar gone". §24 lets a pry open the window while the bar still stands (at or below 50), and the
+  outcome for that says the window opened, never that the bar is out of the way. From her side the bar
+  was still there, so step 1 was not done, so step 2 never came. §27's second lesson ("say the new
+  action, not the changed number") was applied to wear reaching 0 and not to open, which is the other
+  way the same window becomes passable.
+- Plans held (18 of 19 kept) and nothing was ruled impossible, so everything short of the last step
+  worked.
