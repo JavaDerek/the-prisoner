@@ -1366,3 +1366,49 @@ suspicion 100 (§22.1: caught at 12, bar 39).
   ruled impossible or do nothing, and failure drives churn. Same conclusion as §21.3 from a different
   mechanism: the constraint is what the referee and world will let a new idea do, not the mind's
   willingness to try one.
+
+## 24. The referee is told each object's properties; a way out opens only when its part allows it (owner's decisions, 2026-09-15)
+
+The investigation after §23.1 classified the 24 prisoner and warden moves across §21.3, §22.1 and §23.1
+that were ruled impossible or did nothing. 19 named a property the target does not declare, 17 of them
+`integrity` on the loose tile (which declares only `concealment`, §15.2). Separately, §21.3's round 1
+opened the window in one scrape at full bar integrity, unnoticed. Two fixes; the transcript label and
+the other principal's "opens the bar" are the-prisoner#6, and material acting on another object is a
+case on #5.
+
+### 24.1 What changed
+
+- **The property question lists each perceived object's own properties** ("bar: integrity;
+  loose_tile: concealment; bucket: none") and says to name only one the target has, and that
+  concealment is the property for what may be hidden in or beneath something. The keys offered are
+  still the same four for every target, because the target is answered in the same request. A world
+  that has derived objects lists theirs (`declaredPropertyKeys`).
+- **A way out may declare a threshold on its part** (`OpenExit.openWhenPartAtMost`). The window's is
+  the bar at or below 50, the line a catch already treats as visibly compromised; the door has none,
+  since its own description grounds pushing the bolt back through the gap. `OPEN_PASSAGE` replaces the
+  `OPEN_RESTORE`/`OPEN_WEAR` pair for open and close, and an open that the part does not yet allow
+  changes nothing and returns `opened: false`. The threshold applies whichever object the referee named,
+  window or bar. The actor's own outcome now names the way out ("met the window shut: it will not open
+  yet", "opened the window"), which is half of #6.
+
+### 24.2 Checked against the live referee before any game
+
+Every recorded intent from the three games (67) was re-ruled once with the new prompt against
+`qwen2.5:14b` (temporary script, not committed), then planned against a fresh world:
+
+- **No loose-tile ruling names `integrity` any more.** 10 moves that failed now do something; 42 that
+  worked still do; 14 still fail; 1 that worked now fails.
+- **The 10:** six examinations or digs at the tile (both principals) now resolve as `reveal`
+  concealment, which is what they were. Four were attempts to **gather grit**, and they now resolve as a
+  look or a wear on the tile's concealment: something happens, but not the gathering.
+- **Grit still cannot be gathered.** The three rulings that got `derive`/`grit` now name `concealment`
+  where the property should be `none` (grit takes nothing from the tile), so the plan is still refused.
+- **The one that broke:** "Strike the bucket with the spoon" was `noise` with a (wrong) `integrity`;
+  it is now `noise` with `none`, as the list says, and noise still requires a grounding citation on
+  that answer.
+- **Changed meaning while still working, 4:** round 1's scrape "to loosen" is now `wear`, not `open`
+  (correct); two "apply grit to the bar" became `reveal` of the bar instead of `wear` (wrong); one
+  retargeted the bar work onto the tile's concealment.
+- **Unchanged referee omissions:** the three blank targets (the lock, the bar's mortar, the blanket
+  thread) and the grit-scatter blank effect stay blank; two tile examinations lost their target and
+  two their effect.
