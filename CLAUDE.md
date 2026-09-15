@@ -73,6 +73,13 @@ description) — never a regex, never code deciding what prose means. Code can v
 is verbatim and from the right source; it cannot verify that the quote justifies the ruling, so that
 judgement is audited by humans in transcripts, never approximated by a lexical check.
 
+**Before declaring a new object or effect, check run-dmcp's `docs/AUTHORING-GUIDE.md`.** OPEN-VARIANT
+§19 is in there, generalised: an object your referee targets and the object whose property actually
+changes can silently diverge when one interaction spans two objects, because an instruction that lives
+in only one reader question's prompt does not reach another question's answer. If you find a new
+authoring lesson here, generalise it into that guide (its own neutral vocabulary, never this
+repository's words) rather than leaving it only in this game's own docs.
+
 ## Never run against a real database
 
 `DMCP_DB_PATH=:memory:` is set process-wide in `src/test-setup.ts`, exactly as brink-workshop's own
