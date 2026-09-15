@@ -1012,5 +1012,12 @@ The fix restores parity with quoted citations. **What it does not fix, and what 
 warden examination ruled `wear` about half the time on these requests, where §13.7's game 3 ruled every
 one `reveal`. These requests differ from game 3's in both intent wording (*"for signs of additional
 wear or tampering"*) and question text (§14's and §17's additions to the effect and property
-questions), and the replays above cannot separate the two. Open; it matters because a warden whose
+questions). **A fourth replay separates them**: game 1's requests with the effect and property
+questions put back to game 3's exact text, fix transport
+(`checkpoints/2026-09-15-open-referee-replay-game1-oldquestions-N1.txt`). Warden examinations of the bar
+ruled `reveal`: **4 of 9, the same as with the new text.** The question changes are not the cause. The
+referee reads an examination whose words name what is looked for (*"signs of additional damage or
+wear"*) as the act named, where game 3's warden wrote *"hidden damage"*; and a `reveal` it does give is
+paired with `concealment`, a property the bar does not declare, so it is ruled impossible anyway.
+Open, and a referee-judgement question, not a mechanics one: it matters because a warden whose
 examinations are wear never reaches catch and wears the bar for the prisoner.
