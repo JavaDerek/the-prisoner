@@ -1059,3 +1059,18 @@ recorded requests with those lines removed, nothing else changed
 the bar `wear` in 10 of 11** (one `restore`), warden examinations still `reveal` in 11 of 11. This is
 §11.2's confound in a new form. Awaiting the owner: show each earlier ruling with the intent it ruled
 on, or drop the block.
+
+### 18.7 Earlier rulings with their intents: tried, did not help, not kept (2026-09-14)
+
+The owner's first choice for §18.6: prefix each earlier-ruling line with the intent it ruled on
+(`intent="Examine the bar closely…" effect=reveal …`). Built test-first (560 tests green), then checked
+by **re-ruling** both §18.6 games' intents in order through a live referee, so the block was rebuilt by
+the new code rather than replayed from the recording (a temporary script, not committed; results in
+`checkpoints/2026-09-15-open-referee-rerule-185games-intent-in-earlier-rulings-N1.txt`).
+
+**Result: no improvement.** Prisoner work on the bar in game 1: `reveal` in 8 of 11 (1 `wear`, 2
+`none`), against 5 of 12 in the game itself; game 2 similar. Round 1's scrape, whose only earlier line
+was the warden's examination *with its intent shown*, was still ruled `reveal`. The referee copies the
+ruling whether or not it can see the act it was made on. The change was reverted and is not in the
+code; §18.6's replay with the block removed (prisoner `wear` 10 of 11) remains the only evidence of a
+fix. Awaiting the owner: drop the block.
