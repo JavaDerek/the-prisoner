@@ -1264,3 +1264,27 @@ Compare against §20.2 (same models, precedent ledger now one episode longer): d
 choice on **free** turns move off bar work once forced turns have made other things happen, and do
 forced moves get ruled possible and change the world, or is necessity pointed at a room with nothing
 else worth doing?
+
+### 21.3 The first live game (`checkpoints/2026-09-15T19-18-46-428Z.md`)
+
+Same models and settings as §20.2; precedent ledger at 18 earlier episodes; `PRISONER_PICK=even`.
+Result: **timeout at round 12**; bar 47, warden suspicion 100, no catch.
+
+- **The mechanism held up live.** 6 forced turns: 3 overridden, 1 kept an unseen own intent, 2 had
+  nothing unseen to force to. All 3 overrides were ruled possible, and none was a known approach:
+  scooping grit from the tile (round 2), examining the cot's springs (6), striking the bucket (8).
+- **Forced moves changed nothing that matters.** The grit scoop was ruled `derive` yet made nothing
+  (derived objects: 0); the springs reveal was information only; the bucket noise has no mechanical
+  effect. Forced novelty 4 is by construction.
+- **Free turns did not move off the bar.** Free novelty 1 is round 1's scrape misruled as `open`
+  (below), not a new idea. Every free turn went at the bar or its mortar; three of six (3, 7, 11)
+  brought in the tile's grit, which the mind listed as a candidate in round 1, before any forced turn,
+  so this does not show the forcing carried over. Two of those were ruled impossible.
+- **A gap in the rule:** with nothing unseen, a forced turn keeps the mind's own intent even when that
+  is `unavailable` (round 10: ruled impossible, a wasted turn). The alternative, a seen but possible
+  candidate, would pay the known-approach cost instead. Undecided.
+- **Not pick, but found here:** round 1's "Scrape the rusted bar with the spoon to loosen it" was
+  ruled `open` on the bar and resolved `bar_integrity: 0 -> 1` -- values that look like a passage, not
+  the bar's integrity of 100 -- with "Your last attempt opened the bar." Worth checking against §19's
+  redirection to the way out before the next game: it may have opened the window at round 1, unnoticed.
+- The warden varied its target 3 times (lock in round 2, tile in 9 and 12; both tile turns impossible).
