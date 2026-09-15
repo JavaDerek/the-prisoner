@@ -1559,3 +1559,11 @@ Settings as §27.1, with §28's wording. Result: **timeout at round 20, one step
   the cot's wire", were ruled `wear` on the **bar**, with verified citations (a target citation only has
   to be words from the intent, not the object's name). Round 13's took the bar from 9 to 0. Code cannot
   catch this (§10.6); it is recorded, not fixed.
+
+## 29. The window is within reach (owner's decision, 2026-09-15)
+
+§28.1's cause, fixed as §27 fixed the bar count: nothing in the world models height or reach, so the
+window's description no longer claims it. Window: *"A small window set in the wall at shoulder height,
+a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest
+gap: with that bar gone, a person could climb through."* The next passive game runs 30 rounds rather
+than 20: wearing the bar through takes about nine, and §28.1 ran out of rounds one step short.

@@ -95,8 +95,8 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
 
     const window = findObject("window");
     expect(window?.heldBy).toBe("the cell wall");
-    // OPEN-VARIANT.md §27: one bar is the whole obstacle, and the text says so.
-    expect(window?.description).toBe("A small window high in the wall, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.");
+    // OPEN-VARIANT.md §27: one bar is the whole obstacle, and the text says so; §29: nothing models reach, so the window is within it.
+    expect(window?.description).toBe("A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.");
     expect(window?.properties.map((p) => p.key)).toEqual(["passage"]);
     expect(findProperty("window", "passage")).toEqual(expect.objectContaining({ resourceName: "window_passage", min: 0, max: 1, initialValue: 0 }));
 

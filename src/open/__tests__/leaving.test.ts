@@ -253,7 +253,7 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     const opened = await half(w, "I lever the bars out of the window.", scripted("window", "open", "passage", "lever the bars out of the window", "a single rusted bar closes its widest gap"), 1);
     // §28: the window opens only by its bar coming free, and the actor is told that, as the action it opens up.
     expect(renderOwnOutcome(opened)).toBe("Your last attempt worked the bar free of the window: the window can be climbed through now.");
-    const left = await half(w, "I climb out of the window.", scripted("window", "leave", "none", "climb out of the window", "A small window high in the wall"), 2);
+    const left = await half(w, "I climb out of the window.", scripted("window", "leave", "none", "climb out of the window", "A small window set in the wall"), 2);
     expect(renderOwnOutcome(left)).toBe("You are out of the cell, through the window.");
     expect(left.perceptionForOther).toBe("Mara Voss makes for the window.");
   });

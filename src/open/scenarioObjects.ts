@@ -94,8 +94,8 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
     id: "window",
     heldBy: "the cell wall",
     description:
-      // OPEN-VARIANT.md §27: the world models one bar as the whole obstacle, so the text says so.
-      "A small window high in the wall, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.",
+      // OPEN-VARIANT.md §27: the world models one bar as the whole obstacle, so the text says so. §29: nothing models reach, so the window is within it.
+      "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.",
     properties: [
       {
         // 0 shut, 1 open, changed only by `open`/`close` (effects.ts refuses

@@ -94,7 +94,7 @@ export const RULINGS: Record<string, ScriptedRuling> = {
     magnitude: "slight",
     perceptibility: "visible",
     intentQuote: "climb out through the window",
-    descQuote: "A small window high in the wall",
+    descQuote: "A small window set in the wall",
   },
   [CUT_WIRE]: {
     target: "cot",
