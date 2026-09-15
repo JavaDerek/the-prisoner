@@ -1326,3 +1326,22 @@ Same models and settings as §20.2, no pick. Result: **caught at round 12**, bar
   the model fills the string either way.
 - **The plan never reached its later steps.** The prisoner stayed on step 1 until caught; its plan
   set "break the bar below 50" as the trigger for escaping, which is not the escape rule (§12).
+
+## 23. Replan honestly, and pick at replan time (owner's decision, 2026-09-15)
+
+Two changes on top of §22, measured together against §22.1 (same models, plans carried):
+
+- **`replanned` is a boolean** the mind answers about itself, and `replanBecause` is kept only beside
+  `true`. §22.1's free-text field was filled with "Following the original plan..." either way, so its
+  count meant nothing. The prompt says a reworded plan is not a new one.
+- **Pick moves to replan time** (`PRISONER_PICK=replan`; `even`, §21, stays available). Plans now hold
+  for many turns (§22.1), so novelty is forced where a plan is chosen, not on single turns that break
+  one. On a prisoner turn with a new plan (`replanned: true`, or the first plan of the game), the plan's
+  first step is ruled by the referee; if it is an approach the warden has seen (earlier games or this
+  one, as §21), the mind is **sent back once**, told which approach, to make a different plan. Code
+  never substitutes a step, and the second answer stands whatever it is. Kept plans are never checked,
+  so a plan may return to a known approach at a later step; the known-approach cost (§11.3) still applies
+  there. The summary counts new plans checked, sent back, and whose first step changed.
+
+For the first game: does the replan count now match what a reader sees, do sent-back plans start
+somewhere new and still hold, and is the outcome better, worse or the same as §22.1?

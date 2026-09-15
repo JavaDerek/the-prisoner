@@ -9,7 +9,7 @@ import { precedentLines } from "../precedent.js";
 import { recordIntent } from "../transcript.js";
 import { pick, type Verdict } from "../pick.js";
 import { readPickCondition } from "../pickCondition.js";
-import { renderOpenSummary } from "../checkpointTranscript.js";
+import { renderOpenSummary, renderOpenHalfRound } from "../checkpointTranscript.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
 import { scriptedReferee, RULINGS, SCRAPE, LIFT_TILE, TEAR_STRIP, WAIT } from "./helpers/scriptedReferee.js";
 
@@ -112,7 +112,8 @@ describe("pick in a scripted game: a mind that always goes for the known approac
     expect(briefing(3)).toContain("warden suspicion: 90.");
     // The tile lift is "seen" to round 4's pick by this game's sighting, and still not a known approach.
     const round4 = game.halves.find((h) => h.principal === "prisoner" && h.roundN === 4);
-    expect(round4?.pick?.verdicts[2]).toEqual({ candidate: LIFT_TILE, verdict: "seen" });  });
+    expect(round4?.pick?.verdicts[2]).toEqual({ candidate: LIFT_TILE, verdict: "seen" });
+  });
 });
 
 describe("pick in the checkpoint: the switch and the summary (§21)", () => {
@@ -142,5 +143,92 @@ describe("pick in the checkpoint: the switch and the summary (§21)", () => {
     expect(text).toContain("## Pick condition (OPEN-VARIANT.md §21)");
     expect(text).toContain("Forced prisoner turns: 2 (overridden 2, nothing unseen to force to 0). Novel: 2.");
     expect(text).toContain("Free prisoner turns: 2. Novel: 0.");
+  });
+});
+
+describe("pick at replan time: a new plan may not start with what the warden has seen (§23)", () => {
+  afterEach(() => destroyTestDb());
+
+  const known = precedentLines([{ text: "A prisoner works at the bar.", times: 12, episodes: 3, lastEpisode: "g3" }]);
+
+  // Bar plan by default; told its first step is seen, a tile plan; carries on with the tile plan.
+  function planner(calls: string[]): OpenMind {
+    return {
+      async consider(context) {
+        if (context.briefing.includes("has already seen")) {
+          calls.push("reasked");
+          return { intent: LIFT_TILE, plan: "TILE_PLAN", replanned: true, replanBecause: "Croft knows the bar." };
+        }
+        if (context.briefing.includes("Your plan, from your last turn: TILE_PLAN")) {
+          calls.push("kept");
+          return { intent: SCRAPE, plan: "TILE_PLAN", replanned: false };
+        }
+        calls.push("new");
+        return { intent: SCRAPE, plan: "BAR_PLAN", replanned: true };
+      },
+    };
+  }
+
+  async function play(prisonerMind: OpenMind, rounds = 2): Promise<OpenGameResult> {
+    createTestDb();
+    return runOpenGame({
+      openWorld: buildOpenWorld(),
+      resolver: buildOpenResolver(),
+      referee: createReferee([scriptedReferee(RULINGS)]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: WAIT }),
+      prisonerMind,
+      rounds,
+      precedent: known,
+      pick: readPickCondition("replan") as NonNullable<ReturnType<typeof readPickCondition>>,
+    });
+  }
+
+  it("PRISONER_PICK=replan forces no turn by number", () => {
+    const replan = readPickCondition("replan");
+    expect([1, 2, 3].map((n) => replan?.force(n))).toEqual([false, false, false]);
+    expect(replan?.onReplan).toBe(true);
+  });
+
+  it("a new plan starting with a seen step is sent back once, and the plan chosen then is the one carried and run", async () => {
+    const calls: string[] = [];
+    const game = await play(planner(calls));
+    const prisoner = game.halves.filter((h) => h.principal === "prisoner");
+    expect(calls).toEqual(["new", "reasked", "kept"]);
+    expect(prisoner[0].proposal?.intent).toBe(LIFT_TILE);
+    expect(prisoner[0].pick).toMatchObject({ own: SCRAPE, forced: true, overridden: true, reasked: true });
+    // Round 2 carries on with the plan it was sent back to make, and a kept plan is never checked.
+    expect(prisoner[1].context.briefing).toContain("Your plan, from your last turn: TILE_PLAN");
+    expect(prisoner[1].proposal?.intent).toBe(SCRAPE);
+    expect(prisoner[1].pick).toBeNull();
+  });
+
+  it("the prisoner is told which seen approach its plan began with, in its own briefing only", async () => {
+    let told = "";
+    const mind: OpenMind = {
+      async consider(context) {
+        if (context.briefing.includes("has already seen")) told = context.briefing;
+        return { intent: SCRAPE, plan: "BAR_PLAN", replanned: true };
+      },
+    };
+    const game = await play(mind, 1);
+    expect(told).toContain("A prisoner works at the bar.");
+    // Sent back once only: the second answer stands even if it is seen too.
+    expect(game.halves.find((h) => h.principal === "prisoner")?.pick).toMatchObject({ own: SCRAPE, reasked: true, overridden: false });
+    expect(game.halves.find((h) => h.principal === "warden")?.context.briefing).not.toContain("has already seen");
+  });
+
+  it("a new plan starting with an unseen step is not sent back", async () => {
+    const calls: string[] = [];
+    const mind: OpenMind = { async consider() { calls.push("x"); return { intent: LIFT_TILE, plan: "TILE_PLAN", replanned: true }; } };
+    const game = await play(mind, 1);
+    expect(calls).toEqual(["x"]);
+    expect(game.halves.find((h) => h.principal === "prisoner")?.pick).toMatchObject({ reasked: false, overridden: false });
+  });
+
+  it("the transcript shows a send-back, and the summary counts new plans checked and sent back", async () => {
+    const game = await play(planner([]));
+    const round1 = game.halves.find((h) => h.principal === "prisoner" && h.roundN === 1);
+    expect(renderOpenHalfRound(round1 as NonNullable<typeof round1>).join("\n")).toContain("**Replan pick:** the new plan began with a seen step (I scrape at the rusted base of the bar with my spoon.), sent back once.");
+    expect(renderOpenSummary(game, 2).join("\n")).toContain("New prisoner plans checked (§23): 1. Sent back: 1. First step changed: 1.");
   });
 });

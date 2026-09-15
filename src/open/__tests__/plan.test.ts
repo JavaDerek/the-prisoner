@@ -62,19 +62,23 @@ describe("replanning names the observation that broke the plan (§22)", () => {
   }
   const CONTEXT: OpenPrincipalContext = { principalId: "p", identity: "i", motive: "m", briefing: "b", perceivedObjects: [{ id: "bar", description: "A bar." }] };
 
-  it("the prompt tells the mind to keep its plan unless an observation breaks it, and asks for replanBecause", async () => {
-    const { seen, mind } = capture({ thoughts: "t", candidates: [{ text: "a", reason: "r" }, { text: "b", reason: "r" }], intent: "i", line: "", plan: "p", replanBecause: "", notes: "n" });
+  it("the prompt tells the mind to keep its plan unless an observation breaks it, and asks whether it replanned, and why", async () => {
+    const { seen, mind } = capture({ thoughts: "t", candidates: [{ text: "a", reason: "r" }, { text: "b", reason: "r" }], intent: "i", line: "", plan: "p", replanned: false, replanBecause: "", notes: "n" });
     await mind.consider(CONTEXT);
+    expect(seen.prompt).toContain('"replanned": boolean');
     expect(seen.prompt).toContain('"replanBecause"');
     expect(seen.prompt).toMatch(/next step of your plan/i);
     expect(seen.prompt).toMatch(/only when something you have observed/i);
   });
 
-  it("a stated reason is carried on the proposal; an empty one means the plan was kept", async () => {
-    const replanned = await capture({ thoughts: "t", intent: "i", line: "", plan: "p2", replanBecause: "The warden examined the bar.", notes: "n" }).mind.consider(CONTEXT);
-    expect(replanned?.replanBecause).toBe("The warden examined the bar.");
-    const kept = await capture({ thoughts: "t", intent: "i", line: "", plan: "p", replanBecause: "  ", notes: "n" }).mind.consider(CONTEXT);
+  it("replanned is the mind's own yes or no; a reason is kept only with a yes, so 'following my plan' never counts as a replan", async () => {
+    const replanned = await capture({ thoughts: "t", intent: "i", line: "", plan: "p2", replanned: true, replanBecause: "The warden examined the bar.", notes: "n" }).mind.consider(CONTEXT);
+    expect(replanned).toMatchObject({ replanned: true, replanBecause: "The warden examined the bar." });
+    const kept = await capture({ thoughts: "t", intent: "i", line: "", plan: "p", replanned: false, replanBecause: "Following my original plan.", notes: "n" }).mind.consider(CONTEXT);
+    expect(kept?.replanned).toBe(false);
     expect(kept?.replanBecause).toBeUndefined();
+    const unsaid = await capture({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" }).mind.consider(CONTEXT);
+    expect(unsaid?.replanned).toBeUndefined();
   });
 
   it("the transcript shows a replan's reason, and the summary counts kept and replanned plans", async () => {
@@ -83,7 +87,7 @@ describe("replanning names the observation that broke the plan (§22)", () => {
     const prisonerMind: OpenMind = {
       async consider() {
         turn += 1;
-        return turn === 2 ? { intent: SCRAPE, plan: "p2", replanBecause: "The bar would not give." } : { intent: SCRAPE, plan: "p1" };
+        return turn === 2 ? { intent: SCRAPE, plan: "p2", replanned: true, replanBecause: "The bar would not give." } : { intent: SCRAPE, plan: "p1", replanned: false };
       },
     };
     const game = await runOpenGame({

@@ -147,13 +147,15 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
     for (const c of p.candidates) lines.push(`- ${c.text}${c.reason ? ` (${c.reason})` : ""}`);
   }
   // OPEN-VARIANT.md §21: an override is shown, never silent.
-  if (half.pick) {
+  if (half.pick?.reasked !== undefined) {
+    lines.push(half.pick.reasked ? `**Replan pick:** the new plan began with a seen step (${half.pick.own}), sent back once.` : "**Replan pick:** the new plan's first step was not seen.");
+  } else if (half.pick) {
     lines.push(half.pick.overridden ? `**Forced pick:** overrode the mind's own intent: ${half.pick.own}` : `**Forced pick:** kept the mind's own intent.`);
     for (const v of half.pick.verdicts) lines.push(`- ${v.verdict}: ${v.candidate}`);
   }
   lines.push(`**Intent:** ${p.intent}`);
   if (p.line) lines.push(`**Line:** "${p.line}"`);
-  if (p.replanBecause) lines.push(`**Replanned because:** ${p.replanBecause}`);
+  if (p.replanned === true) lines.push(`**Replanned because:** ${p.replanBecause ?? "(no reason given)"}`);
   if (p.plan) lines.push(`**Plan:** ${p.plan}`);
   if (p.notes) lines.push(`**Notes:** ${p.notes}`);
 
@@ -298,17 +300,25 @@ export function renderOpenSummary(game: OpenGameResult, rounds?: number): string
   for (const h of game.halves.filter((x) => x.principal === "prisoner" && x.proposal)) {
     if (hadPlan) {
       withPlan += 1;
-      if (h.proposal?.replanBecause) replanned += 1;
+      if (h.proposal?.replanned === true) replanned += 1;
     }
     if (h.proposal?.plan) hadPlan = true;
   }
   lines.push(`Prisoner plans (§22): replanned ${replanned} of ${withPlan} turns that had a plan, kept ${withPlan - replanned}.`);
   lines.push("");
 
+  // OPEN-VARIANT.md §23: new plans checked at replan time.
+  const checked = game.halves.filter((h) => h.principal === "prisoner" && h.pick?.reasked !== undefined);
+  if (checked.length > 0) {
+    const sentBack = checked.filter((h) => h.pick?.reasked);
+    lines.push(`New prisoner plans checked (§23): ${checked.length}. Sent back: ${sentBack.length}. First step changed: ${sentBack.filter((h) => h.pick?.overridden).length}.`);
+    lines.push("");
+  }
+
   // OPEN-VARIANT.md §21: forced turns are novel by construction, so novelty
   // is split -- only a change on free turns says anything about the mind.
   const prisonerTurns = game.halves.map((h, i) => ({ h, novel: records[i].novel })).filter((x) => x.h.principal === "prisoner");
-  const forced = prisonerTurns.filter((x) => x.h.pick?.forced);
+  const forced = prisonerTurns.filter((x) => x.h.pick?.forced && x.h.pick.reasked === undefined);
   if (forced.length > 0) {
     const free = prisonerTurns.filter((x) => !x.h.pick?.forced);
     const overridden = forced.filter((x) => x.h.pick?.overridden).length;

@@ -71,8 +71,9 @@ export interface OpenHalfRoundResult {
   /** The pick condition (OPEN-VARIANT.md §21), on a forced turn only: the
    *  mind's own intent and every candidate's verdict. When `overridden`,
    *  `proposal.intent` is the chosen candidate, the text actually ruled on.
-   *  `null` on a free turn, and always outside the condition. */
-  pick: { own: string; forced: boolean; overridden: boolean; verdicts: readonly { candidate: string; verdict: Verdict }[] } | null;
+   *  `null` on a free turn, and always outside the condition. Under §23,
+   *  set on every new prisoner plan checked, with `reasked`. */
+  pick: { own: string; forced: boolean; overridden: boolean; verdicts: readonly { candidate: string; verdict: Verdict }[]; reasked?: boolean } | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -249,6 +250,10 @@ export async function runOpenHalfRound(params: {
    *  approaches plus what the warden saw earlier this game. Recognition only:
    *  the known-approach cost still reads `knownApproaches` alone. */
   forcePick?: { readonly seen: readonly string[] };
+  /** The pick condition at replan time (OPEN-VARIANT.md §23), on every
+   *  prisoner turn under it: what counts as seen, and whether the prisoner
+   *  had a plan before this turn (a first plan is a new plan). */
+  replanPick?: { readonly seen: readonly string[]; readonly hadPlan: boolean };
 }): Promise<OpenHalfRoundResult> {
   const { openWorld, resolver, referee, principal, roundN, t, context, mind } = params;
 
@@ -260,20 +265,37 @@ export async function runOpenHalfRound(params: {
   // §21: the recogniser is the referee itself, so "seen" means exactly what
   // the precedent ledger would have recorded for that text. A reshaping is
   // not recognised here (it needs the parent's kind, §14.4).
+  const recognise = async (text: string, seen: readonly string[]): Promise<{ verdict: Verdict; as: string }> => {
+    const ruling = await referee.rule(text, context.perceivedObjects);
+    if (!ruling.applicable) return { verdict: "unavailable", as: "" };
+    const as = precedentTextFor(ruling);
+    return { verdict: seen.includes(as) ? "seen" : "unseen", as };
+  };
   let picked: OpenHalfRoundResult["pick"] = null;
   let proposal: OpenProposal = considered;
   if (principal === "prisoner" && params.forcePick) {
-    const known = params.forcePick.seen;
+    const seen = params.forcePick.seen;
     const result = await pick(considered.intent, (considered.candidates ?? []).map((c) => c.text), {
       force: true,
-      recognise: async (text) => {
-        const ruling = await referee.rule(text, context.perceivedObjects);
-        if (!ruling.applicable) return "unavailable";
-        return known.includes(precedentTextFor(ruling)) ? "seen" : "unseen";
-      },
+      recognise: async (text) => (await recognise(text, seen)).verdict,
     });
     picked = { own: considered.intent, forced: result.forced, overridden: result.overridden, verdicts: result.verdicts };
     if (result.overridden) proposal = { ...considered, intent: result.chosen };
+  }
+  // §23: a new plan whose first step the warden has seen is sent back to the
+  // mind once, told which approach it began with. The mind plans again; code
+  // never substitutes a step, and the second answer stands whatever it is.
+  if (principal === "prisoner" && params.replanPick && (considered.replanned === true || !params.replanPick.hadPlan)) {
+    const first = await recognise(considered.intent, params.replanPick.seen);
+    const reasked = first.verdict === "seen";
+    if (reasked) {
+      const again = await mind.consider({
+        ...context,
+        briefing: `${context.briefing}\nBefore you act: your new plan begins with something ${WARDEN_NAME} has already seen and knows on sight ("${first.as}"). Make a different plan, whose first step ${WARDEN_NAME} has not seen.`,
+      });
+      if (again !== null) proposal = again;
+    }
+    picked = { own: considered.intent, forced: true, overridden: proposal.intent !== considered.intent, verdicts: [{ candidate: considered.intent, verdict: first.verdict }], reasked };
   }
   const base = { principal, t, roundN, context, pick: picked };
 

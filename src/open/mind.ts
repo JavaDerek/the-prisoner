@@ -71,8 +71,11 @@ export type OpenProposal = Proposal & {
    *  by `game.ts` (OPEN-VARIANT.md §22; before §22 it was written and never
    *  shown again), never the other principal's. */
   readonly plan?: string;
+  /** §22: the mind's own yes or no -- did it change its plan this turn.
+   *  Undefined when it did not say. Counted as given, never inferred. */
+  readonly replanned?: boolean;
   /** §22: the observation that broke the previous plan, in the mind's own
-   *  words; undefined when the plan was kept. For a human reading the
+   *  words; kept only with `replanned: true`. For a human reading the
    *  transcript -- no code judges whether the reason holds. */
   readonly replanBecause?: string;
   readonly witsModel?: string;
@@ -108,10 +111,11 @@ const OPEN_WITS_SCHEMA: InertRecord = {
     candidates: CANDIDATES_SCHEMA,
     intent: { type: "string" },
     plan: { type: "string" },
+    replanned: { type: "boolean" },
     replanBecause: { type: "string" },
     notes: { type: "string" },
   },
-  required: ["thoughts", "candidates", "intent", "plan", "replanBecause", "notes"],
+  required: ["thoughts", "candidates", "intent", "plan", "replanned", "replanBecause", "notes"],
   additionalProperties: false,
 };
 
@@ -123,10 +127,11 @@ const OPEN_SINGLE_CALL_SCHEMA: InertRecord = {
     intent: { type: "string" },
     line: { type: "string" },
     plan: { type: "string" },
+    replanned: { type: "boolean" },
     replanBecause: { type: "string" },
     notes: { type: "string" },
   },
-  required: ["thoughts", "candidates", "intent", "line", "plan", "replanBecause", "notes"],
+  required: ["thoughts", "candidates", "intent", "line", "plan", "replanned", "replanBecause", "notes"],
   additionalProperties: false,
 };
 
@@ -164,7 +169,8 @@ const PLAN_RULES: readonly string[] = [
   '"plan" is REQUIRED -- the steps you mean to take over your next few turns. It is shown back to you next turn as "Your plan, from your last turn".',
   "If your briefing shows your plan from your last turn, your intent this turn is the next step of your plan. " +
     "Change the plan only when something you have observed since (an outcome, or what you perceived) shows it will not work or a better one is now open.",
-  '"replanBecause" is REQUIRED -- "" when you are following your plan; when you change it, the specific thing you observed that made you change it.',
+  '"replanned" is REQUIRED -- true only if this turn\'s plan is a different plan from "Your plan, from your last turn" (or you had none); false if you are carrying on with that plan, even when you reword it.',
+  '"replanBecause" is REQUIRED -- when replanned is true, the specific thing you observed that made you change the plan; when false, "".',
 ];
 
 function objectLines(context: OpenPrincipalContext): string[] {
@@ -187,7 +193,7 @@ function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenP
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
-    'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "plan": string, "replanBecause": string, "notes": string}.',
+    'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "plan": string, "replanned": boolean, "replanBecause": string, "notes": string}.',
     '"thoughts" is REQUIRED -- your private reasoning. Nobody else ever sees this.',
     '"candidates" is REQUIRED -- 2 to 5 DIFFERENT concrete things you could try this turn, each grounded only in ' +
       "what you can currently reach or perceive above -- never anything you cannot perceive. Each entry is " +
@@ -214,7 +220,7 @@ function buildOpenSingleCallPrompt(selfName: string, otherName: string, context:
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
-    'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "line": string, "plan": string, "replanBecause": string, "notes": string}.',
+    'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "line": string, "plan": string, "replanned": boolean, "replanBecause": string, "notes": string}.',
     '"thoughts" is REQUIRED -- your private reasoning. Nobody else ever sees this.',
     '"candidates" is REQUIRED -- 2 to 5 DIFFERENT concrete things you could try this turn, each grounded only in ' +
       "what you can currently reach or perceive above -- never anything you cannot perceive. Each entry is " +
@@ -279,7 +285,14 @@ function coerceCandidates(raw: unknown): Candidate[] | undefined {
   return candidates.length > 0 ? candidates : undefined;
 }
 
-function coerceWits(raw: unknown): { thoughts?: string; candidates?: Candidate[]; intent: string; plan?: string; replanBecause?: string; notes?: string } | null {
+/** §22: a reason survives only beside the mind's own `replanned: true`. */
+function coerceReplan(record: Record<string, unknown>): { replanned?: boolean; replanBecause?: string } {
+  if (typeof record.replanned !== "boolean") return {};
+  const because = record.replanned ? coerceFreeText(record.replanBecause) : undefined;
+  return { replanned: record.replanned, ...(because !== undefined ? { replanBecause: because } : {}) };
+}
+
+function coerceWits(raw: unknown): { thoughts?: string; candidates?: Candidate[]; intent: string; plan?: string; replanned?: boolean; replanBecause?: string; notes?: string } | null {
   if (typeof raw !== "object" || raw === null) return null;
   const record = raw as Record<string, unknown>;
   const intent = coerceFreeText(record.intent);
@@ -289,7 +302,7 @@ function coerceWits(raw: unknown): { thoughts?: string; candidates?: Candidate[]
     ...(coerceFreeText(record.thoughts) !== undefined ? { thoughts: coerceFreeText(record.thoughts) } : {}),
     ...(coerceCandidates(record.candidates) !== undefined ? { candidates: coerceCandidates(record.candidates) } : {}),
     ...(coerceFreeText(record.plan) !== undefined ? { plan: coerceFreeText(record.plan) } : {}),
-    ...(coerceFreeText(record.replanBecause) !== undefined ? { replanBecause: coerceFreeText(record.replanBecause) } : {}),
+    ...coerceReplan(record),
     ...(coerceFreeText(record.notes) !== undefined ? { notes: coerceFreeText(record.notes) } : {}),
   };
 }
@@ -352,7 +365,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
           ...(coerceFreeText(record.thoughts) !== undefined ? { thoughts: coerceFreeText(record.thoughts) } : {}),
           ...(coerceCandidates(record.candidates) !== undefined ? { candidates: coerceCandidates(record.candidates) } : {}),
           ...(coerceFreeText(record.plan) !== undefined ? { plan: coerceFreeText(record.plan) } : {}),
-          ...(coerceFreeText(record.replanBecause) !== undefined ? { replanBecause: coerceFreeText(record.replanBecause) } : {}),
+          ...coerceReplan(record),
           ...(coerceFreeText(record.notes) !== undefined ? { notes: coerceFreeText(record.notes) } : {}),
         };
       },
@@ -368,7 +381,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
 
   const witsMind = createLocalMind<
     OpenPrincipalContext,
-    { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; replanBecause?: string; notes?: string; line?: string }
+    { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; replanned?: boolean; replanBecause?: string; notes?: string; line?: string }
   >({
     baseUrl: options.baseUrl,
     model: witsModel,
@@ -377,7 +390,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     fetchFn: options.fetchFn,
     responseFormat: { jsonSchema: OPEN_WITS_SCHEMA, name: "wits" },
     prompt: (context) => buildOpenWitsPrompt(options.selfName, options.otherName, context),
-    coerce: (raw) => coerceWits(raw) as { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; replanBecause?: string; notes?: string; line?: string } | null,
+    coerce: (raw) => coerceWits(raw) as { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; replanned?: boolean; replanBecause?: string; notes?: string; line?: string } | null,
     onSilence: options.onSilence,
   });
 
@@ -419,6 +432,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
         ...(wits.thoughts !== undefined ? { thoughts: wits.thoughts } : {}),
         ...(wits.candidates !== undefined ? { candidates: wits.candidates } : {}),
         ...(wits.plan !== undefined ? { plan: wits.plan } : {}),
+        ...(wits.replanned !== undefined ? { replanned: wits.replanned } : {}),
         ...(wits.replanBecause !== undefined ? { replanBecause: wits.replanBecause } : {}),
         ...(wits.notes !== undefined ? { notes: wits.notes } : {}),
         witsModel,

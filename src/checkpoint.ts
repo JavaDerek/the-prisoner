@@ -736,7 +736,9 @@ async function mainOpen(): Promise<void> {
   }
   transcript.push(
     PICK
-      ? `Pick condition: ON (\`PRISONER_PICK=${process.env.PRISONER_PICK}\`): every even-numbered prisoner turn is forced off anything the warden has seen, in earlier games or this one (§21).`
+      ? PICK.onReplan
+        ? `Pick condition: ON (\`PRISONER_PICK=${process.env.PRISONER_PICK}\`): a new prisoner plan whose first step the warden has seen, in earlier games or this one, is sent back once (§23).`
+        : `Pick condition: ON (\`PRISONER_PICK=${process.env.PRISONER_PICK}\`): every even-numbered prisoner turn is forced off anything the warden has seen, in earlier games or this one (§21).`
       : "Pick condition: OFF (baseline)."
   );
   transcript.push("");
