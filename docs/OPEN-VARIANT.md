@@ -1039,3 +1039,23 @@ Not fixed, and not attributable to this change on the evidence so far: the priso
 intents ruled `wear` on the tile instead of `derive` in 3 of 4 (already so under §18.4's transport
 alone for game 1 round 5); game 2 round 4's *"Examine the lock for hidden damage."* got target `none`;
 examinations of the tile name `integrity` or `none`, which the tile does not declare.
+
+### 18.6 First games on §18.5: a catch, and the referee copying its own rulings (2026-09-14)
+
+Two 12-round games, same configuration (`checkpoints/2026-09-15T01-39-22-411Z.md`, `…01-52-09-684Z.md`).
+Game 1: **caught at round 12**; game 2: timeout. Banknotes never perceived in either; no reshape; no
+attempt on either way out; every applied effect fully cited (22 of 22, 18 of 18). The warden's
+examinations of the bar were `reveal`/`integrity` in every turn, as §18.5's replay predicted.
+
+**New failure: the prisoner's work on the bar was ruled `reveal` too** (*"Use the spoon to scrape rust
+off the bottom of the bar."*, round 1): 5 of 12 prisoner turns in game 1, about 8 of 12 in game 2. The
+replays of §18.5 could not show it, because they carried the old games' earlier rulings, mostly `wear`.
+**Cause, confirmed by replay:** the referee's *EARLIER RULINGS … for consistency* block (§11.4). Each
+line names the object and the ruling but not the intent ruled on (`precedent:bar | effect=reveal
+property=integrity magnitude=moderate target-citation="bar closely for signs" …`), so once the
+warden's examinations are consistently `reveal`, any act on the bar is ruled like them. Game 1's 23
+recorded requests with those lines removed, nothing else changed
+(`checkpoints/2026-09-15-open-referee-replay-185game1-no-earlier-rulings-N1.txt`): **prisoner work on
+the bar `wear` in 10 of 11** (one `restore`), warden examinations still `reveal` in 11 of 11. This is
+§11.2's confound in a new form. Awaiting the owner: show each earlier ruling with the intent it ruled
+on, or drop the block.
