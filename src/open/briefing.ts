@@ -30,21 +30,42 @@ import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, pri
  */
 const OWNER_OF: Partial<Record<string, Principal>> = { spoon: "prisoner", key_ring: "warden" };
 
+/** OPEN-VARIANT.md §15.1: the objects some other object is held in. */
+const CONTAINERS: ReadonlySet<string> = new Set(OPEN_OBJECTS.flatMap((spec) => (spec.heldIn ? [spec.heldIn] : [])));
+
+function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): number | null | undefined {
+  const resourceId = resourceIdForProperty(openWorld, objectId, "concealment");
+  if (!resourceId) return undefined; // Not concealable at all.
+  return readNumericFact({ gameId: openWorld.base.gameId, t, entityId: resourceId, key: "value" });
+}
+
 export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number): ObjectPerception[] {
   // The §4.1 objects, then every object derived in this game (OPEN-VARIANT.md
   // §13.3), under one rule: the holder always perceives its own things; the
   // other principal does unless the thing is concealed at 50 or more.
+  //
+  // CONTAINMENT FIRST (§15.1): a thing held in another is perceived by nobody,
+  // its holder and both principals alike, while the container's concealment
+  // stands at 50 or more -- and a missing reading keeps it hidden rather than
+  // inventing a view. A CONTAINER'S concealment is what hides its contents,
+  // not the container: the tile down at 100 is still a tile anyone can see
+  // and lift (§15.2 grounds `expose` on the tile's own description), exactly
+  // as the closed variant's loose tile "stays visible in either view
+  // regardless of CONCEAL" (`src/view/viewFor.ts`).
   const candidates = [
-    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: spec.description, owner: OWNER_OF[spec.id] })),
-    ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, owner: d.heldBy as Principal | undefined })),
+    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: spec.description, owner: OWNER_OF[spec.id], heldIn: spec.heldIn })),
+    ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, owner: d.heldBy as Principal | undefined, heldIn: undefined })),
   ];
   return candidates
     .filter((object) => {
+      if (object.heldIn !== undefined) {
+        const container = concealmentAt(openWorld, object.heldIn, t);
+        if (container === undefined || container === null || container >= 50) return false;
+      }
       if (object.owner === principal) return true;
-      const concealmentResourceId = resourceIdForProperty(openWorld, object.id, "concealment");
-      if (!concealmentResourceId) return true; // Not concealable at all.
-      const value = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: concealmentResourceId, key: "value" });
-      return value === null || value < 50;
+      if (CONTAINERS.has(object.id)) return true;
+      const value = concealmentAt(openWorld, object.id, t);
+      return value === undefined || value === null || value < 50;
     })
     .map((object) => ({ id: object.id, description: object.description }));
 }

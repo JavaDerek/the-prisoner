@@ -1,7 +1,7 @@
 import { ResolveProtocolError, type ReadRequest } from "run-dmcp";
 import { EXIT_LABEL, type OpenHalfRoundResult } from "./loop.js";
 import type { OpenGameResult } from "./game.js";
-import { findProperty } from "./scenarioObjects.js";
+import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
 import { recordIntent, newMeasurements, noteIntent, renderMeasurements } from "./transcript.js";
 import type { Principal } from "../ledger/beliefs.js";
@@ -224,6 +224,17 @@ export function renderOpenSummary(game: OpenGameResult, rounds?: number): string
   lines.push("## Measurements (OPEN-VARIANT.md §5.2)");
   lines.push("");
   lines.push(...renderMeasurements(measurements));
+  // OPEN-VARIANT.md §15.4: the round each principal first perceived what a
+  // container holds, read off the perceived objects each context was built
+  // with. Whatever was said about it is for a human to read, never matched.
+  for (const held of OPEN_OBJECTS.filter((o) => o.heldIn !== undefined)) {
+    const first = (principal: Principal) => game.halves.find((h) => h.principal === principal && h.context.perceivedObjects.some((o) => o.id === held.id))?.roundN;
+    const cell = (principal: Principal) => {
+      const round = first(principal);
+      return round === undefined ? "never" : `round ${round}`;
+    };
+    lines.push(`First perceived (OPEN-VARIANT.md §15.4): ${held.id} -- warden: ${cell("warden")}; prisoner: ${cell("prisoner")}.`);
+  }
   lines.push("");
 
   const label = (h: OpenHalfRoundResult) => `round ${h.roundN}, ${h.principal}: ${h.proposal?.intent ?? "(silent)"}`;

@@ -43,6 +43,9 @@ export const TAKE_GRIT = "I scoop a handful of grit from the hollow under the lo
 export const HIDE_WIRE = "I tuck the wire away under the loose tile.";
 export const BEND_WIRE = "I bend the wire back and forth to straighten it.";
 export const PUSH_BOLT_WITH_WIRE = "I push the wire into the gap and slide the bolt back.";
+export const LIFT_TILE = "I lift the loose tile and dig through the grit beneath it.";
+export const EASE_TILE = "I ease the loose tile up a little at one corner.";
+export const HIDE_NOTES = "I push the banknotes back down into the grit.";
 
 export const RULINGS: Record<string, ScriptedRuling> = {
   [SCRAPE]: {
@@ -127,6 +130,33 @@ export const RULINGS: Record<string, ScriptedRuling> = {
     perceptibility: "silent",
     intentQuote: "bend the wire back and forth",
     descQuote: "with a kink at one end",
+  },
+  [LIFT_TILE]: {
+    target: "loose_tile",
+    effect: "expose",
+    property: "concealment",
+    magnitude: "substantial",
+    perceptibility: "audible",
+    intentQuote: "lift the loose tile and dig through the grit",
+    descQuote: "beneath it is a shallow hollow of dry grit about the size of a hand",
+  },
+  [EASE_TILE]: {
+    target: "loose_tile",
+    effect: "expose",
+    property: "concealment",
+    magnitude: "moderate",
+    perceptibility: "silent",
+    intentQuote: "ease the loose tile up a little",
+    descQuote: "It rocks underfoot",
+  },
+  [HIDE_NOTES]: {
+    target: "banknotes",
+    effect: "conceal",
+    property: "concealment",
+    magnitude: "substantial",
+    perceptibility: "silent",
+    intentQuote: "push the banknotes back down into the grit",
+    descQuote: "A fold of banknotes wrapped in a strip of oilcloth",
   },
   [PUSH_BOLT_WITH_WIRE]: {
     target: "lock",

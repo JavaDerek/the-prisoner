@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { OPEN_OBJECTS, OPEN_OBJECT_IDS, findObject, findProperty } from "../scenarioObjects.js";
 
 describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
-  it("has exactly the nine objects of the §4.1 table, in order", () => {
+  it("has exactly the nine objects of the §4.1 table, in order, then the banknotes of §15.3", () => {
     expect(OPEN_OBJECT_IDS).toEqual([
       "bar",
       "lock",
@@ -13,6 +13,7 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
       "bucket",
       "meal_tray",
       "key_ring",
+      "banknotes",
     ]);
   });
 
@@ -44,9 +45,35 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
     }
   });
 
-  it("objects with no authored numeric property (bucket, meal tray, key ring, loose tile) have none", () => {
-    for (const id of ["loose_tile", "bucket", "meal_tray", "key_ring"]) {
+  it("objects with no authored numeric property (bucket, meal tray, key ring) have none", () => {
+    // The loose tile was in this list until OPEN-VARIANT.md §15.2 gave it `concealment`.
+    for (const id of ["bucket", "meal_tray", "key_ring"]) {
       expect(findObject(id)?.properties).toEqual([]);
+    }
+  });
+
+  it("the loose tile declares concealment starting at 100, with the spoon's own wear/restore tables (§15.2)", () => {
+    const tile = findProperty("loose_tile", "concealment");
+    const spoon = findProperty("spoon", "concealment");
+    expect(tile).toEqual(expect.objectContaining({ key: "concealment", resourceName: "loose_tile_concealment", min: 0, max: 100, initialValue: 100 }));
+    expect(tile?.wear).toEqual(spoon?.wear);
+    expect(tile?.restore).toEqual(spoon?.restore);
+    expect(findObject("loose_tile")?.properties.map((p) => p.key)).toEqual(["concealment"]);
+  });
+
+  it("the banknotes are held in the loose tile, with §15.3's description verbatim and concealment 0 (§15.3)", () => {
+    const notes = findObject("banknotes");
+    expect(notes?.heldIn).toBe("loose_tile");
+    expect(notes?.description).toBe("A fold of banknotes wrapped in a strip of oilcloth, ten notes of a hundred each, soft and grey with damp.");
+    expect(notes?.properties.map((p) => p.key)).toEqual(["concealment"]);
+    expect(findProperty("banknotes", "concealment")).toEqual(expect.objectContaining({ resourceName: "banknotes_concealment", min: 0, max: 100, initialValue: 0 }));
+  });
+
+  it("every heldIn names a scenario object that declares concealment, the property that gates what it holds (§15.1)", () => {
+    const held = OPEN_OBJECTS.filter((o) => o.heldIn !== undefined);
+    expect(held.map((o) => o.id)).toEqual(["banknotes"]);
+    for (const object of held) {
+      expect(findProperty(object.heldIn as string, "concealment"), `${object.id} held in ${object.heldIn}`).toBeDefined();
     }
   });
 

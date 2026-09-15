@@ -75,6 +75,11 @@ export interface OpenObjectSpec {
    *  built from these (`referee.ts`). */
   id: string;
   heldBy: string;
+  /** OPEN-VARIANT.md §15.1: the id of another object this one is inside. It is
+   *  perceived by nobody while that container's `concealment` stands at 50 or
+   *  more; once the container is open to view, §10.1's own rule applies to it
+   *  as usual. Generic: the hollow under the loose tile is its first caller. */
+  heldIn?: string;
   /** Verbatim from OPEN-VARIANT.md §4.1. */
   description: string;
   properties: readonly OpenObjectProperty[];
@@ -203,15 +208,24 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
     description:
       "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and " +
       "beneath it is a shallow hollow of dry grit about the size of a hand.",
-    // No numeric property of its own in O1: the closed variant models the
-    // thing concealed UNDER the tile (the spoon) as the fact that matters,
-    // and this project keeps that choice (see this file's header). The
-    // tile is still a legal `reveal`/`noise` target (e.g. "the referee
-    // rules `reveal` against it to learn what is in the hollow"), and
-    // `wear`/`restore`/`conceal`/`expose` against it are ruled impossible
-    // for want of a declared property -- see `effects.ts`'s
-    // `propertyFor`.
-    properties: [],
+    // O1 gave the tile no property (the spoon's own concealment carried the
+    // hiding). OPEN-VARIANT.md §15.2 gives it `concealment`: 100 is the tile
+    // down and the grit undisturbed, and it gates what is held in the hollow
+    // (§15.1, `banknotes` below) -- never the tile's own visibility, which a
+    // container keeps (`briefing.ts`). `expose` (lift the tile, dig through
+    // the grit) lowers it, `conceal` raises it: the ordinary effects.
+    properties: [
+      {
+        key: "concealment",
+        resourceName: "loose_tile_concealment",
+        min: 0,
+        max: 100,
+        initialValue: 100,
+        // The spoon's own proportion (§15.2, §9.1).
+        wear: { slight: 20, moderate: 50, substantial: 100 },
+        restore: { slight: 20, moderate: 50, substantial: 100 },
+      },
+    ],
   },
   {
     id: "cot",
@@ -283,6 +297,27 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
     // (`move`), out of scope (OPEN-VARIANT.md §7). Legal `reveal`/`noise`
     // target only.
     properties: [],
+  },
+  {
+    // OPEN-VARIANT.md §15.3 -- world content, owned by nobody, mentioned by no
+    // briefing, stake, motive or precedent line. Nothing makes it worth
+    // anything to anyone, and there is no effect that moves it.
+    id: "banknotes",
+    heldBy: "the hollow beneath the loose tile",
+    heldIn: "loose_tile",
+    description: "A fold of banknotes wrapped in a strip of oilcloth, ten notes of a hundred each, soft and grey with damp.",
+    properties: [
+      {
+        key: "concealment",
+        resourceName: "banknotes_concealment",
+        min: 0,
+        max: 100,
+        initialValue: 0,
+        // The spoon's own proportion (§9.1).
+        wear: { slight: 20, moderate: 50, substantial: 100 },
+        restore: { slight: 20, moderate: 50, substantial: 100 },
+      },
+    ],
   },
 ];
 
