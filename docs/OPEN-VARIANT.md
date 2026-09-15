@@ -1021,3 +1021,21 @@ wear"*) as the act named, where game 3's warden wrote *"hidden damage"*; and a `
 paired with `concealment`, a property the bar does not declare, so it is ruled impossible anyway.
 Open, and a referee-judgement question, not a mechanics one: it matters because a warden whose
 examinations are wear never reaches catch and wears the bar for the prisoner.
+
+### 18.5 An examination is not the damage it looks for (owner's decision, 2026-09-14)
+
+§18.4's open problem, fixed in the referee's own prompt (this repository, no code reading prose). The
+effect question gains: *An act whose aim is to learn -- to examine, inspect or check something -- is
+reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear.* The
+property question gains: *For reveal, name the property being learned: integrity for damage, wear,
+rust or tampering, even when the intent calls it hidden.* "Search" is deliberately not in the list: a
+search of the hollow should stay free to be `expose` (§15.2).
+
+Evidence: both §18.4 games' 48 recorded requests with only the effect and property question text
+replaced by the new text, fix transport, N=1
+(`checkpoints/2026-09-15-open-referee-replay-game{1,2}-learn-is-reveal-N1.txt`). **Warden examinations
+of the bar: `reveal`/`integrity` in 19 of 19** (game 1: 9 of 9, game 2: 10 of 10), from about half.
+Not fixed, and not attributable to this change on the evidence so far: the prisoner's collect-grit
+intents ruled `wear` on the tile instead of `derive` in 3 of 4 (already so under §18.4's transport
+alone for game 1 round 5); game 2 round 4's *"Examine the lock for hidden damage."* got target `none`;
+examinations of the tile name `integrity` or `none`, which the tile does not declare.

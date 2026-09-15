@@ -294,6 +294,26 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     );
   });
 
+  it("an act whose aim is to learn is reveal whatever it looks for, and reveal names the property learned (OPEN-VARIANT.md §18.5)", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("Examine the bar closely for signs of additional wear or tampering.", [LOCK]);
+    const effect = questions.find((q) => q.id === "effect");
+    const property = questions.find((q) => q.id === "property");
+    // §18.4: "examine ... for signs of damage or wear" was ruled wear about half the time.
+    expect(effect?.prompt).toContain(
+      "An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear."
+    );
+    // §18.4: a reveal of the bar was paired with concealment, which the bar does not declare.
+    expect(property?.prompt).toContain(
+      "For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden."
+    );
+  });
+
   it("a ruling's citations carry the word range they were rebuilt from, taken only from the offer the reader accepted (OPEN-VARIANT.md §18.3)", async () => {
     const intent = "I file the bar with my spoon.";
     const transport: ReaderTransport = async (request) =>

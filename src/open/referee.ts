@@ -183,6 +183,9 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
         "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
         "wear is for damage or dulling with no way out as its goal. " +
+        // OPEN-VARIANT.md §18.5: an examination is not the damage it looks for.
+        "An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: " +
+        "examining a bar for signs of damage or wear is reveal, not wear. " +
         // OPEN-VARIANT.md §17.2, verbatim.
         "For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. " +
         `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
@@ -207,7 +210,10 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none " +
         "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). " +
         "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
-        "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. Cite the exact words in the TARGET " +
+        "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. " +
+        // OPEN-VARIANT.md §18.5.
+        "For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. " +
+        "Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
       answerKeys: [...PROPERTY_ANSWER_KEYS],
       safeDefault: "none",
