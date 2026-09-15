@@ -43,6 +43,9 @@ export const TAKE_GRIT = "I scoop a handful of grit from the hollow under the lo
 export const HIDE_WIRE = "I tuck the wire away under the loose tile.";
 export const BEND_WIRE = "I bend the wire back and forth to straighten it.";
 export const PUSH_BOLT_WITH_WIRE = "I push the wire into the gap and slide the bolt back.";
+export const BEND_HOOK = "I bend the end of the wire back into a hook.";
+export const TWIST_CORD = "I twist the strip of wool into a tight cord.";
+export const TEAR_STRIP = "I tear a strip from the hem of the blanket.";
 export const LIFT_TILE = "I lift the loose tile and dig through the grit beneath it.";
 export const EASE_TILE = "I ease the loose tile up a little at one corner.";
 export const HIDE_NOTES = "I push the banknotes back down into the grit.";
@@ -130,6 +133,36 @@ export const RULINGS: Record<string, ScriptedRuling> = {
     perceptibility: "silent",
     intentQuote: "bend the wire back and forth",
     descQuote: "with a kink at one end",
+  },
+  [BEND_HOOK]: {
+    target: "wire",
+    effect: "derive",
+    product: "hook",
+    property: "none",
+    magnitude: "slight",
+    perceptibility: "audible",
+    intentQuote: "bend the end of the wire back into a hook",
+    descQuote: "with a kink at one end",
+  },
+  [TWIST_CORD]: {
+    target: "strip",
+    effect: "derive",
+    product: "cord",
+    property: "none",
+    magnitude: "slight",
+    perceptibility: "silent",
+    intentQuote: "twist the strip of wool into a tight cord",
+    descQuote: "with loose threads at both ends",
+  },
+  [TEAR_STRIP]: {
+    target: "blanket",
+    effect: "derive",
+    product: "strip",
+    property: "integrity",
+    magnitude: "slight",
+    perceptibility: "silent",
+    intentQuote: "tear a strip from the hem",
+    descQuote: "frayed along the hem",
   },
   [LIFT_TILE]: {
     target: "loose_tile",

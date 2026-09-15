@@ -1,5 +1,6 @@
 import { findProperty, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
-import { findKind, composeDescription } from "./derivedObjects.js";
+import { findKind, composeDescription, parentLabel } from "./derivedObjects.js";
+import type { Principal } from "../ledger/beliefs.js";
 
 /**
  * The open variant's effect vocabulary (OPEN-VARIANT.md §4.2, this task's
@@ -53,6 +54,22 @@ export interface PlannedDerivation {
   /** The parent's property the derivation consumes, or `null`. */
   consumes: OpenPropertyKey | null;
   parentObjectId: string;
+  /** OPEN-VARIANT.md §14.2: set when the product replaces its parent -- the
+   *  derived object the resolution destroys, and who held it (and so holds
+   *  the product). `null` for a derivation that takes a piece. */
+  replaces: { id: string; kindId: string; heldBy: Principal } | null;
+}
+
+/** An object derived earlier in this game, as `planEffect` needs it to derive
+ *  from it (OPEN-VARIANT.md §14): its recorded kind, who holds it, and the
+ *  entities a reshaping destroys. */
+export interface DerivedParent {
+  kindId: string;
+  heldBy: Principal;
+  /** The holder's character id: the product's owner when it replaces this. */
+  holderId: string;
+  entityId: string;
+  resources: readonly { key: OpenPropertyKey; resourceId: string }[];
 }
 
 export interface EffectPlan {
@@ -117,6 +134,8 @@ export function planEffect(params: {
     ownerLocationId: string;
     /** The scenario-local id the world has chosen (`wire`, `wire_2`). */
     newObjectId: string;
+    /** Set when the target is an object derived in this game (§14.1). */
+    parent?: DerivedParent;
   };
   description: string;
 }): EffectPlan | null {
@@ -206,47 +225,71 @@ export function planEffect(params: {
  * maker, and one `create` per declared property, each naming the item by
  * run-dmcp 0.8.0's `{ ref }`. Refuses, returning `null` like every other
  * incoherent ruling: no product; a product not in the table; a product
- * whose declared parent is not the target (§13.1); a property that is not
+ * whose declared parent is not the target (§13.1) -- for a kind whose parent
+ * is a kind, not the target's RECORDED kind (§14.1); a property that is not
  * what the kind consumes (`none` for a kind that consumes nothing).
+ *
+ * §14.2, a kind that replaces its parent: the same resolution also destroys
+ * the parent's resources and item, the product is held by the parent's
+ * holder, and each property both kinds declare starts at the parent's
+ * current value -- named here by resource id, read by the mechanic from the
+ * facts it is handed, so the number is copied from a fact, never chosen.
  */
 function planDerive(params: Parameters<typeof planEffect>[0]): EffectPlan | null {
   const { targetObjectId, property, magnitude, resourceIdFor, description } = params;
+  const lookup = params.declaredProperty ?? findProperty;
   const derive = params.derive;
   if (!derive || derive.product === "none") return null;
   const kind = findKind(derive.product);
-  if (!kind || kind.parent !== targetObjectId) return null;
+  if (!kind) return null;
+  const parentIsKind = findKind(kind.parent) !== undefined;
+  if (parentIsKind ? derive.parent?.kindId !== kind.parent : kind.parent !== targetObjectId) return null;
   if ((kind.consumes ?? "none") !== property) return null;
+  const replaced = kind.replacesParent ? derive.parent : undefined;
+  if (kind.replacesParent && (!replaced || kind.consumes !== null)) return null;
 
   let parent: { resourceId: string; amount: number; min: number; max: number } | null = null;
   if (kind.consumes !== null) {
-    const declared = findProperty(targetObjectId, kind.consumes);
+    const declared = lookup(targetObjectId, kind.consumes);
     const resourceId = resourceIdFor[`${targetObjectId}.${kind.consumes}`];
     if (!declared || !resourceId) return null;
     parent = { resourceId, amount: declared.wear[magnitude], min: declared.min, max: declared.max };
   }
 
-  const composed = composeDescription(kind, targetObjectId.replace(/_/g, " "), derive.parentSpan);
+  const composed = composeDescription(kind, parentIsKind ? parentLabel(kind) : targetObjectId.replace(/_/g, " "), derive.parentSpan);
   return {
     mechanic: "OPEN_DERIVE",
     parameters: {
       parent,
+      destroy: replaced ? [...replaced.resources.map((r) => r.resourceId), replaced.entityId] : [],
       item: {
-        ownerId: derive.actorId,
+        ownerId: replaced ? replaced.holderId : derive.actorId,
         name: `the ${kind.label}`,
         properties: JSON.stringify({ description: composed, kind: kind.id, derivedFrom: targetObjectId }),
       },
-      resources: kind.properties.map((p) => ({
-        ref: `property:${p.key}`,
-        ownerId: derive.ownerLocationId,
-        name: `${derive.newObjectId}_${p.key}`,
-        value: p.initialValue,
-        min: p.min,
-        max: p.max,
-      })),
+      resources: kind.properties.map((p) => {
+        const carryFrom = replaced?.resources.find((r) => r.key === p.key)?.resourceId;
+        return {
+          ref: `property:${p.key}`,
+          ownerId: derive.ownerLocationId,
+          name: `${derive.newObjectId}_${p.key}`,
+          value: p.initialValue,
+          ...(carryFrom ? { carryFrom } : {}),
+          min: p.min,
+          max: p.max,
+        };
+      }),
       description,
     },
     resourceId: parent?.resourceId ?? null,
     isWearType: parent !== null,
-    derived: { id: derive.newObjectId, kindId: kind.id, description: composed, consumes: kind.consumes, parentObjectId: targetObjectId },
+    derived: {
+      id: derive.newObjectId,
+      kindId: kind.id,
+      description: composed,
+      consumes: kind.consumes,
+      parentObjectId: targetObjectId,
+      replaces: replaced ? { id: targetObjectId, kindId: replaced.kindId, heldBy: replaced.heldBy } : null,
+    },
   };
 }

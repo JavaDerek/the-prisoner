@@ -148,8 +148,13 @@ export const OPEN_LEAVE: Mechanic = {
 export interface DeriveParams {
   /** The parent's consumed property, or `null` for a kind that consumes nothing. */
   parent: { resourceId: string; amount: number; min: number; max: number } | null;
+  /** OPEN-VARIANT.md §14.2: entities this resolution destroys (a reshaped
+   *  parent's resources, then its item). Empty for a derivation that takes a piece. */
+  destroy?: string[];
   item: { ownerId: string; name: string; properties: string };
-  resources: { ref: string; ownerId: string; name: string; value: number; min: number; max: number }[];
+  /** `carryFrom`: start at that resource's current value instead of `value`
+   *  (§14.2, a property both kinds declare). */
+  resources: { ref: string; ownerId: string; name: string; value: number; carryFrom?: string; min: number; max: number }[];
   description: string;
 }
 
@@ -176,6 +181,11 @@ export const OPEN_DERIVE: Mechanic = {
       after = clamp(before - p.parent.amount, p.parent.min, p.parent.max);
       changes.push(setResource(p.parent.resourceId, after, p.parent.min, p.parent.max));
     }
+    // Read every carried value before any leg, from the facts this mechanic
+    // is handed; then the parent goes and the product comes, in one resolution.
+    const startValues: Record<string, number> = {};
+    for (const r of p.resources) startValues[r.ref] = r.carryFrom ? clamp(currentValue(input, r.carryFrom), r.min, r.max) : r.value;
+    for (const entityId of p.destroy ?? []) changes.push({ kind: "destroy", entityId });
     changes.push({
       kind: "create",
       ref: "object",
@@ -188,12 +198,12 @@ export const OPEN_DERIVE: Mechanic = {
         kind: "create",
         ref: r.ref,
         entityKind: "resource",
-        columns: { owner_id: r.ownerId, owner_type: "location", name: r.name, value: r.value, min_value: r.min, max_value: r.max, created_at: createdAt },
+        columns: { owner_id: r.ownerId, owner_type: "location", name: r.name, value: startValues[r.ref], min_value: r.min, max_value: r.max, created_at: createdAt },
       });
     }
     return {
       changes,
-      result: { mechanic: "OPEN_DERIVE", made: true, before, after },
+      result: { mechanic: "OPEN_DERIVE", made: true, before, after, startValues },
       description: p.description,
     };
   },

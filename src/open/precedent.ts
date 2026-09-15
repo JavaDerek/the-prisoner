@@ -2,6 +2,7 @@ import { witness, type Ledger, type Precedent } from "mother-of-invention";
 import type { OpenHalfRoundResult } from "./loop.js";
 import { precedentTextFor, KNOWN_APPROACH_SUSPICION_BUMP } from "./loop.js";
 import { WARDEN_NAME } from "../scenario.js";
+import { findKind } from "./derivedObjects.js";
 
 /**
  * The precedent condition (mother-of-invention's first mechanism): Warden
@@ -24,7 +25,10 @@ export function recordGame(ledger: Ledger, episode: string, halves: readonly Ope
   let next = ledger;
   for (const half of halves) {
     if (half.principal !== "prisoner" || half.perceptionForOther === null || half.ruling === null) continue;
-    next = witness(next, { episode, actor: "prisoner", observer: "warden", text: precedentTextFor(half.ruling) });
+    // A reshaping the warden could not see reached it as noise (§14.4): heard, never seen.
+    if (half.reshaped && !half.reshaped.seenByOther) continue;
+    const reshapeOf = half.reshaped ? findKind(half.reshaped.parent.kindId)?.label : undefined;
+    next = witness(next, { episode, actor: "prisoner", observer: "warden", text: precedentTextFor(half.ruling, reshapeOf) });
   }
   return next;
 }

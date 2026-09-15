@@ -29,8 +29,15 @@ export interface DerivableKind {
   id: string;
   /** How the actor's own outcome names it: "made a length of wire". */
   label: string;
-  /** The §4.1 object it comes from -- the derive ruling's target. */
+  /** What it comes from: a §4.1 object id, or (OPEN-VARIANT.md §14.1) another
+   *  derivable kind's id, in which case the ruling's target is any derived
+   *  object of that kind, matched by its recorded kind. */
   parent: string;
+  /** OPEN-VARIANT.md §14.2: the parent is reshaped, not taken from. One
+   *  resolution destroys it (item and every resource) and creates this, held
+   *  by whoever held the parent, carrying over every property both kinds
+   *  declare. Such a kind consumes nothing. */
+  replacesParent: boolean;
   /** The parent's property the derivation wears, or `null` for a kind that
    *  takes nothing measurable from its parent. */
   consumes: OpenPropertyKey | null;
@@ -64,6 +71,7 @@ export const DERIVABLE_KINDS: readonly DerivableKind[] = [
     id: "wire",
     label: "length of wire",
     parent: "cot",
+    replacesParent: false,
     consumes: "integrity",
     description:
       "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it " +
@@ -74,6 +82,7 @@ export const DERIVABLE_KINDS: readonly DerivableKind[] = [
     id: "strip",
     label: "strip of wool",
     parent: "blanket",
+    replacesParent: false,
     consumes: "integrity",
     description: "A strip of coarse grey wool about an arm long, torn along the hem, with loose threads at both ends.",
     properties: [INTEGRITY, CONCEALMENT],
@@ -82,9 +91,30 @@ export const DERIVABLE_KINDS: readonly DerivableKind[] = [
     id: "grit",
     label: "handful of grit",
     parent: "loose_tile",
+    replacesParent: false,
     consumes: null,
     description: "A handful of dry grit from the hollow beneath the tile, coarse and sharp-grained.",
     properties: [CONCEALMENT],
+  },
+  // OPEN-VARIANT.md §14.5 -- content, awaiting the owner's approval of wording.
+  {
+    id: "hook",
+    label: "hook",
+    parent: "wire",
+    replacesParent: true,
+    consumes: null,
+    description:
+      "A length of stiff iron wire about a hand long, bent back on itself at one end into a narrow hook, the rust flaked away along the bend.",
+    properties: [INTEGRITY, CONCEALMENT],
+  },
+  {
+    id: "cord",
+    label: "cord",
+    parent: "strip",
+    replacesParent: true,
+    consumes: null,
+    description: "A cord of coarse grey wool about an arm long, twisted tight on itself and knotted at both ends.",
+    properties: [INTEGRITY, CONCEALMENT],
   },
 ];
 
@@ -92,6 +122,13 @@ export const DERIVABLE_KIND_IDS: readonly string[] = DERIVABLE_KINDS.map((k) => 
 
 export function findKind(id: string): DerivableKind | undefined {
   return DERIVABLE_KINDS.find((k) => k.id === id);
+}
+
+/** How a kind's parent is named in prose: a §4.1 object by its id with
+ *  underscores as spaces ("loose tile"), a kind by its label ("length of
+ *  wire", §14.3). */
+export function parentLabel(kind: DerivableKind): string {
+  return findKind(kind.parent)?.label ?? kind.parent.replace(/_/g, " ");
 }
 
 /** OPEN-VARIANT.md §13.2: composed by code from two authored texts -- the

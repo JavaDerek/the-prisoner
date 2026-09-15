@@ -94,7 +94,7 @@ describe("open checkpoint transcript", () => {
 
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
-      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null },
+      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null },
       { reason: "unparseable", text: "RAW_MODEL_TEXT" }
     ).join("\n");
     expect(text).toContain("**Silence.** SilenceReason: `unparseable`");

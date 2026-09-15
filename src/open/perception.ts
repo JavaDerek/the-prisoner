@@ -68,6 +68,13 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       const made = (outcome.result as { made?: boolean }).made === true;
       const label = findKind(ruling.product)?.label ?? ruling.product;
       if (!made) return `Your last attempt met the ${obj} with its ${property} at ${result.before}, already stripped.`;
+      if (half.reshaped && half.derived) {
+        // OPEN-VARIANT.md §14.4: the whole parent became the product, which
+        // whoever held the parent holds.
+        const parentLabel = findKind(half.reshaped.parent.kindId)?.label ?? label;
+        const holder = half.derived.heldBy === half.principal ? "you hold it" : `${half.derived.heldBy === "prisoner" ? PRISONER_SHORT_NAME : WARDEN_SHORT_NAME} holds it`;
+        return `Your last attempt made a ${label} from the ${parentLabel}: ${holder} now, as ${half.derived.id}, and the ${parentLabel} is gone.`;
+      }
       const wear = typeof result.before === "number" && typeof result.after === "number" ? ` The ${obj}'s ${property} went from ${result.before} to ${result.after}.` : "";
       return `Your last attempt made a ${label} from the ${obj}: you hold it now, as ${half.derived?.id ?? ruling.product}.${wear}`;
     }

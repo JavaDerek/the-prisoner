@@ -1,7 +1,7 @@
 import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion } from "run-dmcp";
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PROPERTY_ANSWER_KEYS, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
-import { DERIVABLE_KINDS } from "./derivedObjects.js";
+import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
 
 /**
  * The referee (OPEN-VARIANT.md §3, this task's brief "The referee"). A
@@ -144,13 +144,23 @@ export class PrecedentStore {
   }
 }
 
-function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQuestion[] {
+/** The recorded kind of an object derived in this game, or `undefined` --
+ *  `derivedKindOf` (`world.ts`) for a caller with a world. */
+export type KindOf = (objectId: string) => string | undefined;
+const noKinds: KindOf = () => undefined;
+
+function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: KindOf): ReaderQuestion[] {
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
-  // in the effect question by example and offered as the product keys.
-  const perceivedIds = new Set(perceivedObjects.map((o) => o.id));
-  const derivable = DERIVABLE_KINDS.filter((k) => perceivedIds.has(k.parent));
-  const deriveExamples = DERIVABLE_KINDS.map((k) => `a ${k.label} from the ${k.parent.replace(/_/g, " ")}`).join(", ");
+  // in the effect question by example and offered as the product keys. A
+  // parent that is a kind (§14.1) is in view when an object of that recorded
+  // kind is.
+  // A kind parent matches only a recorded kind, never an id that happens to
+  // be spelled like one.
+  const objectsInView = new Set(perceivedObjects.map((o) => o.id));
+  const kindsInView = new Set(perceivedObjects.flatMap((o) => kindOf(o.id) ?? []));
+  const derivable = DERIVABLE_KINDS.filter((k) => (DERIVABLE_KINDS.some((parent) => parent.id === k.parent) ? kindsInView.has(k.parent) : objectsInView.has(k.parent)));
+  const deriveExamples = DERIVABLE_KINDS.map((k) => `a ${k.label} from the ${parentLabel(k)}`).join(", ");
   return [
     {
       id: "target",
@@ -180,7 +190,7 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
       id: "product",
       prompt:
         "If the effect is derive, which declared kind of thing does the actor make from the target? One of: " +
-        (derivable.length > 0 ? derivable.map((k) => `${k.id} (a ${k.label}, from the ${k.parent.replace(/_/g, " ")})`).join(", ") + ", or none" : "none") +
+        (derivable.length > 0 ? derivable.map((k) => `${k.id} (a ${k.label}, from the ${parentLabel(k)})`).join(", ") + ", or none" : "none") +
         ". Answer none for every other effect. Cite the exact words in the actor's intent that name what is made.",
       answerKeys: [...derivable.map((k) => k.id), "none"],
       safeDefault: "none",
@@ -192,7 +202,7 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[]): ReaderQu
         "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none " +
         "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). " +
         "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
-        "that takes nothing from the target), and cite the words naming the part that comes away. Cite the exact words in the TARGET " +
+        "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
       answerKeys: [...PROPERTY_ANSWER_KEYS],
       safeDefault: "none",
@@ -310,13 +320,14 @@ export interface Referee {
  *  every test in this module for a scripted one). Temperature 0 is the
  *  TRANSPORT's own concern (`refereeTransport.ts`), not this module's --
  *  this module never itself calls a model. */
-export function createReferee(transports: readonly ReaderTransport[], options: { isDeclared?: DeclaredPropertyCheck } = {}): Referee {
+export function createReferee(transports: readonly ReaderTransport[], options: { isDeclared?: DeclaredPropertyCheck; kindOf?: KindOf } = {}): Referee {
   const precedent = new PrecedentStore();
   const isDeclared = options.isDeclared ?? declaredInScenario;
+  const kindOf = options.kindOf ?? noKinds;
   return {
     precedent,
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
-      const questions = buildQuestions(perceivedObjects);
+      const questions = buildQuestions(perceivedObjects, kindOf);
       const sources = buildSources(intentText, perceivedObjects, precedent);
       const reader = createTurnReader({ questions, transports });
       const result = await reader.read(sources);

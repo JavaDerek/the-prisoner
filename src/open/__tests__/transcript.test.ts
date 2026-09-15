@@ -40,6 +40,7 @@ function half(over: Partial<OpenHalfRoundResult>): OpenHalfRoundResult {
     outcome: null,
     refusalError: null,
     derived: null,
+    reshaped: null,
     perceptionForOther: null,
     revealFor: null,
     ...over,

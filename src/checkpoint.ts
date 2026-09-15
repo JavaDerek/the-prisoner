@@ -45,7 +45,7 @@ import {
 } from "./loop.js";
 import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
 import { getVariant } from "./variant.js";
-import { buildOpenWorld, declaredProperty } from "./open/world.js";
+import { buildOpenWorld, declaredProperty, derivedKindOf } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { createReferee } from "./open/referee.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
@@ -668,7 +668,7 @@ async function mainOpen(): Promise<void> {
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })],
     // Objects derived in this game (OPEN-VARIANT.md §13) are targets too.
-    { isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined }
+    { isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined, kindOf: (objectId) => derivedKindOf(openWorld, objectId) }
   );
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
@@ -770,6 +770,8 @@ async function mainOpen(): Promise<void> {
     transcript.push("");
     transcript.push(`Made this game: ${openWorld.derived.length}.`);
     for (const d of openWorld.derived) transcript.push(`- ${d.id} (${d.kindId}), held by the ${d.heldBy}: ${d.description}`);
+    // OPEN-VARIANT.md §14.2: reshaped into something else during the game.
+    for (const d of openWorld.destroyed) transcript.push(`- ${d.id} (${d.kindId}), reshaped and gone: ${d.description}`);
     transcript.push("");
     transcript.push("### Half-round timings");
     transcript.push(...timings);

@@ -79,6 +79,8 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
       if (half.derived) {
         lines.push(`  - made ${half.derived.id} (${half.derived.kindId}), held by the ${half.derived.heldBy}: ${half.derived.description}`);
         for (const c of outcome.created) lines.push(`  - created ${c.entityKind} ${c.entityId} (${c.ref})`);
+        if (half.reshaped) lines.push(`  - reshaped ${half.reshaped.parent.id} (${half.reshaped.parent.kindId}): it is gone`);
+        for (const d of outcome.destroyed) lines.push(`  - destroyed ${d.entityKind} ${d.entityId}`);
       } else {
         lines.push(`  - the ${ruling.targetObjectId.replace(/_/g, " ")} was already stripped; made ${ruling.product}: none`);
       }

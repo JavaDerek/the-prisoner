@@ -174,3 +174,47 @@ describe("planEffect: derive (OPEN-VARIANT.md §13.5)", () => {
     expect(planEffect({ ...base, property: "integrity" })).toBeNull();
   });
 });
+
+describe("planEffect: reshaping (OPEN-VARIANT.md §14.2)", () => {
+  const ids = { entityIdFor: { wire_2: "e-wire", cot: "e-cot" }, resourceIdFor: {} };
+  const wireParent = {
+    kindId: "wire",
+    heldBy: "prisoner" as const,
+    holderId: "c-prisoner",
+    entityId: "e-wire",
+    resources: [
+      { key: "integrity" as const, resourceId: "r-wire-int" },
+      { key: "concealment" as const, resourceId: "r-wire-con" },
+    ],
+  };
+  const derive = { product: "hook", actorId: "c-warden", ownerLocationId: "l-cell", newObjectId: "hook", parentSpan: "with a kink at one end" };
+  const base = { targetObjectId: "wire_2", effectKind: "derive" as const, magnitude: "slight" as const, ...ids, description: "x" };
+
+  it("destroys the parent's resources and item, gives the product to the parent's holder, and carries each shared property from the parent's resource", () => {
+    const plan = planEffect({ ...base, property: "none", derive: { ...derive, parent: wireParent } });
+    expect(plan?.mechanic).toBe("OPEN_DERIVE");
+    expect(plan?.parameters.parent).toBeNull();
+    expect(plan?.parameters.destroy).toEqual(["r-wire-int", "r-wire-con", "e-wire"]);
+    expect(plan?.parameters.item).toEqual(expect.objectContaining({ ownerId: "c-prisoner", name: "the hook" }));
+    const resources = plan?.parameters.resources as { ref: string; carryFrom?: string }[];
+    expect(resources.map((r) => [r.ref, r.carryFrom])).toEqual([
+      ["property:integrity", "r-wire-int"],
+      ["property:concealment", "r-wire-con"],
+    ]);
+    expect(plan?.derived?.replaces).toEqual({ id: "wire_2", kindId: "wire", heldBy: "prisoner" });
+    expect(plan?.derived?.description).toContain('It came away from the length of wire, where "with a kink at one end".');
+  });
+
+  it("refuses: a target with no recorded kind, a target of another kind, a property named, and a kind parent matched by id alone", () => {
+    expect(planEffect({ ...base, property: "none", derive })).toBeNull();
+    expect(planEffect({ ...base, property: "none", derive: { ...derive, parent: { ...wireParent, kindId: "strip" } } })).toBeNull();
+    expect(planEffect({ ...base, property: "integrity", derive: { ...derive, parent: wireParent } })).toBeNull();
+    expect(planEffect({ ...base, targetObjectId: "wire", entityIdFor: { wire: "e-wire" }, property: "none", derive })).toBeNull();
+  });
+
+  it("a derivation that takes a piece destroys nothing", () => {
+    const plan = planEffect({ targetObjectId: "cot", effectKind: "derive", property: "integrity", magnitude: "slight", entityIdFor: { cot: "e-cot" }, resourceIdFor: { "cot.integrity": "r-cot" }, derive: { ...derive, product: "wire", newObjectId: "wire" }, description: "x" });
+    expect(plan?.parameters.destroy).toEqual([]);
+    expect(plan?.derived?.replaces).toBeNull();
+  });
+});

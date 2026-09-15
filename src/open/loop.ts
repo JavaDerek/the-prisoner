@@ -1,7 +1,9 @@
 import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Outcome, type Expectation } from "run-dmcp";
-import { adoptDerivedObject, nextDerivedId, declaredProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
+import { adoptDerivedObject, retireDerivedObject, nextDerivedId, declaredProperty, resourceIdForProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
+import { findKind } from "./derivedObjects.js";
+import { computePerceivedObjects } from "./briefing.js";
 import type { Referee, RefereeRuling } from "./referee.js";
-import { planEffect, type EffectPlan, type EffectKind, type Magnitude } from "./effects.js";
+import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
@@ -61,6 +63,10 @@ export interface OpenHalfRoundResult {
   /** Set only when this half-round's resolution was a `derive` that made
    *  something (OPEN-VARIANT.md §13): the object the world now holds. */
   derived: DerivedObjectRecord | null;
+  /** Set only when that derive reshaped a derived object into the product
+   *  (OPEN-VARIANT.md §14.2): the object now gone, and whether the other
+   *  principal perceived it when the act began (§14.4). */
+  reshaped: { parent: DerivedObjectRecord; seenByOther: boolean } | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -85,8 +91,16 @@ export const KNOWN_APPROACH_SUSPICION_BUMP = FAILED_ESCAPE_SUSPICION_BUMP;
  *  the text the precedent ledger records, and the text a known approach is
  *  matched on. Built by code from ruling keys, so matching it is exact string
  *  equality on this repository's own sentence, never a reading of prose. */
-export function precedentTextFor(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">): string {
+export function precedentTextFor(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">, reshapeOf?: string): string {
+  // OPEN-VARIANT.md §14.4: a reshaping is known by the parent's kind.
+  if (ruling.effectKind === "derive" && reshapeOf !== undefined) return `A prisoner reshapes a ${reshapeOf}.`;
   return describeAttempt("prisoner", ruling, "A prisoner");
+}
+
+/** OPEN-VARIANT.md §14.4: a reshaping of a thing the other principal cannot
+ *  perceive reaches it as noise, naming neither object. */
+export function describeUnseenAttempt(principal: Principal): string {
+  return `${actorName(principal)} works at something out of view.`;
 }
 
 function suspicionEligible(effectKind: EffectKind): boolean {
@@ -133,7 +147,9 @@ function exitLabel(objectId: string): string {
 export function describeAttempt(
   principal: Principal,
   ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">,
-  actor: string = actorName(principal)
+  actor: string = actorName(principal),
+  /** OPEN-VARIANT.md §14.4: the parent kind's label, when the derive reshapes. */
+  reshapeOf?: string
 ): string {
   const obj = objectLabel(ruling.targetObjectId);
   switch (ruling.effectKind) {
@@ -158,6 +174,7 @@ export function describeAttempt(
       // sees is the attempt.
       return `${actor} makes for the ${exitLabel(ruling.targetObjectId)}.`;
     case "derive":
+      if (reshapeOf !== undefined) return `${actor} works at the ${reshapeOf}.`;
       // The act on the parent, and nothing about the product (OPEN-VARIANT.md
       // §13.4): what was made, a bystander learns by perceiving it later.
       return `${actor} works a piece loose from the ${obj}.`;
@@ -234,7 +251,7 @@ export async function runOpenHalfRound(params: {
 
   const proposal = await mind.consider(context);
   if (proposal === null) {
-    return { ...base, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null };
+    return { ...base, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
   }
 
   // Notes to self, persisted before the referee rules -- exactly the closed
@@ -244,11 +261,25 @@ export async function runOpenHalfRound(params: {
 
   const ruling = await referee.rule(proposal.intent, context.perceivedObjects);
   if (!ruling.applicable) {
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null };
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
   }
 
   const actorId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
-  const description = describeAttempt(principal, ruling);
+  // OPEN-VARIANT.md §14: a derive from an object made earlier in this game
+  // names it by its recorded kind; a product that replaces its parent is a
+  // reshaping, perceived by the other only if it perceives the parent now.
+  const parentRecord = ruling.effectKind === "derive" ? openWorld.derived.find((d) => d.id === ruling.targetObjectId) : undefined;
+  const reshapeOf = parentRecord && findKind(ruling.product)?.replacesParent ? findKind(parentRecord.kindId)?.label : undefined;
+  const description = describeAttempt(principal, ruling, undefined, reshapeOf);
+  const parent: DerivedParent | undefined = parentRecord
+    ? {
+        kindId: parentRecord.kindId,
+        heldBy: parentRecord.heldBy,
+        holderId: parentRecord.heldBy === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId,
+        entityId: parentRecord.entityId,
+        resources: parentRecord.properties.map((p) => ({ key: p.key, resourceId: resourceIdForProperty(openWorld, parentRecord.id, p.key) as string })),
+      }
+    : undefined;
   const plan = planEffect({
     targetObjectId: ruling.targetObjectId,
     effectKind: ruling.effectKind as EffectKind,
@@ -267,6 +298,7 @@ export async function runOpenHalfRound(params: {
             actorId,
             ownerLocationId: openWorld.base.cellId,
             newObjectId: nextDerivedId(openWorld, ruling.product),
+            ...(parent ? { parent } : {}),
           },
         }
       : {}),
@@ -275,8 +307,11 @@ export async function runOpenHalfRound(params: {
   if (plan === null) {
     // Declared applicable by the referee, but not a real (object, property)
     // pair in the scenario -- "no invented world" (invariant 6). Do nothing.
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null };
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
   }
+
+  const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
+  const seenByOther = plan.derived?.replaces ? computePerceivedObjects(openWorld, other, t).some((o) => o.id === ruling.targetObjectId) : true;
 
   const expects = plan.isWearType && plan.resourceId ? wearExpectation(openWorld, principal, plan.resourceId) : undefined;
 
@@ -301,13 +336,20 @@ export async function runOpenHalfRound(params: {
     // OPEN-VARIANT.md §13.5: what the derive made, registered from its own
     // outcome; the maker knows the new thing's starting state exactly.
     let derived: DerivedObjectRecord | null = null;
+    let reshaped: OpenHalfRoundResult["reshaped"] = null;
     if (plan.derived && outcome.result.made === true) {
-      derived = adoptDerivedObject(openWorld, { ...plan.derived, heldBy: principal, outcome });
-      for (const p of derived.properties) setBelief(openWorld.base.gameId, principal, p.resourceName, p.initialValue, roundN);
+      const replaces = plan.derived.replaces;
+      derived = adoptDerivedObject(openWorld, { ...plan.derived, heldBy: replaces?.heldBy ?? principal, outcome });
+      const startValues = (outcome.result.startValues ?? {}) as Record<string, number>;
+      for (const p of derived.properties) setBelief(openWorld.base.gameId, principal, p.resourceName, startValues[`property:${p.key}`] ?? p.initialValue, roundN);
+      // §14.2: the parent went in the same resolution; the world forgets it.
+      if (replaces) reshaped = { parent: retireDerivedObject(openWorld, replaces.id), seenByOther };
     }
 
-    const known = principal === "prisoner" && (params.knownApproaches ?? []).includes(precedentTextFor(ruling));
-    const perceptionForOther = ruling.perceptibility !== "silent" || known ? description : null;
+    // A known approach is known on sight: a reshaping the warden cannot see is
+    // no approach it recognises (§14.4).
+    const known = principal === "prisoner" && seenByOther && (params.knownApproaches ?? []).includes(precedentTextFor(ruling, reshapeOf));
+    const perceptionForOther = ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
 
     // OPEN-VARIANT.md §9.3, "grounds accrue": a prisoner's own non-silent
     // wear/restore/expose bumps warden_suspicion by a fixed, magnitude-scaled
@@ -331,11 +373,11 @@ export async function runOpenHalfRound(params: {
       }
     }
 
-    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived };
+    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);
-      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null };
+      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
     }
     throw err;
   }

@@ -40,6 +40,10 @@ export interface OpenWorld {
   /** OPEN-VARIANT.md §13: every object made during this game, in order.
    *  Registered by `adoptDerivedObject` from a derive's own outcome. */
   derived: DerivedObjectRecord[];
+  /** OPEN-VARIANT.md §14.2: every derived object a reshaping destroyed, in
+   *  order. Kept out of `derived` so it leaves every briefing and every
+   *  referee request, and kept at all so its id is never handed out again. */
+  destroyed: DerivedObjectRecord[];
 }
 
 /** One derived object (OPEN-VARIANT.md §13.3): an object like any other --
@@ -143,7 +147,7 @@ export function buildOpenWorld(): OpenWorld {
     },
   };
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [] };
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [] };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {
@@ -161,8 +165,34 @@ export function declaredProperty(world: OpenWorld, objectId: string, key: string
 /** The id the next derived object of `kindId` gets: the kind's name, then
  *  `<kind>_2`, `<kind>_3` (§13.3). */
 export function nextDerivedId(world: OpenWorld, kindId: string): string {
-  const count = world.derived.filter((d) => d.kindId === kindId).length;
+  // Destroyed ones count: a belief or resource name keyed on a reused id
+  // would describe the old object as the new one.
+  const count = [...world.derived, ...world.destroyed].filter((d) => d.kindId === kindId).length;
   return count === 0 ? kindId : `${kindId}_${count + 1}`;
+}
+
+/** The recorded kind of an object derived in this game and still in it, or
+ *  `undefined` -- decided from the record, never from the id's spelling
+ *  (OPEN-VARIANT.md §14.1). */
+export function derivedKindOf(world: OpenWorld, objectId: string): string | undefined {
+  return world.derived.find((d) => d.id === objectId)?.kindId;
+}
+
+/**
+ * Forgets an object a reshaping just destroyed (OPEN-VARIANT.md §14.2), after
+ * the resolution that destroyed it has returned: out of `derived` and into
+ * `destroyed`, and out of the maps the referee's targets and effects are
+ * planned from, so it leaves every briefing and can take no later effect.
+ * Changes no world state; the destruction itself was a leg of `resolve()`.
+ */
+export function retireDerivedObject(world: OpenWorld, objectId: string): DerivedObjectRecord {
+  const index = world.derived.findIndex((d) => d.id === objectId);
+  if (index < 0) throw new Error(`open/world: '${objectId}' is not a derived object in this game`);
+  const [record] = world.derived.splice(index, 1);
+  delete world.entityIdFor[objectId];
+  for (const p of record.properties) delete world.resourceIdFor[propertyToken(objectId, p.key)];
+  world.destroyed.push(record);
+  return record;
 }
 
 /**
