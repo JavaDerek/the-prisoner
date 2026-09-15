@@ -73,12 +73,11 @@ describe("leaving the cell (OPEN-VARIANT.md §12)", () => {
     expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
   });
 
-  it("wear and restore never act on passage, and open/close act on nothing else", () => {
+  it("wear and restore never act on passage", () => {
     createTestDb();
     const w = buildOpenWorld();
     expect(plan(w, "wear", "door", "passage")).toBeNull();
     expect(plan(w, "restore", "door", "passage")).toBeNull();
-    expect(plan(w, "open", "lock", "integrity")).toBeNull();
   });
 
   it("each way out names its part for §12's other way through: the door's is the lock's integrity, the window's the bar's (§17.2)", () => {
@@ -91,16 +90,25 @@ describe("leaving the cell (OPEN-VARIANT.md §12)", () => {
     expect(new Set([w.entityIdFor.door, w.entityIdFor.window, w.entityIdFor.lock, w.entityIdFor.bar]).size).toBe(4);
   });
 
-  it("open, close and leave target the way out itself: aimed at its part they do nothing (§17.2)", () => {
+  it("open and close resolve through the way out whether the referee names the way out or its part (§19); leave still targets the way out only", () => {
     createTestDb();
     const w = buildOpenWorld();
-    expect(plan(w, "open", "lock", "passage")).toBeNull();
-    expect(plan(w, "close", "bar", "passage")).toBeNull();
+    expect(plan(w, "open", "lock", "passage")).not.toBeNull();
+    expect(plan(w, "close", "bar", "passage")).not.toBeNull();
     expect(plan(w, "leave", "lock", "none")).toBeNull();
     expect(plan(w, "leave", "bar", "none")).toBeNull();
     // wear, restore and reveal of integrity still target the part.
     expect(plan(w, "wear", "lock", "integrity")).not.toBeNull();
     expect(plan(w, "wear", "door", "integrity")).toBeNull();
+  });
+
+  it("open/close resolve the way out's passage even when the referee's own property answer names the part's integrity -- exactly what real games produced (§19)", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    resolvePlan(w, plan(w, "open", "bar", "integrity"));
+    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(1);
+    resolvePlan(w, plan(w, "close", "lock", "integrity"));
+    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
   });
 
   it("the door and the window are perceived by both principals, like every §4.1 object with no concealment (§17)", () => {

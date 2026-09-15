@@ -1117,3 +1117,51 @@ what the current intent says. First game to reach an `open` ruling on two differ
 game (round 8 the window's mortar, round 12 the door's bolt gap) and the first to re-derive wire after
 deriving it once already (round 9, from the cot's remaining springs) -- both closer to §5.3's still-
 unmet items than any earlier game, though neither exit opened and no escape was attempted.
+
+## 19. Open/close resolves through the way out even when the referee targets its part (2026-09-15)
+
+§10.7 item 2 named this a "grounding-quality gap" when §18.9's round 8 hit it live; it is not a
+wording nit, it is the reason `open` has never once succeeded. Every `open`/`close` ruling any real
+game has ever produced -- both of them -- was refused: round 8 above (`open bar.integrity`) and an
+earlier game, 2026-09-14T22-15, round 11 (*"Use the spoon to push the bolt back through the gap in
+the door."* -> `open lock.passage`, refused because `lock` declares no `passage` to name). Two
+different failure shapes, one cause.
+
+**§17.2 said** *"open, close and leave target the way out itself, even when the method works on its
+part,"* and put that instruction in the `effect` question's own prompt: *"for open, close and leave,
+the target is the way out... even when the method works on a part of it such as its lock or a bar."*
+But the `target` question is answered separately, from its own prompt, which never says this -- so
+the referee gets `effect: open` right (it followed the aim-not-method rule that lives in the effect
+question) while still naming the part as `target` (nothing told the target question to redirect). A
+part declares no `passage` of its own, so whatever `property` is named next, the ruling can never
+cohere: `effects.ts`'s own `(open/close) === (property === "passage")` check (added at §12.2, doing
+exactly its job) refuses it every time.
+
+**The fix is structural, not another prompt sentence** -- the same choice §18.8 made over the
+"EARLIER RULINGS" block, for the same reason: a second sentence begging the model to remember the
+first is one more thing to fail statistically, when the pairing is already known data. `world.ts`
+already has it (`OpenExit.part`: `window` names `bar`, `door` names `lock`); nothing has ever read it
+except `leave`'s own exits lookup. `effects.ts`'s `planEffect` now resolves the way-out id itself
+before doing anything else for `open`/`close`: the target if it already names a way out, or the way
+out that declares this target as its `part` if it doesn't. Once resolved, the property this effect
+ever acts on is `passage` **on the resolved way out** -- never whatever property key the referee
+separately answered, exactly as `leave` already ignores it. A target that is neither a way out nor a
+declared part of one (a spoon, a bucket) still plans nothing: "no invented world" is unchanged, it is
+only which object counts as *the* way out that is no longer left to the referee's own aim.
+
+**Checked against the live referee, not just the unit tests** (temporary script, not committed): the
+two recorded intents that produced the two broken rulings were re-asked of the same referee model
+(`qwen2.5:14b`) that answered them originally, then run through the corrected `planEffect`. The
+referee gave the identical answers both times (`bar`/`open`/`integrity`, `lock`/`open`/`integrity`) --
+this was never going to be fixed by a friendlier prompt, the model's own answer did not change -- and
+the corrected code resolved each to the right exit's `passage` resource and flipped it, through a full
+`resolve()`, not just a plan object: the bar's intent opened the window, the lock's intent opened the
+door.
+
+**This reverses part of §17.2's own rule**, on purpose: §17.2 chose to make the referee do the
+retargeting and `leaving.test.ts` tested exactly that choice (*"open, close and leave target the way
+out itself: aimed at its part they do nothing"*). Two real games later, that choice is the confirmed
+reason `open` has a 0-for-2 record. `open`/`close` are corrected here; **`leave` is left alone, one
+variable at a time** -- no real game has produced a `leave` ruling at all yet, mistargeted or not, so
+there is no evidence it needs the same treatment, only a suspicion it might; that stays open for a
+later step if a real game ever surfaces it.

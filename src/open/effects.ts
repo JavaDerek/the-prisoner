@@ -116,7 +116,7 @@ export function planEffect(params: {
   resourceIdFor: Readonly<Record<string, string>>;
   /** The cell's ways out (OPEN-VARIANT.md §12), keyed by the way-out object
    *  (§17.2), and who is acting -- both needed only by `leave`. */
-  exits?: Readonly<Record<string, { passageResourceId: string; integrityResourceId: string; destinationId: string }>>;
+  exits?: Readonly<Record<string, { passageResourceId: string; integrityResourceId: string; destinationId: string; part: string }>>;
   actorId?: string;
   /** Which properties an object declares -- the §4.1 table by default; a
    *  caller with a world hands in `declaredProperty` (`world.ts`) so an
@@ -162,16 +162,23 @@ export function planEffect(params: {
     };
   }
   if (effectKind === "derive") return planDerive(params);
-  if (effectKind === "none" || property === "none") return null;
-  // `passage` changes by open/close alone, and open/close change nothing else.
-  if ((effectKind === "open" || effectKind === "close") !== (property === "passage")) return null;
-
-  const declared = lookup(targetObjectId, property);
-  if (!declared) return null; // Not declared on this object -- "no invented world".
-  const resourceId = resourceIdFor[`${targetObjectId}.${property}`];
-  if (!resourceId) return null;
+  if (effectKind === "none") return null;
 
   if (effectKind === "open" || effectKind === "close") {
+    // OPEN-VARIANT.md §19: the referee's target may already be the way out,
+    // or may be the part that makes it passable (`lock`, `bar`) -- resolved
+    // here from `world.ts`'s own part/exit pairing, never left to the
+    // referee's target answer to make the leap on its own. Whichever the
+    // target, the property this effect ever acts on is the resolved way
+    // out's OWN `passage` -- never whatever property key the referee
+    // separately answered (a part declares no `passage` to name), the same
+    // way `leave` below already ignores it.
+    const exits = params.exits ?? {};
+    const exitId = exits[targetObjectId] ? targetObjectId : Object.keys(exits).find((id) => exits[id]?.part === targetObjectId);
+    if (!exitId) return null; // Neither a way out nor a declared part of one -- "no invented world".
+    const declared = lookup(exitId, "passage");
+    const resourceId = resourceIdFor[`${exitId}.passage`];
+    if (!declared || !resourceId) return null;
     // One act, to the end of the range: open is fully open, close fully shut.
     const amount = declared.max - declared.min;
     return {
@@ -181,6 +188,16 @@ export function planEffect(params: {
       isWearType: false,
     };
   }
+  if (property === "none") return null;
+  // `passage` changes by open/close alone (handled above); every other
+  // effect leaves it untouched.
+  if (property === "passage") return null;
+
+  const declared = lookup(targetObjectId, property);
+  if (!declared) return null; // Not declared on this object -- "no invented world".
+  const resourceId = resourceIdFor[`${targetObjectId}.${property}`];
+  if (!resourceId) return null;
+
   if (effectKind === "reveal") {
     return { mechanic: "OPEN_REVEAL", parameters: { resourceId, description }, resourceId, isWearType: false };
   }
