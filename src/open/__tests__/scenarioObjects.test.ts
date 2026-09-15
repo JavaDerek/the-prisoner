@@ -95,14 +95,15 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
 
     const window = findObject("window");
     expect(window?.heldBy).toBe("the cell wall");
-    expect(window?.description).toBe("A small window high in the wall, a little wider than a person's shoulders, barred by five vertical iron bars.");
+    // OPEN-VARIANT.md §27: one bar is the whole obstacle, and the text says so.
+    expect(window?.description).toBe("A small window high in the wall, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.");
     expect(window?.properties.map((p) => p.key)).toEqual(["passage"]);
     expect(findProperty("window", "passage")).toEqual(expect.objectContaining({ resourceName: "window_passage", min: 0, max: 1, initialValue: 0 }));
 
     const bar = findObject("bar");
     expect(bar?.heldBy).toBe("the window");
     expect(bar?.description).toBe(
-      "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+      "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
     );
     expect(bar?.properties.map((p) => p.key)).toEqual(["integrity"]);
   });

@@ -102,7 +102,7 @@ describe("open checkpoint transcript", () => {
       { questionId: "target", answerKey: "bar", citation: words(2, 4) },
       { questionId: "effect", answerKey: "wear", citation: words(2, 2) },
       { questionId: "product", answerKey: "none", citation: words(2, 4) },
-      { questionId: "property", answerKey: "integrity", citation: words(18, 24, "desc:bar") },
+      { questionId: "property", answerKey: "integrity", citation: words(20, 26, "desc:bar") },
       { questionId: "magnitude", answerKey: "enormous", citation: words(5, 7) },
       { questionId: "perceptibility", answerKey: "audible", citation: { sourceId: "intent", quote: "scrape the bar" } },
     ]);
@@ -118,12 +118,12 @@ describe("open checkpoint transcript", () => {
     const half = find(game, 1, "prisoner");
     const text = renderOpenHalfRound(half).join("\n");
     expect(text).toContain('| target | `bar` | intent, words 2-4: "scrape the bar" | yes |');
-    expect(text).toContain('| property | `integrity` | desc:bar, words 18-24: "Rust has pitted it near the bottom," | yes |');
+    expect(text).toContain('| property | `integrity` | desc:bar, words 20-26: "Rust has pitted it near the bottom," | yes |');
     // A quote given instead is shown as a quote, as before.
     expect(text).toContain('| perceptibility | `audible` | intent: "scrape the bar" | n/a |');
     expect(text).toContain('magnitude: rejected (unknown-answer-key) `enormous`, intent, words 5-7: "with my spoon."');
-    expect(half.ruling?.citations.property.citation).toEqual({ sourceId: "desc:bar", quote: "Rust has pitted it near the bottom,", from: 18, to: 24 });
-    expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 18-24: "Rust has pitted it near the bottom,"');
+    expect(half.ruling?.citations.property.citation).toEqual({ sourceId: "desc:bar", quote: "Rust has pitted it near the bottom,", from: 20, to: 26 });
+    expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 20-26: "Rust has pitted it near the bottom,"');
   });
 
   it("a forced pick shows the mind's own intent and every candidate's verdict, so an override is never silent (§21)", () => {

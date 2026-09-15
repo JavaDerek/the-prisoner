@@ -94,7 +94,8 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
     id: "window",
     heldBy: "the cell wall",
     description:
-      "A small window high in the wall, a little wider than a person's shoulders, barred by five vertical iron bars.",
+      // OPEN-VARIANT.md §27: the world models one bar as the whole obstacle, so the text says so.
+      "A small window high in the wall, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.",
     properties: [
       {
         // 0 shut, 1 open, changed only by `open`/`close` (effects.ts refuses
@@ -113,7 +114,7 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
     id: "bar",
     heldBy: "the window",
     description:
-      "One of five vertical iron bars in the cell's small window, about as thick as a thumb. Rust has " +
+      "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has " +
       "pitted it near the bottom, where it is set into old mortar that is dry and cracked.",
     properties: [
       {

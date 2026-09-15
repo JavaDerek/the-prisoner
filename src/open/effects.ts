@@ -87,6 +87,10 @@ export interface EffectPlan {
   isWearType: boolean;
   /** Set only for `derive`. */
   derived?: PlannedDerivation;
+  /** OPEN-VARIANT.md §27: set only for a `wear` on a way out's part, naming
+   *  the way out that part keeps shut, so a wear to the bottom can be told as
+   *  the way out it frees. */
+  frees?: string;
 }
 
 /**
@@ -205,11 +209,13 @@ export function planEffect(params: {
     return { mechanic: "OPEN_REVEAL", parameters: { resourceId, description }, resourceId, isWearType: false };
   }
   if (effectKind === "wear") {
+    const frees = property === "integrity" ? Object.keys(params.exits ?? {}).find((id) => params.exits?.[id]?.part === targetObjectId) : undefined;
     return {
       mechanic: "OPEN_WEAR",
       parameters: { resourceId, amount: declared.wear[magnitude], min: declared.min, max: declared.max, description },
       resourceId,
       isWearType: true,
+      ...(frees ? { frees } : {}),
     };
   }
   if (effectKind === "restore") {

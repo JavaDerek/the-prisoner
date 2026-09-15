@@ -1489,3 +1489,25 @@ round 20. The prisoner never tried to leave.**
 - Smaller: `replanned` was false for all 19 turns while the plan visibly moved (wedge, then distraction,
   then more bars), so the mind's own yes/no also under-reports; "throw the loose tile into the bucket"
   was ruled `conceal` on the tile; the gate (§24) correctly refused two opens at bar 77.
+
+## 27. The descriptions say one bar; a part worn through is told as the way out (owner's decision, 2026-09-15)
+
+§26.1's cause: the owner-approved §4.1/§17.1 text said the window was "barred by five vertical iron bars"
+and the bar was "One of five", while the world has always modelled that one bar as the whole obstacle
+(§12: the window is passable when its passage is open or the bar's integrity is 0). A model reasons
+from the text, so with the bar at 0 the prisoner went on to "remove another bar". The owner chose both
+fixes:
+
+- **The descriptions now say what the world models.** Window: *"A small window high in the wall, a
+  little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest
+  gap: with that bar gone, a person could climb through."* Bar: *"The iron bar that closes the widest
+  gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it
+  is set into old mortar that is dry and cracked."* The rust sentence the referee has always cited is
+  unchanged; its word positions move by two. Games before this section were played against the old text.
+- **A wear that takes a way out's part to its minimum says so as the way out**: "Your last attempt worked
+  on the bar: its integrity went from 5 to 0. The window can be climbed through now." (`EffectPlan.frees`,
+  set from `world.ts`'s part pairing, never from prose.)
+
+The general lesson, that a description implying more of something than the world models misleads a
+model into planning for what is not there, is added to run-dmcp's `docs/AUTHORING-GUIDE.md` in that
+repository's neutral vocabulary, per this repository's CLAUDE.md.

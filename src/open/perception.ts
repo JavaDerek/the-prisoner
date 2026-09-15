@@ -84,7 +84,10 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
     if (typeof result.before === "number" && typeof result.after === "number") {
       return result.before === result.after
         ? `Your last attempt left the ${obj}'s ${property} at ${result.after}, where it already stood.`
-        : `Your last attempt worked on the ${obj}: its ${property} went from ${result.before} to ${result.after}.`;
+        : `Your last attempt worked on the ${obj}: its ${property} went from ${result.before} to ${result.after}.${
+            // OPEN-VARIANT.md §27: a part worn through is told as the way out it frees (§12: passable at 0).
+            plan.frees && result.after === (plan.parameters as { min?: number }).min ? ` The ${plan.frees.replace(/_/g, " ")} can be climbed through now.` : ""
+          }`;
     }
     return `Your last attempt on the ${obj} took effect.`;
   }
