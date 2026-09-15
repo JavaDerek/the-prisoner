@@ -95,7 +95,7 @@ describe("replanning names the observation that broke the plan (§22)", () => {
       rounds: 3,
     });
     const round2 = game.halves.find((h) => h.roundN === 2 && h.principal === "prisoner");
-    expect(renderOpenHalfRound(round2!).join("\n")).toContain("**Replanned because:** The bar would not give.");
+    expect(renderOpenHalfRound(round2 as NonNullable<typeof round2>).join("\n")).toContain("**Replanned because:** The bar would not give.");
     expect(renderOpenSummary(game, 3).join("\n")).toContain("Prisoner plans (§22): replanned 1 of 2 turns that had a plan, kept 1.");
   });
 });
