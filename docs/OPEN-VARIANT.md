@@ -821,6 +821,12 @@ container's `concealment` stands below 50; above that, it is in no briefing and 
 open to view, §10.1's own rule then applies to the object as usual. The rule is generic; the hollow
 is its first caller.
 
+**A container's `concealment` hides what is in it, never the container** (resolved while building,
+2026-09-14). Read literally, §10.1 would hide the tile itself from both principals at 100, since
+nobody owns it, and then nothing could be ruled against it: no `expose`, no grit. The closed variant
+already behaves this way (`src/view/viewFor.ts` keeps the tile in view whatever CONCEAL does). A held
+object is also hidden when its container's concealment cannot be read.
+
 ### 15.2 The tile gains `concealment`
 
 `loose_tile` declares `concealment`, starting at **100** (the tile down, the grit undisturbed), with
@@ -847,3 +853,63 @@ line) and a deal is paid in the warden's own later acts.
 In each game: the round the banknotes are first perceived by each principal, every spoken line or
 intent that mentions money or a bribe (**read by a human in the transcript**, never matched by code,
 CLAUDE.md "never pattern-match meaning"), and what the warden does after one.
+
+## 16. The one-off door test (2026-09-14, uncommitted patch)
+
+§13.8 item 2 asked whether the prisoner in game 3 stayed in with the door open because the briefing
+said so only as a number (*door passage: 1*). One diagnostic game, not a condition: a patch that was
+**never committed** started the door open and added *The door stands open.* to both briefings while
+it was. 6 rounds, the same models as §13.7, precedent on against a copy of the ledger (the committed
+ledger is unchanged). Transcript, unedited: `checkpoints/2026-09-15T00-16-45-550Z-door-test.md` and
+its `.referee.json` (committed in 3857bf8, whose message also names this section; the doc edit itself
+failed to apply in that commit and lands here). The patch, in full:
+
+```diff
+diff --git a/src/open/briefing.ts b/src/open/briefing.ts
+index 3cd00d1..de7cc57 100644
+--- a/src/open/briefing.ts
++++ b/src/open/briefing.ts
+@@ -95,6 +95,12 @@ export function buildOpenBriefing(
+   for (const perceived of news.fromOther ?? []) lines.push(perceived);
+   lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
+   for (const line of news.standing ?? []) lines.push(line);
++  // ONE-OFF DOOR TEST, never commit.
++  if (process.env.DOOR_TEST_LINE) {
++    const passageId = resourceIdForProperty(openWorld, "lock", "passage");
++    const passage = passageId ? readNumericFact({ gameId, t, entityId: passageId, key: "value" }) : null;
++    if (passage !== null && passage >= 1) lines.push("The door stands open.");
++  }
+ 
+   const notes = getNotes(gameId, principal);
+   if (notes) lines.push(`Your notes from last round: ${notes}`);
+diff --git a/src/open/scenarioObjects.ts b/src/open/scenarioObjects.ts
+index 1f953df..b34703c 100644
+--- a/src/open/scenarioObjects.ts
++++ b/src/open/scenarioObjects.ts
+@@ -147,7 +147,7 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
+         resourceName: "door_passage",
+         min: 0,
+         max: 1,
+-        initialValue: 0,
++        initialValue: process.env.DOOR_TEST_START_OPEN ? 1 : 0, // ONE-OFF DOOR TEST, never commit
+         wear: { slight: 1, moderate: 1, substantial: 1 },
+         restore: { slight: 1, moderate: 1, substantial: 1 },
+       },
+```
+
+**Result: the sentence reached the mind; the referee then could not rule the exit.** The prisoner tried
+to leave twice in six turns (round 3 *"Attempt to escape through the open door without raising
+suspicion."*, round 6 *"Exit through the open door."*), against none in game 3's two open-door turns.
+Both were ruled impossible, and not on physics: the referee's target was `none`, because the exit is
+the object `lock` (*"A steel lock set in the cell door…"*) and no object is called `door`. The target
+answer keys are object ids, so "the door" matched nothing, and the `passage` citation from `desc:lock`
+could not verify against a `none` target.
+
+- The line was a diagnostic, not a mechanics fix, and is not built. If a standing state line is
+  wanted, the general form is each property declaring how its value reads in words, for every object.
+- **The finding is a world-naming mismatch**: the minds and §12's rules say *door*, the world says
+  *lock*. Awaiting the owner: split `lock` into a `door` (the exit, `passage`) and a `lock` set in it.
+- The warden, told every turn that the door stood open, examined the bar in all six turns and never
+  closed it.
+- Caveat: the lock's description (*"The door hangs a finger's width short of its frame"*) contradicts a
+  door open from round 1; another reason this is a diagnostic, not a game.
