@@ -1165,3 +1165,64 @@ reason `open` has a 0-for-2 record. `open`/`close` are corrected here; **`leave`
 variable at a time** -- no real game has produced a `leave` ruling at all yet, mistargeted or not, so
 there is no evidence it needs the same treatment, only a suspicion it might; that stays open for a
 later step if a real game ever surfaces it.
+
+## 20. Candidates before intent: `mother-of-invention#1`'s "iterate" half, driven here first (2026-09-15)
+
+The owner's idea, filed as
+[`mother-of-invention#1`](https://github.com/JavaDerek/mother-of-invention/issues/1): a mind asked
+to enumerate several concrete things it could try, before committing to one, sometimes reaches an
+idea a single greedy answer would not have. The issue leaves two things undecided -- whether
+"iterate" needs grounding beyond a bare instruction, and whether "pick" (choosing among candidates,
+biased against what an observer has already witnessed) belongs in the package at all. Per that
+issue's own note and root `CLAUDE.md`'s "before mirroring a constant, check whether the other side
+already publishes it" lesson generalised the other way -- **build the real caller first, let it
+shape what a package commits to** -- "iterate" landed here, in this repository's own `src/open/`,
+not in `mother-of-invention`.
+
+**Ungrounded, it is noise.** Asked cold ("a warden needs to catch a prisoner breaking out of their
+cell, list tactics") with no object list, `qwen2.5:14b` returned cameras, guard dogs, drones and
+informants -- fluent prison-fiction, useless against a referee that can only rule on the eleven
+objects this cell actually declares. **Grounded, it is clean.** Given the same object descriptions
+and state-based rules the wits prompt already sends, the same model returned five candidates, each a
+real action on a real object -- and one, *"observe Voss's movements and behavior,"* a genuinely
+different kind of move (behavioral, not object-directed) nothing in this game's history had tried.
+
+### 20.1 What was built
+
+`buildOpenWitsPrompt` and `buildOpenSingleCallPrompt` (`src/open/mind.ts`) now require a `candidates`
+field -- 2 to 5 `{text, reason}` entries, each "grounded only in what you can currently reach or
+perceive," generated before `intent` (schema property order is generation order, as elsewhere in this
+codebase). `OpenProposal` carries them through; `checkpointTranscript.ts` renders them for audit and
+the fog audit (§5.1) covers them exactly like `thoughts`/`plan`/`notes` -- a candidate considered but
+not acted on is still private until said aloud. Malformed or missing candidates never fail the turn;
+exact-duplicate text collapses to one, kept first, the same "same text only" rule
+`mother-of-invention`'s own ledger uses for what counts as a repeat. Nothing here crosses candidates
+against the precedent ledger -- that is "pick," left untouched on purpose.
+
+### 20.2 The first live game (`checkpoints/2026-09-15T17-53-24-592Z.md`)
+
+Same models and precedent ledger as §18.9 (`qwen3:14b` wits, `ancient-awakening:12b` voice,
+`qwen2.5:14b` referee, 17 earlier episodes). Result: **caught at round 8** -- earlier than most prior
+games' round-12 timeouts.
+
+- **Iterate held up under real, repeated decoding, not just one sample.** All 15 turns produced valid,
+  grounded candidate lists; zero schema failures, zero anachronisms across every list. Alternatives
+  that went unchosen: the warden considered *"observe Voss's posture for signs of planning"* and
+  *"listen for sounds from the window bars"*; the prisoner considered mixing tile grit with bucket
+  water into an abrasive slurry and unravelling the blanket's loose thread. None of these exist
+  anywhere in this game's history before today.
+- **Pick reproduced §11's confound exactly.** The prisoner chose bar work in 6 of 7 turns despite the
+  candidate list naming 2-4 alternatives every single time. Novel (object, effect) pairs this game:
+  **0** -- identical to every baseline since §10.3. Listing an option a mind does not act on changes
+  nothing about what it does, exactly as precedent-as-flavour-text changed nothing in §11.1.
+- **One real, partial change, warden side only.** The warden broke from examining the bar twice
+  (round 4: the loose tile; round 7: searching the loose tile) against 12 of 12 in §18.9's
+  immediately preceding game. Too small a sample to call a trend, but it is the first time in this
+  game's history the warden's own move has varied at all.
+
+### 20.3 What is still open
+
+Exactly what §20 set out to answer, no more: iterate is real, grounded, reusable engineering,
+proven with a real caller before `mother-of-invention` commits to a shape for it. Pick -- forcing a
+choice biased against `seenBefore`, or costing a known one explicitly -- is untouched, reproduces the
+same failure §11 already named, and is deliberately left for a later step.
