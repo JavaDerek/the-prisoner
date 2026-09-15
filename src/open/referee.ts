@@ -1,7 +1,8 @@
-import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion } from "run-dmcp";
+import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type TransportAnswer } from "run-dmcp";
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PROPERTY_ANSWER_KEYS, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
+import type { RangedCitation } from "./refereeTransport.js";
 
 /**
  * The referee (OPEN-VARIANT.md §3, this task's brief "The referee"). A
@@ -94,7 +95,9 @@ export interface RefereeRuling {
 }
 
 export interface CitationCheck {
-  citation: { sourceId: string; quote: string } | null;
+  /** With the word range it was rebuilt from, when the referee cited by
+   *  range (OPEN-VARIANT.md §18). */
+  citation: RangedCitation | null;
   /** The sourceId this citation was REQUIRED to name (`"intent"` for
    *  target/effect; the target's own `desc:<id>` source for property) --
    *  `null` when there was no target to require one against yet (a `none`
@@ -245,7 +248,7 @@ function answerFor(result: ReaderResult, questionId: string): AnsweredQuestion {
 }
 
 function citationCheck(answer: AnsweredQuestion, requiredSourceId: string | null): CitationCheck {
-  const citation = answer.citation;
+  const citation: RangedCitation | null = answer.citation;
   const verified = citation !== null && requiredSourceId !== null && citation.sourceId === requiredSourceId;
   return { citation, requiredSourceId, verified };
 }
@@ -310,6 +313,29 @@ export function computeRuling(
   };
 }
 
+/**
+ * The reader's result with each accepted citation's word range restored from
+ * the offer it came from (OPEN-VARIANT.md §18.3) -- for the transcript; the
+ * sourceId and quote are the engine's own, unchanged. The accepted offer is
+ * the first one on its rung with the same question, key, source and quote:
+ * any earlier identical offer would have passed the same checks and been the
+ * one accepted. A citation given as a quote has no range and gains none.
+ */
+function withRanges(result: ReaderResult, offered: readonly unknown[]): ReaderResult {
+  const answers = result.answers.map((answer) => {
+    const rungOffers = answer.answeredByRung === null ? undefined : offered[answer.answeredByRung];
+    if (!answer.citation || !Array.isArray(rungOffers)) return answer;
+    const { sourceId, quote } = answer.citation;
+    const offer = (rungOffers as TransportAnswer[]).find(
+      (o) => o?.questionId === answer.questionId && o.answerKey === answer.answerKey && o.citation?.sourceId === sourceId && o.citation.quote === quote
+    );
+    const { from, to } = (offer?.citation ?? {}) as RangedCitation;
+    if (typeof from !== "number" || typeof to !== "number") return answer;
+    return { ...answer, citation: { sourceId, quote, from, to } };
+  });
+  return { ...result, answers };
+}
+
 export interface Referee {
   rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling>;
   precedent: PrecedentStore;
@@ -331,8 +357,17 @@ export function createReferee(transports: readonly ReaderTransport[], options: {
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
       const questions = buildQuestions(perceivedObjects, kindOf);
       const sources = buildSources(intentText, perceivedObjects, precedent);
-      const reader = createTurnReader({ questions, transports });
-      const result = await reader.read(sources);
+      // OPEN-VARIANT.md §18.3: the engine keeps an accepted citation as
+      // `{sourceId, quote}` only, so what each rung offered is kept here, to
+      // put the word range back beside the quote it was rebuilt into.
+      const offered: unknown[] = [];
+      const recording = transports.map((transport, rung): ReaderTransport => async (request) => {
+        const answers = await transport(request);
+        offered[rung] = answers;
+        return answers;
+      });
+      const reader = createTurnReader({ questions, transports: recording });
+      const result = withRanges(await reader.read(sources), offered);
       const ruling = computeRuling(result, { questions, sources }, isDeclared);
       // Only rulings that applied become precedent. A failed ruling shown as
       // an example is copied: the first real games (OPEN-VARIANT.md §11.2) had

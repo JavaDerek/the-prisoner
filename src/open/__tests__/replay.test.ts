@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { ReadRequest, ReaderTransport } from "run-dmcp";
 import { replayRequest, replayTranscript, renderReplayReport } from "../replay.js";
+import { createRefereeTransport } from "../refereeTransport.js";
 
 const REQUEST: ReadRequest = {
   questions: [
@@ -68,5 +69,19 @@ describe("replayTranscript / renderReplayReport", () => {
     const report = renderReplayReport(replayed);
     expect(report.join("\n")).toContain("intent #1");
     expect(report.join("\n")).toContain("80%");
+  });
+
+  it("replays through the real transport when the referee cites by word range: the recorded request's sources are all it needs (OPEN-VARIANT.md §18.3)", async () => {
+    const content = JSON.stringify([
+      { questionId: "target", answerKey: "bar", citation: { sourceId: "intent", from: 3, to: 3 } },
+      { questionId: "magnitude", answerKey: "moderate", citation: { sourceId: "intent", from: 1, to: 3 } },
+    ]);
+    const fetchFn = (async () => ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) })) as unknown as typeof fetch;
+    const recorded = JSON.parse(JSON.stringify(REQUEST)) as ReadRequest; // as `referee.json` round-trips it
+    const report = await replayRequest(recorded, [createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn })], 3);
+    expect(report).toEqual([
+      { questionId: "target", mostCommonKey: "bar", agreementRate: 1, sampleSize: 3 },
+      { questionId: "magnitude", mostCommonKey: "moderate", agreementRate: 1, sampleSize: 3 },
+    ]);
   });
 });

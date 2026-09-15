@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type { ReadRequest } from "run-dmcp";
+import { createTurnReader, type ReadRequest } from "run-dmcp";
 import { createRefereeTransport } from "../refereeTransport.js";
 
 const REQUEST: ReadRequest = {
@@ -152,11 +152,33 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       expect(await promptFor(REQUEST)).not.toContain("EARLIER RULINGS");
     });
 
-    it("a span from the middle of a sentence keeps its small first letter and gains no full stop (issue #4, step 5: the derive grounding rejected in game 1)", async () => {
+    it("§11.4's mid-sentence example is gone: a ranged citation cannot miscapitalise (OPEN-VARIANT.md §18.2)", async () => {
       const prompt = await promptFor(RICH);
-      expect(prompt).toMatch(/middle of a sentence/i);
-      expect(prompt).toMatch(/small first letter|lowercase/i);
-      expect(prompt).toMatch(/full stop/i);
+      expect(prompt).not.toMatch(/middle of a sentence/i);
+      expect(prompt).not.toMatch(/small first letter/i);
+      expect(prompt).not.toContain("The springs are held.");
+    });
+
+    it("renders every citable source with its words numbered, a word being a maximal run of non-whitespace (OPEN-VARIANT.md §18.1)", async () => {
+      const prompt = await promptFor({
+        questions: RICH.questions,
+        sources: [
+          { id: "intent", text: "Closely  examine the bar." },
+          { id: "desc:door", text: "A heavy door of iron-bound planks" },
+          { id: "precedent:bar", text: "effect=reveal property=integrity magnitude=slight" },
+        ],
+      });
+      expect(prompt).toContain('source "intent":\n1:Closely 2:examine 3:the 4:bar.\n');
+      expect(prompt).toContain('source "desc:door":\n1:A 2:heavy 3:door 4:of 5:iron-bound 6:planks\n');
+      // Earlier rulings are never cited, so they are not numbered.
+      expect(prompt).toContain("effect=reveal property=integrity magnitude=slight");
+      expect(prompt).not.toContain("1:effect=reveal");
+    });
+
+    it("asks for citations as a word range, and keeps the character-for-character rule for a quote given instead (OPEN-VARIANT.md §18.1, §18.2)", async () => {
+      const prompt = await promptFor(RICH);
+      expect(prompt).toContain('"citation": {"sourceId": string, "from": number, "to": number}');
+      expect(prompt).toMatch(/"quote" is copied from that source character for character/);
     });
 
     it("demands exact copies: capital letters and punctuation kept, no '...', never empty", async () => {
@@ -164,6 +186,82 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       expect(prompt).toMatch(/capital letters/i);
       expect(prompt).toContain("...");
       expect(prompt).toMatch(/never empty/i);
+    });
+  });
+
+  describe("citations by word range (OPEN-VARIANT.md §18)", () => {
+    const SOURCES: ReadRequest = {
+      questions: [
+        { id: "target", prompt: "Which object?", answerKeys: ["door", "none"], safeDefault: "none" },
+        { id: "property", prompt: "Grounded how?", answerKeys: ["passage", "none"], safeDefault: "none" },
+      ],
+      sources: [
+        { id: "intent", text: "I push  the bolt\tback, slowly." },
+        { id: "desc:door", text: "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap." },
+      ],
+    };
+
+    async function answersFor(citations: unknown[], request: ReadRequest = SOURCES) {
+      const content = JSON.stringify(citations.map((citation, i) => ({ questionId: i === 0 ? "target" : "property", answerKey: i === 0 ? "door" : "passage", citation })));
+      return createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content } }] }) })(request);
+    }
+
+    it("rebuilds the quote as the source sliced from the first character of word `from` to the last of word `to`, whitespace and punctuation included, and keeps the range", async () => {
+      const answers = await answersFor([
+        { sourceId: "intent", from: 2, to: 5 },
+        { sourceId: "desc:door", from: 11, to: 11 },
+      ]);
+      expect(answers).toEqual([
+        { questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "push  the bolt\tback,", from: 2, to: 5 } },
+        { questionId: "property", answerKey: "passage", citation: { sourceId: "desc:door", quote: "It", from: 11, to: 11 } },
+      ]);
+    });
+
+    it("the rebuilt quote is exact: a span that starts mid-sentence keeps its small letter, and one that ends a sentence keeps its full stop", async () => {
+      const answers = await answersFor([
+        { sourceId: "desc:door", from: 21, to: 29 },
+        { sourceId: "desc:door", from: 1, to: 10 },
+      ]);
+      expect(answers[0].citation.quote).toBe("the edge of the bolt shows in the gap.");
+      expect(answers[1].citation.quote).toBe("A heavy door of iron-bound planks in a stone frame.");
+    });
+
+    it("drops a range out of bounds, reversed, non-integer, or naming a source not in the request", async () => {
+      const bad = [
+        { sourceId: "intent", from: 0, to: 2 },
+        { sourceId: "intent", from: 1, to: 7 },
+        { sourceId: "intent", from: 3, to: 2 },
+        { sourceId: "intent", from: 1.5, to: 2 },
+        { sourceId: "intent", from: "1", to: "2" },
+        { sourceId: "intent", from: 1 },
+        { sourceId: "desc:bar", from: 1, to: 1 },
+        { sourceId: "[intent]", from: 1, to: 1 },
+      ];
+      for (const citation of bad) expect(await answersFor([citation]), JSON.stringify(citation)).toEqual([]);
+    });
+
+    it("passes a quote citation through untouched, verbatim or not -- the engine checks it byte-exact as before", async () => {
+      const answers = await answersFor([
+        { sourceId: "intent", quote: "push the bolt back" },
+        { sourceId: "desc:door", quote: "the edge of the bolt shows in the gap" },
+      ]);
+      expect(answers).toEqual([
+        { questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "push the bolt back" } },
+        { questionId: "property", answerKey: "passage", citation: { sourceId: "desc:door", quote: "the edge of the bolt shows in the gap" } },
+      ]);
+    });
+
+    it("a ranged citation verifies through the engine's own unchanged turn reader", async () => {
+      const content = JSON.stringify([
+        { questionId: "target", answerKey: "door", citation: { sourceId: "intent", from: 2, to: 5 } },
+        { questionId: "property", answerKey: "passage", citation: { sourceId: "desc:door", from: 21, to: 29 } },
+      ]);
+      const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content } }] }) });
+      const result = await createTurnReader({ questions: SOURCES.questions, transports: [transport] }).read(SOURCES.sources);
+      expect(result.answers.map((a) => [a.answerKey, a.fromSafeDefault, a.citation?.quote])).toEqual([
+        ["door", false, "push  the bolt\tback,"],
+        ["passage", false, "the edge of the bolt shows in the gap."],
+      ]);
     });
   });
 });

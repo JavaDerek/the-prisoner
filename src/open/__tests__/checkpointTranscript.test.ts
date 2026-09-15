@@ -4,6 +4,7 @@ import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { createReferee } from "../referee.js";
+import { createRefereeTransport } from "../refereeTransport.js";
 import { runOpenGame, type OpenGameResult } from "../game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, fogAudit } from "../checkpointTranscript.js";
 import type { OpenHalfRoundResult } from "../loop.js";
@@ -90,6 +91,39 @@ describe("open checkpoint transcript", () => {
     const text = renderOpenHalfRound(find(game, 1, "prisoner")).join("\n");
     expect(text).toMatch(/property: rejected \(\S+\) `integrity`, desc:bar: "PARAPHRASED_RUST_QUOTE"/);
     expect(text).toContain("No offer from the referee for: perceptibility.");
+  });
+
+  it("a citation given as a word range shows the range and the quote rebuilt from it, accepted or rejected (OPEN-VARIANT.md §18.3)", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const intent = "I scrape the bar with my spoon.";
+    const words = (from: number, to: number, sourceId = "intent") => ({ sourceId, from, to });
+    const content = JSON.stringify([
+      { questionId: "target", answerKey: "bar", citation: words(2, 4) },
+      { questionId: "effect", answerKey: "wear", citation: words(2, 2) },
+      { questionId: "product", answerKey: "none", citation: words(2, 4) },
+      { questionId: "property", answerKey: "integrity", citation: words(18, 24, "desc:bar") },
+      { questionId: "magnitude", answerKey: "enormous", citation: words(5, 7) },
+      { questionId: "perceptibility", answerKey: "audible", citation: { sourceId: "intent", quote: "scrape the bar" } },
+    ]);
+    const fetchFn = (async () => ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) })) as unknown as typeof fetch;
+    const game = await runOpenGame({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: createReferee([createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn })]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>(null),
+      prisonerMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent }),
+      rounds: 1,
+    });
+    const half = find(game, 1, "prisoner");
+    const text = renderOpenHalfRound(half).join("\n");
+    expect(text).toContain('| target | `bar` | intent, words 2-4: "scrape the bar" | yes |');
+    expect(text).toContain('| property | `integrity` | desc:bar, words 18-24: "Rust has pitted it near the bottom," | yes |');
+    // A quote given instead is shown as a quote, as before.
+    expect(text).toContain('| perceptibility | `audible` | intent: "scrape the bar" | n/a |');
+    expect(text).toContain('magnitude: rejected (unknown-answer-key) `enormous`, intent, words 5-7: "with my spoon."');
+    expect(half.ruling?.citations.property.citation).toEqual({ sourceId: "desc:bar", quote: "Rust has pitted it near the bottom,", from: 18, to: 24 });
+    expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 18-24: "Rust has pitted it near the bottom,"');
   });
 
   it("a silent half-round shows its reason and raw text", () => {

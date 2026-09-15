@@ -57,8 +57,40 @@ const DEFAULT_TIMEOUT_MS = 12_000;
  *  for a JSON array of `{questionId, answerKey, citation: {sourceId,
  *  quote}}` -- the exact shape `TransportAnswer[]` needs, so no translation
  *  step sits between "what the model said" and "what this function
- *  returns" beyond ordinary JSON parsing. */
+ *  returns" beyond ordinary JSON parsing. OPEN-VARIANT.md §18 changed the
+ *  citation to a word range `{sourceId, from, to}`, rebuilt into that shape
+ *  by `coerceAnswers`; a `{sourceId, quote}` still passes through. */
 const PRECEDENT_SOURCE_PREFIX = "precedent:";
+
+/** A citation as this transport hands it on (OPEN-VARIANT.md §18): the
+ *  engine's `{sourceId, quote}`, plus the word range the quote was rebuilt
+ *  from when the referee cited by range. The engine reads only `sourceId`
+ *  and `quote`; the range is this repository's record, for transcripts. */
+export type RangedCitation = { sourceId: string; quote: string; from?: number; to?: number };
+
+/** A source's words, OPEN-VARIANT.md §18.1: each maximal run of
+ *  non-whitespace, with where it starts and ends in the text. Lexical only --
+ *  nothing here reads what a word means. */
+function wordsOf(text: string): { start: number; end: number }[] {
+  const words: { start: number; end: number }[] = [];
+  let start = -1;
+  for (let i = 0; i <= text.length; i++) {
+    const isSpace = i === text.length || text[i].trim() === "";
+    if (!isSpace && start < 0) start = i;
+    else if (isSpace && start >= 0) {
+      words.push({ start, end: i });
+      start = -1;
+    }
+  }
+  return words;
+}
+
+/** `1:A 2:heavy 3:door ...` -- the words of `text`, numbered from 1. */
+function numberedWords(text: string): string {
+  return wordsOf(text)
+    .map((w, i) => `${i + 1}:${text.slice(w.start, w.end)}`)
+    .join(" ");
+}
 
 function buildPrompt(request: ReadRequest): string {
   // Earlier rulings are this referee's own precedent (`referee.ts`): shown for
@@ -68,7 +100,9 @@ function buildPrompt(request: ReadRequest): string {
   // first games showed coming back as "[desc:bar]".
   const citable = request.sources.filter((s) => !s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
   const earlier = request.sources.filter((s) => s.id.startsWith(PRECEDENT_SOURCE_PREFIX));
-  const sourceBlocks = citable.flatMap((s) => [`source "${s.id}":`, s.text, ""]);
+  // OPEN-VARIANT.md §18.1: every citable source with its words numbered, so a
+  // citation names a range instead of retyping text.
+  const sourceBlocks = citable.flatMap((s) => [`source "${s.id}":`, numberedWords(s.text), ""]);
   const questionLines = request.questions.map(
     (q) => `- id "${q.id}": ${q.prompt} Answer with exactly one of: ${q.answerKeys.join(", ")}.`
   );
@@ -91,12 +125,15 @@ function buildPrompt(request: ReadRequest): string {
     ...questionLines,
     "",
     'Answer with a JSON array, one entry per question: [{"questionId": string, "answerKey": string, ' +
-      '"citation": {"sourceId": string, "quote": string}}, ...].',
+      '"citation": {"sourceId": string, "from": number, "to": number}}, ...].',
     '"sourceId" is a source\'s label exactly as written above, such as "intent" -- no brackets, nothing added.',
+    // OPEN-VARIANT.md §18.1: the words cited are named by their numbers.
+    '"from" and "to" are the numbers of the first and last words of the span you cite in that source, as numbered above; ' +
+      'for a single word, "from" and "to" are the same number.',
+    // §18.2: a quote is still accepted, and still checked byte-exact.
+    'A citation may instead give "quote" in place of "from" and "to".',
     '"quote" is copied from that source character for character: the same capital letters and punctuation, ' +
-      'one unbroken span, never shortened with "...", never paraphrased, and never empty. A span taken from the ' +
-      "middle of a sentence keeps its small first letter and gains no full stop: if the source reads \"and the " +
-      "springs are held\", the quote is \"the springs are held\", never \"The springs are held.\".",
+      'one unbroken span, never shortened with "...", never paraphrased, and never empty.',
   ].join("\n");
 }
 
@@ -127,7 +164,23 @@ function firstJsonArray(text: string): unknown {
   return null;
 }
 
-function coerceAnswers(raw: unknown): TransportAnswer[] {
+/**
+ * OPEN-VARIANT.md §18.1: a ranged citation becomes the engine's quote, the
+ * source sliced from the first character of word `from` to the last of word
+ * `to` -- an exact substring by construction. `null` (the offer is dropped,
+ * §18.2) for a source not in the request, or a range that is not two
+ * integers with 1 <= from <= to <= the source's word count.
+ */
+function rebuildRanged(citation: { sourceId: string; from?: unknown; to?: unknown }, request: ReadRequest): RangedCitation | null {
+  const { from, to } = citation;
+  const source = request.sources.find((s) => s.id === citation.sourceId);
+  if (!source || typeof from !== "number" || typeof to !== "number" || !Number.isInteger(from) || !Number.isInteger(to)) return null;
+  const words = wordsOf(source.text);
+  if (from < 1 || from > to || to > words.length) return null;
+  return { sourceId: source.id, quote: source.text.slice(words[from - 1].start, words[to - 1].end), from, to };
+}
+
+function coerceAnswers(raw: unknown, request: ReadRequest): TransportAnswer[] {
   if (!Array.isArray(raw)) return [];
   const answers: TransportAnswer[] = [];
   for (const entry of raw) {
@@ -135,9 +188,18 @@ function coerceAnswers(raw: unknown): TransportAnswer[] {
     const record = entry as Record<string, unknown>;
     const questionId = record.questionId;
     const answerKey = record.answerKey;
-    const citation = record.citation as { sourceId?: unknown; quote?: unknown } | undefined;
+    const citation = record.citation as { sourceId?: unknown; quote?: unknown; from?: unknown; to?: unknown } | undefined;
     if (typeof questionId !== "string" || typeof answerKey !== "string") continue;
-    if (!citation || typeof citation.sourceId !== "string" || typeof citation.quote !== "string") continue;
+    if (!citation || typeof citation.sourceId !== "string") continue;
+    // A range, when one is given, is what the referee cited; a quote alongside
+    // it is not read (§18.1: the quote is rebuilt). Without one, a quote
+    // passes through untouched for the engine's byte-exact check (§18.2).
+    if (citation.from !== undefined || citation.to !== undefined) {
+      const rebuilt = rebuildRanged({ sourceId: citation.sourceId, from: citation.from, to: citation.to }, request);
+      if (rebuilt) answers.push({ questionId, answerKey, citation: rebuilt });
+      continue;
+    }
+    if (typeof citation.quote !== "string") continue;
     answers.push({ questionId, answerKey, citation: { sourceId: citation.sourceId, quote: citation.quote } });
   }
   return answers;
@@ -170,7 +232,7 @@ export function createRefereeTransport(options: CreateRefereeTransportOptions): 
       if (typeof content !== "string") return [];
 
       const parsed = firstJsonArray(content);
-      return coerceAnswers(parsed);
+      return coerceAnswers(parsed, request);
     } catch {
       return [];
     }

@@ -293,4 +293,24 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
       "open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar."
     );
   });
+
+  it("a ruling's citations carry the word range they were rebuilt from, taken only from the offer the reader accepted (OPEN-VARIANT.md §18.3)", async () => {
+    const intent = "I file the bar with my spoon.";
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") {
+          // Rejected first (not a key), with a range; then accepted, as a plain quote.
+          return [
+            { questionId: "target", answerKey: "the bar", citation: { sourceId: "intent", quote: "file the bar", from: 2, to: 4 } as TransportAnswer["citation"] },
+            { questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file the bar" } },
+          ];
+        }
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "wear", citation: { sourceId: "intent", quote: "file", from: 2, to: 2 } as TransportAnswer["citation"] }];
+        return [];
+      });
+    const ruling = await createReferee([transport]).rule(intent, [BAR]);
+    expect(ruling.citations.target.citation).toEqual({ sourceId: "intent", quote: "file the bar" });
+    expect(ruling.citations.effect.citation).toEqual({ sourceId: "intent", quote: "file", from: 2, to: 2 });
+    expect(ruling.raw.answers.find((a) => a.questionId === "effect")?.citation).toEqual({ sourceId: "intent", quote: "file", from: 2, to: 2 });
+  });
 });

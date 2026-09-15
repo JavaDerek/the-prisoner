@@ -1,5 +1,6 @@
 import { ResolveProtocolError, type ReadRequest } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
+import type { RangedCitation } from "./refereeTransport.js";
 import type { OpenGameResult } from "./game.js";
 import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
@@ -25,8 +26,13 @@ export interface SilenceNote {
 
 const QUESTION_IDS = ["target", "effect", "product", "property", "magnitude", "perceptibility"] as const;
 
-function citationCell(citation: { sourceId: string; quote: string } | null | undefined): string {
-  return citation ? `${citation.sourceId}: "${citation.quote}"` : "(none)";
+/** A citation as the human reader audits it: its source, the word range the
+ *  referee named when it cited by range (OPEN-VARIANT.md §18.3), and the
+ *  quote -- rebuilt from that range, or as the referee gave it. */
+function citationCell(citation: RangedCitation | null | undefined): string {
+  if (!citation) return "(none)";
+  const range = typeof citation.from === "number" && typeof citation.to === "number" ? `, words ${citation.from}-${citation.to}` : "";
+  return `${citation.sourceId}${range}: "${citation.quote}"`;
 }
 
 function refereeTable(half: OpenHalfRoundResult): string[] {
