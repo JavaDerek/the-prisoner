@@ -196,9 +196,18 @@ export function planEffect(params: {
     };
   }
   if (property === "none") return null;
-  // `passage` changes by open/close alone (handled above); every other
-  // effect leaves it untouched.
-  if (property === "passage") return null;
+  // `passage` changes by open/close alone (handled above), so every effect
+  // that WRITES is refused on it. `reveal` is not one: `OPEN_REVEAL` declares
+  // `changes: []` and only reads the fact it is handed, so letting it through
+  // leaves this rule exactly as strong as it was.
+  //
+  // It has to be let through (the-prisoner#7). `OPEN_LEAVE` needs only
+  // `passage === 1`, and a principal that is not the actor has no other way
+  // to learn that value: perception carries no number (§2 invariant 2), and a
+  // belief is only ever written for the principal that acted. Refusing
+  // `reveal` here closed the last channel, so the warden held a belief slot
+  // for `window_passage` that nothing could fill.
+  if (property === "passage" && effectKind !== "reveal") return null;
 
   const declared = lookup(targetObjectId, property);
   if (!declared) return null; // Not declared on this object -- "no invented world".

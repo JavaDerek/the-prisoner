@@ -12,6 +12,7 @@ import { createReferee } from "../referee.js";
 import { runOpenHalfRound, precedentTextFor } from "../loop.js";
 import { buildOpenContext, computePerceivedObjects } from "../briefing.js";
 import { renderOwnOutcome } from "../perception.js";
+import { getBelief } from "../../ledger/beliefs.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
 
 /**
@@ -26,7 +27,7 @@ function locationOf(characterId: string): string | null {
   return (getDatabase().prepare(`SELECT location_id AS v FROM characters WHERE id = ?`).get(characterId) as { v: string | null }).v;
 }
 
-function plan(openWorld: OpenWorld, effectKind: "open" | "close" | "leave" | "wear" | "restore", target: "door" | "window" | "lock" | "bar", property: "passage" | "none" | "integrity", actor: "prisoner" | "warden" = "prisoner") {
+function plan(openWorld: OpenWorld, effectKind: "open" | "close" | "leave" | "wear" | "restore" | "reveal", target: "door" | "window" | "lock" | "bar", property: "passage" | "none" | "integrity", actor: "prisoner" | "warden" = "prisoner") {
   return planEffect({
     targetObjectId: target,
     effectKind,
@@ -81,6 +82,32 @@ describe("leaving the cell (OPEN-VARIANT.md §12)", () => {
     expect(getResource(w.exits.door.passageResourceId)?.value).toBe(1);
     resolvePlan(w, plan(w, "close", "door", "passage"));
     expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
+  });
+
+  it("a principal can reveal a way out's passage: looking writes nothing, and is the only way to learn a way out stands open (#7)", () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    const p = plan(w, "reveal", "window", "passage", "warden");
+    expect(p?.mechanic).toBe("OPEN_REVEAL");
+    expect(p?.resourceId).toBe(resourceIdForProperty(w, "window", "passage"));
+    expect(p?.isWearType).toBe(false);
+
+    // Open a way out, then look at it: the reveal returns the new value and
+    // leaves it where it stands -- OPEN_REVEAL declares `changes: []`. The
+    // DOOR, deliberately: the window's open is held to §24's threshold on the
+    // bar, and this test is about looking, not about that gate.
+    resolvePlan(w, plan(w, "open", "door", "passage"));
+    const doorPassage = resourceIdForProperty(w, "door", "passage") as string;
+    expect(getResource(doorPassage)?.value).toBe(1);
+    const outcome = resolvePlan(w, plan(w, "reveal", "door", "passage", "warden"));
+    expect((outcome.result as { value?: number }).value).toBe(1);
+    expect(outcome.transitions).toHaveLength(0);
+    expect(getResource(doorPassage)?.value).toBe(1);
+
+    // A part declares no passage of its own, so looking at the bar for one is
+    // still "no invented world" -- §19's part/way-out pairing is for open and
+    // close, which WRITE; it is not extended here.
+    expect(plan(w, "reveal", "bar", "passage", "warden")).toBeNull();
   });
 
   it("wear and restore never act on passage", () => {
@@ -223,6 +250,42 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
       mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent }),
     });
   }
+
+  it("a warden that looks at a way out learns it stands open -- the belief slot #7 found unfillable (the-prisoner#7)", async () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    const passageName = w.resourceNameById[resourceIdForProperty(w, "door", "passage") as string];
+
+    // Before anyone looks, the warden holds no belief about the way out at
+    // all: `beliefResourceNames` lists it, and nothing has ever written it.
+    expect(getBelief(w.base.gameId, "warden", passageName)).toBeNull();
+
+    // The prisoner opens the door. The warden perceives the ATTEMPT, which by
+    // §2 invariant 2 carries no number -- so this alone teaches it nothing.
+    resolvePlan(w, plan(w, "open", "door", "passage"));
+    expect(getBelief(w.base.gameId, "warden", passageName)).toBeNull();
+
+    // The warden spends its own turn looking.
+    const t = w.base.clock.wardenT(1);
+    const result = await runOpenHalfRound({
+      openWorld: w,
+      resolver: buildOpenResolver(),
+      referee: scripted("door", "reveal", "passage", "look at the door", "the edge of the bolt shows in the gap"),
+      principal: "warden",
+      roundN: 1,
+      t,
+      context: buildOpenContext(w, "warden", t, 1),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I look at the door to see whether it is standing open." }),
+    });
+
+    expect(result.plan?.mechanic).toBe("OPEN_REVEAL");
+    expect(result.resourceName).toBe(passageName);
+    expect(getBelief(w.base.gameId, "warden", passageName)?.value).toBe(1);
+    // Looking is not a catch: the catch condition is allow-listed to
+    // bar/lock integrity and the spoon's edge (`gameEnd.ts`), so a passage
+    // reveal ends nothing.
+    expect(checkOpenGameEnd(w, t, result.revealFor ?? undefined)?.kind).not.toBe("caught");
+  });
 
   it("open the door, then leave through it: the actor is told the door is open, then that it is out; the other sees it make for the door", async () => {
     createTestDb();
