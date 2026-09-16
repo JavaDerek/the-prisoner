@@ -1689,3 +1689,92 @@ So **none of §24 through §30 ran.** `leave` was never ruled; the window never 
 (§15) were found by neither side in any of the six games this document now records. §30.1's escape
 needed sixteen rounds. The contested game is over at six.
 
+## 32. Pick against the baseline: the mechanism works, the candidates do not (2026-09-16)
+
+§31.2 read as §11 and §21's diagnosis in sharper form, so the batch was repeated changing exactly one
+thing: `PRISONER_PICK=even` (§21), same frozen ledger snapshot, same models, same 30 rounds, same model
+warden. Transcripts `checkpoints/2026-09-16T01-27-14-155Z.md`, `…01-33-18-443Z.md`, `…01-40-19-632Z.md`.
+
+| | Baseline (§31) | Pick=even |
+|---|---|---|
+| Caught at round | 6, 6, 7 | 6, 7, 8 |
+| Intents | 11, 11, 13 | 11, 13, 15 |
+| Novel pairs | 1, 2, 4 | 2, 2, 2 |
+| Ruled impossible | 0, 0, 1 | 0, 0, 0 |
+| Applied effects fully cited | 34 of 34 | 39 of 39 |
+| Fog audit | 0 leaks / 35 | 0 leaks / 39 |
+
+One extra round on average, and §5.1 holds again across the batch. **The prediction that pick would buy
+enough rounds to reach the window is wrong**, and the reason is worth more than the prediction was.
+
+### 32.1 Pick almost never had anything to pick
+
+Across the three games pick forced 8 prisoner turns and **overrode the mind on 2 of them**. The
+transcript's line for the other six is *"nothing unseen to force to."* Game 2's report is the plainest:
+`Forced prisoner turns: 3 (overridden 0, nothing unseen to force to 3)`.
+
+Game 2 round 2, a forced turn, is the whole finding in one exchange -- the three candidates the mind
+generated, and what pick found when it looked at them:
+
+```
+- Use the spoon to carefully scrape rust off the bar's bottom
+- Use the spoon to loosen the bar's mortar
+- Examine the loose tile for hidden tools or materials
+Forced pick: kept the mind's own intent.
+- seen: Use the spoon to carefully scrape rust off the bar's bottom
+- seen: Use the spoon to loosen the bar's mortar
+- seen: Examine the loose tile for hidden tools or materials
+```
+
+`seen`, `seen`, `seen`. **Pick is downstream of candidate generation, and candidate generation is where
+the novelty is lost.** §20.2 found that listing alternatives does not change the choice; this is the
+harder version -- the alternatives are not alternatives, but three rewordings of one idea. A mechanism
+that biases against `seenBefore` cannot function on a candidate set with nothing unseen in it.
+
+### 32.2 Where it did fire, it worked
+
+Both overrides landed on forced turns, and forced turns out-produced free turns on novelty **2 to 0**
+(game 1: forced Novel 1, free Novel 0; game 3 the same; game 2, which overrode nothing, scored 0 on
+both). Game 1's override is what produced *"Tap the loose tile to create a noise"*, and the one
+genuinely inventive act in the baseline batch -- game 1's bucket-tap -- has the same shape.
+
+Two data points is not a result. But the failure here is **not pick's logic**, and that distinction is
+exactly what `mother-of-invention#1` needs before the package commits to a shape: a pick mechanism
+ported as-is would inherit a dependency nobody has stated, on candidates that actually differ. §20's
+insistence on proving a mechanism against a real caller first is what produced this; it is not visible
+from the package side.
+
+### 32.3 There is only one verb in the room
+
+Six games, 74 intents, a referee agreeing with itself 99.5% of the time, and the prisoner's entire
+repertoire is abrading a bar. The natural next question -- can she ever do something *social*: fake an
+illness, bribe the warden with the money under the tile, talk her way out -- has a structural answer,
+in three places, and none of them is the referee's accuracy:
+
+1. **Presence is not modelled**, so the warden cannot be made to watch, or to look away. §9.3 excluded
+   it knowingly: *"nothing in §4.1's object table currently says where the warden physically is"*, and
+   every non-silent prisoner effect is treated as potentially noticed. Being watched is not a state she
+   can act on; it is the permanent condition, and §31.2 is what it costs.
+2. **A principal is not a target.** The target answer keys are the perceived **objects** plus `none`
+   (`referee.ts`, §24). Croft is not among them, so an intent aimed at a person resolves to `none`,
+   meets the safe default, and is ruled impossible -- correctly, by a reader doing its job.
+3. **No effect names a belief.** The eleven kinds are `wear, restore, reveal, conceal, expose, noise,
+   open, close, leave, derive, none`. Deception's entire payload is a false belief in an observer, and
+   the closed vocabulary has nowhere to put it. The referee's only options are `none` or a misruling
+   onto whatever object is nearest -- which is precisely the failure §31.1 already found in game 3.
+
+Issue #5 states the general case for the money (*"not blocked by the engine, only by the referee having
+no word for it"*); deception is the same shape one step further out, and the engine's `IntendedChange`
+is not the constraint in either.
+
+**What the closest approach looks like.** Game 1's bucket-tap is a prisoner reaching for the warden's
+attention *through an object*, because an object is the only thing she is permitted to touch. It is a
+diversion staged with the props to hand, and it came from a forced pick. The instinct is present in the
+model and has nowhere to land.
+
+**The owner's read, recorded here for the decision it points at:** the scorecard passing and the games
+being uninteresting are the same fact. What §5.3 measures is whether the machinery is honest, and it
+now is -- citations verified, fog clean, the referee consistent, escape and catch both live. What it
+does not measure is whether the room has more than one verb in it. Issue #5's play mode and issue #3's
+generated scenarios are no longer "later, for enjoyment": they are where the next real finding is,
+because the benchmark's own bottleneck has moved from the referee to the world it rules on.
