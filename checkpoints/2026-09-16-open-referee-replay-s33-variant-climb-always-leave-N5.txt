@@ -1,0 +1,115 @@
+## D1 round 7, prisoner: Climb through the window
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## D1 round 8, prisoner: Climb through the window
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## D1 round 9, prisoner: Attempt to climb through the window immediately
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "leave" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D2 round 9, prisoner: Position the cot near the window to use as a step
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D2 round 10, prisoner: Climb out through the window using the cot as a step
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "leave" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D3 round 19, prisoner: Climb through the window
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## D3 round 20, prisoner: Climb through the window using the cot as a step
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "leave" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D3 round 21, prisoner: Climb through the window immediately
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "leave" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D3 round 22, prisoner: Climb through the window
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## D3 round 23, prisoner: Climb through the window using the cot's crossbar as a step
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "leave" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D1 round 5, prisoner: Use the spoon to pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 80% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D1 round 6, prisoner: Use the spoon to pry the bar out of the window
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D2 round 8, prisoner: Use the spoon to pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 12, prisoner: Break the bar with the spoon to enable escape through the window
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 18, prisoner: Pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## D3 round 17, prisoner: Use the spoon to gently pry at the mortar around the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.8%.
+§5.3's target: at least 80%.

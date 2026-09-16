@@ -2025,3 +2025,36 @@ thresholds but not that the window opens at 50. She learns it only when an attem
 free succeeds (*"the window can be climbed through now"*, `perception.ts`). Before (1) that cost
 nothing, since the two lines were the same. After (1) it decides what "knowing when to stop" can
 mean. Awaiting the owner.
+
+### 33.7 The referee's climb and grit rulings, tested on recorded requests (2026-09-16)
+
+Decision 4, tested before any code. Each variant edits **one thing** in copies of the recorded
+`.referee.json` requests from §33's games (plus §31's game 3 for grit) and asks `qwen2.5:14b` each
+request 5 times, alongside control intents whose ruling must not move. Reports:
+`checkpoints/2026-09-16-open-referee-replay-s33-*-N5.txt`.
+
+**Baseline, unchanged requests.**
+- The bare *"Climb through the window"* is `open`, 5 of 5, all four times it appears.
+- *"…apply it to the bar's rusted areas"* is `restore bar.integrity`, 5 of 5.
+- The pry intents (*"pry the bar out of the mortar"* and kin) are `open`, 5 of 5.
+- The replay tool measures agreement among its own replays, never against the ruling the game
+  recorded (§10.5's caveat). Three in-game rulings do not reproduce: D3 r20 and r21 were `open` in
+  game and are `leave` 5 of 5 on replay, and D3 r5 was `reveal` in game and is `restore loose_tile`
+  on replay. 24 of the 27 in-game `effect` keys reproduce.
+
+| Variant (one change) | Misrulings fixed | Controls |
+|---|---|---|
+| Effect prompt: *"climbing through a window is leave, never open"*, dropping "open" from the condition | **none**: bare climb still `open` 5/5 | **broke two**: D1 r5 and D2 r8 pry went `open` → `wear` |
+| Window description: *"could climb through"* → *"the gap is wide enough for a person"* | **none** | held |
+| Loose tile description: *"dry, sharp grit that scours"* | **none**: D3 r6 still `restore` | **broke one**: D3 r11 strike went `wear` → `open` |
+| Effect prompt: *"Restore is repair: an act whose aim is to mend, patch or strengthen something. Working a material against something to damage it is wear, even when the intent says apply."* | **D3 r6 → `wear bar`**, D3 r5 → `wear loose_tile` (no bar restore) | **held**: 6 of 6 grit and strike wears unchanged |
+| Window description plus *"It stands open now: the bar is out of its widest gap."* (only on requests made while it was open) | **all 9 climbs → `leave`, 5/5 each** | **no false leave**: 8 after-open intents; pry and strike stay `open`/`wear`, and D1 r6 goes `open` → `wear` (the window was already open) |
+
+**Built: the restore sentence** (`referee.ts`, test first). The grit misruling is gone, and it cost no
+control.
+
+**Not built: the climb.** No prompt sentence and no rewording fixes it. The referee is shown each
+object's authored description and its property names, **never the property's current value**, so
+§30's *"climbing through an open window is leave"* cannot apply: nothing it reads says the window is
+open. Telling it fixes all nine. Whether and to whom a way out's state is told is the owner's decision
+(§16 named the general form: each property declaring how its value reads in words).

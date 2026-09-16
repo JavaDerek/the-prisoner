@@ -1,0 +1,73 @@
+## D3 round 6, prisoner: Use the spoon to collect grit from the loose tile and apply it to the bar's rusted areas.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "restore" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D3 round 5, prisoner: Use the spoon to scrape grit from the loose tile onto the bar's rusted sections
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## C3 round 4, prisoner: Scrape additional grit from the loose tile onto the bar's pitted bottom using the spoon
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## A3 round 4, prisoner: Use the grit from the loose tile on the bar
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "grit" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D3 round 4, prisoner: Scrape the bar's rusted areas with the loose tile's grit
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 80% of 5 replays.
+## D3 round 7, prisoner: Use the spoon and loose tile's grit to scrape mortar from the window bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## C1 round 2, prisoner: Scrape the bar with the spoon's worn edge, applying grit from the loose tile to accelerate wear
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## C3 round 5, prisoner: Scoop additional grit from the loose tile and apply it to the bar's rusted bottom section.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 80% of 5 replays.
+## A3 round 5, prisoner: Use grit from the loose tile to further wear down the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D3 round 11, prisoner: Use the spoon to strike the bar's weakened mortar repeatedly, aiming to break it.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.3%.
+§5.3's target: at least 80%.

@@ -1,0 +1,59 @@
+## D1 round 6, prisoner: Use the spoon to pry the bar out of the window
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D2 round 9, prisoner: Position the cot near the window to use as a step
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "passage" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## D3 round 13, prisoner: Use the spoon to bend and break the bar further
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 14, prisoner: Use the spoon to damage the bar further
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 15, prisoner: Use the spoon to strike the bar repeatedly, aiming to break it completely
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "substantial" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 16, prisoner: Use the loose tile to create a distraction
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "noise" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 17, prisoner: Use the spoon to gently pry at the mortar around the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## D3 round 18, prisoner: Pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 100.0%.
+§5.3's target: at least 80%.

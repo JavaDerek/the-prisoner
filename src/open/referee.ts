@@ -177,6 +177,9 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
         "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
         "wear is for damage or dulling with no way out as its goal. " +
+        // OPEN-VARIANT.md §33.7: grit applied to a bar was ruled restore, 5 of 5 on replay.
+        "Restore is repair: an act whose aim is to mend, patch or strengthen something. Working a material against " +
+        "something to damage it is wear, even when the intent says apply. " +
         // OPEN-VARIANT.md §18.5: an examination is not the damage it looks for.
         "An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: " +
         "examining a bar for signs of damage or wear is reveal, not wear. " +

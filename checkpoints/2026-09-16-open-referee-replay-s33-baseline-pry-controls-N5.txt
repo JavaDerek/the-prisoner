@@ -1,0 +1,45 @@
+## D1 round 5, prisoner: Use the spoon to pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D1 round 6, prisoner: Use the spoon to pry the bar out of the window
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D2 round 8, prisoner: Use the spoon to pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 12, prisoner: Break the bar with the spoon to enable escape through the window
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## D3 round 18, prisoner: Pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## D3 round 17, prisoner: Use the spoon to gently pry at the mortar around the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 100.0%.
+§5.3's target: at least 80%.
