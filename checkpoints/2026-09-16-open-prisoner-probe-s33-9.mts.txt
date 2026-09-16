@@ -1,0 +1,65 @@
+// One-off probe (OPEN-VARIANT §33.9): re-ask the prisoner's recorded decision at the turns
+// where the window could be opened and she was not yet catchable, with the window's wording
+// as recorded vs "worked free of its mortar". Not committed code; its report is.
+import { readFileSync, writeFileSync } from "node:fs";
+import { createOpenPrisonerMind, type OpenPrincipalContext } from "/Users/derekferguson/rpg/the-prisoner/src/open/mind.ts";
+import { OPEN_OBJECTS } from "/Users/derekferguson/rpg/the-prisoner/src/open/scenarioObjects.ts";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE } from "/Users/derekferguson/rpg/the-prisoner/src/scenario.ts";
+import { OllamaModelSwapper, nativeBaseUrl } from "/Users/derekferguson/rpg/the-prisoner/src/ollamaSwap.ts";
+
+const BASE = "http://doris:11434/v1";
+const WITS = "qwen3:14b";
+const VOICE_STUB = "voice-stub-not-called";
+const N = Number(process.env.N ?? 5);
+const VARIANT = process.env.VARIANT ?? "recorded"; // recorded | worked-free | no-guard
+const OLD = "with that bar gone, a person could climb through";
+const NEW = "with that bar worked free of its mortar, a person could climb through";
+
+const turns: { tag: string; file: string; round: number }[] = [
+  { tag: "E1 r6 (bar 40)", file: "2026-09-16T15-37-42-560Z", round: 6 },
+  { tag: "E2 r10 (bar 40)", file: "2026-09-16T15-44-32-498Z", round: 10 },
+  { tag: "E3 r6 (bar 47)", file: "2026-09-16T15-55-25-854Z", round: 6 },
+  { tag: "E3 r7 (bar 32)", file: "2026-09-16T15-55-25-854Z", round: 7 },
+];
+
+function recordedBriefing(file: string, round: number): string {
+  const text = readFileSync("/Users/derekferguson/rpg/the-prisoner/checkpoints/" + file + ".md", "utf-8");
+  const start = text.indexOf("### Round " + round + " (t=");
+  const section = text.slice(text.indexOf("-- the prisoner", start));
+  const m = section.match(/\*\*Briefing given, verbatim:\*\*\n```\n([\s\S]*?)\n```/);
+  if (!m) throw new Error("no briefing for " + file + " r" + round);
+  return m[1];
+}
+
+function transform(s: string): string {
+  if (VARIANT === "worked-free") { if (!s.includes(OLD) && s.includes("window")) {} return s.split(OLD).join(NEW); }
+  if (VARIANT === "no-guard") return s.split("\n").filter((l) => !/^guard attention:/.test(l)).join("\n");
+  return s;
+}
+
+const swapper = new OllamaModelSwapper({ nativeBaseUrl: nativeBaseUrl(BASE), allowedModels: [WITS, "qwen2.5:14b"] });
+const realFetch = fetch;
+const fetchFn = (async (url: unknown, init?: RequestInit) => {
+  const body = JSON.parse((init?.body as string) ?? "{}");
+  if (body.model === VOICE_STUB) return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ line: "" }) } }] }) };
+  return realFetch(url as string, init);
+}) as typeof fetch;
+const mind = createOpenPrisonerMind({
+  baseUrl: BASE, witsModel: WITS, voiceModel: VOICE_STUB, timeoutMs: 180000, fetchFn,
+  ensureLoaded: (m) => (m === VOICE_STUB ? Promise.resolve() : swapper.withModel(m, async () => {})),
+});
+
+const out: unknown[] = [];
+for (const turn of turns) {
+  const briefing = transform(recordedBriefing(turn.file, turn.round));
+  const perceivedObjects = OPEN_OBJECTS.filter((o) => o.heldIn === undefined).map((o) => ({ id: o.id, description: transform(o.description) }));
+  if (VARIANT === "worked-free" && !briefing.includes(NEW)) throw new Error("rewording did not apply to briefing");
+  const context: OpenPrincipalContext = { principalId: "probe", identity: PRISONER_IDENTITY, motive: PRISONER_MOTIVE, briefing, perceivedObjects };
+  for (let i = 0; i < N; i++) {
+    const p = await mind.consider(context);
+    const row = { variant: VARIANT, turn: turn.tag, sample: i + 1, intent: p?.intent ?? "(silence)", thoughts: p?.thoughts ?? "" };
+    out.push(row);
+    console.log(JSON.stringify(row));
+  }
+}
+writeFileSync("/private/tmp/claude-501/-Users-derekferguson-rpg/3eaf75b3-f4bd-423f-ac15-fe46726c2a27/scratchpad/probe-window-" + VARIANT + ".json", JSON.stringify(out, null, 2));

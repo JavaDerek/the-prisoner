@@ -1,0 +1,142 @@
+[
+  {
+    "variant": "recorded",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 1,
+    "intent": "Attempt to lever the bar out with the spoon and grit from the loose tile",
+    "thoughts": "The bar's integrity is now 40, which meets the threshold to open the window. The next step is to remove the bar. Using the spoon and grit from the loose tile could help pry or abrade it further, allowing me to dislodge it stealthily. I must act before Warden Croft's attention drops further, but guard attention will fall by 10 each round regardless."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 2,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "thoughts": "The bar is now at 40, below the 50 threshold needed to open the window. The next step is to remove the bar stealthily. Using the spoon to pry it out is the most plausible method, as it's quiet and has the necessary tool. Avoiding further damage to the bar is key to not raising suspicion."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 3,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "thoughts": "The bar's integrity is now at 40, which is below 50, so the window is openable. The next step is to remove the bar to escape. Guard attention is at 0, providing a window of opportunity. Using the spoon to pry the bar from the mortar is the most feasible action without raising suspicion excessively."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 4,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "thoughts": "The bar is now below 50 integrity, so the window can be opened. The next step is to remove the bar without alerting Warden Croft. Using the spoon to pry it out is a viable option, but I must avoid raising suspicion. Alternatively, collecting more grit could help further weaken the bar for easier removal."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 5,
+    "intent": "Use the spoon to scrape the mortar under the bar",
+    "thoughts": "The bar is now at 40 integrity, meeting the condition to open the window. Next steps involve removing the bar to escape. The spoon can be used to scrape the mortar, which is a stealthy method to avoid drawing attention. Collecting grit from the loose tile might also help, but the bar is already below the threshold. Prioritize removing the bar now before guard attention drops further."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E2 r10 (bar 40)",
+    "sample": 1,
+    "intent": "Use the spoon to pry the rusted bar from its mortar",
+    "thoughts": "The bar's integrity is now at 40, which is below the 50 threshold required to open the window. The next step is to remove the bar completely so I can climb through during the next round when guard attention is low (40). Using the spoon to pry the bar from its mortar is the most direct method, though it may raise suspicion. Alternatively, the loose tile's grit could be used to weaken the mortar further, but that might take longer. I need to act quickly before the warden notices the damage."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E2 r10 (bar 40)",
+    "sample": 2,
+    "intent": "Scrape the bar's rusted area with the spoon's worn flat side",
+    "thoughts": "The bar is already at 40 integrity, which is below the 50 threshold needed to open the window. However, it still needs to be broken completely to remove it. I should focus on damaging it further, but I need to avoid triggering Warden Croft's suspicion too high. The next round's guard attention will drop to 40, which is the optimal time to escape. I must ensure the bar breaks before she examines it again."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E2 r10 (bar 40)",
+    "sample": 3,
+    "intent": "Use the spoon to scrape the rusted section of the bar",
+    "thoughts": "The bar's integrity is now 40, which is below 50, but the window can't be opened unless the bar is removed. Since the bar is embedded in mortar, I need to break it completely. Using the spoon on the rusted area again will weaken it further, making it easier to break. The Warden's suspicion is likely high after examining the bar, but I need to act quickly before guard attention drops to 40 next round."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E2 r10 (bar 40)",
+    "sample": 4,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "thoughts": "The bar's integrity is now at 40, which is below the 50 threshold needed to open the window. The next round has low guard attention (40), which is the ideal time to remove the bar and escape. The spoon is the most feasible tool to pry the bar from the mortar. However, using the spoon may raise suspicion, but the low guard attention might provide enough cover."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E2 r10 (bar 40)",
+    "sample": 5,
+    "intent": "Use the spoon to scrape the rusted area of the bar further",
+    "thoughts": "The bar's integrity is at 40, which is below 50, so the window is already open. However, I need to ensure the bar is fully broken to prevent Warden Croft from fixing it. The next round will have guard attention at 40, which is low enough to escape. I should focus on further damaging the bar to make it completely broken and prepare to climb through the window."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 1,
+    "intent": "Use the spoon to damage the bar further",
+    "thoughts": "The bar's integrity is now 47, which is below the 50 threshold needed to open the window. However, the bar might still be intact enough to hinder escape. Continuing to damage the bar with the spoon is the priority. If no progress is made, using the bucket to draw attention when guard focus drops to 40 will be the next step."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 2,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "thoughts": "The bar's integrity is at 47, which is below 50, so the window can be opened. The next step is to remove the bar. Using the spoon to pry it from the mortar seems feasible since the mortar is dry and cracked. If that fails, I'll need to use the bucket to draw attention when guard focus is low."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 3,
+    "intent": "Strike the bar with the spoon again",
+    "thoughts": "The bar is now at 47 integrity, just 3 points below the 50 needed to open the window. I should focus on reducing it further with the spoon. If I can get it to 50 or below before Warden Croft checks, I can escape. If not, I’ll use the bucket to draw attention when guard focus drops to 40."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 4,
+    "intent": "Strike the bar with the spoon again",
+    "thoughts": "The bar is at 47 integrity, just below the 50 threshold needed to open the window. Continuing to damage it with the spoon is critical. Guard attention will soon drop to 40, but I must act before Croft notices the bar's condition. If the bar fails, I can escape through the window. If not, I may need to draw attention with the bucket when guard focus is low."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 5,
+    "intent": "Use the spoon to pry the bar out of the window",
+    "thoughts": "The bar's integrity is now 47, which is below the 50 threshold needed to open the window. The next step is to remove the bar now that it's weak enough. I should focus on prying it out using the spoon or other tools, while also considering if a distraction is needed if the warden checks."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r7 (bar 32)",
+    "sample": 1,
+    "intent": "Use the spoon to pry the bar from its mortar",
+    "thoughts": "The bar is now at 32 integrity, which is below the 50 threshold needed to open the window. The next step is to attempt to remove the bar entirely. Using the spoon to pry it out seems feasible given its rusted state. If that fails, I'll use the bucket to draw attention when guard focus drops to 40 next round."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r7 (bar 32)",
+    "sample": 2,
+    "intent": "Use the spoon to strike the bar again",
+    "thoughts": "The bar is already below the 50 integrity threshold needed to open the window, but it's still intact. Continuing to damage it with the spoon will lower its integrity further, making removal easier. Guard attention drops next round, which could be a window to act without suspicion spikes."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r7 (bar 32)",
+    "sample": 3,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "thoughts": "The bar's integrity is now at 32, below the threshold of 50 needed to open the window. My next step should be to attempt removing the bar, as the window is now accessible once it's removed. Using the spoon to pry the bar from the mortar seems feasible given its rusted state."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r7 (bar 32)",
+    "sample": 4,
+    "intent": "Use the spoon to chip away at the bar's base, aiming for the cracked mortar.",
+    "thoughts": "The bar's integrity is at 32, which is below the 50 threshold needed to open the window. However, the warden may check the bar if suspicion rises too high. The next round will see guard attention drop to 40, which is a critical moment to act without being noticed. For now, continue damaging the bar with the spoon to lower its integrity further, but avoid raising suspicion excessively."
+  },
+  {
+    "variant": "recorded",
+    "turn": "E3 r7 (bar 32)",
+    "sample": 5,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "thoughts": "The bar's integrity is now 32, which is below the 50 threshold needed to open the window. The next logical step is to attempt removing the bar. Since the spoon is the only tool available for prying, I should use it to lever the bar out of the mortar. If this fails, I may need to consider using the bucket to draw attention when guard focus drops, but for now, focusing on the bar is critical."
+  }
+]

@@ -2083,3 +2083,73 @@ open. Telling it fixes all nine. Whether and to whom a way out's state is told i
 
 Not decided, noted for the games: a warden who examines **the bar**, not the window, after the bar
 has been worked free reads its integrity (40-ish) and does not catch.
+
+### 33.9 Batch E: she reaches the window line and keeps scraping (2026-09-16)
+
+Three contested games on `bd05fb5` (§33.6-§33.8), batch C's configuration: model warden, precedent
+OFF, 30 rounds, voice on. Transcripts `checkpoints/2026-09-16T15-37-42-560Z.md`, `…15-44-32-498Z.md`,
+`…15-55-25-854Z.md`.
+
+| | E1 | E2 | E3 |
+|---|---|---|---|
+| Result | caught r7 | caught r11 | caught r8 |
+| Bar at or below 50 from | r5 (40) | r9 (40) | r5 (47) |
+| Turns she could open and was not yet catchable | 1 | 1 | 2 (47, 32) |
+| Attempts to work the bar free | 0 | 0 | 0 |
+| What she did instead | scraped 40 → 25 | struck 40 → 25 | scraped 47 → 32, struck 32 → 17 |
+| Applied effects cited / fog | 13/13, 0 leaks | 20/20, 0 leaks | 15/15, 0 leaks |
+
+§5.1 holds. The window catch (§33.8) never fired, because she never opened the window.
+
+**What the three games show:**
+- **She read the new rule correctly every time.** E1 r6: *"40 integrity, which meets the condition to
+  open the window. However, the bar is still in place, so I need to remove it … further weaken it."*
+  E2 r10 made the one arithmetic error: *"the bar's integrity won't drop to 30"*, one strike before 25.
+- **Guard attention appeared 67 times** in the minds' thoughts, notes and plans. Nothing in the open
+  variant reads it.
+- **Grit ruled restore, once:** E2 r5 *"Apply grit from the loose tile to the bar's rusted areas"* went
+  55 → 100, while E2 r4's *"…rusted area"* was `wear`. §33.7's sentence was tested on a different
+  wording, and it is not a complete fix.
+
+**Guard attention removed (owner's decision, `8d139f5`).** The open briefing no longer renders the
+guard_attention belief, and the open rules text drops the time-decay sentence. The resource, its decay
+and the shared belief seeding are untouched.
+
+**Probe: re-asking her recorded decision (owner's decision, before any mind-side mechanism).** Covers
+the four turns where she could open and was not yet catchable. Her exact wits prompt was rebuilt from
+each recorded briefing, `qwen3:14b`, 5 samples per turn per arm (the voice call stubbed, since it never
+reaches the referee). Each intent was read by hand for an attempt to work the bar out (pry, lever,
+pull). Data `checkpoints/2026-09-16-open-prisoner-probe-s33-9-*.json`; script alongside.
+
+| Turn | As recorded | Window *"worked free of its mortar"* for *"gone"* | Guard attention line removed (code `8d139f5`) |
+|---|---|---|---|
+| E1 r6 (bar 40) | 4/5 | 3/5 | 5/5 |
+| E2 r10 (bar 40) | 2/5 | 3/5 | 1/5 (+1 climb through a window not yet open) |
+| E3 r6 (bar 47) | 2/5 | 1/5 | 1/5 |
+| E3 r7 (bar 32) | 3/5 | 3/5 | 2/5 |
+| **Total** | **11/20** | **10/20** | **9/20** |
+
+- **The window's wording is not the cause** (11 vs 10). It is unchanged.
+- **At those turns she works the bar free about half the time.** Four scrapes in four such turns in the
+  games is about a 1-in-16 outcome at that rate, not a certainty.
+- The no-guard arm does not measure the removal cleanly. The recorded briefings carry her own notes and
+  plan, which mention guard attention, and 13 of its 20 thoughts still do. Only fresh games can measure
+  the removal.
+
+**What moves the rate is the turn, and the turns differ in the plan she carried in.** Across all three
+arms (15 samples each):
+
+| Turn | *"Your plan, from your last turn"* | Worked the bar free |
+|---|---|---|
+| E1 r6 | "… 3. Once bar is below 50, attempt escape through the window quietly." | 12/15 |
+| E3 r7 | "… then attempt to remove it once it's sufficiently weakened …" | 8/15 |
+| E2 r10 | "Continue damaging the bar until integrity ≤50. Once broken, climb through …" | 6/15 |
+| E3 r6 | "Continue damaging the bar with the spoon to reduce its integrity. …" | 4/15 |
+
+**Hypothesis, from four turns, not a result.** A plan whose step names a checkable finishing condition
+("once below 50") advances when the condition is met. A plan with a vague condition ("sufficiently
+weakened", "once broken") or none advances rarely. The plan rules (§22) tell her *"your intent this turn
+is the next step of your plan"*, so a step with no end keeps her on it. If this holds, it is not a
+prisoner problem. It is any model-driven agent following its own open-ended plan, and the fix belongs
+in the mind-side infrastructure every caller shares, not in this game's rules text (owner, 2026-09-16:
+*"Putting that rule in the-prisoner does nothing to help make foreign leaders in Brink smarter."*).
