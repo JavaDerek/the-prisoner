@@ -315,20 +315,6 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     );
   });
 
-  it("restore is repair; working a material against something to damage it is wear, even when the intent says apply (OPEN-VARIANT.md §33.7)", async () => {
-    let questions: readonly { id: string; prompt: string }[] = [];
-    await createReferee([
-      async (request) => {
-        questions = request.questions;
-        return [];
-      },
-    ]).rule("Use the spoon to collect grit from the loose tile and apply it to the bar's rusted areas.", [LOCK]);
-    // §33.4: this intent was ruled restore, taking the bar from 47 back to 97 -- 5 of 5 on replay.
-    expect(questions.find((q) => q.id === "effect")?.prompt).toContain(
-      "Restore is repair: an act whose aim is to mend, patch or strengthen something. Working a material against something to damage it is wear, even when the intent says apply."
-    );
-  });
-
   it("the property question lists each object's own properties and asks for one the target has (OPEN-VARIANT.md §24)", async () => {
     let questions: readonly { id: string; prompt: string }[] = [];
     const TILE: ObjectPerception = { id: "loose_tile", description: "A square clay floor tile, cracked across one corner." };

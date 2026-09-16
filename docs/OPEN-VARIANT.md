@@ -2297,3 +2297,17 @@ All answers 5/5. **§33.7's sentence *"Working a material against something to d
 scrape and strike controls, never a pry. It has shipped since `88cda7a`. It did not change any recorded
 game: the only games since are batch E's, and none of their intents tried to remove the bar.
 Separately, a bare *"remove the bar"* is `wear` with or without the sentence.
+
+### 33.14 The restore sentence reverted (owner's decision, 2026-09-16)
+
+§33.7's sentence is removed from the referee's effect prompt, along with its test. The six referee
+questions the code now builds are identical, checked by string comparison, to §33.13's replayed
+requests without the sentence. So §33.13's second column (`07-…`) is what the code now rules: pry,
+remove-from-the-window, twist-and-remove and remove-by-hand are `open`. The grit misruling §33.7 was
+fixing is back (D3 r6 *"apply it to the bar's rusted areas"* → `restore`). It was already only partly
+fixed: batch E still had 1 of about 8. Bare *"remove the bar"* and *"use the spoon to remove the bar"*
+remain `wear`.
+
+**Lesson recorded:** a referee prompt change is tested against controls for every nearby effect the
+sentence could pull, not only the misruling it fixes. §33.7's controls were all wears, so a sentence
+about wear could not show what it did to open.
