@@ -2212,3 +2212,25 @@ never the step she is on. E1's current step carries its own end, *"1. Continue a
 reduce integrity below 50 by Round 10"*. E3's has none: *"Continue damaging the bar with the spoon to
 reduce its integrity."* Whether the **current** step names its end is the one plan difference left
 untested.
+
+### 33.12 The current plan step, tested: not supported either. Probing stops here (2026-09-16)
+
+The last untested plan difference (§33.11), run the same way with 10 samples each. Data
+`checkpoints/2026-09-16-open-prisoner-probe-s33-12-current-step-N10.json`; script alongside.
+
+| Arm | Change | Predicted | Worked the bar free |
+|---|---|---|---|
+| J | E3 r6, the current step only: "…to reduce its integrity **below 50**." | up from 0/10 | 1/10 |
+| K | E1 r6, the current step's end removed: "1. Continue abrading the bar to reduce integrity." | down from 5/10 | 4/10 (+1 climb through a window not yet open) |
+| L | E3 r6 swapped to E1 r6 in **every** differing line (bar, warden, notes, tile belief age, whole plan) | about 5/10 | 3/10 |
+
+**Neither prediction held.** Arm L, the closure check, recovers most of the gap (0 → 3 against E1's
+5), so the swapped lines do carry the difference between the two turns. But across §33.10-§33.12 no
+single line (plan step, later step, bar number, warden's line, notes) moves the rate on its own. What
+separates the turns is the briefing taken whole, not any one attributable line.
+
+**Where this leaves failure 1.** At the turns that matter she works the bar free somewhere between 0
+and 60% of the time, depending on the whole briefing in a way no single edit explains. No mind-side
+mechanism is proposed on this evidence. **The owner has taken the design question from here**
+(2026-09-16: *"if this doesn't work, don't do anything further. I want to try applying my own brain
+to figuring out a technology solution at that point."*). No further probes.
