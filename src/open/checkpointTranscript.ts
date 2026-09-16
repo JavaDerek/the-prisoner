@@ -3,6 +3,7 @@ import type { OpenHalfRoundResult } from "./loop.js";
 import type { RangedCitation } from "./refereeTransport.js";
 import type { OpenGameResult } from "./game.js";
 import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
+import { findKind } from "./derivedObjects.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
 import { recordIntent, newMeasurements, noteIntent, renderMeasurements } from "./transcript.js";
 import type { Principal } from "../ledger/beliefs.js";
@@ -70,6 +71,24 @@ function refereeTable(half: OpenHalfRoundResult): string[] {
   return lines;
 }
 
+/** Why a ruling the referee called applicable still produced no plan, as far
+ *  as the ruling's OWN keys can say (the-prisoner#8). The authoritative
+ *  reasons live in `planEffect`, which today returns `null` for all of them;
+ *  until it returns a discriminated reason, this reports the one case the
+ *  keys settle by themselves -- a `derive` whose product does not come from
+ *  the target -- and otherwise says plainly that nothing was grounded,
+ *  rather than inventing a reason. */
+function refusalReason(ruling: NonNullable<OpenHalfRoundResult["ruling"]>): string {
+  if (ruling.effectKind === "derive") {
+    const kind = findKind(ruling.product);
+    if (!kind) return `\`${ruling.product}\` is not a kind anything derives into`;
+    if (kind.parent !== ruling.targetObjectId) {
+      return `a \`${ruling.product}\` comes from the ${kind.parent.replace(/_/g, " ")}, not from the ${ruling.targetObjectId.replace(/_/g, " ")}`;
+    }
+  }
+  return `(${ruling.targetObjectId}, ${ruling.property}) grounded nothing this scenario declares`;
+}
+
 function outcomeLines(half: OpenHalfRoundResult): string[] {
   const { ruling, plan, outcome, refusalError } = half;
   if (!ruling) return [];
@@ -113,7 +132,14 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
       lines.push(`Refused: constraint violation (${refusalError.constraintKind}) on ${resourceName}.`);
     }
   } else if (ruling.applicable && !plan) {
-    lines.push(`Ruled applicable, but (${ruling.targetObjectId}, ${ruling.property}) is not declared in the scenario -- did nothing.`);
+    // the-prisoner#8: `planEffect` returns a bare `null` for a dozen distinct
+    // refusals, and this line used to report all of them as "(target,
+    // property) is not declared in the scenario" -- which for a `derive` on a
+    // product that does not come from the target is simply false, and names
+    // the most-written resource in the game as undeclared. Say only what this
+    // half-round's own keys establish, and never assert a pair is undeclared
+    // unless that is what was actually checked.
+    lines.push(`Ruled applicable, but ${refusalReason(ruling)} -- did nothing.`);
   }
   return lines;
 }

@@ -42,6 +42,45 @@ function find(game: OpenGameResult, roundN: number, principal: "warden" | "priso
   return half;
 }
 
+/** A half-round whose ruling was applicable but produced no plan -- the
+ *  branch #8 is about. Built directly, since reaching it through a real game
+ *  needs a referee that rules an incoherent combination on purpose. */
+function halfWithRuling(over: { targetObjectId: string; property: string; effectKind: string; product: string }): OpenHalfRoundResult {
+  return {
+    principal: "prisoner",
+    t: 1,
+    roundN: 1,
+    context: { principalId: "p", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
+    proposal: { intent: "x" },
+    ruling: {
+      applicable: true,
+      targetObjectId: over.targetObjectId,
+      effectKind: over.effectKind,
+      property: over.property,
+      product: over.product,
+      magnitude: "slight",
+      perceptibility: "silent",
+      citations: {
+        target: { verified: true, citation: null },
+        effect: { verified: true, citation: null },
+        property: { verified: true, citation: null },
+        product: { verified: true, citation: null },
+      },
+      raw: { answers: [], unmatched: [] },
+      request: { questions: [], sources: [] },
+    } as unknown as OpenHalfRoundResult["ruling"],
+    plan: null,
+    outcome: null,
+    refusalError: null,
+    perceptionForOther: null,
+    revealFor: null,
+    derived: null,
+    reshaped: null,
+    pick: null,
+    resourceName: null,
+  };
+}
+
 describe("open checkpoint transcript", () => {
   afterEach(() => destroyTestDb());
 
@@ -79,6 +118,21 @@ describe("open checkpoint transcript", () => {
     const text = renderOpenHalfRound(half).join("\n");
     expect(text).toContain("door_passage: 0 -> 1");
     expect(text).not.toContain("lock_integrity");
+  });
+
+  it("a ruling the scenario cannot ground says WHY, and never asserts a declared pair is undeclared (#8)", () => {
+    // The real 2026-09-16 game-3 case: derive `wire` from the `bar`. `wire`
+    // comes from the cot, so `planDerive` refuses -- but `bar.integrity` IS
+    // declared, and the old line said it was not.
+    const text = renderOpenHalfRound(halfWithRuling({ targetObjectId: "bar", property: "integrity", effectKind: "derive", product: "wire" })).join("\n");
+    expect(text).not.toContain("is not declared in the scenario");
+    expect(text).toContain("wire");
+    expect(text).toContain("bar");
+    expect(text).toMatch(/did nothing/);
+
+    // A pair that genuinely is not declared still says so.
+    const undeclared = renderOpenHalfRound(halfWithRuling({ targetObjectId: "cot", property: "edge", effectKind: "wear", product: "none" })).join("\n");
+    expect(undeclared).toContain("did nothing");
   });
 
   it("an impossible ruling shows the safe defaults and the positive reason the actor is given", async () => {
