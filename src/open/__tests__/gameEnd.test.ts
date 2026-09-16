@@ -90,6 +90,23 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3; escape revised by §12)", (
     expect(checkOpenCatch(world, t, { objectId: "bar", property: "integrity", value: 30 })).toBe(true);
   });
 
+  it("examining a way out and finding it standing open catches, given grounds (§33.8)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const t0 = world.base.clock.t0;
+    expect(checkOpenCatch(world, t0, { objectId: "window", property: "passage", value: 1 })).toBe(false); // no grounds yet
+    buildOpenResolver().resolve({
+      gameId: world.base.gameId,
+      mechanic: "OPEN_RESTORE",
+      parameters: { resourceId: world.base.resources.wardenSuspicion, amount: 40, min: 0, max: 100, description: "x" },
+    });
+    const t = world.base.clock.wardenT(1);
+    for (const wayOut of ["window", "door"]) {
+      expect(checkOpenCatch(world, t, { objectId: wayOut, property: "passage", value: 1 })).toBe(true);
+      expect(checkOpenCatch(world, t, { objectId: wayOut, property: "passage", value: 0 })).toBe(false);
+    }
+  });
+
   it("catches on the spoon's edge only while it is not concealed", () => {
     createTestDb();
     const world = buildOpenWorld();

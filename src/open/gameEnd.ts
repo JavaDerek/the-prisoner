@@ -39,6 +39,8 @@ export function checkOpenCatch(
   const suspicion = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: openWorld.base.resources.wardenSuspicion, key: "value" });
   if (suspicion === null || suspicion < SEARCH_SUSPICION_THRESHOLD) return false;
 
+  // §33.8 (owner's decision): a way out found standing open is as plain as it gets.
+  if (reveal.property === "passage" && reveal.objectId in openWorld.exits) return reveal.value >= 1;
   if (reveal.objectId === "bar" && reveal.property === "integrity") return reveal.value <= OPEN_CATCH_BAR_MAX;
   if (reveal.objectId === "lock" && reveal.property === "integrity") return reveal.value <= SEARCH_CATCH_LOCK_MAX;
   if (reveal.objectId === "spoon" && reveal.property === "edge") {

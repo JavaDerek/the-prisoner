@@ -2,7 +2,7 @@ import { readNumericFact } from "../world/facts.js";
 import { getBelief, renderBeliefLine } from "../ledger/beliefs.js";
 import { SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { getNotes } from "../ledger/notes.js";
-import { OPEN_OBJECTS } from "./scenarioObjects.js";
+import { OPEN_OBJECTS, type OpenObjectSpec } from "./scenarioObjects.js";
 import { resourceIdForProperty, type OpenWorld } from "./world.js";
 import type { ObjectPerception } from "./referee.js";
 import type { OpenPrincipalContext } from "./mind.js";
@@ -39,6 +39,19 @@ function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): numbe
   return readNumericFact({ gameId: openWorld.base.gameId, t, entityId: resourceId, key: "value" });
 }
 
+/** OPEN-VARIANT.md §33.8: the authored description, then the reading of every
+ *  property whose current value declares one (`OpenObjectProperty.reads`). */
+function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: number): string {
+  const readings = spec.properties.flatMap((property) => {
+    if (!property.reads) return [];
+    const resourceId = resourceIdForProperty(openWorld, spec.id, property.key);
+    const value = resourceId ? readNumericFact({ gameId: openWorld.base.gameId, t, entityId: resourceId, key: "value" }) : null;
+    const reading = value === null ? undefined : property.reads[value];
+    return reading ? [reading] : [];
+  });
+  return [spec.description, ...readings].join(" ");
+}
+
 export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number): ObjectPerception[] {
   // The §4.1 objects, then every object derived in this game (OPEN-VARIANT.md
   // §13.3), under one rule: the holder always perceives its own things; the
@@ -53,7 +66,7 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
   // as the closed variant's loose tile "stays visible in either view
   // regardless of CONCEAL" (`src/view/viewFor.ts`).
   const candidates = [
-    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: spec.description, owner: OWNER_OF[spec.id], heldIn: spec.heldIn })),
+    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: describedAsItStands(openWorld, spec, t), owner: OWNER_OF[spec.id], heldIn: spec.heldIn })),
     ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, owner: d.heldBy as Principal | undefined, heldIn: undefined })),
   ];
   return candidates

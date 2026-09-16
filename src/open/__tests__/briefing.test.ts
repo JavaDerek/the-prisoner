@@ -3,6 +3,7 @@ import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { computePerceivedObjects, buildOpenBriefing, buildOpenContext } from "../briefing.js";
+import { OPEN_OBJECTS } from "../scenarioObjects.js";
 import { setNotes } from "../../ledger/notes.js";
 
 describe("open-mode perception and briefing", () => {
@@ -15,6 +16,32 @@ describe("open-mode perception and briefing", () => {
     const wardenView = computePerceivedObjects(world, "warden", world.base.clock.t0);
     expect(prisonerView.map((o) => o.id).sort()).toEqual(wardenView.map((o) => o.id).sort());
     expect(prisonerView.some((o) => o.id === "spoon")).toBe(true);
+  });
+
+  // OPEN-VARIANT.md §33.8 (owner's decision): a way out that stands open says so
+  // in the words every principal perceives it by -- which are also the words the
+  // referee reads it by -- and a shut one reads exactly as authored.
+  it("a way out standing open reads so in its description, for both principals; a shut one reads as authored (§33.8)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const authored = (id: string) => OPEN_OBJECTS.find((o) => o.id === id)?.description;
+    const described = (principal: "prisoner" | "warden", id: string, t: number) =>
+      computePerceivedObjects(world, principal, t).find((o) => o.id === id)?.description;
+
+    expect(described("prisoner", "window", world.base.clock.t0)).toBe(authored("window"));
+    expect(described("warden", "door", world.base.clock.t0)).toBe(authored("door"));
+
+    const resolver = buildOpenResolver();
+    for (const wayOut of ["window", "door"]) {
+      const resourceId = resourceIdForProperty(world, wayOut, "passage") as string;
+      resolver.resolve({ gameId: world.base.gameId, mechanic: "OPEN_RESTORE", parameters: { resourceId, amount: 1, min: 0, max: 1, description: "x" } });
+    }
+    const t = world.base.clock.wardenT(1);
+    for (const principal of ["prisoner", "warden"] as const) {
+      expect(described(principal, "window", t)).toBe(`${authored("window")} It stands open now: the bar is out of its widest gap.`);
+      expect(described(principal, "door", t)).toBe(`${authored("door")} It stands open now.`);
+      expect(described(principal, "bar", t)).toBe(authored("bar"));
+    }
   });
 
   it("concealing the spoon hides it from the warden but not from the prisoner (its own owner)", () => {

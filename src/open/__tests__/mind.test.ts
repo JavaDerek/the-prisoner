@@ -303,4 +303,15 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     expect(prompt).toContain("the bar and finding its integrity at or below 30,");
     expect(prompt).not.toContain("the bar and finding its integrity at or below 50");
   });
+
+  it("states the window's own line, 50, and that finding a way out standing open catches (OPEN-VARIANT.md §33.8)", async () => {
+    let prompt = "";
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      prompt = JSON.parse((init?.body as string) ?? "{}").messages[0].content as string;
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" }) } }] }) };
+    }) as unknown as typeof fetch;
+    await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn }).consider(CONTEXT);
+    expect(prompt).toContain("The window can be opened once the bar's integrity is at or below 50.");
+    expect(prompt).toContain("or a way out and finding it standing open");
+  });
 });

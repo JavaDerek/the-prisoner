@@ -7,7 +7,7 @@ import { buildOpenResolver } from "../mechanics.js";
 import { createReferee } from "../referee.js";
 import { runOpenGame } from "../game.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
-import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, WAIT, OPEN_DOOR, LEAVE_DOOR, LEAVE_WINDOW } from "./helpers/scriptedReferee.js";
+import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, EXAMINE_DOOR, WAIT, OPEN_DOOR, LEAVE_DOOR, LEAVE_WINDOW } from "./helpers/scriptedReferee.js";
 
 // Full short games to each ending (issue #2 step 1), with scripted minds and
 // the scripted referee transport in helpers/scriptedReferee.ts.
@@ -74,6 +74,30 @@ describe("runOpenGame: the open variant's round loop, played to each ending", ()
     expect(game.ended).toEqual({ kind: "caught" });
     expect(game.endedAtRound).toBe(4);
     expect(game.halves.at(-1)?.principal).toBe("warden");
+  });
+
+  it("the referee reads a way out standing open, and a warden who looks at it then catches (§33.8)", async () => {
+    const { openWorld, resolver, referee } = setup();
+    resolver.resolve({
+      gameId: openWorld.base.gameId,
+      mechanic: "OPEN_RESTORE",
+      parameters: { resourceId: openWorld.base.resources.wardenSuspicion, amount: 50, min: 0, max: 100, description: "x" },
+    });
+    let turn = 0;
+    const prisonerMind: OpenMind = {
+      async consider() {
+        turn += 1;
+        return turn === 1 ? { intent: OPEN_DOOR } : { intent: WAIT };
+      },
+    };
+    const game = await runOpenGame({ openWorld, resolver, referee, wardenMind: repeating({ intent: EXAMINE_DOOR }), prisonerMind, rounds: 8 });
+
+    const doorAsRuled = (roundN: number) =>
+      game.halves.find((h) => h.roundN === roundN && h.principal === "warden")?.ruling?.request.sources.find((s) => s.id === "desc:door")?.text;
+    expect(doorAsRuled(1)).not.toContain("It stands open now.");
+    expect(doorAsRuled(2)).toMatch(/ It stands open now\.$/);
+    expect(game.ended).toEqual({ kind: "caught" });
+    expect(game.endedAtRound).toBe(2);
   });
 
   it("timeout: neither side gets anywhere, every round is played, the game ends with no state ending", async () => {

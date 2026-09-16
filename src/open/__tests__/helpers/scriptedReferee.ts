@@ -34,6 +34,7 @@ export function scriptedReferee(byIntent: Record<string, ScriptedRuling>): Reade
 
 export const SCRAPE = "I scrape at the rusted base of the bar with my spoon.";
 export const EXAMINE = "I examine the bar closely.";
+export const EXAMINE_DOOR = "I look the door over closely.";
 export const WAIT = "I sit on the cot and wait.";
 export const OPEN_DOOR = "I work the flattened spoon into the gap and lever the bolt back.";
 export const LEAVE_DOOR = "I slip out through the open door.";
@@ -71,6 +72,15 @@ export const RULINGS: Record<string, ScriptedRuling> = {
     perceptibility: "visible",
     intentQuote: "examine the bar closely",
     descQuote: "Rust has pitted it near the bottom",
+  },
+  [EXAMINE_DOOR]: {
+    target: "door",
+    effect: "reveal",
+    property: "passage",
+    magnitude: "slight",
+    perceptibility: "visible",
+    intentQuote: "look the door over closely",
+    descQuote: "A heavy door of iron-bound planks",
   },
   [OPEN_DOOR]: {
     target: "door",

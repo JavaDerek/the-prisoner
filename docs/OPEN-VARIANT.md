@@ -2058,3 +2058,28 @@ object's authored description and its property names, **never the property's cur
 §30's *"climbing through an open window is leave"* cannot apply: nothing it reads says the window is
 open. Telling it fixes all nine. Whether and to whom a way out's state is told is the owner's decision
 (§16 named the general form: each property declaring how its value reads in words).
+
+### 33.8 A way out that stands open says so; finding one open catches (owner's decisions, 2026-09-16)
+
+§33.7 left the owner three decisions, and the owner took all three recommendations:
+
+1. **The referee and both principals are told a way out stands open.** This is §16's general form:
+   a property may declare how a value reads in words (`OpenObjectProperty.reads`), and
+   `computePerceivedObjects` appends that reading to the object's authored description while the
+   property holds the value. It is one text, so what a principal perceives and what the referee rules
+   on cannot disagree, and the exact-repeat cache (§18.8) already keys on it. Only `passage` declares
+   readings: the window *"It stands open now: the bar is out of its widest gap."* (the sentence §33.7
+   tested) and the door *"It stands open now."* A shut way out reads exactly as authored. Nothing
+   reads integrity in words, so no number reaches a principal this way.
+2. **A warden who examines a way out and finds it standing open catches**, with grounds (suspicion at
+   40 or above), for the door and the window alike (`checkOpenCatch`). §33.6's catch at 30 left a
+   careful prisoner uncatchable by examination: scrape to 40, work the bar free, climb out, and the bar
+   never reads 30. Seeing the window open in the briefing does **not** catch by itself. He must examine
+   it on the turn between her opening it and leaving, or it would be a certain catch for any open-then-
+   leave escape, since he always gets exactly that one turn. His other counter, `close`, was always
+   available to either principal and has never been attempted in any game.
+3. **She is told the window's line.** The rules text both minds read now says *"The window can be
+   opened once the bar's integrity is at or below 50."* and names the new catch.
+
+Not decided, noted for the games: a warden who examines **the bar**, not the window, after the bar
+has been worked free reads its integrity (40-ish) and does not catch.

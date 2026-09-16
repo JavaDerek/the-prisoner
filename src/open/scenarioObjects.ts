@@ -67,6 +67,12 @@ export interface OpenObjectProperty {
    *  `min` in one step where the closed variant's own equivalent move did,
    *  e.g. `REPLACE_BAR`/`SERVICE_LOCK` setting integrity to 100). */
   restore: MagnitudeTable;
+  /** OPEN-VARIANT.md §16's general form, built at §33.8: how a value of this
+   *  property reads in words, appended to the object's description while the
+   *  property holds it -- the same words every principal perceives the object
+   *  by and the referee rules on it by. A value with no reading adds nothing
+   *  (say what is, never what is absent). */
+  reads?: Readonly<Record<number, string>>;
 }
 
 export interface OpenObjectSpec {
@@ -107,6 +113,8 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         initialValue: 0,
         wear: { slight: 1, moderate: 1, substantial: 1 },
         restore: { slight: 1, moderate: 1, substantial: 1 },
+        // §33.7: the referee could not rule a climb out as `leave` without it (9 of 9 on replay).
+        reads: { 1: "It stands open now: the bar is out of its widest gap." },
       },
     ],
   },
@@ -157,6 +165,7 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         initialValue: 0,
         wear: { slight: 1, moderate: 1, substantial: 1 },
         restore: { slight: 1, moderate: 1, substantial: 1 },
+        reads: { 1: "It stands open now." },
       },
     ],
   },
