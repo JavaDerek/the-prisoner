@@ -2153,3 +2153,38 @@ is the next step of your plan"*, so a step with no end keeps her on it. If this 
 prisoner problem. It is any model-driven agent following its own open-ended plan, and the fix belongs
 in the mind-side infrastructure every caller shares, not in this game's rules text (owner, 2026-09-16:
 *"Putting that rule in the-prisoner does nothing to help make foreign leaders in Brink smarter."*).
+
+### 33.10 The plan hypothesis, tested: not supported (2026-09-16)
+
+§33.9's hypothesis was that a plan step with a checkable finishing condition advances and an open-ended
+one does not. It was tested on the same rebuilt prompts. Each arm edits **only** the *"Your plan, from
+your last turn"* line, and the script checks the recorded line before editing it. The guard attention
+line was removed in every arm (the code since `8d139f5`), and each arm has 10 samples. Intents were
+read by hand for an attempt to work the bar out. Data
+`checkpoints/2026-09-16-open-prisoner-probe-s33-10-plan-N10.json`; script alongside.
+
+| Arm | Turn | Plan carried in | Worked the bar free |
+|---|---|---|---|
+| A | E1 r6 (bar 40) | as recorded: "… 3. Once bar is below 50, attempt escape …" | 5/10 |
+| B | E1 r6 | only the condition made vague: "3. Once the bar is sufficiently weakened, attempt escape …" | 6/10 (+1 climb through a window not yet open) |
+| C | E3 r6 (bar 47) | as recorded: "Continue damaging the bar … If no progress, use the bucket …" | **0/10** |
+| D | E3 r6 | recorded + "Once bar is below 50, attempt escape through the window quietly." | 1/10 (+1 climb) |
+| E | E3 r6 | recorded + "Once the bar is sufficiently weakened, attempt escape …" | **0/10** |
+
+- **Making the condition vague changed nothing** (A 5, B 6).
+- **Adding a specific finishing step barely moved E3** (C 0, D 1). The prediction was that D would
+  approach A. It did not.
+- **The hypothesis is not supported.** The plan is not what separates the two turns. Recorded here so
+  that nobody designs a shared plan mechanism on it.
+
+**What still differs between the two briefings**, all lines outside the plan:
+
+| | E1 r6 | E3 r6 |
+|---|---|---|
+| Own outcome | "integrity went from 55 to 40" | "integrity went from 62 to 47" |
+| The warden, as perceived | "Warden Croft examines the bar closely." | *Croft says: "Now let's see how sturdy that bar is..."* |
+| Notes | "Bar at 55; … Focus on stealthy abrasion." | "Focus on bar damage; …" |
+| Belief line | "bar integrity: 40 (as of round 5)" | "bar integrity: 47 (as of round 5)" |
+
+Untested candidates: how far below the line the bar is (40 vs 47), the warden's spoken line about the
+bar's sturdiness, and her own notes ("bar damage"). Each can be isolated the same way.

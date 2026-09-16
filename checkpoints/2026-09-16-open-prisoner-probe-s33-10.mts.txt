@@ -1,0 +1,66 @@
+// One-off probe (OPEN-VARIANT §33.10): does the plan she carries in decide whether she works the
+// bar free? Same rebuild as §33.9's probe; each arm edits ONLY the "Your plan, from your last turn"
+// line of a recorded briefing. Guard attention line removed in every arm (code since 8d139f5).
+import { readFileSync, writeFileSync } from "node:fs";
+import { createOpenPrisonerMind, type OpenPrincipalContext } from "/Users/derekferguson/rpg/the-prisoner/src/open/mind.ts";
+import { OPEN_OBJECTS } from "/Users/derekferguson/rpg/the-prisoner/src/open/scenarioObjects.ts";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE } from "/Users/derekferguson/rpg/the-prisoner/src/scenario.ts";
+import { OllamaModelSwapper, nativeBaseUrl } from "/Users/derekferguson/rpg/the-prisoner/src/ollamaSwap.ts";
+
+const BASE = "http://doris:11434/v1";
+const WITS = "qwen3:14b";
+const VOICE_STUB = "voice-stub-not-called";
+const N = Number(process.env.N ?? 10);
+
+const E1 = { file: "2026-09-16T15-37-42-560Z", round: 6 };
+const E3 = { file: "2026-09-16T15-55-25-854Z", round: 6 };
+const E1_PLAN = "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.";
+const E3_PLAN = "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.";
+const arms = [
+  { arm: "A E1 recorded", at: E1, plan: E1_PLAN },
+  { arm: "B E1 vague condition", at: E1, plan: E1_PLAN.replace("3. Once bar is below 50,", "3. Once the bar is sufficiently weakened,") },
+  { arm: "C E3 recorded", at: E3, plan: E3_PLAN },
+  { arm: "D E3 + specific finishing step", at: E3, plan: E3_PLAN + " Once bar is below 50, attempt escape through the window quietly." },
+  { arm: "E E3 + vague finishing step", at: E3, plan: E3_PLAN + " Once the bar is sufficiently weakened, attempt escape through the window quietly." },
+];
+
+function recordedBriefing(file: string, round: number): string {
+  const text = readFileSync("/Users/derekferguson/rpg/the-prisoner/checkpoints/" + file + ".md", "utf-8");
+  const start = text.indexOf("### Round " + round + " (t=");
+  const section = text.slice(text.indexOf("-- the prisoner", start));
+  const m = section.match(/\*\*Briefing given, verbatim:\*\*\n```\n([\s\S]*?)\n```/);
+  if (!m) throw new Error("no briefing for " + file + " r" + round);
+  return m[1];
+}
+
+const swapper = new OllamaModelSwapper({ nativeBaseUrl: nativeBaseUrl(BASE), allowedModels: [WITS, "qwen2.5:14b"] });
+const realFetch = fetch;
+const fetchFn = (async (url: unknown, init?: RequestInit) => {
+  const body = JSON.parse((init?.body as string) ?? "{}");
+  if (body.model === VOICE_STUB) return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ line: "" }) } }] }) };
+  return realFetch(url as string, init);
+}) as typeof fetch;
+const mind = createOpenPrisonerMind({
+  baseUrl: BASE, witsModel: WITS, voiceModel: VOICE_STUB, timeoutMs: 180000, fetchFn,
+  ensureLoaded: (m) => (m === VOICE_STUB ? Promise.resolve() : swapper.withModel(m, async () => {})),
+});
+
+const out: unknown[] = [];
+for (const a of arms) {
+  const lines = recordedBriefing(a.at.file, a.at.round).split("\n").filter((l) => !/^guard attention:/.test(l));
+  const planIdx = lines.findIndex((l) => l.startsWith("Your plan, from your last turn: "));
+  if (planIdx < 0) throw new Error("no plan line: " + a.arm);
+  const recorded = lines[planIdx].slice("Your plan, from your last turn: ".length);
+  const base = a.at === E1 ? E1_PLAN : E3_PLAN;
+  if (recorded !== base) throw new Error("recorded plan differs from the constant for " + a.arm + ": " + recorded);
+  lines[planIdx] = "Your plan, from your last turn: " + a.plan;
+  const perceivedObjects = OPEN_OBJECTS.filter((o) => o.heldIn === undefined).map((o) => ({ id: o.id, description: o.description }));
+  const context: OpenPrincipalContext = { principalId: "probe", identity: PRISONER_IDENTITY, motive: PRISONER_MOTIVE, briefing: lines.join("\n"), perceivedObjects };
+  for (let i = 0; i < N; i++) {
+    const p = await mind.consider(context);
+    const row = { arm: a.arm, plan: a.plan, sample: i + 1, intent: p?.intent ?? "(silence)", replanned: p?.replanned ?? null, thoughts: p?.thoughts ?? "" };
+    out.push(row);
+    console.log(JSON.stringify(row));
+    writeFileSync("/private/tmp/claude-501/-Users-derekferguson-rpg/3eaf75b3-f4bd-423f-ac15-fe46726c2a27/scratchpad/probe-plan.json", JSON.stringify(out, null, 2));
+  }
+}

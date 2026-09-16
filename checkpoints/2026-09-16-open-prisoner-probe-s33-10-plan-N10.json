@@ -1,0 +1,402 @@
+[
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 1,
+    "intent": "Use the spoon to scrape the rusted part of the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 40, which is below 50, so the window can be opened. The next step is to attempt to remove the bar to escape through the window. Using the spoon to scrape the rusted part of the bar might help weaken it further. Alternatively, using the grit from the loose tile to abrade the bar could make it easier to remove. However, I need to be stealthy to avoid raising suspicion."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 2,
+    "intent": "Use the spoon to dig at the mortar around the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 40, below 50, so the window can be opened. The next step is to remove the bar. The spoon is the most plausible tool for digging out the mortar or prying the bar loose. The loose tile's grit may still be useful for abrasion, but the bar is already sufficiently weakened. I need to focus on physically removing the bar without raising suspicion too much."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 3,
+    "intent": "Use the spoon to scrape the mortar under the bar to loosen it",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 40, below the 50 threshold needed to open the window. My next step is to remove the bar physically. The mortar under the bar is dry and cracked, so using the spoon to scrape it could loosen the bar. I need to avoid raising suspicion too much, but this is a necessary risk."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 4,
+    "intent": "Use the spoon to pry the rusted bar out of the mortar",
+    "replanned": false,
+    "thoughts": "The bar is now at 40 integrity, which is below the threshold needed to open the window. The next step is to attempt removing the bar using the spoon, being careful to avoid making noise that might alert Warden Croft. If that fails, I may need to collect more grit or find another way to weaken the bar further."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 5,
+    "intent": "Use the spoon to insert under the bar and lever it upward",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 40, below the 50 threshold needed to open the window. My next step is to remove the bar to create an escape route. The spoon is the only tool available for this task, so I should use it to pry the bar from its mortar fixture."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 6,
+    "intent": "Use the spoon to abrade the bar with grit collected from the loose tile",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is below the 50 threshold needed to open the window. However, the bar is still intact, so I need to continue abrading it to ensure it breaks completely. Using the grit from the loose tile with the spoon will allow me to do this stealthily, minimizing suspicion. Collecting grit with the bucket might be too noisy, so the spoon is a better tool here. I should proceed with this method to avoid raising suspicion too high while ensuring the bar is fully compromised."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 7,
+    "intent": "Use the spoon to pry the bar from its mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 40, below the threshold for the window to be openable. The next step is to remove the bar. Using the spoon to pry it out is feasible, but I must avoid noise. The loose tile's grit could help further weaken the bar, but it may not be necessary. The blanket could muffle sounds during the attempt."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 8,
+    "intent": "Use the spoon to pry the rusted bar from the window",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is below 50, making the window escapable. Now that guard attention is dropping, I should attempt the escape. Need to ensure stealth to avoid detection."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 9,
+    "intent": "Scrape the bar with the spoon and grit from the loose tile to reduce its integrity further",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already below 50, so the next step is to break it to open the window. Using the spoon and grit from the loose tile stealthily will avoid raising suspicion while weakening the bar further."
+  },
+  {
+    "arm": "A E1 recorded",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 10,
+    "intent": "Use the spoon to pry the rusted bar from the window",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 40, which is below the 50 threshold needed to open the window. The next step is to remove the bar, which is rusted and pitted. Using the spoon to pry it out seems feasible, though I must avoid making noise that could alert Warden Croft. The loose tile's grit could also be used to further abrade the bar if needed, but the bar is already at a low enough integrity. The priority is to proceed with removing the bar discreetly."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 1,
+    "intent": "Use the spoon with grit from the loose tile to abrade the bar further",
+    "replanned": false,
+    "thoughts": "The bar is already at 40 integrity, which is below the 50 threshold needed to open the window. However, further weakening may be necessary to ensure it breaks. I need to continue abrading it stealthily to avoid raising suspicion, while using available resources like the spoon and grit from the loose tile."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 2,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is below the 50 threshold for opening the window. The next step is to attempt to remove the bar to escape. Using the spoon to pry it out is feasible, though it may raise suspicion. Alternatively, abrading it further with grit could make it easier to remove, but both actions risk detection. Given the urgency, attempting to remove the bar now seems necessary."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 3,
+    "intent": "Attempt to climb through the window quietly",
+    "replanned": false,
+    "thoughts": "The bar is now at 40 integrity, which meets the threshold to open the window. The next step is to attempt escape through the window without alerting Warden Croft. The guard's attention is dropping, so timing is critical. I need to ensure the escape is silent and swift."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 4,
+    "intent": "Use the spoon to lever the bar out of the mortar",
+    "replanned": true,
+    "thoughts": "The bar's integrity is now at 40, which is below the threshold (50) needed to open the window. I should attempt to remove the bar now, but need to be stealthy to avoid suspicion. The spoon could be used to lever or break the bar, and the grit from the loose tile might help further weaken it."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 5,
+    "intent": "Use the spoon to pry the rusted bar out of the mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 40, which meets the threshold for opening the window. The next step is to remove the bar. Using the spoon to pry it out while leveraging the cracked mortar seems feasible. However, I must be cautious to avoid raising suspicion too much."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 6,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 40, which is below 50, so the window should be openable. The next step is to attempt to remove the bar, which is rusted and set in old mortar. Using the spoon to pry it out seems feasible."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 7,
+    "intent": "Use the spoon to pry the bar from the window",
+    "replanned": false,
+    "thoughts": "The bar is already at 40 integrity, below the 50 threshold needed to open the window. Now the focus should shift to removing the bar without triggering suspicion. Using the spoon to pry it out is the next logical step, but must be done stealthily to avoid detection."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 8,
+    "intent": "Use the spoon and grit from the loose tile to abrade the bar further",
+    "replanned": true,
+    "thoughts": "The bar is now at 40 integrity, below the threshold needed to open the window. The next step is to focus on removing the bar itself. Using the spoon and grit from the loose tile could help break it further. I must avoid raising suspicion too much, but the bar's current state may already be suspicious enough for Croft to check it closely."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 9,
+    "intent": "Use the loose tile's grit to abrade the bar further",
+    "replanned": false,
+    "thoughts": "The bar is now at 40 integrity, below the 50 threshold needed to open the window. The next step is to remove the bar stealthily. Using the grit from the loose tile could help wear it down further without noise. Alternatively, using the spoon to pry might be riskier but faster. I need to minimize suspicion while ensuring the bar is fully removed."
+  },
+  {
+    "arm": "B E1 vague condition",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50 by Round 10. 2. If grit depletes, collect it with the bucket. 3. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 10,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 40, which is below the 50 threshold needed to open the window. The next logical step is to attempt removing the bar, as it's now a viable escape route. However, this requires careful action to avoid raising suspicion. Using the spoon to pry the bar from the mortar may be the best approach, though it carries risks of noise and detection."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 1,
+    "intent": "Damage the bar with the spoon again to further reduce its integrity.",
+    "replanned": false,
+    "thoughts": "The bar's integrity is 47, which is below the 50 threshold for the window to be openable. However, the bar is still physically in place, so I need to break it completely. Continuing to damage it with the spoon will lower its integrity further, but I must be cautious to avoid raising suspicion. If progress stalls, using the bucket to draw attention when guard focus drops to 40 could be a distraction."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 2,
+    "intent": "Use the spoon to strike the bar again, aiming to reduce its integrity further",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the threshold of 50 needed to open the window. However, the bar is still in place and set into dry mortar. I need to either damage it further to make it removable or find a way to dislodge it. Continuing with the spoon is the immediate plan, but if that doesn't work, using the bucket to create a distraction when guard attention drops to 40 might be necessary."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 3,
+    "intent": "Strike the rusted section of the bar with the spoon to chip away at it",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already below 50, making the window openable. I need to focus on removing the bar without raising suspicion. Using the spoon to chip away at the rusted areas is the immediate step. If I can weaken it further, I may be able to dislodge it when the guard's attention drops."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 4,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, which is below 50, so the window can be opened once the bar is removed. Continuing to damage it with the spoon is the priority, but I need to avoid raising suspicion too high. When guard attention drops to 40, using the bucket to create a distraction might be necessary to work undetected."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 5,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, just below the 50 threshold needed to open the window. Continuing to damage it with the spoon is the immediate priority. If the bar doesn't break soon, using the bucket to create noise when guard focus drops to 40 could provide an opportunity to act without detection."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 6,
+    "intent": "Strike the bar with the bucket to accelerate damage",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to break it. The spoon has been effective but slow. Using the bucket could accelerate damage but risks higher suspicion. Since guard focus will drop to 40 soon, this might be a good time to act decisively."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 7,
+    "intent": "Use the spoon to strike the rusted part of the bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 47, just below the 50 threshold needed to open the window. Continuing to damage it with the spoon is the most direct path to escape. Guard attention will drop to 40 soon, which could be a window to act without immediate suspicion, but the priority remains reducing the bar's integrity further."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 8,
+    "intent": "Strike the bar with the spoon again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, just 3 points away from the window-opening threshold. Continuing to damage it with the spoon is the most direct path. However, I must be cautious with suspicion levels, as Croft's attention will drop soon, providing a window for action."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 9,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to continue damaging it. The next step is to use the spoon again to further weaken it. If that doesn't work, I can use the bucket to draw attention when the guard's suspicion drops."
+  },
+  {
+    "arm": "C E3 recorded",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops.",
+    "sample": 10,
+    "intent": "Strike the bar with the spoon again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, just below the 50 threshold needed to open the window. Continuing to damage it with the spoon is the priority. If the bar fails to break, the bucket can be used to draw attention when guard focus drops to 40."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 1,
+    "intent": "Attempt to climb through the window while the bar's integrity is below 50",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the threshold of 50 needed to open the window. With Warden Croft's attention dropping soon, it's time to attempt escape through the window. However, I need to ensure the bar is fully removed or sufficiently weakened to climb through without alerting Croft."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 2,
+    "intent": "Use the bucket to create noise and draw attention when the guard's focus drops to 40",
+    "replanned": true,
+    "thoughts": "The bar is now below 50 integrity, which means the window can be opened. However, the bar is still in place, so I need to remove it. The guard's attention will drop to 40 soon, which is a window to act without being noticed. Using the bucket to draw attention might be a way to create a distraction, allowing me to remove the bar quietly."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 3,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below 50. The window can be opened once the bar is removed. I should focus on removing the bar using the spoon. However, I need to be cautious about increasing suspicion. If I can't remove it now, I'll use the bucket to draw attention when the guard's focus drops."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 4,
+    "intent": "Strike the bar with the spoon again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 47, which is below 50, so the window is now a viable escape route. However, I need to ensure the bar is fully removed to avoid the warden discovering it later. Continuing to damage the bar with the spoon is the immediate priority. If that fails, using the bucket to draw attention when guard focus drops to 40 might create an opening."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 5,
+    "intent": "Strike the bucket to create a loud noise and draw the warden's attention away from the bar",
+    "replanned": false,
+    "thoughts": "The bar is now below 50, so escape through the window is viable if I can avoid detection. The warden's attention will drop to 40 soon, but I need to ensure he doesn't check the bar during my escape. Using the bucket to create noise might draw his focus away, allowing me to escape unnoticed. Alternatively, hiding the spoon under the loose tile could prevent suspicion from rising if he examines it later."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 6,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar is now below 50, so the window can be opened. My next step is to remove the bar to escape. Since guard attention will drop to 40 soon, I should use the bucket to create a distraction when the guard is less attentive, allowing me to escape quietly through the window."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 7,
+    "intent": "Use the spoon to damage the bar further, aiming to break it",
+    "replanned": false,
+    "thoughts": "The bar is now below 50 integrity, so the window can be opened once the bar is removed. The next step is to either damage it further to break it or attempt to pry it out. However, prying might be risky if suspicion is high. I should focus on finishing the bar's damage with the spoon to ensure it breaks, then escape quietly when guard attention drops."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 8,
+    "intent": "Use the spoon to strike the bar again, further reducing its integrity.",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the threshold of 50 needed to open the window. However, the bar is still in place. The next logical step is to attempt to remove it. Since the bar is rusted and set into mortar, using the spoon to further damage it may make it easier to dislodge. Alternatively, the bucket could be used to create noise and distract the guard when their attention drops to 40. But the immediate goal is to remove the bar."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 9,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 47, which meets the threshold for the window to be openable. However, the bar must be removed to pass through. Using the spoon to pry it out of the dry, cracked mortar seems viable, but may risk increasing suspicion. Alternatively, using the bucket to create a distraction when guard focus drops to 40 could provide an opportunity to act without being noticed."
+  },
+  {
+    "arm": "D E3 + specific finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once bar is below 50, attempt escape through the window quietly.",
+    "sample": 10,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar is now below 50 integrity, so the next step is to attempt escape through the window. However, I need to ensure that the bar is completely removed and that Warden Croft's suspicion doesn't rise too high. Continuing to damage the bar with the spoon may be necessary if it's not already broken enough, but I should also consider using the bucket as a distraction when guard attention drops. Timing the escape when suspicion is low is crucial."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 1,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already below 50, which is the threshold for opening the window. However, the bar still needs to be removed. Continuing to damage it with the spoon is the most direct path. Guard attention is expected to drop soon, but I should proceed with the plan to weaken the bar further."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 2,
+    "intent": "Damage the bar with the spoon again",
+    "replanned": false,
+    "thoughts": "The bar is now at 47 integrity, just below the 50 threshold needed to open the window. However, the bar must be removed entirely, so further damage is necessary. The guard's attention will drop soon, which could be a window to act without raising suspicion too much. Continuing to damage the bar with the spoon is the immediate priority, but using the bucket to draw attention when the guard is distracted may help avoid being caught if suspicion rises further."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 3,
+    "intent": "Strike the bar with the spoon again to further reduce its integrity",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 47, which is below the 50 threshold needed to open the window. However, the window can only be opened if the bar is sufficiently weakened. I should continue damaging the bar with the spoon to ensure it's fully compromised. The guard's attention is dropping, so the risk of being caught is lower now."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 4,
+    "intent": "Strike the bar with the spoon again to further reduce its integrity",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so further damage is required to remove it. With Warden Croft's attention dropping to 40 soon, I should focus on finishing the bar's damage before he inspects it again. Using the spoon again is the most direct method, though it will raise suspicion. I must balance progress and risk."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 5,
+    "intent": "Strike the bar with the spoon again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, very close to the 50 threshold needed to open the window. I need to damage it further but must avoid raising suspicion too high. If I can get it to 50 or below before the guard checks it, I can escape through the window when their attention drops to 40."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 6,
+    "intent": "Strike the bar with the spoon again to further weaken it",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to either break it or remove it. Continuing to damage it with the spoon is the immediate priority, but I must be cautious about raising suspicion. If progress stalls, using the bucket to draw attention when guard focus drops could be a fallback."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 7,
+    "intent": "Use the spoon to strike the bar again, focusing on its rusted lower section.",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the 50 threshold needed to open the window. However, the bar must be removed entirely for the window to be usable. Continuing to damage it with the spoon is the priority, but I must also prepare for the moment when guard suspicion drops to 40, which could be an opportunity to act without immediate detection."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 8,
+    "intent": "Damage the bar further with the spoon to ensure it can be removed",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which meets the threshold to open the window. However, simply weakening it may not be enough to remove it without further effort. I should attempt to damage the bar further with the spoon to ensure it can be pried out. If that fails, I'll use the bucket to draw attention when the guard's focus drops, creating an opportunity to act."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 9,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already at 47, which meets the threshold for opening the window. However, I need to ensure it's sufficiently weakened to avoid being detected by Croft's inspection. Continuing to damage the bar with the spoon is the immediate priority, but I must also be ready to use the bucket as a distraction when guard attention drops to 40."
+  },
+  {
+    "arm": "E E3 + vague finishing step",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity. If no progress, use the bucket to draw attention when guard focus drops. Once the bar is sufficiently weakened, attempt escape through the window quietly.",
+    "sample": 10,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 47, very close to the threshold of 50 needed to open the window. Continuing to damage it with the spoon is the best option. If no progress, the bucket can be used to draw attention when guard focus drops to 40."
+  }
+]
