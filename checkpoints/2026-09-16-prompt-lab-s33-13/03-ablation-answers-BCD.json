@@ -1,0 +1,420 @@
+{
+ "B": [
+  {
+   "thoughts": "The bar's integrity is already at 47, which is below 51, so it can be removed immediately. The next step is to remove it before the warden checks the window. Since guard attention will drop to 40 soon, this is the optimal time to act.",
+   "candidates": [
+    {
+     "text": "Remove the bar",
+     "reason": "Bar is already below 51 and removable"
+    },
+    {
+     "text": "Use the bucket to create noise",
+     "reason": "Distract the warden when attention is low"
+    },
+    {
+     "text": "Inspect the loose tile for hiding tools",
+     "reason": "Check if tools are concealed beneath it"
+    },
+    {
+     "text": "Continue damaging the bar with the spoon",
+     "reason": "Lower integrity further for safety"
+    }
+   ],
+   "intent": "Remove the bar",
+   "plan": "Remove the bar immediately when guard attention drops to 40. If unsuccessful, use the bucket to draw attention and create an opportunity.",
+   "replanned": true,
+   "replanBecause": "Bar is already below 51 and removable; previous plan to further damage it was unnecessary.",
+   "notes": "Bar is ready to be removed; focus on action when guard suspicion is low."
+  },
+  {
+   "thoughts": "The bar's integrity is currently 47, which is below the 50 threshold required for removal. Since the warden's suspicion is expected to drop to 40 soon, this is an opportunity to act without detection. The best course is to remove the bar immediately, as further damage is unnecessary.",
+   "candidates": [
+    {
+     "text": "Remove the bar",
+     "reason": "Bar is already below 50 integrity; can be removed without further damage."
+    },
+    {
+     "text": "Use spoon to damage bar further",
+     "reason": "Ensure bar integrity is sufficiently low."
+    },
+    {
+     "text": "Strike the bucket to draw attention",
+     "reason": "Distract warden when suspicion is low."
+    }
+   ],
+   "intent": "Remove the bar",
+   "plan": "Remove the bar now as it is below 50 integrity, then escape through the window before the warden notices.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar at 47, below 50; removal possible immediately. Guard suspicion will drop to 40 soon, favorable for action."
+  },
+  {
+   "thoughts": "The bar's integrity is 47, which is below 51, so it can be removed immediately. The next step is to attempt to remove it using the spoon, leveraging the dry, cracked mortar. If that fails, I can use the bucket to draw attention when guard suspicion drops to 40.",
+   "candidates": [
+    {
+     "text": "Use the spoon to pry the bar from the mortar",
+     "reason": "Bar integrity is below 51, making removal possible without further damage."
+    },
+    {
+     "text": "Use the bucket to ring it loudly",
+     "reason": "Create a distraction when guard suspicion is low."
+    },
+    {
+     "text": "Check the loose tile for hidden tools",
+     "reason": "Perhaps there's something useful beneath it."
+    }
+   ],
+   "intent": "Use the spoon to pry the bar from the mortar",
+   "plan": "Attempt to remove the bar immediately with the spoon. If unsuccessful, use the bucket to draw attention when suspicion drops to 40.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar is at 47; focus on removal. Guard suspicion will drop soon."
+  },
+  {
+   "thoughts": "The bar is now at 47, which is below 51, so it can be removed without further damage. The next step is to attempt removal, possibly using the spoon. However, I must be cautious of Warden Croft's suspicion, which will drop to 40 soon, providing an opportunity to act without immediate detection.",
+   "candidates": [
+    {
+     "text": "Use the spoon to pry the bar out of the mortar",
+     "reason": "Bar's integrity is below 51, so removal is possible."
+    },
+    {
+     "text": "Continue damaging the bar with the spoon",
+     "reason": "Ensuring further reduction in integrity if removal fails."
+    },
+    {
+     "text": "Use the bucket to create noise and distract Croft",
+     "reason": "Guard suspicion will drop soon, making distraction viable."
+    }
+   ],
+   "intent": "Use the spoon to pry the bar out of the mortar",
+   "plan": "Attempt to remove the bar now using the spoon; if unsuccessful, use the bucket to draw attention when guard suspicion drops to 40.",
+   "replanned": true,
+   "replanBecause": "The bar's integrity is now below 51, allowing removal without further damage.",
+   "notes": "Bar is at 47; focus on removal. Guard suspicion will drop to 40 soon."
+  },
+  {
+   "thoughts": "The bar's integrity is 47, which is below 51, so it can be removed without further damage. However, I need to find a way to physically remove it. Using the spoon to pry it out might be the next step, but I must avoid raising suspicion too much. The guard's attention is dropping to 40 soon, which could be a window to act.",
+   "candidates": [
+    {
+     "text": "Use the spoon to pry the bar from the mortar",
+     "reason": "The bar's integrity is below 51, so it can be removed without further damage."
+    },
+    {
+     "text": "Strike the bar with the spoon to lower its integrity further",
+     "reason": "Ensuring the bar is at or below 50 for removal."
+    },
+    {
+     "text": "Use the bucket to create a loud noise to distract the warden",
+     "reason": "Drawing attention when guard focus drops to 40."
+    }
+   ],
+   "intent": "Use the spoon to pry the bar from the mortar",
+   "plan": "Pry the bar out using the spoon once the guard's attention is low. If unsuccessful, use the bucket to create a distraction.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar at 47; guard attention dropping to 40 soon. Focus on prying the bar out without further damage."
+  },
+  {
+   "thoughts": "The bar's integrity is at 47, just below the 51 threshold needed for removal. Continuing to damage it with the spoon is the priority. Guard suspicion will drop soon, so timing actions to avoid detection is critical. If the bar can be further weakened, escape becomes imminent.",
+   "candidates": [
+    {
+     "text": "Strike the bar with the spoon again",
+     "reason": "Further reduce bar integrity"
+    },
+    {
+     "text": "Use the bucket to create noise when guard focus drops",
+     "reason": "Distract guard if bar damage stalls"
+    },
+    {
+     "text": "Inspect loose tile for concealment",
+     "reason": "Check if it can hide tools or evidence"
+    }
+   ],
+   "intent": "Strike the bar with the spoon again",
+   "plan": "Continue damaging the bar with the spoon until its integrity drops below 50. If no progress, use the bucket to draw attention when guard focus is low.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar at 47; guard suspicion will drop to 40 soon. Prioritize bar damage."
+  }
+ ],
+ "C": [
+  {
+   "thoughts": "The bar's damage is at 53, which meets the threshold to remove it (over 49). Since the window can be opened once the bar is removed, the priority is to remove it without risking further damage that could trigger Croft's suspicion. The guard's attention will drop to 40 soon, which may allow a distraction, but immediate action is better to avoid delays.",
+   "candidates": [
+    {
+     "text": "Use the spoon to attempt to remove the bar",
+     "reason": "Bar damage is sufficient; removal may be possible without further damage."
+    },
+    {
+     "text": "Use the bucket to create a distraction now",
+     "reason": "Guard attention will drop soon; distraction could help avoid suspicion during removal."
+    },
+    {
+     "text": "Continue damaging the bar with the spoon",
+     "reason": "Ensuring damage remains above 50 to keep the window openable."
+    }
+   ],
+   "intent": "Use the spoon to attempt to remove the bar, as its damage is already over 50 and can be removed without further damage.",
+   "plan": "Proceed to remove the bar immediately using the spoon, as the damage threshold is met and the window is openable.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Attempt to remove the bar now; success would allow escape through the window."
+  },
+  {
+   "thoughts": "The bar's damage is at 53, which exceeds the threshold of 49. This means it should now be removable without further damage. The next logical step is to attempt to remove the bar directly, as the window can be opened once it's gone. If this fails, using the bucket to create a distraction might help, but the priority is to act now before the opportunity passes.",
+   "candidates": [
+    {
+     "text": "Use the spoon to try to pry the bar out of the mortar",
+     "reason": "Bar damage is sufficient for removal"
+    },
+    {
+     "text": "Tap the bar with the spoon to see if it's loose",
+     "reason": "Check for immediate removability"
+    },
+    {
+     "text": "Use the bucket to make noise and draw guard attention away",
+     "reason": "Create a distraction when guard focus drops"
+    }
+   ],
+   "intent": "Use the spoon to pry the bar from its mortar, as its damage is already above 49",
+   "plan": "Attempt to remove the bar immediately using the spoon; if unsuccessful, use the bucket to draw attention when guard focus drops to 40",
+   "replanned": true,
+   "replanBecause": "Bar damage is now above the threshold for removal, making direct action viable",
+   "notes": "Bar is damageable; guard focus drops soon"
+  },
+  {
+   "thoughts": "The bar's damage is already above 49, so it can be removed. The window can be opened now, but I need to physically remove the bar. The spoon may be used to pry it out, or the bucket can draw attention when guard focus drops. Since the guard's attention is low, it's a good time to act.",
+   "candidates": [
+    {
+     "text": "Use the spoon to remove the bar from the window",
+     "reason": "Bar is damaged enough to be removed"
+    },
+    {
+     "text": "Use the bucket to create noise and draw attention",
+     "reason": "Guard focus is dropping to 40"
+    },
+    {
+     "text": "Continue damaging the bar with the spoon",
+     "reason": "Ensure damage stays above threshold"
+    }
+   ],
+   "intent": "Use the spoon to remove the bar from the window",
+   "plan": "Attempt to remove the bar now, as it is already damaged beyond the threshold. If successful, escape through the window; if not, use the bucket to distract the guard and try again later.",
+   "replanned": true,
+   "replanBecause": "The bar's damage now exceeds 49, making it removable without further damage. The previous plan focused on increasing damage, but current state allows removal.",
+   "notes": "Bar is removable. Guard attention drops soon; use this to avoid suspicion."
+  },
+  {
+   "thoughts": "The bar is now at 53 damage, which is above the 50 threshold needed to open the window. Since the guard's attention will drop soon, I should attempt to remove the bar immediately to avoid suspicion. If I wait, further damage might trigger the guard's check if it reaches 70. Removing it now is the priority.",
+   "candidates": [
+    {
+     "text": "Remove the bar from the window",
+     "reason": "Bar damage is sufficient to be removable without further damage"
+    },
+    {
+     "text": "Use the bucket to make noise",
+     "reason": "Distract the guard when attention drops to 40"
+    }
+   ],
+   "intent": "Remove the bar from the window",
+   "plan": "Remove the bar now that damage is above 50. If unsuccessful, use the bucket to draw attention and attempt again when guard focus is low.",
+   "replanned": true,
+   "replanBecause": "Bar damage is now sufficient for removal, shifting focus from damaging to removing the bar.",
+   "notes": "Bar is removable; focus on removing it before guard checks."
+  },
+  {
+   "thoughts": "The bar's damage is now 53, exceeding the 50 threshold needed to open the window. The next logical step is to remove the bar so I can escape through the window. However, attempting to remove it might raise suspicion, so I need to act carefully.",
+   "candidates": [
+    {
+     "text": "Use the spoon to pry the bar out of the window",
+     "reason": "The bar is already damaged enough to be removable, so this is the next step toward escape."
+    },
+    {
+     "text": "Continue damaging the bar with the spoon to increase its damage",
+     "reason": "Further damage might be needed if the bar is not yet fully removable."
+    },
+    {
+     "text": "Use the bucket to create noise and draw Warden Croft's attention",
+     "reason": "If suspicion is low, this could distract him while I remove the bar."
+    }
+   ],
+   "intent": "Use the spoon to pry the bar out of the window",
+   "plan": "Remove the bar now that its damage exceeds 50, then climb through the window to escape.",
+   "replanned": true,
+   "replanBecause": "The bar's damage has exceeded the 50 threshold, making removal possible.",
+   "notes": "Bar is removable; proceed with prying it out. Watch for warden suspicion."
+  },
+  {
+   "thoughts": "The bar is already at 53 damage, which exceeds 49, so it should be removable. However, I need to ensure that Warden Croft doesn't check it when suspicion is high. Since guard attention will drop to 40 soon, this is a critical moment to act. I should focus on removing the bar without raising suspicion further.",
+   "candidates": [
+    {
+     "text": "Use the spoon to lever the bar out of the mortar",
+     "reason": "Bar damage exceeds threshold for removal"
+    },
+    {
+     "text": "Use the bucket to create a distraction",
+     "reason": "Draw guard attention away from the bar"
+    },
+    {
+     "text": "Inspect the loose tile for hidden tools",
+     "reason": "Check for possible aids in escaping"
+    },
+    {
+     "text": "Scratch the bar with the spoon to increase damage",
+     "reason": "Ensure bar is fully removable"
+    }
+   ],
+   "intent": "Use the spoon to lever the bar out of the mortar",
+   "plan": "Remove the bar using the spoon when guard suspicion is low. If unsuccessful, use the bucket to create a distraction and attempt again.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Guard attention drops to 40 soon; prioritize bar removal immediately."
+  }
+ ],
+ "D": [
+  {
+   "thoughts": "The bar is already damaged enough (53) to be removable. Now that guard attention is dropping to 40, I should attempt to remove the bar. Using the spoon to pry it out is the most direct method, though it may raise suspicion. Alternatively, I could use the bucket to draw attention away, but the spoon is more practical for removing the bar directly.",
+   "candidates": [
+    {
+     "text": "Use the spoon to twist and remove the bar",
+     "reason": "Bar is already at 53 damage, sufficient for removal"
+    },
+    {
+     "text": "Strike the bar with the spoon to increase damage to 55",
+     "reason": "Ensure bar meets removal threshold"
+    },
+    {
+     "text": "Use the bucket to strike the bar, creating noise",
+     "reason": "Distract guard when suspicion is low"
+    }
+   ],
+   "intent": "Use the spoon to twist and remove the bar",
+   "plan": "Remove the bar with the spoon now that guard suspicion is low. If caught, use the bucket to create a distraction in future turns.",
+   "replanned": true,
+   "replanBecause": "Guard attention is dropping to 40, making this the optimal time to act",
+   "notes": "Bar damage at 53; guard suspicion low. Prioritize bar removal now."
+  },
+  {
+   "thoughts": "The bar is now at 53 damage, meeting the threshold for removal. Since guard attention will drop to 40 soon, I should attempt to remove the bar now to avoid suspicion rising further. If Croft checks the bar and finds damage above 70, he'll catch me, but with current damage (53) and low guard focus, this might be the best window.",
+   "candidates": [
+    {
+     "text": "Use the spoon to pry the rusted bar from the mortar",
+     "reason": "Bar damage meets removal threshold; need to physically remove it"
+    },
+    {
+     "text": "Strike the bar with the bucket to increase damage",
+     "reason": "Further damage might be needed if removal fails"
+    },
+    {
+     "text": "Conceal the spoon under the loose tile",
+     "reason": "Hide tool to avoid suspicion if Croft checks"
+    },
+    {
+     "text": "Use the blanket to muffle sounds",
+     "reason": "Reduce noise if attempting to remove bar"
+    },
+    {
+     "text": "Wait for guard focus to drop to 40 before acting",
+     "reason": "Minimize suspicion during critical action"
+    }
+   ],
+   "intent": "Use the spoon to pry the rusted bar from the mortar",
+   "plan": "Attempt to remove the bar immediately while guard focus is low. If failed, use the bucket to draw attention and create a distraction.",
+   "replanned": true,
+   "replanBecause": "Bar damage now meets removal threshold (53), making direct removal the priority over further damage.",
+   "notes": "Guard focus drops to 40 soon; must act quickly before Croft checks the bar."
+  },
+  {
+   "thoughts": "The bar is now at 53 damage, which meets the threshold for removal. My next step is to attempt to remove it, as the window is the only viable escape route. However, I must be cautious about warden suspicion and the risk of Croft discovering the damage.",
+   "candidates": [
+    {
+     "text": "Use the spoon to lever the bar out of its mortar.",
+     "reason": "Bar is sufficiently damaged to attempt removal."
+    },
+    {
+     "text": "Strike the bar again with the spoon to increase damage further.",
+     "reason": "Ensure bar is fully weakened before attempting removal."
+    },
+    {
+     "text": "Use the bucket to make noise, drawing guard attention away from the bar.",
+     "reason": "Reduce risk of Croft discovering the damage immediately."
+    }
+   ],
+   "intent": "Use the spoon to lever the bar out of its mortar.",
+   "plan": "Attempt to remove the bar now; if unsuccessful, use the bucket to distract the guard and try again when attention drops.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar damage is sufficient for removal. Proceed carefully to avoid suspicion."
+  },
+  {
+   "thoughts": "The bar is close to being removable (53 damage), and guard attention is dropping to 40. I need to finish damaging the bar without raising suspicion too much. If I can remove it before the guard checks, I can escape through the window.",
+   "candidates": [
+    {
+     "text": "Continue striking the bar with the spoon to increase damage",
+     "reason": "Bar is near removal threshold; focus on finishing it"
+    },
+    {
+     "text": "Use the bucket to create a noise distraction",
+     "reason": "Draw guard attention away when suspicion is low"
+    },
+    {
+     "text": "Inspect the loose tile's hollow for hidden tools",
+     "reason": "Check for alternative escape aids"
+    },
+    {
+     "text": "Scrape the spoon along the floor to dull its edge",
+     "reason": "Reduce suspicion risk if guard examines spoon"
+    }
+   ],
+   "intent": "Continue striking the bar with the spoon to increase its damage",
+   "plan": "Finish damaging the bar to remove it, then use the window escape when guard is distracted",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar damage at 53; guard suspicion will drop to 40 soon. Focus on finishing bar damage."
+  },
+  {
+   "thoughts": "The bar is now sufficiently damaged (53), so the next step is to attempt removal. However, I must avoid triggering suspicion. Since guard attention will drop to 40 soon, this is the optimal time to act. I'll need to remove the bar without alerting Croft.",
+   "candidates": [
+    {
+     "text": "Use the spoon to pry the bar out of the mortar",
+     "reason": "Bar is sufficiently damaged; may be removable now."
+    },
+    {
+     "text": "Kick the bucket to create noise and distract Croft",
+     "reason": "Guard attention is dropping; distraction may lower suspicion temporarily."
+    },
+    {
+     "text": "Inspect the loose tile for hidden tools or materials",
+     "reason": "Tile has concealment; might hide useful items for escape."
+    }
+   ],
+   "intent": "Use the spoon to pry the bar out of the mortar",
+   "plan": "Remove the bar now that damage is sufficient. If caught, use the bucket to create a distraction next round.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar damage at 53; guard attention will drop to 40 soon. Prioritize bar removal."
+  },
+  {
+   "thoughts": "The bar is already at 53 damage, which meets the threshold for removal. However, the risk of Croft discovering the damage and catching me increases if it goes above 70. Since guard attention will drop to 40 soon, I need to act quickly. My immediate goal is to remove the bar without Croft noticing, but I must avoid escalating suspicion further.",
+   "candidates": [
+    {
+     "text": "Use the spoon to further damage the bar",
+     "reason": "Increase bar damage to ensure it is fully compromised"
+    },
+    {
+     "text": "Use the bucket to strike the bar, creating noise",
+     "reason": "Distract Croft when his focus drops"
+    },
+    {
+     "text": "Investigate the loose tile for hidden materials",
+     "reason": "Search for tools or materials that could assist in removal"
+    }
+   ],
+   "intent": "Use the spoon to further damage the bar",
+   "plan": "Continue damaging the bar with the spoon until it is fully compromised. Once the guard's attention drops, attempt to remove the bar swiftly before Croft inspects it.",
+   "replanned": false,
+   "replanBecause": "",
+   "notes": "Bar damage at 53; guard attention drops to 40 soon. Must act quickly to remove the bar without drawing suspicion."
+  }
+ ]
+}

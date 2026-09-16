@@ -1,0 +1,45 @@
+## Use the spoon to pry the bar out of the mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## Remove the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## Attempt to remove the bar from the window
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 80% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## Use the spoon to remove the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## Use the spoon to twist and remove the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## Attempt to remove the bar by hand, taking advantage of the dry, cracked mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "open" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.4%.
+§5.3's target: at least 80%.

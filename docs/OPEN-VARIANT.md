@@ -2234,3 +2234,66 @@ and 60% of the time, depending on the whole briefing in a way no single edit exp
 mechanism is proposed on this evidence. **The owner has taken the design question from here**
 (2026-09-16: *"if this doesn't work, don't do anything further. I want to try applying my own brain
 to figuring out a technology solution at that point."*). No further probes.
+
+### 33.13 The owner's prompt lab: one sentence decides it, and a referee regression (2026-09-16)
+
+After §33.12 the owner took the mind-side question by hand. `~/prisoner-prompt-lab` is a local page
+(not in any repo) that sends `qwen3:14b` exactly the wits request the game sends: one user message,
+temperature 0.9, the game's forced JSON schema, a fresh chat each ask. The owner edited the prompt and
+scored each answer by hand: ✓ if the intent tries to get the bar out now. The owner's browser answers
+were not saved as files, so their counts are as the owner reported them in session. Every prompt
+version, and the answers Claude ran, are in `checkpoints/2026-09-16-prompt-lab-s33-13/`.
+
+**The owner's sequence** (E3 r6 unless noted; baseline 0/10, §33.10 arm C):
+
+| Prompt | Result |
+|---|---|
+| bar as damage (53) instead of integrity (47); rule "the window can be opened…" kept (text not saved) | 1/6 |
+| + rule sentence *"The bar can be removed once the bar's damage is at or above 50."* (`01-…`) | 3/5 |
+| + first line *"If the bar's damage is greater than 49, it can be removed without requiring any further damage."* (`02-…`, "A") | **10/11**; the miss waited for guard attention |
+| A, bar at 47 damage (below the line) | **11/11 kept working**; every answer computed *"needing 3 more to reach 50"* |
+| A's edits on E1 r6, bar 60 damage (`04-…`) | 7/11; all 3 waits cited guard attention, 1 tried to climb out first |
+| + guard attention removed from her carried notes (`05-…`) | **10/10** |
+
+**Ablation, one change removed at a time from A** (E3 r6, guard note kept as in A; run by Claude, 6
+answers each, `03-…`):
+
+| Test | Removed | Result |
+|---|---|---|
+| B | damage framing (integrity again; the other two changes restated for integrity) | 5/6 |
+| C | *"The bar can be removed…"* (back to *"The window can be opened…"*) | 6/6 |
+| D | the first line (identical to the owner's 3/5 prompt) | 4/6 → with the owner's 3/5, **7/11** |
+
+With the first line (A, B, C): **21/23**. Without it (D): **7/11**. **The first line is the change that
+matters. The damage framing and the object-naming rule are not needed.** D's misses are the two
+errors the line addresses: *"close to being removable (53 damage)"* (the comparison), and *"meets the
+threshold for removal"* followed by *"further damage the bar"* (believing more preparation is needed).
+B's one miss: *"47, just below the 51 threshold needed … Continuing to damage it"*.
+
+**Candidate lessons, for the owner's design, not decided:**
+1. When a threshold unlocks an action, say so explicitly, and say that nothing further is required. The
+   model otherwise keeps preparing.
+2. Numbers that decide nothing mislead. Guard attention caused every remaining miss.
+3. Numbers without stated meaning get invented meanings. With guard attention in her notes, she read
+   *"loose tile concealment: 80"* as her own stealth in 10 of 11 answers. Without it, 0 of 10.
+
+**Referee check of the lab's wordings: a regression found.** Each wording the lab produced went into
+the recorded E3 r6 prisoner request and was ruled 5 times by `qwen2.5:14b` (`06-…`):
+
+| Intent | Current referee | Without §33.7's restore sentence (`07-…`) |
+|---|---|---|
+| Use the spoon to lever the bar out of the mortar | open | (not rerun) |
+| Use the spoon to pry the bar out of the mortar | **wear** | open |
+| Attempt to remove the bar from the window | **wear** | open |
+| Use the spoon to twist and remove the bar | **wear** | open |
+| Attempt to remove the bar by hand, taking advantage of the dry, cracked mortar | **wear** | open |
+| Remove the bar | wear | wear |
+| Use the spoon to remove the bar | wear | wear |
+| Proceed with the bar removal, utilizing stealth … | open | (not rerun) |
+| Attempt to stealthily remove the bar using the loose tile concealment … | open | (not rerun) |
+
+All answers 5/5. **§33.7's sentence *"Working a material against something to damage it is wear"* turns
+"pry the bar out of the mortar" from `open` into `wear`.** §33.7 tested that sentence only against
+scrape and strike controls, never a pry. It has shipped since `88cda7a`. It did not change any recorded
+game: the only games since are batch E's, and none of their intents tried to remove the bar.
+Separately, a bare *"remove the bar"* is `wear` with or without the sentence.
