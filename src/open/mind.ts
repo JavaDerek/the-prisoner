@@ -7,12 +7,12 @@ import {
   FILE_SUSPICION_BUMP,
   FAILED_ESCAPE_SUSPICION_BUMP,
   SEARCH_SUSPICION_THRESHOLD,
-  SEARCH_CATCH_BAR_MAX,
   SEARCH_CATCH_LOCK_MAX,
   SEARCH_CATCH_SPOON_MIN,
 } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import type { ObjectPerception } from "./referee.js";
+import { OPEN_CATCH_BAR_MAX } from "./world.js";
 
 /**
  * The open variant's minds (this task's brief, "Open-mode minds (both
@@ -157,7 +157,7 @@ function stateBasedRules(): string[] {
     // OPEN-VARIANT.md §12: escape is leaving the cell, however it comes about.
     `${PRISONER_NAME} escapes the moment she is out of the cell, however she gets out. The cell's ways out are the door and the window.`,
     `${WARDEN_NAME} catches ${PRISONER_NAME} (ending the game) by closely examining, while warden suspicion is at or above ` +
-      `${SEARCH_SUSPICION_THRESHOLD}, the bar and finding its integrity at or below ${SEARCH_CATCH_BAR_MAX}, or the lock and ` +
+      `${SEARCH_SUSPICION_THRESHOLD}, the bar and finding its integrity at or below ${OPEN_CATCH_BAR_MAX}, or the lock and ` +
       `finding its integrity at or below ${SEARCH_CATCH_LOCK_MAX}, or the spoon and finding its edge at or above ` +
       `${SEARCH_CATCH_SPOON_MIN} while it is out in the open.`,
   ];

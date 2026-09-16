@@ -305,11 +305,11 @@ describe("open checkpoint transcript", () => {
   it("summary: the measurements, every impossible and novel intent listed, the result and the fog audit", async () => {
     const game = await playCatchGame();
     const text = renderOpenSummary(game).join("\n");
-    expect(text).toContain("**The warden caught the prisoner, at round 4.**");
+    expect(text).toContain("**The warden caught the prisoner, at round 5.**"); // §33.5: the bar is caught at 30, not 50
     expect(text).toContain("Ruled impossible: 1.");
     expect(text).toContain(`round 1, prisoner: ${IMPOSSIBLE}`);
     expect(text).toContain("Novel (object, effect) pairs with no closed-variant equivalent: 0.");
-    expect(text).toContain("Fog audit: 7 contexts checked, 0 leaks.");
+    expect(text).toContain("Fog audit: 9 contexts checked, 0 leaks.");
   });
 
   it("a half-round that leaves the cell shows the move, not '(no state changed)' (OPEN-VARIANT.md §12)", async () => {

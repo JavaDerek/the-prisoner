@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
-import { buildOpenWorld, resourceIdForProperty } from "../world.js";
+import { buildOpenWorld, resourceIdForProperty, OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { checkOpenEscape, checkOpenCatch, checkOpenGameEnd } from "../gameEnd.js";
 
@@ -69,6 +69,25 @@ describe("open-mode game end (OPEN-VARIANT.md §9.3; escape revised by §12)", (
     const t = world.base.clock.wardenT(1);
     expect(checkOpenCatch(world, t, { objectId: "bar", property: "integrity", value: 10 })).toBe(true);
     expect(checkOpenCatch(world, t, { objectId: "bar", property: "integrity", value: 90 })).toBe(false); // not worn enough
+  });
+
+  // OPEN-VARIANT.md §33.5 (owner's decision): the warden is outside the cell,
+  // so the bar has to be worse before he can see it than before she can pull
+  // it out. The window opens at 50; the catch waits for 30.
+  it("the bar is caught at 30 or below, not at the 50 that opens the window (§33.5)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    buildOpenResolver().resolve({
+      gameId: world.base.gameId,
+      mechanic: "OPEN_RESTORE",
+      parameters: { resourceId: world.base.resources.wardenSuspicion, amount: 100, min: 0, max: 100, description: "x" },
+    });
+    const t = world.base.clock.wardenT(1);
+    expect(OPEN_CATCH_BAR_MAX).toBe(30);
+    expect(OPEN_CATCH_BAR_MAX).toBeLessThan(OPEN_WINDOW_BAR_MAX);
+    expect(checkOpenCatch(world, t, { objectId: "bar", property: "integrity", value: 40 })).toBe(false);
+    expect(checkOpenCatch(world, t, { objectId: "bar", property: "integrity", value: 31 })).toBe(false);
+    expect(checkOpenCatch(world, t, { objectId: "bar", property: "integrity", value: 30 })).toBe(true);
   });
 
   it("catches on the spoon's edge only while it is not concealed", () => {

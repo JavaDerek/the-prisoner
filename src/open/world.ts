@@ -3,7 +3,6 @@ import { buildWorld, type World } from "../world/setup.js";
 import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
-import { SEARCH_CATCH_BAR_MAX } from "../world/mechanics.js";
 
 /**
  * The open variant's world (OPEN-VARIANT.md §1: "Everything the closed
@@ -74,9 +73,16 @@ export interface OpenExit {
   openWhenPartAtMost: number | null;
 }
 
-/** OPEN-VARIANT.md §24: the window opens only once its bar is worn to the line
- *  a catch already treats as visibly compromised. */
-export const OPEN_WINDOW_BAR_MAX = SEARCH_CATCH_BAR_MAX;
+/** OPEN-VARIANT.md §24: the window opens only once its bar is worn to this
+ *  line. Until §33.5 it was the catch's own line, by definition. */
+export const OPEN_WINDOW_BAR_MAX = 50;
+
+/** OPEN-VARIANT.md §33.5 (owner's decision): a warden's close look catches on
+ *  the bar only at or below this. He is outside the cell, so damage has to be
+ *  worse before he can see it than before she can pull the bar free -- which
+ *  leaves the prisoner a margin between the window opening and being caught.
+ *  The closed variant's `SEARCH_CATCH_BAR_MAX` is untouched. */
+export const OPEN_CATCH_BAR_MAX = 30;
 
 function propertyToken(objectId: string, propertyKey: string): string {
   return `${objectId}.${propertyKey}`;

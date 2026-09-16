@@ -1,11 +1,10 @@
 import { readNumericFact, readFactValue } from "../world/facts.js";
 import {
   SEARCH_SUSPICION_THRESHOLD,
-  SEARCH_CATCH_BAR_MAX,
   SEARCH_CATCH_LOCK_MAX,
   SEARCH_CATCH_SPOON_MIN,
 } from "../world/mechanics.js";
-import { resourceIdForProperty, type OpenWorld } from "./world.js";
+import { resourceIdForProperty, OPEN_CATCH_BAR_MAX, type OpenWorld } from "./world.js";
 
 /**
  * Game end, open mode (OPEN-VARIANT.md §9.3, this revision note written
@@ -30,7 +29,8 @@ export function checkOpenEscape(openWorld: OpenWorld, t: number): boolean {
  *  own SEARCH is a deliberate act, not a passive check. `warden_suspicion`
  *  (live) must already meet `SEARCH_SUSPICION_THRESHOLD` (grounds), and the
  *  revealed value must cross the closed variant's own per-property
- *  threshold. */
+ *  threshold -- except the bar's, which is the open variant's own
+ *  `OPEN_CATCH_BAR_MAX` (§33.5). */
 export function checkOpenCatch(
   openWorld: OpenWorld,
   t: number,
@@ -39,7 +39,7 @@ export function checkOpenCatch(
   const suspicion = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: openWorld.base.resources.wardenSuspicion, key: "value" });
   if (suspicion === null || suspicion < SEARCH_SUSPICION_THRESHOLD) return false;
 
-  if (reveal.objectId === "bar" && reveal.property === "integrity") return reveal.value <= SEARCH_CATCH_BAR_MAX;
+  if (reveal.objectId === "bar" && reveal.property === "integrity") return reveal.value <= OPEN_CATCH_BAR_MAX;
   if (reveal.objectId === "lock" && reveal.property === "integrity") return reveal.value <= SEARCH_CATCH_LOCK_MAX;
   if (reveal.objectId === "spoon" && reveal.property === "edge") {
     const concealmentId = resourceIdForProperty(openWorld, "spoon", "concealment");

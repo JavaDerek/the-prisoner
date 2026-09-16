@@ -6,6 +6,7 @@ import { buildOpenResolver } from "../mechanics.js";
 import { planEffect } from "../effects.js";
 import { checkOpenEscape, checkOpenGameEnd, checkOpenCatch } from "../gameEnd.js";
 import { OPEN_WINDOW_BAR_MAX } from "../world.js";
+import { SEARCH_CATCH_BAR_MAX } from "../../world/mechanics.js";
 import { EFFECT_KINDS, PROPERTY_ANSWER_KEYS } from "../effects.js";
 import { scriptedMind } from "mind-seam";
 import { createReferee } from "../referee.js";
@@ -338,10 +339,11 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
 describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", () => {
   afterEach(() => destroyTestDb());
 
-  it("each way out declares its threshold: the window's bar at or below 50, the same line a catch uses; the door none", () => {
+  it("each way out declares its threshold: the window's bar at or below 50, its own line, not the catch's (§33.5); the door none", () => {
     createTestDb();
     const w = buildOpenWorld();
     expect(OPEN_WINDOW_BAR_MAX).toBe(50);
+    expect(SEARCH_CATCH_BAR_MAX).toBe(50); // the closed variant's SEARCH is untouched by §33.5
     expect(w.exits.window.openWhenPartAtMost).toBe(OPEN_WINDOW_BAR_MAX);
     expect(w.exits.door.openWhenPartAtMost).toBeNull();
   });

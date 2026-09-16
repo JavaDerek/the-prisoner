@@ -68,10 +68,11 @@ describe("runOpenGame: the open variant's round loop, played to each ending", ()
       rounds: 8,
     });
 
-    // Round 2's warden examine: suspicion 30 (round 1 scrape) + floor(25/2)=12 -> 42 >= 40; bar 75 > 50.
-    // Round 3's warden examine: bar 50 <= 50 with suspicion above the threshold -> caught.
+    // Round 2's warden examine: suspicion 30 (round 1 scrape) + floor(25/2)=12 -> 42 >= 40; bar 75 > 30.
+    // Round 3's warden examine: bar 50 -- the window's line, not the catch's (§33.5) -> no catch.
+    // Round 4's warden examine: bar 25 <= 30 with suspicion above the threshold -> caught.
     expect(game.ended).toEqual({ kind: "caught" });
-    expect(game.endedAtRound).toBe(3);
+    expect(game.endedAtRound).toBe(4);
     expect(game.halves.at(-1)?.principal).toBe("warden");
   });
 
