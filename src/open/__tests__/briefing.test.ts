@@ -5,6 +5,7 @@ import { buildOpenResolver } from "../mechanics.js";
 import { computePerceivedObjects, buildOpenBriefing, buildOpenContext } from "../briefing.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 import { setNotes } from "../../ledger/notes.js";
+import { seedInitialBeliefs } from "../../ledger/beliefs.js";
 
 describe("open-mode perception and briefing", () => {
   afterEach(() => destroyTestDb());
@@ -41,6 +42,20 @@ describe("open-mode perception and briefing", () => {
       expect(described(principal, "window", t)).toBe(`${authored("window")} It stands open now: the bar is out of its widest gap.`);
       expect(described(principal, "door", t)).toBe(`${authored("door")} It stands open now.`);
       expect(described(principal, "bar", t)).toBe(authored("bar"));
+    }
+  });
+
+  // OPEN-VARIANT.md §33.9 (owner's decision): nothing in the open variant reads
+  // guard attention -- escape is leaving (§12) -- yet batch E's minds planned
+  // around it 67 times. A number that decides nothing is not shown.
+  it("neither principal's briefing mentions guard attention (§33.9)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    seedInitialBeliefs(world.base); // as runOpenGame does: both hold a guard_attention belief from round 0
+    for (const principal of ["prisoner", "warden"] as const) {
+      const briefing = buildOpenBriefing(world, principal, world.base.clock.t0, 1, 30);
+      expect(briefing).toMatch(/bar integrity: 100/); // positive control: belief lines do render
+      expect(briefing).not.toMatch(/guard[ _]attention/i);
     }
   });
 

@@ -1,7 +1,6 @@
 import type { Mind, Proposal, InertRecord, SilenceReason, SilenceDetail } from "mind-seam";
 import { createLocalMind, coerceProposal } from "mind-seam";
 import {
-  TIME_DECAY_RULE,
   EVIDENCE_SUSPICION_DIVISOR,
   HONE_SUSPICION_BUMP,
   FILE_SUSPICION_BUMP,
@@ -149,7 +148,6 @@ const VOICE_SCHEMA: InertRecord = {
  *  constants, in terms of what happens rather than which move does it. */
 function stateBasedRules(): string[] {
   return [
-    `Also, rules that never change: ${TIME_DECAY_RULE}`,
     `Whenever ${PRISONER_NAME} audibly or visibly damages, repairs or uncovers something, warden suspicion rises: ` +
       `by ${HONE_SUSPICION_BUMP} for a slight act, ${FILE_SUSPICION_BUMP} for a moderate one, ${FAILED_ESCAPE_SUSPICION_BUMP} for a substantial one.`,
     `When ${WARDEN_NAME} examines something closely and finds it more worn than ${WARDEN_NAME} last believed, warden suspicion ` +

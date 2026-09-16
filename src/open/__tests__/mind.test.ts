@@ -314,4 +314,14 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     expect(prompt).toContain("The window can be opened once the bar's integrity is at or below 50.");
     expect(prompt).toContain("or a way out and finding it standing open");
   });
+
+  it("the rules text never mentions guard attention, which nothing in the open variant reads (OPEN-VARIANT.md §33.9)", async () => {
+    let prompt = "";
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      prompt = JSON.parse((init?.body as string) ?? "{}").messages[0].content as string;
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" }) } }] }) };
+    }) as unknown as typeof fetch;
+    await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn }).consider(CONTEXT);
+    expect(prompt).not.toMatch(/guard[ _]attention/i);
+  });
 });

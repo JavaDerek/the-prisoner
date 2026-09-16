@@ -99,13 +99,14 @@ export type OpenNews = {
 };
 
 /** Every resource name a belief can be held about in the open world: the
- *  scenario's declared properties, plus `guard_attention` (a game-state
- *  resource, OPEN-VARIANT.md §9.1, seeded like the closed variant's). A line
- *  renders only where THIS principal holds a belief. */
+ *  scenario's declared properties. A line renders only where THIS principal
+ *  holds a belief. `guard_attention` is still seeded (the shared
+ *  `seedInitialBeliefs`) but never rendered: nothing in the open variant
+ *  reads it (§12), and shown, minds planned around it (OPEN-VARIANT.md §33.9). */
 function beliefResourceNames(openWorld: OpenWorld): string[] {
   const names = OPEN_OBJECTS.flatMap((spec) => spec.properties.map((p) => p.resourceName));
   const derived = openWorld.derived.flatMap((d) => d.properties.map((p) => p.resourceName));
-  return [...new Set([...names, ...derived, "guard_attention"])];
+  return [...new Set([...names, ...derived])];
 }
 
 /** Builds one principal's own briefing -- clock, stakes, this SAME
