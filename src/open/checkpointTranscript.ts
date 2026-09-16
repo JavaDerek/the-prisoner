@@ -73,7 +73,14 @@ function refereeTable(half: OpenHalfRoundResult): string[] {
 function outcomeLines(half: OpenHalfRoundResult): string[] {
   const { ruling, plan, outcome, refusalError } = half;
   if (!ruling) return [];
-  const resourceName = ruling.property !== "none" ? (findProperty(ruling.targetObjectId, ruling.property)?.resourceName ?? `${ruling.targetObjectId}.${ruling.property}`) : ruling.targetObjectId;
+  // the-prisoner#6: the resource the PLAN wrote, named by the loop from the
+  // world (`OpenHalfRoundResult.resourceName`) -- not the ruling's own target
+  // and property, which §19 lets diverge from it (an `open` ruled on the bar
+  // writes the window's `passage`, and a transcript that said `bar_integrity`
+  // hid the one value escape is decided on). The ruling's own pair is still
+  // the fallback for a plan that wrote no resource at all -- `leave`, `noise`
+  // -- and for a half-round that never reached a plan.
+  const resourceName = half.resourceName ?? (ruling.property !== "none" ? (findProperty(ruling.targetObjectId, ruling.property)?.resourceName ?? `${ruling.targetObjectId}.${ruling.property}`) : ruling.targetObjectId);
   const lines: string[] = [];
   if (outcome) {
     lines.push(`Resolved \`${plan?.mechanic ?? "?"}\` (${ruling.effectKind}, ${ruling.magnitude}, ${ruling.perceptibility}):`);

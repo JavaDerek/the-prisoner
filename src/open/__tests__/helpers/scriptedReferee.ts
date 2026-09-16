@@ -43,6 +43,9 @@ export const TAKE_GRIT = "I scoop a handful of grit from the hollow under the lo
 export const HIDE_WIRE = "I tuck the wire away under the loose tile.";
 export const BEND_WIRE = "I bend the wire back and forth to straighten it.";
 export const PUSH_BOLT_WITH_WIRE = "I push the wire into the gap and slide the bolt back.";
+/** Ruled `open` on the door's PART, the lock, with the part's own property
+ *  (the-prisoner#6, OPEN-VARIANT.md §19): it resolves through the door. */
+export const WORK_LOCK = "I work at the lock until the bolt gives.";
 export const BEND_HOOK = "I bend the end of the wire back into a hook.";
 export const TWIST_CORD = "I twist the strip of wool into a tight cord.";
 export const TEAR_STRIP = "I tear a strip from the hem of the blanket.";
@@ -190,6 +193,15 @@ export const RULINGS: Record<string, ScriptedRuling> = {
     perceptibility: "silent",
     intentQuote: "push the banknotes back down into the grit",
     descQuote: "A fold of banknotes wrapped in a strip of oilcloth",
+  },
+  [WORK_LOCK]: {
+    target: "lock",
+    effect: "open",
+    property: "integrity",
+    magnitude: "moderate",
+    perceptibility: "silent",
+    intentQuote: "work at the lock until the bolt gives",
+    descQuote: "its bolt thrown across into the frame",
   },
   [PUSH_BOLT_WITH_WIRE]: {
     target: "door",

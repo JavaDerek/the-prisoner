@@ -74,6 +74,17 @@ export interface OpenHalfRoundResult {
    *  `null` on a free turn, and always outside the condition. Under §23,
    *  set on every new prisoner plan checked, with `reasked`. */
   pick: { own: string; forced: boolean; overridden: boolean; verdicts: readonly { candidate: string; verdict: Verdict }[]; reasked?: boolean } | null;
+  /** The scenario's own display name for the resource this half-round's plan
+   *  actually wrote or read (`EffectPlan.resourceId` through `world.ts`'s
+   *  `resourceNameById`) -- `null` when there is no plan, or the plan touches
+   *  no resource (`noise`, `leave`, a `derive` that consumes nothing).
+   *
+   *  Carried because only the loop has the world in scope, and because the
+   *  ruling's own target and property are NOT that resource whenever §19
+   *  resolves an effect through a different object than the referee named:
+   *  an `open` ruled on the bar writes the window's `passage`. Presentation
+   *  only (the-prisoner#6) -- nothing reads this to decide anything. */
+  resourceName: string | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -259,7 +270,7 @@ export async function runOpenHalfRound(params: {
 
   const considered = await mind.consider(context);
   if (considered === null) {
-    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
+    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null };
   }
 
   // §21: the recogniser is the referee itself, so "seen" means exactly what
@@ -306,7 +317,7 @@ export async function runOpenHalfRound(params: {
 
   const ruling = await referee.rule(proposal.intent, context.perceivedObjects);
   if (!ruling.applicable) {
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null };
   }
 
   const actorId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
@@ -352,13 +363,17 @@ export async function runOpenHalfRound(params: {
   if (plan === null) {
     // Declared applicable by the referee, but not a real (object, property)
     // pair in the scenario -- "no invented world" (invariant 6). Do nothing.
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null };
   }
 
   const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
   const seenByOther = plan.derived?.replaces ? computePerceivedObjects(openWorld, other, t).some((o) => o.id === ruling.targetObjectId) : true;
 
   const expects = plan.isWearType && plan.resourceId ? wearExpectation(openWorld, principal, plan.resourceId) : undefined;
+
+  // the-prisoner#6: what the plan writes, named for the reader here, where the
+  // world is in scope -- §19 means this is not always the ruling's own target.
+  const resourceName = plan.resourceId ? (openWorld.resourceNameById[plan.resourceId] ?? null) : null;
 
   // Evidence becomes grounds (OPEN-VARIANT.md §9.3): the warden's OWN prior
   // belief, read BEFORE this resolution -- `updateActorBelief` below (channel
@@ -418,11 +433,11 @@ export async function runOpenHalfRound(params: {
       }
     }
 
-    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped };
+    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);
-      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null };
+      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName };
     }
     throw err;
   }

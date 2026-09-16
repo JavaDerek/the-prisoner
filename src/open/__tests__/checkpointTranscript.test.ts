@@ -9,7 +9,7 @@ import { runOpenGame, type OpenGameResult } from "../game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, fogAudit } from "../checkpointTranscript.js";
 import type { OpenHalfRoundResult } from "../loop.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
-import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, OPEN_DOOR, LEAVE_DOOR } from "./helpers/scriptedReferee.js";
+import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, OPEN_DOOR, LEAVE_DOOR, WORK_LOCK } from "./helpers/scriptedReferee.js";
 
 const IMPOSSIBLE = "I pray for the walls to fall.";
 
@@ -57,6 +57,28 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain("bar_integrity: 100 -> 75");
     expect(text).toContain("**Actor learns:**");
     expect(text).toContain("**Other perceives:**");
+  });
+
+  it("an open ruled on a part labels the transition by the resource the plan wrote, not the part's own property (#6, OPEN-VARIANT.md §19)", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const game = await runOpenGame({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: createReferee([scriptedReferee(RULINGS)]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>(null),
+      prisonerMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: WORK_LOCK }),
+      rounds: 1,
+    });
+    const half = find(game, 1, "prisoner");
+    // The referee named the lock and its integrity; what the plan wrote is
+    // the DOOR's passage, and that is the only thing the reader may be told
+    // changed -- the lock's integrity still stands at 100.
+    expect(half.ruling?.targetObjectId).toBe("lock");
+    expect(half.plan?.parameters.wayOut).toBe("door");
+    const text = renderOpenHalfRound(half).join("\n");
+    expect(text).toContain("door_passage: 0 -> 1");
+    expect(text).not.toContain("lock_integrity");
   });
 
   it("an impossible ruling shows the safe defaults and the positive reason the actor is given", async () => {
@@ -134,7 +156,7 @@ describe("open checkpoint transcript", () => {
       context: { principalId: "p", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
       proposal: { intent: "Lift the tile." },
       pick: { own: "Scrape the bar.", forced: true, overridden: true, verdicts: [{ candidate: "Scrape the bar.", verdict: "seen" }, { candidate: "Lift the tile.", verdict: "unseen" }] },
-      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null,
+      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null,
     }).join("\n");
     expect(text).toContain("**Forced pick:** overrode the mind's own intent: Scrape the bar.");
     expect(text).toContain("- seen: Scrape the bar.");
@@ -161,7 +183,7 @@ describe("open checkpoint transcript", () => {
       perceptionForOther: null,
       revealFor: null,
       derived: null,
-      reshaped: null, pick: null,
+      reshaped: null, pick: null, resourceName: null,
     }).join("\n");
     expect(text).toContain("**Candidates:**");
     expect(text).toContain("Examine the bar closely. (check for damage)");
@@ -170,7 +192,7 @@ describe("open checkpoint transcript", () => {
 
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
-      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null },
+      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null },
       { reason: "unparseable", text: "RAW_MODEL_TEXT" }
     ).join("\n");
     expect(text).toContain("**Silence.** SilenceReason: `unparseable`");

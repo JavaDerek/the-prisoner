@@ -43,6 +43,7 @@ function half(over: Partial<OpenHalfRoundResult>): OpenHalfRoundResult {
     reshaped: null, pick: null,
     perceptionForOther: null,
     revealFor: null,
+    resourceName: null,
     ...over,
   };
 }
