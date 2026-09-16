@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prisoner Prompt Lab</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdad4; --good:#1f7a4d; --bad:#b3362b; --accent:#2f5bd3; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 -apple-system, system-ui, sans-serif; }
+  main { max-width: 1400px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:16px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  h1 { font-size:18px; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 12px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  label { color:var(--muted); font-size:12px; }
+  input, select { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  textarea { width:100%; height:62vh; font:12.5px/1.45 ui-monospace, Menlo, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; }
+  button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  .tally { font-size:15px; font-weight:600; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:10px; background:#fff; }
+  .card.good { border-left:5px solid var(--good); } .card.bad { border-left:5px solid var(--bad); }
+  .intent { font-size:15px; font-weight:600; margin:2px 0 6px; }
+  .label { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-top:6px; }
+  .response { font-size:14.5px; line-height:1.5; white-space:pre-wrap; background:#f3f6fd; border:1px solid #d9e2f7; border-radius:6px; padding:10px 12px; margin:4px 0 6px; max-height:420px; overflow:auto; }
+  .meta { color:var(--muted); font-size:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  details { margin-top:6px; } summary { cursor:pointer; color:var(--muted); font-size:12px; }
+  pre { white-space:pre-wrap; font:12px/1.4 ui-monospace, Menlo, monospace; background:#faf9f6; padding:8px; border-radius:6px; margin:6px 0 0; }
+  .mark button { padding:2px 8px; font-size:12px; }
+  .err { color:var(--bad); }
+</style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>Prisoner Prompt Lab</h1>
+    <p class="sub">Sends exactly what the game sends: one user message, the same forced JSON answer. Every ask is a fresh chat.</p>
+    <div class="row">
+      <label>Start from</label>
+      <select id="preset">
+        <option value="prisoner-prompt-game3-round6-fails.txt">Game 3, round 6 — pries 0 in 10</option>
+        <option value="prisoner-prompt-game1-round6-coinflip.txt">Game 1, round 6 — pries ~5 in 10</option>
+      </select>
+      <button id="load">Load (replaces your edits)</button>
+    </div>
+    <div class="row">
+      <label>Model</label><input id="model" value="qwen3:14b" size="14">
+      <label>Temperature</label><input id="temp" type="number" step="0.1" min="0" max="2" value="0.9" style="width:64px">
+      <label><input id="schema" type="checkbox" checked> force the game's JSON answer</label>
+    </div>
+    <textarea id="prompt" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="once">Ask once</button>
+      <button id="five">Ask 5 times</button>
+      <button id="stop" disabled>Stop after this one</button>
+      <span id="status" class="meta"></span>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="row" style="margin:0; justify-content:space-between">
+        <span class="tally" id="tally">No answers yet</span>
+        <button id="clear">Clear answers</button>
+      </div>
+      <div class="meta">Mark each answer: ✓ if her <b>intent</b> tries to get the bar out (pry / lever / pull it free), ✗ if she scrapes, strikes or damages it further.</div>
+    </div>
+    <div id="results"></div>
+  </section>
+</main>
+<script>
+const ENDPOINT = "http://doris:11434/v1/chat/completions";
+const $ = (id) => document.getElementById(id);
+let responseFormat = null, stopRequested = false, runs = 0;
+
+async function loadPreset() {
+  const res = await fetch($("preset").value);
+  $("prompt").value = await res.text();
+}
+fetch("response_format.json").then(r => r.json()).then(j => { responseFormat = j; });
+$("load").onclick = loadPreset;
+loadPreset();
+
+function tally() {
+  const cards = [...document.querySelectorAll(".card")];
+  const good = cards.filter(c => c.classList.contains("good")).length;
+  const bad = cards.filter(c => c.classList.contains("bad")).length;
+  $("tally").textContent = cards.length === 0 ? "No answers yet"
+    : `${good} ✓ got the bar out · ${bad} ✗ kept damaging · ${cards.length - good - bad} unmarked (of ${cards.length})`;
+}
+$("clear").onclick = () => { $("results").innerHTML = ""; tally(); };
+
+function esc(s) { return String(s ?? "").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+function addCard(data, elapsedMs, promptSnapshot) {
+  runs += 1;
+  const card = document.createElement("div");
+  card.className = "card";
+  let parsed = null;
+  try { parsed = JSON.parse(data.content); } catch { /* shown raw below */ }
+  const candidates = (parsed?.candidates ?? []).map(c => `• ${c.text}  — ${c.reason}`).join("\n");
+  // The answer, made readable: the game's intent when the answer is the game's JSON;
+  // otherwise the model's plain text reply (or any other JSON, laid out) in full.
+  const response = parsed && typeof parsed === "object"
+    ? (parsed.intent !== undefined ? `<div class="label">Intent</div><div class="intent">${esc(parsed.intent)}</div>`
+                                   : `<div class="label">Response</div><div class="response">${esc(JSON.stringify(parsed, null, 2))}</div>`)
+    : `<div class="label">Response</div><div class="response">${esc(data.content.trim() || "(empty answer)")}</div>`;
+  card.innerHTML = `
+    <div class="meta">#${runs} · ${(elapsedMs/1000).toFixed(1)}s · ${esc($("model").value)} @ ${esc($("temp").value)}
+      <span class="mark"><button data-m="good">✓</button> <button data-m="bad">✗</button></span></div>
+    ${response}
+    ${parsed ? `<details open><summary>Thoughts</summary><pre>${esc(parsed.thoughts)}</pre></details>
+    <details><summary>Candidates</summary><pre>${esc(candidates)}</pre></details>
+    <details><summary>Plan / notes / replanned</summary><pre>plan: ${esc(parsed.plan)}\nreplanned: ${esc(parsed.replanned)} ${esc(parsed.replanBecause)}\nnotes: ${esc(parsed.notes)}</pre></details>` : ""}
+    ${data.reasoning ? `<details><summary>Model's hidden reasoning</summary><pre>${esc(data.reasoning)}</pre></details>` : ""}
+    <details><summary>Raw answer</summary><pre>${esc(data.content)}</pre></details>
+    <details><summary>Prompt used for this answer</summary><pre>${esc(promptSnapshot)}</pre></details>`;
+  card.querySelectorAll(".mark button").forEach(b => b.onclick = () => {
+    card.classList.remove("good", "bad"); card.classList.add(b.dataset.m); tally();
+  });
+  $("results").prepend(card);
+  tally();
+}
+
+function addError(message) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `<div class="err">${esc(message)}</div>`;
+  $("results").prepend(card);
+}
+
+async function askOnce() {
+  const prompt = $("prompt").value;
+  const body = { model: $("model").value.trim(), messages: [{ role: "user", content: prompt }], tools: [],
+    temperature: Number($("temp").value), stream: false };
+  if ($("schema").checked && responseFormat) body.response_format = responseFormat;
+  const started = performance.now();
+  const res = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`doris answered ${res.status}: ${await res.text()}`);
+  const json = await res.json();
+  const msg = json.choices?.[0]?.message ?? {};
+  addCard({ content: msg.content ?? "", reasoning: msg.reasoning ?? msg.reasoning_content ?? "" }, performance.now() - started, prompt);
+}
+
+async function run(times) {
+  stopRequested = false;
+  $("once").disabled = $("five").disabled = true; $("stop").disabled = false;
+  try {
+    for (let i = 0; i < times && !stopRequested; i++) {
+      $("status").textContent = `Asking ${i + 1} of ${times}… (first ask can take ~30s while doris loads the model)`;
+      await askOnce();
+    }
+    $("status").textContent = stopRequested ? "Stopped." : "Done.";
+  } catch (e) {
+    addError(String(e.message || e)); $("status").textContent = "Error — see the red card.";
+  } finally {
+    $("once").disabled = $("five").disabled = false; $("stop").disabled = true;
+  }
+}
+$("once").onclick = () => run(1);
+$("five").onclick = () => run(5);
+$("stop").onclick = () => { stopRequested = true; $("stop").disabled = true; };
+</script>
+</body>
+</html>

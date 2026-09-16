@@ -2311,3 +2311,41 @@ remain `wear`.
 **Lesson recorded:** a referee prompt change is tested against controls for every nearby effect the
 sentence could pull, not only the misruling it fixes. §33.7's controls were all wears, so a sentence
 about wear could not show what it did to open.
+
+### 33.15 From a game-specific sentence to a generic structure (2026-09-16, end of session)
+
+The owner's next question: does a fix that code could produce for **any** threshold work as well as
+§33.13's game-specific first line? All runs on E3 r6 (bar 53 damage), 0.9 temperature, the guard
+attention note still in her notes. Files in `checkpoints/2026-09-16-prompt-lab-s33-13/`.
+
+| First line | Thresholds stated as | Result | Who ran it |
+|---|---|---|---|
+| none (§33.13 D) | plain rule sentences | 7/11 | owner + Claude |
+| owner's specific: "…can be removed without requiring any further damage" (§33.13 A) | plain rule sentences | 10/11 | owner |
+| generic: *"Whenever a condition stated below is met, the action it unlocks is available immediately. Nothing further needs to be done before attempting it."* (`09-…`) | plain rule sentences | **6/10** | Claude |
+| same generic line | the two rules under `LIST OF CONDITIONS:` as `CONDITION 1:` / `CONDITION 2:`, in place (`10-…`) | **9/11** | owner |
+| same generic line | the list moved to the top, between `START LIST OF CONDITIONS` / `END LIST OF CONDITIONS`, the one nested catch rule split into four flat single "If … and … then …" conditions (CONDITION 2-5) (`11-…`) | **11/12** | owner |
+| same, thresholds restated as strict comparisons ("above 49", "above 39"; the notes line reworded to "below 41") | as above | 11/12 | owner (prompt not saved) |
+
+**The generic line alone does not work (6/10, no better than no line); the generic line plus a labelled,
+flat list of conditions does (11/12).** Nothing in the winning structure is specific to this game:
+a fixed opening sentence, then each threshold as one numbered, flat if-then condition, both of which
+shared code could generate from data a game already has. Answers reason from it directly (*"53,
+meeting CONDITION 1, so I can attempt to remove it"*). The owner's working theory: `qwen3:14b` at this
+quantization cannot untangle nested conditions, so each condition must be one flat statement.
+
+**Seen in those answers, open:**
+1. **Whose condition is it?** The list mixes an action unlocked for her (CONDITION 1) with the warden's
+   catches (2-5). One answer planned to *"trigger Condition 5 and escape"*. A list may need to say
+   which conditions help the reader and which end the game against them.
+2. **Suspicion and guard attention merge.** Nearly every answer repeats *"guard suspicion will drop
+   below 41 soon"*, drawn from the leftover notes line. Rewording the numbers did not separate them.
+   Deleting the guard attention part of the notes (which the current game would never produce) is the
+   next step.
+3. **"Remove the bar" became her dominant phrasing** (7 of 11 ✓ in the last batch), echoing CONDITION 1.
+   The referee rules bare "remove the bar" as `wear` (§33.13), so in a real game those turns would do
+   nothing. **This referee gap must be fixed before the structure is tried in games.**
+
+The lab page itself (`~/prisoner-prompt-lab/index.html`, served on `http://localhost:8765` with
+`python3 -m http.server 8765 --bind 127.0.0.1` from that folder) is copied alongside the prompts as
+`lab-page-index.html`.
