@@ -1,0 +1,682 @@
+[
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 1,
+    "intent": "Use the spoon to strike the bar again, aiming to further reduce its integrity.",
+    "replanned": false,
+    "thoughts": "The bar's integrity is 40, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to remove it. Continuing to damage it with the spoon is the next logical step. If suspicion rises too much, I'll use the bucket as a distraction when guard focus drops."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 2,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, just below the 50 needed to open the window. Continuing to damage it with the spoon is the immediate priority, but I must balance the risk of raising suspicion. The guard's attention will drop soon, which might be the window to act without triggering a close examination."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 3,
+    "intent": "Use the spoon to further damage the bar, aiming for its removal.",
+    "replanned": false,
+    "thoughts": "The bar is now at 40, below the 50 threshold, so the window should be open. However, the bar is still in place, so I need to remove it. The guard's attention will drop soon, which is the perfect time to act. Using the spoon to damage the bar further may not be necessary if I can remove it manually. Alternatively, using the bucket to create a distraction when the guard is distracted could help me focus on the bar or the window."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 4,
+    "intent": "Use the bucket to create noise and distract Warden Croft",
+    "replanned": true,
+    "thoughts": "The bar is now at 40 integrity, which meets the threshold (50) for opening the window. However, the bar is still in place, so I need to remove it. Since guard focus will drop soon, I can use the bucket to distract Warden Croft, then attempt to remove the bar. Alternatively, I could continue damaging the bar further to increase the chance of success."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 5,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar is already at 40 integrity, which meets the threshold to open the window. However, the bar is still in place and must be removed. Continuing to damage it with the spoon is the primary plan. If the bar is sufficiently weakened, I can remove it. If not, using the bucket to draw attention when guard focus drops may be necessary."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 6,
+    "intent": "Use the spoon to strike the bar again, targeting the rusted bottom section",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is below the 50 threshold needed to open the window. However, the bar must be removed, not just weakened. Continuing to damage it with the spoon is the next logical step, but I must be cautious of rising suspicion. The guard's attention is dropping soon, so timing is critical."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 7,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar is now at 40 integrity, which is below the 50 threshold needed to open the window. Continuing to damage the bar with the spoon is critical. However, using the bucket to draw attention when guard focus drops could also be a viable option if progress stalls. Need to prioritize the spoon as the primary tool here."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 8,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already at 40, which is below the 50 needed to open the window. However, the bar is still in place, so I need to remove it. Continuing to damage it with the spoon is the immediate priority. If the bar's integrity drops further, I might be able to break it manually. However, using the spoon again risks raising suspicion. Alternatively, if I can create a distraction when the guard's attention is low, I might be able to work on the bar without being noticed."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 9,
+    "intent": "Strike the bar with the spoon again to further reduce its integrity",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 40, which is below the threshold of 50 needed to open the window. However, the bar is still in place, so I need to remove it. Continuing to damage it with the spoon is the most direct path, but using the bucket as a distraction when guard attention is low could allow me to work undisturbed. The guard's focus is dropping, so timing is critical."
+  },
+  {
+    "arm": "F E3 bar 40 not 47",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ]
+    ],
+    "sample": 10,
+    "intent": "Use the spoon to pry the bar from its mortar, aiming to remove it and open the window.",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already at 40, which meets the threshold (≤50) to open the window. Now is the time to attempt removing the bar and escaping, especially since Warden Croft's suspicion is expected to drop soon. If I wait too long, the Warden may notice the bar's damage and intervene."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 1,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, just below the 50 threshold needed to open the window. Continuing to damage it with the spoon is critical, but I must avoid raising suspicion too high. If the bar breaks, I can escape through the window. If not, using the bucket to draw attention when suspicion drops might be necessary."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 2,
+    "intent": "Use the bucket to strike the wall near the cot, creating a loud noise to divert attention.",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 47, which is below the 50 threshold needed to open the window. However, I must avoid triggering Warden Croft's suspicion by damaging the bar further. With guard attention dropping to 40 soon, using the bucket to create noise could divert Croft's focus, allowing me to escape through the window without being detected."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 3,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, needing just 3 more points of damage to reach 50. Continuing with the spoon is the most direct path. However, I must be cautious of Warden Croft's suspicion, which is set to drop to 40 soon. If I can time the final damage when suspicion is low, I might avoid detection."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 4,
+    "intent": "Use the bucket to create a loud noise, drawing Warden Croft's attention away from the bar",
+    "replanned": true,
+    "thoughts": "The bar is now at 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to remove it. Since Warden Croft's attention will drop to 40 soon, using the bucket to create a distraction might be the best opportunity to act without raising suspicion too much."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 5,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the threshold of 50 needed to open the window. I need to remove the bar now. Using the spoon to pry it out of the dry, cracked mortar seems feasible. Alternatively, using the bucket to create noise might distract Warden Croft when his focus drops."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 6,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar is at 47, just 3 points away from the 50 threshold needed to open the window. Continuing to damage it with the spoon is the most direct path. However, Warden Croft is examining it now, so further damage might risk suspicion. But the guard's attention is dropping to 40 soon, which could be a window to act without detection."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 7,
+    "intent": "Use the spoon to continue damaging the bar",
+    "replanned": false,
+    "thoughts": "The bar is now at 47, which meets the threshold for the window. However, I need to remove it. Since Warden Croft's attention will drop soon, this is a window of opportunity to act without being noticed. I should focus on damaging the bar further to make it easier to remove, and use the bucket to create a distraction if needed."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 8,
+    "intent": "Strike the bar with the spoon again to reduce its integrity further",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 47, which is below 50, so the window can be opened if the bar is removed. However, Warden Croft may inspect the bar and raise suspicion. Continuing to damage the bar with the spoon is the priority, but if that fails, using the bucket to draw attention when guard focus drops could be a next step."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 9,
+    "intent": "Damage the bar with the spoon again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already below the 50 threshold needed to open the window, but it's still in place. I need to focus on breaking it further. Since the guard's attention is dropping, now is a good time to act without triggering suspicion. Using the spoon to damage the bar further is the immediate next step."
+  },
+  {
+    "arm": "G E3 warden examines, no sturdy line",
+    "swaps": [
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ]
+    ],
+    "sample": 10,
+    "intent": "Damage the bar with the spoon again to lower its integrity further",
+    "replanned": false,
+    "thoughts": "The bar is at 47 integrity, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I must remove it. The next step is to further damage the bar with the spoon to ensure it can be pried out. If no progress, use the bucket as a distraction when guard focus drops to 40."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 1,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar is at 47 integrity, just 3 points below the 50 needed to open the window. I should focus on finishing the damage with the spoon. If I can get it below 50, I can escape through the window. However, I must avoid raising suspicion too much. The guard's attention is dropping to 40 soon, so timing is crucial."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 2,
+    "intent": "Scrape the bar with the spoon's worn edge",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 47, needing only 3 more points of damage to reach 50. Since the guard's attention will drop to 40 soon, this is the optimal time to continue stealthy abrasion without risking detection. Using the spoon again is the most direct path forward."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 3,
+    "intent": "Use the spoon to scrape the bar's rusted surface",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already below 50, so the focus should be on removing it. Using the spoon to damage it further may help, but creating a distraction with the bucket could allow stealthier progress."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 4,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to remove it. Continuing to damage the bar with the spoon is the immediate priority, but I must be careful to avoid raising suspicion too high. Since guard attention will drop to 40 soon, this may be the optimal time to act stealthily."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 5,
+    "intent": "Use the spoon to scrape the bar's rusted sections further",
+    "replanned": false,
+    "thoughts": "The bar is at 47, very close to the threshold of 50 needed to open the window. Continuing to damage it with the spoon is the most direct path. However, I must be cautious about raising suspicion, especially since guard attention is dropping to 40 soon. If I can damage the bar further without triggering a significant suspicion increase, I can proceed. Alternatively, using the bucket as a distraction might be useful if suspicion becomes too high."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 6,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "replanned": false,
+    "thoughts": "The bar's integrity (47) is now below the 50 threshold needed to open the window. The next step is to remove the bar, either by further damaging it or using it to leverage out of the mortar. The guard's attention will drop to 40 soon, which could be a window to act without immediate detection."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 7,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, which is below the 50 needed to open the window. However, the bar is still in place, so the next step is to continue damaging it with the spoon. Since guard attention is dropping to 40 soon, using the bucket to draw attention might be a good distraction, but the original plan focuses on the spoon first."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 8,
+    "intent": "Use the spoon to continue damaging the bar stealthily",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 47, meeting the threshold to open the window. However, the bar remains in place and must be removed. Continuing to damage it stealthily will lower its integrity further, making removal easier. When guard focus drops to 40, using the bucket to draw attention could create an opportunity to act without being noticed."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 9,
+    "intent": "Use the spoon to further scrape the rusted sections of the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to ensure it's fully removed. Continuing to damage it with the spoon is the most direct method. If that fails, using the bucket to create a distraction when guard attention drops could be an alternative."
+  },
+  {
+    "arm": "H E3 notes stealthy abrasion",
+    "swaps": [
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 10,
+    "intent": "Use the spoon to further chip away at the bar's rusted sections",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now at 47, which should meet the condition to open the window. However, the exact mechanics of opening the window are unclear, so continuing to damage the bar may ensure it's fully broken. Guard attention will drop soon, which could be used to create a distraction."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 1,
+    "intent": "Use the spoon to further damage the bar",
+    "replanned": false,
+    "thoughts": "The bar's integrity is already at 40, which is below the threshold needed to open the window. However, I need to ensure it's fully removed to avoid detection. Continuing to damage it with the spoon is the next step, but I must be cautious of suspicion. If the warden examines it and finds it too damaged, I risk being caught. Alternatively, using the bucket to draw attention might create a distraction, but it could also raise suspicion. I'll proceed with the spoon first, then consider the bucket if progress stalls."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 2,
+    "intent": "Use the bucket to create a loud noise",
+    "replanned": true,
+    "thoughts": "The bar is now at 40, which is below the 50 threshold needed to open the window. However, Warden Croft is closely examining it, so I need to act when her suspicion is low. The plan is to use the bucket to create a distraction when her focus drops to 40, allowing me to open the window without her noticing."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 3,
+    "intent": "Scrape the bar with the spoon's worn edge to further reduce its integrity",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 40, which is below the 50 threshold needed to open the window. However, the bar must be completely removed (integrity 0) to pass through. I'll continue using the spoon to damage it stealthily, as the guard's attention is low. If that fails, I'll use the bucket to draw attention when the guard is distracted."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 4,
+    "intent": "Scrape the bar with the spoon's worn edge",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, close to the threshold (50) needed to open the window. Continuing to damage it stealthily is critical. However, Warden Croft's suspicion may rise if he notices further damage. If progress stalls, using the bucket to divert attention when guard focus drops could be a fallback."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 5,
+    "intent": "Use the spoon to strike the bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to remove it. Continuing to damage it with the spoon is the next logical step, but if that fails, using the bucket to draw attention when the guard is distracted could be an option. The loose tile might be useful for hiding tools, but I need to focus on breaking the bar first."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 6,
+    "intent": "Use the spoon to scrape the rusted bar again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is below the 50 threshold needed to open the window. However, the bar is still in place, so it must be physically removed. Continuing to damage it with the spoon is the priority, but I must avoid triggering Warden Croft's suspicion. When guard focus drops, using the bucket to draw attention might create an opportunity to act swiftly."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 7,
+    "intent": "Continue damaging the bar with the spoon, using the loose tile's grit to accelerate wear",
+    "replanned": false,
+    "thoughts": "The bar's integrity is now 40, which is below 50, meaning the window could be opened if the bar is removed. However, the bar is still intact and needs to be broken. Continuing to damage it with the spoon is the primary goal, but using the loose tile's grit could enhance the spoon's effectiveness. The guard's attention will drop soon, providing a window to act without suspicion."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 8,
+    "intent": "Use the bucket to create noise near the loose tile",
+    "replanned": false,
+    "thoughts": "The bar is close to the threshold for opening the window, but continued damage risks raising suspicion. The loose tile might offer a way to hide tools or create a distraction. However, using the bucket to draw attention when guard focus drops could be a safer alternative."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 9,
+    "intent": "Use the spoon to scrape the bar's rusted section again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is below the 50 threshold needed to open the window. Continuing to damage it with the spoon is the priority, but I must be cautious of raising suspicion. The guard's attention is dropping, so timing the next strike may be critical."
+  },
+  {
+    "arm": "I E3 all three",
+    "swaps": [
+      [
+        "Your last attempt worked on the bar: its integrity went from 62 to 47.",
+        "Your last attempt worked on the bar: its integrity went from 55 to 40."
+      ],
+      [
+        "bar integrity: 47 (as of round 5).",
+        "bar integrity: 40 (as of round 5)."
+      ],
+      [
+        "Croft says: \"Now let's see how sturdy that bar is...\"",
+        "Warden Croft examines the bar closely."
+      ],
+      [
+        "Your notes from last round: Focus on bar damage;",
+        "Your notes from last round: Focus on stealthy abrasion;"
+      ]
+    ],
+    "sample": 10,
+    "intent": "Scrape the bar with the spoon again",
+    "replanned": false,
+    "thoughts": "The bar's integrity is at 40, which is exactly the threshold needed to open the window. Continuing to damage it with the spoon is the next logical step. However, I must avoid raising suspicion too high, as Warden Croft's examination could trigger a higher suspicion increase if she notices significant damage. The window is the only viable escape route right now, so focusing on the bar is critical."
+  }
+]

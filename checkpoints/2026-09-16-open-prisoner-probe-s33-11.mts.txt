@@ -1,0 +1,64 @@
+// One-off probe (OPEN-VARIANT §33.11): which of the remaining briefing differences keeps E3 r6 from
+// working the bar free? Same rebuild as §33.9/§33.10; each arm swaps exact recorded lines of E3 r6. Guard attention line removed in every arm (code since 8d139f5).
+import { readFileSync, writeFileSync } from "node:fs";
+import { createOpenPrisonerMind, type OpenPrincipalContext } from "/Users/derekferguson/rpg/the-prisoner/src/open/mind.ts";
+import { OPEN_OBJECTS } from "/Users/derekferguson/rpg/the-prisoner/src/open/scenarioObjects.ts";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE } from "/Users/derekferguson/rpg/the-prisoner/src/scenario.ts";
+import { OllamaModelSwapper, nativeBaseUrl } from "/Users/derekferguson/rpg/the-prisoner/src/ollamaSwap.ts";
+
+const BASE = "http://doris:11434/v1";
+const WITS = "qwen3:14b";
+const VOICE_STUB = "voice-stub-not-called";
+const N = Number(process.env.N ?? 10);
+
+const E1 = { file: "2026-09-16T15-37-42-560Z", round: 6 };
+const E3 = { file: "2026-09-16T15-55-25-854Z", round: 6 };
+const BAR = [["Your last attempt worked on the bar: its integrity went from 62 to 47.", "Your last attempt worked on the bar: its integrity went from 55 to 40."], ["bar integrity: 47 (as of round 5).", "bar integrity: 40 (as of round 5)."]];
+const WARDEN = [['Croft says: "Now let\'s see how sturdy that bar is..."', "Warden Croft examines the bar closely."]];
+const NOTES = [["Your notes from last round: Focus on bar damage;", "Your notes from last round: Focus on stealthy abrasion;"]];
+const arms: { arm: string; at: typeof E3; swaps: string[][] }[] = [
+  { arm: "F E3 bar 40 not 47", at: E3, swaps: BAR },
+  { arm: "G E3 warden examines, no sturdy line", at: E3, swaps: WARDEN },
+  { arm: "H E3 notes stealthy abrasion", at: E3, swaps: NOTES },
+  { arm: "I E3 all three", at: E3, swaps: [...BAR, ...WARDEN, ...NOTES] },
+];
+
+function recordedBriefing(file: string, round: number): string {
+  const text = readFileSync("/Users/derekferguson/rpg/the-prisoner/checkpoints/" + file + ".md", "utf-8");
+  const start = text.indexOf("### Round " + round + " (t=");
+  const section = text.slice(text.indexOf("-- the prisoner", start));
+  const m = section.match(/\*\*Briefing given, verbatim:\*\*\n```\n([\s\S]*?)\n```/);
+  if (!m) throw new Error("no briefing for " + file + " r" + round);
+  return m[1];
+}
+
+const swapper = new OllamaModelSwapper({ nativeBaseUrl: nativeBaseUrl(BASE), allowedModels: [WITS, "qwen2.5:14b"] });
+const realFetch = fetch;
+const fetchFn = (async (url: unknown, init?: RequestInit) => {
+  const body = JSON.parse((init?.body as string) ?? "{}");
+  if (body.model === VOICE_STUB) return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ line: "" }) } }] }) };
+  return realFetch(url as string, init);
+}) as typeof fetch;
+const mind = createOpenPrisonerMind({
+  baseUrl: BASE, witsModel: WITS, voiceModel: VOICE_STUB, timeoutMs: 180000, fetchFn,
+  ensureLoaded: (m) => (m === VOICE_STUB ? Promise.resolve() : swapper.withModel(m, async () => {})),
+});
+
+const out: unknown[] = [];
+for (const a of arms) {
+  const lines = recordedBriefing(a.at.file, a.at.round).split("\n").filter((l) => !/^guard attention:/.test(l));
+  let text = lines.join("\n");
+  for (const [from, to] of a.swaps) {
+    if (text.split(from).length !== 2) throw new Error("line not found exactly once in " + a.arm + ": " + from);
+    text = text.replace(from, to);
+  }
+  const perceivedObjects = OPEN_OBJECTS.filter((o) => o.heldIn === undefined).map((o) => ({ id: o.id, description: o.description }));
+  const context: OpenPrincipalContext = { principalId: "probe", identity: PRISONER_IDENTITY, motive: PRISONER_MOTIVE, briefing: text, perceivedObjects };
+  for (let i = 0; i < N; i++) {
+    const p = await mind.consider(context);
+    const row = { arm: a.arm, swaps: a.swaps, sample: i + 1, intent: p?.intent ?? "(silence)", replanned: p?.replanned ?? null, thoughts: p?.thoughts ?? "" };
+    out.push(row);
+    console.log(JSON.stringify(row));
+    writeFileSync("/private/tmp/claude-501/-Users-derekferguson-rpg/3eaf75b3-f4bd-423f-ac15-fe46726c2a27/scratchpad/probe-lines.json", JSON.stringify(out, null, 2));
+  }
+}
