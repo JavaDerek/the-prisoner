@@ -1,0 +1,81 @@
+=== 2026-09-16T00-31-06-953Z
+## round 1, warden: Examine the bar closely for signs of tampering
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 1, prisoner: Use the spoon to scrape the mortar around the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 2, warden: Examine the cot's crossbar for loose wire or damage
+  - target: "cot" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 2, prisoner: Use the spoon to gently scrape mortar from the bar's base.
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 80% of 5 replays.
+## round 3, warden: Examine the hollow beneath the loose tile closely
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 3, prisoner: Use the spoon to scrape more mortar from the bar's base
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 4, warden: Examine the bar's rust and mortar for signs of weakening
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, prisoner: Use the spoon to gently scrape the bar's mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 5, warden: Examine the bar's rust and mortar for further weakening
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 5, prisoner: Use the loose tile's grit to scrape the bar's mortar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 80% of 5 replays.
+## round 6, warden: Examine the bar closely for new damage
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.4%.
+§5.3's target: at least 80%.

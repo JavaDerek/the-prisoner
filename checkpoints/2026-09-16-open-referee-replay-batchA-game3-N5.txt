@@ -1,0 +1,95 @@
+=== 2026-09-16T00-36-55-951Z
+## round 1, warden: Examine the bar closely for signs of damage or tampering
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 1, prisoner: Use the spoon to gently scrape the rusted bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 2, warden: Examine the lock closely for wear or tampering
+  - target: "lock" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## round 2, prisoner: Examine the loose tile closely
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 3, warden: Inspect the hollow under the loose tile again for hidden objects
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 80% of 5 replays.
+## round 3, prisoner: Use grit from the loose tile with the spoon to abrade the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, warden: Examine the bar closely for signs of tampering
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, prisoner: Use the grit from the loose tile on the bar
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "derive" agreed 100% of 5 replays.
+  - product: "grit" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 5, warden: Examine the loose tile closely for hidden objects
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 80% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 5, prisoner: Use grit from the loose tile to further wear down the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 6, warden: Examine the window mortar for disturbances
+  - target: "window" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 6, prisoner: Use grit from the loose tile to further wear down the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 7, warden: Examine the bar closely for new wear or tampering
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.5%.
+§5.3's target: at least 80%.

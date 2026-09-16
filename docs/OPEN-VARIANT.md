@@ -1,10 +1,11 @@
 # The Prisoner, open variant — design
 
-*Status (2026-09-14): design approved, §8 decided, §4.1 descriptions approved by the owner. O1 is
-**playable** (`PRISONER_VARIANT=open npm run checkpoint`) and has run its first two real games; §10
-evaluates them against §5.3. **§5.3 does not hold yet** (§10.2). Escape is leaving the cell (§12).
-O3, `derive`, is designed in §13 and built on run-dmcp 0.8.0; §13.7 reports its first games: two objects made
-in a real game, the door opened with the spoon, escape still not reached.*
+*Status (2026-09-16): design approved, §8 decided, §4.1 descriptions approved by the owner. O1 is
+**playable** (`PRISONER_VARIANT=open npm run checkpoint`); O3, `derive`, is designed in §13 and built on
+run-dmcp 0.8.0. Escape is leaving the cell (§12), and has been reached in a real game (§30.1).
+**§5.3 holds as of the §31 batch** -- zero §2 violations, novelty in three games, 99.5% mean replay
+agreement, and both endings live -- which unblocks issue #1. §31.2 and §32.3 record what it does not
+mean: the contested game ends at round six, and the prisoner's whole repertoire is abrading a bar.*
 
 The closed variant proved that two local models can outwit each other **inside a fully specified
 game**: ten enumerated moves, every effect and threshold stated in the prompt. That is a board game,
@@ -1623,3 +1624,68 @@ real game of this variant. §5.3's criterion 1a, as split in §26, is met live.
   once the way was open, which is worth watching in the next games rather than fixing blind.
 - The derive of grit (§25) and the descriptions (§27, §29) all appear in the winning line; every fix
   since §24 is load-bearing in it.
+
+## 31. The scorecard batch: §5.3 holds, on games that end at round six (2026-09-16)
+
+Three games on one model configuration, the first batch run against §5.3 as a batch rather than as a
+by-product of a fix. Settings: `qwen3:14b` wits, `ancient-awakening:12b` voice, `qwen2.5:14b` referee
+at `http://doris:11434/v1`; 30 rounds; **model warden** (the passive warden of §26 having answered its
+own question at §30.1); pick OFF; precedent ON, each game against its own copy of one frozen
+22-episode, 111-account snapshot, so all three start from identical conditions and none writes to the
+shared ledger. Transcripts `checkpoints/2026-09-16T00-25-17-171Z.md`, `…00-31-06-953Z.md`,
+`…00-36-55-951Z.md`, each with its `.referee.json`; the replay reports are
+`checkpoints/2026-09-16-open-referee-replay-batchA-game{1,2,3}-N5.txt`.
+
+| | Game 1 | Game 2 | Game 3 |
+|---|---|---|---|
+| Result | caught, round 6 | caught, round 6 | caught, round 7 |
+| Intents / silences | 11 / 0 | 11 / 0 | 13 / 0 |
+| Ruled impossible | 0 | 0 | 1 |
+| Novel `(object, effect)` pairs | 1 | 2 | 4 |
+| Applied effects fully cited | 11 of 11 | 11 of 11 | 12 of 12 |
+| Fog audit | 0 leaks / 11 | 0 leaks / 11 | 0 leaks / 13 |
+| Replay agreement, N=5 | 99.7% | 99.4% | 99.5% |
+
+### 31.1 Against §5.3
+
+| | Criterion | Result |
+|---|---|---|
+| 1 | Zero §2 violations | **Met.** 35 contexts audited, 0 leaks; all 34 applied effects carry every required citation; 0 silences, 0 refusals. |
+| 2 | A closed-inexpressible attempt ruled possible in ≥ 2 games, and one ruled impossible with its positive reason | **Met, for the first time.** Novelty is non-zero in all three games (1, 2, 4), where §10.2 and §13.8 both read zero or one. Game 3 round 6's warden was ruled impossible and told the window's own description back. |
+| 3 | Referee key agreement ≥ 80% on replay | **Met.** 99.7%, 99.4%, 99.5%, N=5, §10.5's caveats unchanged. |
+| 1a | Escape is possible | Met live at §30.1. |
+| 1b | A catch is possible | Met three more times. |
+
+**§5.3 holds.** The attack move (issue #1), which §5.3's last line gates, is unblocked. Two things
+should be read alongside that before it is treated as a finished result.
+
+**The novelty is thin, and one of it is a misruling.** Most of the novel pairs are the warden
+examining an object the closed list has no move for -- the cot's crossbar, the tile's hollow. Only one
+is invention: game 1 round 2's *"Strike the bucket with the spoon to create a noise"*, grounded on the
+bucket's *"It rings sharply when anything strikes it"*. And game 3's count of four includes round 4's
+*"Use the grit from the loose tile on the bar"*, ruled `derive loose_tile.concealment` where rounds 3,
+5 and 6 of the same game ruled the same act `wear bar.integrity`. That is referee inconsistency being
+counted as novelty. **Identical-request replay cannot see it** -- the same game scores 99.5% -- which
+is §10.7 item 3 asking again to be answered, and §10.3's doubt about the measure surviving intact.
+
+**The citation bottleneck is gone.** §10.4 called citation mechanics *"the main thing standing between
+O1 and a contested game"*, with the warden ruled impossible in 8 of 16 turns. This batch: **1 impossible
+ruling in 35 intents**, and it was a genuine judgement (mortar the window's description does not
+mention), not a rejected offer. §18's word ranges, §24's property briefing and §30's clamp between
+them closed it.
+
+### 31.2 What the games did not reach
+
+All three end at round 6 or 7, with almost no variance, and the mechanism is arithmetic:
+*"A prisoner works at the bar"* stands on the warden's on-sight list at 76 sightings across 19
+episodes, so the bar costs +30 suspicion however quietly it is worked, and the threshold is 100. Three
+or four bar turns is the whole game.
+
+She knows it. Game 2's notes: *"keep suspicion below 40"*. Game 3's thoughts, round 5: *"raises
+suspicion to 40, which is dangerous. However, with the window's bar as the only viable escape route,
+the risk seems necessary."* The reasoning is correct and there is nowhere for it to go.
+
+So **none of §24 through §30 ran.** `leave` was never ruled; the window never opened; the banknotes
+(§15) were found by neither side in any of the six games this document now records. §30.1's escape
+needed sixteen rounds. The contested game is over at six.
+

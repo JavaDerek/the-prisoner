@@ -1,0 +1,81 @@
+=== 2026-09-16T00-25-17-171Z
+## round 1, warden: Examine the bar closely for signs of tampering
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 1, prisoner: Use the spoon to scrape rust off the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 2, warden: Examine the bar closely for hidden damage
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 2, prisoner: Strike the bucket with the spoon to create a noise
+  - target: "bucket" agreed 100% of 5 replays.
+  - effect: "noise" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "none" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 3, warden: Examine bar closely for hidden damage
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 3, prisoner: Use the loose tile's grit to abrade the bar's rusted section
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, warden: Examine the bar closely for hidden damage
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, prisoner: Use grit from the loose tile to further corrode the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 5, warden: Examine the lock closely
+  - target: "lock" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+## round 5, prisoner: Use the loose tile's grit with the spoon to corrode the bar's rusted areas
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 80% of 5 replays.
+## round 6, warden: Examine the bar closely for damage or wear
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "slight" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.7%.
+§5.3's target: at least 80%.
