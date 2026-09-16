@@ -1676,6 +1676,8 @@ them closed it.
 
 ### 31.2 What the games did not reach
 
+> **Corrected at §33 (2026-09-16):** the arithmetic below is wrong. Suspicion 100 is a ceiling, not the catch threshold, and batch C ended at the same rounds with precedent off. The catch is a warden look finding the bar at 50 or below with suspicion at 40 or above (§33.1, §33.3). The quotations and the "did not reach" facts stand.
+
 All three end at round 6 or 7, with almost no variance, and the mechanism is arithmetic:
 *"A prisoner works at the bar"* stands on the warden's on-sight list at 76 sightings across 19
 episodes, so the bar costs +30 suspicion however quietly it is worked, and the threshold is 100. Three
@@ -1754,7 +1756,9 @@ in three places, and none of them is the referee's accuracy:
 1. **Presence is not modelled**, so the warden cannot be made to watch, or to look away. §9.3 excluded
    it knowingly: *"nothing in §4.1's object table currently says where the warden physically is"*, and
    every non-silent prisoner effect is treated as potentially noticed. Being watched is not a state she
-   can act on; it is the permanent condition, and §31.2 is what it costs.
+   can act on; it is the permanent condition, and §31.2 is what it costs. *(Corrected at §33: §31.2
+   names the wrong cost. What ends the contested game is the warden seeing the bar at 50 or below, the
+   same value that opens the window. The structural point about presence stands.)*
 2. **A principal is not a target.** The target answer keys are the perceived **objects** plus `none`
    (`referee.ts`, §24). Croft is not among them, so an intent aimed at a person resolves to `none`,
    meets the safe default, and is ruled impossible -- correctly, by a reader doing its job.
@@ -1778,3 +1782,246 @@ now is -- citations verified, fog clean, the referee consistent, escape and catc
 does not measure is whether the room has more than one verb in it. Issue #5's play mode and issue #3's
 generated scenarios are no longer "later, for enjoyment": they are where the next real finding is,
 because the benchmark's own bottleneck has moved from the referee to the world it rules on.
+
+## 33. Six overnight games: §31.2's diagnosis is wrong, and the catch is the bar crossing 50 (2026-09-16)
+
+Two batches of three, run unattended overnight (`~/rpg/overnight/prisoner-queue.sh`), each changing
+one thing from §31. Models, rounds and ancient-awakening voice unchanged: `qwen3:14b` wits,
+`ancient-awakening:12b` voice, `qwen2.5:14b` referee, 30 rounds, pick OFF.
+
+- **Batch C, precedent OFF, model warden.** Queued to measure how much of §31.2's round-six catch comes
+  from precedent's +30 on sight. Transcripts `checkpoints/2026-09-16T02-38-18-453Z.md`,
+  `…02-47-35-821Z.md`, `…02-51-51-723Z.md`.
+- **Batch D, passive warden (§26), precedent ON.** Each game gets its own frozen copy of the same
+  22-episode ledger §31 used; nothing is written back. Queued to watch `leave` after §30.1 needed
+  four phrasings. Transcripts `…02-57-03-181Z.md`, `…03-02-00-241Z.md`, `…03-07-14-995Z.md`.
+
+All six ran before `ea2feac`/`771bc73`/`04eb17e` landed, so their transcripts carry the old #6
+resource label and the old #8 plan-null line. No replay was run for either batch.
+
+| | C1 | C2 | C3 | D1 | D2 | D3 |
+|---|---|---|---|---|---|---|
+| Result | caught r6 | caught r5 | caught r6 | **escaped r9** | **escaped r10** | **escaped r23** |
+| Bar at end | 32 | 40 | 47 | 47 | 17 | 0 |
+| Warden suspicion at end | 79 | 69 | **45** | 100 | 100 | 100 |
+| Prisoner intents | 5 | 4 | 5 | 9 | 10 | 23 |
+| Ruled impossible | 1 (warden) | 0 | 0 | 0 | 0 | 0 |
+| Novel pairs | 2 | 2 | 1 | 5 | 3 | 10 |
+| Applied effects fully cited | 10 / 10 | 9 / 9 | 11 / 11 | 9 / 9 | 10 / 10 | 22 / 22 |
+| Fog audit | 0 / 11 | 0 / 9 | 0 / 11 | 0 / 18 | 0 / 20 | 0 / 46 |
+| Banknotes found | never | never | never | never | never | never |
+
+§5.1 holds in all six games: every applied effect is cited and the fog audit finds 0 leaks.
+
+### 33.1 What the code says ends a contested game
+
+`checkOpenCatch` (`src/open/gameEnd.ts`) runs only right after a **warden** `reveal`, and it catches
+only when two things are true at once:
+
+1. `warden_suspicion` ≥ `SEARCH_SUSPICION_THRESHOLD` = **40**, and
+2. the reveal was of `bar.integrity` and found it ≤ `SEARCH_CATCH_BAR_MAX` = **50** (the lock and spoon
+   have their own thresholds; no game here came near them).
+
+Suspicion is clamped at 100 (`loop.ts`, `max: 100`). **100 is a ceiling, never a threshold.** §31.2's
+*"the threshold is 100"* does not match the code. Suspicion rises three ways:
+
+- a prisoner's non-silent wear, restore, expose, open, leave or derive: +5 slight, +10 moderate,
+  +30 substantial;
+- a known approach, under precedent only: +30;
+- **a warden `reveal` that finds a value below the warden's own last belief: +(drop ÷ 2), rounded down,
+  applied inside the same half-round, before the catch check.**
+
+The window's `open` has its own gate, `OPEN_WINDOW_BAR_MAX`, and `src/open/world.ts:79` defines it as
+`= SEARCH_CATCH_BAR_MAX`. They are the same constant. **The bar becomes catchable at the same moment the
+window can be opened.** (An earlier note said escape means wearing the bar to 0. D1 escaped with the bar
+at 47.)
+
+The rules text in `src/open/mind.ts` states both thresholds and the evidence rule, and the prisoner
+reasons from it. D3's
+thoughts in round 9: *"since it's still above 50, it's safe."*
+
+### 33.2 Batch C, round by round
+
+Suspicion is the live value in the warden's briefing at the start of each round (the warden turn comes
+first). ⟶ marks the prisoner's wear that takes the bar to 50 or below.
+
+**C1**, caught r6:
+
+| r | Warden | Prisoner | Bar after | Suspicion at r start |
+|---|---|---|---|---|
+| 1 | reveal bar = 100 | wear slight audible | 92 | 0 |
+| 2 | reveal loose_tile | wear moderate visible | 77 | 5 |
+| 3 | reveal loose_tile | wear moderate audible | 62 | 15 |
+| 4 | reveal bar = 62 (+19) | ⟶ wear moderate audible | 47 | 25 |
+| 5 | *"Examine the spoon edge"* ruled **impossible** (referee answered `integrity`; the spoon declares `edge`) | wear moderate visible | 32 | 54 |
+| 6 | reveal bar = 32 (+15) → **caught** | | | 64 → 79 |
+
+**C2**, caught r5:
+
+| r | Warden | Prisoner | Bar after | Suspicion at r start |
+|---|---|---|---|---|
+| 1 | reveal bar = 100 | wear moderate audible | 85 | 0 |
+| 2 | reveal loose_tile | wear moderate audible | 70 | 10 |
+| 3 | reveal cot wire | wear moderate audible | 55 | 20 |
+| 4 | reveal bar = 55 (+22) | ⟶ wear moderate audible | 40 | 30 |
+| 5 | reveal bar = 40 (+7) → **caught** | | | 62 → 69 |
+
+**C3**, caught r6:
+
+| r | Warden | Prisoner | Bar after | Suspicion at r start |
+|---|---|---|---|---|
+| 1 | reveal bar = 100 | wear moderate audible | 85 | 0 |
+| 2 | reveal lock | wear slight **silent** | 77 | 10 |
+| 3 | reveal bar = 77 (+11) | wear moderate visible | 62 | 10 |
+| 4 | reveal bar = 62 (+7) | *"Scrape additional grit from the loose tile onto the bar"* ruled wear **loose_tile**.concealment, silent | 62 | 31 |
+| 5 | reveal bar = 62 (+0) | ⟶ wear moderate **silent** | 47 | 38 |
+| 6 | reveal bar = 47 (+7) → **caught** | | | 38 → 45 |
+
+Across the three games:
+
+- **Every game ends on the warden's first bar examination after the bar goes to 50 or below.** In C2
+  and C3 that is the very next warden turn. In C1 the next warden turn went to the spoon and was ruled
+  impossible, and the catch came one turn later.
+- In C1 and C2 suspicion was already past 40 before the catching reveal. **In C3 it was 38, below the
+  threshold. The catching reveal's own evidence bump (+7) took it to 45.** Three of her five wears were
+  ruled silent and added nothing. The reveal still provided the grounds for its own catch.
+- The warden examined the bar in 3 of 6, 3 of 5 and 5 of 6 turns.
+- The known-approach bump fired zero times: precedent was off.
+- In every game the bar goes to 50 or below on the prisoner's fourth wear of it (moderate wear is −15,
+  slight −8). That holds whether suspicion is at 25, 30 or 38 when it happens.
+
+### 33.3 Batch A had already falsified it
+
+Suspicion at the start of each warden turn in §31's batch A (precedent ON), from the same transcripts:
+
+| | r1 | r2 | r3 | r4 | r5 | r6 | r7 | caught | bar at catch |
+|---|---|---|---|---|---|---|---|---|---|
+| A1 | 0 | 40 | 77 | 100 | 100 | 100 | | r6 | 40 |
+| A2 | 0 | 40 | 75 | 100 | 100 | 100 | | r6 | 39 |
+| A3 | 0 | 35 | 65 | 100 | 100 | 100 | 100 | r7 | 47 |
+
+Precedent saturated suspicion by round 4 in all three games, so the suspicion condition was met from
+round 2 or 3. The games still ran to round 6 or 7, until the bar reached 50 or below.
+
+**Precedent changed how fast suspicion rose; it did not change when the game ended.** Rounds at catch:
+batch A 6, 6, 7; batch C 6, 5, 6. §31.2 read the round-six ending as precedent. The bar condition was
+what held the ending back, and §31's own numbers show it.
+
+§32's pick batch (caught 6, 7, 8) was built on §31.2's reading, so its framing inherits the error.
+Its measurements, and §32.1's finding that candidates are rewordings, do not depend on it.
+
+### 33.4 Batch D: the world is escapable, and `leave` is still phrasing-sensitive
+
+With nobody examining the bar, all three games escaped. That means §24 through §30 all run when
+nothing stops them. §31.2's *"none of §24 through §30 ran"* was true of the contested games, not of
+the mechanics.
+
+| | Bar ≤ 50 | `open` ruled on the window | `leave` ruled | Turns from ≤ 50 to out |
+|---|---|---|---|---|
+| D1 | r4 (47) | r5 | r9 | 5 |
+| D2 | r5 (47) | r8 (wore on to 17 first) | r10 | 5 |
+| D3 | r4 (47), again r11 (37) | r12 | r23 | 12 after the second crossing |
+
+**Every escape needed a separate `open` turn and a later `leave` turn after the bar crossed 50.** That
+means at least two prisoner turns after the crossing, with a warden turn before each of them.
+
+**D3's delays, in order:**
+
+- **r6:** *"Use the spoon to collect grit from the loose tile and apply it to the bar's rusted areas"*
+  was ruled `restore bar.integrity` moderate, **47 → 97**. The referee undid three rounds of her work
+  toward her own escape. §31.1 caught grit-on-bar wording being misruled as `derive loose_tile`. Across
+  these six games the same wording was also ruled `wear loose_tile` (C3 r4), `reveal loose_tile` (D3 r5)
+  and here `restore bar`.
+- **r9:** *"Work a piece loose from the cot's crossbar wire"* was ruled `derive` with target `bar`, a
+  plan-null no-op.
+- **r13–r15:** with `window passage: 1` in her briefing, she kept wearing the bar 37 → 0. Her r13
+  thoughts: *"I need to ensure it's fully removed."* Her r15 thoughts cite *"guard attention will drop
+  to 40 next round, allowing escape"*. `checkOpenEscape` reads nothing but location (`gameEnd.ts`);
+  guard attention is a closed-variant resource her briefing still shows.
+- **r16:** *"Use the loose tile to create a distraction"* was ruled `noise`.
+- **r19–r22:** four attempts to climb out, all ruled `open` on a window already open.
+
+**The climb phrasings, all ten:**
+
+| Game, round | Intent | Ruled |
+|---|---|---|
+| D1 r7 | Climb through the window | open |
+| D1 r8 | Climb through the window | open |
+| D1 r9 | Attempt to climb through the window immediately | **leave** |
+| D2 r9 | Position the cot near the window to use as a step | open |
+| D2 r10 | Climb out through the window using the cot as a step | **leave** |
+| D3 r19 | Climb through the window | open |
+| D3 r20 | Climb through the window using the cot as a step | open |
+| D3 r21 | Climb through the window immediately | open |
+| D3 r22 | Climb through the window | open |
+| D3 r23 | Climb through the window using the cot's crossbar as a step | **leave** |
+
+The bare *"Climb through the window"* was ruled `open` all four times it appeared. No wording mapped
+reliably to `leave`:
+
+- *"…immediately"* was `leave` in D1 and `open` in D3.
+- *"…using the cot as a step"* was `leave` in D2 (*"Climb out through…"*) and `open` in D3.
+- D3 r20 and r21 cited *"with that bar gone, a person could climb through"*, the span every `leave`
+  ruling cited, and were still ruled `open`.
+
+This is §30.1's watch item reproduced three times over.
+
+**Two pairs are word-for-word repeats: D1 r7/r8 and D3 r19/r22.** In each pair the second ruling
+matches the first in every key and every citation. That is what the §18.8 exact-repeat cache would
+return for the same intent against the same perceived objects. The `.referee.json` sidecar logs one
+entry per intent either way, so these transcripts cannot show whether the second ruling came from the
+cache or from a fresh call that agreed.
+
+Novelty in batch D (5, 3, 10) is almost entirely `open` and `leave` on the window and bar, which the
+closed variant has no move for. It also includes D3's r5 (grit-on-bar ruled `reveal loose_tile`) and
+r9 misrulings, counted as novel the same way §31.1's game 3 was.
+
+### 33.5 For the owner's reading
+
+The numbers above are the factual half. The interpretation is reserved. These are the questions the
+batches put, each phrased as what happens in play:
+
+1. **A warden who keeps looking at the bar catches her on the first look after her fourth scrape,
+   however quiet she is.** The window opens at exactly the value the catch fires at, and getting out
+   takes two more turns. Is that the game you want: detection and escape on one dial, set to the same
+   mark? Or should the window open before the bar looks damaged, or the catch fire later?
+   *This decides whether the next change is to constants in `mechanics.ts`/`world.ts`, or to issue #5
+   and #3, the world.*
+2. **In C3, being silent almost worked.** She reached the catching look at 38 suspicion, and the look
+   itself supplied the missing points. Should finding damage be able to supply its own grounds in the
+   same breath?
+   *This decides whether the evidence bump stays applied before the catch check.*
+3. **Is §32.3's "one verb in the room" argument unaffected?** It rested on presence, principals-as-targets
+   and beliefs, not on the round-six arithmetic. As far as the six games show, those three structural
+   facts stand.
+   *This decides whether §32.3 needs a note, or only §31.2 does.*
+4. **D3 lost thirteen rounds to the referee turning "apply grit to the bar" into repairing it,** and to
+   "climb through" meaning `open`. Is the leave phrasing worth its own fix now, or does it wait behind
+   question 1?
+
+### 33.6 The owner's answers (2026-09-16)
+
+1. **Split the line, and later give her the world: options (b) and (c).** The owner's reason: *the
+   warden is outside her cell, so it is harder for him to see damage than for her to make it.* The
+   window still opens at a bar of 50 (`OPEN_WINDOW_BAR_MAX`). A warden's close look now catches on the
+   bar only at **30** or below, via `OPEN_CATCH_BAR_MAX` in `src/open/world.ts`, which the rules text
+   both minds read now states. The closed variant's `SEARCH_CATCH_BAR_MAX` is untouched. At −15 a
+   moderate scrape, the fourth scrape leaves the bar at 40: open to her and not yet visible to him.
+   **The contested game becomes a test of whether she stops scraping in time.** Games before this
+   change are not comparable to games after it. The number stands in for what (c) should eventually
+   model, a warden whose view is limited by where he stands (§9.3, issues #5 and #3).
+2. **Keep the order: finding damage raises suspicion before the catch is checked.** With the catch
+   at 30, the bar is only that worn after five or six scrapes, and suspicion will almost always be
+   past 40 by then. The order would rarely decide a game. Recorded, not changed.
+3. **§32.3 gets a note.** Added in place after the sentence that cited §31.2 as the cost of being
+   watched. The three structural points stand.
+4. **Fix the referee's climb and grit rulings before any game tests (1).** (1) exists to bring her to
+   an open window. A referee that reads *"Climb through the window"* as `open`, or grit on the bar as
+   `restore`, would make "did not stop in time" indistinguishable from "was not allowed to leave". D3
+   shows exactly that. The order is (1), then the referee, then games.
+
+**Found while building (1): she is not told the window's line.** The rules text states the catch
+thresholds but not that the window opens at 50. She learns it only when an attempt to work the bar
+free succeeds (*"the window can be climbed through now"*, `perception.ts`). Before (1) that cost
+nothing, since the two lines were the same. After (1) it decides what "knowing when to stop" can
+mean. Awaiting the owner.
