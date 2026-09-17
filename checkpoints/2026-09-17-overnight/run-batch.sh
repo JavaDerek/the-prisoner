@@ -19,6 +19,11 @@ for i in $(seq 1 "$COUNT"); do
       PRISONER_CHECKPOINT_DB=/tmp/the-prisoner-$LABEL-game$i-$STAMP.db \
       "$@" npm run checkpoint > /tmp/the-prisoner-$LABEL-game$i-$STAMP.log 2>&1 < /dev/null
   RC=$?
+  # The checkpoint leaves its last-used model loaded; both are this batch's own.
+  for M in qwen3:14b ancient-awakening:12b; do
+    curl -s -m 30 http://doris:11434/api/generate -d "{\"model\":\"$M\",\"keep_alive\":0}" > /dev/null
+  done
+  for _ in $(seq 1 30); do curl -s -m 10 http://doris:11434/api/ps | grep -q '"models":\[\]' && break; sleep 2; done
   echo "[$LABEL] game $i exit $RC $(date) log /tmp/the-prisoner-$LABEL-game$i-$STAMP.log"
   grep -m3 -E "Transcript|written|checkpoints/20" /tmp/the-prisoner-$LABEL-game$i-$STAMP.log
   [ $RC -eq 0 ] || exit $RC

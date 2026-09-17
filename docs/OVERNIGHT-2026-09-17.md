@@ -9,7 +9,7 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 |---|---|
 | 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | running (batch F) |
 | 2. Condition list as a generic mechanism, A/B in real games | code built behind a switch (`1c1bb58`); pre-game controls next |
-| 3. mother-of-invention produces a measured change | not started |
+| 3. mother-of-invention produces a measured change | idea 1 (regenerate when nothing unseen) built on branch `overnight-dev` (`4d46490`); games pending |
 | 4. Libraries released and consumed | nothing needed yet |
 
 ## Log
@@ -23,6 +23,16 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
   so games 2-4 of batch F run this commit. With the switch unset, all four prompt paths are byte-identical
   to the commit before (dumped and compared), so the baseline is unchanged; the only difference is one
   extra "Conditions: OFF" line in the transcript header.
+
+- 21:28. Batch F game 1 (`checkpoints/2026-09-17T01-21-32-000Z.md`): caught r7, 13 intents, 0 impossible,
+  13/13 cited, 0 fog leaks. She had one turn with the bar at 40 and scraped it to 25 ("Attempt to pry the
+  bar out" was her own 5th candidate). Batch E's failure again. The driver then stopped the batch on
+  purpose: the checkpoint leaves its last model loaded and the driver refuses a non-empty card. Fixed the
+  driver to unload the batch's own two models after each game and wait for an empty card; relaunched
+  games 2-4 + passive.
+- `analyze.mts` reads transcripts for the §34 measure (prisoner turns with the bar at or below 50 by her
+  own belief and nothing open yet, classified by the referee's effect key). On batch E it reproduces
+  §33.9's hand count exactly: 1, 1, 2 such turns, 0 attempts.
 
 ## Decisions for Derek
 
