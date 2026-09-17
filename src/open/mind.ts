@@ -12,6 +12,7 @@ import {
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import type { ObjectPerception } from "./referee.js";
 import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX } from "./world.js";
+import { renderConditionList, type Condition } from "./conditionList.js";
 
 /**
  * The open variant's minds (this task's brief, "Open-mode minds (both
@@ -146,7 +147,19 @@ const VOICE_SCHEMA: InertRecord = {
  *  list by another route) and describe presence, which O1 does not model
  *  (OPEN-VARIANT.md §9.3) -- so these are restated here from the SAME
  *  constants, in terms of what happens rather than which move does it. */
-function stateBasedRules(): string[] {
+function stateBasedRules(conditions?: readonly Condition[]): string[] {
+  // OPEN-VARIANT.md §34: given a condition list, the thresholds are stated
+  // there, at the top, and only there.
+  const thresholds = conditions
+    ? []
+    : [
+        // OPEN-VARIANT.md §33.8: the window's own line, stated since §33.6 split it from the catch's.
+        `The window can be opened once the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}.`,
+        `${WARDEN_NAME} catches ${PRISONER_NAME} (ending the game) by closely examining, while warden suspicion is at or above ` +
+          `${SEARCH_SUSPICION_THRESHOLD}, the bar and finding its integrity at or below ${OPEN_CATCH_BAR_MAX}, or the lock and ` +
+          `finding its integrity at or below ${SEARCH_CATCH_LOCK_MAX}, or the spoon and finding its edge at or above ` +
+          `${SEARCH_CATCH_SPOON_MIN} while it is out in the open, or a way out and finding it standing open.`,
+      ];
   return [
     `Whenever ${PRISONER_NAME} audibly or visibly damages, repairs or uncovers something, warden suspicion rises: ` +
       `by ${HONE_SUSPICION_BUMP} for a slight act, ${FILE_SUSPICION_BUMP} for a moderate one, ${FAILED_ESCAPE_SUSPICION_BUMP} for a substantial one.`,
@@ -154,12 +167,7 @@ function stateBasedRules(): string[] {
       `rises by the unexplained drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down -- finding damage is evidence.`,
     // OPEN-VARIANT.md §12: escape is leaving the cell, however it comes about.
     `${PRISONER_NAME} escapes the moment she is out of the cell, however she gets out. The cell's ways out are the door and the window.`,
-    // OPEN-VARIANT.md §33.8: the window's own line, stated since §33.6 split it from the catch's.
-    `The window can be opened once the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}.`,
-    `${WARDEN_NAME} catches ${PRISONER_NAME} (ending the game) by closely examining, while warden suspicion is at or above ` +
-      `${SEARCH_SUSPICION_THRESHOLD}, the bar and finding its integrity at or below ${OPEN_CATCH_BAR_MAX}, or the lock and ` +
-      `finding its integrity at or below ${SEARCH_CATCH_LOCK_MAX}, or the spoon and finding its edge at or above ` +
-      `${SEARCH_CATCH_SPOON_MIN} while it is out in the open, or a way out and finding it standing open.`,
+    ...thresholds,
   ];
 }
 
@@ -178,18 +186,25 @@ function objectLines(context: OpenPrincipalContext): string[] {
   return context.perceivedObjects.map((o) => `- ${o.id}: ${o.description}`);
 }
 
+/** OPEN-VARIANT.md §34: the condition list opens the prompt, read from this mind's own side. */
+function conditionPreamble(selfName: string, conditions?: readonly Condition[]): string[] {
+  const lines = conditions ? renderConditionList(conditions, { reader: selfName }) : [];
+  return lines.length > 0 ? [...lines, ""] : [];
+}
+
 function identityLines(selfName: string, otherName: string, context: OpenPrincipalContext): string[] {
   return [`You are ${selfName}. The other person in the cell is ${otherName}.`, context.identity, `Your motive: ${context.motive}`, "", context.briefing];
 }
 
-function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenPrincipalContext): string {
+function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
   return [
+    ...conditionPreamble(selfName, conditions),
     ...identityLines(selfName, otherName, context),
     "",
     "What you can currently reach or perceive:",
     ...objectLines(context),
     "",
-    ...stateBasedRules(),
+    ...stateBasedRules(conditions),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
@@ -209,14 +224,15 @@ function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenP
   ].join("\n");
 }
 
-function buildOpenSingleCallPrompt(selfName: string, otherName: string, context: OpenPrincipalContext): string {
+function buildOpenSingleCallPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
   return [
+    ...conditionPreamble(selfName, conditions),
     ...identityLines(selfName, otherName, context),
     "",
     "What you can currently reach or perceive:",
     ...objectLines(context),
     "",
-    ...stateBasedRules(),
+    ...stateBasedRules(conditions),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
@@ -324,6 +340,9 @@ export interface CreateOpenMindOptions {
   ensureLoaded?: (model: string) => Promise<void>;
   onSilence?: (reason: SilenceReason, context: OpenPrincipalContext, detail?: SilenceDetail) => void;
   onVoiceSilence?: (reason: SilenceReason, context: VoiceContext, detail?: SilenceDetail) => void;
+  /** OPEN-VARIANT.md §34: state the thresholds as a condition list at the top
+   *  of the wits prompt instead of as rule sentences. Absent: the baseline. */
+  conditions?: readonly Condition[];
 }
 
 /**
@@ -355,7 +374,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
       timeoutMs: options.timeoutMs,
       fetchFn: options.fetchFn,
       responseFormat: { jsonSchema: OPEN_SINGLE_CALL_SCHEMA, name: "proposal" },
-      prompt: (context) => buildOpenSingleCallPrompt(options.selfName, options.otherName, context),
+      prompt: (context) => buildOpenSingleCallPrompt(options.selfName, options.otherName, context, options.conditions),
       coerce: (raw) => {
         const base = coerceProposal(raw);
         if (base === null) return null;
@@ -389,7 +408,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     timeoutMs: options.timeoutMs,
     fetchFn: options.fetchFn,
     responseFormat: { jsonSchema: OPEN_WITS_SCHEMA, name: "wits" },
-    prompt: (context) => buildOpenWitsPrompt(options.selfName, options.otherName, context),
+    prompt: (context) => buildOpenWitsPrompt(options.selfName, options.otherName, context, options.conditions),
     coerce: (raw) => coerceWits(raw) as { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; replanned?: boolean; replanBecause?: string; notes?: string; line?: string } | null,
     onSilence: options.onSilence,
   });

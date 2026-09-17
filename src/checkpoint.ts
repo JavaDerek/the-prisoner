@@ -56,6 +56,7 @@ import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, type Silenc
 import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
 import { recordGame, precedentLines } from "./open/precedent.js";
+import { openConditions, readConditionsMode } from "./open/conditions.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 
@@ -127,6 +128,9 @@ const PICK = readPickCondition(process.env.PRISONER_PICK);
 /** Open variant only: `passive` takes the warden out of the question
  *  (`src/open/passiveWarden.ts`, OPEN-VARIANT.md §26). Unset: the model warden. */
 const WARDEN_MODE = readWardenMode(process.env.PRISONER_WARDEN);
+/** Open variant only: `list` gives the prisoner's mind the thresholds as a
+ *  condition list (`src/open/conditions.ts`, OPEN-VARIANT.md §34). Unset: the baseline. */
+const CONDITIONS = readConditionsMode(process.env.PRISONER_CONDITIONS);
 const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
@@ -699,7 +703,7 @@ async function mainOpen(): Promise<void> {
     },
   });
   const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind(mindOptions("warden"));
-  const prisonerMind = createOpenPrisonerMind(mindOptions("prisoner"));
+  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "list" ? { conditions: openConditions() } : {}) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -753,6 +757,11 @@ async function mainOpen(): Promise<void> {
     WARDEN_MODE === "passive"
       ? "Warden: PASSIVE (`PRISONER_WARDEN=passive`): attempts nothing every turn, no model or referee call; the prisoner's briefing is unchanged (§26)."
       : "Warden: the model warden."
+  );
+  transcript.push(
+    CONDITIONS === "list"
+      ? "Conditions: LIST (`PRISONER_CONDITIONS=list`): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34)."
+      : "Conditions: OFF (baseline): thresholds stated as rule sentences."
   );
   transcript.push("");
   transcript.push("## Rounds");
