@@ -9,7 +9,7 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 |---|---|
 | 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | **DONE.** §5.3 holds on batch F (4 games): 0 fog leaks in 82 contexts, all effects cited, novelty in all 4, 7 impossible rulings with reasons, replay 99.5/99.4/97.6/98.2%. Passive game escaped r6. OPEN-VARIANT §35. |
 | 2. Condition list as a generic mechanism, A/B in real games | **DONE, positive.** Built generic (`1c1bb58`, `467f101`, `0f7ad18`), open items 2 and 3 fixed. Probe first (§34.1), then real games: **batch G (list) escaped 4/4 (r7, r7, r6, r6); batch F (same config, rule sentences) was caught 4/4.** She acted on the unlock 4/4 vs 1/6; one premature removal in 18 turns above the line. §34.2. Warden half (`PRISONER_CONDITIONS=both`) built, probe queued |
-| 3. mother-of-invention produces a measured change | idea 1 (regenerate when nothing unseen) built (`1166b88`, off by default); batches H (pick=even) vs I (pick=even-regenerate) queued after G |
+| 3. mother-of-invention produces a measured change | running. Idea 1 = regenerate once when nothing unseen (`1166b88`). The first pair ran with precedent OFF, where pick almost never lacks an unseen candidate (H1 stuck 0/6, I1 1/6), so it cannot measure regeneration. Rerunning as batch J with precedent ON (§32's 22-episode ledger, fresh copy per game), 3 vs 3. Port to the package is ready on a local branch (`c76591d`), unreleased |
 | 4. Libraries released and consumed | nothing needed yet |
 
 ## Log
@@ -51,6 +51,12 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
   prompt was unchanged, perceived "Mara Voss opens the window." and then examined the tile or the bar's
   mortar. Built `PRISONER_CONDITIONS=both` (warden gets its own reading) on the dev branch, and queued a
   warden probe on those exact turns to run after the pick batches.
+
+- 23:13-23:55. H1 (pick=even, precedent off): escaped r12; forced 6, overridden 4, nothing unseen 0.
+  I1 (pick=even-regenerate, precedent off): caught r14; forced 6, overridden 6, nothing unseen 1,
+  regenerated once and found 2 unseen. My mistake: §32's bottleneck was measured with the precedent
+  ledger on, and without it "seen" is only this game's few sightings. Stopped the precedent-off series
+  after H2 (it finishes and is committed like every run) and queued batch J with the ledger.
 
 ## Decisions for Derek
 
