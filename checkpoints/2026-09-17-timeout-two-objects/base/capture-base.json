@@ -1,0 +1,614 @@
+[
+ {
+  "label": "Inspect the lock and examine the loose tile for hidden items or damage.",
+  "i": 0,
+  "status": 0,
+  "err": "TimeoutError: The operation was aborted due to timeout",
+  "content": null,
+  "offered": [],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "target",
+   "effect",
+   "product",
+   "property",
+   "magnitude",
+   "perceptibility"
+  ]
+ },
+ {
+  "label": "Inspect the lock and examine the loose tile for hidden items or damage.",
+  "i": 1,
+  "status": 0,
+  "err": "TimeoutError: The operation was aborted due to timeout",
+  "content": null,
+  "offered": [],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "target",
+   "effect",
+   "product",
+   "property",
+   "magnitude",
+   "perceptibility"
+  ]
+ },
+ {
+  "label": "Inspect the lock and examine the loose tile for hidden items or damage.",
+  "i": 2,
+  "status": 0,
+  "err": "TimeoutError: The operation was aborted due to timeout",
+  "content": null,
+  "offered": [],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "target",
+   "effect",
+   "product",
+   "property",
+   "magnitude",
+   "perceptibility"
+  ]
+ },
+ {
+  "label": "Use the grit and spoon to scrape the bar's rusted areas, then cover with the blanket to conceal scratches.",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 9, \"to\": 11}}, {\"questionId\": \"effect\", \"answerKey\": \"conceal\", \"citation\": {\"sourceId\": \"intent\", \"from\": 18, \"to\": 19}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 21, \"to\": 23}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 7, \"to\": 11}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 13, \"to\": 17}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar's rusted areas,",
+     "from": 9,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "conceal scratches.",
+     "from": 18,
+     "to": 19
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it",
+     "from": 21,
+     "to": 23
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar's rusted areas,",
+     "from": 7,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "cover with the blanket to",
+     "from": 13,
+     "to": 17
+    }
+   }
+  ],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar's rusted areas,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "conceal scratches."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar's rusted areas,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "cover with the blanket to"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": []
+ },
+ {
+  "label": "Use the grit and spoon to scrape the bar's rusted areas, then cover with the blanket to conceal scratches.",
+  "i": 1,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 11}}, {\"questionId\": \"effect\", \"answerKey\": \"conceal\", \"citation\": {\"sourceId\": \"intent\", \"from\": 18, \"to\": 19}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 21, \"to\": 23}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 7, \"to\": 9}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar's rusted areas,",
+     "from": 8,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "conceal scratches.",
+     "from": 18,
+     "to": 19
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it",
+     "from": 21,
+     "to": 23
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the grit",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar's",
+     "from": 7,
+     "to": 9
+    }
+   }
+  ],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar's rusted areas,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "conceal scratches."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the grit"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar's"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": []
+ },
+ {
+  "label": "Use the grit and spoon to scrape the bar's rusted areas, then cover with the blanket to conceal scratches.",
+  "i": 2,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 11}}, {\"questionId\": \"effect\", \"answerKey\": \"conceal\", \"citation\": {\"sourceId\": \"intent\", \"from\": 18, \"to\": 19}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 21, \"to\": 23}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 7, \"to\": 9}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar's rusted areas,",
+     "from": 8,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "conceal scratches.",
+     "from": 18,
+     "to": 19
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it",
+     "from": 21,
+     "to": 23
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the grit",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar's",
+     "from": 7,
+     "to": 9
+    }
+   }
+  ],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar's rusted areas,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "conceal scratches."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the grit"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar's"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": []
+ }
+]

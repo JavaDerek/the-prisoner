@@ -2723,3 +2723,46 @@ default, nothing cited). Re-asking each once (`others/capture-others.log`):
 So the fix recovers one known, deterministic loss. The game still cannot say why a ruling was lost,
 because the raw reply is gone by the time the transcript is written. Keeping it in the `.referee.json`
 sidecar would make the next one diagnosable from the transcript alone.
+
+## 38. Referee sidecars keep the raw reply (owner's decision, 2026-09-17)
+
+After §37 could not diagnose four of six lost rulings, `createRefereeTransport` keeps its last exchange
+(`lastExchange()`: raw reply content, HTTP status, error text, milliseconds). The referee attaches it per
+rung to each ruling, and `<stamp>.referee.json` writes it as `replies` beside each request. The replay
+tool reads only `label` and `request`, so sidecars stay replayable. Test first; commit `6f77355`.
+
+## 39. The 180-second timeout: an intent with two acts sends the referee into a thinking loop (2026-09-17)
+
+**Diagnosis.** Batch J1's warden intent *"Inspect the lock and examine the loose tile for hidden items or
+damage."* timed out at 180 s, and does so every time (3 of 3 this morning). Sent streamed with a 600 s cap
+(`checkpoints/2026-09-17-timeout-two-objects/stream-one.mts`, `run1-stream.txt`), `qwen3:14b` wrote
+173,000 characters of reasoning and no answer, circling one point: *"the answer is 'none' if the intent
+acts on multiple objects. But that's not correct. … the answer format requires one."* The target question
+asks for exactly one object and says nothing about an intent that does two things.
+
+**Scope.** Of 31 overnight intents naming two or more objects, 29 ruled normally: the extra objects were
+instruments (*"scrape the bar with the spoon and grit"*). The two lost rulings both describe **two separate
+acts** (*"inspect X and examine Y"*, *"scrape the bar … then cover with the blanket"*). The second rules
+normally when re-asked (`conceal`, 3 of 3).
+
+**Idea 1, tested and not kept:** one sentence in the target question, *"An intent that does more than one
+thing acts on the object of the first thing it does."* Run on §33.16's 26 controls plus both two-act intents,
+3 times each (`build-requests.mts`, `first/capture-first.log`), and compared with today's prompt
+(`compare.mts`, `compare-out.txt`; §33.16's replies re-read through today's transport):
+
+| Intent | Today | With the sentence |
+|---|---|---|
+| Inspect the lock and examine the loose tile … | timeout ×3 | **lock / reveal ×3, ~7 s** |
+| Scrape the bar … then cover with the blanket … | conceal ×3 | conceal ×3 (not the first act) |
+| Squeeze through the gap in the window where the bar was | open, leave, leave | **open ×3** (refuses the real exit) |
+| Remove the loose tile to get at the hollow beneath it | expose ×3 | **reveal, derive, derive** (the hollow stays shut) |
+| Remove the blanket from the cot | none ×3 | expose, none, none |
+| the other 23 | unchanged | unchanged |
+
+It removes the hang and breaks two controls. By §33.14's rule it does not ship.
+
+**Open, for the owner:** what a turn that says it does two things *is*. (a) The first act: the tested
+sentence does that, but through the target question it pulls on other rulings; putting it in the
+mind's prompt instead ("one act per turn") would stop two-act intents at the source, a generic mind-side
+rule. (b) Impossible (one act per turn), with the reason told back. (c) Leave the wording alone and cap the
+referee's output so a loop fails in seconds instead of 180, which saves time but still loses the ruling.

@@ -1,0 +1,85 @@
+   Remove the bar
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Use the spoon to remove the bar
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Pull the bar out of the window
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Take the bar out
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Use the spoon to pry the bar out of the mortar
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Use the spoon to lever the bar out of the mortar
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Attempt to remove the bar from the window
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Use the spoon to twist and remove the bar
+     today: bar/open, bar/open, bar/open
+     first: bar/open, bar/open, bar/open
+   Use the spoon to push back the bolt through the gap
+     today: door/open, door/open, door/open
+     first: door/open, door/open, door/open
+   Continue abrading the bar with the spoon to reduce its integrity
+     today: bar/wear, bar/wear, bar/wear
+     first: bar/wear, bar/wear, bar/wear
+   Use the spoon to scrape at the rusted bottom of the bar
+     today: bar/wear, bar/wear, bar/wear
+     first: bar/wear, bar/wear, bar/wear
+   Use the spoon to damage the bar further
+     today: bar/wear, bar/wear, bar/wear
+     first: bar/wear, bar/wear, bar/wear
+   Use the spoon to strike the bar repeatedly
+     today: bar/wear, bar/wear, bar/wear
+     first: bar/wear, bar/wear, bar/wear
+   Use the spoon to chip away the mortar around the bar
+     today: bar/wear, bar/wear, bar/wear
+     first: bar/wear, bar/wear, bar/wear
+   Examine the bar for signs of damage or wear
+     today: bar/reveal, bar/reveal, bar/reveal
+     first: bar/reveal, bar/reveal, bar/reveal
+   Climb out through the window
+     today: window/leave, window/leave, window/leave
+     first: window/leave, window/leave, window/leave
+   Climb through the window and escape
+     today: window/open, window/open, window/open
+     first: window/open, window/open, window/open
+** Squeeze through the gap in the window where the bar was
+     today: window/open, window/leave, window/leave
+     first: window/open, window/open, window/open
+   Get out through the window
+     today: window/leave, window/leave, window/leave
+     first: window/leave, window/leave, window/leave
+   Slip out of the open door
+     today: door/leave, door/leave, door/leave
+     first: door/leave, door/leave, door/leave
+   Rub the spoon back and forth against the bar
+     today: bar/wear, bar/wear, bar/wear
+     first: bar/wear, bar/wear, bar/wear
+   Grind at the bar with the spoon's edge to weaken it
+     today: bar/wear, bar/wear, bar/wear
+     first: bar/wear, bar/wear, bar/wear
+   Pull a length of wire from the cot springs and keep it
+     today: cot/derive, cot/derive, cot/derive
+     first: cot/derive, cot/derive, cot/derive
+** Remove the loose tile to get at the hollow beneath it
+     today: loose_tile/expose, loose_tile/expose, loose_tile/expose
+     first: loose_tile/reveal, loose_tile/derive, loose_tile/derive
+** Remove the blanket from the cot
+     today: blanket/none, blanket/none, blanket/none
+     first: blanket/expose, blanket/none, blanket/none
+   Rub grit from the hollow into the scratches on the bar to hide them
+     today: bar/conceal, bar/conceal, bar/conceal
+     first: bar/conceal, bar/conceal, bar/conceal
+** Inspect the lock and examine the loose tile for hidden items or damage.
+     today: TIMEOUT, TIMEOUT, TIMEOUT
+     first: lock/reveal, lock/reveal, lock/reveal
+   Use the grit and spoon to scrape the bar's rusted areas, then cover with the blanket to conceal scratches.
+     today: bar/conceal, bar/conceal, bar/conceal
+     first: bar/conceal, bar/conceal, bar/conceal
+4 of 28 intents read differently
