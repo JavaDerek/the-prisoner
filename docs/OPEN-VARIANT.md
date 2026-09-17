@@ -2558,3 +2558,63 @@ cost seen so far is one premature removal attempt at full integrity.
 (the-prisoner is a harness). The warden's prompt was unchanged. The list is generic: a warden given
 its own list reads the catches as `(for you)`. Whether that makes the warden act on its thresholds the
 same way is the natural next A/B, and it is the half that matters for any NPC that has to stop someone.
+
+## 36. Pick regenerates when nothing is unseen (2026-09-17, overnight)
+
+§32.1 found the pick mechanism idle: on 6 of 8 forced turns the mind's candidates were rewordings of one
+idea, all `seen`. **Idea 1 for candidate generation: ask again, told why.** `pick()` takes an optional
+`regenerate`, called only on a forced turn where neither the mind's own choice nor any candidate is
+`unseen`. It is told every verdict, and its texts are judged (skipping any already judged). The loop
+re-asks the same mind once: *"Before you act: everything you listed is something Warden Croft has
+already seen and knows on sight ("…"). List different things you could try this turn, that Warden Croft
+has not seen."* The fresh answer's intent and candidates are only candidates; its plan is not kept.
+Switch `PRISONER_PICK=even-regenerate`; plain `even` is unchanged.
+
+### 36.1 A first pair that could not measure it (precedent off)
+
+H1 (even), I1 and H2 (even-regenerate / even) ran in batch F's configuration: precedent **off**. Without
+the ledger, "seen" is only this game's few sightings, and pick almost always had something unseen (H1
+stuck 0 of 6, I1 1 of 6, H2 1 of 3). The pair could not measure regeneration, so it was stopped and
+rerun with the ledger. Transcripts kept: `…04-13-02-707Z` (H1, escaped r12), `…04-30-53-789Z` (I1,
+caught r14), `…04-54-23-003Z` (H2, caught r8).
+
+### 36.2 Batch J: with the ledger, 3 against 3
+
+§32's condition: each game gets a fresh copy of the committed 22-episode
+`checkpoints/precedent-ledger.json` (nothing written back). Otherwise batch F's configuration, arms
+alternating (`run-pick-ledger.sh`). Transcripts: even `…05-05-32-054Z`, `…05-56-34-559Z`,
+`…06-39-21-427Z`; even-regenerate `…05-24-50-492Z`, `…06-09-27-638Z`, `…06-52-46-634Z`.
+
+| | pick=even | pick=even-regenerate |
+|---|---|---|
+| Result | escaped r10, escaped r9, caught r10 | caught r18, caught r14, escaped r12 |
+| Forced turns | 13 | 20 |
+| Nothing unseen among the mind's own candidates | 6 | 11 |
+| Regenerated / found something unseen | – | 11 / 6 |
+| **Forced turns overridden** (did something unseen) | **3 (23%)** | **13 (65%)** |
+| Free turns / novel | 15 / 3 | 22 / 3 |
+| Fog / citations | 0 leaks; all cited | 0 leaks; all cited |
+
+What regeneration found, each an idea absent from the mind's first list and produced only after being
+told the list was known: *"Bend the spoon's bowl edge to create a sharper abrading surface"*, *"Bend the
+wire into a hook to pull on the bar's weak spot"*, *"Test the door's bolt by pushing it gently"* (the
+first attempt at the door tonight), *"Work a piece loose from the tile"*, *"Use the spoon to scrape the
+loose tile's edges"*, *"Scratch the cot's frame with the spoon's worn edge"*. Of 29 regenerated texts, 6
+were unseen. The rest were still the known approach reworded, even after being told.
+
+**Reading.**
+- **Candidate generation measurably improved**, on the measure §32 named: stuck forced turns now become a
+  new attempt more than half the time, and the share of forced turns that did something unseen nearly
+  tripled.
+- **Free turns did not change** (3 novel in 15 against 3 in 22). By the rule this document has held since
+  §21 (forced novelty is novel by construction; only free turns are evidence), the mind still does not
+  choose new things unforced. The new ideas, like §21.3's and §23.1's, mostly change nothing that
+  matters in this room (a sharper spoon, a pushed bolt).
+- **Outcomes did not improve** (2 escapes to 1). Forcing spends turns, as §23.1 found.
+- The seen-on-forced-turn problem is also smaller than §32 made it look: with precedent on, 6 of 13
+  forced turns were stuck in the `even` arm, against §32's 6 of 8 on the `qwen2.5:14b` referee.
+
+**Moved to the package.** `pick` with `regenerate` is now mother-of-invention's mechanism 2 (0.1.2,
+published by tag), and this repository consumes it pinned exactly. The local `src/open/pick.ts` is gone.
+It moved because it does what it claims, measured against a real caller. The free-turn question is left
+open, and the package README says so.
