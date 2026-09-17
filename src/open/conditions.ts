@@ -25,13 +25,14 @@ export function openConditions(): Condition[] {
   ];
 }
 
-export type ConditionsMode = "list";
+export type ConditionsMode = "list" | "both";
 
 /** `PRISONER_CONDITIONS=list` gives the prisoner's mind the condition list in
- *  place of the threshold sentences (§34); unset is the baseline. Anything
+ *  place of the threshold sentences (§34); `both` gives it to the warden's mind
+ *  too, read from its own side (§34.3); unset is the baseline. Anything
  *  else stops the run rather than guessing. */
 export function readConditionsMode(raw: string | undefined): ConditionsMode | undefined {
   if (raw === undefined || raw === "") return undefined;
-  if (raw === "list") return "list";
-  throw new Error(`PRISONER_CONDITIONS: unrecognised value ${JSON.stringify(raw)} -- must be "list" or unset`);
+  if (raw === "list" || raw === "both") return raw;
+  throw new Error(`PRISONER_CONDITIONS: unrecognised value ${JSON.stringify(raw)} -- must be "list", "both" or unset`);
 }

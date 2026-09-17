@@ -62,9 +62,19 @@ describe("a mind given conditions", () => {
   });
 });
 
+describe("the warden reads the same list from its own side (§34.3)", () => {
+  it("the unlocks are the prisoner's, the catches are its own", async () => {
+    const prompt = await promptFor("Warden Croft", "Mara Voss", { conditions: openConditions() });
+    expect(prompt).toContain("CONDITION 1 (for Mara Voss): If the bar's integrity is at or below 50, then Mara Voss can open the window.");
+    expect(prompt).toContain("CONDITION 3 (for you): If warden suspicion is at or above 40, and Warden Croft closely examines the bar, and Warden Croft finds its integrity at or below 30, then Warden Croft catches Mara Voss and the game ends.");
+    expect(prompt).not.toContain("by closely examining, while warden suspicion");
+  });
+});
+
 describe("readConditionsMode: PRISONER_CONDITIONS", () => {
   it("list turns it on; unset or empty is the baseline; anything else stops the run", () => {
     expect(readConditionsMode("list")).toBe("list");
+    expect(readConditionsMode("both")).toBe("both");
     expect(readConditionsMode(undefined)).toBeUndefined();
     expect(readConditionsMode("")).toBeUndefined();
     expect(() => readConditionsMode("yes")).toThrow(/PRISONER_CONDITIONS/);

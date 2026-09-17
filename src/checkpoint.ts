@@ -702,8 +702,8 @@ async function mainOpen(): Promise<void> {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
     },
   });
-  const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind(mindOptions("warden"));
-  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "list" ? { conditions: openConditions() } : {}) });
+  const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions() } : {}) });
+  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS ? { conditions: openConditions() } : {}) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -759,9 +759,11 @@ async function mainOpen(): Promise<void> {
       : "Warden: the model warden."
   );
   transcript.push(
-    CONDITIONS === "list"
-      ? "Conditions: LIST (`PRISONER_CONDITIONS=list`): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34)."
-      : "Conditions: OFF (baseline): thresholds stated as rule sentences."
+    CONDITIONS === "both"
+      ? "Conditions: BOTH (`PRISONER_CONDITIONS=both`): both minds get the thresholds as a condition list at the top of their wits prompts, each read from its own side, not as rule sentences (§34.3)."
+      : CONDITIONS === "list"
+        ? "Conditions: LIST (`PRISONER_CONDITIONS=list`): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34)."
+        : "Conditions: OFF (baseline): thresholds stated as rule sentences."
   );
   transcript.push("");
   transcript.push("## Rounds");
