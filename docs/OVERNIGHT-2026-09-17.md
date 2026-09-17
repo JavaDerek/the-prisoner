@@ -9,8 +9,8 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 |---|---|
 | 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | **DONE.** §5.3 holds on batch F (4 games): 0 fog leaks in 82 contexts, all effects cited, novelty in all 4, 7 impossible rulings with reasons, replay 99.5/99.4/97.6/98.2%. Passive game escaped r6. OPEN-VARIANT §35. |
 | 2. Condition list as a generic mechanism, A/B in real games | **DONE, positive.** Built generic (`1c1bb58`, `467f101`, `0f7ad18`), open items 2 and 3 fixed. Probe first (§34.1), then real games: **batch G (list) escaped 4/4 (r7, r7, r6, r6); batch F (same config, rule sentences) was caught 4/4.** She acted on the unlock 4/4 vs 1/6; one premature removal in 18 turns above the line. §34.2. Warden half (`PRISONER_CONDITIONS=both`) built, probe queued |
-| 3. mother-of-invention produces a measured change | running. Idea 1 = regenerate once when nothing unseen (`1166b88`). The first pair ran with precedent OFF, where pick almost never lacks an unseen candidate (H1 stuck 0/6, I1 1/6), so it cannot measure regeneration. Rerunning as batch J with precedent ON (§32's 22-episode ledger, fresh copy per game), 3 vs 3. Port to the package is ready on a local branch (`c76591d`), unreleased |
-| 4. Libraries released and consumed | nothing needed yet |
+| 3. mother-of-invention produces a measured change | **DONE, qualified positive.** Idea 1 (regenerate once when nothing unseen) fixes the failure §32 named: with the ledger on, forced turns that did something unseen went **23% → 65%** (3/13 → 13/20). Regeneration turned 6 of 11 stuck turns into the mind's own new ideas (door bolt, wire hook, sharper spoon). **Free turns unchanged** (3 novel of 15 vs 3 of 22) and outcomes no better, so the mind still doesn't choose new things unforced. OPEN-VARIANT §36 |
+| 4. Libraries released and consumed | **DONE.** mother-of-invention **0.1.2** (pick + regenerate as mechanism 2) published by tag through release.yml (CI and Release green); the-prisoner pins it exactly and its local `pick.ts` is gone (`b9b0390`). The condition list stays in the-prisoner by decision D1, so no mind-seam or run-dmcp release was needed |
 
 ## Log
 
@@ -58,6 +58,12 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
   ledger on, and without it "seen" is only this game's few sightings. Stopped the precedent-off series
   after H2 (it finishes and is committed like every run) and queued batch J with the ledger.
 
+- 00:05-02:14. Batch J (§36.2): pick=even escaped r10, r9, caught r10; pick=even-regenerate caught r18,
+  r14, escaped r12. Measures above.
+- 02:10. Ported pick+regenerate to mother-of-invention (tests moved with it, vocabulary guard green,
+  README and CLAUDE.md say what it was measured to do, including the free-turn caveat), released 0.1.2 by
+  tag, consumed in the-prisoner test-first (tests pointed at the package, red on 0.1.0, green on 0.1.2).
+
 ## Decisions for Derek
 
 **D1. Where condition-list generation lives. Chosen for tonight: the caller (the-prisoner), as a generic
@@ -75,8 +81,21 @@ conditions from the constants the game already enforces.
   If the list turns out to be worth generating from engine-declared gates (so every run-dmcp game gets it
   for free), that argues for (b) and an engine issue.
 
+**D2. Should pick (now mother-of-invention 0.1.2) be judged by forced turns or free turns?** I released
+it because it does what it claims against a real caller, and the README states that free turns did not
+change. If you hold the §21 line that only free-turn behaviour counts, the honest label is "a working
+force, not yet a novelty mechanism", and the next idea is something that changes free turns (e.g. carry a
+forced turn's result into the plan). If forced-turn novelty counts, item 3 is simply done.
+
+**D3. Does the condition list become the default?** Batch G escaped 4/4 where F was caught 4/4, with one
+premature removal attempt. Making `PRISONER_CONDITIONS=list` the default changes every future baseline
+(and every earlier batch stops being comparable). I left it a switch. Yes = new baseline from here; no =
+it stays an arm.
+
 (more below as they come up)
 
 ## Versions published
 
-None yet.
+- **mother-of-invention 0.1.2** (2026-09-17 ~02:10 CDT), tag `v0.1.2`, via the trusted-publisher workflow.
+  Adds `pick` (with optional `regenerate`) and its types. the-prisoner pins `0.1.2` exactly.
+- mind-seam, run-dmcp: nothing released.
