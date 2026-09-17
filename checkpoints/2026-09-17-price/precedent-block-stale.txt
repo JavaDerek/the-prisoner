@@ -1,0 +1,11 @@
+Warden Croft has run this block for eleven years. In earlier escape attempts from this cell, Warden Croft has seen these, and knows them on sight. Whatever Warden Croft knows on sight, Warden Croft notices however quietly it is done, and warden suspicion jumps at once by what that approach is worth -- the more prisoners have been seen trying it, the more it costs:
+- A prisoner works at the bar. (seen 76 times, in 19 earlier attempts) -- suspicion jumps by 100
+- A prisoner works a piece loose from the cot. (seen 4 times, in 3 earlier attempts) -- suspicion jumps by 90
+- A prisoner examines the loose tile closely. (seen 2 times, in 2 earlier attempts) -- suspicion jumps by 60
+- A prisoner examines the cot closely. (seen 2 times, in 1 earlier attempt) -- suspicion jumps by 30
+- A prisoner opens the bar. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by 30
+- A sound rings out from the bucket. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by 30
+- A prisoner examines the bar closely. (seen 16 times, in 4 earlier attempts) -- suspicion jumps by 100
+- A prisoner works to restore the bar. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by 30
+- A prisoner works a piece loose from the blanket. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by 30
+- A prisoner opens the door. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by 30

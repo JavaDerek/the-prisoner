@@ -1,0 +1,65 @@
+{
+  "type": "json_schema",
+  "json_schema": {
+    "name": "proposal",
+    "strict": true,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "thoughts": {
+          "type": "string"
+        },
+        "candidates": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "intent": {
+          "type": "string"
+        },
+        "line": {
+          "type": "string"
+        },
+        "plan": {
+          "type": "string"
+        },
+        "replanned": {
+          "type": "boolean"
+        },
+        "replanBecause": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "thoughts",
+        "candidates",
+        "intent",
+        "line",
+        "plan",
+        "replanned",
+        "replanBecause",
+        "notes"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

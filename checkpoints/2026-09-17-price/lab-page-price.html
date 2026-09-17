@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prisoner Prompt Lab — the price of a known approach</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdad4; --good:#1f7a4d; --bad:#b3362b; --accent:#2f5bd3; --warn:#8a5a00; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 -apple-system, system-ui, sans-serif; }
+  main { max-width: 1400px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:16px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  h1 { font-size:18px; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 12px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  label { color:var(--muted); font-size:12px; }
+  input, select { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  textarea { width:100%; font:12.5px/1.45 ui-monospace, Menlo, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; }
+  #block { height:22vh; } #prompt { height:38vh; }
+  button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  .tally { font-size:15px; font-weight:600; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:10px; background:#fff; }
+  .card.good { border-left:5px solid var(--good); } .card.bad { border-left:5px solid var(--bad); }
+  .intent { font-size:15px; font-weight:600; margin:2px 0 6px; }
+  .label { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-top:6px; }
+  .meta { color:var(--muted); font-size:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  details { margin-top:6px; } summary { cursor:pointer; color:var(--muted); font-size:12px; }
+  pre { white-space:pre-wrap; font:12px/1.4 ui-monospace, Menlo, monospace; background:#faf9f6; padding:8px; border-radius:6px; margin:6px 0 0; }
+  .mark button { padding:2px 8px; font-size:12px; }
+  .err { color:var(--bad); }
+  .edited { color:var(--warn); font-weight:600; }
+  .note { background:#fffbf0; border:1px solid #f0e2c0; border-radius:8px; padding:9px 11px; font-size:12.5px; margin-bottom:12px; }
+  .cands { margin:4px 0 0; padding-left:18px; } .cands li { margin:2px 0; }
+</style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>The price of a known approach</h1>
+    <p class="sub">Her real round-1 request, captured from the prompt builder. One user message, the game's forced JSON, a fresh chat each ask. The question: what wording makes her reach for something other than the bar?</p>
+
+    <div class="note" id="doris-note">
+      <b>One model at a time.</b> This posts to doris, which fits one model — if a batch is running there, wait for it or you will collide with it (and a batch stops when it finds a model it did not load).
+    </div>
+
+    <div class="row">
+      <label>Start from</label>
+      <select id="preset">
+        <option value="stale">stale — every line priced by its own staleness (bar = 100)</option>
+        <option value="flat">flat — every known approach costs 30</option>
+      </select>
+      <button id="load">Load (replaces your edits)</button>
+      <span id="dirty" class="meta"></span>
+    </div>
+    <div class="row">
+      <label>Model</label><input id="model" value="qwen3:14b" size="14">
+      <label>Temperature</label><input id="temp" type="number" step="0.1" min="0" max="2" value="0.9" style="width:64px">
+      <label><input id="schema" type="checkbox" checked> force the game's JSON answer</label>
+    </div>
+
+    <div class="label">The precedent block — the part worth tuning</div>
+    <textarea id="block" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:6px">
+      <button id="restore">Restore the game's own wording</button>
+      <span class="meta">Substituted into <code>{{PRECEDENT}}</code> below.</span>
+    </div>
+
+    <details>
+      <summary>The rest of the prompt (identity, motive, briefing, condition list, the answer it must give)</summary>
+      <textarea id="prompt" spellcheck="false" style="margin-top:8px"></textarea>
+    </details>
+
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="once">Ask once</button>
+      <button id="ten">Ask 10 times</button>
+      <button id="stop" disabled>Stop after this one</button>
+      <span id="status" class="meta"></span>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="row" style="margin:0; justify-content:space-between">
+        <span class="tally" id="tally">No answers yet</span>
+        <button id="clear">Clear answers</button>
+      </div>
+      <div class="meta">Each answer is guessed <b>bar</b> (she went at the bar or the window) or <b>elsewhere</b>, from her intent's words. It is only a guess — click to correct it, and the tally follows your marks.</div>
+    </div>
+    <div id="results"></div>
+  </section>
+</main>
+<script>
+const ENDPOINT = "http://doris:11434/v1/chat/completions";
+const $ = (id) => document.getElementById(id);
+let responseFormat = null, stopRequested = false, pristine = {};
+
+// Her own words for going at the bar. A guess, shown as one, and always overridable: the real
+// classifier in the batch is the referee's ruling, which this page cannot run.
+const BAR_WORDS = /\b(bar|window|rust|mortar)\b/i;
+
+async function loadPreset() {
+  const arm = $("preset").value;
+  const [prompt, block] = await Promise.all([
+    fetch(`prisoner-prompt-r1-${arm}.txt`).then((r) => r.text()),
+    fetch(`precedent-block-${arm}.txt`).then((r) => r.text()),
+  ]);
+  $("prompt").value = prompt;
+  $("block").value = block.replace(/\n$/, "");
+  pristine[arm] = $("block").value;
+  markDirty();
+}
+function markDirty() {
+  const arm = $("preset").value;
+  const changed = pristine[arm] !== undefined && $("block").value !== pristine[arm];
+  $("dirty").innerHTML = changed ? '<span class="edited">precedent block edited</span>' : "precedent block as the game sends it";
+}
+$("block").addEventListener("input", markDirty);
+$("restore").onclick = () => { const arm = $("preset").value; if (pristine[arm] !== undefined) { $("block").value = pristine[arm]; markDirty(); } };
+$("load").onclick = loadPreset;
+$("preset").onchange = loadPreset;
+fetch("response_format-price.json").then((r) => r.json()).then((j) => { responseFormat = j; });
+loadPreset();
+
+function assembled() {
+  if (!$("prompt").value.includes("{{PRECEDENT}}")) return $("prompt").value;
+  return $("prompt").value.replace("{{PRECEDENT}}", $("block").value);
+}
+
+function tally() {
+  const cards = [...document.querySelectorAll(".card")];
+  const bar = cards.filter((c) => c.dataset.verdict === "bar").length;
+  const away = cards.filter((c) => c.dataset.verdict === "elsewhere").length;
+  $("tally").textContent = cards.length === 0 ? "No answers yet" : `${away} of ${cards.length} went elsewhere — ${bar} at the bar`;
+}
+
+function card(data) {
+  const el = document.createElement("div");
+  const intent = data.intent ?? "(no intent)";
+  const verdict = BAR_WORDS.test(intent) ? "bar" : "elsewhere";
+  el.className = "card " + (verdict === "elsewhere" ? "good" : "bad");
+  el.dataset.verdict = verdict;
+  el.innerHTML = `
+    <div class="intent"></div>
+    <div class="meta mark">
+      <span class="guess"></span>
+      <button data-set="elsewhere">elsewhere ✓</button>
+      <button data-set="bar">at the bar ✗</button>
+      <span class="when"></span>
+    </div>
+    <div class="label">Thoughts</div><div class="thoughts"></div>
+    <div class="label">Candidates it listed</div><ul class="cands"></ul>
+    <details><summary>plan, notes, raw answer, and the exact prompt sent</summary><pre class="raw"></pre></details>`;
+  el.querySelector(".intent").textContent = intent;
+  el.querySelector(".guess").textContent = verdict === "elsewhere" ? "guessed: elsewhere" : "guessed: at the bar";
+  el.querySelector(".when").textContent = `${data.ms} ms`;
+  el.querySelector(".thoughts").textContent = data.thoughts ?? "(none)";
+  for (const c of data.candidates ?? []) {
+    const li = document.createElement("li");
+    li.textContent = c.reason ? `${c.text} — ${c.reason}` : c.text;
+    el.querySelector(".cands").appendChild(li);
+  }
+  el.querySelector(".raw").textContent = `plan: ${data.plan ?? "(none)"}\nnotes: ${data.notes ?? "(none)"}\n\n--- raw ---\n${data.raw}\n\n--- prompt sent ---\n${data.prompt}`;
+  for (const b of el.querySelectorAll("[data-set]")) {
+    b.onclick = () => {
+      el.dataset.verdict = b.dataset.set;
+      el.className = "card " + (b.dataset.set === "elsewhere" ? "good" : "bad");
+      el.querySelector(".guess").textContent = `you marked: ${b.dataset.set === "elsewhere" ? "elsewhere" : "at the bar"}`;
+      tally();
+    };
+  }
+  $("results").prepend(el);
+  tally();
+}
+
+async function ask() {
+  const prompt = assembled();
+  const body = {
+    model: $("model").value.trim(),
+    messages: [{ role: "user", content: prompt }],
+    temperature: Number($("temp").value),
+    stream: false,
+  };
+  if ($("schema").checked && responseFormat) body.response_format = responseFormat;
+  const started = Date.now();
+  const res = await fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${(await res.text()).slice(0, 300)}`);
+  const json = await res.json();
+  const raw = json.choices?.[0]?.message?.content ?? "";
+  let parsed = {};
+  try { parsed = JSON.parse(raw); } catch { /* shown raw below */ }
+  card({ ...parsed, raw, prompt, ms: Date.now() - started });
+}
+
+async function run(times) {
+  stopRequested = false;
+  $("once").disabled = $("ten").disabled = true;
+  $("stop").disabled = false;
+  for (let i = 0; i < times; i++) {
+    $("status").textContent = `asking ${i + 1} of ${times}…`;
+    try { await ask(); } catch (err) { $("status").innerHTML = `<span class="err">${String(err)}</span>`; break; }
+    if (stopRequested) { $("status").textContent = `stopped after ${i + 1}`; break; }
+    $("status").textContent = "";
+  }
+  $("once").disabled = $("ten").disabled = false;
+  $("stop").disabled = true;
+}
+$("once").onclick = () => run(1);
+$("ten").onclick = () => run(10);
+$("stop").onclick = () => { stopRequested = true; $("stop").disabled = true; };
+$("clear").onclick = () => { $("results").innerHTML = ""; tally(); };
+</script>
+</body>
+</html>
