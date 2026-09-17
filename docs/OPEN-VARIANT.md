@@ -2429,3 +2429,70 @@ is ruled `open`, and in a game it would refuse the prisoner's actual exit.
 `referee-intents.txt`) sends the referee's exact request, verified byte-identical for a real intent, over
 an editable intent list, and marks rulings that changed from a kept comparison run. Its template
 `referee-prompt-today.txt` is captured from the code and must be regenerated if `referee.ts`'s questions change.
+
+## 34. The condition list as a generic mechanism (2026-09-17, overnight)
+
+§33.15's structure, built so any caller can generate it from thresholds it already holds.
+
+- **`src/open/conditionList.ts`** (no game words, by test; planted violation seen red): `Condition =
+  { when: string[]; then: string; for: string }` and `renderConditionList(conditions, { reader })`.
+  It renders §33.15's fixed opening line, then `START LIST OF CONDITIONS` … `END LIST OF CONDITIONS`,
+  one numbered line per condition. **Flatness is structural**: clauses are joined only by "and", and
+  there is no "or" or nesting, so a disjunction has to be split by the caller, as the lab did by hand.
+- **Whose condition (§33.15 item 1):** each line says `(for you)` or `(for <name>)` from the reader's
+  side, so the same list read by the other principal flips.
+- **`src/open/conditions.ts`**, the game side, built from the constants the rule sentences, the
+  way-out gate and the catch check already read: (1) bar at or below 50 → the window can be opened;
+  (2) a way out stands open → she can leave through it and has escaped (added after §35's game 3, before
+  any game used the list); (3-6) the four catch alternatives, one flat condition each.
+- **Switch:** `PRISONER_CONDITIONS=list` gives the list to the **prisoner's** mind only, at the top of
+  its wits prompt, and drops the two threshold sentences from its rules. The warden is unchanged, so an
+  A/B changes one thing. Unset, every prompt path is byte-identical to before (dumped and compared).
+- **§33.15 item 3 (guard attention in the carried notes)** only ever existed in the lab prompt; the game
+  has not rendered guard attention since `8d139f5`. The probe below removes it from the recorded notes.
+
+## 35. Batch F: §5.3 on the qwen3:14b referee, and a passive game (2026-09-17, overnight)
+
+Four contested games and one passive game on one configuration: `qwen3:14b` wits and referee (the new
+default, §33.16), `ancient-awakening:12b` voice, 30 rounds, model warden, precedent OFF, pick OFF,
+conditions OFF, 180 s timeouts (batch E's configuration apart from the referee). Driver
+`checkpoints/2026-09-17-overnight/run-batch.sh`. Transcripts `checkpoints/2026-09-17T01-21-32-000Z.md`,
+`…01-29-12-541Z.md`, `…01-35-04-448Z.md`, `…01-55-22-261Z.md`; passive `…02-01-39-720Z.md`.
+
+| | F1 | F2 | F3 | F4 | Passive |
+|---|---|---|---|---|---|
+| Result | caught r7 | caught r6 | caught r18 | caught r6 | **escaped r6** |
+| Intents / silences | 13 / 0 | 11 / 0 | 35 / 0 | 11 / 0 | 6 prisoner (6 passive silences) |
+| Ruled impossible | 0 | 0 | 7 | 0 | 0 |
+| Novel pairs | 1 | 2 | 5 | 1 | 2 |
+| Applied effects cited | 13/13 | 11/11 | 26/26 | 11/11 | 6/6 |
+| Fog audit | 0 / 13 | 0 / 11 | 0 / 35 | 0 / 11 | 0 / 12 |
+| Turns with bar ≤ 50, nothing open yet | 1 | 1 | 3 | 1 | 1 |
+| …of which she tried to open | 0 | 0 | 1 (r15) | 0 | 1 (r5) |
+
+### 35.1 Against §5.3
+
+| | Criterion | Result |
+|---|---|---|
+| 1 | Zero §2 violations | **Met.** 82 contexts audited across the five games, 0 leaks; every applied effect carries its citations; no silence became a success (the passive game's six silences are the passive warden by design). |
+| 2 | A closed-inexpressible attempt ruled possible in ≥ 2 games; one impossible with its positive reason | **Met.** Novel possible attempts in all four contested games (the grit derive in F1 and F3; the warden's reveal of the tile's hollow in F2 and F4; F3's pry that opened the window). F3 has seven impossible rulings, each telling her the object as it is ("…met the bar as it is: The iron bar that…"). |
+| 3 | Replay agreement ≥ 80% | **Met.** 99.5%, 99.4%, 97.6%, 98.2%, N=5, on `qwen3:14b` (`checkpoints/2026-09-17-overnight/<stamp>-replay-N5.txt`). Slightly below batch A's 99.4-99.7% on `qwen2.5:14b`, as §33.16 predicted (qwen3 disagrees with itself more often at temperature 0); §10.5's caveats unchanged. |
+| 4 | Both endings reachable | **Met in this batch.** Four catches, and the passive game escaped at round 6 (lever the bar out at 40, then "Climb through the open window" → `leave`). §30.1's climb-phrasing miss did not occur. |
+
+**§5.3 holds for batch F**, on the new default referee.
+
+### 35.2 What the games show
+
+- **Batch E's failure reproduces on the new referee.** In F1, F2 and F4 she reached the window's line
+  once and scraped past it into the catch (F1 r6: "Attempt to pry the bar out with the spoon" was her own
+  fifth candidate, and she scraped). The referee change did not move the mind.
+- **F3 opened the window and did not leave.** Round 15 "Use the spoon to pry the bar from the mortar" →
+  `window_passage: 0 -> 1`, and she was told *"the window can be climbed through now."* Rounds 16-17 she
+  pried the bar further (a no-op, then a wear 32 → 17), and at round 18 the warden's look found the bar at
+  17. It is the same shape as the bar one step later: an action unlocked and she keeps preparing. This is
+  why §34's list states leaving as a condition.
+- **The warden never looked at the window's passage.** The §33.8 catch on a way out found open needs a
+  look at the window, and every warden look was at the bar. The catch that ended F3 was the bar's.
+- **A referee inconsistency, again counted as novelty:** F3 ruled "transfer grit from the loose tile to
+  the bar's mortar cracks" `derive grit.concealment` (possible) at rounds 6-7, and the same act impossible
+  at rounds 9, 10, 11 and 13. Identical-request replay cannot see this (§31.1).

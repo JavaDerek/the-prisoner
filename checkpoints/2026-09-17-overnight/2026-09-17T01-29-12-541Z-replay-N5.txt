@@ -1,0 +1,80 @@
+## round 1, warden: Closely examine the bar for signs of wear or tampering
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 1, prisoner: Use the spoon to scrape the rusted bar near its base
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 2, warden: Examine the loose tile for hidden objects or grit patterns
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 2, prisoner: Scrape the bar with the spoon, using grit from the loose tile to increase abrasion
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 3, warden: Closely examine the bar for signs of damage or wear
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 3, prisoner: Apply grit from the loose tile to the spoon's worn edge, then gently scrape the bar's rusted areas
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 80% of 5 replays.
+## round 4, warden: Inspect the bar for rust progression or tool marks
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 100% of 5 replays.
+## round 4, prisoner: Scrape the bar's rusted areas with the spoon and loose tile grit
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 5, warden: Re-examine the loose tile for concealed items
+  - target: "loose_tile" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "concealment" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "visible" agreed 80% of 5 replays.
+## round 5, prisoner: Use the worn flat side of the spoon to scrape rusted sections of the bar
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "wear" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "audible" agreed 100% of 5 replays.
+## round 6, warden: Examine the bar's integrity again to detect signs of tampering or wear
+  - target: "bar" agreed 100% of 5 replays.
+  - effect: "reveal" agreed 100% of 5 replays.
+  - product: "none" agreed 100% of 5 replays.
+  - property: "integrity" agreed 100% of 5 replays.
+  - magnitude: "moderate" agreed 100% of 5 replays.
+  - perceptibility: "silent" agreed 100% of 5 replays.
+
+Overall mean agreement across every question, every intent: 99.4%.
+§5.3's target: at least 80%.

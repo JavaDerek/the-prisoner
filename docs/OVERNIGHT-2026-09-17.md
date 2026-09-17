@@ -7,7 +7,7 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 
 | Item | State |
 |---|---|
-| 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | running (batch F) |
+| 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | **DONE.** §5.3 holds on batch F (4 games): 0 fog leaks in 82 contexts, all effects cited, novelty in all 4, 7 impossible rulings with reasons, replay 99.5/99.4/97.6/98.2%. Passive game escaped r6. OPEN-VARIANT §35. |
 | 2. Condition list as a generic mechanism, A/B in real games | code built behind a switch (`1c1bb58`); pre-game controls next |
 | 3. mother-of-invention produces a measured change | idea 1 (regenerate when nothing unseen) built on branch `overnight-dev` (`4d46490`); games pending |
 | 4. Libraries released and consumed | nothing needed yet |
@@ -33,6 +33,11 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 - `analyze.mts` reads transcripts for the §34 measure (prisoner turns with the bar at or below 50 by her
   own belief and nothing open yet, classified by the referee's effect key). On batch E it reproduces
   §33.9's hand count exactly: 1, 1, 2 such turns, 0 attempts.
+
+- 21:06-22:07. Batch F done (§35): caught r7, r6, r18, r6; passive escaped r6. Replays N=5 done.
+  F3 is the interesting one: she **opened the window** at r15 and then pried the bar for two turns instead
+  of leaving, and was caught at r18. Added "an open way out unlocks leaving" to the condition list
+  (`467f101`) before any game used it. Merged `overnight-dev` into main (all off by default, 644 tests).
 
 ## Decisions for Derek
 
