@@ -1,0 +1,322 @@
+[
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 1,
+    "intent": "Abrade the bar with the spoon to further reduce its integrity.",
+    "plan": "1. Continue abrading the bar until its integrity drops below 50. 2. If suspicion rises significantly, use the loose tile's grit to abrade quietly. 3. Once the window is openable, attempt escape.",
+    "thoughts": "The bar's integrity is currently 55, needing to drop below 50 to open the window. Continuing to abrade it is the priority. Must avoid raising suspicion too high to prevent Warden Croft from examining it and triggering condition 3."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 2,
+    "intent": "Abrade the bar with the spoon",
+    "plan": "1. Continue abrading the bar to lower integrity below 50. 2. If grit runs low, collect debris with the bucket. 3. Attempt to open the window once bar integrity is <50.",
+    "thoughts": "The bar's integrity is at 55, needing 6 more points of damage to trigger Condition 1. Continuing to abrade it is the most direct path, but I must avoid suspicion spikes. Collecting grit from the loose tile could supplement my efforts without raising suspicion as much."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 3,
+    "intent": "Use the spoon to further abrade the bar",
+    "plan": "1. Continue abrading the bar to reduce its integrity below 50. 2. If grit runs low, collect debris with the bucket. 3. If bar integrity drops below 50 by Round 10, attempt to remove it quietly.",
+    "thoughts": "Continuing to abrade the bar to reduce its integrity below 50 is critical. Using the spoon for this task avoids excessive suspicion. Collecting grit from the loose tile may be necessary if abrading becomes less effective."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 4,
+    "intent": "Continue abrading the bar",
+    "plan": "1. Continue abrading the bar until its integrity is below 50. 2. If suspicion rises too high, consider using the loose tile's grit to abrade more discreetly. 3. Once the window is openable, attempt to escape through it.",
+    "thoughts": "The bar's integrity is 55, needing to drop below 50 to open the window. Continuing to abrade the bar is the immediate priority. Avoiding suspicion spikes is crucial, but the risk of raising suspicion is necessary to progress. Using the loose tile's grit might help, but the plan remains focused on direct abrading."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 5,
+    "intent": "Abrade the bar with the spoon to reduce its integrity below 50",
+    "plan": "1. Continue abrading the bar with the spoon to lower its integrity below 50. 2. If grit runs low, collect debris from the loose tile with the bucket. 3. Once the bar is compromised, attempt to open the window quietly.",
+    "thoughts": "The bar's integrity is at 55, just above the 50 threshold needed to open the window. My immediate goal is to reduce it further. Using the spoon to abrade the bar is the most direct method. I must avoid raising suspicion excessively, so I'll focus on a moderate action. Collecting grit from the loose tile with the bucket is also a possibility if needed, but the priority is lowering the bar's integrity."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 6,
+    "intent": "Continue abrading the bar with the spoon to reduce its integrity further",
+    "plan": "1. Continue abrading the bar to lower its integrity below 50. 2. If grit runs low, collect debris from the loose tile using the bucket. 3. Attempt to open the window once bar integrity is below 50.",
+    "thoughts": "The bar's integrity is at 55, needing to drop below 50 to open the window. Continuing to abrade it is the next logical step, but I must avoid raising suspicion too high. Collecting grit from the loose tile may help sustain the abrading process without causing a major suspicion spike."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 7,
+    "intent": "Use the spoon to abrade the bar further",
+    "plan": "1. Continue abrading the bar to reduce its integrity below 50. 2. If suspicion rises, use collected grit to minimize further spikes. 3. Open the window once the bar's integrity is sufficiently low.",
+    "thoughts": "The bar's integrity is at 55, just above the 50 threshold needed to open the window. I need to reduce it further without triggering Warden Croft's suspicion. Using the spoon to abrade the bar is the most direct method, but I must avoid excessive suspicion spikes. Collecting grit from the loose tile might allow more efficient abrading with less suspicion."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 8,
+    "intent": "Abrade the bar with the spoon to lower its integrity further",
+    "plan": "1. Continue abrading the bar to reduce its integrity below 50. 2. If grit runs low, collect debris with the bucket. 3. Attempt to open the window once integrity drops below 50.",
+    "thoughts": "The bar's integrity is at 55, just above the 50 threshold needed to open the window. Continuing to abrade it is critical, but I must avoid raising suspicion too high. Collecting grit from the loose tile with the bucket could help sustain abrading efforts without a major suspicion spike."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 9,
+    "intent": "Continue abrading the bar to further reduce its integrity.",
+    "plan": "1. Continue abrading the bar to reduce its integrity below 50. 2. If grit runs low, collect debris with the bucket. 3. If bar integrity drops below 50 by Round 10, attempt to remove it quietly.",
+    "thoughts": "I need to continue abrading the bar to lower its integrity below 50, which will allow me to open the window. I must be cautious about raising suspicion too much, as Warden Croft's examination could trigger his suspicion and lead to capture."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 10,
+    "intent": "Continue abrading the bar",
+    "plan": "1. Continue abrading the bar to lower its integrity below 50. 2. Once the window is openable, attempt to remove it quietly and escape.",
+    "thoughts": "The bar's integrity is at 55, needing to drop below 50 to open the window. Continuing to abrade the bar is the immediate step, but must avoid raising suspicion enough for Warden Croft to examine it. Collecting debris from the loose tile might aid in abrading, but the priority is reducing the bar's integrity."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 1,
+    "intent": "Attempt to push the weakened bar out of the window to open it",
+    "plan": "1. Open the window by removing the weakened bar. 2. Escape through the window quietly to trigger Condition 2. 3. If caught, assess new conditions or find alternate methods.",
+    "thoughts": "The bar's integrity is at 40, meeting Condition 1, so the window can now be opened. My next step is to attempt escaping through the window quietly to trigger Condition 2. However, I must ensure Warden Croft isn't examining the window or bar at this moment, as Conditions 3, 6, or others might interfere. Prioritize stealth to avoid raising suspicion further."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 2,
+    "intent": "Attempt to push the bar out of the window",
+    "plan": "1. Open the window by removing the bar. 2. Climb through the window to escape.",
+    "thoughts": "The bar's integrity is now 40, which is below 50, so the window can be opened. The next step is to try escaping through the window by removing the bar. However, I need to consider how to do this without triggering Warden Croft's suspicion too high. Using the spoon to pry the bar might be a way, but it could raise suspicion. Alternatively, maybe I can push the bar out directly."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 3,
+    "intent": "Attempt to climb through the open window",
+    "plan": "1. Escape through the window immediately. 2. If caught, reassess based on Warden Croft's actions.",
+    "thoughts": "The bar's integrity is at 40, meeting Condition 1, so the window can be opened. My next step is to escape through the window before Warden Croft examines it and triggers Condition 6."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 4,
+    "intent": "Attempt to remove the bar from the window using the spoon to pry it out.",
+    "plan": "1. Remove the bar from the window to open it. 2. Escape through the window quietly before Warden Croft notices.",
+    "thoughts": "The bar's integrity is at 40, meeting Condition 1, so the window can be opened. My immediate goal is to remove the bar stealthily to escape through the window before Warden Croft examines it, which could trigger Condition 6. I need to act quickly but quietly to avoid raising suspicion further."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 5,
+    "intent": "Attempt to open the window by removing the bar",
+    "plan": "1. Open the window using the weakened bar. 2. Escape through the window quietly if possible.",
+    "thoughts": "The bar's integrity is 40, which meets Condition 1, allowing the window to be opened. Since Warden Croft's suspicion is likely still below 40 (based on previous moderate actions), opening the window now seems feasible without triggering Conditions 3, 4, 5, or 6. However, I must proceed carefully to avoid raising suspicion further."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 6,
+    "intent": "Attempt to open the window by removing the bar",
+    "plan": "1. Open the window to escape. 2. If caught, assess next steps.",
+    "thoughts": "The bar's integrity is now 40, meeting the condition to open the window. Since the window can be opened immediately, I should attempt to do so now to escape before Warden Croft examines it."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 7,
+    "intent": "Attempt to open the window by removing the bar",
+    "plan": "1. Open the window using the weakened bar. 2. Escape through the window quietly. 3. If detected, use the loose tile's grit to further degrade the bar and reattempt escape.",
+    "thoughts": "The bar's integrity is now 40, which meets Condition 1 (<=50), so the window can be opened immediately. My next step is to attempt escaping through the window. I must act quickly before Warden Croft's suspicion rises enough to trigger Conditions 3-6 if he examines the window or other items."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 8,
+    "intent": "Attempt to climb through the window quietly",
+    "plan": "Proceed with escaping through the window now that it is accessible.",
+    "thoughts": "The bar's integrity is now 40, which meets Condition 1 (≤50), unlocking the window. My plan was to escape through the window once the bar's integrity dropped below 50. Since this is now possible, I should attempt to escape through the window stealthily to avoid triggering Warden Croft's suspicion further."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 9,
+    "intent": "Attempt to open the window quietly",
+    "plan": "1. Open the window stealthily to escape. 2. If caught, use the spoon to damage the lock and divert attention.",
+    "thoughts": "The bar's integrity is now 40, meeting Condition 1, which allows the window to be opened. My immediate goal is to escape through the window. However, I must avoid triggering Warden Croft's conditions (particularly Condition 6, which could end the game if he finds the window open). I need to act quickly and stealthily before he examines the window."
+  },
+  {
+    "arm": "list",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 10,
+    "intent": "Attempt to climb through the window",
+    "plan": "1. Escape through the window quietly. 2. If caught, assess the situation and adjust strategy.",
+    "thoughts": "The bar's integrity is now 40, which meets Condition 1 (≤50), allowing the window to be opened. My next step is to attempt escaping through the window immediately. I need to ensure that Warden Croft hasn't triggered any of his conditions (e.g., examining the window or bar again). Since his last action was examining the bar, and the window is now open, I should proceed with escaping quietly to avoid further suspicion."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 1,
+    "intent": "Damage the bar with the spoon again",
+    "plan": "Continue damaging the bar to lower its integrity below 30, ensuring the window can be opened before the warden examines it. If the warden checks the bar, use the loose tile or bucket as a distraction.",
+    "thoughts": "The bar's integrity is now at 47, which meets Condition 1, allowing the window to be opened. However, the window's description still indicates the bar is present. I need to either further damage the bar to trigger an escape or risk opening the window immediately. Continuing to damage the bar with the spoon is the safest path to lower its integrity further, increasing my chances of escaping before the warden examines it."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 2,
+    "intent": "Use the spoon to strike the bar again, aiming to reduce its integrity further.",
+    "plan": "Continue damaging the bar with the spoon until its integrity drops below 30, then attempt to escape through the window once it's openable.",
+    "thoughts": "The bar's integrity is at 47, which meets Condition 1 (≤50) to open the window. However, breaking the bar fully is needed to escape. Further damage with the spoon will lower the bar's integrity, but I must avoid triggering Warden Croft's suspicion checks (Conditions 3–6)."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 3,
+    "intent": "Use the spoon to pry the bar from the window, attempting to open it",
+    "plan": "Attempt to remove the bar via the window. If unsuccessful, continue damaging it with the spoon.",
+    "thoughts": "The bar's integrity is now 47, which meets Condition 1 (≤50), allowing the window to be opened. My next step should be to attempt to open the window by removing the weakened bar using the spoon."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 4,
+    "intent": "Attempt to open the window by removing the bar with the spoon",
+    "plan": "Open the window now using the spoon, as the bar's integrity is below 50. If successful, escape through the window; if not, conceal the spoon and reassess.",
+    "thoughts": "The bar's integrity is at 47, which meets Condition 1, unlocking the window as openable. My immediate goal is to escape through the window, but I need to ensure I can do so before Warden Croft notices. Opening the window now is viable, but I must avoid triggering Croft's suspicion too high, which could lead to his examination and capture via Condition 6."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 5,
+    "intent": "Attempt to push the bar out of the window",
+    "plan": "Open the window by removing the bar, then escape through it. If blocked, use the spoon to damage it further.",
+    "thoughts": "The bar's integrity is 47, meeting the threshold for opening the window. The next step is to attempt to open the window by removing the bar, as the condition has been fulfilled. However, I need to ensure that the bar can be physically removed, which might require further damage or direct action."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 6,
+    "intent": "Attempt to open the window by removing the damaged bar",
+    "plan": "First, try to open the window immediately as Condition 1 is met. If that fails, use the spoon to further damage the bar and attempt again.",
+    "thoughts": "The bar's integrity is at 47, which meets Condition 1, unlocking the ability to open the window immediately. I should prioritize opening the window now, as it provides an escape route. If that fails, I can further damage the bar with the spoon or use the bucket as a distraction."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 7,
+    "intent": "Use the spoon to strike the bar again, attempting to lower its integrity further.",
+    "plan": "Continue damaging the bar with the spoon until it breaks, allowing me to open the window and escape. If progress stalls, use the bucket to draw attention when suspicion drops.",
+    "thoughts": "The bar's integrity is at 47, which is below 50, so the window can be opened. My next step should be to damage the bar further to make it break, allowing me to escape through the window. Using the spoon again seems logical as it was effective before, but I need to avoid raising suspicion too much. Alternatively, using the bucket might be faster but riskier. I'll prioritize using the spoon to maintain control over the damage rate and suspicion increase."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 8,
+    "intent": "Use the spoon to strike the bar again",
+    "plan": "Continue damaging the bar with the spoon until its integrity drops below 50, then attempt to escape through the window.",
+    "thoughts": "The bar's integrity is at 47, just above 50. Damaging it further will trigger Condition 1, allowing the window to open. Care must be taken to avoid dropping it below 30, which would trigger Condition 3 if Croft examines it. Continuing to damage the bar with the spoon is the priority."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 9,
+    "intent": "Use the spoon to push the bar out of the window",
+    "plan": "Remove the bar to open the window and escape immediately. If suspicion rises, use the bucket to create a distraction and attempt escape again.",
+    "thoughts": "The bar's integrity is already at 47, which meets Condition 1, allowing the window to be opened. The next step is to remove the bar to escape. However, removing it may raise suspicion. Alternatively, using the bucket to create a distraction might help avoid detection."
+  },
+  {
+    "arm": "list",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 10,
+    "intent": "Damage the bar further with the spoon",
+    "plan": "Continue damaging the bar with the spoon to reduce its integrity, aiming to remove it and open the window. If suspicion rises too high, use the bucket to create a distraction.",
+    "thoughts": "The bar's integrity is now 47, meeting Condition 1 to open the window. However, the bar is still in place; I need to remove it. Continuing to damage the bar with the spoon will lower its integrity further, making it easier to remove. I must balance this against raising suspicion."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 1,
+    "intent": "Climb through the open window",
+    "plan": "Escape through the window immediately; if interrupted, shift to studying the lock's bolt.",
+    "thoughts": "The window is already open with the bar removed, so the immediate next step is to escape through it. I need to ensure that Warden Croft's suspicion hasn't risen high enough for him to catch me before I leave. Since my last suspicion was around 12, and no recent actions have increased it, proceeding with escape seems viable."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 2,
+    "intent": "Climb through the open window to escape",
+    "plan": "Escape through the open window immediately before suspicion increases further.",
+    "thoughts": "The window is already open (bar integrity is 32, which is ≤50), so escaping through it should be possible. However, I must avoid triggering Warden Croft's examination of the window (which would trigger condition 6 if suspicion reaches 40). Since current suspicion is 12, I can proceed cautiously."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 3,
+    "intent": "Climb through the open window to escape",
+    "plan": "Attempt to escape through the window immediately, as it is open and no further conditions are needed for it to be usable.",
+    "thoughts": "The window is open (passage 1), so Condition 2 allows immediate escape. However, if Warden Croft examines the window (Condition 6) and finds it open, he will catch me. To minimize risk, I should attempt escape now before suspicion rises further."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 4,
+    "intent": "Climb through the open window to escape",
+    "plan": "Attempt to escape through the window immediately, as the opportunity is time-sensitive. If caught, pivot to studying the lock's bolt for weaknesses if suspicion remains low.",
+    "thoughts": "The window is open, so I can attempt to escape through it. However, I need to ensure Warden Croft doesn't examine the window and find it open (Condition 6). Since suspicion is low (around 12), I have a chance to escape before he acts. If I climb through, it might raise suspicion, but not enough to trigger his examination unless he checks. Alternatively, studying the lock's bolt could be a safer alternative if suspicion rises too high later."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 5,
+    "intent": "Climb through the open window to escape",
+    "plan": "Escape through the window now while warden suspicion remains low. If interrupted, shift to studying the lock's bolt.",
+    "thoughts": "The window is open, so escaping through it is the immediate goal. Need to avoid triggering Warden Croft's conditions that would end the game before escape."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 6,
+    "intent": "Climb through the open window to escape",
+    "plan": "Escape through the open window; if caught, assess lock weaknesses next.",
+    "thoughts": "The window is open, so the immediate goal is to escape through it. However, I must ensure that Warden Croft's suspicion does not trigger any of his examination conditions. Since suspicion is currently low, proceeding with the escape seems safe."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 7,
+    "intent": "Attempt to climb through the open window",
+    "plan": "Escape through the open window immediately to avoid further risk of suspicion triggering Warden Croft's conditions.",
+    "thoughts": "The window is now open, so the immediate goal is to escape through it. Since Warden Croft's suspicion is low (around 12), he likely isn't examining the window or other items that would trigger his conditions. I should proceed with escaping through the window to avoid raising suspicion further."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 8,
+    "intent": "Climb through the open window",
+    "plan": "Escape through the window immediately before suspicion rises further.",
+    "thoughts": "The window is already open (bar integrity at 32, below 50), so Condition 1 allows immediate escape. Warden Croft's suspicion is low (around 12), so Conditions 3-6 won't trigger unless he examines the window. Climbing through now would activate Condition 2 and secure escape."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 9,
+    "intent": "Attempt to climb through the open window",
+    "plan": "Escape through the window immediately; if caught, shift to lock analysis.",
+    "thoughts": "The window is now open (bar integrity 32 ≤ 50), so escaping through it is viable. However, I must avoid triggering Warden Croft's suspicion checks (Conditions 3-6). Since suspicion is currently low (around 12), immediate escape is the priority."
+  },
+  {
+    "arm": "list",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 10,
+    "intent": "Attempt to climb through the open window to escape",
+    "plan": "Proceed with escaping through the open window. If Warden Croft's suspicion rises or he examines the window, shift to studying the lock's bolt for weaknesses.",
+    "thoughts": "The window is now open (bar integrity is 32, below 50), so escaping through it is an immediate option. However, I must consider Warden Croft's suspicion level and the possibility of him examining the window. If I proceed, I should avoid actions that might raise suspicion further."
+  }
+]

@@ -16,7 +16,7 @@ export function openConditions(): Condition[] {
   const examines = (what: string) => `${WARDEN_NAME} closely examines ${what}`;
   const finds = (what: string) => `${WARDEN_NAME} finds ${what}`;
   return [
-    { when: [`the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}`], then: "the window can be opened", for: PRISONER_NAME },
+    { when: [`the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}`], then: `${PRISONER_NAME} can open the window`, for: PRISONER_NAME },
     { when: ["a way out stands open"], then: `${PRISONER_NAME} can leave the cell through it, and she has escaped`, for: PRISONER_NAME },
     { when: [grounds, examines("the bar"), finds(`its integrity at or below ${OPEN_CATCH_BAR_MAX}`)], then: catches, for: WARDEN_NAME },
     { when: [grounds, examines("the lock"), finds(`its integrity at or below ${SEARCH_CATCH_LOCK_MAX}`)], then: catches, for: WARDEN_NAME },

@@ -2496,3 +2496,33 @@ conditions OFF, 180 s timeouts (batch E's configuration apart from the referee).
 - **A referee inconsistency, again counted as novelty:** F3 ruled "transfer grit from the loose tile to
   the bar's mortar cracks" `derive grit.concealment` (possible) at rounds 6-7, and the same act impossible
   at rounds 9, 10, 11 and 13. Identical-request replay cannot see this (§31.1).
+
+### 34.1 Before any game: the probe (2026-09-17)
+
+Her recorded decision re-asked under today's code, `qwen3:14b` at the game's settings, 10 samples a turn,
+baseline prompt vs the list. Briefings are as recorded, with the guard attention belief line and the
+guard attention clause of her notes removed (the game produces neither since `8d139f5`). Perceived
+objects are read from the recorded briefing. Intents read by hand. Script and data:
+`checkpoints/2026-09-17-overnight/probe-conditions.mts`, `probe-conditions-{baseline,list,list-v2}-N10.json`.
+
+| Turn | What is right | Baseline | List (v1) | List v2 |
+|---|---|---|---|---|
+| E1 r5, bar 55 (control) | keep working, no removal yet | 10/10 keep working | 10/10 keep working | (not rerun) |
+| E1 r6, bar 40 | try to get the bar out / open | 8/10 | 7/10, **+3 climb through a window not yet open** | **10/10**, 0 premature climbs |
+| E3 r6, bar 47 | same | 1/10 | 5/10 | 5/10 |
+| F3 r16, window open | climb out | 8/10 | **10/10** | (not rerun) |
+
+- **The list moves the turn the owner's lab used**, E3 r6, from 1/10 to 5/10: less than the lab's 11/12
+  (that prompt was damage-framed and named the bar's removal), but on the game's own framing and the
+  game's own sentence for the unlock.
+- **Whose condition (§33.15 item 1): resolved in this probe.** Nine answers mention a warden condition
+  by number; every one reads it as something Croft does to her ("before Warden Croft examines it and
+  triggers Condition 6"). None plans to trigger one.
+- **v1's own error:** "then the window can be opened" was read as the window already being open ("which
+  meets Condition 1 (≤50), unlocking the window … the window is now open") in 3 of 10 at E1 r6. v2 names
+  the actor, *"then Mara Voss can open the window"*, parallel to condition 2's *"Mara Voss can leave"*:
+  10/10, none premature. That is two variations of one idea (the unlock's wording). **v2 is what the
+  games use.**
+- The control turn did not move: no premature removal in either arm at bar 55.
+- A premature climb would not have been harmless in a game: a `leave` against a shut window is told
+  "met the window shut" and is suspicion-eligible.

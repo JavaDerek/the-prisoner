@@ -27,7 +27,7 @@ describe("openConditions: the game's thresholds as flat conditions", () => {
   it("one condition for the way out the bar gates, then one per catch, each flat", () => {
     const conditions = openConditions();
     expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft"]);
-    expect(conditions[0]).toEqual({ when: ["the bar's integrity is at or below 50"], then: "the window can be opened", for: "Mara Voss" });
+    expect(conditions[0]).toEqual({ when: ["the bar's integrity is at or below 50"], then: "Mara Voss can open the window", for: "Mara Voss" });
     // §35 game 3: she opened the window and kept prying the bar; leaving is an unlock too.
     expect(conditions[1]).toEqual({ when: ["a way out stands open"], then: "Mara Voss can leave the cell through it, and she has escaped", for: "Mara Voss" });
     expect(conditions[2]).toEqual({
@@ -45,7 +45,7 @@ describe("a mind given conditions", () => {
   it("starts its prompt with the list, and states each threshold only there", async () => {
     const prompt = await promptFor("Mara Voss", "Warden Croft", { conditions: openConditions() });
     expect(prompt.startsWith(CONDITION_LIST_OPENING)).toBe(true);
-    expect(prompt).toContain("CONDITION 1 (for you): If the bar's integrity is at or below 50, then the window can be opened.");
+    expect(prompt).toContain("CONDITION 1 (for you): If the bar's integrity is at or below 50, then Mara Voss can open the window.");
     expect(prompt).toContain("CONDITION 2 (for you): If a way out stands open, then Mara Voss can leave the cell through it, and she has escaped.");
     expect(prompt).toContain("CONDITION 3 (for Warden Croft): ");
     expect(prompt).not.toContain("The window can be opened once");

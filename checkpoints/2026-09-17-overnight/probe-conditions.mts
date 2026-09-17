@@ -52,11 +52,13 @@ const fetchFn = (async (url: unknown, init?: RequestInit) => {
 const mind = createOpenPrisonerMind({
   baseUrl: BASE, witsModel: WITS, voiceModel: VOICE_STUB, timeoutMs: 180000, fetchFn,
   ...(ARM === "list" ? { conditions: openConditions() } : {}),
+  // Variation 2 of the unlock's wording (§34.1): the actor opens, instead of "the window can be opened".
+  ...(ARM === "list-v2" ? { conditions: openConditions().map((c, i) => (i === 0 ? { ...c, then: "Mara Voss can open the window" } : c)) } : {}),
   ensureLoaded: (m) => (m === VOICE_STUB ? Promise.resolve() : swapper.withModel(m, async () => {})),
 });
 
 const out: unknown[] = [];
-for (const turn of turns) {
+for (const turn of turns.filter((t) => !process.env.ONLY || process.env.ONLY.split(",").includes(t.tag.split(" (")[0]))) {
   const briefing = today(recordedBriefing(turn.file, turn.round));
   if (/guard attention/i.test(briefing)) throw new Error("guard attention survived in " + turn.tag);
   if (process.env.DRY) { console.log("==", turn.tag, "\n" + briefing.split("\n").filter((l) => !l.startsWith("You perceive")).join("\n")); continue; }

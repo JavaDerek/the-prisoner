@@ -1,0 +1,322 @@
+[
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 1,
+    "intent": "Use the spoon to scrape grit from the loose tile and abrade the bar",
+    "plan": "1. Continue abrading the bar using grit from the loose tile. 2. If grit runs low, collect debris with the bucket. 3. Attempt to remove the bar quietly once integrity drops below 50 by Round 10.",
+    "thoughts": "The bar's integrity is at 55, and I need to reduce it further. Using the loose tile's grit with the spoon could be efficient. Collecting debris with the bucket is an option if grit runs low, but I must avoid suspicion spikes. Continuing to abrade the bar is the priority."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 2,
+    "intent": "Scrape the bar with grit from the loose tile using the spoon",
+    "plan": "1. Continue abrading the bar to reduce its integrity below 50. 2. If grit runs low, collect debris with the bucket. 3. If bar integrity drops below 50 by Round 10, attempt to remove it quietly.",
+    "thoughts": "Continuing to abrade the bar is critical. The loose tile's grit can be used to further reduce its integrity without raising suspicion too much. If the grit runs out, I'll need to collect debris with the bucket, but for now, the existing grit should suffice."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 3,
+    "intent": "Use the spoon to scrape the bar with grit from the loose tile",
+    "plan": "1. Continue abrading the bar to reach integrity below 50 by Round 10. 2. If suspicion rises above 20, use the cot or blanket to hide tools. 3. Once the bar is weakened, attempt to remove it quietly during a routine check.",
+    "thoughts": "Continuing to abrade the bar is critical, but I must avoid raising suspicion. Using the grit from the loose tile may make the process more efficient. If suspicion becomes too high, I'll need to find a way to manage it."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 4,
+    "intent": "Use the spoon with grit from the loose tile to abrade the bar further",
+    "plan": "1. Continue abrading the bar using grit from the loose tile to avoid suspicion spikes. 2. Monitor bar integrity progress. 3. Attempt to remove the bar quietly once integrity drops below 50.",
+    "thoughts": "I need to continue reducing the bar's integrity without raising suspicion. Using the grit from the loose tile with the spoon might be more efficient and less conspicuous than directly attacking the bar."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 5,
+    "intent": "Use the spoon and grit from the loose tile to further abrade the bar",
+    "plan": "1. Continue abrading the bar to reduce its integrity below 50. 2. If grit runs low, collect debris with the bucket. 3. If bar integrity drops below 50 by Round 10, attempt to remove it quietly.",
+    "thoughts": "The bar's integrity is at 55, needing to drop below 50 to open the window. I must continue abrading it without raising suspicion. The loose tile's grit can be used with the spoon to weaken the bar further. Avoiding loud actions is critical to prevent the warden from inspecting it prematurely."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 6,
+    "intent": "Scrape the bar’s rusted surface with the spoon’s worn edge",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50. 2. If grit runs low, collect debris with the bucket. 3. Attempt to remove the bar quietly by Round 10.",
+    "thoughts": "Continuing to abrade the bar is critical to reach integrity below 50. Using the spoon directly on the bar is efficient, but I must balance progress with avoiding suspicion. The loose tile’s grit could aid abrasion if needed later."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 7,
+    "intent": "Use the spoon to abrade the bar further",
+    "plan": "Continue abrading the bar with the spoon until its integrity drops below 50, then attempt a quiet removal. If grit runs low, collect debris using the bucket from the loose tile.",
+    "thoughts": "The bar's integrity is at 55, needing further reduction to below 50. Using the spoon again is the most direct method, though it risks raising suspicion. Collecting grit from the loose tile may be a safer alternative for future abrading. I must balance progress on the bar with avoiding high suspicion."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 8,
+    "intent": "Use the spoon to scrape the bar with grit from the loose tile",
+    "plan": "1. Continue abrading the bar to reduce integrity below 50. 2. Collect debris with the bucket if grit runs low. 3. Attempt to remove the bar quietly if integrity drops below 50 by Round 10.",
+    "thoughts": "The bar's integrity is at 55, needing to drop below 50. The loose tile's grit can be used to abrade the bar further, but using the spoon directly may be more efficient. However, abrading the bar with the spoon again risks moderate suspicion. Collecting debris with the bucket first may help avoid suspicion spikes while preparing materials."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 9,
+    "intent": "Use the dented spoon to scrape the rusted section of the bar",
+    "plan": "1. Continue abrading the bar's rusted areas with the spoon to reduce integrity below 50. 2. If grit supply dwindles, use the bucket to collect loose tile debris. 3. Once bar integrity drops below 50, attempt to remove it without triggering suspicion.",
+    "thoughts": "The bar's integrity is at 55, needing reduction to 50. Using the spoon to scrape the rusted areas will continue wearing it down. Collecting grit from the loose tile with the bucket could enhance abrasion efficiency if needed. Must avoid actions that might raise suspicion beyond acceptable levels."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r5 (bar 55, control: not yet open)",
+    "sample": 10,
+    "intent": "Use the spoon to scrape grit from the loose tile and rub it against the bar's pitted area",
+    "plan": "1. Continue abrading the bar with grit from the loose tile to reduce integrity further. 2. If grit depletes, collect debris with the bucket. 3. Attempt to remove the bar once integrity reaches 50 or below by Round 10.",
+    "thoughts": "The bar is at 55 integrity, needing to drop below 50 by Round 10. I must continue abrading it, but avoid suspicion. Using the spoon with grit from the loose tile may be less suspicious than direct scraping. If grit runs low, collect debris with the bucket discreetly."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 1,
+    "intent": "Use the spoon to pry the rusted bar out of the mortar.",
+    "plan": "1. Remove the bar using the spoon. 2. If unsuccessful, collect grit to weaken it further. 3. Open the window and escape stealthily.",
+    "thoughts": "The bar's integrity is now at 40, below the threshold of 50 needed to open the window. The next logical step is to remove the bar. Using the spoon to pry it out is the most direct method, though it may increase suspicion. Alternatively, collecting more grit could further weaken the bar, but since it's already below 50, the focus should shift to removal."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 2,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "plan": "1. Remove the bar via the spoon to open the window. 2. Climb through the window quietly. 3. Avoid suspicion by minimizing noise.",
+    "thoughts": "The bar's integrity is now 40, below the threshold needed to open the window. The next step is to remove the bar to escape through the window. Using the spoon to pry it out is the most direct method, but I must avoid alerting Warden Croft. The loose tile's grit could help if the bar is still slightly intact, but it's already below 50. The window is the only viable exit now."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 3,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "plan": "1. Use the spoon to dislodge the bar from the mortar. 2. Remove the bar to open the window. 3. Escape through the window quietly before Warden Croft can examine it.",
+    "thoughts": "The bar's integrity is now 40, below the 50 threshold needed to open the window. The next step is to remove the bar. Using the spoon to pry it out is the most feasible method, as it's a small, rusted bar set in dry mortar. Steadily applying pressure with the spoon could dislodge it without drawing too much attention. If the bar can be removed quietly, the window becomes an escape route."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 4,
+    "intent": "Use the spoon to pry the bar from the mortar",
+    "plan": "1. Remove the bar using the spoon. 2. If unsuccessful, collect grit to further weaken it. 3. Escape through the window once clear.",
+    "thoughts": "The bar's integrity is now 40, below the 50 threshold needed to open the window. The next step is to remove the bar entirely. The spoon, though thin, could be used to pry it out of the mortar. However, this may raise suspicion. Alternatively, collecting grit from the loose tile might help further weaken the bar, but given the progress, direct removal is more urgent."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 5,
+    "intent": "Use the spoon to pry the bar from the mortar and climb through the window.",
+    "plan": "1. Remove the bar using the spoon and mortar cracks. 2. Use the cot to reach the window. 3. Climb out stealthily, using the blanket to muffle noise.",
+    "thoughts": "The bar's integrity is now at 40, below the 50 threshold required to open the window. My next step is to remove the bar and escape through the window without alerting the warden. I need to use the spoon to pry the bar out of the mortar, leveraging the dry, cracked mortar to minimize effort. The cot can be used to reach the window, and the blanket can help muffle noise."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 6,
+    "intent": "Use the spoon to scrape grit from the loose tile and apply it to the bar's base to loosen it",
+    "plan": "1. Use grit from the loose tile to loosen the bar's mortar. 2. Pry the bar out with the spoon. 3. Climb through the window once the bar is removed.",
+    "thoughts": "The bar's integrity is now 40, below the 50 threshold needed to open the window. The next step is to remove the bar, which requires loosening it from the mortar. Using the spoon to scrape grit from the loose tile could help create leverage or further weaken the bar. Alternatively, the spoon could be used directly to pry the bar out. However, the mortar's dry, cracked state might allow for easier removal with grit assistance."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 7,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "plan": "1. Remove the bar using the spoon to create an escape route. 2. If unsuccessful, collect more grit from the loose tile to abrade the bar further. 3. Once the window is open, climb through quietly to avoid detection.",
+    "thoughts": "The bar's integrity is now 40, which meets the threshold to open the window. The next step is to remove the bar to escape. The spoon could be used to pry or abrade it further, and the loose tile's grit might help. However, I must avoid alerting the Warden by making too much noise or leaving obvious signs of tampering."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 8,
+    "intent": "Use the spoon to dig into the mortar around the bar",
+    "plan": "1. Remove the bar by digging at its mortar with the spoon. 2. If resistance is met, use grit from the loose tile to further abrade the bar. 3. Once the bar is loose, extract it and escape through the window.",
+    "thoughts": "The bar's integrity is now 40, below the 50 threshold needed to open the window. The next step is to remove the bar to enable escape. The spoon, though dented, could be used to pry or dig at the mortar holding the bar. Alternatively, using grit from the loose tile to further abrade the bar, but since it's already below 50, direct removal is the priority. However, any action that draws suspicion must be weighed against the urgency of escape."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 9,
+    "intent": "Use the spoon to pry the bar from the window",
+    "plan": "1. Remove the bar using the spoon. 2. Escape through the window quietly. 3. If caught, use the loose tile's grit to create a distraction.",
+    "thoughts": "The bar is now below 50 integrity, so the window can be opened. The next step is to remove the bar to escape. Using the spoon to pry it out stealthily is the best option."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E1 r6 (bar 40)",
+    "sample": 10,
+    "intent": "Use the spoon to pry the rusted bar from its mortar",
+    "plan": "1. Remove the bar using the spoon. 2. If unsuccessful, collect more grit to weaken it further. 3. Escape through the window once the bar is gone.",
+    "thoughts": "The bar's integrity is now 40, below the 50 threshold needed to open the window. My next step is to remove the bar to escape through the window. The spoon could be used to pry it out, leveraging its worn edge against the rusted bar. Alternatively, I could gather more grit from the loose tile to further weaken the bar, but since the integrity is already low, direct removal might be more efficient."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 1,
+    "intent": "Scratch the rusted section of the bar with the spoon's worn edge",
+    "plan": "Continue damaging the bar's rusted areas with the spoon to break its integrity further, then use the bucket to lever it out once sufficiently weakened.",
+    "thoughts": "The bar's integrity is already below 50, but it's still set in mortar. I need to focus on breaking it free. Using the spoon again is the immediate step, but I should also consider if the mortar can be targeted for easier removal."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 2,
+    "intent": "Strike the bar's rusted section with the spoon again",
+    "plan": "Continue damaging the bar with the spoon. If no progress, use the bucket to draw attention when suspicion drops.",
+    "thoughts": "The bar is at 47, just below the 50 needed to open the window. Continuing to damage it with the spoon is the most direct path. I must avoid raising suspicion too high, but a slight or moderate act may be manageable."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 3,
+    "intent": "Use the spoon to strike the bar again",
+    "plan": "Continue damaging the bar with the spoon. If no progress, use the bucket to draw attention when guard focus drops.",
+    "thoughts": "The bar's integrity is already at 47, which is below the 50 threshold needed to open the window. However, I need to ensure the bar is sufficiently damaged to actually break it. Continuing to use the spoon on the bar will further reduce its integrity, making escape possible."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 4,
+    "intent": "Use the spoon to pry the bar out of the mortar",
+    "plan": "Attempt to remove the bar using the spoon, leveraging its weakened state. If unsuccessful, use the bucket to create a distraction while trying again.",
+    "thoughts": "The bar's integrity is now at 47, which is below the threshold of 50 needed to open the window. The next logical step is to attempt to remove the bar now that the window is openable. However, the bar is still in place and may require further damage or a different approach to dislodge it."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 5,
+    "intent": "Use the spoon to strike the rusted portion of the bar again",
+    "plan": "Continue damaging the bar with the spoon, focusing on rusted areas. If no progress, use the bucket to draw attention when guard focus drops.",
+    "thoughts": "The bar's integrity is now at 47, very close to the threshold of 50 needed to open the window. I should focus on finishing the bar with the spoon, targeting the rusted areas. If I can reduce it further, I can escape through the window. However, I must avoid raising suspicion too high, as Croft may come checking if suspicion reaches 40."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 6,
+    "intent": "Use the spoon to strike the bar again",
+    "plan": "Continue damaging the bar with the spoon. If no progress, use the bucket to draw attention when guard focus drops.",
+    "thoughts": "The bar's integrity is now 47, which is below the 50 threshold for the window to be openable. However, the bar is still in place, so I need to either remove it or damage it further. Since the plan was to continue using the spoon, I should proceed with that unless the bar is already removable."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 7,
+    "intent": "Use the spoon to strike the bar again, further reducing its integrity",
+    "plan": "Continue damaging the bar with the spoon until it breaks, then escape through the window. If suspicion rises too high, use the bucket to create a distraction.",
+    "thoughts": "The bar's integrity is already at 47, which is below the threshold of 50 needed to open the window. However, the bar is still in place, so I need to remove it. Continuing to damage it with the spoon is the most direct way, even if it raises suspicion. Alternatively, using the bucket to create a distraction might lower suspicion temporarily, allowing me to act quickly."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 8,
+    "intent": "Use the spoon to strike the bar again",
+    "plan": "Continue damaging the bar with the spoon. If no progress, use the bucket to create a distraction when possible.",
+    "thoughts": "The bar is now at 47, which is below the 50 threshold needed to open the window. However, even with that, the bar still needs to be removed. Continuing to damage it with the spoon is the next logical step. If that doesn't work, the bucket could be used to draw attention if suspicion drops low enough."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 9,
+    "intent": "Use the spoon to strike the bar's rusted section again",
+    "plan": "Continue damaging the bar with the spoon. If no progress by Round 10, switch to using the bucket to draw attention when guard focus drops.",
+    "thoughts": "The bar's integrity is at 47, just 3 points away from the 50 needed to open the window. The spoon has proven effective so far, so continuing to use it makes sense. However, if progress stalls, the bucket could be used to create noise and draw attention when the guard's focus is low."
+  },
+  {
+    "arm": "baseline",
+    "turn": "E3 r6 (bar 47)",
+    "sample": 10,
+    "intent": "Use the spoon to strike the bar again",
+    "plan": "Continue damaging the bar with the spoon until it breaks. If no progress, use the bucket to draw attention and attempt to remove the bar when the warden is distracted.",
+    "thoughts": "The bar is at 47, which is below the 50 threshold needed to open the window. However, the bar is still in place, so I need to remove it. The best approach is to continue using the spoon to damage it further, ensuring it breaks completely. If I can't make progress, using the bucket to draw attention might help create an opportunity."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 1,
+    "intent": "Use the cot as a step to climb through the window",
+    "plan": "Climb through the open window using the cot as a step. If the climb is too risky, use the blanket for stability.",
+    "thoughts": "The window is now open, so the next step is to escape through it. The cot can be used as a step to reach the window. I need to climb out without raising suspicion further."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 2,
+    "intent": "Climb through the window using the cot as a step",
+    "plan": "Climb through the window using the cot to reach it; escape immediately to avoid detection.",
+    "thoughts": "The window is now open with the bar removed. My next step is to escape through it. However, I must ensure that Warden Croft doesn't check the bar and find it too damaged. Climbing through now might be the best option, but I need to minimize suspicion. Alternatively, I could further damage the bar to lower its integrity, but that might raise suspicion more. I should proceed with escaping through the window using the cot as a step."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 3,
+    "intent": "Attempt to climb through the open window",
+    "plan": "Climb through the open window to escape; if caught, shift to studying the lock's bolt.",
+    "thoughts": "The window is now open, so the next logical step is to attempt escape through it. I need to ensure that I can climb through without triggering suspicion. If suspicion is too high, I may need to shift focus to the lock, but the window is the immediate opportunity."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 4,
+    "intent": "Attempt to climb through the open window",
+    "plan": "Climb through the window to escape; if caught, shift to studying the lock's bolt for weaknesses.",
+    "thoughts": "The window is now open, so the immediate goal is to escape through it. I need to ensure that I can do this without triggering a suspicion level that would allow Warden Croft to catch me. Climbing through the window is the next logical step, but I must be cautious about the noise and any potential discovery."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 5,
+    "intent": "Position the cot near the window to use as a step",
+    "plan": "Use the cot as a stepping aid to climb through the open window. If suspicion rises, consider using the grit to damage the lock.",
+    "thoughts": "The window is now accessible, so the next step is to prepare for escape. The cot could be used as a step to reach the window. I need to avoid raising suspicion too much while positioning the cot."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 6,
+    "intent": "Climb onto the cot to reach the window",
+    "plan": "Climb onto the cot to reach the window's height, then attempt to climb through. If suspicion rises, shift to studying the lock's bolt.",
+    "thoughts": "The window is now open, so my immediate goal is to escape through it. I need to reach the window's height. The cot is nearby and could be used as a step. Alternatively, the blanket might help in creating a makeshift tool, but climbing through the window seems more direct. I must avoid raising suspicion too high during this process."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 7,
+    "intent": "Attempt to climb through the open window",
+    "plan": "Proceed with escaping through the window immediately, using the open passage. If suspicion rises, create a distraction with the grit or bucket.",
+    "thoughts": "The window is now open, so the immediate goal is to escape. However, I must ensure that Warden Croft does not inspect the window before I can leave. My next step is to attempt to climb through the window, but I need to consider how to avoid detection."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 8,
+    "intent": "Attempt to climb through the window",
+    "plan": "Proceed with escaping through the open window. If suspicion rises, shift to studying the lock's bolt for weaknesses.",
+    "thoughts": "The window is now open, so the immediate goal is to escape through it. However, I must avoid raising suspicion. Using the grit or spoon to create distractions or further weaken the lock may help, but climbing through the window is the most direct path."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 9,
+    "intent": "Attempt to climb through the open window",
+    "plan": "Escape through the window immediately, as it is now open. If caught, shift to studying the lock's bolt for weaknesses.",
+    "thoughts": "The window is now open, so the next logical step is to attempt escape through it. However, I need to ensure that the warden doesn't discover the bar's removal before I can escape. Using the grit to further weaken the bar might help, but it's already out. Alternatively, I should focus on climbing through the window now before suspicion rises further."
+  },
+  {
+    "arm": "baseline",
+    "turn": "F3 r16 (bar 32, window open)",
+    "sample": 10,
+    "intent": "Climb through the open window using the cot and blanket as steps",
+    "plan": "Proceed to escape through the window as the bar is already removed. If suspicion rises too high or the window proves inaccessible, shift focus to studying the lock for weaknesses.",
+    "thoughts": "The bar is already removed, making the window a viable escape route. With the window open, the next logical step is to attempt escape through it. However, I must ensure that suspicion remains low enough to avoid detection by Warden Croft."
+  }
+]
