@@ -7,7 +7,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { createOpenPrisonerMind, type OpenPrincipalContext } from "/Users/derekferguson/rpg/the-prisoner/src/open/mind.ts";
 import { openConditions } from "/Users/derekferguson/rpg/the-prisoner/src/open/conditions.ts";
-import { OPEN_OBJECTS } from "/Users/derekferguson/rpg/the-prisoner/src/open/scenarioObjects.ts";
 import { PRISONER_IDENTITY, PRISONER_MOTIVE } from "/Users/derekferguson/rpg/the-prisoner/src/scenario.ts";
 import { OllamaModelSwapper, nativeBaseUrl } from "/Users/derekferguson/rpg/the-prisoner/src/ollamaSwap.ts";
 
@@ -22,6 +21,7 @@ const turns: { tag: string; file: string; round: number; notesEdit?: [string, st
   { tag: "E1 r5 (bar 55, control: not yet open)", file: "2026-09-16T15-37-42-560Z", round: 5 },
   { tag: "E1 r6 (bar 40)", file: "2026-09-16T15-37-42-560Z", round: 6 },
   { tag: "E3 r6 (bar 47)", file: "2026-09-16T15-55-25-854Z", round: 6 },
+  { tag: "F3 r16 (bar 32, window open)", file: "2026-09-17T01-35-04-448Z", round: 16 },
 ];
 
 function recordedBriefing(file: string, round: number): string {
@@ -60,7 +60,9 @@ for (const turn of turns) {
   const briefing = today(recordedBriefing(turn.file, turn.round));
   if (/guard attention/i.test(briefing)) throw new Error("guard attention survived in " + turn.tag);
   if (process.env.DRY) { console.log("==", turn.tag, "\n" + briefing.split("\n").filter((l) => !l.startsWith("You perceive")).join("\n")); continue; }
-  const perceivedObjects = OPEN_OBJECTS.filter((o) => o.heldIn === undefined).map((o) => ({ id: o.id, description: o.description }));
+  // As the game handed them: every "You perceive the <object>: <description>" line of the recorded briefing.
+  const perceivedObjects = [...briefing.matchAll(/^You perceive the ([a-z ]+): (.*)$/gm)].map((m) => ({ id: m[1].replace(/ /g, "_"), description: m[2] }));
+  if (perceivedObjects.length < 9) throw new Error("perceived objects not found in " + turn.tag);
   const context: OpenPrincipalContext = { principalId: "probe", identity: PRISONER_IDENTITY, motive: PRISONER_MOTIVE, briefing, perceivedObjects };
   for (let i = 0; i < N; i++) {
     const p = await mind.consider(context);

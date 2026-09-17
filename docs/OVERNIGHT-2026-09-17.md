@@ -36,7 +36,22 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 
 ## Decisions for Derek
 
-(filled in as they come up)
+**D1. Where condition-list generation lives. Chosen for tonight: the caller (the-prisoner), as a generic
+file.** `src/open/conditionList.ts` holds the renderer and the `Condition` type, and a test keeps game
+words out of it, the same way `pick.ts` is held. `src/open/conditions.ts` is the game side: it builds the
+conditions from the constants the game already enforces.
+- *Why this one:* it is the easiest to undo. Nothing is published, and moving the file later is one
+  commit here plus a release there. mind-seam was extracted only once two real callers needed the same
+  seam, and its CLAUDE.md keeps prompt text with the caller. run-dmcp never calls a mind, and these
+  thresholds live in the game's code, not in the engine's declared constraints.
+- *Alternatives:* (a) mind-seam, as an optional pure export `renderConditionList`, a patch release;
+  (b) run-dmcp, generating conditions from declared constraints/gates, which would need the engine to
+  hold "unlocks" and "ends" as data, which it does not today; (c) a new small package.
+- *What would change it:* a second caller. If brink's rival minds get the same list, (a) is the move.
+  If the list turns out to be worth generating from engine-declared gates (so every run-dmcp game gets it
+  for free), that argues for (b) and an engine issue.
+
+(more below as they come up)
 
 ## Versions published
 
