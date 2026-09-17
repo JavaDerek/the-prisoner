@@ -2812,6 +2812,7 @@ extracted only once two real callers needed the same seam — the same precedent
 `src/open/conditionList.ts` (generic, guarded against this game's words) and `src/open/conditions.ts`
 (the game's thresholds) stay where D1 put them.
 
-What moves it: brink's rival minds wanting the same list. Then it is a pure function plus a type, a
-`mind-seam` patch release, and it travels as a file. Nothing here is published, so that stays a cheap
+What moves it: brink's rival minds wanting the same list — filed there as `brink-workshop#107`, a
+trigger rather than scheduled work, so "wait for a second caller" is checkable instead of forgotten.
+Then it is a pure function plus a type, a `mind-seam` patch release, and it travels as a file. Nothing here is published, so that stays a cheap
 move — which was D1's whole reason.
