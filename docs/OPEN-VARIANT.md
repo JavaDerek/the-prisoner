@@ -2526,3 +2526,35 @@ objects are read from the recorded briefing. Intents read by hand. Script and da
 - The control turn did not move: no premature removal in either arm at bar 55.
 - A premature climb would not have been harmless in a game: a `leave` against a shut window is told
   "met the window shut" and is suspicion-eligible.
+
+### 34.2 In real games: batch G against batch F (2026-09-17)
+
+Batch G is batch F's configuration (§35) with one change, `PRISONER_CONDITIONS=list` (the prisoner's
+mind only, §34.1's v2 wording). Transcripts `checkpoints/2026-09-17T03-42-30-378Z.md`, `…03-51-05-772Z.md`,
+`…03-58-48-172Z.md`, `…04-05-11-968Z.md`. Counts from `analyze.mts`, by the referee's recorded effect key.
+
+| | Batch F (rule sentences) | Batch G (condition list) |
+|---|---|---|
+| Result | caught r7, r6, r18, r6 | **escaped r7, r7, r6, r6** |
+| Turns with the bar at or below 50 and nothing open yet | 6 | 4 |
+| …on which she tried to open | 1 (F3 r15) | **4** |
+| Tried to open or leave with the bar above 50 | 0 of 25 turns | 1 of 18 (G1 r1 at 100, ruled impossible) |
+| Applied effects cited / fog | 61/61, 0 leaks in 70 contexts | 50/50, 0 leaks in 52 contexts |
+| Novel pairs | 1, 2, 5, 1 | 4, 6, 2, 4 |
+
+The intents at the unlock: G1 r6 *"Open the window by removing the bar"* (bar 40); G2 r6 *"Use the spoon
+to pry the rusted bar from the window"* (39); G3 r5 *"Attempt to open the window by removing the damaged
+bar"* (40); G4 r5 *"Open the window to escape"* (40). Each left through the window on her next turn.
+Every G game ended the turn after the first one she could act on, so a G game has one removable turn
+where F games had one to three.
+
+**Reading.** On the only variable changed, the prisoner went from acting on her unlock once in six
+chances to four in four, and the contested game went from four catches to four escapes. Four games a
+side is small, but 0/4 against 4/4 on outcome, with §34.1's probe predicting the direction on recorded
+turns beforehand, is the strongest effect any single mind-side change has shown in this document. The
+cost seen so far is one premature removal attempt at full integrity.
+
+**What this is not.** It is not a balance result, and the warden losing every game is not a defect
+(the-prisoner is a harness). The warden's prompt was unchanged. The list is generic: a warden given
+its own list reads the catches as `(for you)`. Whether that makes the warden act on its thresholds the
+same way is the natural next A/B, and it is the half that matters for any NPC that has to stop someone.
