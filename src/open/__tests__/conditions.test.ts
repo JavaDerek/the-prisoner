@@ -26,16 +26,18 @@ async function promptFor(selfName: string, otherName: string, extra: Record<stri
 describe("openConditions: the game's thresholds as flat conditions", () => {
   it("one condition for the way out the bar gates, then one per catch, each flat", () => {
     const conditions = openConditions();
-    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft"]);
+    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft"]);
     expect(conditions[0]).toEqual({ when: ["the bar's integrity is at or below 50"], then: "the window can be opened", for: "Mara Voss" });
-    expect(conditions[1]).toEqual({
+    // §35 game 3: she opened the window and kept prying the bar; leaving is an unlock too.
+    expect(conditions[1]).toEqual({ when: ["a way out stands open"], then: "Mara Voss can leave the cell through it, and she has escaped", for: "Mara Voss" });
+    expect(conditions[2]).toEqual({
       when: ["warden suspicion is at or above 40", "Warden Croft closely examines the bar", "Warden Croft finds its integrity at or below 30"],
       then: "Warden Croft catches Mara Voss and the game ends",
       for: "Warden Croft",
     });
-    expect(conditions[2].when).toContain("Warden Croft finds its integrity at or below 40");
-    expect(conditions[3].when).toEqual(["warden suspicion is at or above 40", "Warden Croft closely examines the spoon", "the spoon is out in the open", "Warden Croft finds its edge at or above 20"]);
-    expect(conditions[4].when).toEqual(["warden suspicion is at or above 40", "Warden Croft closely examines a way out", "Warden Croft finds it standing open"]);
+    expect(conditions[3].when).toContain("Warden Croft finds its integrity at or below 40");
+    expect(conditions[4].when).toEqual(["warden suspicion is at or above 40", "Warden Croft closely examines the spoon", "the spoon is out in the open", "Warden Croft finds its edge at or above 20"]);
+    expect(conditions[5].when).toEqual(["warden suspicion is at or above 40", "Warden Croft closely examines a way out", "Warden Croft finds it standing open"]);
   });
 });
 
@@ -44,7 +46,8 @@ describe("a mind given conditions", () => {
     const prompt = await promptFor("Mara Voss", "Warden Croft", { conditions: openConditions() });
     expect(prompt.startsWith(CONDITION_LIST_OPENING)).toBe(true);
     expect(prompt).toContain("CONDITION 1 (for you): If the bar's integrity is at or below 50, then the window can be opened.");
-    expect(prompt).toContain("CONDITION 2 (for Warden Croft): ");
+    expect(prompt).toContain("CONDITION 2 (for you): If a way out stands open, then Mara Voss can leave the cell through it, and she has escaped.");
+    expect(prompt).toContain("CONDITION 3 (for Warden Croft): ");
     expect(prompt).not.toContain("The window can be opened once");
     expect(prompt).not.toContain("by closely examining, while warden suspicion");
     // The rules that are not thresholds stay where they were.
