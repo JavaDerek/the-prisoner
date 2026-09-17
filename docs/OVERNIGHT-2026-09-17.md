@@ -8,7 +8,7 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 | Item | State |
 |---|---|
 | 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | **DONE.** §5.3 holds on batch F (4 games): 0 fog leaks in 82 contexts, all effects cited, novelty in all 4, 7 impossible rulings with reasons, replay 99.5/99.4/97.6/98.2%. Passive game escaped r6. OPEN-VARIANT §35. |
-| 2. Condition list as a generic mechanism, A/B in real games | **DONE, positive.** Built generic (`1c1bb58`, `467f101`, `0f7ad18`), open items 2 and 3 fixed. Probe first (§34.1), then real games: **batch G (list) escaped 4/4 (r7, r7, r6, r6); batch F (same config, rule sentences) was caught 4/4.** She acted on the unlock 4/4 vs 1/6; one premature removal in 18 turns above the line. §34.2. Warden half (`PRISONER_CONDITIONS=both`) built, probe queued |
+| 2. Condition list as a generic mechanism, A/B in real games | **DONE, positive, both sides.** Generic renderer + game data (`1c1bb58`, `467f101`, `0f7ad18`, `1274ab6`); open items 2 and 3 fixed. Prisoner: probe first (§34.1), then **batch G (list) escaped 4/4 where batch F (rule sentences) was caught 4/4**; she acted on her unlock 4/4 vs 1/6 (§34.2). Warden: probe 0/20 → 20/20 looks at the open window, controls unmoved (§34.3); **batch K (both) caught 4/4, every one by a look at the window she had just opened** (§34.4). 2+2 more F/G games running for power |
 | 3. mother-of-invention produces a measured change | **DONE, qualified positive.** Idea 1 (regenerate once when nothing unseen) fixes the failure §32 named: with the ledger on, forced turns that did something unseen went **23% → 65%** (3/13 → 13/20). Regeneration turned 6 of 11 stuck turns into the mind's own new ideas (door bolt, wire hook, sharper spoon). **Free turns unchanged** (3 novel of 15 vs 3 of 22) and outcomes no better, so the mind still doesn't choose new things unforced. OPEN-VARIANT §36 |
 | 4. Libraries released and consumed | **DONE.** mother-of-invention **0.1.2** (pick + regenerate as mechanism 2) published by tag through release.yml (CI and Release green); the-prisoner pins it exactly and its local `pick.ts` is gone (`b9b0390`). The condition list stays in the-prisoner by decision D1, so no mind-seam or run-dmcp release was needed |
 
@@ -64,6 +64,12 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
   README and CLAUDE.md say what it was measured to do, including the free-turn caveat), released 0.1.2 by
   tag, consumed in the-prisoner test-first (tests pointed at the package, red on 0.1.0, green on 0.1.2).
 
+- 02:32-03:01. Warden probe (§34.3): 0/20 → 20/20. Batch K (list for both): 4 catches at r6, each the
+  turn after she opened the window, each by `reveal window.passage`. K4's audit reported 1 leak; it was a
+  false positive (the other side's text inside the warden's own earlier plan), fixed test-first
+  (`20e8776`), transcript left as recorded.
+- 03:02. Queued 2 more baseline and 2 more list-for-prisoner games, alternating, to add power to F vs G.
+
 ## Decisions for Derek
 
 **D1. Where condition-list generation lives. Chosen for tonight: the caller (the-prisoner), as a generic
@@ -91,6 +97,12 @@ forced turn's result into the plan). If forced-turn novelty counts, item 3 is si
 premature removal attempt. Making `PRISONER_CONDITIONS=list` the default changes every future baseline
 (and every earlier batch stops being comparable). I left it a switch. Yes = new baseline from here; no =
 it stays an arm.
+
+**D4. Is the condition list a mind-seam export now?** Tonight it has one caller (this game) and two
+readers (both minds), and it changed both minds' behaviour in real games. mind-seam was extracted at
+two callers, so by that precedent the answer is "not until brink uses it". If you'd rather brink's
+rival minds try it straight from the package, it's a pure function plus a type (a patch release) and
+moves as a file.
 
 (more below as they come up)
 
