@@ -1,0 +1,99 @@
+Remove the bar
+     today: bar/open, bar/open, bar/open
+     acts:  one bar/open, one bar/open, one bar/open
+Use the spoon to remove the bar
+     today: bar/open, bar/open, bar/open
+     acts:  one bar/open, one bar/open, one bar/open
+Pull the bar out of the window
+     today: bar/open, bar/open, bar/open
+     acts:  one window/open, one window/open, one window/open
+Take the bar out
+     today: bar/open, bar/open, bar/open
+     acts:  one bar/open, one bar/open, one bar/open
+Use the spoon to pry the bar out of the mortar
+     today: bar/open, bar/open, bar/open
+     acts:  one bar/open, one bar/open, one bar/open
+Use the spoon to lever the bar out of the mortar
+     today: bar/open, bar/open, bar/open
+     acts:  one bar/open, one window/open, one window/open
+Attempt to remove the bar from the window
+     today: bar/open, bar/open, bar/open
+     acts:  one window/open, several window/open, several window/open
+Use the spoon to twist and remove the bar
+     today: bar/open, bar/open, bar/open
+     acts:  several bar/open, several bar/open, several bar/open
+Use the spoon to push back the bolt through the gap
+     today: door/open, door/open, door/open
+     acts:  one door/open, one door/open, one door/open
+Continue abrading the bar with the spoon to reduce its integrity
+     today: bar/wear, bar/wear, bar/wear
+     acts:  one bar/wear, one bar/wear, one bar/wear
+Use the spoon to scrape at the rusted bottom of the bar
+     today: bar/wear, bar/wear, bar/wear
+     acts:  one bar/wear, one bar/wear, one bar/wear
+Use the spoon to damage the bar further
+     today: bar/wear, bar/wear, bar/wear
+     acts:  several bar/wear, one bar/wear, one bar/wear
+Use the spoon to strike the bar repeatedly
+     today: bar/wear, bar/wear, bar/wear
+     acts:  several bar/wear, one? none?/none?, one? none?/none?
+Use the spoon to chip away the mortar around the bar
+     today: bar/wear, bar/wear, bar/wear
+     acts:  one bar/wear, one bar/wear, one bar/wear
+Examine the bar for signs of damage or wear
+     today: bar/reveal, bar/reveal, bar/reveal
+     acts:  one bar/reveal, one bar/reveal, one bar/reveal
+Climb out through the window
+     today: window/leave, window/leave, window/leave
+     acts:  one window/leave, one window/leave, one window/leave
+Climb through the window and escape
+     today: window/open, window/open, window/open
+     acts:  several window/leave, several window/leave, several window/leave
+Squeeze through the gap in the window where the bar was
+     today: window/open, window/leave, window/leave
+     acts:  one window/open, one window/leave, one window/leave
+Get out through the window
+     today: window/leave, window/leave, window/leave
+     acts:  one window/leave, one window/leave, one window/leave
+Slip out of the open door
+     today: door/leave, door/leave, door/leave
+     acts:  one door/leave, one door/leave, one door/leave
+Rub the spoon back and forth against the bar
+     today: bar/wear, bar/wear, bar/wear
+     acts:  one bar/wear, one bar/wear, one bar/wear
+Grind at the bar with the spoon's edge to weaken it
+     today: bar/wear, bar/wear, bar/wear
+     acts:  one bar/wear, one bar/wear, one bar/wear
+Pull a length of wire from the cot springs and keep it
+     today: cot/derive, cot/derive, cot/derive
+     acts:  several cot/derive, several cot/derive, several cot/derive
+Remove the loose tile to get at the hollow beneath it
+     today: loose_tile/expose, loose_tile/expose, loose_tile/expose
+     acts:  one loose_tile/expose, one loose_tile/expose, one loose_tile/expose
+Remove the blanket from the cot
+     today: blanket/none, blanket/none, blanket/none
+     acts:  one blanket/none, one blanket/none, one blanket/none
+Rub grit from the hollow into the scratches on the bar to hide them
+     today: bar/conceal, bar/conceal, bar/conceal
+     acts:  one bar/conceal, one bar/conceal, one bar/conceal
+Inspect the lock and examine the loose tile for hidden items or damage.
+     today: TIMEOUT, TIMEOUT, TIMEOUT
+     acts:  several none/reveal, several none/reveal, several none/reveal
+Use the grit and spoon to scrape the bar's rusted areas, then cover with the blanket to conceal scratches.
+     today: bar/conceal, bar/conceal, bar/conceal
+     acts:  several bar/conceal, several bar/conceal, several bar/conceal
+Use the spoon to pry the bar from the mortar and climb through the window.
+     today: (not run)
+     acts:  several window/open, several window/open, several window/open
+Scrape the bar with the spoon and grit from the loose tile
+     today: (not run)
+     acts:  several window/open, several bar/wear, several bar/wear
+Use the cot to stand on and climb through the window
+     today: (not run)
+     acts:  several window/leave, several window/leave, several window/leave
+Use the spoon to scrape grit from the loose tile and apply it to the bar's weakened areas
+     today: (not run)
+     acts:  several bar/derive, several bar/derive, several bar/derive
+Wrap the blanket around the bar to absorb sound while scraping with the spoon and grit.
+     today: (not run)
+     acts:  several bar/noise, several bar/noise, several bar/noise
