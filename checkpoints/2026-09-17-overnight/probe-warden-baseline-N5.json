@@ -1,0 +1,242 @@
+[
+  {
+    "arm": "baseline",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 1,
+    "intent": "Probe the loose tile with the spoon",
+    "plan": "Probe the loose tile with the spoon. If nothing is found, inspect the cot's frame and door. If suspicion rises significantly, escalate search efforts.",
+    "thoughts": "The bar's integrity is now 40, which is below the 50 threshold needed to open the window, but the bar is already missing, so the window is already open. Mara Voss might be planning to escape through the window. I need to check the loose tile for hidden items and ensure the bar isn't compromised further. Since suspicion is already high, searching the tile is justified."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 2,
+    "intent": "Probe loose tile with spoon",
+    "plan": "Probe loose tile with spoon. If nothing found, inspect cot's frame and door bolt.",
+    "thoughts": "The window is already open, but the bar's integrity is at 40, which is below the 50 threshold required to open it. This suggests Mara may have weakened it further. I need to confirm if the bar is compromised enough to trigger a catch. The loose tile concealment is high—probing it might reveal hidden tools or plans. The door's bolt is visible; inspecting it could show tampering."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 3,
+    "intent": "Probe the loose tile with the spoon to check for hidden items",
+    "plan": "Check loose tile with spoon → examine cot's frame → inspect door's bolt",
+    "thoughts": "The window is already open, suggesting Voss may have removed the bar. The loose tile's concealment is high, so probing it with the spoon could reveal hidden items. The bar's integrity is 40, which is still above 30, so I can't catch her yet. Next steps should focus on the loose tile and cot frame."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 4,
+    "intent": "Probe loose tile with spoon again to uncover hidden items",
+    "plan": "Probe loose tile with spoon, then recheck bar's integrity, then inspect cot's frame",
+    "thoughts": "The window is already open, so the bar's integrity may not be the immediate issue. However, the loose tile has high concealment and could hide an escape tool or plan. Probing it again is critical, as is rechecking the bar for unnoticed damage."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 5,
+    "intent": "Check bar's integrity again",
+    "plan": "Recheck bar integrity, then probe loose tile with spoon. If no issues, inspect cot frame and door bolt.",
+    "thoughts": "The window is already open, and bar integrity is at 40. Voss may attempt escape through the window or use the loose tile. Need to confirm if the bar is compromised further or if the tile hides something."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 1,
+    "intent": "Examine the bar's integrity closely for hidden damage",
+    "plan": "First recheck the bar's integrity to detect any hidden damage. If damage is found, suspicion will rise, aiding in catching Mara Voss. If not, move to inspect the loose tile's hollow for concealed items.",
+    "thoughts": "Mara Voss has opened the bar, making the window accessible. The bar's integrity is 39, which is below the threshold for the window to be open (50). I need to confirm if there's hidden damage to the bar that may indicate Voss's planning. If no damage is found, I'll proceed to the loose tile's hollow. Raising suspicion further could help in catching her if she attempts escape."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 2,
+    "intent": "Inspect the loose tile's hollow for concealed items",
+    "plan": "Check the loose tile's hollow for concealed items. If nothing is found, escalate suspicion by examining the bar again.",
+    "thoughts": "The bar is already removed, so focusing on the loose tile makes sense. Checking the tile could reveal hidden items or confirm Voss's escape plan."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 3,
+    "intent": "Inspect the loose tile's hollow for concealed items",
+    "plan": "Check loose tile for hidden items, then examine the cot's wires and lock for signs of tampering.",
+    "thoughts": "The bar is already open, so I need to focus on other potential escape routes or hidden items. The loose tile has a hollow, which is a likely hiding spot for tools or escape plans. Checking it is the next logical step."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 4,
+    "intent": "Inspect the loose tile's hollow for concealed items",
+    "plan": "First inspect the loose tile's hollow for concealed items. If nothing is found, recheck the bar's integrity to ensure no hidden damage was missed. If both checks are clear, focus on monitoring the window for signs of escape.",
+    "thoughts": "The bar is already out, making the window a potential escape route. Since the bar's integrity is already below 50, the next priority is inspecting the loose tile's hollow for concealed items, as per the previous plan. However, rechecking the bar's integrity might still be warranted to confirm no hidden damage was overlooked."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 5,
+    "intent": "Inspect the loose tile's hollow for concealed items.",
+    "plan": "First, inspect the loose tile's hollow to find hidden items. If nothing is found, recheck the bar's integrity to detect concealed damage and confirm if Voss is planning to exploit the open window. If no clues emerge, shift focus to the cot's wire and spoon for further analysis.",
+    "thoughts": "Mara Voss's silence suggests premeditation. The loose tile's concealment is 100, but its hollow might hide something. The bar's integrity is critical—already below 50, yet the window is open, and she hasn't escaped. Rechecking the bar could raise suspicion if damage is found, but it's worth verifying. The cot's wire integrity is 100, but its structure might be tampered with."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 1,
+    "intent": "Reinspect the bar's mortar for microfractures to confirm its integrity and detect any further damage",
+    "plan": "1. Reinspect the bar's mortar for microfractures. 2. Check the loose tile's hollow for hidden items. 3. Examine the spoon's edge for sharpening.",
+    "thoughts": "The window is now open, which is a critical vulnerability. Voss may be planning an escape through the window. The bar's integrity is at 40, and if it drops further, it could be a trigger for the Warden to act. However, the bar is already out of place, so the Warden must focus on other indicators of Voss's plan, such as the loose tile or the spoon. The high suspicion level allows searches, so a thorough check of the bar and other areas is essential to prevent escape."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 2,
+    "intent": "Reinspect the bar's mortar for new microfractures",
+    "plan": "1. Reinspect the bar's mortar for damage. 2. Check the loose tile's hollow for hidden items. 3. Monitor the spoon edge and door bolt for signs of tampering.",
+    "thoughts": "The bar's integrity is at 40, critical for the window's security. Reinspecting the mortar for microfractures is essential to determine if Voss is weakening it. The high suspicion (78) allows searching without needing further justification. The loose tile and spoon are lower priority, but I must stay vigilant."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 3,
+    "intent": "Reinspect the bar's mortar for new microfractures",
+    "plan": "1. Reinspect the bar's mortar for microfractures. 2. Search the loose tile's hollow. 3. Check the window area for signs of tampering.",
+    "thoughts": "The bar's integrity has dropped further, which may indicate Voss is targeting it for escape. The window is already open, so I must confirm if the bar's damage is progressing. Additionally, the loose tile's hollow might hide tools or plans. The spoon's edge remains at 0, so it's less of an immediate threat. With high suspicion, I need to ensure I don't miss any signs of escape attempts."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 4,
+    "intent": "Examine the door's bolt for signs of tampering",
+    "plan": "1. Check the door's bolt for tampering. 2. Inspect the lock's integrity. 3. Recheck the loose tile's hollow.",
+    "thoughts": "The window is already open, so Voss may be focusing on other exits. The door's bolt shows a gap, which could indicate tampering. Checking the door's integrity and lock is critical to prevent escape through that route."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 5,
+    "intent": "Reinspect the bar's mortar for microfractures",
+    "plan": "1. Reinspect the bar's mortar for microfractures. 2. Check the spoon's edge for sharpening. 3. Recheck the loose tile's hollow. 4. Monitor the window's condition for signs of use.",
+    "thoughts": "Mara Voss has already removed the window bar, which is critical for escape. I need to determine if she's planning to use the window or another method. The bar's integrity is at 40, so further damage could lower it to the threshold for escape (≤30). I must focus on the bar's condition and check for signs of sharpening the spoon, which could be used to damage the lock or bar. The loose tile might also be a distraction, but it's low priority."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 1,
+    "intent": "Closely examine the bar for hidden damage or tampering",
+    "plan": "Check the bar for damage, recheck the loose tile, and observe Voss's behavior near the window to determine her next move.",
+    "thoughts": "The window is now open, which is concerning. I need to check if the bar was damaged or if Voss removed it without causing damage. Also, the loose tile might still have hidden items. The spoon isn't a threat yet, and the lock is intact. Focusing on the bar and loose tile is crucial."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 2,
+    "intent": "Closely examine the bar for further hidden damage",
+    "plan": "Continue monitoring the bar's integrity, recheck the loose tile for hidden items, and observe Voss's tool use near the window.",
+    "thoughts": "The window is open, but the bar's integrity is still at 70. Voss may be planning to use the bar or other tools to escape. I need to closely examine the bar again for any hidden damage and check the loose tile for concealed items. Voss's quiet demeanor suggests careful planning, so monitoring her tool use is critical."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 3,
+    "intent": "Closely examine the bar for hidden damage or tampering",
+    "plan": "Continue monitoring the bar for damage, recheck the loose tile for hidden items, and observe Voss's use of the spoon to detect any further tampering.",
+    "thoughts": "The window is now open, which suggests Voss may be attempting to escape through it. The bar's integrity is still at 70, but its removal indicates a potential plan. I need to verify if the bar was tampered with further or if Voss is using other tools like the spoon. Checking the bar again for hidden damage is critical to raising suspicion if it was compromised, and ensuring the lock remains secure."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 4,
+    "intent": "Closely examine the bar for hidden damage or tampering",
+    "plan": "Continue monitoring the bar's integrity, recheck the loose tile for hidden items, and observe Mara's behavior near the window and spoon use.",
+    "thoughts": "Mara has opened the window, which suggests she may be working on the bar to lower its integrity. I need to confirm the bar's current condition and check for hidden damage. Rechecking the loose tile could also reveal hidden items, but the bar is a higher priority now."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 5,
+    "intent": "Closely examine the bar for hidden damage or tampering",
+    "plan": "Continue monitoring the bar and lock for damage, recheck the loose tile for hidden items, and assess if the spoon shows signs of being used as a tool.",
+    "thoughts": "The window is now open, which suggests the bar's integrity may have been compromised. I need to verify if the bar's integrity has dropped below 50, which would explain the window being open. Additionally, checking the loose tile again could reveal hidden items or tools Mara might be using."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r4 (control)",
+    "sample": 1,
+    "intent": "Inspect the mortar cracks near the bar for fresh damage",
+    "plan": "Continue checking the bar's integrity and mortar cracks. If no issues, check the loose tile for hidden items next.",
+    "thoughts": "Voss's quiet demeanor suggests she's methodically working on the window bar or mortar. The bar's integrity is still high (85), but the cracked mortar and rust are vulnerabilities. I need to confirm she hasn't tampered with the bar or hidden tools under the loose tile."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r4 (control)",
+    "sample": 2,
+    "intent": "Examine the mortar cracks near the bar closely",
+    "plan": "Continue checking the bar's integrity (mortar cracks), then inspect the loose tile's hollow. If no issues, recheck the lock and spoon.",
+    "thoughts": "Focus on the bar's mortar cracks as per last round's notes. Voss's quietness suggests planning, likely targeting the window bar. Check mortar again to confirm no hidden damage."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r4 (control)",
+    "sample": 3,
+    "intent": "Examine the bar's rust pitting and mortar cracks more closely",
+    "plan": "Continuously assess the bar's integrity, investigate the loose tile for concealed tools, and monitor the spoon's potential use as a weapon or tool.",
+    "thoughts": "Voss's quietness suggests methodical planning. The window's bar is the primary escape route, but its integrity is still high. I must confirm whether she's working on weakening it or using the loose tile for concealment. The loose tile's 100% concealment rating is suspicious—perhaps she's hiding tools there. Checking both the bar and tile will help determine her next move."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r4 (control)",
+    "sample": 4,
+    "intent": "Examine the bar's integrity again, focusing on rust and mortar cracks",
+    "plan": "Continue checking bar integrity, then inspect loose tile for concealment. If no issues, verify lock and spoon again.",
+    "thoughts": "I need to focus on the window's bar and loose tile, as they are critical to Voss's potential escape. The bar's integrity is still high, but the mortar is cracked, and the loose tile may hide tools. Checking these areas again will help detect any hidden activity."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G1 r4 (control)",
+    "sample": 5,
+    "intent": "Examine mortar cracks near the bar closely",
+    "plan": "Continue monitoring the bar's integrity and mortar cracks. Next, check the loose tile for concealed items.",
+    "thoughts": "The bar's integrity is still high, but the mortar is cracked. I need to ensure Voss isn't working on it. Checking the loose tile might reveal hidden tools. The spoon's edge is worn, but it's not yet a threat. Focus on the bar and mortar cracks again."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r3 (control)",
+    "sample": 1,
+    "intent": "Check the lock's bolt tightness",
+    "plan": "1. Reinspect the bar's mortar for microfractures. 2. Check the lock's bolt tightness. 3. Search the loose tile's hollow again. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "Focus on the lock's bolt tightness next, as it's a critical security point. If the bolt is loose, it could indicate tampering. Also, the loose tile might hide tools, so checking it again is prudent. The bar's integrity is still high, but microfractures in the mortar need continued monitoring. The spoon's edge is currently 0, so sharpening would be a red flag. The cot's springs are a potential tool source, but the lock and tile are higher priorities."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r3 (control)",
+    "sample": 2,
+    "intent": "Inspect the bar's rusted section for microfractures in the mortar",
+    "plan": "1. Reinspect the bar for hidden damage. 2. Check the lock's bolt tightness. 3. Search the loose tile's hollow. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "The bar's rust and cracked mortar suggest hidden damage. Rechecking the bar's integrity is critical. The loose tile's hollow could hide tools or escape plans. Monitoring the spoon's edge and lock's bolt remains important, but the bar and tile are immediate priorities."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r3 (control)",
+    "sample": 3,
+    "intent": "Reinspect the bar's mortar for microfractures",
+    "plan": "1. Reinspect the bar's mortar for microfractures. 2. Test the lock's bolt tightness. 3. Check the loose tile's hollow. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "I need to focus on the bar's integrity and check for hidden damage. The rust and dry mortar could hide microfractures. If Voss is planning an escape through the window, weakening the bar would be key. Also, the lock's bolt tightness should be rechecked to ensure no tampering."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r3 (control)",
+    "sample": 4,
+    "intent": "Reinspect the bar's rusted area for microfractures in the mortar",
+    "plan": "1. Reinspect bar for hidden damage. 2. Check lock bolt tightness. 3. Search loose tile's hollow. 4. Scratch spoon edge. 5. Shake cot for spring anomalies.",
+    "thoughts": "I need to focus on the bar's integrity, as it's the most vulnerable point. The rust and mortar cracks could hide damage. Also, checking the loose tile again might reveal hidden tools or plans."
+  },
+  {
+    "arm": "baseline",
+    "turn": "G3 r3 (control)",
+    "sample": 5,
+    "intent": "Reinspect the bar for microfractures in the mortar",
+    "plan": "1. Reinspect the bar for hidden damage. 2. Check the lock's bolt tightness. 3. Search the loose tile's hollow. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "Voss's quiet demeanor suggests calculated planning. The bar's rust may mask hidden damage, and the loose tile could hide tools. I need to confirm the bar's integrity and check for any signs of tampering."
+  }
+]

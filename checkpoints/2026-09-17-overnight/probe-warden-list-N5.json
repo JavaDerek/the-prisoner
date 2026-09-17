@@ -1,0 +1,242 @@
+[
+  {
+    "arm": "list",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 1,
+    "intent": "examine the window closely",
+    "plan": "Check window to trigger Condition 6, then probe loose tile with spoon, then inspect cot and door.",
+    "thoughts": "Mara has opened the window, which is a direct path to escape. Since the window is open, checking it now would trigger Condition 6, catching her. The bar's integrity is 40, but that's already below 50, so Condition 1 was already met. The immediate priority is to prevent her escape through the window by examining it and invoking Condition 6. The original plan may need adjustment due to the window being open."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 2,
+    "intent": "Examine the window closely to check if it stands open",
+    "plan": "Immediately examine the window to confirm it's open (triggering Condition 6). If unsuccessful, probe the loose tile with the spoon for hidden items.",
+    "thoughts": "Mara has opened the window, which is a way out. Since warden suspicion is at 58 (above 40), examining the window (a way out) and finding it open would trigger Condition 6, resulting in her capture. This is the most immediate way to prevent her escape."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 3,
+    "intent": "Closely examine the window to confirm it's open",
+    "plan": "Examine the window to trigger Condition 6 and catch Mara. If unsuccessful, check the loose tile for hidden items.",
+    "thoughts": "Mara has opened the window, which is a way out. Since I can examine the window and find it open, this triggers Condition 6, leading to her capture. I must act quickly to prevent her escape."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 4,
+    "intent": "Closely examine the window",
+    "plan": "Examine the window to trigger condition 6 and catch Mara immediately. If unsuccessful, check the door's bolt next.",
+    "thoughts": "Mara has opened the window, which is a way out. Since warden suspicion is above 40, examining the window (a way out) would trigger condition 6 if it's found open, catching her. This is the most direct path to prevent her escape."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r7 (window opened last turn)",
+    "sample": 5,
+    "intent": "examine the window closely to check if it's open",
+    "plan": "Immediately examine the window to trigger Condition 6. If unsuccessful, probe loose tile and inspect cot frame.",
+    "thoughts": "Mara has opened the window, which means she can escape (Condition 2). To prevent this, I must trigger Condition 6 by examining the window (a way out) and finding it open. This would immediately end the game with her caught. Alternatively, I could inspect the loose tile or cot frame as per my previous plan, but the priority is stopping her escape now."
+  },
+  {
+    "arm": "list",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 1,
+    "intent": "Examine the window closely to confirm it is open",
+    "plan": "1. Examine the window to trigger Condition 6. 2. If unsuccessful, recheck the bar's integrity. 3. Inspect the loose tile for concealed items.",
+    "thoughts": "The window is already open, which means Mara Voss can escape through it. To prevent her escape, I need to trigger Condition 6 by examining the window and confirming it's open. This would result in her being caught immediately."
+  },
+  {
+    "arm": "list",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 2,
+    "intent": "Examine the window closely to confirm it is open and trigger Condition 6",
+    "plan": "Immediately examine the open window to activate Condition 6 and catch Mara. If that fails, check the loose tile for hidden items.",
+    "thoughts": "Mara has opened the bar, making the window a viable escape route. Since warden suspicion is already at 60, examining the open window (a way out) would trigger Condition 6, allowing me to catch her immediately. This is the most direct path to securing the cell and ending the game."
+  },
+  {
+    "arm": "list",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 3,
+    "intent": "Examine the window (way out) closely",
+    "plan": "1. Examine the window to trigger Condition 6. 2. If unsuccessful, search loose tile for hidden items. 3. Recheck bar integrity if needed.",
+    "thoughts": "The window is already open, and examining it may trigger Condition 6 to catch Mara Voss. With suspicion at 60, this is a critical opportunity."
+  },
+  {
+    "arm": "list",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 4,
+    "intent": "Examine the window closely to check if it is open",
+    "plan": "Immediately examine the window to trigger Condition 6 and secure Mara Voss. If unsuccessful, proceed to inspect the loose tile for hidden items.",
+    "thoughts": "Mara Voss has opened the bar, making the window a viable escape route. With warden suspicion already at 60, I need to act swiftly to prevent her escape. Condition 6 states that examining an open way out (the window) will result in her capture. This seems like the most direct path to securing her."
+  },
+  {
+    "arm": "list",
+    "turn": "G2 r7 (window opened last turn)",
+    "sample": 5,
+    "intent": "Examine the window closely to confirm it's open",
+    "plan": "First, confirm the window's open state to trigger Condition 6. If unsuccessful, recheck the bar and inspect the loose tile.",
+    "thoughts": "The window is already open, and checking it may trigger Condition 6, which would catch Mara Voss. With suspicion at 60, this is a viable path."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 1,
+    "intent": "Examine the window closely",
+    "plan": "1. Examine the window to trigger Condition 6 and catch Mara. 2. If unsuccessful, reinspect the bar and check the spoon's edge.",
+    "thoughts": "Mara has opened the bar, making the window accessible. Since the window is now open, examining it will trigger Condition 6 (if I find it open with high suspicion), allowing me to catch her. Immediate action is needed to prevent her escape."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 2,
+    "intent": "Examine the window closely as a way out",
+    "plan": "1. Examine the window to confirm it's open and trigger CONDITION 6. 2. If unsuccessful, recheck the bar's mortar and spoon edge.",
+    "thoughts": "Mara has opened the bar, making the window a viable escape route. Since the window is a way out and is now open, examining it closely will trigger CONDITION 6, catching her immediately. Warden suspicion is already high enough (78) to meet the threshold for this condition."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 3,
+    "intent": "Examine the window (as a way out) to confirm it is open",
+    "plan": "1. Examine the window to trigger Condition 6 and capture Mara. 2. If unsuccessful, reinspect the bar's mortar and check the spoon's edge.",
+    "thoughts": "The window is open, and Mara can escape through it. To prevent her escape, I need to trigger Condition 6 by examining the window (a way out) and finding it open. This would result in her capture. Other checks are less urgent given the immediate risk."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 4,
+    "intent": "Examine the window closely to check if it is open",
+    "plan": "1. Examine the window to confirm it is open. 2. Reinspect bar mortar for microfractures. 3. Check spoon edge again for sharpening.",
+    "thoughts": "The window is currently open, which means Mara can escape through it. If I examine the window, Condition 6 will trigger, leading to her capture. This is critical to prevent her escape. Other checks may not be as urgent."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r6 (window opened last turn)",
+    "sample": 5,
+    "intent": "Examine the window closely to confirm it's open and trigger Condition 6",
+    "plan": "1. Examine the window to trigger Condition 6 and catch Mara. 2. If unsuccessful, reinspect the bar's mortar for hidden damage.",
+    "thoughts": "Mara has opened the bar, making the window a viable escape route. To prevent her escape, I need to trigger Condition 6 by examining the open window. Since warden suspicion is already high (78), this will immediately end the game with her caught."
+  },
+  {
+    "arm": "list",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 1,
+    "intent": "Closely examine the window (as a way out)",
+    "plan": "Immediately examine the open window to confirm it stands open, triggering Condition 6. If unsuccessful, search the loose tile for tools or hidden items that might aid escape.",
+    "thoughts": "Mara Voss has opened the window, creating an immediate escape route. My priority is to prevent her escape by leveraging Condition 6, which would end the game if I examine the open window. The window is now a 'way out' that stands open, so examining it could trigger her capture. I must act swiftly before she escapes."
+  },
+  {
+    "arm": "list",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 2,
+    "intent": "Closely examine the window to confirm if it stands open",
+    "plan": "Examine the window to trigger Condition 6 and capture Voss. If that fails, check the bar and loose tile for additional threats.",
+    "thoughts": "Mara Voss has opened the window, which is now a clear escape route. Since warden suspicion is at 75, examining the open window would trigger Condition 6, leading to her capture. This is the most immediate way to secure the cell and end the scenario without her escaping."
+  },
+  {
+    "arm": "list",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 3,
+    "intent": "Closely examine the window to check if it's standing open",
+    "plan": "Examine the open window to trigger Condition 6, then recheck the bar and loose tile if needed.",
+    "thoughts": "Mara Voss has opened the window, creating an immediate escape route. Since warden suspicion is already at 75, examining the open window could trigger Condition 6, allowing me to catch her. The window's current state is open, so this is the most direct path to prevent her escape."
+  },
+  {
+    "arm": "list",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 4,
+    "intent": "Closely examine the window for signs of tampering or hidden tools",
+    "plan": "Examine the window to check for any hidden tools or signs of tampering, while also monitoring Mara Voss’s behavior to ensure she does not attempt to escape. I will then proceed to examine the lock and loose tile for additional vulnerabilities.",
+    "thoughts": "Mara Voss has opened the window, which means she may be close to escaping. My main focus should be to prevent her from escaping by examining the window and ensuring that there are no further vulnerabilities. I should also maintain a high level of suspicion to catch her if she tries to use any other methods to escape."
+  },
+  {
+    "arm": "list",
+    "turn": "G4 r6 (window opened last turn)",
+    "sample": 5,
+    "intent": "Closely examine the window to confirm it is open",
+    "plan": "Immediately confirm the window's status to trigger Condition 6 and prevent escape. If unsuccessful, recheck the bar and loose tile for hidden threats.",
+    "thoughts": "Mara Voss has opened the window, which is a direct path to her escape. Since warden suspicion is at 75 (above 40), examining the window (a way out) and finding it open would trigger Condition 6, ending the game with her caught. This is the most immediate way to secure the cell and prevent her escape."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r4 (control)",
+    "sample": 1,
+    "intent": "Closely examine the bar again for signs of hidden damage or mortar cracks",
+    "plan": "Continue checking the bar's integrity, then inspect the loose tile for concealed items, and monitor the spoon's condition. If no issues, shift focus to other areas like the window and cot.",
+    "thoughts": "I need to monitor the bar's integrity closely as per my last plan, but also check the loose tile for any hidden items. Mara's work at the bar could be a risk, and the loose tile might be used to conceal tools. Since suspicion is low, direct confrontation isn't possible yet, but I should increase vigilance."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r4 (control)",
+    "sample": 2,
+    "intent": "Examine the bar's integrity closely",
+    "plan": "Continue checking the bar's integrity, then monitor the lock and spoon again. If no issues, focus on other areas.",
+    "thoughts": "Continuing to monitor the bar's integrity as per the last plan, since its current status is 85 and there's a risk of it dropping further. No immediate threats detected, but need to stay vigilant."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r4 (control)",
+    "sample": 3,
+    "intent": "Examine the bar closely, focusing on the mortar cracks",
+    "plan": "Continue checking the bar's integrity, then re-examine the lock and spoon. If no issues are found, shift focus to the loose tile and Mara's behavior.",
+    "thoughts": "I need to continue monitoring the bar's integrity as previously planned, as it's a critical point of potential weakness. Mara's work at the bar raises suspicion of tampering, and the cracked mortar suggests possible hidden damage. Even though the current integrity is high, any unexplained drop could signal her efforts, which would increase suspicion. Checking the bar again will help determine if there's hidden damage. Monitoring the lock and spoon will also be necessary, but the bar remains the priority for now."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r4 (control)",
+    "sample": 4,
+    "intent": "Examine the bar's integrity and check the mortar cracks for signs of damage.",
+    "plan": "Continue checking the bar's integrity, then reassess the lock and spoon. If no issues, focus on other areas like the loose tile.",
+    "thoughts": "I need to monitor the bar's integrity closely, as it's the primary point of potential escape. The mortar cracks near the bar are a concern, and Mara works at the bar, increasing the risk of tampering. Checking the bar again will confirm its current state and detect any hidden damage. The loose tile is less urgent, but a quick check ensures nothing is concealed."
+  },
+  {
+    "arm": "list",
+    "turn": "G1 r4 (control)",
+    "sample": 5,
+    "intent": "Examine the bar's integrity closely",
+    "plan": "Continue checking the bar's integrity, then monitor the lock and spoon again. If no issues, focus on other areas.",
+    "thoughts": "The bar's integrity is currently at 85, which is above the 50 threshold that would allow Mara to open the window. However, I need to ensure it hasn't been damaged. The lock and spoon are also points of interest, but the lock is intact and the spoon's edge is already low. Prioritizing rechecking the bar's integrity is crucial to prevent any potential escape route via the window."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r3 (control)",
+    "sample": 1,
+    "intent": "Reinspect the bar's mortar for microfractures",
+    "plan": "1. Reinspect the bar for hidden damage. 2. Check the lock's bolt tightness. 3. Search the loose tile's hollow. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "The bar's integrity is currently 85, but the notes from last round suggest checking for microfractures in the mortar. Since the bar is rusted and set in dry, cracked mortar, there may be hidden damage not yet detected. Reinspecting it closely could reveal issues that might lower its integrity further, potentially allowing Mara Voss to open the window if undetected. Additionally, ensuring the lock and other points of vulnerability are secure is critical."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r3 (control)",
+    "sample": 2,
+    "intent": "Reinspect the bar for hidden damage using a magnifying tool",
+    "plan": "1. Reinspect the bar for hidden damage using a magnifying tool. 2. Check the window for any signs of tampering. 3. Examine the loose tile for hidden objects or tools.",
+    "thoughts": "Mara Voss's actions and the state of the bar and window are critical. I need to closely examine the bar again for hidden damage, as my last inspection suggested potential issues. I should also check the window and the surrounding area for signs of tampering. The bar's integrity is currently high, but rust and cracks may hide damage."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r3 (control)",
+    "sample": 3,
+    "intent": "Closely examine the bar's mortar for microfractures",
+    "plan": "1. Reinspect the bar for hidden damage. 2. Check the lock's bolt tightness. 3. Search the loose tile's hollow. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "I need to continue my inspection of the bar for hidden damage and check the lock's bolt tightness as per my previous plan. The bar's current integrity is 85, but the mortar may hide microfractures that could lower it further. Checking the lock's bolt is also critical to ensure it hasn't been tampered with."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r3 (control)",
+    "sample": 4,
+    "intent": "Reinspect the bar's mortar for microfractures",
+    "plan": "1. Reinspect the bar for hidden damage. 2. Check the lock's bolt tightness. 3. Search the loose tile's hollow. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "I need to continue monitoring the bar for hidden damage, as the mortar's condition may indicate lower integrity than reported. Checking the lock's bolt tightness is also critical to ensure it hasn't been compromised. The loose tile and spoon remain potential risks, but the bar is the most immediate concern given Mara's recent 'Clang!' and the window's vulnerability."
+  },
+  {
+    "arm": "list",
+    "turn": "G3 r3 (control)",
+    "sample": 5,
+    "intent": "Check the lock's bolt tightness",
+    "plan": "1. Reinspect the bar for hidden damage. 2. Check the lock's bolt tightness. 3. Search the loose tile's hollow. 4. Monitor the spoon for sharpening. 5. Listen for cot spring anomalies.",
+    "thoughts": "I need to continue my plan from last round, which included rechecking the bar, then moving to the lock's bolt tightness. The bar's integrity is 85, but the mortar is cracked, so I should ensure there's no hidden damage. Next, I'll check the lock's bolt to see if it's been tampered with."
+  }
+]

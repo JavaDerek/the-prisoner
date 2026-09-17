@@ -2618,3 +2618,22 @@ regenerated texts, 7 were unseen. The rest were still the known approach reworde
 published by tag), and this repository consumes it pinned exactly. The local `src/open/pick.ts` is gone.
 It moved because it does what it claims, measured against a real caller. The free-turn question is left
 open, and the package README says so.
+
+### 34.3 The warden reads the list from its own side (2026-09-17)
+
+`PRISONER_CONDITIONS=both` gives the warden's mind the same `openConditions()`, rendered from its side:
+the unlocks are `(for Mara Voss)` and the catches `(for you)`. Probe first, on batch G's recorded warden
+turns, 5 samples each (`probe-warden.mts`, `probe-warden-{baseline,list}-N5.json`).
+
+| Turn | What would catch her | Baseline | List |
+|---|---|---|---|
+| G1 r7, G2 r7, G3 r6, G4 r6 (she opened the window on her previous turn; suspicion 58-100; the warden's briefing says "Mara Voss opens the window." or "…opens the bar.") | a close look at the window | **0 of 20** (tile ×9, bar/mortar ×10, door bolt ×1) | **20 of 20** |
+| G1 r4, G3 r3 (controls: nothing open yet) | — | bar ×9, lock ×1 | bar ×9, lock ×1 |
+
+Batch G's warden perceived *"Mara Voss opens the window"* and then went to the tile or re-examined the
+bar's mortar; every recorded one did, and so did every re-asked one. With the list, every answer looks at
+the window, often reasoning from the list by number (*"Examine the window closely to confirm it is open
+and trigger Condition 6"*: his own condition, read as his). The control turns do not move.
+
+This is §34.1's result from the other side: the same generic list, with nothing but the reader changed,
+makes the principal whose condition it is act on it. Real games follow in §34.4.
