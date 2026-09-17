@@ -91,7 +91,14 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 
 ## Decisions for Derek
 
-**D1. Where condition-list generation lives. Chosen for tonight: the caller (the-prisoner), as a generic
+> **Answered 2026-09-17 (afternoon).** D1 stands as taken. **D2: the §21 line holds** — free turns
+> only, so pick is "a working force, not yet a novelty mechanism" and item 3 reopens. **D3: yes** —
+> the list is the default; `PRISONER_CONDITIONS=off` is the old baseline, now an arm. **D4: wait for
+> brink.** **D5: both leftovers done** — the sidecar keeps every raw reply (`6f77355`, §38) and the
+> 180 s timeout is a thinking loop on a two-act intent, diagnosed with one tested fix rejected for
+> breaking two controls (§39). Reasoning and consequences: OPEN-VARIANT §40.
+
+**D1. [STANDS.] Where condition-list generation lives. Chosen for tonight: the caller (the-prisoner), as a generic
 file.** `src/open/conditionList.ts` holds the renderer and the `Condition` type, and a test keeps game
 words out of it, the same way `pick.ts` is held. `src/open/conditions.ts` is the game side: it builds the
 conditions from the constants the game already enforces.
@@ -106,18 +113,18 @@ conditions from the constants the game already enforces.
   If the list turns out to be worth generating from engine-declared gates (so every run-dmcp game gets it
   for free), that argues for (b) and an engine issue.
 
-**D2. Should pick (now mother-of-invention 0.1.2) be judged by forced turns or free turns?** I released
+**D2. [ANSWERED: free turns.] Should pick (now mother-of-invention 0.1.2) be judged by forced turns or free turns?** I released
 it because it does what it claims against a real caller, and the README states that free turns did not
 change. If you hold the §21 line that only free-turn behaviour counts, the honest label is "a working
 force, not yet a novelty mechanism", and the next idea is something that changes free turns (e.g. carry a
 forced turn's result into the plan). If forced-turn novelty counts, item 3 is simply done.
 
-**D3. Does the condition list become the default?** Batch G escaped 4/4 where F was caught 4/4, with one
+**D3. [ANSWERED: yes.] Does the condition list become the default?** Batch G escaped 4/4 where F was caught 4/4, with one
 premature removal attempt. Making `PRISONER_CONDITIONS=list` the default changes every future baseline
 (and every earlier batch stops being comparable). I left it a switch. Yes = new baseline from here; no =
 it stays an arm.
 
-**D4. Is the condition list a mind-seam export now?** Tonight it has one caller (this game) and two
+**D4. [ANSWERED: not until brink uses it.] Is the condition list a mind-seam export now?** Tonight it has one caller (this game) and two
 readers (both minds), and it changed both minds' behaviour in real games. mind-seam was extracted at
 two callers, so by that precedent the answer is "not until brink uses it". If you'd rather brink's
 rival minds try it straight from the package, it's a pure function plus a type (a patch release) and

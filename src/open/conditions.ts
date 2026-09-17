@@ -25,14 +25,19 @@ export function openConditions(): Condition[] {
   ];
 }
 
-export type ConditionsMode = "list" | "both";
+export type ConditionsMode = "off" | "list" | "both";
 
-/** `PRISONER_CONDITIONS=list` gives the prisoner's mind the condition list in
- *  place of the threshold sentences (§34); `both` gives it to the warden's mind
- *  too, read from its own side (§34.3); unset is the baseline. Anything
- *  else stops the run rather than guessing. */
-export function readConditionsMode(raw: string | undefined): ConditionsMode | undefined {
-  if (raw === undefined || raw === "") return undefined;
-  if (raw === "list" || raw === "both") return raw;
-  throw new Error(`PRISONER_CONDITIONS: unrecognised value ${JSON.stringify(raw)} -- must be "list", "both" or unset`);
+/** The prisoner's mind gets the condition list in place of the threshold
+ *  sentences (§34) unless told otherwise: `list` is the **default** by decision
+ *  D3 (2026-09-17), because with it she escaped 6 of 6 against the rule
+ *  sentences' 2 of 6 (§34.2, §34.5). `both` gives the list to the warden's mind
+ *  too, read from its own side (§34.3); `off` is the old rule-sentence
+ *  baseline, now an arm you ask for rather than the one you get by saying
+ *  nothing. Anything else stops the run rather than guessing.
+ *
+ *  A batch from before this date is only comparable to an `off` run. */
+export function readConditionsMode(raw: string | undefined): ConditionsMode {
+  if (raw === undefined || raw === "") return "list";
+  if (raw === "off" || raw === "list" || raw === "both") return raw;
+  throw new Error(`PRISONER_CONDITIONS: unrecognised value ${JSON.stringify(raw)} -- must be "list" (the default), "both" or "off"`);
 }

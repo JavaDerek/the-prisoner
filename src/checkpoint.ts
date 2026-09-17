@@ -128,8 +128,9 @@ const PICK = readPickCondition(process.env.PRISONER_PICK);
 /** Open variant only: `passive` takes the warden out of the question
  *  (`src/open/passiveWarden.ts`, OPEN-VARIANT.md §26). Unset: the model warden. */
 const WARDEN_MODE = readWardenMode(process.env.PRISONER_WARDEN);
-/** Open variant only: `list` gives the prisoner's mind the thresholds as a
- *  condition list (`src/open/conditions.ts`, OPEN-VARIANT.md §34). Unset: the baseline. */
+/** Open variant only: the prisoner's mind gets the thresholds as a condition
+ *  list (`src/open/conditions.ts`, OPEN-VARIANT.md §34) unless told otherwise.
+ *  Unset: `list`, the default since D3. `off` is the old rule-sentence baseline. */
 const CONDITIONS = readConditionsMode(process.env.PRISONER_CONDITIONS);
 const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
@@ -703,7 +704,7 @@ async function mainOpen(): Promise<void> {
     },
   });
   const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions() } : {}) });
-  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS ? { conditions: openConditions() } : {}) });
+  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions() }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -762,8 +763,8 @@ async function mainOpen(): Promise<void> {
     CONDITIONS === "both"
       ? "Conditions: BOTH (`PRISONER_CONDITIONS=both`): both minds get the thresholds as a condition list at the top of their wits prompts, each read from its own side, not as rule sentences (§34.3)."
       : CONDITIONS === "list"
-        ? "Conditions: LIST (`PRISONER_CONDITIONS=list`): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34)."
-        : "Conditions: OFF (baseline): thresholds stated as rule sentences."
+        ? "Conditions: LIST (the default): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34)."
+        : "Conditions: OFF (`PRISONER_CONDITIONS=off`): thresholds stated as rule sentences. The pre-D3 baseline, now an arm."
   );
   transcript.push("");
   transcript.push("## Rounds");

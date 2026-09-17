@@ -2447,7 +2447,9 @@ an editable intent list, and marks rulings that changed from a kept comparison r
   any game used the list); (3-6) the four catch alternatives, one flat condition each.
 - **Switch:** `PRISONER_CONDITIONS=list` gives the list to the **prisoner's** mind only, at the top of
   its wits prompt, and drops the two threshold sentences from its rules. The warden is unchanged, so an
-  A/B changes one thing. Unset, every prompt path is byte-identical to before (dumped and compared).
+  A/B changes one thing. Unset, every prompt path was byte-identical to before (dumped and compared).
+  **Since D3 (§40) `list` is what unset means**, and the old rule-sentence baseline is
+  `PRISONER_CONDITIONS=off`: every batch above this line is comparable only to an `off` run.
 - **§33.15 item 3 (guard attention in the carried notes)** only ever existed in the lab prompt; the game
   has not rendered guard attention since `8d139f5`. The probe below removes it from the recorded notes.
 
@@ -2766,3 +2768,50 @@ sentence does that, but through the target question it pulls on other rulings; p
 mind's prompt instead ("one act per turn") would stop two-act intents at the source, a generic mind-side
 rule. (b) Impossible (one act per turn), with the reason told back. (c) Leave the wording alone and cap the
 referee's output so a loop fails in seconds instead of 180, which saves time but still loses the ruling.
+
+
+## 40. Three owner decisions: the list is the default, pick is a force, the seam waits (2026-09-17)
+
+Derek's answers to D2, D3 and D4 of `docs/OVERNIGHT-2026-09-17.md`. Recorded here because each one
+changes what a later measurement means.
+
+### 40.1 D3: the condition list is the default, and the old baseline is now an arm
+
+**Answer: yes, new baseline.** `readConditionsMode(undefined)` returns `"list"`, and the pre-D3
+rule-sentence prompt is `PRISONER_CONDITIONS=off`. The evidence is §34.2 and §34.5: with the list she
+escaped **6 of 6**, with the rule sentences **2 of 6**, same configuration, alternating for the last
+two a side, and she tried at her first removable turn 6/6 against 2/6.
+
+What this costs, stated plainly so nobody has to rediscover it: **every batch before today (A-F, H,
+I, J) is a comparison against `off`, not against the default.** A future run that says nothing about
+conditions is a batch G, not a batch F. The transcript header still names the arm on every run, so a
+checkpoint is self-describing; the `off` line now says so explicitly.
+
+The warden keeps the old prompt by default. `both` (§34.3) stays a switch, and it is the arm to reach
+for when the question is whether the game is still contested: batch K caught **4 of 4**, every catch
+the turn after she opened the window.
+
+### 40.2 D2: pick is a working force, not yet a novelty mechanism
+
+**Answer: the §21 line holds — only free-turn behaviour counts.** `pick` (mother-of-invention 0.1.2,
+mechanism 2) does what its README claims on forced turns: with the precedent ledger on, forced turns
+that did something unseen went **23% → 65%** (3/13 → 13/20), and regeneration turned 6 of 11 stuck
+turns into the mind's own new ideas (§36). But free turns did not move (3 novel of 15 against 3 of
+22), and outcomes did not improve.
+
+So the honest label is **"a working force, not yet a novelty mechanism"**: it makes a mind that is
+being made to choose differently choose better, and it does not yet give a mind a reason to choose
+something new when nothing is forcing it. Item 3 of the overnight list **reopens**. The next idea has
+to change free-turn behaviour — the one named in the report is carrying a forced turn's result into
+the plan, so that something the mind found under compulsion becomes something it wants unprompted.
+
+### 40.3 D4: the condition list stays here until brink has one
+
+**Answer: wait for a second caller.** The list has one caller (this game), and `mind-seam` was
+extracted only once two real callers needed the same seam — the same precedent, applied to itself.
+`src/open/conditionList.ts` (generic, guarded against this game's words) and `src/open/conditions.ts`
+(the game's thresholds) stay where D1 put them.
+
+What moves it: brink's rival minds wanting the same list. Then it is a pure function plus a type, a
+`mind-seam` patch release, and it travels as a file. Nothing here is published, so that stays a cheap
+move — which was D1's whole reason.

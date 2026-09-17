@@ -55,7 +55,8 @@ describe("a mind given conditions", () => {
     expect(prompt).toContain("warden suspicion rises: by 5 for a slight act");
   });
 
-  it("without conditions the prompt is unchanged: the baseline", async () => {
+  // `PRISONER_CONDITIONS=off` still reaches this: a mind built without conditions.
+  it("without conditions the prompt is unchanged: the old baseline, now an arm", async () => {
     const prompt = await promptFor("Mara Voss", "Warden Croft");
     expect(prompt).not.toContain(CONDITION_LIST_OPENING);
     expect(prompt).toContain("The window can be opened once the bar's integrity is at or below 50.");
@@ -72,11 +73,16 @@ describe("the warden reads the same list from its own side (§34.3)", () => {
 });
 
 describe("readConditionsMode: PRISONER_CONDITIONS", () => {
-  it("list turns it on; unset or empty is the baseline; anything else stops the run", () => {
+  // D3, 2026-09-17: the list is the default. Batch G escaped 6 of 6 where the
+  // rule sentences escaped 2 of 6 (OPEN-VARIANT.md §34.2, §34.5), so an unset
+  // run is a list run from here; `off` is the old baseline, now an arm.
+  it("unset or empty is the list; off is the old baseline; anything else stops the run", () => {
+    expect(readConditionsMode(undefined)).toBe("list");
+    expect(readConditionsMode("")).toBe("list");
     expect(readConditionsMode("list")).toBe("list");
     expect(readConditionsMode("both")).toBe("both");
-    expect(readConditionsMode(undefined)).toBeUndefined();
-    expect(readConditionsMode("")).toBeUndefined();
+    expect(readConditionsMode("off")).toBe("off");
     expect(() => readConditionsMode("yes")).toThrow(/PRISONER_CONDITIONS/);
+    expect(() => readConditionsMode("yes")).toThrow(/"off"/);
   });
 });
