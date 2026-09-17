@@ -2598,9 +2598,9 @@ alternating (`run-pick-ledger.sh`). Transcripts: even `…05-05-32-054Z`, `…05
 What regeneration found, each an idea absent from the mind's first list and produced only after being
 told the list was known: *"Bend the spoon's bowl edge to create a sharper abrading surface"*, *"Bend the
 wire into a hook to pull on the bar's weak spot"*, *"Test the door's bolt by pushing it gently"* (the
-first attempt at the door tonight), *"Work a piece loose from the tile"*, *"Use the spoon to scrape the
-loose tile's edges"*, *"Scratch the cot's frame with the spoon's worn edge"*. Of 29 regenerated texts, 6
-were unseen. The rest were still the known approach reworded, even after being told.
+first attempt at the door tonight), *"Work a piece loose from the tile"*, *"Examine the blanket closely for the loose thread"*, *"Use the
+spoon to scrape the loose tile's edges"*, *"Scratch the cot's frame with the spoon's worn edge"*. Of 45
+regenerated texts, 7 were unseen. The rest were still the known approach reworded, even after being told.
 
 **Reading.**
 - **Candidate generation measurably improved**, on the measure §32 named: stuck forced turns now become a
