@@ -256,9 +256,14 @@ export function fogAudit(halves: readonly OpenHalfRoundResult[]): {
   const leaks: { roundN: number; principal: Principal; field: (typeof PRIVATE_FIELDS)[number] }[] = [];
   for (const h of halves) {
     const other: Principal = h.principal === "warden" ? "prisoner" : "warden";
-    const serialized = JSON.stringify(h.context);
-    // Text this principal also wrote itself is its own to see.
+    // Text this principal also wrote itself is its own to see -- including when the
+    // other's text only appears inside a longer text of its own (§34.4: a warden's own
+    // plan began with the very words a prisoner's later candidate used). Own texts are
+    // masked out, longest first, before the other's are searched for.
     const ownTexts = new Set(privateBy[h.principal].map((p) => p.text));
+    const serialized = [...ownTexts]
+      .sort((a, b) => b.length - a.length)
+      .reduce((text, own) => text.split(JSON.stringify(own).slice(1, -1)).join("\u0000"), JSON.stringify(h.context));
     const leakedFields = new Set(
       privateBy[other].filter((p) => !ownTexts.has(p.text) && serialized.includes(JSON.stringify(p.text).slice(1, -1))).map((p) => p.field)
     );

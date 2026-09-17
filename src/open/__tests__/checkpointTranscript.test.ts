@@ -287,6 +287,23 @@ describe("open checkpoint transcript", () => {
     expect(fogAudit(planted).leaks).toEqual([{ roundN: 3, principal: "warden", field: "candidates" }]);
   });
 
+  it("fog audit: the other's text found only inside this principal's OWN longer text is not a leak (§34.4, batch K game 4)", async () => {
+    const game = await playCatchGame();
+    const OWN_PLAN = "Check the loose tile for hidden items or escape routes, then the bar.";
+    const THEIR_CANDIDATE = "Check the loose tile for hidden items";
+    const edited = game.halves.map((h) => {
+      if (h.roundN === 1 && h.principal === "warden" && h.proposal) return { ...h, proposal: { ...h.proposal, plan: OWN_PLAN } };
+      if (h.roundN === 2 && h.principal === "prisoner" && h.proposal) return { ...h, proposal: { ...h.proposal, candidates: [{ text: THEIR_CANDIDATE, reason: "r" }] } };
+      if (h.roundN === 2 && h.principal === "warden") return { ...h, context: { ...h.context, briefing: `${h.context.briefing}\nYour plan, from your last turn: ${OWN_PLAN}` } };
+      return h;
+    });
+    expect(fogAudit(edited).leaks).toEqual([]);
+
+    // The same text standing on its own in the briefing is still caught.
+    const planted = edited.map((h) => (h.roundN === 3 && h.principal === "warden" ? { ...h, context: { ...h.context, briefing: `${h.context.briefing}\n${THEIR_CANDIDATE}.` } } : h));
+    expect(fogAudit(planted).leaks).toEqual([{ roundN: 3, principal: "warden", field: "candidates" }]);
+  });
+
   it("fog audit: text BOTH principals wrote themselves is theirs to see, never a leak", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();
