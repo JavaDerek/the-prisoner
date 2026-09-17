@@ -55,7 +55,8 @@ import { runOpenGame } from "./open/game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, type SilenceNote } from "./open/checkpointTranscript.js";
 import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
-import { recordGame, precedentLines } from "./open/precedent.js";
+import { recordGame, precedentLines, readPrecedentPrice } from "./open/precedent.js";
+import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
 import { openConditions, readConditionsMode } from "./open/conditions.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
@@ -132,6 +133,9 @@ const WARDEN_MODE = readWardenMode(process.env.PRISONER_WARDEN);
  *  list (`src/open/conditions.ts`, OPEN-VARIANT.md §34) unless told otherwise.
  *  Unset: `list`, the default since D3. `off` is the old rule-sentence baseline. */
 const CONDITIONS = readConditionsMode(process.env.PRISONER_CONDITIONS);
+/** Open variant only: how a known approach is priced (`src/open/precedent.ts`,
+ *  OPEN-VARIANT.md §42). `flat` unless asked, so earlier batches stay comparable. */
+const PRECEDENT_PRICE = readPrecedentPrice(process.env.PRISONER_PRECEDENT_PRICE);
 const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
@@ -715,7 +719,7 @@ async function mainOpen(): Promise<void> {
     ? beginEpisode(existsSync(PRECEDENT_LEDGER) ? parseLedger(JSON.parse(readFileSync(PRECEDENT_LEDGER, "utf8"))) : emptyLedger(), stamp)
     : null;
   const precedents = precedentLedger ? seenBefore(precedentLedger, { observer: "warden", actor: "prisoner", episode: stamp, limit: PRECEDENT_LIMIT }) : [];
-  const precedent = precedentLedger ? precedentLines(precedents) : undefined;
+  const precedent = precedentLedger ? precedentLines(precedents, { price: PRECEDENT_PRICE }) : undefined;
 
   const transcript: string[] = [];
   transcript.push("# The Prisoner -- checkpoint transcript (open variant)");
@@ -744,6 +748,11 @@ async function mainOpen(): Promise<void> {
         `${precedents.length} precedent(s) shown to both minds every turn (limit ${PRECEDENT_LIMIT}):`
     );
     for (const p of precedents) transcript.push(`- ${p.text} (times ${p.times}, episodes ${p.episodes}, last ${p.lastEpisode})`);
+    transcript.push(
+      PRECEDENT_PRICE === "stale"
+        ? `Precedent price: STALE (\`PRISONER_PRECEDENT_PRICE=stale\`): each known approach costs ${KNOWN_APPROACH_SUSPICION_BUMP} per earlier attempt that tried it, capped at the bound, instead of a flat ${KNOWN_APPROACH_SUSPICION_BUMP} (§42).`
+        : `Precedent price: FLAT (the default): every known approach costs ${KNOWN_APPROACH_SUSPICION_BUMP}, whatever its precedent. The pre-§42 baseline.`
+    );
   } else {
     transcript.push("Precedent condition: OFF (baseline).");
   }

@@ -105,6 +105,13 @@ const SUSPICION_BUMP_FOR_MAGNITUDE: Record<Magnitude, number> = {
  *  variant's own failed-escape bump: the largest single rise it has. */
 export const KNOWN_APPROACH_SUSPICION_BUMP = FAILED_ESCAPE_SUSPICION_BUMP;
 
+/** One approach the warden knows on sight, and what noticing it costs
+ *  (OPEN-VARIANT.md §42). The price arrives already decided by
+ *  `precedent.ts`, whose arm it is: under `flat` every entry carries
+ *  `KNOWN_APPROACH_SUSPICION_BUMP` and this file behaves exactly as it did
+ *  before the arm existed, so there is one code path here, not two. */
+export type KnownApproach = { readonly text: string; readonly suspicionBump: number };
+
 /** A prisoner attempt as the warden perceives it, with a role-neutral actor --
  *  the text the precedent ledger records, and the text a known approach is
  *  matched on. Built by code from ruling keys, so matching it is exact string
@@ -255,7 +262,7 @@ export async function runOpenHalfRound(params: {
   mind: OpenMind;
   /** Prisoner attempts the warden already knows on sight (`precedentTextFor`
    *  texts). Absent outside the precedent condition. */
-  knownApproaches?: readonly string[];
+  knownApproaches?: readonly KnownApproach[];
   /** The pick condition (OPEN-VARIANT.md §21), present only on a forced
    *  prisoner turn: every approach counted as seen -- the ledger's known
    *  approaches plus what the warden saw earlier this game. Recognition only:
@@ -431,7 +438,8 @@ export async function runOpenHalfRound(params: {
 
     // A known approach is known on sight: a reshaping the warden cannot see is
     // no approach it recognises (§14.4).
-    const known = principal === "prisoner" && seenByOther && (params.knownApproaches ?? []).includes(precedentTextFor(ruling, reshapeOf));
+    const knownAs = precedentTextFor(ruling, reshapeOf);
+    const known = principal === "prisoner" && seenByOther ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
     const perceptionForOther = ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
 
     // OPEN-VARIANT.md §9.3, "grounds accrue": a prisoner's own non-silent
@@ -441,7 +449,7 @@ export async function runOpenHalfRound(params: {
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
     }
     if (known) {
-      bumpWardenSuspicion(openWorld, resolver, KNOWN_APPROACH_SUSPICION_BUMP, "The warden recognises a known approach.");
+      bumpWardenSuspicion(openWorld, resolver, known.suspicionBump, "The warden recognises a known approach.");
     }
 
     let revealFor: OpenHalfRoundResult["revealFor"] = null;

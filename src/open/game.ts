@@ -2,7 +2,7 @@ import type { Resolver } from "run-dmcp";
 import type { OpenWorld } from "./world.js";
 import type { Referee } from "./referee.js";
 import type { OpenMind } from "./mind.js";
-import { runOpenHalfRound, type OpenHalfRoundResult } from "./loop.js";
+import { runOpenHalfRound, type OpenHalfRoundResult, type KnownApproach } from "./loop.js";
 import { seenAttempts } from "./precedent.js";
 import type { PickCondition } from "./pickCondition.js";
 import { checkOpenGameEnd, type OpenGameEnd } from "./gameEnd.js";
@@ -44,7 +44,7 @@ export async function runOpenGame(params: {
   rounds: number;
   /** Standing knowledge per principal, shown every turn -- the precedent
    *  condition (`precedent.ts`). Absent in the baseline. */
-  precedent?: { readonly warden: readonly string[]; readonly prisoner: readonly string[]; readonly known: readonly string[] };
+  precedent?: { readonly warden: readonly string[]; readonly prisoner: readonly string[]; readonly known: readonly KnownApproach[] };
   /** The pick condition (OPEN-VARIANT.md §21): which prisoner turns are
    *  forced away from a known approach. Absent in the baseline. */
   pick?: PickCondition;
@@ -84,9 +84,9 @@ export async function runOpenGame(params: {
         context,
         mind: minds[principal],
         ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
-        ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []), ...seenAttempts(halves)], ...(params.pick.regenerate ? { regenerate: true } : {}) } } : {}),
+        ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []).map((k) => k.text), ...seenAttempts(halves)], ...(params.pick.regenerate ? { regenerate: true } : {}) } } : {}),
         ...(principal === "prisoner" && params.pick?.onReplan
-          ? { replanPick: { seen: [...(params.precedent?.known ?? []), ...seenAttempts(halves)], hadPlan: plans.prisoner !== undefined } }
+          ? { replanPick: { seen: [...(params.precedent?.known ?? []).map((k) => k.text), ...seenAttempts(halves)], hadPlan: plans.prisoner !== undefined } }
           : {}),
       });
       halves.push(half);

@@ -294,7 +294,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
         t: openWorld.base.clock.prisonerT(1),
         context: context(openWorld),
         mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I file at the bar with my spoon." }),
-        knownApproaches,
+        knownApproaches: knownApproaches.map((text) => ({ text, suspicionBump: KNOWN_APPROACH_SUSPICION_BUMP })),
       });
     }
 

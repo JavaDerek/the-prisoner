@@ -50,7 +50,7 @@ async function half(w: OpenWorld, resolver: ReturnType<typeof buildOpenResolver>
     t,
     context: buildOpenContext(w, principal, t, roundN),
     mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent }),
-    ...(knownApproaches ? { knownApproaches } : {}),
+    ...(knownApproaches ? { knownApproaches: knownApproaches.map((text) => ({ text, suspicionBump: KNOWN_APPROACH_SUSPICION_BUMP })) } : {}),
   });
 }
 

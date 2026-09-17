@@ -2913,3 +2913,82 @@ once), needs nothing new from the package, since `seenBefore` already returns th
 measurable on **free** turns with no forcing at all: does she leave the bar when the bar is priced at
 what it is actually worth? That is an owner's call, not a tidy-up, because it deliberately makes this
 game harder for the prisoner; it is put as a decision rather than started.
+
+## 42. Pricing a known approach by its own staleness (2026-09-17, the owner's decision)
+
+§41 ended with a choice rather than a build: if free-turn novelty is a property of the room, the thing
+to change is the **payoff**, not the prompt. The owner chose that. This is the arm, not a new default.
+
+### 42.1 What the ledger always knew, and the caller always spent
+
+Precedent (mother-of-invention's mechanism 1) has shown both minds how stale each approach is since
+§11.3 — *"A prisoner works at the bar. (seen 76 times, in 19 earlier attempts)"* — and then charged a
+**flat** `KNOWN_APPROACH_SUSPICION_BUMP` for any of them, whether nineteen prisoners had tried it or
+one. The counts were printed for the mind to read and thrown away by the pricing.
+
+So the package needed nothing: `Precedent` already carries `times`, `episodes` and `lastEpisode`.
+`stalenessBump` (`src/open/precedent.ts`) prices one known approach:
+
+```
+min(KNOWN_APPROACH_SUSPICION_BUMP * episodes, RESOURCE_MAX)
+```
+
+**`episodes`, not `times`.** Distinct earlier attempts are what makes an approach stale; `times` counts
+sightings and inflates with repetition inside a single game — the committed ledger's worst entry is 76
+sightings across 19 attempts, and pricing on 76 would charge a prisoner for how doggedly *someone else*
+repeated themselves.
+
+**Capped at `RESOURCE_MAX`, and the cap is load-bearing.** `warden_suspicion` is a `bounded` resource,
+and run-dmcp **rejects** an out-of-bounds write rather than clamping it, so an uncapped price would
+throw and lose the bump entirely. It would also put a number in a briefing that the world cannot
+deliver, and stating the consequence exactly is the one thing this condition has never broken.
+
+### 42.2 One code path, and a briefing that stays true
+
+`knownApproaches` is now `readonly KnownApproach[]` (`{ text, suspicionBump }`) rather than a list of
+texts, and `loop.ts` charges `known.suspicionBump`. Under `flat` every entry carries the old constant,
+so **the flat arm is the same code, not a second branch** — there is no "if stale" anywhere in the
+half-round.
+
+The briefing changes shape with the arm, because under `stale` the flat arm's single closing sentence
+(*"suspicion jumps by 30 at once"*) would be false when the prices differ per line. So the opening
+states the rule and each line states its own price:
+
+```
+Whatever Warden Croft knows on sight, Warden Croft notices however quietly it is done, and warden
+suspicion jumps at once by what that approach is worth -- the more prisoners have been seen trying
+it, the more it costs:
+- A prisoner works at the bar. (seen 76 times, in 19 earlier attempts) -- suspicion jumps by 100
+- A prisoner works a piece loose from the cot. (seen 4 times, in 3 earlier attempts) -- suspicion jumps by 90
+- A prisoner works at the lock. (seen 3 times, in 2 earlier attempts) -- suspicion jumps by 60
+- A prisoner opens the door. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by 30
+```
+
+Still a consequence, never a prohibition: every approach stays open and costs what it costs.
+
+### 42.3 The arm, and what it must not quietly become
+
+`PRISONER_PRECEDENT_PRICE=stale`; **`flat` is the default**, which is the D3 lesson (§40.1) applied to
+the mechanism that came after it — a price that changed silently would make every earlier batch
+incomparable in the same way the condition list's default did, only this time without the six-game
+evidence that justified it. The transcript header names the arm on every run, so a checkpoint stays
+self-describing. It becomes the default only if a batch says it should.
+
+### 42.4 What to expect, and the one honest limit
+
+On the committed 22-episode ledger the prices come out 100, 100, 90, 60, 60, and 30 for the eight
+approaches seen in a single earlier attempt. Two properties worth naming before the measurement:
+
+- **The exit stays cheap.** *"A prisoner opens the bar"* and *"A prisoner opens the door"* were each
+  seen in one earlier attempt, so they cost 30. The price falls on the **preparation she repeats**, not
+  on the act of leaving — which is what it should do, since §34.2's whole finding is that acting at the
+  unlock is the behaviour worth having.
+- **It saturates above three.** With a 0–100 resource and a 30-per-episode step, anything seen in four
+  or more earlier attempts prices at 100, so bar-work (19) and bar-examination (4) are charged alike.
+  Staleness pricing here distinguishes *seen once or twice* from *seen a lot*, and nothing within
+  *a lot*. A finer gradient would need a smaller step, and that is a change to make **after** a batch
+  says the coarse one moves free-turn behaviour at all — not before, on the strength of it sounding
+  better.
+
+Measured on **free** turns, against a `flat` batch with the same ledger: does she leave the bar when
+the bar is priced at what it is actually worth? Nothing has been run yet.
