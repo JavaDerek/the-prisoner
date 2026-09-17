@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { openConditions, readConditionsMode } from "../conditions.js";
+import { openConditions, readConditionsMode, readDoorMode } from "../conditions.js";
+import { buildOpenWorld } from "../world.js";
+import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { createOpenMind, type OpenPrincipalContext } from "../mind.js";
 import { CONDITION_LIST_OPENING } from "../conditionList.js";
 
@@ -84,5 +86,57 @@ describe("readConditionsMode: PRISONER_CONDITIONS", () => {
     expect(readConditionsMode("off")).toBe("off");
     expect(() => readConditionsMode("yes")).toThrow(/PRISONER_CONDITIONS/);
     expect(() => readConditionsMode("yes")).toThrow(/"off"/);
+  });
+});
+
+// OPEN-VARIANT.md §46. §16 asked whether she stays in with the door open and found the exit
+// unnamable; §17 split the ways out into objects and fixed that, and the door route has not been
+// tested in real play since. Her list has always named ONE way to win -- the window -- and named the
+// lock only in a condition that catches her, so the cell's other exit has never been stated as an
+// exit at all. This arm states it, truthfully: the door's own exit declares no threshold.
+describe("the door condition (§46): the cell's other way out, stated", () => {
+  it("is absent unless asked for, so every earlier batch stays the comparison it was", () => {
+    expect(openConditions().length).toBe(6);
+    expect(openConditions({ door: "unstated" })).toEqual(openConditions());
+    expect(JSON.stringify(openConditions())).not.toContain("door");
+  });
+
+  it("states it as the reader's own, beside the window, with no threshold to meet", () => {
+    const conditions = openConditions({ door: "stated" });
+    expect(conditions.length).toBe(7);
+    expect(conditions[1]).toEqual({ when: ["the door is shut"], then: "Mara Voss can open it, with no threshold to meet first", for: "Mara Voss" });
+    // Her own conditions stay together at the top; the catches follow, renumbered 4-7.
+    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft"]);
+    expect(conditions[2]).toEqual(openConditions()[1]);
+    expect(conditions.slice(3)).toEqual(openConditions().slice(2));
+  });
+
+  it("says nothing the world does not do: the door's exit declares no threshold", () => {
+    createTestDb();
+    try {
+      // The claim "with no threshold to meet first" is exactly `openWhenPartAtMost: null`
+      // (`world.ts`). If a gate is ever added to the door, this condition becomes a lie and this
+      // test is what catches it.
+      expect(buildOpenWorld().exits.door.openWhenPartAtMost).toBeNull();
+      expect(buildOpenWorld().exits.window.openWhenPartAtMost).toBe(50);
+    } finally {
+      destroyTestDb();
+    }
+  });
+});
+
+describe("readDoorMode: PRISONER_DOOR (§46)", () => {
+  it("leaves the door unstated unless asked", () => {
+    expect(readDoorMode(undefined)).toBe("unstated");
+    expect(readDoorMode("")).toBe("unstated");
+    expect(readDoorMode("unstated")).toBe("unstated");
+  });
+
+  it("states it when asked for", () => {
+    expect(readDoorMode("stated")).toBe("stated");
+  });
+
+  it("stops the run rather than guessing", () => {
+    expect(() => readDoorMode("open")).toThrow(/unrecognised value/);
   });
 });

@@ -57,7 +57,7 @@ import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
 import { recordGame, precedentLines, readPrecedentPrice } from "./open/precedent.js";
 import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
-import { openConditions, readConditionsMode } from "./open/conditions.js";
+import { openConditions, readConditionsMode, readDoorMode } from "./open/conditions.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 
@@ -133,6 +133,9 @@ const WARDEN_MODE = readWardenMode(process.env.PRISONER_WARDEN);
  *  list (`src/open/conditions.ts`, OPEN-VARIANT.md §34) unless told otherwise.
  *  Unset: `list`, the default since D3. `off` is the old rule-sentence baseline. */
 const CONDITIONS = readConditionsMode(process.env.PRISONER_CONDITIONS);
+/** Open variant only: whether her conditions state the cell's other way out
+ *  (`src/open/conditions.ts`, OPEN-VARIANT.md §46). Unstated unless asked. */
+const DOOR = readDoorMode(process.env.PRISONER_DOOR);
 /** Open variant only: how a known approach is priced (`src/open/precedent.ts`,
  *  OPEN-VARIANT.md §42). `flat` unless asked, so earlier batches stay comparable. */
 const PRECEDENT_PRICE = readPrecedentPrice(process.env.PRISONER_PRECEDENT_PRICE);
@@ -707,8 +710,8 @@ async function mainOpen(): Promise<void> {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
     },
   });
-  const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions() } : {}) });
-  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions() }) });
+  const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR }) } : {}) });
+  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -774,6 +777,11 @@ async function mainOpen(): Promise<void> {
       : CONDITIONS === "list"
         ? "Conditions: LIST (the default): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34)."
         : "Conditions: OFF (`PRISONER_CONDITIONS=off`): thresholds stated as rule sentences. The pre-D3 baseline, now an arm."
+  );
+  transcript.push(
+    DOOR === "stated"
+      ? "Door: STATED (`PRISONER_DOOR=stated`): her conditions also say the door can be opened with no threshold to meet, which is what the world declares (§46). The catch conditions are numbered 4-7 under this arm."
+      : "Door: UNSTATED (the default): only the window is stated as a way she can open. The cell's other exit is named in no condition of her own."
   );
   transcript.push("");
   transcript.push("## Rounds");
