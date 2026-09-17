@@ -5,6 +5,9 @@
 > (run-dmcp#38, the-prisoner#13, #14), and **Brink is a cartridge with its own presentation module**,
 > not a separate console. The console accordingly owns the model, speech, image and video services and
 > a GPU scheduler, and guarantees **one window**.
+>
+> **Drawn: https://claude.ai/artifact/Qh3HMgomuNSpmkzXpxmFZu** (2026-09-17). If this brief changes, the
+> drawing is stale until it is republished to that same URL.
 
 Draw one architecture diagram. It shows a proposed system where interactive-fiction games are loaded like
 cartridges into a console, and the characters in them are run by independent AI minds instead of by a single
