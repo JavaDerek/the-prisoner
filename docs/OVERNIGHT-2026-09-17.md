@@ -8,7 +8,7 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 | Item | State |
 |---|---|
 | 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | **DONE.** §5.3 holds on batch F (4 games): 0 fog leaks in 82 contexts, all effects cited, novelty in all 4, 7 impossible rulings with reasons, replay 99.5/99.4/97.6/98.2%. Passive game escaped r6. OPEN-VARIANT §35. |
-| 2. Condition list as a generic mechanism, A/B in real games | built (`1c1bb58`, `467f101`, `0f7ad18`); open items 2 and 3 fixed; probe before games: E3 r6 1/10 → 5/10, E1 r6 8/10 → 10/10, window-open turn 8/10 → 10/10, control unmoved (§34.1). Real-game batch G running |
+| 2. Condition list as a generic mechanism, A/B in real games | **DONE, positive.** Built generic (`1c1bb58`, `467f101`, `0f7ad18`), open items 2 and 3 fixed. Probe first (§34.1), then real games: **batch G (list) escaped 4/4 (r7, r7, r6, r6); batch F (same config, rule sentences) was caught 4/4.** She acted on the unlock 4/4 vs 1/6; one premature removal in 18 turns above the line. §34.2. Warden half (`PRISONER_CONDITIONS=both`) built, probe queued |
 | 3. mother-of-invention produces a measured change | idea 1 (regenerate when nothing unseen) built (`1166b88`, off by default); batches H (pick=even) vs I (pick=even-regenerate) queued after G |
 | 4. Libraries released and consumed | nothing needed yet |
 
@@ -45,6 +45,12 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
   one idea, inside the stop rule.
 - 22:42. Queue 2 launched: batch G = 4 games with `PRISONER_CONDITIONS=list`, otherwise identical to F;
   then H (pick=even) and I (pick=even-regenerate) alternating, 4 games each.
+
+- 23:13. Batch G done: **4 of 4 escaped** with the list, against batch F's 4 of 4 caught (§34.2).
+  Every G prisoner opened the window at her first chance and left on her next turn. The warden, whose
+  prompt was unchanged, perceived "Mara Voss opens the window." and then examined the tile or the bar's
+  mortar. Built `PRISONER_CONDITIONS=both` (warden gets its own reading) on the dev branch, and queued a
+  warden probe on those exact turns to run after the pick batches.
 
 ## Decisions for Derek
 
