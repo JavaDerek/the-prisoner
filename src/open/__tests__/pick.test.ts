@@ -7,7 +7,7 @@ import { createReferee } from "../referee.js";
 import { runOpenGame, type OpenGameResult } from "../game.js";
 import { precedentLines } from "../precedent.js";
 import { recordIntent } from "../transcript.js";
-import { pick, type Verdict } from "../pick.js";
+import { pick, type Verdict } from "mother-of-invention";
 import { readPickCondition } from "../pickCondition.js";
 import { renderOpenSummary, renderOpenHalfRound } from "../checkpointTranscript.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";

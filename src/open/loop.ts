@@ -5,7 +5,7 @@ import { computePerceivedObjects } from "./briefing.js";
 import type { Referee, RefereeRuling } from "./referee.js";
 import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
-import { pick, type Verdict } from "./pick.js";
+import { pick, type Verdict } from "mother-of-invention";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
