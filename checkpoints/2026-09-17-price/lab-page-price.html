@@ -91,7 +91,7 @@
         <span class="tally" id="tally">No answers yet</span>
         <button id="clear">Clear answers</button>
       </div>
-      <div class="meta">Each answer is guessed <b>bar</b> (she went at the bar or the window) or <b>elsewhere</b>, from her intent's words. It is only a guess — click to correct it, and the tally follows your marks.</div>
+      <div class="meta">Tallied separately per preset, so you can ask 10 of the control and 10 of the probe without clearing in between. Each answer is guessed <b>bar</b> (she went at the bar or the window) or <b>elsewhere</b>, from her intent's words. It is only a guess — click to correct it, and the tally follows your marks.</div>
     </div>
     <div id="results"></div>
   </section>
@@ -126,6 +126,11 @@ $("preset").onchange = loadPreset;
 fetch("response_format-price.json").then((r) => r.json()).then((j) => { responseFormat = j; });
 loadPreset();
 
+function presetName() {
+  const opt = $("preset").selectedOptions[0];
+  return (opt ? opt.textContent : "?").split(" — ")[0];
+}
+
 function assembled() {
   if (!$("prompt").value.includes("{{PRECEDENT}}")) return $("prompt").value;
   return $("prompt").value.replace("{{PRECEDENT}}", $("block").value);
@@ -133,9 +138,15 @@ function assembled() {
 
 function tally() {
   const cards = [...document.querySelectorAll(".card")];
-  const bar = cards.filter((c) => c.dataset.verdict === "bar").length;
-  const away = cards.filter((c) => c.dataset.verdict === "elsewhere").length;
-  $("tally").textContent = cards.length === 0 ? "No answers yet" : `${away} of ${cards.length} went elsewhere — ${bar} at the bar`;
+  if (cards.length === 0) { $("tally").textContent = "No answers yet"; return; }
+  const groups = new Map();
+  for (const c of cards) {
+    const g = groups.get(c.dataset.preset) ?? { n: 0, away: 0 };
+    g.n++;
+    if (c.dataset.verdict === "elsewhere") g.away++;
+    groups.set(c.dataset.preset, g);
+  }
+  $("tally").innerHTML = [...groups].map(([name, g]) => `<div>${g.away} of ${g.n} went elsewhere <span style="color:var(--muted);font-weight:400">— ${name}</span></div>`).join("");
 }
 
 function card(data) {
@@ -144,9 +155,11 @@ function card(data) {
   const verdict = BAR_WORDS.test(intent) ? "bar" : "elsewhere";
   el.className = "card " + (verdict === "elsewhere" ? "good" : "bad");
   el.dataset.verdict = verdict;
+  el.dataset.preset = data.preset;
   el.innerHTML = `
     <div class="intent"></div>
     <div class="meta mark">
+      <span class="which" style="font-weight:600"></span>
       <span class="guess"></span>
       <button data-set="elsewhere">elsewhere ✓</button>
       <button data-set="bar">at the bar ✗</button>
@@ -156,6 +169,7 @@ function card(data) {
     <div class="label">Candidates it listed</div><ul class="cands"></ul>
     <details><summary>plan, notes, raw answer, and the exact prompt sent</summary><pre class="raw"></pre></details>`;
   el.querySelector(".intent").textContent = intent;
+  el.querySelector(".which").textContent = data.preset;
   el.querySelector(".guess").textContent = verdict === "elsewhere" ? "guessed: elsewhere" : "guessed: at the bar";
   el.querySelector(".when").textContent = `${data.ms} ms`;
   el.querySelector(".thoughts").textContent = data.thoughts ?? "(none)";
@@ -169,7 +183,8 @@ function card(data) {
     b.onclick = () => {
       el.dataset.verdict = b.dataset.set;
       el.className = "card " + (b.dataset.set === "elsewhere" ? "good" : "bad");
-      el.querySelector(".guess").textContent = `you marked: ${b.dataset.set === "elsewhere" ? "elsewhere" : "at the bar"}`;
+      el.querySelector(".which").textContent = data.preset;
+  el.querySelector(".guess").textContent = `you marked: ${b.dataset.set === "elsewhere" ? "elsewhere" : "at the bar"}`;
       tally();
     };
   }
@@ -193,7 +208,7 @@ async function ask() {
   const raw = json.choices?.[0]?.message?.content ?? "";
   let parsed = {};
   try { parsed = JSON.parse(raw); } catch { /* shown raw below */ }
-  card({ ...parsed, raw, prompt, ms: Date.now() - started });
+  card({ ...parsed, raw, prompt, preset: presetName(), ms: Date.now() - started });
 }
 
 async function run(times) {
