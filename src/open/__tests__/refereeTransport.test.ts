@@ -98,6 +98,22 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
     await expect(transport(REQUEST)).resolves.toEqual([]);
   });
 
+  it("a question id written the way the prompt lists it, id \"target\", is read as that question -- only when it names one the request asked (OPEN-VARIANT.md §33.16)", async () => {
+    // §33.16: qwen3:14b copied the prompt's own `- id "target":` line into 2 of 78 replies; every answer
+    // was dropped and the whole ruling fell to its safe defaults, on an intent it had judged correctly.
+    const content = JSON.stringify([
+      { questionId: 'id "target"', answerKey: "bar", citation: { sourceId: "intent", quote: "file the bar" } },
+      { questionId: 'id "effect"', answerKey: "wear", citation: { sourceId: "intent", quote: "file" } },
+      { questionId: "id target", answerKey: "bar", citation: { sourceId: "intent", quote: "bar" } },
+      { questionId: 'id "target" ', answerKey: "bar", citation: { sourceId: "intent", quote: "bar" } },
+    ]);
+    const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content } }] }) });
+    const answers = await transport(REQUEST);
+    // Anything else is handed on exactly as it came, for the engine to ignore as before.
+    expect(answers.map((a) => a.questionId)).toEqual(["target", 'id "effect"', "id target", 'id "target" ']);
+    expect(answers[0]).toEqual({ questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file the bar" } });
+  });
+
   it("calls ensureLoaded(model) before the request", async () => {
     const calls: string[] = [];
     const transport = createRefereeTransport({

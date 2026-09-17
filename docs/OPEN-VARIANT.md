@@ -2349,3 +2349,78 @@ quantization cannot untangle nested conditions, so each condition must be one fl
 The lab page itself (`~/prisoner-prompt-lab/index.html`, served on `http://localhost:8765` with
 `python3 -m http.server 8765 --bind 127.0.0.1` from that folder) is copied alongside the prompts as
 `lab-page-index.html`.
+
+### 33.16 "Remove the bar" ruled open: no wording does it on `qwen2.5:14b`; `qwen3:14b` does (2026-09-16, night)
+
+**The owner's decision, first:** an attempt to remove the bar is ruled `open`, and the rules refuse it
+until the bar is weak enough. That refusal already exists (§24, the gate in `mechanics.ts`), so only the
+referee's ruling had to change.
+
+**Method.** 26 intents, each built from the current code's referee questions on §33.13's E3 r6
+perception, so they are exactly what a game sends. The base request was checked equal to §33.14's
+recorded one. The intents were 9 that should be `open` (the four removal misrulings among them),
+7 `wear` controls, 5 `leave`, and one each of reveal, derive, expose, conceal, plus "remove" on a
+non-exit (the blanket). Candidate sentences were swapped into the effect prompt by string replacement,
+and each version was replayed through `npm run referee-replay`. Files are in
+`checkpoints/2026-09-16-referee-removal-s33-16/`: `build-requests.mts`, `build-split.mts`,
+`requests-26-intents.json`, and one `out-*.txt` per version.
+
+**Eight prompt versions on `qwen2.5:14b`. None is right everywhere.** Scores are intents right, out of 26.
+V1-V4 were run before the extra leave/wear controls existed (20 intents, 5 replays), and the rest on all 26
+(3 replays).
+
+| Version | Change | Score | What moved |
+|---|---|---|---|
+| base | today's prompt | 21 | the two bare removals `wear`; twist-and-remove `wear`; push-back-the-bolt `wear`, targeting the bar; "squeeze through the gap where the bar was" `open` |
+| V1 | "a bar levered from its mortar **or simply removed**", plus "whether it gives is for the rules" | 20 intents: 2 misses | "Remove the bar" and twist-and-remove fixed; "Use the spoon to remove the bar" and push-back-the-bolt still `wear` |
+| V2 | a separate sentence: removing a part that keeps a way out shut is `open` | 20 intents: climb-out broke | all removals `open`, **"Climb out through the window" -> `open`** |
+| V3 | V1 + "with a tool or by hand" | 20 intents: climb-out broke | all removals `open`, climb-out `open` |
+| V4 | V2's sentence after the leave sentence | 20 intents | spoon-remove still `wear`; climb-out `leave` only 4 of 5 |
+| V5 | V3 + "getting out through the gap a removed part leaves" is leave | 23 | all removals `open`; three of five climb-out phrasings `open` |
+| V6 | V1 with "whatever it is removed with" | 21 | "Remove the bar" back to `wear` (four words from V1) |
+| S2 | a separate yes/no `goes_out` question before `effect`, `leave` taken out of `effect`, V3 wording | 22 | leaving fixed (squeeze included); bare removals `wear` 2 of 3; "damage the bar further" -> goes out; "Get out through the window" -> `open` |
+| S3 | the same split, today's open wording | 20 | removals and pry back to `wear` |
+
+S0/S1, the split with an added *"judge only what the act does to the thing it acts on"*, scored 17. That
+sentence contradicts *"judge by the intent's aim"*, which is why S2/S3 dropped it. Every version that fixed
+the spoon removal pulled some climb-out to `open`; the one question that split leave out made mistakes of
+its own. **Reading:** on this model the wear/open/leave line is unstable, and wording only reshuffles
+which intents fall on the wrong side. Wording was dropped as the route.
+
+Also unexplained: base rules twist-and-remove `wear` here, while §33.13's `07-…` had it `open`, on
+questions verified identical.
+
+**The same unchanged prompt on `qwen3:14b`: 24 of 26** (`out-qwen3-base-N3.txt`). Both bare removals,
+twist-and-remove and push-back-the-bolt are `open`; the bolt now targets the door. Squeeze-through is
+`leave` 2 of 3, and every wear, reveal, derive and conceal control holds. A second run with every raw reply
+kept (`capture-all.mts`, `qwen3-raw-replies-N3.json`) found 23 of 26 right all three times. Misses:
+
+1. **"Climb through the window and escape" -> `open`, 3 of 3 in both runs.** A real judgement miss.
+   The other four leave phrasings hold.
+2. **"Squeeze through the gap in the window where the bar was"**: `open` once in three.
+3. **"Grind at the bar with the spoon's edge to weaken it"**: whole ruling at safe defaults, 2 of 3. Not a
+   judgement: the raw replies judged `wear` correctly but wrote every questionId as `id "target"`,
+   copying `buildPrompt`'s own `- id "target":` line, so the engine ignored every answer. 2 of 78 replies
+   did this, and they were the only whole-ruling losses. doris's Ollama log shows all 78 calls HTTP 200
+   in 3-30 s, so no timeouts.
+
+Two smaller observations: 7 of the 26 intents had at least one answer disagree across three replays at temperature 0
+(`qwen2.5:14b` almost never did), and several replies cited nothing for `product` on a non-derive
+effect, which changes no ruling. A qwen3 ruling takes about 10 s against about 4 s, but the referee then
+shares the wits model, so a game loses the swap per ruling.
+
+**Fix built (owner approved): the transport reads `id "<id>"` as `<id>`**, only for an id the request
+asked; any other questionId is handed on unchanged (`refereeTransport.ts` `questionIdOf`, test in
+`refereeTransport.test.ts`). It works on the reply's structure only, like §30's range clamp, and no prompt
+text changed. Re-reading all 78 recorded replies through the fixed transport (`verify-fix.mts`)
+changes exactly the two grind replies, both now `wear` on the bar with citations. The other 76 read
+identically.
+
+**Not changed:** the default referee model is still `qwen2.5:14b`. The next real games set
+`PRISONER_REFEREE_MODEL=qwen3:14b`. The open question is miss 1: an attempt to leave that says "and escape"
+is ruled `open`, and in a game it would refuse the prisoner's actual exit.
+
+**Tooling:** `~/prisoner-prompt-lab/referee.html` (copied here as `referee-lab-page.html`, with
+`referee-intents.txt`) sends the referee's exact request, verified byte-identical for a real intent, over
+an editable intent list, and marks rulings that changed from a kept comparison run. Its template
+`referee-prompt-today.txt` is captured from the code and must be regenerated if `referee.ts`'s questions change.

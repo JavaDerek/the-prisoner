@@ -1,0 +1,26 @@
+open | Remove the bar
+open | Use the spoon to remove the bar
+open | Pull the bar out of the window
+open | Take the bar out
+open | Use the spoon to pry the bar out of the mortar
+open | Use the spoon to lever the bar out of the mortar
+open | Attempt to remove the bar from the window
+open | Use the spoon to twist and remove the bar
+open | Use the spoon to push back the bolt through the gap
+wear | Continue abrading the bar with the spoon to reduce its integrity
+wear | Use the spoon to scrape at the rusted bottom of the bar
+wear | Use the spoon to damage the bar further
+wear | Use the spoon to strike the bar repeatedly
+wear | Use the spoon to chip away the mortar around the bar
+reveal | Examine the bar for signs of damage or wear
+leave | Climb out through the window
+leave | Climb through the window and escape
+leave | Squeeze through the gap in the window where the bar was
+leave | Get out through the window
+leave | Slip out of the open door
+wear | Rub the spoon back and forth against the bar
+wear | Grind at the bar with the spoon's edge to weaken it
+derive | Pull a length of wire from the cot springs and keep it
+expose/reveal | Remove the loose tile to get at the hollow beneath it
+none | Remove the blanket from the cot
+conceal | Rub grit from the hollow into the scratches on the bar to hide them

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referee Lab</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdad4; --good:#1f7a4d; --bad:#b3362b; --accent:#2f5bd3; --goodbg:#e6f4ec; --badbg:#fbe9e7; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 -apple-system, system-ui, sans-serif; }
+  main { max-width: 1500px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: minmax(0,5fr) minmax(0,6fr); gap:16px; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  h1 { font-size:18px; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 12px; }
+  h2 { font-size:14px; margin:12px 0 6px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  label { color:var(--muted); font-size:12px; }
+  input { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  textarea { width:100%; font:12.5px/1.45 ui-monospace, Menlo, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; }
+  #prompt { height:48vh; } #intents { height:22vh; }
+  button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  .meta { color:var(--muted); font-size:12px; }
+  .tally { font-size:15px; font-weight:600; margin:0 0 8px; }
+  .tablewrap { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600; }
+  td.hit { background:var(--goodbg); color:var(--good); font-weight:600; }
+  td.miss { background:var(--badbg); color:var(--bad); font-weight:600; }
+  td.intent { font-weight:500; }
+  .changed { font-size:11px; color:var(--bad); display:block; font-weight:500; }
+  details summary { cursor:pointer; color:var(--muted); font-size:12px; }
+  pre { white-space:pre-wrap; font:12px/1.4 ui-monospace, Menlo, monospace; background:#faf9f6; padding:8px; border-radius:6px; margin:6px 0 0; }
+  .err { color:var(--bad); }
+  .hint { color:var(--muted); font-size:12px; margin:4px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>Referee Lab</h1>
+    <p class="sub">Sends exactly what the game's referee sends: one user message, temperature 0, no forced schema. Every ask is a fresh chat.
+      The intent is written into <code>{{INTENT}}</code> and numbered into <code>{{INTENT_WORDS}}</code> for you.</p>
+    <div class="row">
+      <button id="loadPrompt">Load today's referee prompt (replaces your edits)</button>
+      <label>Model</label><input id="model" value="qwen2.5:14b" size="12">
+      <label>Temperature</label><input id="temp" type="number" step="0.1" min="0" max="2" value="0" style="width:60px">
+    </div>
+    <textarea id="prompt" spellcheck="false"></textarea>
+    <p class="hint">The effect rules are in the line starting <code>- id "effect":</code>. Search for it with Cmd-F.</p>
+
+    <h2>Intents to rule on</h2>
+    <div class="row">
+      <button id="loadIntents">Load the 26 controls (replaces your edits)</button>
+    </div>
+    <textarea id="intents" spellcheck="false"></textarea>
+    <p class="hint">One per line: <code>expected effect | intent</code>. Use <code>open/wear</code> to accept either answer.</p>
+
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="runAll">Rule on all intents</button>
+      <label>times each</label><input id="times" type="number" min="1" max="10" value="1" style="width:52px">
+      <button id="saveBase">Keep these results as the comparison</button>
+      <button id="stop" disabled>Stop</button>
+    </div>
+    <div id="status" class="meta"></div>
+  </section>
+
+  <section class="panel">
+    <div id="tally" class="tally">No rulings yet.</div>
+    <p class="meta" id="baseNote">After a run, "Keep these results as the comparison" marks every later answer that differs from it.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Intent</th><th>Expected</th><th>Effect</th><th>Target</th><th>Property</th><th>Size</th><th>Seen</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const ENDPOINT = "http://doris:11434/v1/chat/completions";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+let stopRequested = false;
+let lastResults = {};   // intent -> effects joined
+let baseline = null;
+
+// Words exactly as refereeTransport.ts numbers them: maximal runs of non-whitespace.
+function words(text) { return text.split(/\s+/).filter((w) => w.length > 0); }
+function numbered(text) { return words(text).map((w, i) => `${i + 1}:${w}`).join(" "); }
+
+function sourcesOf(prompt) {
+  // source "id":\n<text>\nwords: ...
+  const map = {};
+  const re = /source "([^"]+)":\n([^\n]*)\nwords: /g;
+  let m; while ((m = re.exec(prompt))) map[m[1]] = m[2];
+  return map;
+}
+
+function firstJsonArray(text) {
+  try { const whole = JSON.parse(text); if (Array.isArray(whole)) return whole; } catch {}
+  const start = text.indexOf("["); if (start === -1) return null;
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === "[") depth++;
+    else if (text[i] === "]") { depth--; if (depth === 0) { try { const p = JSON.parse(text.slice(start, i + 1)); return Array.isArray(p) ? p : null; } catch { return null; } } }
+  }
+  return null;
+}
+
+function citedText(citation, sources) {
+  if (!citation) return "(no citation)";
+  const src = sources[citation.sourceId];
+  if (src === undefined) return `(unknown source "${citation.sourceId}")`;
+  if (typeof citation.from === "number" && typeof citation.to === "number") {
+    const w = words(src); const to = Math.min(citation.to, w.length);
+    if (citation.from < 1 || citation.from > to) return `(bad range ${citation.from}-${citation.to})`;
+    return `${citation.sourceId} ${citation.from}-${to}: "${w.slice(citation.from - 1, to).join(" ")}"`;
+  }
+  if (typeof citation.quote === "string") return `${citation.sourceId}: "${citation.quote}"${src.includes(citation.quote) ? "" : " (NOT verbatim)"}`;
+  return "(no range or quote)";
+}
+
+async function load(file, target) {
+  const res = await fetch(file + "?t=" + Date.now());
+  $(target).value = await res.text();
+}
+$("loadPrompt").onclick = () => load("referee-prompt-today.txt", "prompt");
+$("loadIntents").onclick = () => load("referee-intents.txt", "intents");
+load("referee-prompt-today.txt", "prompt");
+load("referee-intents.txt", "intents");
+
+function parseIntents() {
+  return $("intents").value.split("\n").map((l) => l.trim()).filter((l) => l && l.includes("|")).map((l) => {
+    const i = l.indexOf("|");
+    return { expected: l.slice(0, i).trim().split("/").map((s) => s.trim()), intent: l.slice(i + 1).trim() };
+  });
+}
+
+async function ruleOnce(template, intent) {
+  const prompt = template.replace("{{INTENT}}", intent).replace("{{INTENT_WORDS}}", numbered(intent));
+  const body = { model: $("model").value.trim(), temperature: Number($("temp").value), stream: false, tools: [],
+    messages: [{ role: "user", content: prompt }] };
+  const res = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+  const json = await res.json();
+  const content = json.choices?.[0]?.message?.content ?? "";
+  const arr = firstJsonArray(content) || [];
+  const by = {}; for (const a of arr) if (a && typeof a.questionId === "string") by[a.questionId] = a;
+  return { content, by, sources: sourcesOf(prompt) };
+}
+
+function cell(values, cls = "") { return `<td class="${cls}">${values}</td>`; }
+
+function renderRow(item, rulings) {
+  const effects = rulings.map((r) => r.by.effect?.answerKey ?? "—");
+  const counts = {}; effects.forEach((e) => counts[e] = (counts[e] || 0) + 1);
+  const effectText = Object.entries(counts).map(([k, n]) => rulings.length > 1 ? `${k} ×${n}` : k).join(", ");
+  const allHit = effects.every((e) => item.expected.includes(e));
+  const joined = effects.join(",");
+  let changed = "";
+  if (baseline && baseline[item.intent] !== undefined && baseline[item.intent] !== joined) changed = `<span class="changed">was ${esc(baseline[item.intent])}</span>`;
+  lastResults[item.intent] = joined;
+  const first = rulings[0];
+  const pick = (q) => [...new Set(rulings.map((r) => r.by[q]?.answerKey ?? "—"))].join(", ");
+  const detail = rulings.map((r, i) => {
+    const lines = ["target", "effect", "product", "property", "magnitude", "perceptibility"].map((q) => {
+      const a = r.by[q]; return `${q}: ${a ? a.answerKey : "(missing)"}  ←  ${a ? citedText(a.citation, r.sources) : ""}`;
+    });
+    return `<pre>${rulings.length > 1 ? `ask ${i + 1}\n` : ""}${esc(lines.join("\n"))}</pre><details><summary>raw reply</summary><pre>${esc(r.content)}</pre></details>`;
+  }).join("");
+  return `<tr>
+    ${cell(esc(item.intent), "intent")}
+    ${cell(esc(item.expected.join(" or ")))}
+    ${cell(esc(effectText) + changed, allHit ? "hit" : "miss")}
+    ${cell(esc(pick("target")))}
+    ${cell(esc(pick("property")))}
+    ${cell(esc(pick("magnitude")))}
+    ${cell(esc(pick("perceptibility")))}
+    <td><details><summary>why</summary>${detail}</details></td>
+  </tr>`;
+}
+
+$("runAll").onclick = async () => {
+  const template = $("prompt").value;
+  if (!template.includes("{{INTENT}}") || !template.includes("{{INTENT_WORDS}}")) {
+    $("status").innerHTML = `<span class="err">The prompt must still contain {{INTENT}} and {{INTENT_WORDS}}.</span>`; return;
+  }
+  const items = parseIntents(); const times = Math.max(1, Math.min(10, Number($("times").value) || 1));
+  stopRequested = false; $("runAll").disabled = true; $("stop").disabled = false;
+  $("rows").innerHTML = ""; lastResults = {};
+  let hits = 0, done = 0; const t0 = Date.now();
+  try {
+    for (const item of items) {
+      if (stopRequested) break;
+      const rulings = [];
+      for (let k = 0; k < times; k++) {
+        $("status").textContent = `Ruling ${done + 1} of ${items.length}${times > 1 ? `, ask ${k + 1} of ${times}` : ""}… (the first can take ~30s while doris loads the model)`;
+        rulings.push(await ruleOnce(template, item.intent));
+      }
+      $("rows").insertAdjacentHTML("beforeend", renderRow(item, rulings));
+      done++; if (rulings.every((r) => item.expected.includes(r.by.effect?.answerKey))) hits++;
+      $("tally").textContent = `Effect as expected: ${hits} of ${done}`;
+    }
+    $("status").textContent = `${stopRequested ? "Stopped" : "Done"}: ${done} intents in ${((Date.now() - t0) / 1000).toFixed(0)}s.`;
+  } catch (e) {
+    $("status").innerHTML = `<span class="err">${esc(e.message)}</span>`;
+  } finally {
+    $("runAll").disabled = false; $("stop").disabled = true;
+  }
+};
+$("stop").onclick = () => { stopRequested = true; $("stop").disabled = true; };
+$("saveBase").onclick = () => {
+  if (Object.keys(lastResults).length === 0) return;
+  baseline = { ...lastResults };
+  $("baseNote").textContent = `Comparison kept (${Object.keys(baseline).length} intents). Any later answer that differs says "was …".`;
+};
+</script>
+</body>
+</html>

@@ -178,13 +178,25 @@ function rebuildRanged(citation: { sourceId: string; from?: unknown; to?: unknow
   return { sourceId: source.id, quote: source.text.slice(words[from - 1].start, words[end - 1].end), from, to: end };
 }
 
+/**
+ * OPEN-VARIANT.md §33.16: `buildPrompt` lists each question as `- id "target": ...`, and a referee
+ * that copies that label back as its questionId has every answer ignored. Exactly `id "<id>"`, for
+ * an id the request asked, is read as that id; any other questionId is handed on unchanged. Lexical
+ * only, on the reply's structure -- the same kind of repair as §30's range clamp, never a reading of
+ * what the intent means.
+ */
+function questionIdOf(questionId: string, request: ReadRequest): string {
+  const match = /^id "([^"]+)"$/.exec(questionId);
+  return match && request.questions.some((q) => q.id === match[1]) ? match[1] : questionId;
+}
+
 function coerceAnswers(raw: unknown, request: ReadRequest): TransportAnswer[] {
   if (!Array.isArray(raw)) return [];
   const answers: TransportAnswer[] = [];
   for (const entry of raw) {
     if (typeof entry !== "object" || entry === null) continue;
     const record = entry as Record<string, unknown>;
-    const questionId = record.questionId;
+    const questionId = typeof record.questionId === "string" ? questionIdOf(record.questionId, request) : record.questionId;
     const answerKey = record.answerKey;
     const citation = record.citation as { sourceId?: unknown; quote?: unknown; from?: unknown; to?: unknown } | undefined;
     if (typeof questionId !== "string" || typeof answerKey !== "string") continue;

@@ -1,0 +1,211 @@
+## [expect open] Remove the bar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect open] Use the spoon to remove the bar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect open] Pull the bar out of the window
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect open] Take the bar out
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "passage" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 100% of 3 replays.
+## [expect open] Use the spoon to pry the bar out of the mortar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect open] Use the spoon to lever the bar out of the mortar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect open] Attempt to remove the bar from the window
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect open] Use the spoon to twist and remove the bar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect open] Use the spoon to push back the bolt through the gap
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect wear] Continue abrading the bar with the spoon to reduce its integrity
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect wear] Use the spoon to scrape at the rusted bottom of the bar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect wear] Use the spoon to damage the bar further
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "yes" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect wear] Use the spoon to strike the bar repeatedly
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect wear] Use the spoon to chip away the mortar around the bar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect reveal] Examine the bar for signs of damage or wear
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "reveal" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 100% of 3 replays.
+## [expect leave] Climb out through the window
+  - target: "window" agreed 100% of 3 replays.
+  - goes_out: "yes" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "passage" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "silent" agreed 100% of 3 replays.
+## [expect leave] Climb through the window and escape
+  - target: "window" agreed 100% of 3 replays.
+  - goes_out: "yes" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "passage" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 100% of 3 replays.
+## [expect leave] Squeeze through the gap in the window where the bar was
+  - target: "window" agreed 100% of 3 replays.
+  - goes_out: "yes" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "passage" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 100% of 3 replays.
+## [expect leave] Get out through the window
+  - target: "window" agreed 100% of 3 replays.
+  - goes_out: "yes" agreed 100% of 3 replays.
+  - effect: "open" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "passage" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "silent" agreed 100% of 3 replays.
+## [expect leave] Slip out of the open door
+  - target: "door" agreed 100% of 3 replays.
+  - goes_out: "yes" agreed 100% of 3 replays.
+  - effect: "none" agreed 67% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "passage" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 67% of 3 replays.
+## [expect wear] Rub the spoon back and forth against the bar
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect wear] Grind at the bar with the spoon's edge to weaken it
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "wear" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "audible" agreed 100% of 3 replays.
+## [expect derive] Pull a length of wire from the cot springs and keep it
+  - target: "cot" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "derive" agreed 100% of 3 replays.
+  - product: "wire" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 67% of 3 replays.
+## [expect expose] Remove the loose tile to get at the hollow beneath it
+  - target: "loose_tile" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "reveal" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "concealment" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 100% of 3 replays.
+## [expect none-of-open] Remove the blanket from the cot
+  - target: "blanket" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "none" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "integrity" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 100% of 3 replays.
+## [expect conceal] Rub grit from the hollow into the scratches on the bar to hide them
+  - target: "bar" agreed 100% of 3 replays.
+  - goes_out: "no" agreed 100% of 3 replays.
+  - effect: "conceal" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "concealment" agreed 100% of 3 replays.
+  - magnitude: "moderate" agreed 100% of 3 replays.
+  - perceptibility: "visible" agreed 100% of 3 replays.
+
+Overall mean agreement across every question, every intent: 99.5%.
+§5.3's target: at least 80%.
