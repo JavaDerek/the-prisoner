@@ -2992,3 +2992,51 @@ approaches seen in a single earlier attempt. Two properties worth naming before 
 
 Measured on **free** turns, against a `flat` batch with the same ledger: does she leave the bar when
 the bar is priced at what it is actually worth? Nothing has been run yet.
+
+## 43. Batch G under the default: saying nothing reproduces saying `list` (2026-09-17)
+
+§40.1 asserted that "a future run that says nothing about conditions is a batch G, not a batch F."
+Asserting it is not the same as running it: until now every list game had been asked for explicitly
+with `PRISONER_CONDITIONS=list`, and the default path — `readConditionsMode(undefined)` — had carried
+no real game at all. This is that run, and the first batch of any kind under the new default.
+
+Batch F's configuration (§35: `qwen3:14b` wits and referee, `ancient-awakening:12b` voice, 30 rounds
+maximum, 180 s timeouts, precedent off, pick off, the model warden), four games, and **nothing said
+about conditions**. Driver `checkpoints/2026-09-17-overnight/run-batch.sh Gdefault 4`, no extra
+environment. Transcripts `checkpoints/2026-09-17T18-42-05-951Z.md`, `…18-55-31-080Z.md`,
+`…19-02-28-803Z.md`, `…19-09-42-070Z.md`; every header reads `Conditions: LIST (the default)`.
+
+| | Batch G, `list` asked for (§34.2) | Batch G, nothing said |
+|---|---|---|
+| Result | escaped r7, r7, r6, r6 | **escaped r11, r6, r6, r6** |
+| Turns with the bar at or below the line and nothing open yet | 4 (one per game) | 4 (one per game) |
+| …on which she tried to open | **4** | **4** |
+| Tried to open or leave with the bar above 50 | 1 of 18 turns (G1 r1 at 100) | **0 of 29 turns** |
+| Applied effects cited / fog | 50/50, 0 leaks in 52 contexts | 49/49, 0 leaks in 58 contexts |
+| Novel pairs | 4, 6, 2, 4 | 6, 3, 4, 4 |
+
+**The default is the arm it claims to be.** Three of the four games are indistinguishable from the
+measured batch G — escaped at r6, one removable turn, acted on it — and the behaviour §34.2 exists to
+record, acting at the first turn the list says she can, held at 4 of 4 again. The one cost §34.2 had
+found, a premature removal attempt at full integrity, did **not** recur: 0 turns of 29, against 1 of 18.
+So `off` is now the arm and `list` is the floor, demonstrated rather than inferred.
+
+### 43.1 The one odd game, and what it is not
+
+G1 escaped at **r11**, outside the r6–r7 band, and the extra five rounds are one stuck intent: *"Use the
+spoon to chip the bar slightly, reducing its integrity by 5 points"*, proposed and ruled impossible on
+r4, r5, r6, r7 and r8, near-verbatim each time. She then examined the bar (r9), reached the line, and
+left at r10–r11. Six impossible rulings in that game against one in each of the others.
+
+The tempting reading is that this is a cost of the list: the list states numeric thresholds, so a mind
+reading it starts speaking in world units and proposes point values the referee cannot rule. **That
+reading is wrong, and the transcripts already on disk say so.** Counting intents that name a magnitude
+in units (*"by N points"*, *"integrity by N"*) across the 27 earlier games of every arm: **zero**, in all
+but one game, which had one. G1 is the only game in this document's whole record with seven. The six
+other `list` games — four in §34.2, two in §34.5 — have none between them. Nor is its impossible count
+out of family: an `off` game (`…01-35-04-448Z`) had seven.
+
+So it is a one-game loop in the wits model on a phrasing the referee kept refusing, not an effect of the
+arm. Recorded because a batch of four with one anomalous path should say which it was, and because the
+cheap check that distinguishes them — is the phrasing new, or is it in the record already? — is the one
+worth reaching for before a fix gets designed for a sample of one.
