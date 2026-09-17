@@ -2665,3 +2665,29 @@ on exact equality. It now masks a principal's own texts before searching (`20e87
 positive control). K4's transcript keeps the recorded line. A search of K4's briefings for every
 prisoner-private text finds nothing else, and the fix can only remove false positives, so earlier zero
 counts stand.
+
+### 34.5 Two more games a side (2026-09-17)
+
+Alternating, same configuration: baseline `…08-02-13-400Z.md` (F5), `…08-17-26-066Z.md` (F6); list
+`…08-11-14-467Z.md` (G5), `…08-24-00-706Z.md` (G6).
+
+| | Baseline (F1-F6) | List (G1-G6) |
+|---|---|---|
+| Escaped | **2 of 6** (F5 r8, F6 r6) | **6 of 6** (r7, r7, r6, r6, r6, r6) |
+| Tried to get the bar out at the first removable turn (by intent) | 2 of 6 | 6 of 6 |
+| …at any removable turn (by intent) | 4 of 10 | 6 of 6 |
+| Tried with the bar above 50 | 0 | 1 (G1 r1, at 100) |
+
+**The extra baselines make the effect smaller than §34.2's 0/4 against 4/4, and it holds.** F6 pried at 47
+on her first chance, as §33.9's probe said she does about half the time. F5 tried at round 5 and lost the
+turn to the referee (below), then pried again at round 7 and escaped.
+
+**A referee gap found here (open).** F5 r5 *"Attempt to pry the bar out of the mortar using the spoon"* was
+ruled target `none`, effect `none`, nothing cited, and told as reaching past what is here. Replayed 3 times
+on `qwen3:14b`: the same every time (`F5-r5-pry-request.json`, `F5-r5-pry-replay-N3.txt`). Other pry
+wordings tonight (F3 r15, F6 r5, the passive game's lever) ruled `open`. The raw replies were not
+captured, so whether this is a judgement or a whole-ruling loss like §33.16's `id "target"` is unknown.
+**A confound to keep in view:** the list arm's intents echo condition 1 (*"Open the window by removing
+the bar"*, *"Open the window"*), and every one of those ruled `open`. Some of G's margin may be phrasing
+the referee reads reliably, not only the decision to act. The probe (§34.1) measured the decision alone,
+by reading intents, and showed the same direction (E3 r6 1/10 → 5/10).

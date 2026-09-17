@@ -1,0 +1,10 @@
+## round 5, prisoner: Attempt to pry the bar out of the mortar using the spoon
+  - target: "none" agreed 100% of 3 replays.
+  - effect: "none" agreed 100% of 3 replays.
+  - product: "none" agreed 100% of 3 replays.
+  - property: "none" agreed 100% of 3 replays.
+  - magnitude: "slight" agreed 100% of 3 replays.
+  - perceptibility: "silent" agreed 100% of 3 replays.
+
+Overall mean agreement across every question, every intent: 100.0%.
+§5.3's target: at least 80%.
