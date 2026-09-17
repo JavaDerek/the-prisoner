@@ -2637,3 +2637,31 @@ and trigger Condition 6"*: his own condition, read as his). The control turns do
 
 This is §34.1's result from the other side: the same generic list, with nothing but the reader changed,
 makes the principal whose condition it is act on it. Real games follow in §34.4.
+
+### 34.4 Both minds with the list: batch K (2026-09-17)
+
+Batch G's configuration with `PRISONER_CONDITIONS=both`. Transcripts `checkpoints/2026-09-17T07-32-00-508Z.md`,
+`…07-38-56-071Z.md`, `…07-47-21-460Z.md`, `…07-53-46-357Z.md`.
+
+| | K1 | K2 | K3 | K4 |
+|---|---|---|---|---|
+| She opened the window | r5, bar 40 | r5, bar 47 | r5, bar 40 | r5, bar 40 |
+| His next turn | *"Examine the window closely to confirm it is open and trigger Condition 6"* | *"…to check if it's standing open"* | *"…as a way out"* | *"Examine the window closely"* |
+| Result | caught r6 | caught r6 | caught r6 | caught r6 |
+
+Every catch is a `reveal window.passage` finding it open (§33.8's condition), the catch no warden had
+made in any earlier game this document records. **Both principals now act on their own unlocks the turn
+they arrive**, which is what the mechanism is for: G's escapes were the warden missing an open window
+he had just been told about, and K removes that miss. The contest is now decided at the unlock itself.
+She cannot open and leave in one turn, and suspicion is already over 40 by then. Whether a prisoner
+who reads condition 6 can plan around it (lower suspicion before she opens, or open when he cannot look)
+is the next question about reasoning, and no game here has shown it yet. K2 r4's *"Damage the bar
+slightly with the spoon to lower its integrity to 50"* shows her already planning to the line.
+
+**A false leak, fixed.** K4's recorded audit reads "1 leaks". It was the prisoner's round-5 candidate
+*"Check the loose tile for hidden items"* found in the warden's round-5 briefing, inside the warden's own
+round-4 plan, which began with those exact words and was written first. The audit exempted own texts only
+on exact equality. It now masks a principal's own texts before searching (`20e8776`, test with a planted
+positive control). K4's transcript keeps the recorded line. A search of K4's briefings for every
+prisoner-private text finds nothing else, and the fix can only remove false positives, so earlier zero
+counts stand.
