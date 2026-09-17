@@ -2627,7 +2627,7 @@ turns, 5 samples each (`probe-warden.mts`, `probe-warden-{baseline,list}-N5.json
 
 | Turn | What would catch her | Baseline | List |
 |---|---|---|---|
-| G1 r7, G2 r7, G3 r6, G4 r6 (she opened the window on her previous turn; suspicion 58-100; the warden's briefing says "Mara Voss opens the window." or "…opens the bar.") | a close look at the window | **0 of 20** (tile ×9, bar/mortar ×10, door bolt ×1) | **20 of 20** |
+| G1 r7, G2 r7, G3 r6, G4 r6 (she opened the window on her previous turn; suspicion 58-100; the warden's briefing says "Mara Voss opens the window." or "…opens the bar.") | a close look at the window | **0 of 20** (tile ×8, bar or its mortar ×11, door bolt ×1) | **20 of 20** |
 | G1 r4, G3 r3 (controls: nothing open yet) | — | bar ×9, lock ×1 | bar ×9, lock ×1 |
 
 Batch G's warden perceived *"Mara Voss opens the window"* and then went to the tile or re-examined the
