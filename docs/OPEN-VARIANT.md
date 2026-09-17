@@ -2816,3 +2816,100 @@ What moves it: brink's rival minds wanting the same list — filed there as `bri
 trigger rather than scheduled work, so "wait for a second caller" is checkable instead of forgotten.
 Then it is a pure function plus a type, a `mind-seam` patch release, and it travels as a file. Nothing here is published, so that stays a cheap
 move — which was D1's whole reason.
+
+## 41. Carrying a find forward: the world already does it, and it buys no novelty (2026-09-17)
+
+`mother-of-invention#2` asks for a **free-turn** novelty mechanism, and names a first idea: carry a
+forced turn's find into the free turn's plan, so something the mind found under compulsion becomes
+something it wants unprompted (§40.2). Before spending games on it, this section asks what the
+transcripts already on disk say, because batch J (§36.2) ran 16 overridden turns and every one of them
+is a forced find already sitting in a committed checkpoint.
+
+Measured by `checkpoints/2026-09-17-overnight/carry.mts`, which reads a transcript and classifies what
+each overridden turn **produced** by the resolution's own transitions, never by what an intent's words
+seem to mean. Two signals are printed for the next free turn, because neither alone is honest: the
+referee's recorded target cannot show a find being taken up (*"scrape the bar with the hook"* is ruled
+against the **bar**, and the hook disappears from the record), so it also asks whether that turn names
+the thing the world says she now holds — a mention test against the world's own label, not a reading.
+
+### 41.1 What 16 forced turns actually produced
+
+| What the overridden turn produced | Count | Named by her next free turn |
+|---|---|---|
+| **object** — a derive made a thing she now holds (hook, grit, grit, grit_2) | 4 | **4 of 4** |
+| **property** — a value moved (cot 100→80, cot 100→90, cot 100→80, tile concealment 100→50) | 4 | **0 of 4** |
+| information — a reveal (lock 100, lock 100, door passage 0, blanket 100) | 4 | – |
+| nothing — resolved to the value it already stood at, or only a noise | 4 | – |
+
+An even quarter each, which is worth knowing on its own: **half of what a forced turn does is not a
+find at all.** *"Bend the spoon's bowl edge to create a sharper abrading surface"* — one of §36's
+showpiece regenerated ideas — resolved `spoon_edge: 0 -> 0`, and she was told so: *"Your last attempt
+left the spoon's edge at 0, where it already stood."* There was nothing there to carry.
+
+### 41.2 Every object find was taken up unprompted, and the world did the carrying
+
+Of the four finds that put a new thing in her hands, **all four** were named by her very next free
+turn, with no mechanism asking her to. The clearest is `…05-24-50-492Z` r14, where the forced turn
+consumed the wire: *"made a hook from the length of wire: you hold it now, as hook, and the length of
+wire is gone."* Her r15, free, chose *"Scrape the bar with the hook while clinking the key ring to mask
+noise"*, and the bar went 55 → 40 — through the window's line.
+
+Counting the forced turns pick **kept** as well, since a find is a find, it is 7 of 7 (grit at
+`…05-05-32-054Z` r2, wire at `…05-56-34-559Z` r6, grit at `…06-39-21-427Z` r6, grit and wire at
+`…05-24-50-492Z` r2 and r12, plus the four above).
+
+Nothing was added to make that happen. A derive puts the product in `perceivedObjects`, the actor-learns
+line states it in the mind's own briefing, and `setBelief` records its properties — so the find arrives
+next turn as a thing in the room she is holding, which is a stronger claim on attention than any
+sentence a mechanism could add. **The named first idea is, for this class of find, already implemented,
+by the world.**
+
+The four property finds were ignored — but each was a value on something no escape runs through (the
+cot, the tile's concealment), and one round later her plan was at the bar again. Ignoring them is not a
+failure to carry; it is a correct reading of what they were worth.
+
+### 41.3 The find changed the instrument, never the intention
+
+This is the part that decides the mechanism's fate. All four object finds were taken up **at the bar**:
+r15's hook scrapes the bar, `…06-52-46-634Z` r9's *"Apply grit_2 to the bar to further reduce its
+integrity"*, r7's *"Scatter grit from the loose tile onto the bar's rusted areas"*, `…06-09-27-638Z`
+r9's *"Scatter grit from the loose tile onto the bar's mortar"*. Two of the four the referee ruled
+against the bar outright; all four intents name it.
+
+So the mind does exactly what the idea hoped, and it buys nothing: a new thing becomes a **better tool
+for the plan it already had.** Carrying a find forward cannot produce free-turn novelty, because
+absorbing the find into the standing goal is what a competent mind does with it. §36.2's free-turn count
+(3 novel of 22) was measured while this carrying was happening at 7 of 7.
+
+### 41.4 Why the intention does not move: the obvious approach wins
+
+`…05-05-32-054Z` is the whole answer in one game. Ten rounds, every prisoner turn at the bar, nothing
+else attempted — and she **escaped at r10**. Her warden's suspicion over that game went 0, 40, 50, 87,
+87, 94, then **100 from round 7 to the end**, with grounds to search from round 2 on. The warden had
+every licence the world can give and lost anyway. The known-approach cost was charged (the ledger had *"A prisoner
+works at the bar. (seen 76 times, in 19 earlier attempts)"*, +30 on sight, §11.3) and it did not
+matter, which is the third time this document has found that cost measured and ignored (§11.4, §20.2).
+
+A mind that keeps scraping when scraping reliably wins is not failing to imagine; it is playing
+correctly. **Free-turn novelty of 3 in 22 is not a defect of the mind, it is a property of the room.**
+In a cell with one good exit, priced at a cost the winner can pay, the obvious approach *is* the best
+approach, and no amount of information handed to the mind — a find carried forward, an exhausted
+approach shown from inside the fiction, candidates generated with the obvious one struck out — can make
+choosing it irrational.
+
+### 41.5 What this leaves for moi#2
+
+The first of the issue's three directions is answered without running a game: **already done, and it
+does not clear the bar.** The second and third are information-side too, and §41.4 is the reason to
+doubt both: they change what the mind knows, and what the mind knows is not what is keeping it at the
+bar. Recorded on the issue.
+
+What the evidence points at instead is the **payoff**, not the prompt. Precedent (mechanism 1) is the
+only thing here that has ever tried to make the obvious approach worse, and it is priced flat: the
+ledger knows *"seen 76 times, in 19 earlier attempts"* and the caller spends that on a fixed +30,
+throwing the count away. Pricing a known approach by its own staleness — the more everyone has seen
+it, the more it costs — is generic (a swindle every rival has watched should cost more than one seen
+once), needs nothing new from the package, since `seenBefore` already returns the counts, and is
+measurable on **free** turns with no forcing at all: does she leave the bar when the bar is priced at
+what it is actually worth? That is an owner's call, not a tidy-up, because it deliberately makes this
+game harder for the prisoner; it is put as a decision rather than started.
