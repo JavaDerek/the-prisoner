@@ -59,11 +59,29 @@ Inside the first cartridge, show its contents as a small stacked list (the same 
 - **Declared capabilities: what this game needs of the console** (`the-prisoner#14`)
 - Role test suites and training data (`the-prisoner#10`)
 
-A cartridge is **an MCP server**: it holds the authoritative world and its rules as data, and it ships
-its UI. Draw the arrow from a cartridge down into the Console as **"load cartridge: rules, roles and
-its View"**.
+Draw the arrow from a cartridge down into the Console as **"load cartridge: rules, roles and its View"**.
 
 Worth a small note somewhere near this band: **a cartridge never opens a window of its own.**
+
+### The hinge: what a cartridge *is* (draw this)
+
+The one thing this band is still moving on, and the picture should show it rather than assert one side.
+The two sources say different things because they are describing different moments:
+
+- **Today** a cartridge is a **program**: its author assembles `run-dmcp` in TypeScript and ships a
+  server. `the-prisoner#13`'s "a cartridge = an MCP server" is this moment.
+- **After `run-dmcp#41`** a cartridge is **data**: with mechanics, gates and end conditions declared,
+  *"a stock `run-dmcp` server"* can load the game and any console can play it. That is `run-dmcp#41`'s
+  own sentence, and it is the destination.
+
+Draw it as a small two-state inset beside the cartridge row: **TODAY** (solid) above, **DESTINATION**
+(dashed) below, and one arrow between them labelled with what closes the gap — *mechanics, gates and
+ends as declared data* (`run-dmcp#41`). The diagram's solid/dashed convention is already exactly the
+right encoding for this, and the **Declared rules loader** in the engine band is the same hinge seen
+from the other end.
+
+**Do not write "games are data" as a flat statement inside this band.** It is the destination, not
+today, and the inset is where the picture says so honestly.
 
 ---
 
@@ -91,10 +109,17 @@ Inside it, left to right:
    Role: a human plays any principal. To the system, a human is just another mind.
 6. **MCP Apps host** *(dashed)* (`the-prisoner#13`, `#14`) — **this replaces the old "Screen / UI" box**
    Role: renders the cartridge's own View in a sandboxed frame, full-window, and talks to it over
-   postMessage. Show two small chips inside it:
+   postMessage — turn-level state only, URLs never base64. Show two small chips inside it:
    - **Host profile**: the documented superset of the spec this console guarantees — persistent views,
      host-side fullscreen, audio without a click, turn-level messaging (`the-prisoner#14`)
-   - **Asset server**: serves images, clips, speech and art **by URL** (`the-prisoner#14`)
+   - **Asset server**: serves **the cartridge's View and its assets**, plus everything the media
+     services generate, from the console's own local origin, **by URL** (`the-prisoner#14`)
+
+   **Who serves the View, decided 2026-09-17: the console.** SEP-1865 has a server ship a View's HTML,
+   which raised the question of whether a *stock* engine would have to serve a cartridge's presentation.
+   It does not: `the-prisoner#14` already puts cartridge art and every generated asset on the console's
+   own asset server, and the View goes with them. **The engine never serves a pixel**, which is the same
+   line as "the engine never thinks", one layer over. No engine issue is needed for this.
 7. **GPU scheduler** *(dashed)* (`the-prisoner#14`)
    Role: one consumer card, one big model at a time. Decides what is resident and what degrades —
    subtitles instead of voice, a still frame instead of a clip.
