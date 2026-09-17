@@ -8,7 +8,7 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
 | Item | State |
 |---|---|
 | 1. §5.3 on a fixed batch (≥4 games, model warden, qwen3:14b referee) + a passive game | **DONE.** §5.3 holds on batch F (4 games): 0 fog leaks in 82 contexts, all effects cited, novelty in all 4, 7 impossible rulings with reasons, replay 99.5/99.4/97.6/98.2%. Passive game escaped r6. OPEN-VARIANT §35. |
-| 2. Condition list as a generic mechanism, A/B in real games | **DONE, positive, both sides.** Generic renderer + game data (`1c1bb58`, `467f101`, `0f7ad18`, `1274ab6`); open items 2 and 3 fixed. Prisoner: probe first (§34.1), then **batch G (list) escaped 4/4 where batch F (rule sentences) was caught 4/4**; she acted on her unlock 4/4 vs 1/6 (§34.2). Warden: probe 0/20 → 20/20 looks at the open window, controls unmoved (§34.3); **batch K (both) caught 4/4, every one by a look at the window she had just opened** (§34.4). 2+2 more F/G games running for power |
+| 2. Condition list as a generic mechanism, A/B in real games | **DONE, positive, both sides.** Generic renderer + game data (`1c1bb58`, `467f101`, `0f7ad18`, `1274ab6`); open items 2 and 3 fixed. Prisoner: probe first (§34.1), then **with the list she escaped 6 of 6; with rule sentences 2 of 6** (same config, alternating for the last 2+2); she tried at her first removable turn 6/6 vs 2/6 (§34.2, §34.5). Warden: probe 0/20 → 20/20 looks at the open window, controls unmoved (§34.3); **batch K (both) caught 4/4, every one by a look at the window she had just opened** (§34.4). |
 | 3. mother-of-invention produces a measured change | **DONE, qualified positive.** Idea 1 (regenerate once when nothing unseen) fixes the failure §32 named: with the ledger on, forced turns that did something unseen went **23% → 65%** (3/13 → 13/20). Regeneration turned 6 of 11 stuck turns into the mind's own new ideas (door bolt, wire hook, sharper spoon). **Free turns unchanged** (3 novel of 15 vs 3 of 22) and outcomes no better, so the mind still doesn't choose new things unforced. OPEN-VARIANT §36 |
 | 4. Libraries released and consumed | **DONE.** mother-of-invention **0.1.2** (pick + regenerate as mechanism 2) published by tag through release.yml (CI and Release green); the-prisoner pins it exactly and its local `pick.ts` is gone (`b9b0390`). The condition list stays in the-prisoner by decision D1, so no mind-seam or run-dmcp release was needed |
 
@@ -70,6 +70,25 @@ what's below. Evidence lives in `checkpoints/2026-09-17-overnight/` and in OPEN-
   (`20e8776`), transcript left as recorded.
 - 03:02. Queued 2 more baseline and 2 more list-for-prisoner games, alternating, to add power to F vs G.
 
+- 03:02-03:31. Two more games a side (§34.5): baseline F5 escaped r8, F6 escaped r6; list G5, G6 escaped
+  r6. Final: list 6/6, baseline 2/6. F5 lost a turn to a reproducible referee miss (a pry wording ruled
+  target none, 3/3 on replay).
+- 03:35. doris left empty (`/api/ps` → no models). Handoff memory updated to point here.
+
+## What stopped, and why
+
+- **Nothing hit the stop rule.** The one idea that needed variations (the unlock's wording) worked on its
+  second variation. Regeneration was idea 1 for candidate generation, and it worked on its own measure.
+- **The precedent-off pick pair (H1, I1, H2) was stopped by me, not by a result.** It could not measure
+  regeneration (pick was almost never stuck without the ledger), so it was rerun as batch J with the
+  ledger. Its three transcripts are committed.
+- **Not attempted tonight:** a mechanism that changes free-turn novelty (D2); giving brink the list (D4);
+  whether a prisoner who reads the warden's condition 6 plans around it (§34.4). run-dmcp and mind-seam
+  were not changed. No release failed.
+- **Two mistakes of mine, both caught within minutes:** the first batch launch left out the 180 s think
+  timeout (every call silent, killed before a transcript), and the driver first refused to start game 2
+  because the checkpoint leaves its last model loaded. Both are fixed in `run-batch.sh`.
+
 ## Decisions for Derek
 
 **D1. Where condition-list generation lives. Chosen for tonight: the caller (the-prisoner), as a generic
@@ -104,7 +123,11 @@ two callers, so by that precedent the answer is "not until brink uses it". If yo
 rival minds try it straight from the package, it's a pure function plus a type (a patch release) and
 moves as a file.
 
-(more below as they come up)
+**D5. The referee miss on "Attempt to pry the bar out of the mortar using the spoon"** (§34.5): ruled
+target/effect `none` 3 of 3 on qwen3:14b, while other pry wordings rule `open`. Answering "capture the raw
+replies and fix it like §33.16" means a referee session with the 26-intent controls. Answering "leave it"
+means that wording keeps costing a turn in some games, which slightly favours the list arm (its intents
+echo "Open the window", which always ruled cleanly).
 
 ## Versions published
 
