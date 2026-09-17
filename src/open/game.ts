@@ -84,7 +84,7 @@ export async function runOpenGame(params: {
         context,
         mind: minds[principal],
         ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
-        ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []), ...seenAttempts(halves)] } } : {}),
+        ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []), ...seenAttempts(halves)], ...(params.pick.regenerate ? { regenerate: true } : {}) } } : {}),
         ...(principal === "prisoner" && params.pick?.onReplan
           ? { replanPick: { seen: [...(params.precedent?.known ?? []), ...seenAttempts(halves)], hadPlan: plans.prisoner !== undefined } }
           : {}),

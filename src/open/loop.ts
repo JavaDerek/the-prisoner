@@ -73,7 +73,7 @@ export interface OpenHalfRoundResult {
    *  `proposal.intent` is the chosen candidate, the text actually ruled on.
    *  `null` on a free turn, and always outside the condition. Under §23,
    *  set on every new prisoner plan checked, with `reasked`. */
-  pick: { own: string; forced: boolean; overridden: boolean; verdicts: readonly { candidate: string; verdict: Verdict }[]; reasked?: boolean } | null;
+  pick: { own: string; forced: boolean; overridden: boolean; verdicts: readonly { candidate: string; verdict: Verdict }[]; reasked?: boolean; regenerated?: readonly { candidate: string; verdict: Verdict }[] } | null;
   /** The scenario's own display name for the resource this half-round's plan
    *  actually wrote or read (`EffectPlan.resourceId` through `world.ts`'s
    *  `resourceNameById`) -- `null` when there is no plan, or the plan touches
@@ -260,7 +260,7 @@ export async function runOpenHalfRound(params: {
    *  prisoner turn: every approach counted as seen -- the ledger's known
    *  approaches plus what the warden saw earlier this game. Recognition only:
    *  the known-approach cost still reads `knownApproaches` alone. */
-  forcePick?: { readonly seen: readonly string[] };
+  forcePick?: { readonly seen: readonly string[]; readonly regenerate?: boolean };
   /** The pick condition at replan time (OPEN-VARIANT.md §23), on every
    *  prisoner turn under it: what counts as seen, and whether the prisoner
    *  had a plan before this turn (a first plan is a new plan). */
@@ -276,10 +276,12 @@ export async function runOpenHalfRound(params: {
   // §21: the recogniser is the referee itself, so "seen" means exactly what
   // the precedent ledger would have recorded for that text. A reshaping is
   // not recognised here (it needs the parent's kind, §14.4).
+  const recognisedAs = new Map<string, string>();
   const recognise = async (text: string, seen: readonly string[]): Promise<{ verdict: Verdict; as: string }> => {
     const ruling = await referee.rule(text, context.perceivedObjects);
     if (!ruling.applicable) return { verdict: "unavailable", as: "" };
     const as = precedentTextFor(ruling);
+    recognisedAs.set(text, as);
     return { verdict: seen.includes(as) ? "seen" : "unseen", as };
   };
   let picked: OpenHalfRoundResult["pick"] = null;
@@ -289,8 +291,29 @@ export async function runOpenHalfRound(params: {
     const result = await pick(considered.intent, (considered.candidates ?? []).map((c) => c.text), {
       force: true,
       recognise: async (text) => (await recognise(text, seen)).verdict,
+      // §36: told what is already known, in the words the warden knows it by;
+      // the fresh answer's texts are only candidates, and its plan is not kept.
+      ...(params.forcePick.regenerate
+        ? {
+            regenerate: async () => {
+              const knownAs = [...new Set([considered.intent, ...(considered.candidates ?? []).map((c) => c.text)].map((t) => recognisedAs.get(t)).filter((as): as is string => !!as && seen.includes(as)))];
+              const why = knownAs.length > 0 ? ` has already seen and knows on sight (${knownAs.map((as) => `"${as}"`).join("; ")})` : " could not do or has already seen";
+              const again = await mind.consider({
+                ...context,
+                briefing: `${context.briefing}\nBefore you act: everything you listed is something ${WARDEN_NAME}${why}. List different things you could try this turn, that ${WARDEN_NAME} has not seen.`,
+              });
+              return again === null ? [] : [again.intent, ...(again.candidates ?? []).map((c) => c.text)];
+            },
+          }
+        : {}),
     });
-    picked = { own: considered.intent, forced: result.forced, overridden: result.overridden, verdicts: result.verdicts };
+    picked = {
+      own: considered.intent,
+      forced: result.forced,
+      overridden: result.overridden,
+      verdicts: result.verdicts,
+      ...(result.regenerated ? { regenerated: result.regenerated } : {}),
+    };
     if (result.overridden) proposal = { ...considered, intent: result.chosen };
   }
   // §23: a new plan whose first step the warden has seen is sent back to the

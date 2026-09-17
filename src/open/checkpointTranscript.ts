@@ -185,6 +185,7 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   } else if (half.pick) {
     lines.push(half.pick.overridden ? `**Forced pick:** overrode the mind's own intent: ${half.pick.own}` : `**Forced pick:** kept the mind's own intent.`);
     for (const v of half.pick.verdicts) lines.push(`- ${v.verdict}: ${v.candidate}`);
+    for (const v of half.pick.regenerated ?? []) lines.push(`- regenerated, ${v.verdict}: ${v.candidate}`);
   }
   lines.push(`**Intent:** ${p.intent}`);
   if (p.line) lines.push(`**Line:** "${p.line}"`);
@@ -355,10 +356,16 @@ export function renderOpenSummary(game: OpenGameResult, rounds?: number): string
   if (forced.length > 0) {
     const free = prisonerTurns.filter((x) => !x.h.pick?.forced);
     const overridden = forced.filter((x) => x.h.pick?.overridden).length;
-    const stuck = forced.filter((x) => x.h.pick && !x.h.pick.overridden && x.h.pick.verdicts.every((v) => v.verdict !== "unseen")).length;
+    // §32.1's count: the mind's own candidates had nothing unseen. A §36 regeneration
+    // that then found something still counts here; it is reported on its own line.
+    const stuck = forced.filter((x) => x.h.pick && (!x.h.pick.overridden || x.h.pick.regenerated !== undefined) && x.h.pick.verdicts.every((v) => v.verdict !== "unseen")).length;
     lines.push("## Pick condition (OPEN-VARIANT.md §21)");
     lines.push("");
     lines.push(`Forced prisoner turns: ${forced.length} (overridden ${overridden}, nothing unseen to force to ${stuck}). Novel: ${forced.filter((x) => x.novel).length}.`);
+    const regenerated = forced.filter((x) => x.h.pick?.regenerated !== undefined);
+    if (regenerated.length > 0) {
+      lines.push(`Regenerated (§36): ${regenerated.length}, found something unseen ${regenerated.filter((x) => x.h.pick?.regenerated?.some((v) => v.verdict === "unseen")).length}.`);
+    }
     lines.push(`Free prisoner turns: ${free.length}. Novel: ${free.filter((x) => x.novel).length}.`);
     lines.push("");
   }

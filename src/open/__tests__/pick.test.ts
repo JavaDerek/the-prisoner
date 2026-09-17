@@ -49,6 +49,35 @@ describe("pick: a forced choice away from what is already seen, with the recogni
     expect(picked).toMatchObject({ chosen: "a", forced: true, overridden: false });
   });
 
+  it("regenerate (§36): a forced turn with nothing unseen asks once for fresh candidates, told every verdict, and picks the first unseen of those", async () => {
+    const asked: unknown[] = [];
+    const picked = await pick("a", ["a", "b"], {
+      force: true,
+      recognise: table({ a: "seen", b: "unavailable", c: "seen", d: "unseen" }),
+      regenerate: async (verdicts) => (asked.push(verdicts), ["c", "d"]),
+    });
+    expect(asked).toEqual([[{ candidate: "a", verdict: "seen" }, { candidate: "b", verdict: "unavailable" }]]);
+    expect(picked).toMatchObject({ chosen: "d", forced: true, overridden: true });
+    expect(picked.regenerated).toEqual([{ candidate: "c", verdict: "seen" }, { candidate: "d", verdict: "unseen" }]);
+  });
+
+  it("regenerate is never called on a free turn, when the own choice is unseen, or when a first-round candidate is unseen", async () => {
+    let calls = 0;
+    const regenerate = async () => (calls++, ["z"]);
+    await pick("a", ["b"], { force: false, recognise: table({ a: "seen" }), regenerate });
+    await pick("a", ["b"], { force: true, recognise: table({ a: "unseen" }), regenerate });
+    const picked = await pick("a", ["b"], { force: true, recognise: table({ a: "seen", b: "unseen" }), regenerate });
+    expect(calls).toBe(0);
+    expect(picked.regenerated).toBeUndefined();
+  });
+
+  it("regenerated candidates with nothing unseen keep the mind's own choice, and the attempt is still recorded", async () => {
+    const picked = await pick("a", ["a"], { force: true, recognise: table({ a: "seen", c: "seen" }), regenerate: async () => ["c", "a"] });
+    expect(picked).toMatchObject({ chosen: "a", forced: true, overridden: false });
+    // A regenerated text already judged is not asked again.
+    expect(picked.regenerated).toEqual([{ candidate: "c", verdict: "seen" }]);
+  });
+
   it("an unavailable own choice is replaced on a forced turn too: forcing never spends the turn on nothing", async () => {
     const picked = await pick("a", ["b"], { force: true, recognise: table({ a: "unavailable", b: "unseen" }) });
     expect(picked.chosen).toBe("b");
@@ -143,6 +172,65 @@ describe("pick in the checkpoint: the switch and the summary (§21)", () => {
     expect(text).toContain("## Pick condition (OPEN-VARIANT.md §21)");
     expect(text).toContain("Forced prisoner turns: 2 (overridden 2, nothing unseen to force to 0). Novel: 2.");
     expect(text).toContain("Free prisoner turns: 2. Novel: 0.");
+  });
+});
+
+describe("pick with regeneration: a forced turn with nothing unseen asks the mind again (§36)", () => {
+  afterEach(() => destroyTestDb());
+
+  const known = precedentLines([{ text: "A prisoner works at the bar.", times: 12, episodes: 3, lastEpisode: "g3" }]);
+
+  function rewordingMind(briefings: string[]): OpenMind {
+    return {
+      async consider(context) {
+        briefings.push(context.briefing);
+        if (context.briefing.includes("Before you act:")) return { intent: SCRAPE, candidates: [{ text: SCRAPE }, { text: LIFT_TILE }], plan: "SECOND" };
+        return { intent: SCRAPE, candidates: [{ text: SCRAPE }], plan: "FIRST" };
+      },
+    };
+  }
+
+  async function play(prisonerMind: OpenMind, raw: string): Promise<OpenGameResult> {
+    createTestDb();
+    return runOpenGame({
+      openWorld: buildOpenWorld(),
+      resolver: buildOpenResolver(),
+      referee: createReferee([scriptedReferee(RULINGS)]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: WAIT }),
+      prisonerMind,
+      rounds: 2,
+      precedent: known,
+      pick: readPickCondition(raw) as NonNullable<ReturnType<typeof readPickCondition>>,
+    });
+  }
+
+  it("PRISONER_PICK=even-regenerate forces even rounds and regenerates; plain even does not", () => {
+    const regen = readPickCondition("even-regenerate");
+    expect([1, 2].map((n) => regen?.force(n))).toEqual([false, true]);
+    expect(regen?.regenerate).toBe(true);
+    expect(readPickCondition("even")?.regenerate).toBeUndefined();
+  });
+
+  it("the mind is re-asked once, told what the warden already knows on sight, and a fresh unseen text is run; its plan is not", async () => {
+    const briefings: string[] = [];
+    const game = await play(rewordingMind(briefings), "even-regenerate");
+    const round2 = game.halves.find((h) => h.principal === "prisoner" && h.roundN === 2);
+    expect(briefings).toHaveLength(3);
+    expect(briefings[2]).toContain('Before you act: everything you listed is something Warden Croft has already seen and knows on sight ("A prisoner works at the bar.").');
+    expect(round2?.proposal?.intent).toBe(LIFT_TILE);
+    expect(round2?.proposal?.plan).toBe("FIRST");
+    expect(round2?.pick).toMatchObject({ own: SCRAPE, forced: true, overridden: true, regenerated: [{ candidate: LIFT_TILE, verdict: "unseen" }] });
+    const text = renderOpenSummary(game, 2).join("\n");
+    expect(text).toContain("Forced prisoner turns: 1 (overridden 1, nothing unseen to force to 1). Novel: 1.");
+    expect(text).toContain("Regenerated (§36): 1, found something unseen 1.");
+    expect(renderOpenHalfRound(round2 as NonNullable<typeof round2>).join("\n")).toContain("- regenerated, unseen: " + LIFT_TILE);
+  });
+
+  it("plain even never re-asks: the §21 behaviour is unchanged", async () => {
+    const briefings: string[] = [];
+    const game = await play(rewordingMind(briefings), "even");
+    expect(briefings).toHaveLength(2);
+    expect(game.halves.find((h) => h.principal === "prisoner" && h.roundN === 2)?.proposal?.intent).toBe(SCRAPE);
   });
 });
 
