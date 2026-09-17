@@ -262,6 +262,26 @@ describe("open checkpoint transcript", () => {
     expect(requests[1].request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
   });
 
+  it("referee requests carry each rung's raw exchange beside the request, when the transport kept one (OPEN-VARIANT.md §38)", async () => {
+    createTestDb();
+    const inner = scriptedReferee(RULINGS);
+    const transport = Object.assign((request: Parameters<typeof inner>[0]) => inner(request), {
+      lastExchange: () => ({ content: "RAW_REPLY_MARKER", status: 200, ms: 7 }),
+    });
+    const game = await runOpenGame({
+      openWorld: buildOpenWorld(),
+      resolver: buildOpenResolver(),
+      referee: createReferee([transport]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: EXAMINE }),
+      prisonerMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: SCRAPE }),
+      rounds: 1,
+    });
+    const requests = refereeRequestsFor(game.halves);
+    expect(requests[0].replies).toEqual([{ content: "RAW_REPLY_MARKER", status: 200, ms: 7 }]);
+    // A transport that keeps nothing records nothing, and the entry stays replayable.
+    expect(refereeRequestsFor((await playCatchGame()).halves)[0].replies).toEqual([null]);
+  });
+
   it("fog audit: no context holds the other principal's private text -- and a planted leak is caught", async () => {
     const game = await playCatchGame();
     expect(fogAudit(game.halves)).toEqual({ checked: game.halves.length, leaks: [] });

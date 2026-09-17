@@ -138,6 +138,29 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
     await expect(broken(REQUEST)).resolves.toEqual([]);
   });
 
+  it("keeps its last exchange -- the raw reply, the HTTP status, any error, and how long it took (OPEN-VARIANT.md §38)", async () => {
+    const content = '[{"questionId": "target", "answerKey": "bar", "citation": {"sourceId": "intent", "from": 3, "to": 3}}]';
+    const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: (async () => ({ ok: true, status: 200, json: async () => ({ choices: [{ message: { content } }] }) })) as unknown as typeof fetch });
+    expect(transport.lastExchange()).toBeUndefined();
+    await transport(REQUEST);
+    expect(transport.lastExchange()).toMatchObject({ status: 200, content });
+    expect(typeof transport.lastExchange()?.ms).toBe("number");
+
+    const refused = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: (async () => ({ ok: false, status: 500, json: async () => ({}) })) as unknown as typeof fetch });
+    await refused(REQUEST);
+    expect(refused.lastExchange()).toMatchObject({ status: 500 });
+
+    const aborted = createRefereeTransport({
+      baseUrl: "http://x",
+      model: "m",
+      fetchFn: (async () => {
+        throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
+      }) as unknown as typeof fetch,
+    });
+    await expect(aborted(REQUEST)).resolves.toEqual([]);
+    expect(aborted.lastExchange()?.error).toMatch(/TimeoutError/);
+  });
+
   it("calls ensureLoaded(model) before the request", async () => {
     const calls: string[] = [];
     const transport = createRefereeTransport({

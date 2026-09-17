@@ -232,11 +232,29 @@ function coerceAnswers(raw: unknown, request: ReadRequest): TransportAnswer[] {
   return answers;
 }
 
-export function createRefereeTransport(options: CreateRefereeTransportOptions): ReaderTransport {
+/** OPEN-VARIANT.md §38: what one call to the referee model actually came back with, kept so a lost
+ *  ruling can be diagnosed from the transcript's sidecar (§37 could not, for four of six). */
+export type RefereeExchange = { readonly ms: number; readonly status?: number; readonly content?: string; readonly error?: string };
+
+export type RefereeTransport = ReaderTransport & { readonly lastExchange: () => RefereeExchange | undefined };
+
+export function createRefereeTransport(options: CreateRefereeTransportOptions): RefereeTransport {
   const fetchFn = options.fetchFn ?? fetch;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  let last: RefereeExchange | undefined;
 
-  return async (request: ReadRequest): Promise<readonly TransportAnswer[]> => {
+  const transport = async (request: ReadRequest): Promise<readonly TransportAnswer[]> => {
+    const start = performance.now();
+    let status: number | undefined;
+    let content: string | undefined;
+    const keep = (error?: unknown) => {
+      last = {
+        ms: Math.round(performance.now() - start),
+        ...(status !== undefined ? { status } : {}),
+        ...(content !== undefined ? { content } : {}),
+        ...(error !== undefined ? { error: String(error) } : {}),
+      };
+    };
     try {
       if (options.ensureLoaded) await options.ensureLoaded(options.model);
 
@@ -252,16 +270,21 @@ export function createRefereeTransport(options: CreateRefereeTransportOptions): 
         }),
         signal: AbortSignal.timeout(timeoutMs),
       });
-      if (!response.ok) return [];
+      status = response.status;
+      if (!response.ok) return (keep(), []);
 
       const body = (await response.json()) as { choices?: { message?: { content?: string } }[] };
-      const content = body.choices?.[0]?.message?.content;
-      if (typeof content !== "string") return [];
+      const reply = body.choices?.[0]?.message?.content;
+      if (typeof reply !== "string") return (keep("no message content"), []);
+      content = reply;
+      keep();
 
-      const parsed = firstJsonArray(content);
+      const parsed = firstJsonArray(reply);
       return coerceAnswers(parsed, request);
-    } catch {
+    } catch (error) {
+      keep(error);
       return [];
     }
   };
+  return Object.assign(transport, { lastExchange: () => last });
 }

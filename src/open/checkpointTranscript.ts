@@ -1,6 +1,7 @@
 import { ResolveProtocolError, type ReadRequest } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
 import type { RangedCitation } from "./refereeTransport.js";
+import type { RefereeExchangeRecord } from "./referee.js";
 import type { OpenGameResult } from "./game.js";
 import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
@@ -217,9 +218,11 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
 
 /** The input `npm run referee-replay` reads: one entry per half-round the
  *  referee ruled on, with the exact request it was asked. */
-export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { label: string; request: ReadRequest }[] {
+export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { label: string; request: ReadRequest; replies: readonly (RefereeExchangeRecord | null)[] }[] {
+  // OPEN-VARIANT.md §38: each rung's raw exchange beside the request. The replay tool reads only
+  // `label` and `request`, so the file stays replayable.
   return halves.flatMap((h) =>
-    h.ruling && h.proposal ? [{ label: `round ${h.roundN}, ${h.principal}: ${h.proposal.intent}`, request: h.ruling.request as ReadRequest }] : []
+    h.ruling && h.proposal ? [{ label: `round ${h.roundN}, ${h.principal}: ${h.proposal.intent}`, request: h.ruling.request as ReadRequest, replies: h.ruling.exchanges ?? [] }] : []
   );
 }
 

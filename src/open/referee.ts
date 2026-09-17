@@ -86,6 +86,9 @@ export interface RefereeRuling {
   };
   /** The raw reader result, kept for the transcript. */
   raw: ReaderResult;
+  /** OPEN-VARIANT.md §38: per rung, what the model call came back with, when the transport keeps it
+   *  (`lastExchange`); `null` for a rung that was not asked or keeps nothing. */
+  exchanges?: readonly (RefereeExchangeRecord | null)[];
   /** The exact request (questions + sources) this ruling was asked against
    *  -- kept so the replay tool (`replay.ts`, this task's brief) can re-ask
    *  the IDENTICAL request N times for §5.2's consistency measurement,
@@ -105,6 +108,10 @@ export interface CitationCheck {
   requiredSourceId: string | null;
   verified: boolean;
 }
+
+/** Structural, so the referee needs no import of any one transport. */
+export type RefereeExchangeRecord = { readonly ms: number; readonly status?: number; readonly content?: string; readonly error?: string };
+type ExchangeKeeping = { readonly lastExchange?: () => RefereeExchangeRecord | undefined };
 
 const INTENT_SOURCE_ID = "intent";
 function descriptionSourceId(objectId: string): string {
@@ -368,14 +375,16 @@ export function createReferee(transports: readonly ReaderTransport[], options: {
       // `{sourceId, quote}` only, so what each rung offered is kept here, to
       // put the word range back beside the quote it was rebuilt into.
       const offered: unknown[] = [];
+      const exchanges: (RefereeExchangeRecord | null)[] = transports.map(() => null);
       const recording = transports.map((transport, rung): ReaderTransport => async (request) => {
         const answers = await transport(request);
         offered[rung] = answers;
+        exchanges[rung] = (transport as ExchangeKeeping).lastExchange?.() ?? null;
         return answers;
       });
       const reader = createTurnReader({ questions, transports: recording });
       const result = withRanges(await reader.read(sources), offered);
-      const ruling = computeRuling(result, { questions, sources }, isDeclared);
+      const ruling = { ...computeRuling(result, { questions, sources }, isDeclared), exchanges };
       cache.set(key, ruling);
       return ruling;
     },
