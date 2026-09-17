@@ -3040,3 +3040,85 @@ So it is a one-game loop in the wits model on a phrasing the referee kept refusi
 arm. Recorded because a batch of four with one anomalous path should say which it was, and because the
 cheap check that distinguishes them — is the phrasing new, or is it in the record already? — is the one
 worth reaching for before a fix gets designed for a sample of one.
+
+## 44. Condition 6: she reads it, reasons correctly, and cannot plan around it (2026-09-17)
+
+The open question from §34's handoff: can a prisoner who reads condition 6 plan around it? Condition 6
+is the one written for the other party, and she sees it every turn marked `(for Warden Croft)`:
+
+> CONDITION 6 (for Warden Croft): If warden suspicion is at or above 40, and Warden Croft closely
+> examines a way out, and Warden Croft finds it standing open, then Warden Croft catches Mara Voss and
+> the game ends.
+
+It describes exactly the gap her own plan has to cross, because opening a way out is one act and
+leaving through it is another: **one warden turn always falls between them.**
+
+Measured by `checkpoints/2026-09-17-overnight/cond6.mts` over all 14 games that have ever had a
+condition list (ten `list`, four `both`). Reading only: it prints her own thoughts, intent, plan and
+notes around the opening turn, and counts citations in *her* words, never the briefing's.
+
+**She reads it and cites it: 12 of 14 games, unprompted, at the right moment.** Not paraphrase —
+by number, while deciding:
+
+> *"Opening the window now would trigger Condition 2 (escape) if the warden hasn't examined it. If the
+> warden later checks and finds it open, Condition 6 would end the game. But current suspicion is low
+> (25), so the risk is manageable."* (`…19-02-28-803Z`, the opening turn)
+
+> *"Escape through the window immediately to avoid the warden examining it and triggering Condition 6."*
+> (the same game, her plan on the next turn)
+
+So the answer to the narrow question is yes: a mind given a condition belonging to someone else uses it
+as a risk it must run, correctly, without being told to. **And the answer to the real question is no**,
+because both mitigations she states are unavailable to her.
+
+### 44.1 Her first mitigation is right in principle and impossible in practice
+
+Conditions 3–6 all open with *warden suspicion is at or above 40*, so the clean defence is to arrive at
+the unlock under 40 — and she plans for it explicitly, with arithmetic:
+
+> *"Warden suspicion is currently at 20, and this action will raise it by 10 (moderate act), bringing it
+> to 30. Since this is below 40, Warden Croft's conditions for catching me won't trigger yet."*
+> (`…18-55-31-080Z`)
+
+**It never once held. All 14 games ended at or above 40, every one of them: 51, 58, 60, 65, 66, 66, 68,
+69, 70, 70, 74, 75, 78, 80.** The reason is structural, not a failure of reasoning: the only route to
+the unlock is visible damage to the bar, and visible damage is what raises suspicion (§9.3). The
+approach she must take destroys the condition she needs. She plans to arrive under 40 and never can.
+
+### 44.2 Her second mitigation is not a plan, because she does not move the warden
+
+Her fallback is speed — *"escape before he examines it"*. But nothing in that sentence is hers to
+decide. She cannot open and leave in one act, so the gap exists by turn order, and what happens in it
+is the warden's choice, not hers.
+
+The two arms settle it, because the suspicion she ends at is the same in both and the outcomes are
+opposite:
+
+| | final suspicion | result |
+|---|---|---|
+| `list` (warden has no list) — 10 games | 58, 60, 65, 66, 68, 69, 70, 74, 75, 78 | **escaped, 10 of 10** |
+| `both` (warden has its own list) — 4 games | 51, 66, 70, 80 | **caught, 4 of 4** |
+
+Same exposure, same suspicion, and she reasons the same way in both. The only difference is whether the
+warden read condition 6 from its own side and knew to look at the thing that had just changed (§34.4).
+**Whether she gets out of the gap is decided by the other mind, not by her plan.**
+
+### 44.3 What this says about the list, and what would change the answer
+
+The honest reading is a good one for the mechanism: **the list makes her reasoning correct without
+making her more capable.** It hands her an accurate diagnosis and no cure — she prices the risk right,
+runs it because there is nothing else to do, and lives or dies by what the warden looks at. That is
+evidence the condition list is not cheating: if stating the rules had quietly handed her power, these
+ten games would not have needed the warden to be blind.
+
+Giving her real agency here is a **world** change, not a prompt one, and each option is a design
+decision rather than a fix:
+
+- an intent that opens a way out and leaves through it as one act, closing the gap outright;
+- something she can spend a turn on that *lowers* suspicion, so 44.1's defence becomes reachable;
+- concealment of an opened way out, so condition 6's third clause can fail.
+
+None is started, and none should be on the strength of this section alone: the prisoner losing the gap
+to a warden that looked is a contested game working, not a defect (§34.2, the-prisoner is a harness).
+Recorded so the next person asking "can she plan around it?" finds the measurement instead of the
+question.
