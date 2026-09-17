@@ -15,6 +15,7 @@ import type { ReadRequest } from "run-dmcp";
 import { replayTranscript, renderReplayReport } from "./replay.js";
 import { createRefereeTransport } from "./refereeTransport.js";
 import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "../ollamaSwap.js";
+import { resolveRefereeModel } from "../modelRoles.js";
 
 async function main(): Promise<void> {
   const [, , transcriptPath, nArg] = process.argv;
@@ -29,7 +30,7 @@ async function main(): Promise<void> {
   const entries = JSON.parse(raw) as { label: string; request: ReadRequest }[];
 
   const baseUrl = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
-  const model = process.env.PRISONER_REFEREE_MODEL ?? "qwen2.5:14b";
+  const model = resolveRefereeModel(process.env.PRISONER_REFEREE_MODEL);
   const timeoutMs = process.env.PRISONER_REFEREE_TIMEOUT_MS ?? process.env.PRISONER_THINK_TIMEOUT_MS;
   const residents = (process.env.PRISONER_OLLAMA_RESIDENT_MODELS ?? "")
     .split(",")

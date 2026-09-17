@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { readSkipVoice, resolveVoiceModel } from "../modelRoles.js";
+import { readSkipVoice, resolveVoiceModel, resolveRefereeModel } from "../modelRoles.js";
 
 /**
  * `PRISONER_SKIP_VOICE` (CLAUDE.md "Test runs skip the voice model for
@@ -40,5 +40,22 @@ describe("resolveVoiceModel", () => {
 
   it("not skipping voice keeps the configured voice model", () => {
     expect(resolveVoiceModel("qwen3:14b", "ancient-awakening:12b", false)).toBe("ancient-awakening:12b");
+  });
+});
+
+/**
+ * OPEN-VARIANT.md §33.16: on the unchanged referee prompt, qwen3:14b rules an
+ * attempt to remove a part as the way out opening (24 of 26 controls), where
+ * qwen2.5:14b rules it wear and no rewording fixed that without breaking
+ * leave. The owner made qwen3:14b the default (2026-09-16).
+ */
+describe("the referee model", () => {
+  it("defaults to qwen3:14b when PRISONER_REFEREE_MODEL is unset or empty", () => {
+    expect(resolveRefereeModel(undefined)).toBe("qwen3:14b");
+    expect(resolveRefereeModel("")).toBe("qwen3:14b");
+  });
+
+  it("uses the model a run names", () => {
+    expect(resolveRefereeModel("qwen2.5:14b")).toBe("qwen2.5:14b");
   });
 });

@@ -239,6 +239,8 @@ The attack move (issue #1) waits until these hold.
    the wits model means the referee is not ruling on ideas its own weights produced; it does not
    think aloud, so a ruling is fast. The cost is a third model per half-round, handled by the
    existing one-model-at-a-time swapper.
+   *Superseded 2026-09-16 (§33.16): the default is now `qwen3:14b`, the same model as the wits role, so
+   the independence above is given up for the removal rulings only it gets right.*
 2. **Starting objects: the full list in §4.1.**
 3. **Descriptions: Claude drafts, the owner reviews** before any real game runs (drafts in §4.1). A
    model drafting descriptions at scenario-build time is deferred until the hand-written version is
@@ -2416,8 +2418,11 @@ text changed. Re-reading all 78 recorded replies through the fixed transport (`v
 changes exactly the two grind replies, both now `wear` on the bar with citations. The other 76 read
 identically.
 
-**Not changed:** the default referee model is still `qwen2.5:14b`. The next real games set
-`PRISONER_REFEREE_MODEL=qwen3:14b`. The open question is miss 1: an attempt to leave that says "and escape"
+**Default changed (owner, same night):** the referee model is now `qwen3:14b` when
+`PRISONER_REFEREE_MODEL` is unset (`modelRoles.ts` `resolveRefereeModel`, shared by the checkpoint and the
+replay tool). This supersedes §8.1's separate-model default: the referee now shares the wits model's
+weights, so it rules on ideas that model proposed. §8.1's reason for independence is given up for the
+rulings only this model gets right. The open question is miss 1: an attempt to leave that says "and escape"
 is ruled `open`, and in a game it would refuse the prisoner's actual exit.
 
 **Tooling:** `~/prisoner-prompt-lab/referee.html` (copied here as `referee-lab-page.html`, with

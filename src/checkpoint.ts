@@ -33,7 +33,7 @@ import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
 import { pinnedDependencyVersion } from "./packageInfo.js";
-import { readSkipVoice, resolveVoiceModel } from "./modelRoles.js";
+import { readSkipVoice, resolveVoiceModel, resolveRefereeModel } from "./modelRoles.js";
 import { summarizeLoadedModels, type OllamaPsResponse } from "./ollamaStatus.js";
 import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "./ollamaSwap.js";
 import {
@@ -113,7 +113,7 @@ const RESIDENT_MODELS = (process.env.PRISONER_OLLAMA_RESIDENT_MODELS ?? "")
 const VARIANT = getVariant();
 /** Open variant only (OPEN-VARIANT.md §8.1): the referee is its own model,
  *  swapped like the other two. */
-const REFEREE_MODEL = process.env.PRISONER_REFEREE_MODEL ?? "qwen2.5:14b";
+const REFEREE_MODEL = resolveRefereeModel(process.env.PRISONER_REFEREE_MODEL);
 const REFEREE_TIMEOUT_MS = process.env.PRISONER_REFEREE_TIMEOUT_MS ? Number(process.env.PRISONER_REFEREE_TIMEOUT_MS) : THINK_TIMEOUT_MS;
 /** Open variant only: the precedent condition (`src/open/precedent.ts`). Set
  *  to a ledger file (created if absent) to show both minds what the warden

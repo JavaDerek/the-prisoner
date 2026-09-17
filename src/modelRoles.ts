@@ -25,3 +25,16 @@ export function readSkipVoice(raw: string | undefined): boolean {
 export function resolveVoiceModel(witsModel: string, configuredVoiceModel: string, skipVoice: boolean): string {
   return skipVoice ? witsModel : configuredVoiceModel;
 }
+
+/** OPEN-VARIANT.md §33.16: the referee model when a run names none. On the
+ *  unchanged referee prompt qwen3:14b rules an attempt to remove a way out's
+ *  part as `open` (24 of 26 controls); qwen2.5:14b rules it `wear`, and no
+ *  rewording fixed that without breaking `leave`. */
+export const DEFAULT_REFEREE_MODEL = "qwen3:14b";
+
+/** `PRISONER_REFEREE_MODEL`, or the default when unset or empty. Shared by
+ *  the checkpoint and the replay tool, so a replay rules with the referee a
+ *  game would. */
+export function resolveRefereeModel(raw: string | undefined): string {
+  return raw === undefined || raw === "" ? DEFAULT_REFEREE_MODEL : raw;
+}
