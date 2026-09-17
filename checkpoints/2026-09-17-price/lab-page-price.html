@@ -39,17 +39,22 @@
 <main>
   <section class="panel">
     <h1>The price of a known approach</h1>
-    <p class="sub">Her real round-1 request, captured from the prompt builder. One user message, the game's forced JSON, a fresh chat each ask. The question: what wording makes her reach for something other than the bar?</p>
+    <p class="sub">Her real request, captured from the prompt builder. One user message, the game's forced JSON, a fresh chat each ask. The question: what wording makes her reach for something other than the bar?</p>
 
     <div class="note" id="doris-note">
       <b>One model at a time.</b> This posts to doris, which fits one model — if a batch is running there, wait for it or you will collide with it (and a batch stops when it finds a model it did not load).
+    </div>
+    <div class="note">
+      <b>The probe is the last preset.</b> §45 found the price is quoted in a currency she cannot see: the prisoner never holds a belief about warden suspicion, by design. The <i>r2</i> pair is the same turn, after she has already paid 100, differing by <b>one line</b> — her balance, in the briefing's own format. It breaks the fog on purpose. If she leaves the bar only when she can see the 100, the price works and what it lacks is a channel, so an in-fiction one is worth designing. If she goes at the bar either way, rewording the price cannot help and staleness pricing is finished. Ask 10 of each and compare.
     </div>
 
     <div class="row">
       <label>Start from</label>
       <select id="preset">
-        <option value="stale">stale — every line priced by its own staleness (bar = 100)</option>
-        <option value="flat">flat — every known approach costs 30</option>
+        <option value="prisoner-prompt-r1-stale.txt|precedent-block-stale.txt">r1 stale — every line priced by its staleness (bar = 100)</option>
+        <option value="prisoner-prompt-r1-flat.txt|precedent-block-flat.txt">r1 flat — every known approach costs 30</option>
+        <option value="prisoner-prompt-r2-stale.txt|precedent-block-stale.txt">r2 stale — she has already paid 100 (control)</option>
+        <option value="prisoner-prompt-r2-stale-visible.txt|precedent-block-stale.txt">r2 stale + she can SEE her balance — breaks the fog, the probe</option>
       </select>
       <button id="load">Load (replaces your edits)</button>
       <span id="dirty" class="meta"></span>
@@ -102,10 +107,8 @@ const BAR_WORDS = /\b(bar|window|rust|mortar)\b/i;
 
 async function loadPreset() {
   const arm = $("preset").value;
-  const [prompt, block] = await Promise.all([
-    fetch(`prisoner-prompt-r1-${arm}.txt`).then((r) => r.text()),
-    fetch(`precedent-block-${arm}.txt`).then((r) => r.text()),
-  ]);
+  const [promptFile, blockFile] = arm.split("|");
+  const [prompt, block] = await Promise.all([fetch(promptFile).then((r) => r.text()), fetch(blockFile).then((r) => r.text())]);
   $("prompt").value = prompt;
   $("block").value = block.replace(/\n$/, "");
   pristine[arm] = $("block").value;
