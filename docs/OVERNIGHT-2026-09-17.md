@@ -123,11 +123,12 @@ two callers, so by that precedent the answer is "not until brink uses it". If yo
 rival minds try it straight from the package, it's a pure function plus a type (a patch release) and
 moves as a file.
 
-**D5. The referee miss on "Attempt to pry the bar out of the mortar using the spoon"** (§34.5): ruled
-target/effect `none` 3 of 3 on qwen3:14b, while other pry wordings rule `open`. Answering "capture the raw
-replies and fix it like §33.16" means a referee session with the 26-intent controls. Answering "leave it"
-means that wording keeps costing a turn in some games, which slightly favours the list arm (its intents
-echo "Open the window", which always ruled cleanly).
+**D5. Done (morning, §37).** Not a judgement: the referee ruled the pry correctly (bar/open) 3 of 3 and
+emitted one stray quote (`"to": 12"}`), so the reply didn't parse and the ruling fell to defaults. A syntax-only
+repair, applied only to replies that fail to parse, recovers it; all 78 of §33.16's recorded replies read
+identically. Two things left for you: of 6 whole-ruling losses overnight, 4 didn't reproduce and can't be
+diagnosed because games don't keep the raw reply (keep it in the `.referee.json` sidecar?), and a warden intent
+naming two objects times out at 180 s reproducibly.
 
 ## Versions published
 
