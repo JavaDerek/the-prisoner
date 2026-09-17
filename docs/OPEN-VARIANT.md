@@ -3122,3 +3122,85 @@ None is started, and none should be on the strength of this section alone: the p
 to a warden that looked is a contested game working, not a defect (§34.2, the-prisoner is a harness).
 Recorded so the next person asking "can she plan around it?" finds the measurement instead of the
 question.
+
+## 45. Staleness pricing changes nothing she chooses (2026-09-17)
+
+§42's arm, measured. Six games, arms alternating, each with its own fresh copy of the committed
+22-episode ledger and nothing written back; precedent ON, because without a ledger there is no price;
+**pick OFF, so every prisoner turn is her own choice**; conditions at the default (§43). Driver
+`checkpoints/2026-09-17-price/run-price.sh`, measure `price.mts`, which reads the approach the *warden
+perceived* and looks it up in the precedent block the transcript itself prints — never the intent's
+words. Transcripts `…19-29-38-063Z` (flat), `…19-35-58-790Z` (stale), `…19-44-00-236Z` (flat),
+`…19-52-36-433Z` (stale), `…19-58-53-986Z` (flat), `…20-06-57-243Z` (stale).
+
+| | flat (30 for anything known) | stale (priced by episodes) |
+|---|---|---|
+| Result | escaped r5, r7, r6 | escaped r6, r5, r5 |
+| Prisoner turns | 18 | 16 |
+| …on an approach the warden had seen | 12 (**67%**) | 10 (**63%**) |
+| Round 1 on a known approach | **3 of 3** | **3 of 3** |
+| Suspicion charged for precedent | 360 | **1000** |
+| Final suspicion | 100, 100, 100 | 100, 100, 100 |
+
+**She behaved identically while paying nearly three times as much.** In all six games the only known
+approach she ever took was the ledger's most-repeated one, *"A prisoner works at the bar"* — priced at
+30 in one arm and **100**, the maximum the world can charge, in the other. She opened with it 6 times
+out of 6. The exit stayed free exactly as §42.4 predicted (opening and climbing out were unseen in
+every game), so the price fell where it was meant to fall, on the preparation she repeats, and she
+repeated it anyway.
+
+By the bar this work is held to (§40.2, the owner's D2), **staleness pricing does not clear it.** It is
+a working price with no effect on what she chooses.
+
+### 45.1 Two reasons it could not have bitten, one of them my own experiment's fault
+
+**She cannot see what she is spending.** `src/ledger/beliefs.ts` is explicit, and right: the belief
+store never holds `warden_suspicion` for the prisoner, *"who has no channel to learn it"*. Her briefing
+gives her `bar integrity` and `lock integrity`, and the words "warden suspicion" reach her only inside
+the precedent block's own sentence — never as a value. So she is quoted a price and never shown a
+balance, and it shows in her own words: her round-2 notes in `…19-35-58-790Z` read *"Suspect warden's
+suspicion may be low"* and her plan *"Avoid triggering warden suspicion above 40"* — on a turn where
+she had already paid 100 and the warden's own thought that round began *"With suspicion already at
+100"*.
+
+**And the resource saturates in both arms, which is a flaw in this batch, not in the finding.**
+`warden_suspicion` is bounded at 100. Flat charges 30 a turn plus the ordinary bumps and reaches the
+ceiling by the third or fourth turn; stale reaches it on the first. Every one of the six games ended
+at exactly 100. So what this batch actually varied was *how fast* the ceiling was hit and what number
+was printed in her prompt — **not the eventual cost, which was identical because both arms maxed it.**
+This batch therefore cannot separate "the price does not matter" from "the price could not differ",
+and no larger multiplier can rescue it: the number has nowhere left to go. §42.4 recorded saturation
+as a limit on telling two approaches apart; this is the sharper consequence, and it needed the batch
+to see.
+
+What survives both caveats is the part moi#2 asked about, because it needs no arithmetic at all:
+**on 6 of 6 opening turns, free and unforced, she reached for the approach the ledger showed her was
+the most-repeated thing anyone has ever tried in that cell.** Whatever it cost.
+
+### 45.2 The one experiment still open, and it is not a batch
+
+If the price is quoted in a currency she cannot observe, no rewording of the price sentence creates a
+channel, and the lab exists to find wordings. So the lab got the question that is actually live
+instead, as two presets differing by a single line (`checkpoints/2026-09-17-price/capture-r2-probe.mts`,
+served as `price.html`): her real round 2, and the same turn with `warden suspicion: 100 (as of round
+1).` added as a belief line in the briefing's own format. It **breaks the fog deliberately** and must
+never reach a real game.
+
+- If she leaves the bar only when she can see the 100, the price works and what it lacks is a channel
+  — and an in-fiction one (Croft's demeanour, a line when a threshold is crossed) is worth designing.
+- If she goes at the bar either way, the price is not the lever at any magnitude or visibility.
+
+### 45.3 Standing back: this is the fourth time, and the room is the common factor
+
+The known-approach cost has now been measured and ignored four times: §11.4, §20.2, §41.4 and here.
+Three different framings of the same thing — state the cost, force the choice, price the cost — and
+none moved a free turn. She also already has a *qualitative* channel and ignores it: *"Warden Croft
+examines the bar closely"* reaches her as news whenever it happens, and it is in every prompt captured
+for the lab.
+
+§41.4 named the common factor and this batch is consistent with it: **in a cell with one good exit, the
+obvious approach is the winning approach**, and every one of these six games ended in an escape. A cost
+against a certain win is not a reason to invent, at 30 or at 100, visible or not. So the next test of
+mother-of-invention#2 is probably not another mechanism in this room — it is the same mechanisms in a
+game where the obvious path does not win. That is the owner's stated direction, and this section is the
+evidence for it rather than an argument against finishing here.
