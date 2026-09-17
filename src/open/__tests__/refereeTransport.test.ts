@@ -114,6 +114,30 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
     expect(answers[0]).toEqual({ questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file the bar" } });
   });
 
+  it("a stray quote after a number, which stops the reply parsing, is dropped -- only when the reply does not parse as it came (OPEN-VARIANT.md §37)", async () => {
+    // §37: qwen3:14b answered "Attempt to pry the bar out of the mortar using the spoon" correctly and
+    // closed its last citation `"to": 12"}`, 3 of 3 at temperature 0; the whole ruling fell to its safe
+    // defaults. Syntax only: a quote directly after a number, before , } or ].
+    const content =
+      '[{"questionId": "target", "answerKey": "bar", "citation": {"sourceId": "intent", "from": 2, "to": 3}}, ' +
+      '{"questionId": "effect", "answerKey": "wear", "citation": {"sourceId": "intent", "from": 1, "to": 1"}}]';
+    const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content } }] }) });
+    const answers = await transport(REQUEST);
+    expect(answers.map((a) => [a.questionId, a.answerKey])).toEqual([
+      ["target", "bar"],
+      ["effect", "wear"],
+    ]);
+
+    // A reply that parses is never touched, even where a string itself ends in digits and a quote.
+    const valid = JSON.stringify([{ questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file 2" } }]);
+    const untouched = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content: valid } }] }) });
+    await expect(untouched(REQUEST)).resolves.toEqual([{ questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "file 2" } }]);
+
+    // Any other broken JSON is still no answers at all.
+    const broken = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content: '[{"questionId": "target", "answerKey": "bar",}]' } }] }) });
+    await expect(broken(REQUEST)).resolves.toEqual([]);
+  });
+
   it("calls ensureLoaded(model) before the request", async () => {
     const calls: string[] = [];
     const transport = createRefereeTransport({

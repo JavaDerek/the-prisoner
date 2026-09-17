@@ -1,0 +1,10 @@
+round 5, prisoner: Attempt to pry the bar out of the mortar using the spoon #1
+  before: target=none? effect=none? product=none? property=none? magnitude=slight? perceptibility=silent?
+  after:  target=bar effect=open product=none property=integrity magnitude=moderate perceptibility=audible
+round 5, prisoner: Attempt to pry the bar out of the mortar using the spoon #2
+  before: target=none? effect=none? product=none? property=none? magnitude=slight? perceptibility=silent?
+  after:  target=bar effect=open product=none property=integrity magnitude=moderate perceptibility=audible
+round 5, prisoner: Attempt to pry the bar out of the mortar using the spoon #3
+  before: target=none? effect=none? product=none? property=none? magnitude=slight? perceptibility=silent?
+  after:  target=bar effect=open product=none property=integrity magnitude=moderate perceptibility=audible
+3 of 81 recorded replies read differently

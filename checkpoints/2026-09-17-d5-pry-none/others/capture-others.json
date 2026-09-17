@@ -1,0 +1,620 @@
+[
+ {
+  "label": "round 11, prisoner: Use the grit and spoon to scrape the bar's rusted areas, then cover with the blanket to conceal scratches.",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 9, \"to\": 10}}, {\"questionId\": \"effect\", \"answerKey\": \"conceal\", \"citation\": {\"sourceId\": \"intent\", \"from\": 17, \"to\": 19}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 21, \"to\": 23}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 13, \"to\": 16\"}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar's rusted",
+     "from": 9,
+     "to": 10
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to conceal scratches.",
+     "from": 17,
+     "to": 19
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it",
+     "from": 21,
+     "to": 23
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "cover with the blanket",
+     "from": 13,
+     "to": 16
+    }
+   }
+  ],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar's rusted"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to conceal scratches."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "cover with the blanket"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": []
+ },
+ {
+  "label": "round 2, warden: Inspect the lock and examine the loose tile for hidden items or damage.",
+  "i": 0,
+  "status": 0,
+  "err": "TimeoutError: The operation was aborted due to timeout",
+  "content": null,
+  "offered": [],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "target",
+   "effect",
+   "product",
+   "property",
+   "magnitude",
+   "perceptibility"
+  ]
+ },
+ {
+  "label": "round 1, prisoner: Use the spoon to strike the bar repeatedly, attempting to chip away at its rusted sections.",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"id \\\"target\\\"\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}}, {\"questionId\": \"id \\\"effect\\\"\", \"answerKey\": \"wear\", \"citation\": {\"sourceId\": \"intent\", \"from\": 11, \"to\": 13}}, {\"questionId\": \"id \\\"product\\\"\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 11, \"to\": 13}}, {\"questionId\": \"id \\\"property\\\"\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 22, \"to\": 23}}, {\"questionId\": \"id \\\"magnitude\\\"\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 8}}, {\"questionId\": \"id \\\"perceptibility\\\"\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 6\"}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away at",
+     "from": 11,
+     "to": 13
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away at",
+     "from": 11,
+     "to": 13
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "pitted it",
+     "from": 22,
+     "to": 23
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "repeatedly,",
+     "from": 8,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "strike the",
+     "from": 5,
+     "to": 6
+    }
+   }
+  ],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away at"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away at"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "pitted it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "repeatedly,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "strike the"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": []
+ },
+ {
+  "label": "round 13, prisoner: Use the wire to scrape the bar discreetly, timing it with the key ring's clinks.",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"id \\\"target\\\"\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}}, {\"questionId\": \"id \\\"effect\\\"\", \"answerKey\": \"wear\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 7}}, {\"questionId\": \"id \\\"product\\\"\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 7}}, {\"questionId\": \"id \\\"property\\\"\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 21, \"to\": 23}}, {\"questionId\": \"id \\\"magnitude\\\"\", \"answerKey\": \"slight\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 8}}, {\"questionId\": \"id \\\"perceptibility\\\"\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 15, \"to\": 17\"}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar",
+     "from": 5,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar",
+     "from": 5,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it",
+     "from": 21,
+     "to": 23
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "discreetly,",
+     "from": 8,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "clinks.",
+     "from": 15,
+     "to": 15
+    }
+   }
+  ],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "has pitted it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "discreetly,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "clinks."
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": []
+ },
+ {
+  "label": "round 6, prisoner: Use the spoon to collect grit from the loose tile and apply it to the mortar around the bar's base to weaken it further.",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"loose_tile\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 10}}, {\"questionId\": \"effect\", \"answerKey\": \"derive\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 11}}, {\"questionId\": \"product\", \"answerKey\": \"grit\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 11}}, {\"questionId\": \"property\", \"answerKey\": \"concealment\", \"citation\": {\"sourceId\": \"desc:loose_tile\", \"from\": 17, \"to\": 25}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 13, \"to\": 24}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "loose_tile",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the loose tile",
+     "from": 8,
+     "to": 10
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "derive",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "collect grit from the loose tile and",
+     "from": 5,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "grit",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "grit from the loose tile and",
+     "from": 6,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "concealment",
+    "citation": {
+     "sourceId": "desc:loose_tile",
+     "quote": "beneath it is a shallow hollow of dry grit",
+     "from": 17,
+     "to": 25
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "it to the mortar around the bar's base to weaken it further.",
+     "from": 13,
+     "to": 24
+    }
+   }
+  ],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "loose_tile",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the loose tile"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "derive",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "collect grit from the loose tile and"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "grit",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "grit from the loose tile and"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "concealment",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:loose_tile",
+     "quote": "beneath it is a shallow hollow of dry grit"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "it to the mortar around the bar's base to weaken it further."
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": []
+ }
+]

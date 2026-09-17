@@ -1,0 +1,200 @@
+[
+ {
+  "label": "round 5, prisoner: Attempt to pry the bar out of the mortar using the spoon",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 5}}, {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 12}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 12}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 31, \"to\": 38}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 12}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 10, \"to\": 12\"}}]",
+  "offered": [],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "target",
+   "effect",
+   "product",
+   "property",
+   "magnitude",
+   "perceptibility"
+  ]
+ },
+ {
+  "label": "round 5, prisoner: Attempt to pry the bar out of the mortar using the spoon",
+  "i": 1,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 5}}, {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 12}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 12}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 30, \"to\": 38}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 12}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 10, \"to\": 12\"}}]",
+  "offered": [],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "target",
+   "effect",
+   "product",
+   "property",
+   "magnitude",
+   "perceptibility"
+  ]
+ },
+ {
+  "label": "round 5, prisoner: Attempt to pry the bar out of the mortar using the spoon",
+  "i": 2,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 5}}, {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 12}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 12}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 30, \"to\": 38}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 12}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 10, \"to\": 12\"}}]",
+  "offered": [],
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "target",
+   "effect",
+   "product",
+   "property",
+   "magnitude",
+   "perceptibility"
+  ]
+ }
+]

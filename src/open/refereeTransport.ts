@@ -130,9 +130,26 @@ function buildPrompt(request: ReadRequest): string {
   ].join("\n");
 }
 
+/**
+ * OPEN-VARIANT.md §37: a referee that judged correctly closed a citation `"to": 12"}`, and one stray
+ * quote cost the whole ruling. Only when the text does not parse as it came, a quote directly after a
+ * number that follows a key's colon, before `,` `}` or `]`, is dropped and the parse tried once more.
+ * Syntax only, like §30's clamp and §33.16's id: it cannot touch a reply that already parses, and it
+ * never reads what an answer says.
+ */
+function parseJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    const repaired = text.replace(/(:\s*-?\d+)"(?=\s*[,}\]])/g, "$1");
+    if (repaired === text) throw error;
+    return JSON.parse(repaired);
+  }
+}
+
 function firstJsonArray(text: string): unknown {
   try {
-    const whole = JSON.parse(text);
+    const whole = parseJson(text);
     if (Array.isArray(whole)) return whole;
   } catch {
     // fall through to the bracket scan below.
@@ -146,7 +163,7 @@ function firstJsonArray(text: string): unknown {
       depth--;
       if (depth === 0) {
         try {
-          const parsed = JSON.parse(text.slice(start, i + 1));
+          const parsed = parseJson(text.slice(start, i + 1));
           return Array.isArray(parsed) ? parsed : null;
         } catch {
           return null;

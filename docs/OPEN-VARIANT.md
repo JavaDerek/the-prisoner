@@ -2691,3 +2691,35 @@ captured, so whether this is a judgement or a whole-ruling loss like §33.16's `
 the bar"*, *"Open the window"*), and every one of those ruled `open`. Some of G's margin may be phrasing
 the referee reads reliably, not only the decision to act. The probe (§34.1) measured the decision alone,
 by reading intents, and showed the same direction (E3 r6 1/10 → 5/10).
+
+## 37. One stray quote cost a whole ruling (2026-09-17, morning; the owner's D5)
+
+§34.5's miss, *"Attempt to pry the bar out of the mortar using the spoon"* → target and effect `none`,
+was not a judgement. Capturing the raw replies (`checkpoints/2026-09-17-d5-pry-none/capture-pry.json`,
+3 of 3 at temperature 0) shows `qwen3:14b` answering it correctly every time: target `bar`, effect
+`open`, property `integrity`, every citation in range. It closed the last citation `"to": 12"}`. One
+stray quote made the reply invalid JSON, the transport found no array, and all six questions fell to
+their safe defaults.
+
+**Fix (`refereeTransport.ts` `parseJson`), test first:** only when the reply does not parse as it came, a
+quote directly after a number that follows a key's colon, before `,` `}` or `]`, is dropped and the parse
+tried once more. This is syntax, like §30's clamp and §33.16's `id "target"`. It cannot touch a reply
+that already parses, and it reads nothing an answer says. The test covers the repair, a valid reply with
+a digit-ending string left untouched, and other broken JSON still yielding no answers.
+
+**Controls (`verify-fix.mts`, `verify-fix-out.txt`):** every recorded raw reply was read through the
+transport before and after, through the engine's turn reader. §33.16's 78 replies (26 intents, including
+every wear, open, leave, reveal, derive and conceal control) read identically. The 3 pry replies now read
+`bar / open / integrity / moderate / audible`, cited. **3 of 81 changed, all three the ones meant to.**
+
+**How often.** 433 rulings in the overnight transcripts; **6 were whole-ruling losses** (every key at its
+default, nothing cited). Re-asking each once (`others/capture-others.log`):
+- the pry: this stray quote, reproducible;
+- four rule normally now (6 cited answers each), so their loss did not reproduce and its cause was never
+  recorded: the game keeps no raw reply;
+- **one timed out again at 180 s**: the warden's *"Inspect the lock and examine the loose tile for hidden
+  items or damage."*, an intent naming two objects. Reproducible, not addressed here.
+
+So the fix recovers one known, deterministic loss. The game still cannot say why a ruling was lost,
+because the raw reply is gone by the time the transcript is written. Keeping it in the `.referee.json`
+sidecar would make the next one diagnosable from the transcript alone.
