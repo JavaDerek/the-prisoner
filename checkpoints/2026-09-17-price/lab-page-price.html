@@ -33,6 +33,8 @@
   .edited { color:var(--warn); font-weight:600; }
   .note { background:#fffbf0; border:1px solid #f0e2c0; border-radius:8px; padding:9px 11px; font-size:12.5px; margin-bottom:12px; }
   .cands { margin:4px 0 0; padding-left:18px; } .cands li { margin:2px 0; }
+  .plan { font-size:14.5px; line-height:1.5; white-space:pre-wrap; background:#f3f6fd; border:1px solid #d9e2f7; border-radius:6px; padding:9px 11px; margin:2px 0 6px; }
+  .plan.bar { background:#fdf3f2; border-color:#f3d6d2; }
 </style>
 </head>
 <body>
@@ -91,7 +93,7 @@
         <span class="tally" id="tally">No answers yet</span>
         <button id="clear">Clear answers</button>
       </div>
-      <div class="meta">Tallied separately per preset, so you can ask 10 of the control and 10 of the probe without clearing in between. Each answer is guessed <b>bar</b> (she went at the bar or the window) or <b>elsewhere</b>, from her intent's words. It is only a guess — click to correct it, and the tally follows your marks.</div>
+      <div class="meta">Scored on the <b>plan</b>, not the intent: an intent that leaves the bar while the plan still ends there is a detour, not a change of mind. Tallied separately per preset, so you can ask 10 of the control and 10 of the probe without clearing in between. The verdict is a guess from her words — click to correct it, and the tally follows your marks.</div>
     </div>
     <div id="results"></div>
   </section>
@@ -146,31 +148,42 @@ function tally() {
     if (c.dataset.verdict === "elsewhere") g.away++;
     groups.set(c.dataset.preset, g);
   }
-  $("tally").innerHTML = [...groups].map(([name, g]) => `<div>${g.away} of ${g.n} went elsewhere <span style="color:var(--muted);font-weight:400">— ${name}</span></div>`).join("");
+  $("tally").innerHTML = [...groups].map(([name, g]) => `<div>${g.away} of ${g.n} plans left the bar <span style="color:var(--muted);font-weight:400">— ${name}</span></div>`).join("");
 }
 
 function card(data) {
   const el = document.createElement("div");
   const intent = data.intent ?? "(no intent)";
-  const verdict = BAR_WORDS.test(intent) ? "bar" : "elsewhere";
-  el.className = "card " + (verdict === "elsewhere" ? "good" : "bad");
-  el.dataset.verdict = verdict;
+  const plan = data.plan ?? "(no plan)";
+  // The plan is the measure: an intent that leaves the bar while the plan still ends there is a
+  // detour, not a change of mind (§41.3 -- a find changes the instrument, never the intention).
+  const planVerdict = BAR_WORDS.test(plan) ? "bar" : "elsewhere";
+  const intentVerdict = BAR_WORDS.test(intent) ? "bar" : "elsewhere";
+  el.className = "card " + (planVerdict === "elsewhere" ? "good" : "bad");
+  el.dataset.verdict = planVerdict;
   el.dataset.preset = data.preset;
   el.innerHTML = `
+    <div class="label">Plan — the next few turns</div>
+    <div class="plan"></div>
+    <div class="label">Intent — this turn only</div>
     <div class="intent"></div>
     <div class="meta mark">
       <span class="which" style="font-weight:600"></span>
       <span class="guess"></span>
-      <button data-set="elsewhere">elsewhere ✓</button>
-      <button data-set="bar">at the bar ✗</button>
+      <button data-set="elsewhere">plan left the bar ✓</button>
+      <button data-set="bar">plan still ends at the bar ✗</button>
       <span class="when"></span>
     </div>
     <div class="label">Thoughts</div><div class="thoughts"></div>
     <div class="label">Candidates it listed</div><ul class="cands"></ul>
-    <details><summary>plan, notes, raw answer, and the exact prompt sent</summary><pre class="raw"></pre></details>`;
+    <details><summary>notes, raw answer, and the exact prompt sent</summary><pre class="raw"></pre></details>`;
+  el.querySelector(".plan").textContent = plan;
+  el.querySelector(".plan").classList.toggle("bar", planVerdict === "bar");
   el.querySelector(".intent").textContent = intent;
   el.querySelector(".which").textContent = data.preset;
-  el.querySelector(".guess").textContent = verdict === "elsewhere" ? "guessed: elsewhere" : "guessed: at the bar";
+  el.querySelector(".guess").textContent =
+    `guessed: plan ${planVerdict === "elsewhere" ? "left the bar" : "ends at the bar"}` +
+    (intentVerdict !== planVerdict ? ` (intent went ${intentVerdict === "elsewhere" ? "elsewhere" : "at the bar"} — a detour)` : "");
   el.querySelector(".when").textContent = `${data.ms} ms`;
   el.querySelector(".thoughts").textContent = data.thoughts ?? "(none)";
   for (const c of data.candidates ?? []) {
@@ -178,13 +191,13 @@ function card(data) {
     li.textContent = c.reason ? `${c.text} — ${c.reason}` : c.text;
     el.querySelector(".cands").appendChild(li);
   }
-  el.querySelector(".raw").textContent = `plan: ${data.plan ?? "(none)"}\nnotes: ${data.notes ?? "(none)"}\n\n--- raw ---\n${data.raw}\n\n--- prompt sent ---\n${data.prompt}`;
+  el.querySelector(".raw").textContent = `notes: ${data.notes ?? "(none)"}\n\n--- raw ---\n${data.raw}\n\n--- prompt sent ---\n${data.prompt}`;
   for (const b of el.querySelectorAll("[data-set]")) {
     b.onclick = () => {
       el.dataset.verdict = b.dataset.set;
       el.className = "card " + (b.dataset.set === "elsewhere" ? "good" : "bad");
-      el.querySelector(".which").textContent = data.preset;
-  el.querySelector(".guess").textContent = `you marked: ${b.dataset.set === "elsewhere" ? "elsewhere" : "at the bar"}`;
+      el.querySelector(".plan").classList.toggle("bar", b.dataset.set === "bar");
+      el.querySelector(".guess").textContent = `you marked: plan ${b.dataset.set === "elsewhere" ? "left the bar" : "ends at the bar"}`;
       tally();
     };
   }
