@@ -3720,6 +3720,64 @@ are (an assumption §50.2 states plainly and does not verify against a live refe
 to the door (e.g. a `substantial` single wear ruling, or a route that reaches the door without ever
 touching the lock) still bypasses the gate this arm relies on.
 
+### 50.5 Measured: `threshold` did not make the routes comparable, it made the door dead
+
+Nine games, arms alternating, `PRISONER_DOOR=stated`, `qwen3:14b` wits, voice skipped, referee
+`qwen2.5:14b`, 30 rounds available. Read by `checkpoints/2026-09-18-door-price/analyse.mts`, which
+counts the REFEREE's own `target` answers rather than anything in her prose:
+
+```
+arm        stated end      rnd exit                 susp bar lock doorT winT  stamp
+free       true   escaped    6 window                 74  40  100     0    6  2026-09-18T03-25-07-182Z
+free       true   escaped    2 door                    5 100  100     2    0  2026-09-18T03-31-13-042Z
+free       true   escaped    3 door                   22  85  100     2    1  2026-09-18T03-45-36-451Z
+free       true   escaped    6 window                 68  40  100     0    6  2026-09-18T03-55-12-159Z
+free       true   escaped    2 door                    5 100  100     2    0  2026-09-18T04-06-56-579Z
+threshold  true   escaped    6 window                 74  40  100     0    6  2026-09-18T03-33-17-658Z
+threshold  true   escaped    6 window                 76  47  100     0    6  2026-09-18T03-39-08-817Z
+threshold  true   escaped    6 window                 74  40  100     0    6  2026-09-18T03-48-47-155Z
+threshold  true   escaped    6 window                 64  40  100     0    6  2026-09-18T04-00-34-578Z
+
+free: 5 games, escaped 5, out through the door 3, mean escape round 3.8, mean final suspicion 34.8, games where she aimed at the door or lock at all 3
+
+threshold: 4 games, escaped 4, out through the door 0, mean escape round 6.0, mean final suspicion 72.0, games where she aimed at the door or lock at all 0
+```
+
+**Under `free` she goes out of the door in 3 of 5 games** (rounds 2, 2 and 3, for 5, 5 and 22
+suspicion), and out of the window in the other two at round 6. **Under `threshold` she goes out of the
+door in none of four**, all at round 6 through the window, mean final suspicion 72 — and the measure
+that matters is the last column: **not one prisoner intent in four games was ruled against the door or
+the lock.** She did not pay the door's new price. She stopped considering the door at all.
+
+**She is right to, and the arithmetic in §50.2 could not see why.** The lock wears 20 at a time, so its
+steps are 100, 80, 60, 40, 20; `SEARCH_CATCH_LOCK_MAX` catches her at 40 or below. Every step at or
+below a gate of 30 is a step she can be caught at, so reaching the gate means passing through the catch
+band. The window never asks that: the bar's steps put 40 at or below `OPEN_WINDOW_BAR_MAX` (50) while
+still above `OPEN_CATCH_BAR_MAX` (30). **A route is only worth starting if some wear step leaves the way
+out openable while its own part is still safe to be found at.** §50.2 matched turns and suspicion
+exactly and missed that, which is why parity on paper produced a dead route in play. §44 had already
+shown she reads her conditions and reasons about them correctly; this is that, again, and it is the
+second time this document has been surprised by her getting it right.
+
+The property is now a test rather than an argument (`world.test.ts`): the window has exactly one such
+step (40); `threshold` has none. A gate of 50 would have none either — 40 is the first step under it, and
+40 is catchable — so the obvious "mirror the window's own 50" is also wrong, and was proposed and
+withdrawn while this section was being written.
+
+### 50.6 The `margin` arm: the lowest gate that leaves the door worth starting
+
+`PRISONER_DOOR_PRICE=margin` gates the door on the lock at or below **60** (`OPEN_DOOR_LOCK_MARGIN`),
+the lowest candidate where a wear step is openable and still safe: the lock at 60 is two wear turns in,
+under the gate, and above the catch band. `free` remains the default and `threshold` remains as it was,
+so nothing already recorded changes.
+
+**This is deliberately NOT parity**, and saying so is the point: the door costs 3 prisoner turns and 30
+suspicion (2 wear + 1 open) against the window's 5 and 50. Claiming equal cost was §50.2's own error.
+What the arm buys is **the first room where both ways out are worth starting** — the precondition
+`mother-of-invention`'s thesis has never had (§46 noted the same need and reached it only by making the
+door free, which is not a choice but a dominant answer). Whether she then chooses between them, and on
+what grounds, is the measurement this arm exists for and it has not been run yet.
+
 ## 51. An instrument that does not exist, and a derive the referee never chose (2026-09-18, the-prisoner#17/#18)
 
 §48's own first human game (`checkpoints/2026-09-18T02-40-27-834Z.md`) escaped in four rounds on a

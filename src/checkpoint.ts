@@ -46,7 +46,7 @@ import {
 } from "./loop.js";
 import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
 import { getVariant } from "./variant.js";
-import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, OPEN_DOOR_LOCK_MAX } from "./open/world.js";
+import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
@@ -856,7 +856,9 @@ async function mainOpen(): Promise<void> {
   transcript.push(
     DOOR_PRICE === "threshold"
       ? `Door price: THRESHOLD (\`PRISONER_DOOR_PRICE=threshold\`): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MAX}, exactly like the window on the bar (§50, issue #19).`
-      : "Door price: FREE (the default): the door's passage has no threshold to meet, today's behaviour, unchanged."
+      : DOOR_PRICE === "margin"
+        ? `Door price: MARGIN (\`PRISONER_DOOR_PRICE=margin\`): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MARGIN} -- the lowest gate that leaves a wear step where the door is openable and the lock is still safe to be found at, which ${OPEN_DOOR_LOCK_MAX} did not (§50.5).`
+        : "Door price: FREE (the default): the door's passage has no threshold to meet, today's behaviour, unchanged."
   );
   transcript.push(
     INSTRUMENT === "checked"

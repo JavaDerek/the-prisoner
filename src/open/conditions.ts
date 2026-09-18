@@ -1,6 +1,6 @@
 import { SEARCH_SUSPICION_THRESHOLD, SEARCH_CATCH_LOCK_MAX, SEARCH_CATCH_SPOON_MIN } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
-import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX, OPEN_DOOR_LOCK_MAX, type DoorPriceMode } from "./world.js";
+import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN, type DoorPriceMode } from "./world.js";
 import type { Condition } from "./conditionList.js";
 
 /**
@@ -31,9 +31,12 @@ export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPrice
   const catches = `${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends`;
   const examines = (what: string) => `${WARDEN_NAME} closely examines ${what}`;
   const finds = (what: string) => `${WARDEN_NAME} finds ${what}`;
+  // §50: the stated clause can never claim more or less than `world.ts`
+  // enforces, so it names whichever gate this arm actually applies.
+  const doorGate = options.doorPrice === "threshold" ? OPEN_DOOR_LOCK_MAX : options.doorPrice === "margin" ? OPEN_DOOR_LOCK_MARGIN : null;
   const doorCondition: Condition =
-    options.doorPrice === "threshold"
-      ? { when: [`the lock's integrity is at or below ${OPEN_DOOR_LOCK_MAX}`], then: `${PRISONER_NAME} can open the door`, for: PRISONER_NAME }
+    doorGate !== null
+      ? { when: [`the lock's integrity is at or below ${doorGate}`], then: `${PRISONER_NAME} can open the door`, for: PRISONER_NAME }
       : { when: ["the door is shut"], then: `${PRISONER_NAME} can open it, with no threshold to meet first`, for: PRISONER_NAME };
   return [
     { when: [`the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}`], then: `${PRISONER_NAME} can open the window`, for: PRISONER_NAME },

@@ -101,11 +101,34 @@ export const OPEN_CATCH_BAR_MAX = 30;
  */
 export const OPEN_DOOR_LOCK_MAX = 30;
 
+/**
+ * §50.5, chosen from the measured failure of `OPEN_DOOR_LOCK_MAX` rather than
+ * from arithmetic about turns. `threshold`'s 30 made the two routes cost the
+ * same on paper -- 5 prisoner turns and 50 suspicion each -- and killed the
+ * door in play: across four games under that arm the referee ruled not one
+ * prisoner intent against the door or the lock. The reason is a property the
+ * turn arithmetic cannot see. The lock wears 20 at a time (100, 80, 60, 40,
+ * 20), `SEARCH_CATCH_LOCK_MAX` catches her at 40 or below, so every step at or
+ * below a gate of 30 -- and at or below one of 50, since 40 is the first step
+ * under it -- is a step she can be caught at. To use the door she had to pass
+ * through the catch band, which the window never asks of her: the bar's own
+ * steps put 40 at or below `OPEN_WINDOW_BAR_MAX` while still above
+ * `OPEN_CATCH_BAR_MAX`. She read her conditions correctly and declined.
+ *
+ * 60 is the lowest candidate that gives the door the window's SHAPE: the lock
+ * at 60 is openable and still safe to be found at, two wear turns in. The door
+ * stays cheaper than the window (3 turns and 30 suspicion against 5 and 50) --
+ * this is not parity, and pretending otherwise was the mistake the first arm
+ * made. What it buys is the first room where both ways out are worth starting,
+ * which is the precondition `mother-of-invention`'s thesis has never had.
+ */
+export const OPEN_DOOR_LOCK_MARGIN = 60;
+
 function propertyToken(objectId: string, propertyKey: string): string {
   return `${objectId}.${propertyKey}`;
 }
 
-export type DoorPriceMode = "free" | "threshold";
+export type DoorPriceMode = "free" | "threshold" | "margin";
 
 /** `free` unless asked otherwise: the door's passage has no threshold to
  *  meet, today's behaviour, unchanged -- every batch recorded before this
@@ -115,8 +138,17 @@ export type DoorPriceMode = "free" | "threshold";
  *  the run rather than guessing. */
 export function readDoorPrice(raw: string | undefined): DoorPriceMode {
   if (raw === undefined || raw === "") return "free";
-  if (raw === "free" || raw === "threshold") return raw;
-  throw new Error(`PRISONER_DOOR_PRICE: unrecognised value ${JSON.stringify(raw)} -- must be "threshold" or "free" (the default)`);
+  if (raw === "free" || raw === "threshold" || raw === "margin") return raw;
+  throw new Error(`PRISONER_DOOR_PRICE: unrecognised value ${JSON.stringify(raw)} -- must be "threshold", "margin" or "free" (the default)`);
+}
+
+/** The lock value the door's passage is gated on, per arm: none under `free`
+ *  (every batch before §50), `OPEN_DOOR_LOCK_MAX` under `threshold`,
+ *  `OPEN_DOOR_LOCK_MARGIN` under `margin` (§50.5). */
+function doorGate(mode: DoorPriceMode | undefined): number | null {
+  if (mode === "threshold") return OPEN_DOOR_LOCK_MAX;
+  if (mode === "margin") return OPEN_DOOR_LOCK_MARGIN;
+  return null;
 }
 
 export function buildOpenWorld(options: { doorPrice?: DoorPriceMode } = {}): OpenWorld {
@@ -193,7 +225,7 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode } = {}): Ope
     // The door's own description grounds opening it: the bolt shows in the
     // gap. `free` (the default) keeps that true; `threshold` (issue #19,
     // §50) gates it on the lock like the window is gated on the bar.
-    door: exit("door", "lock", corridor.id, options.doorPrice === "threshold" ? OPEN_DOOR_LOCK_MAX : null),
+    door: exit("door", "lock", corridor.id, doorGate(options.doorPrice)),
     window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX),
   };
 

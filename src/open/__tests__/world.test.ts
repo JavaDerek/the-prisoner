@@ -1,7 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { getResource } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
-import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys, readDoorPrice, OPEN_DOOR_LOCK_MAX } from "../world.js";
+import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys, readDoorPrice, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN, OPEN_WINDOW_BAR_MAX, OPEN_CATCH_BAR_MAX } from "../world.js";
+import { SEARCH_CATCH_LOCK_MAX } from "../../world/mechanics.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 
 describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant built stays)", () => {
@@ -82,9 +83,49 @@ describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant bui
     // The window is untouched by this arm.
     expect(world.exits.window.openWhenPartAtMost).toBe(50);
   });
+
+  // §50.5, measured: `threshold`'s 30 made the two routes cost the same on
+  // paper and killed the door in play -- she stopped aiming at it in 4 of 4
+  // games. The reason is a property no arithmetic about turns can see, so it
+  // is pinned here as a test rather than argued in prose: a way out is only
+  // worth attempting if some wear step leaves it OPENABLE while its own part
+  // is still SAFE to be found at. The window has always had one; the door
+  // under `threshold` never did.
+  const lockWearSteps = (): number[] => {
+    const steps: number[] = [];
+    for (let v = 100; v > 0; v -= 20) steps.push(v - 20 >= 0 ? v - 20 : 0);
+    return steps;
+  };
+
+  it("the window has a wear step that is openable and still safe -- the property that makes a route worth starting", () => {
+    // bar: 100 -> 85 -> 70 -> 55 -> 40, openable at <=50, catchable at <=30.
+    const barSteps = [85, 70, 55, 40, 25];
+    const safeAndOpenable = barSteps.filter((v) => v <= OPEN_WINDOW_BAR_MAX && v > OPEN_CATCH_BAR_MAX);
+    expect(safeAndOpenable).toEqual([40]);
+  });
+
+  it("doorPrice: threshold has NO such step -- reaching the gate means passing through the catch band (§50.5)", () => {
+    const safeAndOpenable = lockWearSteps().filter((v) => v <= OPEN_DOOR_LOCK_MAX && v > SEARCH_CATCH_LOCK_MAX);
+    expect(safeAndOpenable).toEqual([]);
+  });
+
+  it("doorPrice: margin gates the door where a step IS openable and safe, and costs real wear turns", () => {
+    createTestDb();
+    const world = buildOpenWorld({ doorPrice: "margin" });
+    expect(world.exits.door.openWhenPartAtMost).toBe(OPEN_DOOR_LOCK_MARGIN);
+    const safeAndOpenable = lockWearSteps().filter((v) => v <= OPEN_DOOR_LOCK_MARGIN && v > SEARCH_CATCH_LOCK_MAX);
+    expect(safeAndOpenable).toEqual([60]);
+    // Still not free: two wear turns before the door can be opened at all.
+    expect(OPEN_DOOR_LOCK_MARGIN).toBeLessThan(100);
+    expect(world.exits.window.openWhenPartAtMost).toBe(OPEN_WINDOW_BAR_MAX);
+  });
 });
 
 describe("readDoorPrice: PRISONER_DOOR_PRICE (§50)", () => {
+  it("accepts the margin arm (§50.5)", () => {
+    expect(readDoorPrice("margin")).toBe("margin");
+  });
+
   it("leaves the door free unless asked", () => {
     expect(readDoorPrice(undefined)).toBe("free");
     expect(readDoorPrice("")).toBe("free");

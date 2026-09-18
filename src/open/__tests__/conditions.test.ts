@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { openConditions, readConditionsMode, readDoorMode } from "../conditions.js";
-import { buildOpenWorld, OPEN_DOOR_LOCK_MAX } from "../world.js";
+import { buildOpenWorld, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "../world.js";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { createOpenMind, type OpenPrincipalContext } from "../mind.js";
 import { CONDITION_LIST_OPENING } from "../conditionList.js";
@@ -141,6 +141,21 @@ describe("the door condition (§46): the cell's other way out, stated", () => {
     createTestDb();
     try {
       expect(buildOpenWorld({ doorPrice: "threshold" }).exits.door.openWhenPartAtMost).toBe(OPEN_DOOR_LOCK_MAX);
+    } finally {
+      destroyTestDb();
+    }
+  });
+
+  it("under doorPrice margin, states the margin gate and nothing the world does not enforce (§50.5)", () => {
+    const conditions = openConditions({ door: "stated", doorPrice: "margin" });
+    expect(conditions[1]).toEqual({
+      when: [`the lock's integrity is at or below ${OPEN_DOOR_LOCK_MARGIN}`],
+      then: "Mara Voss can open the door",
+      for: "Mara Voss",
+    });
+    createTestDb();
+    try {
+      expect(buildOpenWorld({ doorPrice: "margin" }).exits.door.openWhenPartAtMost).toBe(OPEN_DOOR_LOCK_MARGIN);
     } finally {
       destroyTestDb();
     }
