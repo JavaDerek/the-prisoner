@@ -121,9 +121,9 @@ describe("open-mode perception and briefing", () => {
     expect(perceived.some((o) => o.id === "spoon")).toBe(true);
   });
 
-  // OPEN-VARIANT.md §54 (issue #22 gap 1/2): `PRISONER_PRESENCE=modelled`,
+  // OPEN-VARIANT.md §55 (issue #22 gap 1/2): `PRISONER_PRESENCE=modelled`,
   // default `off`, byte-identical to today.
-  describe("presence (§54, PRISONER_PRESENCE, issue #22)", () => {
+  describe("presence (§55, PRISONER_PRESENCE, issue #22)", () => {
     it("readPresenceMode: off by default, modelled when asked, rejects anything else", () => {
       expect(readPresenceMode(undefined)).toBe("off");
       expect(readPresenceMode("")).toBe("off");

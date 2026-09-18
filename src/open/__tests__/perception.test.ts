@@ -194,10 +194,10 @@ describe("renderForOther: what the other principal perceives, and nothing more",
   });
 });
 
-// OPEN-VARIANT.md §54 (issue #22 gap 2): a perceived principal is now a
+// OPEN-VARIANT.md §55 (issue #22 gap 2): a perceived principal is now a
 // legal target, and `noise` at one is the routing the proposal describes --
 // a full half-round, through the real referee, not a hand-built ruling.
-describe("a principal as a target (OPEN-VARIANT.md §54, issue #22 gap 2)", () => {
+describe("a principal as a target (OPEN-VARIANT.md §55, issue #22 gap 2)", () => {
   afterEach(() => destroyTestDb());
 
   it("a noise ruled at a perceived principal reads coherently in both the actor's own outcome and the target's own next briefing -- addressed by name, never a number or the intent's exact words", async () => {

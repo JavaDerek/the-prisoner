@@ -918,8 +918,8 @@ async function mainOpen(): Promise<void> {
   );
   transcript.push(
     PRESENCE === "modelled"
-      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name (§54, issue #22)."
-      : "Presence: OFF (the default): both principals are always treated as present to each other, as every batch before this gap recorded (§54, issue #22)."
+      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name (§55, issue #22)."
+      : "Presence: OFF (the default): both principals are always treated as present to each other, as every batch before this gap recorded (§55, issue #22)."
   );
   transcript.push(
     DERIVE_WORDING === "sharpened"

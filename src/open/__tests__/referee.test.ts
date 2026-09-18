@@ -543,7 +543,7 @@ describe("PRISONER_DERIVE_WORDING (OPEN-VARIANT.md §51, the-prisoner#18)", () =
   });
 });
 
-// OPEN-VARIANT.md §54 (issue #22, the-prisoner's own SOCIAL-INTENTS.md
+// OPEN-VARIANT.md §55 (issue #22, the-prisoner's own SOCIAL-INTENTS.md
 // proposal): THE GROUNDING RULE, and the owner's own reason for approving
 // the proposal -- "a state change must be grounded in a citation describing
 // the physical act, never in the claim about the act." A prisoner who can
@@ -555,7 +555,7 @@ describe("PRISONER_DERIVE_WORDING (OPEN-VARIANT.md §51, the-prisoner#18)", () =
 // against a PERCEIVED PRINCIPAL, so the discipline is pinned before gap 3
 // (a person's own bounded numeric property) ever gives it something real to
 // protect.
-describe("THE GROUNDING RULE (OPEN-VARIANT.md §54, issue #22): a person-property change must cite the target's own description, never the spoken words", () => {
+describe("THE GROUNDING RULE (OPEN-VARIANT.md §55, issue #22): a person-property change must cite the target's own description, never the spoken words", () => {
   const PRISONER: ObjectPerception = { id: "prisoner", description: "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her." };
 
   it("PLANTED VIOLATION: a property citation sourced from the actor's own INTENT (the spoken claim), not the target's own description, is refused -- even when a person-property is (hypothetically) declared", async () => {

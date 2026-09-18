@@ -34,7 +34,7 @@ const OWNER_OF: Partial<Record<string, Principal>> = { spoon: "prisoner", key_ri
 const CONTAINERS: ReadonlySet<string> = new Set(OPEN_OBJECTS.flatMap((spec) => (spec.heldIn ? [spec.heldIn] : [])));
 
 /**
- * OPEN-VARIANT.md §54 (issue #22, gaps 1 and 2): whether presence is
+ * OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2): whether presence is
  * modelled at all. `off` (the default, and every batch recorded before this
  * gap existed) keeps `computePerceivedObjects`/`buildOpenBriefing` exactly
  * as they were -- both principals always share the cell, and the other
@@ -42,7 +42,7 @@ const CONTAINERS: ReadonlySet<string> = new Set(OPEN_OBJECTS.flatMap((spec) => (
  * character's own `location_id` (already written by `world/setup.ts` at
  * creation and by `OPEN_LEAVE` on every move, entirely unchanged by this
  * gap) and gates perception and interpersonal targeting on it. One arm for
- * both gaps, not two (this task's own call, argued in OPEN-VARIANT.md §54):
+ * both gaps, not two (this task's own call, argued in OPEN-VARIANT.md §55):
  * gap 2's target availability is naturally presence-gated by the same
  * "share a location" predicate gap 1 introduces, and a second switch whose
  * "on" state is meaningless without gap 1's own "on" state is not a real
@@ -65,7 +65,7 @@ export function principalLocation(openWorld: OpenWorld, principal: Principal, t:
   return readFactValue({ gameId: openWorld.base.gameId, t, entityId: characterId, key: "location_id" }) ?? openWorld.base.cellId;
 }
 
-/** OPEN-VARIANT.md §54, gap 2: a principal's own presence, as the OTHER
+/** OPEN-VARIANT.md §55, gap 2: a principal's own presence, as the OTHER
  *  principal can perceive and cite it once they share a location --
  *  third-person, because scenario.ts's PRISONER_IDENTITY/WARDEN_IDENTITY
  *  are first/second-person self-descriptions fed to each mind's OWN prompt
@@ -122,7 +122,7 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
         if (container === undefined || container === null || container >= 50) return false;
       }
       if (object.owner === principal) return true;
-      // OPEN-VARIANT.md §54 (issue #22 gap 1): a cell-fixed object (no
+      // OPEN-VARIANT.md §55 (issue #22 gap 1): a cell-fixed object (no
       // owner) is where the cell is; an object owned by a principal travels
       // with them (`OWNER_OF`, `derived.heldBy` -- the same map gap 2's
       // reported-speech routing and the belief store's own channel (a)
@@ -139,7 +139,7 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
     })
     .map((object) => ({ id: object.id, description: object.description }));
 
-  // OPEN-VARIANT.md §54, gap 2: the OTHER principal, perceivable exactly
+  // OPEN-VARIANT.md §55, gap 2: the OTHER principal, perceivable exactly
   // when presence says they are here -- never itself (a principal is not
   // its own target).
   if (presenceMode === "modelled") {
@@ -202,7 +202,7 @@ export function buildOpenBriefing(
   lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
   for (const line of news.standing ?? []) lines.push(line);
 
-  // OPEN-VARIANT.md §54 (issue #22 gap 1): "the warden being elsewhere is a
+  // OPEN-VARIANT.md §55 (issue #22 gap 1): "the warden being elsewhere is a
   // state that can change and that both sides can reason about" -- a rule
   // known to both, parallel to the closed variant's own WARDEN_PRESENCE_RULE
   // (`world/mechanics.ts`), rendered here because it never changes.

@@ -4576,7 +4576,7 @@ narration of exactly these facts, composed from them by code, inventing nothing 
 run through `verifyNarration` in the test suite and must come back with **zero** violations, at two
 different rounds with different news and beliefs. It does. If a future check makes that test fail, the
 check is too strict; the prose view is not wrong.
-## 54. Presence, and a principal as a target (owner's decision D5, issue #22, gaps 1 and 2)
+## 55. Presence, and a principal as a target (owner's decision D5, issue #22, gaps 1 and 2)
 
 `docs/issues/SOCIAL-INTENTS.md` is the proposal the owner approved on 2026-09-18 (D5): build all
 three of issue #22's gaps, a person's own state as bounded numeric properties. This section is gaps 1
@@ -4693,7 +4693,7 @@ This already held for every object before this gap (`citationCheck`'s `requiredS
 `property` question is always the TARGET's own `desc:<id>` source, never `"intent"`) -- what this gap
 adds is a target that is a PERSON, which is exactly where "the claim about the act" (what was said)
 and "the physical act" (what the target's own description grounds) could be confused for the first
-time in this game. `referee.test.ts`'s new describe block, "THE GROUNDING RULE (OPEN-VARIANT.md §54,
+time in this game. `referee.test.ts`'s new describe block, "THE GROUNDING RULE (OPEN-VARIANT.md §55,
 issue #22)", plants it directly: a `wear` ruled at the perceived `"prisoner"`, with an `isDeclared`
 stub that says YES (simulating a future world where gap 3 has declared a person-property, isolating
 the citation-SOURCE discipline from "nothing is declared yet at all," which `effects.test.ts` covers

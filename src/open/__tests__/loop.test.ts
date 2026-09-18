@@ -13,7 +13,7 @@ import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
 import { WARDEN_NAME } from "../../scenario.js";
 
 /** Moves the warden out through the door, the way real play does it: open,
- *  then leave (`leaving.test.ts`'s own pattern). Used only by §54's presence
+ *  then leave (`leaving.test.ts`'s own pattern). Used only by §55's presence
  *  tests below. */
 function moveWardenOut(openWorld: OpenWorld, resolver: ReturnType<typeof buildOpenResolver>) {
   const open = planEffect({
@@ -432,10 +432,10 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
     expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(10);
   });
 
-  // OPEN-VARIANT.md §54 (issue #22, gap 1): "what a principal can perceive
+  // OPEN-VARIANT.md §55 (issue #22, gap 1): "what a principal can perceive
   // of the other's acts ... becomes conditioned on presence." `presenceMode`
   // defaults to "off", byte-identical to every test above this one.
-  describe("presence (§54, issue #22 gap 1)", () => {
+  describe("presence (§55, issue #22 gap 1)", () => {
     it("off (the default, and with no argument at all): a wear the warden cannot possibly have seen -- she already left -- still bumps suspicion and still reaches her, unaffected by this gap unless the arm is on", async () => {
       createTestDb();
       const openWorld = buildOpenWorld();
@@ -506,14 +506,14 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
     });
   });
 
-  // OPEN-VARIANT.md §54 (issue #22, gap 2): "a noise ruled at a perceived
+  // OPEN-VARIANT.md §55 (issue #22, gap 2): "a noise ruled at a perceived
   // principal carries the spoken claim into that principal's own next
   // briefing as reported speech ... the same perceptionForOther string,
   // addressed rather than ambient, landing in OpenNews.fromOther." Built
   // from a hand-built `RefereeRuling`, exactly like the "not declared in
   // the scenario" test above -- this exercises loop.ts's OWN routing
   // directly, independent of what any real referee transport would answer.
-  describe("a principal as a target (§54, issue #22 gap 2)", () => {
+  describe("a principal as a target (§55, issue #22 gap 2)", () => {
     function noiseAtWarden(): RefereeRuling {
       return {
         targetObjectId: "warden",

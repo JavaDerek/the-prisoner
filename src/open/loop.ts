@@ -128,10 +128,10 @@ export function describeUnseenAttempt(principal: Principal): string {
   return `${actorName(principal)} works at something out of view.`;
 }
 
-/** OPEN-VARIANT.md §54 (issue #22): exported so the grounding rule's own
+/** OPEN-VARIANT.md §55 (issue #22): exported so the grounding rule's own
  *  regression test (referee.test.ts) can pin the asymmetry directly --
  *  `noise` (the only effect a principal-targeted act can ever produce,
- *  §54) is not in this set, and was not before this gap either. */
+ *  §55) is not in this set, and was not before this gap either. */
 export function suspicionEligible(effectKind: EffectKind): boolean {
   return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave" || effectKind === "derive";
 }
@@ -156,7 +156,7 @@ function objectLabel(objectId: string): string {
   return objectId.replace(/_/g, " ");
 }
 
-/** OPEN-VARIANT.md §54 (issue #22 gap 2): whether a referee's `target`
+/** OPEN-VARIANT.md §55 (issue #22 gap 2): whether a referee's `target`
  *  answer names a perceived PRINCIPAL rather than an object -- the two
  *  literal ids `briefing.ts`'s `computePerceivedObjects` ever adds under
  *  `PRISONER_PRESENCE=modelled` (`principal`/`other`, never a game object's
@@ -194,7 +194,7 @@ export function describeAttempt(
     case "expose":
       return `${actor} brings the ${obj} into view.`;
     case "noise":
-      // OPEN-VARIANT.md §54 (issue #22 gap 2): a principal is now a legal
+      // OPEN-VARIANT.md §55 (issue #22 gap 2): a principal is now a legal
       // `noise` target (`referee.ts`'s `targetKeys` is built from whatever
       // `perceivedObjects` names, generic to this file), and "a sound rings
       // out from the warden" reads as nonsense. Addressed, not ambient --
@@ -296,7 +296,7 @@ export async function runOpenHalfRound(params: {
    *  prisoner turn under it: what counts as seen, and whether the prisoner
    *  had a plan before this turn (a first plan is a new plan). */
   replanPick?: { readonly seen: readonly string[]; readonly hadPlan: boolean };
-  /** OPEN-VARIANT.md §54 (issue #22, gaps 1 and 2). Default `"off"`:
+  /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). Default `"off"`:
    *  byte-identical to every batch recorded before this gap existed. */
   presenceMode?: PresenceMode;
 }): Promise<OpenHalfRoundResult> {
@@ -399,7 +399,7 @@ export async function runOpenHalfRound(params: {
     effectKind: ruling.effectKind as EffectKind,
     property: ruling.property,
     magnitude: ruling.magnitude,
-    // OPEN-VARIANT.md §54 (issue #22 gap 2): a perceived PRINCIPAL is now a
+    // OPEN-VARIANT.md §55 (issue #22 gap 2): a perceived PRINCIPAL is now a
     // legal target too (`briefing.ts`'s `computePerceivedObjects` adds one
     // under `PRISONER_PRESENCE=modelled`) -- merged in here, never in
     // `openWorld.entityIdFor` itself, which stays exactly the §4.1/derived
@@ -434,7 +434,7 @@ export async function runOpenHalfRound(params: {
   }
 
   const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
-  // OPEN-VARIANT.md §54 (issue #22 gap 1): under `off` (the default),
+  // OPEN-VARIANT.md §55 (issue #22 gap 1): under `off` (the default),
   // `otherPresent` is unconditionally true -- byte-identical to every
   // batch recorded before this gap existed, which assumed the other
   // principal is always here to perceive. Under `modelled`, the other
@@ -483,7 +483,7 @@ export async function runOpenHalfRound(params: {
     // no approach it recognises (§14.4).
     const knownAs = precedentTextFor(ruling, reshapeOf);
     const known = principal === "prisoner" && seenByOther ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
-    // OPEN-VARIANT.md §54 (issue #22 gap 1): not present at all is not "a
+    // OPEN-VARIANT.md §55 (issue #22 gap 1): not present at all is not "a
     // reshaping unseen" (`describeUnseenAttempt`'s own vague noise) -- it is
     // nothing perceived whatsoever, the same "the warden hears nothing...
     // and sees none of it" rule the closed variant's own
@@ -493,7 +493,7 @@ export async function runOpenHalfRound(params: {
     // OPEN-VARIANT.md §9.3, "grounds accrue": a prisoner's own non-silent
     // wear/restore/expose bumps warden_suspicion by a fixed, magnitude-scaled
     // amount -- a SEPARATE, audited resolve() call, never a side channel.
-    // OPEN-VARIANT.md §54 (issue #22 gap 1): gated on `otherPresent`, exactly
+    // OPEN-VARIANT.md §55 (issue #22 gap 1): gated on `otherPresent`, exactly
     // the closed variant's own `WARDEN_PRESENCE`/`wardenPresent` rule
     // ("unheard while the warden is away") -- always true under `off`.
     if (principal === "prisoner" && otherPresent && suspicionEligible(ruling.effectKind) && ruling.perceptibility !== "silent") {

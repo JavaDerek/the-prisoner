@@ -21,7 +21,7 @@ import { RESOURCE_MIN, RESOURCE_MAX } from "../world/setup.js";
  *
  * Shared with the closed variant, unchanged: the half-round clock, the belief
  * store (seeded with the same starting truths), notes (persisted inside
- * `runOpenHalfRound`). Presence (OPEN-VARIANT.md §54, issue #22 gap 1) is an
+ * `runOpenHalfRound`). Presence (OPEN-VARIANT.md §55, issue #22 gap 1) is an
  * arm, `presenceMode`, default `"off"`: every non-silent act reaches the
  * other principal exactly as before, unless `PRISONER_PRESENCE=modelled`.
  *
@@ -50,7 +50,7 @@ export async function runOpenGame(params: {
    *  forced away from a known approach. Absent in the baseline. */
   pick?: PickCondition;
   onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
-  /** OPEN-VARIANT.md §54 (issue #22, gaps 1 and 2). Default `"off"`. */
+  /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). Default `"off"`. */
   presenceMode?: PresenceMode;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;

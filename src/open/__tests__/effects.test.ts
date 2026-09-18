@@ -219,13 +219,13 @@ describe("planEffect: reshaping (OPEN-VARIANT.md §14.2)", () => {
   });
 });
 
-// OPEN-VARIANT.md §54 (issue #22, gap 2): a perceived principal is now a
+// OPEN-VARIANT.md §55 (issue #22, gap 2): a perceived principal is now a
 // legal target, on the same terms as a perceived object -- `entityIdFor`
 // merged with the principal's own character id, exactly the way every
 // other caller of `planEffect` already merges in whatever this half-round's
 // world declares (loop.ts). No world/entityIdFor change was needed to make
 // this legal: the map is generic, this is just a new kind of value in it.
-describe("planEffect: a perceived principal as a target (OPEN-VARIANT.md §54, issue #22 gap 2)", () => {
+describe("planEffect: a perceived principal as a target (OPEN-VARIANT.md §55, issue #22 gap 2)", () => {
   const withPrincipals = { ...entityIdFor, prisoner: "e-prisoner", warden: "e-warden" };
 
   it("noise ruled at a perceived principal builds OPEN_NOISE with no resource at all -- nothing here can ever write a belief", () => {

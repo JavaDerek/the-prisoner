@@ -71,7 +71,7 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       return `Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`;
     }
     if (ruling.effectKind === "noise") {
-      // OPEN-VARIANT.md §54 (issue #22 gap 2): a principal is now a legal
+      // OPEN-VARIANT.md §55 (issue #22 gap 2): a principal is now a legal
       // `noise` target, and "made the warden ring out" is nonsense --
       // mirrors `loop.ts`'s own `describeAttempt` special case for the
       // same reason.
