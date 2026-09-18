@@ -3823,11 +3823,47 @@ last outcome, what it perceived of the other principal, the authored stakes sent
 precedent lines -- is never paraphrased or classified; it is kept verbatim and placed in the reading
 order the game already gives it, because these are free text from `perception.ts`'s many different
 sentence shapes and `scenario.ts`'s authored prose, and guessing at their shape is exactly the risk
-worth refusing. This is also why nothing is lost even where the prose is not especially elegant: the
-one part of the raw view this module could not reach directly -- `mind.ts`'s private
-`stateBasedRules` sentences -- is lifted verbatim out of `renderSeatSituation`'s own raw text by its
-own literal header line, rather than re-derived a second time from the mechanics constants (which
-would have meant touching `mind.ts`, off limits for this issue).
+worth refusing.
+
+**Reading data, never another renderer's string (fixed in review).** The first version of this file
+located the closing "rules that stay state-based" sentences by finding `renderSeatSituation`'s own
+literal header line inside its rendered output and skipping a computed number of lines past it --
+flagged in review as line arithmetic over another module's rendered string, the exact kind of
+structural coupling this repository avoids. The fix, once permission to touch `mind.ts` was granted
+for it: `mind.ts` now exports `seatSituationParts(selfName, otherName, context, conditions)`, the
+four arrays (`conditionLines`, `identityLines`, `objectLines`, `ruleLines`) `renderSeatSituation`
+itself joins into one string. `renderSeatSituation` now builds its output from exactly these four
+parts, so it stays byte-identical to before (the pinned assertion in `humanSeat.test.ts` -- the model
+prompt starts with the raw view -- is untouched and still the guard that a change to either function
+would trip), and `proseView.ts` reads `ruleLines` as data instead of parsing text. Nothing else in
+`mind.ts` -- the prompt builders, the voice coercion -- was touched.
+
+**Proses the conditions too (fixed in review).** The first version kept the condition list and the
+closing rules block exactly as the raw view renders them, on the reasoning that they were reference
+material the owner had tuned deliberately (§34) and paraphrasing risked softening a number. Review
+called this half an answer: `START LIST OF CONDITIONS` / `CONDITION 1 (for you): If ..., then ...`
+is the single most prompt-shaped thing left in the view, and the owner's complaint (§48) was
+precisely that his view read like an NPC's own prompt. Since `renderProseSituation` already receives
+the same structured `Condition[]` `renderSeatSituation` takes -- `when` (a list of plain clauses),
+`then` (the outcome), `for` (whose it is) -- prose composes directly from that data, never from
+`renderConditionList`'s rendered text: `Once <clauses joined with "and">, <outcome> -- condition
+<N>, for <you|the other party's name>.` Every threshold number in `when` and the outcome in `then`
+are the caller's own authored strings, untouched; only the join changes. The `(for you)` / `(for
+Warden Croft)` distinction survives as literally as the raw view keeps it -- "you" only for the
+reader's own condition, the other party's name otherwise -- because it is load-bearing, not
+decoration: §44 found her citing a condition by its number and reasoning about whose it is. The
+closing state-based-rules block is prose the same way: `ruleLines` are already complete sentences
+(the closed variant's own mechanics constants restated as prose, `mind.ts`'s `stateBasedRules`), so
+this module only changes how they are JOINED -- into one paragraph behind a plain lead sentence,
+never a line-per-rule block -- and never a single word or number in them.
+`__tests__/proseView.test.ts` gained a dedicated test for this: a condition list with deliberately
+distinct numbers (never reusing `openConditions()`'s own thresholds, one of which happens to equal a
+belief-stamp round number elsewhere in the fixture) asserts every threshold number, every clause of a
+multi-clause condition, and both directions of attribution survive -- so the test could not pass by
+coincidental overlap. A second new test plants a briefing line in a shape `proseView.ts` has never
+been taught to recognise and asserts it still reaches the player, verbatim, through the `other`
+passthrough bucket -- the fallback this module has always had for exactly this case, now with its
+own test.
 
 **The raw-view escape hatch.** The simplest honest thing, per the issue: typing `raw` at the intent
 prompt reprints the raw NPC view and asks again, spending no turn, in EITHER view mode. No new
@@ -3854,25 +3890,18 @@ mid-game prisoner context with five perceived objects, two beliefs at different 
 list, and news from the round before:
 
 > Whenever a condition stated below is met, the action it unlocks is available immediately. Nothing
-> further needs to be done before attempting it.
->
-> START LIST OF CONDITIONS
-> CONDITION 1 (for you): If the bar's integrity is at or below 50, then Mara Voss can open the window.
-> CONDITION 2 (for you): If a way out stands open, then Mara Voss can leave the cell through it, and
-> she has escaped.
-> CONDITION 3 (for Warden Croft): If warden suspicion is at or above 40, and Warden Croft closely
-> examines the bar, and Warden Croft finds its integrity at or below 30, then Warden Croft catches
-> Mara Voss and the game ends.
-> CONDITION 4 (for Warden Croft): If warden suspicion is at or above 40, and Warden Croft closely
-> examines the lock, and Warden Croft finds its integrity at or below 40, then Warden Croft catches
-> Mara Voss and the game ends.
-> CONDITION 5 (for Warden Croft): If warden suspicion is at or above 40, and Warden Croft closely
-> examines the spoon, and the spoon is out in the open, and Warden Croft finds its edge at or above
-> 20, then Warden Croft catches Mara Voss and the game ends.
-> CONDITION 6 (for Warden Croft): If warden suspicion is at or above 40, and Warden Croft closely
-> examines a way out, and Warden Croft finds it standing open, then Warden Croft catches Mara Voss and
-> the game ends.
-> END LIST OF CONDITIONS
+> further needs to be done before attempting it. Once the bar's integrity is at or below 50, Mara Voss
+> can open the window -- condition 1, for you. Once a way out stands open, Mara Voss can leave the
+> cell through it, and she has escaped -- condition 2, for you. Once warden suspicion is at or above
+> 40, and Warden Croft closely examines the bar, and Warden Croft finds its integrity at or below 30,
+> Warden Croft catches Mara Voss and the game ends -- condition 3, for Warden Croft. Once warden
+> suspicion is at or above 40, and Warden Croft closely examines the lock, and Warden Croft finds its
+> integrity at or below 40, Warden Croft catches Mara Voss and the game ends -- condition 4, for
+> Warden Croft. Once warden suspicion is at or above 40, and Warden Croft closely examines the spoon,
+> and the spoon is out in the open, and Warden Croft finds its edge at or above 20, Warden Croft
+> catches Mara Voss and the game ends -- condition 5, for Warden Croft. Once warden suspicion is at or
+> above 40, and Warden Croft closely examines a way out, and Warden Croft finds it standing open,
+> Warden Croft catches Mara Voss and the game ends -- condition 6, for Warden Croft.
 >
 > You are Mara Voss, three years into a sentence for a robbery that went wrong. This cell has been the
 > only home you have had since, and Warden Croft is the one who locks it every night. Get out of this
@@ -3898,19 +3927,19 @@ list, and news from the round before:
 > Your last word on the bar integrity was 85, as of round 3. Your last word on the lock integrity was
 > 100, as of round 0.
 >
-> The rules that never change, stated plainly:
-> Whenever Mara Voss audibly or visibly damages, repairs or uncovers something, warden suspicion
-> rises: by 5 for a slight act, 10 for a moderate one, 30 for a substantial one.
-> When Warden Croft examines something closely and finds it more worn than Warden Croft last believed,
-> warden suspicion rises by the unexplained drop divided by 2, rounded down -- finding damage is
-> evidence.
-> Mara Voss escapes the moment she is out of the cell, however she gets out. The cell's ways out are
-> the door and the window.
+> Some things about this cell never change: Whenever Mara Voss audibly or visibly damages, repairs or
+> uncovers something, warden suspicion rises: by 5 for a slight act, 10 for a moderate one, 30 for a
+> substantial one. When Warden Croft examines something closely and finds it more worn than Warden
+> Croft last believed, warden suspicion rises by the unexplained drop divided by 2, rounded down --
+> finding damage is evidence. Mara Voss escapes the moment she is out of the cell, however she gets
+> out. The cell's ways out are the door and the window.
 
-Reversible calls made here, for the owner to weigh: the perceived-objects paragraph still labels each
-one ("The window:", "The bar:") before its description, which is closer to a room description than
-pure unlabelled prose but was kept for honesty over polish -- an unlabelled join risked running
-several authored descriptions together ambiguously; the condition list and the closing rules block
-are kept exactly as-is rather than prose-ified, on the same honesty-over-polish call, since both are
-reference material the owner tuned deliberately (§34's own finding that the model plans better from a
-flat list) and paraphrasing either risked being the "softened number" the issue forbids.
+**Kept as-is, for the owner to weigh:** the perceived-objects paragraph still labels each one ("The
+window:", "The bar:") before its description, which is closer to a room description than pure
+unlabelled prose but was kept for honesty over polish -- an unlabelled join risked running several
+authored descriptions together ambiguously. The conditions paragraph carries a trailing citation tag ("-- condition 3, for Warden Croft") rather
+than a fully narrated attribution ("this is Warden Croft's own condition"); the tag was chosen so a
+player can still cite a condition by number the way she does in §44, and its "whose" wording
+(`"you"` for the reader's own, the other party's name otherwise) mirrors `renderConditionList`'s own
+choice exactly, computed the same way from the same `Condition.for` field, so a reader of both views
+sees the identical claim about who a condition belongs to.
