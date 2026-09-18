@@ -64,7 +64,7 @@ import { openConditions, readConditionsMode, readDoorMode } from "./open/conditi
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
-import { createNarrator } from "./open/narrator.js";
+import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
 
@@ -784,6 +784,7 @@ async function mainOpen(): Promise<void> {
   // counted and recorded where a transcript will show it (this task's brief).
   let narratorRejections = 0;
   let narratorSilences = 0;
+  const narratorRejectionKinds = new Map<string, number>();
   const narrator = NARRATOR_IN_USE
     ? createNarrator({
         baseUrl: MODEL_URL,
@@ -796,10 +797,15 @@ async function mainOpen(): Promise<void> {
         // check to catch a narration that leaks a real object this
         // principal does not currently perceive.
         knownWorldLabels: OPEN_OBJECTS.map((o) => o.id.replace(/_/g, " ")),
+        // The player is told NOTHING here, by design: the fallback to the
+        // prose view is already silent and seamless, and the first human
+        // `narrated` game (2026-09-18) printed a line of violation kinds
+        // above the view every single round, in front of the one person the
+        // view exists for. The evidence is kept -- tallied by kind, into the
+        // transcript's own narrator section, where a run can be read.
         onRejected: (violations) => {
           narratorRejections += 1;
-          // eslint-disable-next-line no-console
-          console.log(`Narrator rejected (falling back to the prose view): ${violations.map((v) => v.kind).join(", ")}`);
+          for (const v of violations) narratorRejectionKinds.set(v.kind, (narratorRejectionKinds.get(v.kind) ?? 0) + 1);
         },
         onSilence: () => {
           narratorSilences += 1;
@@ -1023,7 +1029,8 @@ async function mainOpen(): Promise<void> {
       transcript.push("");
       transcript.push(
         `Narrator calls rejected by \`verifyNarration\` (fell back to the prose view): ${narratorRejections}. ` +
-          `Silent (empty/unparseable/timed out, never reached the checker): ${narratorSilences}.`
+          `Silent (empty/unparseable/timed out, never reached the checker): ${narratorSilences}. ` +
+          `Violations by kind: ${formatViolationTally(narratorRejectionKinds)}.`
       );
       transcript.push("");
     }

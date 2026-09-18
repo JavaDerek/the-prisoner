@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { buildNarratorFacts, verifyNarration, createNarrator, type NarrationViolation } from "../narrator.js";
+import { buildNarratorFacts, verifyNarration, createNarrator, formatViolationTally, type NarrationViolation } from "../narrator.js";
 import type { OpenPrincipalContext } from "../mind.js";
 import type { Condition } from "../conditionList.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
@@ -239,5 +239,24 @@ describe("the verifier, calibrated against known-good narration", () => {
     } finally {
       destroyTestDb();
     }
+  });
+});
+
+describe("formatViolationTally: rejections are evidence for the transcript, never noise in the seat", () => {
+  it("tallies by kind, commonest first, rather than repeating a kind once per occurrence", () => {
+    const tally = new Map([
+      ["dropped-object", 10],
+      ["dropped-belief", 2],
+      ["dropped-condition", 8],
+    ]);
+    expect(formatViolationTally(tally)).toBe("dropped-object 10, dropped-condition 8, dropped-belief 2");
+  });
+
+  it("says so plainly when a run rejected nothing", () => {
+    expect(formatViolationTally(new Map())).toBe("none");
+  });
+
+  it("orders ties by name, so a transcript diff between two runs is stable", () => {
+    expect(formatViolationTally(new Map([["invented-number", 3], ["dropped-clock", 3]]))).toBe("dropped-clock 3, invented-number 3");
   });
 });

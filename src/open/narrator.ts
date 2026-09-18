@@ -306,6 +306,31 @@ export function verifyNarration(facts: NarratorFacts, narration: string, options
   return violations;
 }
 
+/**
+ * A run's rejected narrations, tallied by kind, as one transcript line.
+ *
+ * Why this exists rather than a `console.log` per rejection: the first human
+ * game with `PRISONER_VIEW=narrated` (2026-09-18) printed one of those to the
+ * PLAYER's terminal every round -- "Narrator rejected (falling back to the
+ * prose view): dropped-belief, dropped-belief, dropped-object, ..." -- above
+ * the very view the player was trying to read. A rejection is evidence about
+ * the narrator, and evidence belongs in the transcript where it can be
+ * counted across a run, never in the seat, where it is noise in front of the
+ * one person the whole view exists for.
+ *
+ * The TALLY, not the list: which kinds fire and how often is what tells you
+ * whether a narrator is inventing (the liability the checker was built for)
+ * or merely writing prose (the completeness kinds), and that question is
+ * about a run, not about one round.
+ */
+export function formatViolationTally(tally: ReadonlyMap<string, number>): string {
+  if (tally.size === 0) return "none";
+  return [...tally.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([kind, n]) => `${kind} ${n}`)
+    .join(", ");
+}
+
 /** The narrator's own schema: one field, so the model spends its whole
  *  answer on prose rather than a duplicate `intent` field that nothing
  *  reads. `mind-seam`'s `Proposal` still requires `intent`; `coerceNarratorReply`
