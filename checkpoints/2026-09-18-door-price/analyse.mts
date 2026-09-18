@@ -27,6 +27,7 @@ type Row = {
   lock: number | null;
   doorTargets: number;
   windowTargets: number;
+  rev: string;
 };
 
 const CHECKPOINTS = join(process.cwd(), "checkpoints");
@@ -76,16 +77,19 @@ function row(file: string): Row {
     lock: num(text, /- lockIntegrity: (\d+)/),
     doorTargets: countTarget(halves, "door") + countTarget(halves, "lock"),
     windowTargets: countTarget(halves, "window") + countTarget(halves, "bar"),
+    // Recorded since `runRevision.ts`: a batch that cannot name one revision
+    // is not a batch (CLAUDE.md). Older transcripts predate the header.
+    rev: text.match(/Code revision: `?([0-9a-f]{7,})`?/)?.[1] ?? "pre-header",
   };
 }
 
 const rows = transcripts().map(row).sort((a, b) => a.arm.localeCompare(b.arm) || a.stamp.localeCompare(b.stamp));
-console.log("arm        stated end      rnd exit                 susp bar lock doorT winT  stamp");
+console.log("arm        stated end      rnd exit                 susp bar lock doorT winT  rev        stamp");
 for (const r of rows) {
   console.log(
     `${r.arm.padEnd(10)} ${String(r.stated).padEnd(6)} ${r.ending.padEnd(8)} ${String(r.round ?? "-").padStart(3)} ` +
       `${r.exit.padEnd(20)} ${String(r.suspicion ?? "-").padStart(4)} ${String(r.bar ?? "-").padStart(3)} ${String(r.lock ?? "-").padStart(4)} ` +
-      `${String(r.doorTargets).padStart(5)} ${String(r.windowTargets).padStart(4)}  ${r.stamp}`
+      `${String(r.doorTargets).padStart(5)} ${String(r.windowTargets).padStart(4)}  ${r.rev.padEnd(10)} ${r.stamp}`
   );
 }
 
