@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createOpenMind, renderSeatSituation, type OpenPrincipalContext } from "../mind.js";
-import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode } from "../humanSeat.js";
+import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, type ViewMode } from "../humanSeat.js";
 import { openConditions } from "../conditions.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 
@@ -19,7 +19,7 @@ function player(...lines: string[]): { ask: (prompt: string) => Promise<string |
   return { asked, ask: async (prompt: string) => (asked.push(prompt), lines[i++]) };
 }
 
-function seat(lines: string[], options: { conditions?: ReturnType<typeof openConditions> } = {}) {
+function seat(lines: string[], options: { conditions?: ReturnType<typeof openConditions>; view?: ViewMode } = {}) {
   const written: string[] = [];
   const { ask, asked } = player(...lines);
   const mind = createHumanSeatMind({
@@ -28,6 +28,7 @@ function seat(lines: string[], options: { conditions?: ReturnType<typeof openCon
     ask,
     write: (text) => written.push(text),
     ...(options.conditions ? { conditions: options.conditions } : {}),
+    ...(options.view ? { view: options.view } : {}),
   });
   return { mind, written, asked };
 }
@@ -106,5 +107,38 @@ describe("the human seat", () => {
     const shown = written.join("\n");
     expect(shown).toContain("can open the window");
     expect(shown).toContain("(for you)");
+  });
+});
+
+// the-prisoner#21: a human-fiction view of a turn, for the player only, that
+// changes nothing about what the player knows.
+describe("PRISONER_VIEW chooses how the seat is shown -- never what it is shown", () => {
+  it("unset or 'raw' is today's view; 'prose' is the new one; anything else stops the run", () => {
+    expect(readViewMode(undefined)).toBe("raw");
+    expect(readViewMode("")).toBe("raw");
+    expect(readViewMode("raw")).toBe("raw");
+    expect(readViewMode("prose")).toBe("prose");
+    expect(() => readViewMode("narrated")).toThrow(/PRISONER_VIEW/);
+  });
+
+  it("defaults to the raw view -- no `view` option changes nothing from before this issue", async () => {
+    const { mind, written } = seat(["I test the bar.", ""]);
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).toContain("- bar: One of five vertical iron bars.");
+  });
+
+  it("view: 'prose' shows the fiction view instead of the raw labelled blocks", async () => {
+    const { mind, written } = seat(["I test the bar.", ""], { view: "prose" });
+    await mind.consider(CONTEXT);
+    const shown = written.join("\n");
+    expect(shown).not.toContain("- bar: One of five vertical iron bars.");
+    expect(shown).toContain("One of five vertical iron bars.");
+  });
+
+  it("typing 'raw' at the intent prompt reprints the raw NPC view on demand and asks again, spending nothing", async () => {
+    const { mind, written, asked } = seat(["raw", "I test the bar.", ""], { view: "prose" });
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    expect(written.join("\n")).toContain("- bar: One of five vertical iron bars.");
+    expect(asked.filter((p) => p.startsWith("What do you try this turn?")).length).toBe(2);
   });
 });
