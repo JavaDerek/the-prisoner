@@ -84,11 +84,42 @@ export const OPEN_WINDOW_BAR_MAX = 50;
  *  The closed variant's `SEARCH_CATCH_BAR_MAX` is untouched. */
 export const OPEN_CATCH_BAR_MAX = 30;
 
+/**
+ * OPEN-VARIANT.md §50 (issue #19): the door's own gate under
+ * `PRISONER_DOOR_PRICE=threshold`, on the lock exactly as `OPEN_WINDOW_BAR_MAX`
+ * gates the window on the bar. Chosen so the two routes cost the same: at
+ * `lock.wear.moderate` (20/turn, `scenarioObjects.ts`) the lock crosses this
+ * line on the 4th wear turn (100, 80, 60, 40, 20), the same 4 wear turns the
+ * bar needs at its own `wear.moderate` (15/turn) to cross `OPEN_WINDOW_BAR_MAX`
+ * (100, 85, 70, 55, 40) -- landing 10 below its own line (40 vs. <=50) exactly
+ * as this landing is 10 below its (20 vs. <=30). Both routes are then one
+ * further `open` turn, so both cost 5 prisoner turns and, at
+ * `SUSPICION_BUMP_FOR_MAGNITUDE.moderate` (10, `loop.ts`) charged on every
+ * wear turn and the open turn alike, both cost 50 suspicion. §50 shows the
+ * full arithmetic, including why the range of thresholds that ties the turn
+ * count (20-39) is wider than this one deliberate pick.
+ */
+export const OPEN_DOOR_LOCK_MAX = 30;
+
 function propertyToken(objectId: string, propertyKey: string): string {
   return `${objectId}.${propertyKey}`;
 }
 
-export function buildOpenWorld(): OpenWorld {
+export type DoorPriceMode = "free" | "threshold";
+
+/** `free` unless asked otherwise: the door's passage has no threshold to
+ *  meet, today's behaviour, unchanged -- every batch recorded before this
+ *  arm (issue #19) stays the comparison it was, the D3 lesson (§40.1)
+ *  applied here before the fact. `threshold` gates it on `OPEN_DOOR_LOCK_MAX`,
+ *  exactly mirroring the window's own gate on the bar. Anything else stops
+ *  the run rather than guessing. */
+export function readDoorPrice(raw: string | undefined): DoorPriceMode {
+  if (raw === undefined || raw === "") return "free";
+  if (raw === "free" || raw === "threshold") return raw;
+  throw new Error(`PRISONER_DOOR_PRICE: unrecognised value ${JSON.stringify(raw)} -- must be "threshold" or "free" (the default)`);
+}
+
+export function buildOpenWorld(options: { doorPrice?: DoorPriceMode } = {}): OpenWorld {
   const base = buildWorld();
   const gameId = base.gameId;
 
@@ -159,8 +190,10 @@ export function buildOpenWorld(): OpenWorld {
     destinationId,
   });
   const exits: Record<string, OpenExit> = {
-    // The door's own description grounds opening it: the bolt shows in the gap.
-    door: exit("door", "lock", corridor.id, null),
+    // The door's own description grounds opening it: the bolt shows in the
+    // gap. `free` (the default) keeps that true; `threshold` (issue #19,
+    // §50) gates it on the lock like the window is gated on the bar.
+    door: exit("door", "lock", corridor.id, options.doorPrice === "threshold" ? OPEN_DOOR_LOCK_MAX : null),
     window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX),
   };
 

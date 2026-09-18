@@ -5,7 +5,7 @@ import { buildOpenWorld, resourceIdForProperty, type OpenWorld } from "../world.
 import { buildOpenResolver } from "../mechanics.js";
 import { planEffect } from "../effects.js";
 import { checkOpenEscape, checkOpenGameEnd, checkOpenCatch } from "../gameEnd.js";
-import { OPEN_WINDOW_BAR_MAX } from "../world.js";
+import { OPEN_WINDOW_BAR_MAX, OPEN_DOOR_LOCK_MAX } from "../world.js";
 import { SEARCH_CATCH_BAR_MAX } from "../../world/mechanics.js";
 import { EFFECT_KINDS, PROPERTY_ANSWER_KEYS } from "../effects.js";
 import { scriptedMind } from "mind-seam";
@@ -48,6 +48,15 @@ function wearBarTo(openWorld: OpenWorld, value: number) {
     gameId: openWorld.base.gameId,
     mechanic: "OPEN_WEAR",
     parameters: { resourceId: openWorld.base.resources.barIntegrity, amount: 100 - value, min: 0, max: 100, description: "worn" },
+  });
+}
+
+/** Wears the lock down to `value` through the resolve protocol, as play would. */
+function wearLockTo(openWorld: OpenWorld, value: number) {
+  buildOpenResolver().resolve({
+    gameId: openWorld.base.gameId,
+    mechanic: "OPEN_WEAR",
+    parameters: { resourceId: openWorld.base.resources.lockIntegrity, amount: 100 - value, min: 0, max: 100, description: "worn" },
   });
 }
 
@@ -373,6 +382,28 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
   it("the door has no threshold: the bolt pushed back through the gap still opens it through the lock at full integrity (the one real open, 2026-09-14)", () => {
     createTestDb();
     const w = buildOpenWorld();
+    resolvePlan(w, plan(w, "open", "lock", "integrity"));
+    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(1);
+  });
+
+  // OPEN-VARIANT.md §50 (issue #19): under `PRISONER_DOOR_PRICE=threshold` the
+  // door is gated on the lock exactly like the window on the bar -- enforced
+  // by the resolver, not merely a sentence a mind is told.
+  it("PRISONER_DOOR_PRICE=threshold: the door refuses to open while the lock still holds above the gate", () => {
+    createTestDb();
+    const w = buildOpenWorld({ doorPrice: "threshold" });
+    const outcome = resolvePlan(w, plan(w, "open", "lock", "integrity"));
+    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
+    expect(outcome.result).toEqual(expect.objectContaining({ opened: false }));
+  });
+
+  it("PRISONER_DOOR_PRICE=threshold: the door opens once the lock is worn to the gate, not before", () => {
+    createTestDb();
+    const w = buildOpenWorld({ doorPrice: "threshold" });
+    wearLockTo(w, OPEN_DOOR_LOCK_MAX + 1);
+    resolvePlan(w, plan(w, "open", "lock", "integrity"));
+    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
+    wearLockTo(w, OPEN_DOOR_LOCK_MAX);
     resolvePlan(w, plan(w, "open", "lock", "integrity"));
     expect(getResource(w.exits.door.passageResourceId)?.value).toBe(1);
   });

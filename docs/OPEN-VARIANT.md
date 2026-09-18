@@ -3433,3 +3433,147 @@ keystrokes: plumbing evidence, not play.
 
 A human seat is also the one run that must not be detached (`nohup`), which is the opposite of every
 other real run here.
+
+## 50. Pricing the door: the two routes made comparable in cost, and §46 put back in question (2026-09-17, issue #19)
+
+**The owner's own human game found what §46 had only theorised.** Playing the prisoner herself
+(`checkpoints/2026-09-18T02-40-27-834Z.md`, issue #19), she escaped at round 4 through the door, with
+the door **unstated** in her conditions -- the arm §46 measures was not even on. Final
+`wardenSuspicion: 15`. The door's own exit has always declared `openWhenPartAtMost: null`: no
+threshold, no damage to the lock (it ended untouched, at 100), one audible `open` and it stands open.
+The window, by contrast, needs the bar worn to `OPEN_WINDOW_BAR_MAX` (50) first -- five or six audible
+wear turns, which is what drives suspicion to 100 in every model game (§31.2).
+
+**This reframes §46, not just this issue.** §46 stated the door as a *condition* and read the resulting
+r4 escapes as an arm effect -- "stating it moves her, and moves her plan." The human game shows the
+route was free all along and the condition list only pointed a mind at it: nobody, model or person, had
+to pay anything to use it. **§46's door escapes are evidence about the door's price, being zero, not
+about novelty or precedent**, and every game that batch reports (`checkpoints/2026-09-17-door/`) was
+played against a door that cost nothing whether or not it was named. The finding that "the door is
+strictly better than the window" (§46.3) was correct, but for a reason simpler than anything about
+stating conditions: it always had been, before any condition existed to state it.
+
+### 50.1 The arm
+
+`PRISONER_DOOR_PRICE=threshold` (`src/open/world.ts`) gates the door's passage on the lock's own
+integrity, mirroring exactly how `OPEN_WINDOW_BAR_MAX` gates the window's passage on the bar's:
+
+```ts
+door: exit("door", "lock", corridor.id, options.doorPrice === "threshold" ? OPEN_DOOR_LOCK_MAX : null),
+```
+
+`PRISONER_DOOR_PRICE=free` is the default and is byte-identical to every batch ever recorded, §46's
+included -- `openWhenPartAtMost: null`, unchanged. The gate is enforced by `OPEN_PASSAGE`
+(`src/open/mechanics.ts`), the same resolver mechanic the window's own gate already runs through: an
+`open` ruled against the door while the lock still holds above the line changes nothing and says so in
+`result.opened` (`false`), exactly as an `open` against the window does while the bar holds above 50.
+Nothing in `referee.ts`, `effects.ts` or any prompt changed -- the gate is a property of the world the
+resolver already had a generic mechanism for, not a new rule bolted onto one object. It is independent
+of whether the actor holds any particular instrument (issue #17's concern): the resolver reads only the
+lock's integrity, never what the actor is holding.
+
+The condition list (`src/open/conditions.ts`) cannot state a claim the world does not enforce, in
+either direction. Under `PRISONER_DOOR_PRICE=threshold`, the `PRISONER_DOOR=stated` condition now
+reads:
+
+> CONDITION 2 (for you): If the lock's integrity is at or below 30, then Mara Voss can open the door.
+
+-- named the same way condition 1 names the window's own gate on the bar, not the door's old "no
+threshold to meet first." Under `free`, the old wording is kept, unchanged. `conditions.test.ts` holds
+both directions: it asserts the `threshold` condition's number against `world.ts`'s own
+`OPEN_DOOR_LOCK_MAX`, and separately asserts that `buildOpenWorld({ doorPrice: "threshold" })`'s exit
+carries exactly that number -- so a threshold added to one side and not the other, in either direction,
+fails a test before it ever reaches a game.
+
+### 50.2 The arithmetic: choosing 30
+
+The two magnitude tables already declared in `scenarioObjects.ts` are what a `moderate` wear turn
+removes -- the magnitude every recorded batch's wear turns have actually been ruled at (the carried-over
+FILE/SHIM-equivalent amounts):
+
+| | initial | threshold | moderate wear/turn | suspicion bump/turn (moderate) |
+|---|---|---|---|---|
+| bar (window) | 100 | <=50 (`OPEN_WINDOW_BAR_MAX`) | 15 | 10 (`FILE_SUSPICION_BUMP`) |
+| lock (door) | 100 | <=X (candidate) | 20 | 10 (`FILE_SUSPICION_BUMP`) |
+
+**Window, worked out first, as the target to match.** Bar at 100, worn 15 at a time: 100, 85, 70, 55,
+40. It first reads <=50 on the 4th wear turn (55 is not; 40 is), landing 10 below its own line. One
+further `open` turn makes it passable. So the window route costs **5 prisoner turns** (4 wear + 1
+open) and, charging `SUSPICION_BUMP_FOR_MAGNITUDE.moderate` (10) on each of those 5 audible acts,
+**50 suspicion**.
+
+**Door, worked out at every candidate threshold.** Lock at 100, worn 20 at a time: 100, 80, 60, 40, 20,
+0. The number of wear turns needed to first read at or below a candidate `X`:
+
+| X | wear turns to reach <=X | + 1 open | total prisoner turns | suspicion (turns x 10) |
+|---|---|---|---|---|
+| 60 | 2 (100->80->60) | 3 | 3 | 30 |
+| 40 | 3 (100->80->60->40) | 4 | 4 | 40 |
+| **20-39** | **4 (100->80->60->40->20)** | **5** | **5** | **50** |
+| 0-19 | 5 | 6 | 6 | 60 |
+
+Every `X` from 20 through 39 needs exactly 4 wear turns, because the lock only ever visits the values
+100/80/60/40/20/0 -- the threshold's exact position inside a 20-point gap does not change how many
+20-point steps are needed to fall inside it. **`X=30` is the chosen value inside that range**, not
+merely a member of it: it lands the door's post-wear value (20) exactly 10 below its own threshold
+(30), the identical overshoot the window's own numbers already have (40 is 10 below 50). At `X=30` the
+door route costs **5 prisoner turns and 50 suspicion -- the same numbers as the window, exactly**, not
+approximately. `OPEN_DOOR_LOCK_MAX = 30` is declared in `src/open/world.ts` with this arithmetic in its
+own comment.
+
+**The one asymmetry this does not remove, named rather than hidden.** `SEARCH_CATCH_LOCK_MAX` (40, the
+closed variant's own constant, reused by `conditions.ts`'s existing catch condition) sits *above*
+`OPEN_DOOR_LOCK_MAX` (30). That means the lock becomes catchable (<=40, from the 3rd wear turn) one
+full turn *before* the door becomes usable (<=30, the 4th) -- the reverse of the window's own margin,
+where the bar becomes usable (<=50, the 4th turn) before it becomes catchable (<=30, not reached until
+a 5th turn nobody needs to take). Preserving that same order for the lock would require a threshold
+above 40, which the turn-count table above shows costs at most 3 prisoner turns and 30 suspicion --
+cheaper than the window again, the exact problem this arm exists to fix. Turn/suspicion parity and
+open-before-catchable parity cannot both hold here, because the lock wears faster per turn (20 against
+15) against a catch line that is proportionally higher (40% of range against 30%). This issue asked for
+comparable *cost*; it is that. It is not comparable *risk timing*, and the owner should see that
+plainly rather than have it discovered in a batch.
+
+### 50.3 What this means for §46, and what is not yet known
+
+§46's six games were run entirely under `free`. Nothing in this issue reruns them. What changes is
+their reading: **"stating it moves her, and moves her plan" (§46.2) is no longer evidence that a
+condition list makes a mind reconsider its plan toward a better-but-costly route.** It is evidence
+that telling her about a free route she had never been shown made her take it -- unsurprising once the
+door's true price is visible, and not the comparison mother-of-invention#2 has been waiting for.
+**That comparison -- does precedent tip a choice between two routes of comparable cost -- has never
+yet been run.** It requires both `PRISONER_DOOR=stated` and `PRISONER_DOOR_PRICE=threshold` together,
+which no batch in this document has done.
+
+### 50.4 The command for a live validation game
+
+Live games are the owner's to run, one model at a time on the 4090. Two runs, arms alternating,
+otherwise identical settings, are what would test whether the routes are now comparable:
+
+```bash
+# free (today's behaviour, the comparison arm)
+PRISONER_VARIANT=open PRISONER_DOOR=stated PRISONER_DOOR_PRICE=free \
+  PRISONER_MODEL_URL=http://doris:11434/v1 \
+  PRISONER_WITS_MODEL=qwen3:14b PRISONER_VOICE_MODEL=ancient-awakening:12b \
+  PRISONER_REFEREE_MODEL=qwen2.5:14b PRISONER_REFEREE_TIMEOUT_MS=180000 \
+  PRISONER_THINK_TIMEOUT_MS=180000 PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
+  npm run checkpoint
+
+# threshold (the arm this issue built)
+PRISONER_VARIANT=open PRISONER_DOOR=stated PRISONER_DOOR_PRICE=threshold \
+  PRISONER_MODEL_URL=http://doris:11434/v1 \
+  PRISONER_WITS_MODEL=qwen3:14b PRISONER_VOICE_MODEL=ancient-awakening:12b \
+  PRISONER_REFEREE_MODEL=qwen2.5:14b PRISONER_REFEREE_TIMEOUT_MS=180000 \
+  PRISONER_THINK_TIMEOUT_MS=180000 PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
+  npm run checkpoint
+```
+
+**What would confirm the routes are now comparable:** under `threshold`, the door route (when taken)
+costs a number of prisoner turns and a suspicion level in the same range as the window route in the
+same batch -- roughly 5 turns and 50 suspicion for either, per §50.2 -- rather than the door winning in
+2 turns at 15 suspicion the way the unpriced human game did. **What would refute it:** the door route
+still finishes in far fewer turns or at far lower suspicion than the window under `threshold`, which
+would mean either the referee is not ruling the lock-wear turns as audible/moderate the way the bar's
+are (an assumption §50.2 states plainly and does not verify against a live referee), or some other path
+to the door (e.g. a `substantial` single wear ruling, or a route that reaches the door without ever
+touching the lock) still bypasses the gate this arm relies on.
