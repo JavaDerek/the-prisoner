@@ -151,10 +151,18 @@ export function buildOpenBriefing(
     if (line) lines.push(line);
   }
 
-  const perceived = computePerceivedObjects(openWorld, principal, t);
-  for (const object of perceived) {
-    lines.push(`You perceive the ${object.id.replace(/_/g, " ")}: ${object.description}`);
-  }
+  // issue #15: the per-object "You perceive the <id>: <description>" lines
+  // used to be built here, and mind.ts's `objectLines` (inside the exported
+  // `renderSeatSituation`) built the SAME sentence, from the SAME array,
+  // right below it -- the identical prose, twice, in front of every
+  // decision. `renderSeatSituation` is the one place that renders
+  // perceivedObjects now: it is the copy the referee is handed as
+  // `perceivedObjects` for this half-round, and the one the human-seat test
+  // pins byte-for-byte against the model prompt, so it is the copy that
+  // stays. Nothing here computed a fact that lived ONLY in this loop --
+  // `describedAsItStands` (state readings included) is the same function
+  // `computePerceivedObjects` already calls for `perceivedObjects` below, so
+  // no fact is lost, only the second rendering of it.
 
   return lines.join("\n");
 }

@@ -284,7 +284,10 @@ describe("a whole game: escape with a derived object (issue #4, step 4)", () => 
 
     const round2Warden = game.halves.find((h) => h.roundN === 2 && h.principal === "warden");
     expect(round2Warden?.context.briefing).toContain("works a piece loose from the cot");
-    expect(round2Warden?.context.briefing).toContain("You perceive the wire:");
+    // Issue #15: the briefing itself no longer repeats each object's
+    // description -- `perceivedObjects` (rendered once, by `renderSeatSituation`)
+    // is where "the warden can perceive the wire" is checked now.
+    expect(round2Warden?.context.perceivedObjects.map((o) => o.id)).toContain("wire");
 
     const applied = game.halves.filter((h) => h.outcome && h.ruling);
     for (const h of applied) {

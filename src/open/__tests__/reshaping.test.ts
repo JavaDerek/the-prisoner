@@ -198,10 +198,14 @@ describe("reshaping: perception, precedent, suspicion (OPEN-VARIANT.md §14.4)",
     const t = w.base.clock.wardenT(3);
     for (const principal of ["prisoner", "warden"] as const) {
       const briefing = buildOpenContext(w, principal, t, 3).briefing;
-      expect(briefing).not.toContain("You perceive the wire:");
       expect(briefing).not.toMatch(/^wire integrity:/m); // the cot's own "cot wire integrity" stays
-      expect(briefing).toContain("You perceive the hook:");
-      expect(computePerceivedObjects(w, principal, t).map((o) => o.id)).not.toContain("wire");
+      // Issue #15: the briefing no longer lists each object's own
+      // description (that is `renderSeatSituation`'s job) -- so what the
+      // destroyed wire leaves both briefings is checked on `perceivedObjects`,
+      // the same array `renderSeatSituation` renders from.
+      const ids = computePerceivedObjects(w, principal, t).map((o) => o.id);
+      expect(ids).not.toContain("wire");
+      expect(ids).toContain("hook");
     }
   });
 
