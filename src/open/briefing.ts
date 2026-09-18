@@ -2,7 +2,7 @@ import { readNumericFact, readFactValue } from "../world/facts.js";
 import { getBelief, renderBeliefLine } from "../ledger/beliefs.js";
 import { SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { getNotes } from "../ledger/notes.js";
-import { OPEN_OBJECTS, type OpenObjectSpec } from "./scenarioObjects.js";
+import { OPEN_PERSONS, OPEN_OBJECTS, type OpenObjectSpec } from "./scenarioObjects.js";
 import { resourceIdForProperty, type OpenWorld } from "./world.js";
 import type { ObjectPerception } from "./referee.js";
 import type { OpenPrincipalContext } from "./mind.js";
@@ -89,11 +89,16 @@ function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): numbe
  *  property whose current value declares one (`OpenObjectProperty.reads`). */
 function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: number): string {
   const readings = spec.properties.flatMap((property) => {
-    if (!property.reads) return [];
+    if (!property.reads && !property.readRanges) return [];
     const resourceId = resourceIdForProperty(openWorld, spec.id, property.key);
     const value = resourceId ? readNumericFact({ gameId: openWorld.base.gameId, t, entityId: resourceId, key: "value" }) : null;
-    const reading = value === null ? undefined : property.reads[value];
-    return reading ? [reading] : [];
+    if (value === null) return [];
+    // An exact reading is the more specific statement, so it wins; otherwise
+    // the first band the value falls in (§56, issue #22 gap 3).
+    const exact = property.reads?.[value];
+    if (exact) return [exact];
+    const band = property.readRanges?.find((range) => value <= range.atOrBelow);
+    return band ? [band.text] : [];
   });
   return [spec.description, ...readings].join(" ");
 }
@@ -145,7 +150,11 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
   if (presenceMode === "modelled") {
     const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
     if (principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t)) {
-      objects.push({ id: other, description: PRINCIPAL_DESCRIPTION[other] });
+      // Issue #22 gap 3: a person carries its own declared state, so the
+      // description the other principal perceives -- and the referee cites --
+      // reads it the same way an object's does ("She is lying on the floor").
+      const spec = OPEN_PERSONS.find((p) => p.id === other);
+      objects.push({ id: other, description: spec ? describedAsItStands(openWorld, spec, t) : PRINCIPAL_DESCRIPTION[other] });
     }
   }
   return objects;

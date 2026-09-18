@@ -1,6 +1,6 @@
 import { createItem, createLocation, createResource, declareBoundedConstraint, declareResolveOnlyConstraint, type Outcome } from "run-dmcp";
 import { buildWorld, type World } from "../world/setup.js";
-import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey } from "./scenarioObjects.js";
+import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey, OPEN_PERSONS } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -151,7 +151,7 @@ function doorGate(mode: DoorPriceMode | undefined): number | null {
   return null;
 }
 
-export function buildOpenWorld(options: { doorPrice?: DoorPriceMode } = {}): OpenWorld {
+export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: "off" | "modelled" } = {}): OpenWorld {
   const base = buildWorld();
   const gameId = base.gameId;
 
@@ -212,6 +212,28 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode } = {}): Ope
     }
   }
 
+  // Issue #22 gap 3 (D5): each principal's own declared state, created only
+  // under the presence arm -- with it off, no person resource exists at all and
+  // every batch recorded before this gap is byte-identical. Owned by the
+  // CHARACTER, which `run-dmcp`'s own `createResource` has always supported
+  // (`ownerType: "character"`), so nothing entered the engine for this.
+  if (options.presence === "modelled") {
+    for (const spec of OPEN_PERSONS) {
+      const characterId = spec.id === "prisoner" ? base.prisonerId : base.wardenId;
+      entityIdFor[spec.id] = characterId;
+      for (const property of spec.properties) {
+        const token = propertyToken(spec.id, property.key);
+        if (!resourceIdFor[token]) {
+          const resource = createResource({ gameId, ownerType: "character", ownerId: characterId, name: property.resourceName, value: property.initialValue, minValue: property.min, maxValue: property.max });
+          declareBoundedConstraint({ gameId, resourceId: resource.id });
+          declareResolveOnlyConstraint({ gameId, resourceId: resource.id });
+          resourceIdFor[token] = resource.id;
+        }
+        resourceNameById[resourceIdFor[token]] = property.resourceName;
+      }
+    }
+  }
+
   const corridor = createLocation({ gameId, name: "the corridor", description: "The corridor outside the cell door." });
   const outsideWindow = createLocation({ gameId, name: "outside the window", description: "Outside the cell's small window." });
   const exit = (wayOut: string, part: string, destinationId: string, openWhenPartAtMost: number | null): OpenExit => ({
@@ -241,6 +263,10 @@ export function resourceIdForProperty(world: OpenWorld, objectId: string, proper
 export function declaredProperty(world: OpenWorld, objectId: string, key: string): OpenObjectProperty | undefined {
   const derived = world.derived.find((d) => d.id === objectId);
   if (derived) return derived.properties.find((p) => p.key === key);
+  // A person's own property exists only where this world actually built it
+  // (the presence arm), so `off` keeps answering exactly as it always did.
+  const person = OPEN_PERSONS.find((p) => p.id === objectId);
+  if (person) return resourceIdForProperty(world, objectId, key) ? person.properties.find((p) => p.key === key) : undefined;
   return findProperty(objectId, key as OpenPropertyKey);
 }
 
@@ -249,6 +275,8 @@ export function declaredProperty(world: OpenWorld, objectId: string, key: string
 export function declaredPropertyKeys(world: OpenWorld, objectId: string): string[] {
   const derived = world.derived.find((d) => d.id === objectId);
   if (derived) return derived.properties.map((p) => p.key);
+  const person = OPEN_PERSONS.find((p) => p.id === objectId);
+  if (person) return resourceIdForProperty(world, objectId, person.properties[0].key) ? person.properties.map((p) => p.key) : [];
   return OPEN_OBJECTS.find((o) => o.id === objectId)?.properties.map((p) => p.key) ?? [];
 }
 

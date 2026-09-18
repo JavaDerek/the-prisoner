@@ -731,7 +731,7 @@ async function main(): Promise<void> {
  * `npm run referee-replay` reads for §5.2's consistency measurement.
  */
 async function mainOpen(): Promise<void> {
-  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE });
+  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE });
   const resolver = buildOpenResolver();
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })],
@@ -918,8 +918,8 @@ async function mainOpen(): Promise<void> {
   );
   transcript.push(
     PRESENCE === "modelled"
-      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name (§55, issue #22)."
-      : "Presence: OFF (the default): both principals are always treated as present to each other, as every batch before this gap recorded (§55, issue #22)."
+      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name, and each principal carries its own bounded `posture` -- 100 on her feet, 50 crouched, 0 on the floor -- which the other perceives in words and which raises no suspicion (§55, §56, issue #22)."
+      : "Presence: OFF (the default): both principals are always treated as present to each other, and no person carries a declared state, as every batch before this gap recorded (§55, §56, issue #22)."
   );
   transcript.push(
     DERIVE_WORDING === "sharpened"

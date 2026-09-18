@@ -38,7 +38,11 @@
  * not the tile itself").
  */
 
-export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage";
+/** `posture` is issue #22 gap 3's own key -- a person's bounded physical
+ *  state, never an object's. */
+import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
+
+export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage" | "posture";
 
 export interface MagnitudeTable {
   slight: number;
@@ -73,6 +77,14 @@ export interface OpenObjectProperty {
    *  by and the referee rules on it by. A value with no reading adds nothing
    *  (say what is, never what is absent). */
   reads?: Readonly<Record<number, string>>;
+  /** The same idea as `reads` for a property whose whole RANGE means
+   *  something rather than three exact values -- posture (issue #22 gap 3) is
+   *  its first caller, where 90 is still standing and 40 is still crouched.
+   *  Entries are tried in order and the first whose `atOrBelow` the value does
+   *  not exceed supplies the reading, so they read low-to-high. `reads` wins
+   *  where both would speak, because an exact value is the more specific
+   *  statement. Generic: any bounded property may use it. */
+  readRanges?: readonly { readonly atOrBelow: number; readonly text: string }[];
 }
 
 export interface OpenObjectSpec {
@@ -361,3 +373,53 @@ export function findProperty(objectId: string, key: OpenPropertyKey): OpenObject
 }
 
 export const OPEN_OBJECT_IDS: readonly string[] = OPEN_OBJECTS.map((o) => o.id);
+
+/** Issue #22 gap 3, the owner's decision D5 and his own scale: a person's own
+ *  physical state as a bounded numeric property. 100 is on her feet, 50 is
+ *  crouched, 0 is flat on the floor; every value between reads as the band it
+ *  falls in, so a mind is never told a number without words for it.
+ *
+ *  Why a person's state is truth and not belief (`docs/issues/SOCIAL-INTENTS.md`):
+ *  dropping to the ground is a real, resolvable, perceptible act, so the world
+ *  records that she IS on the floor. What the warden makes of it stays her own
+ *  mind's business -- no effect here writes anyone's belief, and none ever
+ *  should. */
+export const POSTURE_STANDING = 100;
+export const POSTURE_CROUCHED = 50;
+export const POSTURE_LYING = 0;
+
+const posture = (who: string): OpenObjectProperty => ({
+  key: "posture",
+  resourceName: `${who}_posture`,
+  min: POSTURE_LYING,
+  max: POSTURE_STANDING,
+  initialValue: POSTURE_STANDING,
+  // A substantial act puts her all the way down or all the way up; a moderate
+  // one is the crouch between; a slight one is a stumble or a straightening.
+  wear: { slight: 10, moderate: 50, substantial: 100 },
+  restore: { slight: 10, moderate: 50, substantial: 100 },
+  readRanges: [
+    { atOrBelow: 25, text: "She is lying on the floor." },
+    { atOrBelow: 75, text: "She is crouched low." },
+    { atOrBelow: 100, text: "She is on her feet." },
+  ],
+});
+
+/** The two principals as perceivable, targetable things (§55 gap 2) that carry
+ *  their own declared state (this gap). Shaped exactly like `OPEN_OBJECTS` so
+ *  every mechanism that already reads a spec -- `describedAsItStands`,
+ *  `declaredProperty`, `planEffect` -- works on a person with no special case. */
+export const OPEN_PERSONS: readonly OpenObjectSpec[] = [
+  {
+    id: "prisoner",
+    heldBy: "prisoner",
+    description: `${PRISONER_NAME}, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+    properties: [posture("prisoner")],
+  },
+  {
+    id: "warden",
+    heldBy: "warden",
+    description: `${WARDEN_NAME}, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+    properties: [posture("warden")],
+  },
+];

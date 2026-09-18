@@ -4732,3 +4732,43 @@ principal's own description as a legal `desc:<id>` citation source; a declared p
 for an undeclared (target, property) pair becomes the SUCCESS path the moment gap 3 declares one, with
 no other code change expected in `effects.ts`. THE GROUNDING RULE's test above is already written and
 already passing; gap 3 should make it protect something real rather than a stub.
+
+## 56. A person's own state, as a bounded number (owner's decision D5, issue #22, gap 3)
+
+The owner's decision, and his own scale: **100 on her feet, 50 crouched, 0 lying on the floor.** Each
+principal now carries a declared `posture` property under the same arm as §55 (`PRISONER_PRESENCE=modelled`;
+with it off no person resource is created at all, so every batch recorded before this gap is what it was).
+
+**This is what makes "drop to the ground and pretend to be having a heart attack" a real act.** The owner
+typed exactly that on turn two of the first human game (§48) and was told his attempt "reached past what is
+here", because a person was not a target and a person had no state. Now dropping to the floor is a `wear` on
+`prisoner.posture`, grounded in a citation from her own description, and it resolves: she **is** on the
+floor. What Croft makes of that is Croft's own business — no effect writes anyone's belief, which is the
+reframe `docs/issues/SOCIAL-INTENTS.md` argued for and the reason a prisoner still cannot win by assertion.
+
+**Magnitudes, on the owner's landmarks.** A substantial act puts her all the way down or all the way up
+(100), a moderate one is the crouch between (50), a slight one is a stumble or a straightening (10). Wear
+lowers, restore raises, both clamped by the same bounded constraint every other property uses.
+
+**`readRanges`, a generic addition to the shared property type.** `reads` maps exact values to words, which
+suits a passage that is open or shut and suits nothing that varies. Posture varies, and a mind told `40`
+with no words for it is being told a number about a body. So a property may now declare bands — at or below
+25 "She is lying on the floor.", at or below 75 "She is crouched low.", at or below 100 "She is on her
+feet." — and `describedAsItStands` reads the first band the value falls in. An exact `reads` entry still
+wins where both would speak, because an exact value is the more specific statement. Any bounded property
+may use this; posture is only its first caller.
+
+**An act on a person raises no suspicion**, even when its effect kind otherwise would
+(`suspicionEligibleFor`, `loop.ts`). The prompt's own suspicion sentence is about damaging, repairing or
+uncovering **something**; a prisoner dropping to the floor damages nothing, and charging her for it would
+make that sentence false to every mind that reads it. The warden perceives the collapse through the
+description (§55) and decides what it means — truth in the world, judgement in the mind.
+
+**Nothing entered the engine for this.** `run-dmcp`'s own `createResource` has always accepted
+`ownerType: "character"` (`dist/tools/resource.d.ts`), so a person's bounded property needed no engine
+change — the workspace's own rule about checking what the other side already publishes, paying off twice in
+one issue, since presence turned out to be a `location_id` that already existed too.
+
+**Not yet measured in a real game.** The arm is off by default and no batch has run under it. What it should
+be asked first: does a model prisoner ever use it, or is it another mechanism she declines the way she
+declined the priced door (§50.7)? Do not promote it on the strength of the mechanism working.

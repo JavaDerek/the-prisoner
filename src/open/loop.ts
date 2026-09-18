@@ -136,6 +136,21 @@ export function suspicionEligible(effectKind: EffectKind): boolean {
   return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave" || effectKind === "derive";
 }
 
+/**
+ * Issue #22 gap 3 (D5): an act on a PERSON never raises warden suspicion, even
+ * when its effect kind otherwise would. The prompt's own suspicion sentence is
+ * about damaging, repairing or uncovering SOMETHING -- a prisoner dropping to
+ * the floor damages nothing, and charging her for it would make that sentence
+ * false to every mind that reads it. What the warden makes of a collapse is her
+ * own mind's business: she perceives it (§55) and decides, which is the whole
+ * shape of SOCIAL-INTENTS.md's reframe -- truth in the world, judgement in the
+ * mind, never a belief written by the actor.
+ */
+export function suspicionEligibleFor(effectKind: EffectKind, targetObjectId: string | null): boolean {
+  if (targetObjectId === "prisoner" || targetObjectId === "warden") return false;
+  return suspicionEligible(effectKind);
+}
+
 /** Applies ONE further, audited `resolve()` call against `warden_suspicion`
  *  -- still through the one choke point (invariant 1), never a direct
  *  write. A no-op for `amount <= 0`. */
@@ -496,7 +511,7 @@ export async function runOpenHalfRound(params: {
     // OPEN-VARIANT.md §55 (issue #22 gap 1): gated on `otherPresent`, exactly
     // the closed variant's own `WARDEN_PRESENCE`/`wardenPresent` rule
     // ("unheard while the warden is away") -- always true under `off`.
-    if (principal === "prisoner" && otherPresent && suspicionEligible(ruling.effectKind) && ruling.perceptibility !== "silent") {
+    if (principal === "prisoner" && otherPresent && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
     }
     if (known) {
