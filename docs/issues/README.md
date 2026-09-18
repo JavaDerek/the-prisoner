@@ -25,3 +25,8 @@ vocabulary so their text could sit in either tree without tripping a vocabulary 
 | P5 | the-prisoner | `prisoner-P5-the-wire.md` |
 | P6 | the-prisoner | `prisoner-P6-the-loop.md` |
 | P7 | the-prisoner | `prisoner-P7-genericity-report.md` |
+
+`SOCIAL-INTENTS.md` is not a landing-order step: it is the written proposal #22 asked for, on
+presence, a principal as a target, and a person's own physical state as ground truth for the open
+variant's human game. Not filed as a numbered step because the owner decides from it whether any
+step gets built at all.
