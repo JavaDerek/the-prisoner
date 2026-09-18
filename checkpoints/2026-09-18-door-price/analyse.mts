@@ -67,7 +67,11 @@ function row(file: string): Row {
   const opened = [...text.matchAll(/- (window|door)_passage: 0 -> 1/g)].map((m) => m[1]);
   return {
     stamp: file.split("/").pop()!.replace(".md", ""),
-    arm: /Door price: THRESHOLD/.test(text) ? "threshold" : "free",
+    // Read the arm from the header's own word rather than testing for one of
+    // them: the first version of this script knew only `threshold` and `free`
+    // and silently labelled every `margin` game "free" (§50.6's arm landed
+    // after it). Anything unrecognised says so instead of guessing.
+    arm: (text.match(/Door price: ([A-Z]+)/)?.[1] ?? "UNKNOWN").toLowerCase(),
     stated: /Door: STATED/.test(text),
     ending: escaped ? "escaped" : caught ? "caught" : "timeout",
     round: Number(escaped?.[1] ?? caught?.[1] ?? timeout?.[1] ?? 0) || null,
@@ -93,7 +97,7 @@ for (const r of rows) {
   );
 }
 
-for (const arm of ["free", "threshold"]) {
+for (const arm of [...new Set(rows.map((r) => r.arm))]) {
   const a = rows.filter((r) => r.arm === arm);
   if (a.length === 0) continue;
   const doorExits = a.filter((r) => r.exit.startsWith("door")).length;

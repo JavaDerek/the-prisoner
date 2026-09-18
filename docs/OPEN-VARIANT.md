@@ -3804,6 +3804,23 @@ What the arm buys is **the first room where both ways out are worth starting** �
 door free, which is not a choice but a dominant answer). Whether she then chooses between them, and on
 what grounds, is the measurement this arm exists for and it has not been run yet.
 
+**The prediction this arm tests, written down before the batch finished** (§46.5's own rule about
+pre-committing, applied to my own explanation this time). §50.5 offers a mechanism for why `threshold`
+killed the door: reaching a gate of 30 means crossing the catch band, and a route is only worth starting
+if some step is openable while still safe. That mechanism predicts she WILL use the door at a gate of 60,
+where the first openable step is safe. The alternative, simpler explanation is that **any** gate at all
+makes the door less attractive than the window she already has a plan for -- which predicts she will
+ignore the door at 60 exactly as she did at 30.
+
+Her own words in the caught game favour the simpler one, and §46.5 says a mind's stated reason is not
+evidence of the operative cause, so neither reading gets to lean on it: *"The lock is at 100, so focusing
+on the door is less urgent"* is an argument about distance, not about danger.
+
+**So: door escapes under `margin` confirm §50.5's mechanism; a second dead arm refutes it**, and what is
+left standing is only the measured fact that pricing the door at all removes it from her plans. The first
+game of the batch went out of the window at round 7 with no intent ruled against the door or the lock,
+which is one game and points the wrong way for me.
+
 ## 51. An instrument that does not exist, and a derive the referee never chose (2026-09-18, the-prisoner#17/#18)
 
 §48's own first human game (`checkpoints/2026-09-18T02-40-27-834Z.md`) escaped in four rounds on a
