@@ -76,13 +76,20 @@ It is the one real run you do NOT detach with `nohup`.
 PRISONER_VARIANT=open PRISONER_HUMAN=prisoner \
   PRISONER_MODEL_URL=http://doris:11434/v1 \
   PRISONER_WITS_MODEL=qwen3:14b PRISONER_VOICE_MODEL=ancient-awakening:12b \
-  PRISONER_REFEREE_MODEL=qwen2.5:14b PRISONER_REFEREE_TIMEOUT_MS=180000 \
+  PRISONER_REFEREE_TIMEOUT_MS=180000 \
   PRISONER_THINK_TIMEOUT_MS=180000 PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
   npm run checkpoint
 ```
 
 Leave it unset for anything measured. A transcript with a person in it says so in its own header and
 must never be pooled with a model batch, because a batch means identical conditions.
+
+**Do not pin `PRISONER_REFEREE_MODEL=qwen2.5:14b` here or anywhere else.** This example used to, long
+after `DEFAULT_REFEREE_MODEL` became `qwen3:14b` (§33.16), and a human game on 2026-09-18
+copied the stale pin and spent five rounds under a referee the project had already replaced for
+exactly the failure it then hit (§62). Leave the referee unset and let `modelRoles.ts` supply the
+default -- that constant carries the evidence for its own value, and an example that overrides it
+silently un-fixes a fixed bug.
 
 `PRISONER_VIEW=raw|prose|narrated` (the-prisoner#21) chooses *how* the seat's own situation is shown,
 never *what*: `raw` (unset, the default) is the labelled-block view the model itself reads,

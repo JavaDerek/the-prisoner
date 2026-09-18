@@ -235,7 +235,9 @@ The attack move (issue #1) waits until these hold.
 
 ## 8. Decisions (made by the owner, 2026-09-14)
 
-1. **Referee model: a separate model, `qwen2.5:14b`, by default** (configurable). Independence from
+1. **Referee model: a separate model, `qwen2.5:14b`, by default** (configurable) -- *superseded: the
+   default became `qwen3:14b` at §33.16, and §62 is why it should never be pinned back.*
+   Independence from
    the wits model means the referee is not ruling on ideas its own weights produced; it does not
    think aloud, so a ruling is fast. The cost is a third model per half-round, handled by the
    existing one-model-at-a-time swapper.
@@ -5072,3 +5074,60 @@ narrator writing for a person, which duly echoed it: "your fingers brushing the 
 cracked surface". Fixed in `narrator.ts` alone, as a prompt-shaping step over data it already holds.
 `mind.ts` feeds the wits and voice prompts, and editing it to suit a narrator would move the
 benchmark every measured run sits on.
+
+## 62. A stale example un-fixed a fixed bug (2026-09-18)
+
+> Did the bar just atrophy of its own accord?
+
+Round 4 of a human game, the player typed **"pull a wire out of the cot"**. Round 5 reported *"Your
+last attempt worked on the bar: its integrity went from 92 to 77."*
+
+Re-asked three times, the ruling is deterministic:
+
+```
+target   = bar         cite: "pull a wire out of the cot"
+effect   = wear        cite: "pull a wire out of the cot"
+property = integrity
+```
+
+The same intent under `qwen3:14b`, first try: `target=cot  effect=derive  product=wire`.
+
+### 62.1 The bug was already found, already fixed, and un-fixed by documentation
+
+`DEFAULT_REFEREE_MODEL` has been `qwen3:14b` since §33.16, whose own comment in `modelRoles.ts`
+records the evidence: *"qwen3:14b rules an attempt to remove a way out's part as `open` (24 of 26
+controls); qwen2.5:14b rules it `wear`, and no rewording fixed that without breaking `leave`."*
+That is the same weakness, in the same model, in the same direction — everything collapses to
+`wear`.
+
+The player was running `qwen2.5:14b` because **this repository's own CLAUDE.md example pinned it**,
+and the pin outlived the default that replaced it. Nothing warns you: an explicit environment
+variable is indistinguishable from an intentional choice, and the reasoned default in
+`modelRoles.ts` loses silently to a copied command line.
+
+The lesson is not about one model. **A worked example that pins a configurable is a second, mute
+copy of a decision, and it does not get updated when the decision does.** The example now leaves the
+referee unset, and CLAUDE.md says why in the imperative, because the next person to write a
+convenient command line will otherwise re-pin it.
+
+### 62.2 What it says about the evidence already collected
+
+Every batch before 2026-09-18 that pinned `qwen2.5:14b` as referee ruled under a model now known to
+collapse two distinct effect classes into `wear`. This is **not** a claim that those findings are
+wrong — the door arm, the precedent price and the staleness measurements are about what minds
+*reach for*, and most of the intents in them are ordinary wear/reveal acts a weak referee rules
+correctly. It is a claim that the referee is a variable those transcripts did not hold fixed against
+what is now known about it, and any result that turned on a `derive` or on removing a part deserves
+re-reading before it is built on.
+
+### 62.3 The citation discipline cannot catch this, and should be able to
+
+`target = bar` was cited with *"pull a wire out of the cot"* — a real quote, from the source it
+names, that **names a different object entirely** and never mentions the bar. It verifies, because
+verification asks whether the quote exists in the cited source, never whether it supports the answer
+it was given for.
+
+That gap is worth closing generically: a citation naming one perceived object cannot back a ruling
+that names a different one. It needs care around parts and wholes — a bar *is* part of the window,
+and §17.2 depends on exactly that relationship being legal — so it is recorded here as a design
+question rather than patched in. **Left open.**
