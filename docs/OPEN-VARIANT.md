@@ -4568,3 +4568,11 @@ and the `Narrator rejections:`/`Narrator silences:` line at the end of the run; 
 transcript's own `### Narrator` section, whether the rejection count across a real game is zero, low,
 or high enough that the owner should read this section's own honesty about `contradicts-state` and
 the "quiet corridor" limit before deciding whether route 2 earns its place over route 1 for real play.
+
+**Calibration, added by the coordinator before trusting the rejector at runtime.** A verifier strict
+enough to reject everything is a verifier that silently turns the narrator off, and nobody would notice
+because the fallback is the prose view either way. So the deterministic prose view's own output — known-good
+narration of exactly these facts, composed from them by code, inventing nothing and dropping nothing — is
+run through `verifyNarration` in the test suite and must come back with **zero** violations, at two
+different rounds with different news and beliefs. It does. If a future check makes that test fail, the
+check is too strict; the prose view is not wrong.

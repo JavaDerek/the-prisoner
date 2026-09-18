@@ -3,6 +3,12 @@ import { buildNarratorFacts, verifyNarration, createNarrator, type NarrationViol
 import type { OpenPrincipalContext } from "../mind.js";
 import type { Condition } from "../conditionList.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
+import { buildOpenWorld } from "../world.js";
+import { buildOpenContext } from "../briefing.js";
+import { openConditions } from "../conditions.js";
+import { renderProseSituation } from "../proseView.js";
+import { seedInitialBeliefs } from "../../ledger/beliefs.js";
+import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 
 /**
  * The-prisoner#21 route 2 (D3): a narrator model, over the SAME structured
@@ -204,5 +210,34 @@ describe("createNarrator -- the model role, verified before it ever reaches a pl
     expect(result).toBeNull();
     expect(onRejected).not.toHaveBeenCalled();
     expect(onSilence).toHaveBeenCalled();
+  });
+});
+
+// Calibration, and the check that matters most before trusting a rejector at
+// runtime: a verifier strict enough to reject everything is a verifier that
+// silently turns this feature off. The deterministic prose view (§53) is
+// known-good narration of exactly these facts -- built from them by code, so
+// it invents nothing and drops nothing -- and it must pass clean. If a future
+// check makes this fail, that check is too strict, not the prose view.
+describe("the verifier, calibrated against known-good narration", () => {
+  it("finds nothing to complain about in the deterministic prose view's own output", () => {
+    createTestDb();
+    try {
+      const world = buildOpenWorld();
+      seedInitialBeliefs(world.base);
+      const conditions = openConditions();
+      for (const round of [1, 3]) {
+        const context = buildOpenContext(world, "prisoner", world.base.clock.prisonerT(round), round, 30, {
+          ...(round > 1 ? { ownOutcome: "Your last attempt worked on the bar: its integrity went from 100 to 85." } : {}),
+          fromOther: round > 1 ? ["Warden Croft examines the lock closely."] : [],
+          ...(round > 1 ? { plan: "work the mortar until the bar gives" } : {}),
+        });
+        const facts = buildNarratorFacts(PRISONER_NAME, WARDEN_NAME, context, conditions);
+        const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, context, conditions);
+        expect(verifyNarration(facts, prose, { selfName: PRISONER_NAME, otherName: WARDEN_NAME })).toEqual([]);
+      }
+    } finally {
+      destroyTestDb();
+    }
   });
 });
