@@ -84,6 +84,13 @@ PRISONER_VARIANT=open PRISONER_HUMAN=prisoner \
 Leave it unset for anything measured. A transcript with a person in it says so in its own header and
 must never be pooled with a model batch, because a batch means identical conditions.
 
+`PRISONER_VIEW=raw|prose` (the-prisoner#21) chooses *how* the seat's own situation is shown, never
+*what*: `raw` (unset, the default) is the labelled-block view the model itself reads, byte-identical
+to its prompt; `prose` is deterministic prose composed by code from the identical context
+(`src/open/proseView.ts`) -- no model call, and pinned by a completeness test so a future edit
+cannot quietly drop a belief's stamp or an object's description while the prose still reads fine.
+Either way, typing `raw` at the intent prompt reprints the raw NPC view on demand and asks again.
+
 ## Never pattern-match meaning
 
 In the closed variant, a move is validated by literal membership (after ASCII uppercasing) in a list
