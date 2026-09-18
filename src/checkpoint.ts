@@ -60,6 +60,9 @@ import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
 import { openConditions, readConditionsMode, readDoorMode } from "./open/conditions.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
+import { readSeatMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
+import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
+import { createInterface } from "node:readline/promises";
 
 const dbPath = process.env.PRISONER_CHECKPOINT_DB ?? `/tmp/the-prisoner-checkpoint-${Date.now()}.db`;
 process.env.DMCP_DB_PATH = dbPath;
@@ -136,6 +139,11 @@ const CONDITIONS = readConditionsMode(process.env.PRISONER_CONDITIONS);
 /** Open variant only: whether her conditions state the cell's other way out
  *  (`src/open/conditions.ts`, OPEN-VARIANT.md §46). Unstated unless asked. */
 const DOOR = readDoorMode(process.env.PRISONER_DOOR);
+/** A PERSON in one of the two chairs (`src/open/humanSeat.ts`, the-prisoner#11):
+ *  `PRISONER_HUMAN=prisoner|warden`. Unset is two models, which every recorded
+ *  batch is -- and a transcript with a person in it says so, so it can never be
+ *  pooled with one. Open variant only: the closed variant offers a move list. */
+const SEAT = readSeatMode(process.env.PRISONER_HUMAN);
 /** Open variant only: how a known approach is priced (`src/open/precedent.ts`,
  *  OPEN-VARIANT.md §42). `flat` unless asked, so earlier batches stay comparable. */
 const PRECEDENT_PRICE = readPrecedentPrice(process.env.PRISONER_PRECEDENT_PRICE);
@@ -710,8 +718,38 @@ async function mainOpen(): Promise<void> {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
     },
   });
-  const wardenMind = WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR }) } : {}) });
-  const prisonerMind = createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR }) }) });
+  // A person in one of the two chairs (the-prisoner#11): the same seam, the same referee,
+  // the same opponent -- only this one mind is a terminal, and it is shown exactly what the
+  // model in that chair would have been shown (`humanSeat.ts`).
+  const rl = SEAT === "off" ? null : createInterface({ input: process.stdin, output: process.stdout });
+  let inputClosed = false;
+  rl?.on("close", () => {
+    inputClosed = true;
+  });
+  const seatMind = (selfName: string, otherName: string, conditions: ReturnType<typeof openConditions> | undefined) =>
+    createHumanSeatMind({
+      selfName,
+      otherName,
+      ask: async (prompt: string) => {
+        if (!rl || inputClosed) return undefined;
+        try {
+          return await rl.question(prompt);
+        } catch {
+          return undefined; // the terminal closed mid-question (ctrl-D)
+        }
+      },
+      // eslint-disable-next-line no-console
+      write: (text: string) => console.log(text),
+      ...(conditions ? { conditions } : {}),
+    });
+
+  const modelWarden = () =>
+    WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR }) } : {}) });
+  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR }) : undefined) : modelWarden();
+  const prisonerMind =
+    SEAT === "prisoner"
+      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR }))
+      : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -732,7 +770,7 @@ async function mainOpen(): Promise<void> {
   transcript.push("## Scenario");
   transcript.push("");
   transcript.push(
-    "One cell. A warden and a prisoner, both model-driven, each proposing a free-text intent through " +
+    `One cell. A warden and a prisoner, ${SEAT === "off" ? "both model-driven" : "one model-driven and one played by a person"}, each proposing a free-text intent through ` +
       `\`mind-seam@${pinnedDependencyVersion("mind-seam")}\`; a separate referee model rules on each intent in closed ` +
       `keys with verbatim citations through \`run-dmcp@${pinnedDependencyVersion("run-dmcp")}\`'s turn reader, and every ` +
       "effect resolves through its resolve protocol (docs/OPEN-VARIANT.md). Warden presence is not modelled in O1 (§9.3)."
@@ -783,6 +821,12 @@ async function mainOpen(): Promise<void> {
       ? "Door: STATED (`PRISONER_DOOR=stated`): her conditions also say the door can be opened with no threshold to meet, which is what the world declares (§46). The catch conditions are numbered 4-7 under this arm."
       : "Door: UNSTATED (the default): only the window is stated as a way she can open. The cell's other exit is named in no condition of her own."
   );
+  transcript.push(
+    SEAT === "off"
+      ? "Seats: both minds are models, as every recorded batch is."
+      : `HUMAN SEAT (\`PRISONER_HUMAN=${SEAT}\`): ${SEAT === "prisoner" ? PRISONER_NAME : WARDEN_NAME} was played by a person at a terminal, shown exactly ` +
+        "what the model in that chair would have been shown (`src/open/humanSeat.ts`). NOT a model-vs-model game: never pool it with one as evidence."
+  );
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
@@ -808,9 +852,17 @@ async function mainOpen(): Promise<void> {
         const passive = WARDEN_MODE === "passive" && half.principal === "warden" ? { reason: "passive warden (§26)" } : undefined;
         transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal])));
         lastSilence[half.principal] = undefined;
+        // With a person in a chair the screen must tell them nothing their briefing would
+        // not: the model run's per-half "possible / impossible" line is the other side's
+        // outcome, which is exactly what the fog exists to withhold. They learn a turn
+        // happened -- the clock is visible anyway -- and nothing more.
         // eslint-disable-next-line no-console
         console.log(
-          `round ${half.roundN} ${half.principal}: ${half.proposal ? (half.ruling?.applicable ? "possible" : "impossible") : "silent"} (${ms.toFixed(0)}ms)`
+          SEAT === "off"
+            ? `round ${half.roundN} ${half.principal}: ${half.proposal ? (half.ruling?.applicable ? "possible" : "impossible") : "silent"} (${ms.toFixed(0)}ms)`
+            : half.principal === SEAT
+              ? ""
+              : `(${half.principal === "warden" ? WARDEN_NAME : PRISONER_NAME} has taken a turn.)`
         );
         halfStart = performance.now();
       },
@@ -874,8 +926,15 @@ async function mainOpen(): Promise<void> {
     }
     throw err;
   } finally {
+    rl?.close();
     await swapper.restoreResidents(residentsAtStart);
   }
+}
+
+assertSeatIsPlayable(SEAT, { isTty: process.stdin.isTTY === true });
+
+if (SEAT !== "off" && VARIANT !== "open") {
+  throw new Error('PRISONER_HUMAN needs PRISONER_VARIANT=open: in the closed variant a mind picks from a move list, so there is nothing for a person to type.');
 }
 
 (VARIANT === "open" ? mainOpen() : main()).catch((err) => {

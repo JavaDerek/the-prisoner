@@ -63,6 +63,27 @@ half-round. Leave it unset (the default) for a run whose transcript IS the point
 meant to be read, a demonstration, or anything going into `docs/OPEN-VARIANT.md` as evidence of what
 a game looked like to a person.
 
+## A person can take one of the two chairs
+
+`PRISONER_HUMAN=prisoner|warden` replaces that principal's model mind with a terminal
+(`src/open/humanSeat.ts`, OPEN-VARIANT.md §47): the player is shown exactly what the model in that
+chair would have been shown, types a free-text intent, and the referee rules it like any other. Open
+variant only, and it **needs a real terminal** -- with stdin piped or redirected the run refuses to
+start, because `readline` would close before the first question and every turn would silently pass.
+It is the one real run you do NOT detach with `nohup`.
+
+```bash
+PRISONER_VARIANT=open PRISONER_HUMAN=prisoner \
+  PRISONER_MODEL_URL=http://doris:11434/v1 \
+  PRISONER_WITS_MODEL=qwen3:14b PRISONER_VOICE_MODEL=ancient-awakening:12b \
+  PRISONER_REFEREE_MODEL=qwen2.5:14b PRISONER_REFEREE_TIMEOUT_MS=180000 \
+  PRISONER_THINK_TIMEOUT_MS=180000 PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
+  npm run checkpoint
+```
+
+Leave it unset for anything measured. A transcript with a person in it says so in its own header and
+must never be pooled with a model batch, because a batch means identical conditions.
+
 ## Never pattern-match meaning
 
 In the closed variant, a move is validated by literal membership (after ASCII uppercasing) in a list

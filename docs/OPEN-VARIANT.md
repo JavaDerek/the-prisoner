@@ -3382,3 +3382,54 @@ that failed:
   a specific complaint, the complaint was removed, and nothing changed.
 - **Score the plan, not the intent** (§45, §46.2): an intent that leaves the obvious route while the
   plan stays on it is a detour, and the distinction is what made §46.2's result readable at all.
+
+## 47. A person in one of the two chairs (2026-09-17, the owner's call)
+
+Nobody had played this game. Every number in this document comes from a model in each chair, and the
+owner asked to play it himself — so `PRISONER_HUMAN=prisoner|warden` seats a person at a terminal,
+against the model in the other chair, ruled by the same referee. It is the-prisoner#11's terminal
+half; the MCP half of that issue is untouched and still the scaffold for run-dmcp#38.
+
+**It is a mind, and that is the whole design.** `src/open/humanSeat.ts` implements `OpenMind`:
+`consider(context)` prints what that principal is told, asks what they try, and returns their own
+words as `intent`. Nothing else in the loop knows. The referee rules a typed intent exactly as it
+rules a model's, the opponent is the same `createOpenMind`, the transcript is the same transcript.
+The seam earns its keep here without a line of new plumbing: a human is not a special case of the
+loop, only a different implementation of one interface.
+
+**The player reads the model's own prompt, byte for byte.** `mind.ts`'s two prompt builders shared an
+opening — condition list, identity, motive, briefing, perceived objects, state-based rules — and that
+opening is now `renderSeatSituation`, exported and used by both the prompts and the seat. A test
+asserts `modelPrompt.startsWith(view)`, so a friendlier human view cannot quietly become a fork of an
+older prompt, and a human game keeps saying something about the game the models play. What stays the
+model's alone is the part about answering in JSON.
+
+**Three questions a turn, and a blank answer is a real answer:** what do you try (blank: do nothing,
+a silent half-round), what do you say aloud (blank: silence), your plan (blank: keep what you had).
+`replanned` is never sent, because §22 counts it as *given* and a person typing a plan has not said
+whether it is a different one — inferring it would be exactly the pattern-matching this variant
+refuses everywhere else.
+
+**The screen stays inside the fog.** A model run prints `round N warden: possible` per half-round;
+that is the other side's outcome, which is the one thing the fog exists to withhold. With a person
+seated, the opponent's half prints `(Warden Croft has taken a turn.)` and nothing more — the clock is
+visible anyway, and everything else arrives through the briefing, which is where it arrives for a
+model too.
+
+**A human transcript says so, in its header**, and says never to pool it with a model batch. The
+scenario line stops claiming both minds are model-driven. Evidence-hygiene, not decoration: the whole
+value of `checkpoints/` is that a batch means identical conditions.
+
+**What the first run cost, and the lesson.** Smoke-tested with keystrokes piped from a file:
+`readline` closes before the first question when stdin is not a terminal, so every turn became "do
+nothing" and the run finished looking like a game the player lost rather than a misconfiguration
+(`checkpoints/2026-09-18T02-28-28-406Z.md` — four silences, no prompts ever printed). The fix is a
+refusal up front (`assertSeatIsPlayable`), with its own test, because **a misconfiguration that
+produces a plausible transcript is worse than a crash.** Retested through a pty, where the prompts
+appear and the game plays: `2026-09-18T02-30-30-022Z.md` and `2026-09-18T02-32-30-959Z.md` — a typed
+"scrape at the cracked mortar" ruled `wear` / `bar.integrity` / moderate / audible, bar 100 → 85, the
+outcome and the plan back in the next briefing. Both are two-round passive-warden runs with scripted
+keystrokes: plumbing evidence, not play.
+
+A human seat is also the one run that must not be detached (`nohup`), which is the opposite of every
+other real run here.

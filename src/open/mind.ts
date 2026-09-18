@@ -196,7 +196,17 @@ function identityLines(selfName: string, otherName: string, context: OpenPrincip
   return [`You are ${selfName}. The other person in the cell is ${otherName}.`, context.identity, `Your motive: ${context.motive}`, "", context.briefing];
 }
 
-function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+/**
+ * Everything a seat is told before it is asked for anything: the condition
+ * list (when the game gives one), who it is and why, its own briefing, what it
+ * can perceive, and the rules that stay state-based. The OPENING of both model
+ * prompts below, and exported because a PERSON in one of the two chairs
+ * (`humanSeat.ts`, the-prisoner#11) must read exactly what the model in that
+ * chair would read -- rendered here once, so a human's view cannot quietly
+ * become a fork of an older prompt. What is deliberately NOT here is the
+ * model's alone: the answer format, the JSON, the candidates.
+ */
+export function renderSeatSituation(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
   return [
     ...conditionPreamble(selfName, conditions),
     ...identityLines(selfName, otherName, context),
@@ -205,6 +215,12 @@ function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenP
     ...objectLines(context),
     "",
     ...stateBasedRules(conditions),
+  ].join("\n");
+}
+
+function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+  return [
+    renderSeatSituation(selfName, otherName, context, conditions),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
@@ -226,13 +242,7 @@ function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenP
 
 function buildOpenSingleCallPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
   return [
-    ...conditionPreamble(selfName, conditions),
-    ...identityLines(selfName, otherName, context),
-    "",
-    "What you can currently reach or perceive:",
-    ...objectLines(context),
-    "",
-    ...stateBasedRules(conditions),
+    renderSeatSituation(selfName, otherName, context, conditions),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
