@@ -3995,6 +3995,41 @@ should be promoted to default from this script alone — per the D3 lesson (§40
 of real games under each arm, scored the way §5.2/§5.3 already score every other batch in this
 document, not a 32-call spot check.
 
+### 51.6 Re-ruled live: the derive wording works, the instrument question does not
+
+Ten trials an arm against the live `qwen2.5:14b` referee, through the real referee code with the exact
+eleven objects the prisoner perceived that night (`checkpoints/2026-09-18-instrument-derive/rerule.mts`,
+log committed beside it):
+
+| intent | arm | ruling |
+|---|---|---|
+| "pull a wire out of the cot" | `baseline` | `wear` **10/10** |
+| "pull a wire out of the cot" | `sharpened` | `derive`, `product=wire` **9/10** (one `wear`) |
+| "pick the lock using the wire" | `off` | applicable **10/10**, `instrument=none` |
+| "pick the lock using the wire" | `checked` | applicable **10/10**, `instrument=none` |
+
+**#18 is answered: the wording moves the ruling.** A perfectly consistent control (10/10 `wear`, the
+exploit reproducing exactly) and a near-total flip under one added sentence built from the world's own
+declared derivable kinds. Note the single `wear` under `sharpened`: the referee runs at temperature 0, so
+a deterministic pipeline would have answered 10/10 either way. It does not, which is a small standing
+noise floor to remember before trusting any single run of anything here (§46.5's lesson, again).
+
+**#17 is not answered, and the arm is what makes that readable.** With the question asked, the referee
+answered `instrument=none` in all ten trials — not `absent`, which was available and true, but "this act
+uses no tool at all", for an intent whose own words are *using the wire*. The mechanism is sound: the
+tests show an `absent` answer blocks the ruling with its reason. **The referee's judgement is the
+bottleneck, not the contract** — which is exactly the distinction the first version of this arm could not
+have drawn, because it only fired when the model broke its own closed-key instruction. A `0/10` from that
+version would have been uninterpretable; this `0/10` says something specific.
+
+**And #18's fix closes the exploit Derek actually walked, where #17's does not.** Under `sharpened`, "pull
+a wire out of the cot" produces a real wire 9 times in 10, so the plan's first step happens and the tool
+cited a turn later exists. The principle stays open — nothing stops a mind skipping the derive and naming a
+tool it never made — but the path through this cell is shut by getting `derive` right, not by asking about
+instruments. **Recommended next, in order:** measure `sharpened` in real games; leave `instrument`
+switched off and, if it is tried again, test the QUESTION's own wording (`none` may simply be too
+available an answer) with a re-run control cell every time.
+
 ## 52. A voice fragment reached the transcript as a full line (the-prisoner#20)
 
 The owner's first human game (§47), round 2, `PRISONER_VOICE_MODEL=ancient-awakening:12b`:
