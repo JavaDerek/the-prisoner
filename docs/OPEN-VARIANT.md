@@ -3845,46 +3845,63 @@ O3 does not start").
 ### 51.2 #17: the instrument, an arm (`PRISONER_INSTRUMENT`, default `off`)
 
 A seventh referee question, asked only when `PRISONER_INSTRUMENT=checked`: which object, among what
-the actor perceives or holds, does the intent use as its tool. The answer keys are exactly `target`'s
-own closed set — the actor's currently perceived objects, plus `none` — so the referee has no LEGAL
-way to answer `wire` when no wire exists. `off` (default) omits the question entirely; the request
-every earlier batch recorded is unchanged, byte for byte (`referee.test.ts`: "off (the default): no
-seventh question is asked at all").
+the actor perceives or holds, does the intent use as its tool. `off` (default) omits the question
+entirely; the request every earlier batch recorded is unchanged, byte for byte (`referee.test.ts`:
+"off (the default): no seventh question is asked at all").
 
-**The mechanism does not ask code to read the intent.** `run-dmcp`'s own turn reader already rejects
-an answer key outside its declared set as `unknown-answer-key`, before it ever looks at that offer's
-citation (`turnReader.ts`'s `runLadder`: membership is checked first, cheapest-first). When the
-referee tries to name an unavailable instrument anyway, that rejection is already sitting in
-`AnsweredQuestion.rejected` — a record the engine wrote about its own mechanical check, not a reading
-of prose. `referee.ts`'s new `missingInstrumentFrom` looks for exactly that record, and re-runs the
-identical literal substring test the engine itself uses (`intentText.includes(quote)`) on the
-rejected offer's own citation, because the engine's check never ran on it (rejected for the key, not
-the citation) — a citation that skipped verification is not evidence, so this function requires it to
-check out before treating an offer as a genuine "named but unavailable" signal. Nothing here compares
-the offered key against a keyword list; it compares it against the SAME closed set the question
-itself declared.
+**First draft, and why it was sent back.** The first build gave this question two answer keys — the
+actor's own perceived/held objects, plus `none` — reasoning that a referee with no LEGAL way to answer
+`wire` would have that attempt rejected by `run-dmcp`'s own `unknown-answer-key` check, and reading
+that rejection record as the "named but unavailable" signal. **The owner caught the flaw before it
+shipped**: that design detects a phantom instrument only when the referee BREAKS its own closed-key
+instruction. A referee that follows instructions perfectly answers `none` for "pick the lock using the
+wire" — no rule was broken, so nothing was rejected, and the exploit proceeds exactly as before. Two
+kinds of model behaviour then look identical from the outside — "no phantom instruments happened" and
+"the mechanism cannot see them" — and `checked` at 0/N could mean either. That is not a result the
+owner can act on.
 
-When `missingInstrument` is set, `computeRuling` marks the ruling **not applicable** — the same
-`applicable: false` path every other ungrounded ruling already falls through, which `perception.ts`
-(unmodified, out of this task's file list) already renders as a positive reason from the target's own
-authored description: *"Your last attempt ... met the lock as it is: A steel lock set in the cell
-door..."* — not the literal "she has no wire" the issue imagined, but the SAME family of positive,
-non-leaking reason every other impossible ruling gets, from code this fix did not need to touch.
+**The fix: give the true answer a LEGAL key.** Three closed keys, not two: each object this principal
+perceives or holds (the act uses that tool); `none` (the act uses no tool at all — kicking a door,
+shouting); and `absent` (the intent names a tool that is not among those objects). A referee obeying
+its instructions perfectly can now answer `absent` for "pick the lock using the wire," cited from the
+intent — `"using the wire"` — exactly the same discipline as every other answer. Nothing is read from
+a rejection any more; `absent` is answered and accepted through the ordinary path, the same as `wear`
+or `derive` or any other key. Whether it names a keyword list in code: it does not — `absent` is one
+more literal in `answerKeys`, structurally identical to `none`, and the referee still decides when to
+use it from the intent's own words, which this code never reads.
 
-**What this arm does NOT do, honestly stated.** It depends on the referee model breaking its own
-closed-key instruction and naming the unavailable object anyway — a real, previously-observed class of
-model behaviour in this document (§18.4's mislabelled sources, §33.16's echoed question labels), never
-guaranteed. A well-behaved model that answers `instrument: none` when the true tool is unavailable
-starves this check of a signal entirely, and the underlying ruling proceeds exactly as before. This is
-why §51.4 asks for the actual distribution, not merely "does #17 close": `checked` at 0/N is a real,
-reportable result about this referee model's behaviour, not a broken arm.
+When `instrument` comes back `absent`, `computeRuling` marks the ruling **not applicable**,
+unconditionally — the same pattern `effectKind !== "none"` already uses to gate applicability on a
+closed key directly, regardless of that key's own citation quality (blocking is always the safe
+direction here, OPEN-VARIANT.md §2 invariant 3). A SEPARATE, citation-gated field,
+`missingInstrument`, is set only when `absent`'s own citation verifies against the actor's intent —
+the trustworthy half, kept for reporting a specific reason; an `absent` cited from the wrong source
+still blocks (fail-safe) but is not reported as one. `perception.ts` (unmodified, out of this task's
+file list) already renders the block as a positive reason from the target's own authored description:
+*"Your last attempt ... met the lock as it is: A steel lock set in the cell door..."* — not the
+literal "she has no wire" the issue imagined, but the same family of positive, non-leaking reason
+every other impossible ruling gets, from code this fix did not need to touch.
+
+**What this arm does NOT do, now honestly true rather than honestly limited.** It no longer depends on
+the referee model breaking its own instructions. It DOES still depend on the referee model correctly
+*judging* that the named tool is unavailable and choosing `absent` over `none` — a genuine reasoning
+step, not a mechanical one, so `checked` at 0/N is still a real, reportable finding about this
+referee's judgement (§51.4), just no longer confoundable with "the mechanism cannot see a phantom
+instrument at all."
 
 **Tests** (`referee.test.ts`, describe block "PRISONER_INSTRUMENT"): `readInstrumentMode` accepts
 `off`/`checked`/unset, throws otherwise; `off` asks the original six questions only; `checked` adds
-the seventh with the actor's own perceived objects as its keys; a planted violation names `wire` when
-only `lock` is perceived — rejected `unknown-answer-key`, `missingInstrument` set, `applicable: false`;
-a real, held instrument (`spoon`) is accepted normally and gates nothing; no instrument offer at all
-falls to safe default `none` and gates nothing.
+the seventh with the actor's own perceived objects, `none`, and `absent` as its keys; a LEGAL `absent`
+answer, cited from the intent, is accepted normally, gives `missingInstrument`, and blocks the ruling;
+an `absent` cited from the wrong source still blocks but is not reported as a trustworthy reason
+(planted violation); a real, held instrument (`spoon`) is accepted normally and gates nothing; an
+explicit `none` answer gates nothing; no instrument offer at all falls to safe default `none` and
+gates nothing.
+
+**`checkpointTranscript.ts` now renders the seventh question too** (`the-prisoner#17`'s remaining
+gap, closed once this task's file list was widened to include it): its row appears only in a
+transcript whose ruling actually asked the question, so a game run under `off` shows no fake
+`instrument: ?` line.
 
 ### 51.3 #18: sharpen derive vs wear, an arm (`PRISONER_DERIVE_WORDING`, default `baseline`)
 
@@ -3944,19 +3961,13 @@ new one elsewhere), is a reason to read the raw per-trial lines the script print
 totals.
 
 **What would confirm #17's arm:** under `off`, `applicable` should be `true` on "pick the lock using
-the wire" in every trial (the exploit, reproduced). Under `checked`, ANY trials with
-`missingInstrument` set and `applicable: false` are the arm working; §51.2 already states honestly
-that 0/N is a real result about this referee model, not proof the arm is broken, and is a reason to
-try the other referee model (`qwen2.5:14b` vs the current default `qwen3:14b`) before concluding
-either way. Neither arm should be promoted to default from this script alone — per the D3 lesson
-(§40.1), that needs a batch of real games under each arm, scored the way §5.2/§5.3 already score
-every other batch in this document, not a 32-call spot check.
-
-### 51.5 What is NOT done here, and why
-
-`checkpointTranscript.ts`'s `QUESTION_IDS` (`["target", "effect", "product", "property", "magnitude",
-"perceptibility"]`) is a fixed list, not read from the request — a real checkpoint run under
-`PRISONER_INSTRUMENT=checked` will rule correctly (the `applicable: false` gate works regardless) but
-will not show the seventh question's row in its own transcript table until that constant gains
-`"instrument"`. That file is outside this task's file list (owned elsewhere tonight); the gap is
-recorded here rather than silently left for the next reader to rediscover.
+the wire" in every trial (the exploit, reproduced). Under `checked`, ANY trials with `instrument:
+absent`, `missingInstrument` set and `applicable: false` are the arm working, cited legally against
+the intent rather than read out of a rejection — §51.2's redesign means this measures the referee's
+own judgement, not the mechanism's blind spot. 0/N under `checked` is still a real finding (this
+referee, on this intent, chose `none` over `absent`) and a reason to try the other referee model
+(`qwen2.5:14b` vs the current default `qwen3:14b`) before concluding the wording needs more work — but
+it is no longer confoundable with "the mechanism cannot see a phantom instrument at all." Neither arm
+should be promoted to default from this script alone — per the D3 lesson (§40.1), that needs a batch
+of real games under each arm, scored the way §5.2/§5.3 already score every other batch in this
+document, not a 32-call spot check.

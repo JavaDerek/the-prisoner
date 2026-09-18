@@ -26,12 +26,16 @@
 // "instrument" (#17): "pick the lock using the wire", against the SAME 11
 //   objects the prisoner actually perceived that round -- no "wire" object
 //   among them, because the derive never landed. `off` reproduces the
-//   exploit (silently escapes the gate); `checked` should make at least
-//   some trials come back `missingInstrument: {name: "wire", ...}` and
-//   `applicable: false`. Because this depends on the model breaking its own
-//   closed-key instruction (see OPEN-VARIANT.md §51's design note), 0/N is
-//   itself a real, reportable result, not a script bug -- rerun with a
-//   larger N or the other model before concluding the arm needs more work.
+//   exploit (silently escapes the gate); `checked` asks a seventh question
+//   whose answer keys are those 11 objects, `none`, and `absent` -- a
+//   referee that follows the closed-key instruction perfectly can legally
+//   answer `absent`, cited from the intent, when the true tool is not among
+//   them. `checked` trials should show some `instrument: absent` with
+//   `missingInstrument` set and `applicable: false`. Unlike the arm's first
+//   draft, this does NOT depend on the model breaking its own instructions
+//   -- `absent` is a normal, legal member of the closed set -- so 0/N here
+//   is a real finding about this referee model's judgement, not a
+//   structural blind spot in the mechanism.
 import { createReferee, type ObjectPerception } from "../../src/open/referee.js";
 import { createRefereeTransport } from "../../src/open/refereeTransport.js";
 import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "../../src/ollamaSwap.js";
@@ -123,15 +127,15 @@ async function runInstrument(swapper: OllamaModelSwapper): Promise<void> {
   console.log(`\n== #17: "${PICK_LOCK}" (no "wire" object exists) -- off vs checked, N=${N} each, model ${MODEL} ==`);
   for (const instrumentMode of ["off", "checked"] as const) {
     let impossible = 0;
-    let missingWire = 0;
+    let ruledAbsent = 0;
     for (let i = 0; i < N; i++) {
       const referee = createReferee([makeTransport(swapper)], { instrumentMode });
       const ruling = await referee.rule(PICK_LOCK, PERCEIVED);
       if (!ruling.applicable) impossible++;
-      if (ruling.missingInstrument) missingWire++;
+      if (ruling.missingInstrument) ruledAbsent++;
       console.log(`  [${instrumentMode}] ${i + 1}/${N}: applicable=${ruling.applicable} instrument=${ruling.instrument} missingInstrument=${JSON.stringify(ruling.missingInstrument)}`);
     }
-    console.log(`  ${instrumentMode} totals: impossible ${impossible}/${N}, missingInstrument detected ${missingWire}/${N}`);
+    console.log(`  ${instrumentMode} totals: impossible ${impossible}/${N}, ruled 'absent' with a trustworthy citation ${ruledAbsent}/${N}`);
   }
 }
 
