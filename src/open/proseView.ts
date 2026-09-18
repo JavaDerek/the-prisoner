@@ -30,6 +30,20 @@ import { seatSituationParts, type OpenPrincipalContext } from "./mind.js";
  * never guesses: it keeps the line verbatim and places it in the reading
  * order the game already gives it, rather than risk quietly summarising a
  * fact away.
+ *
+ * LAYOUT (review round 2, §53): prose-ing the conditions and the objects
+ * into flowing paragraphs made them scan WORSE than the block view they
+ * replaced -- six conditions or eleven objects run together read as a wall,
+ * where a player looking for one item could scan a labelled list. The
+ * fix is layout only, never a content change: the conditions and the
+ * perceived objects are each one item per LINE under a short lead line, the
+ * exact sentences this module already composes, just newline-joined instead
+ * of space-joined. Genuinely prose paragraphs -- identity/motive, the
+ * round-and-news paragraph, notes/plan, beliefs, the closing rules
+ * paragraph -- stay flowing prose, because each is either fixed-length
+ * authored text or a short, bounded list of sentences. `MAX_PROSE_LINE_LENGTH`
+ * and `isExemptFromLineLength` below are the guard against this regressing
+ * again silently.
  */
 
 const BELIEF_LINE = /^(.+): (-?\d+) \(as of round (\d+)\)\.$/;
@@ -128,10 +142,16 @@ function beliefSentence(belief: BeliefFact): string {
   return `Your last word on the ${belief.label} was ${belief.value}, as of round ${belief.asOfRound}.`;
 }
 
+/** One perceived object per line, under a short lead line -- NOT one flowing
+ *  paragraph (the layout-only fix, review round 2): eleven authored
+ *  descriptions run together read as a wall a player cannot scan for "what
+ *  did the spoon say again?" The TEXT of each item is unchanged from the
+ *  prose-paragraph version; only the join between them changed, from a
+ *  space to a newline. */
 function sceneParagraph(objects: OpenPrincipalContext["perceivedObjects"]): string {
   if (objects.length === 0) return "You perceive nothing you could act on right now.";
   const items = objects.map((o) => `The ${spacedLabel(o.id)}: ${o.description}`);
-  return ["In the cell around you:", ...items].join(" ");
+  return ["In the cell around you:", ...items].join("\n");
 }
 
 /**
@@ -150,15 +170,19 @@ function conditionSentence(condition: Condition, index: number, selfName: string
   return `Once ${condition.when.join(", and ")}, ${condition.then} -- condition ${index + 1}, for ${whose}.`;
 }
 
-/** Every number and every attribution a condition carries, in one flowing
- *  paragraph instead of `renderConditionList`'s labelled
- *  `CONDITION N (for X): If ..., then ...` block -- the most prompt-shaped
- *  part of the raw view, and the owner's own complaint (§48, #21) named
- *  exactly this shape. Reuses `CONDITION_LIST_OPENING` (conditionList.ts)
- *  rather than re-authoring it, so the two views open on the same claim. */
+/** Every number and every attribution a condition carries, one sentence per
+ *  line under a short lead line -- NOT run together into one paragraph
+ *  (the layout-only fix, review round 2): six conditions joined by spaces
+ *  read as a single block a player has to re-read end to end to find
+ *  condition 6, which is worse for scanning than the `CONDITION N (for X)`
+ *  block it replaced, even though every word in it is the same prose this
+ *  file already composed. The SENTENCES are unchanged (`conditionSentence`)
+ *  -- only the join between them changed, from a space to a newline.
+ *  Reuses `CONDITION_LIST_OPENING` (conditionList.ts) rather than
+ *  re-authoring it, so the two views open on the same claim. */
 function conditionsParagraph(conditions: readonly Condition[] | undefined, selfName: string): string {
   if (!conditions || conditions.length === 0) return "";
-  return [CONDITION_LIST_OPENING, ...conditions.map((c, i) => conditionSentence(c, i, selfName))].join(" ");
+  return [CONDITION_LIST_OPENING, ...conditions.map((c, i) => conditionSentence(c, i, selfName))].join("\n");
 }
 
 /** The rules that stay state-based (`seatSituationParts(...).ruleLines`,
@@ -170,6 +194,43 @@ function conditionsParagraph(conditions: readonly Condition[] | undefined, selfN
 function rulesParagraph(ruleLines: readonly string[]): string {
   if (ruleLines.length === 0) return "";
   return ["Some things about this cell never change:", ...ruleLines].join(" ");
+}
+
+/** No line of the prose view should exceed this many characters (review
+ *  round 2, §53's "layout only" fix) -- a low-hundreds threshold picked
+ *  against this game's own real content: the longest single condition
+ *  sentence is ~250 characters, the longest single object line ~220, and
+ *  both fixed identity/motive paragraphs sit under 290 -- all comfortably
+ *  under, while the pre-fix merged paragraphs ran to 1200-1800. A line past
+ *  this is the "wall of text" regression the test built against this
+ *  constant exists to catch. */
+export const MAX_PROSE_LINE_LENGTH = 300;
+
+/** The fixed lead sentence of the closing rules paragraph (`rulesParagraph`)
+ *  -- exported so the line-length test can name this ONE paragraph
+ *  explicitly rather than matching it by a wildcard. */
+export const RULES_PARAGRAPH_LEAD = "Some things about this cell never change:";
+
+/** The round-and-news paragraph always opens with this exact clock sentence
+ *  when the briefing carries round information (every real game turn does;
+ *  see `parseBriefing`'s `ROUND_LINE`). Matched by pattern because the
+ *  round and total-round numbers vary, never as a wildcard over line
+ *  length itself. */
+const NEWS_PARAGRAPH_LEAD = /^This is round \d+ of \d+\./;
+
+/**
+ * The two paragraphs allowed to exceed `MAX_PROSE_LINE_LENGTH`, named
+ * explicitly rather than by a wildcard: the closing rules paragraph (a
+ * small, FIXED number of already-long mechanic sentences that do not scale
+ * with game state) and the round-and-news paragraph (which can carry an
+ * unbounded number of news/precedent lines in one game turn). Every other
+ * paragraph -- conditions, the scene, notes/plan, beliefs, identity/motive
+ * -- is either a list of independently short items or fixed authored text,
+ * and a long line from one of THOSE is exactly the regression this guard
+ * exists to catch.
+ */
+export function isExemptFromLineLength(line: string): boolean {
+  return line.startsWith(RULES_PARAGRAPH_LEAD) || NEWS_PARAGRAPH_LEAD.test(line);
 }
 
 /**

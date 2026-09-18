@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { renderProseSituation } from "../proseView.js";
+import { renderProseSituation, MAX_PROSE_LINE_LENGTH, isExemptFromLineLength } from "../proseView.js";
 import { renderSeatSituation, type OpenPrincipalContext } from "../mind.js";
 import { openConditions } from "../conditions.js";
 import type { Condition } from "../conditionList.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
+import { OPEN_OBJECTS } from "../scenarioObjects.js";
 
 /**
  * The-prisoner#21: a human-fiction view of a turn, for the player only, that
@@ -54,6 +55,39 @@ describe("the prose view (the-prisoner#21)", () => {
     // part of the seat's view.
     expect(prose).not.toContain("START LIST OF CONDITIONS");
     expect(prose).not.toMatch(/CONDITION \d+ \(for /);
+  });
+
+  it("lays out the conditions one per line, and the objects one per line -- a player must be able to scan for one without reading the rest (review round 2)", () => {
+    const conditions = openConditions();
+    const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, CONTEXT, conditions);
+
+    // Every condition sentence is its OWN line, immediately after the lead.
+    for (let i = 0; i < conditions.length; i++) {
+      expect(prose).toMatch(new RegExp(`^Once .* -- condition ${i + 1}, for .+\\.$`, "m"));
+    }
+    // Every perceived object is its OWN line, immediately after the lead.
+    for (const o of CONTEXT.perceivedObjects) {
+      expect(prose).toMatch(new RegExp(`^The ${o.id.replace(/_/g, " ")}: `, "m"));
+    }
+  });
+
+  it(`keeps every line of the prose at or under ${MAX_PROSE_LINE_LENGTH} characters, except the closing rules paragraph and the round-and-news paragraph (named explicitly, not by a wildcard) -- a wall of text is the regression this pins`, () => {
+    // The full, real object list (not the 3-object test fixture) and the
+    // real condition list -- the scale at which the pre-fix version actually
+    // failed (a 1200+ character condition line, a 1700+ character object
+    // line), so this test would have caught it.
+    const realContext: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: OPEN_OBJECTS.map((o) => ({ id: o.id, description: o.description })) };
+    const conditions = openConditions();
+    const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, realContext, conditions);
+
+    const lines = prose.split("\n").filter((line) => line.length > 0);
+    // Sanity: this fixture actually exercises both list paragraphs.
+    expect(lines.length).toBeGreaterThan(conditions.length + OPEN_OBJECTS.length);
+
+    for (const line of lines) {
+      if (isExemptFromLineLength(line)) continue;
+      expect(line.length).toBeLessThanOrEqual(MAX_PROSE_LINE_LENGTH);
+    }
   });
 
   it("never calls a model -- it is a pure function of the same context the raw view renders", () => {
