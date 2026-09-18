@@ -60,7 +60,7 @@ import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
 import { openConditions, readConditionsMode, readDoorMode } from "./open/conditions.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
-import { readSeatMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
+import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
 
@@ -147,6 +147,13 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
  *  batch is -- and a transcript with a person in it says so, so it can never be
  *  pooled with one. Open variant only: the closed variant offers a move list. */
 const SEAT = readSeatMode(process.env.PRISONER_HUMAN);
+/** the-prisoner#21: how the human seat's own situation is shown, never what
+ *  it is shown (`src/open/humanSeat.ts`, `src/open/proseView.ts`).
+ *  `PRISONER_VIEW=raw` (unset, the default) is byte-identical to every
+ *  batch before this issue; `prose` is deterministic prose composed by code
+ *  from the identical data. No-op with no seat: read regardless so a
+ *  misconfigured value is caught even in a model-vs-model run. */
+const VIEW = readViewMode(process.env.PRISONER_VIEW);
 /** Open variant only: how a known approach is priced (`src/open/precedent.ts`,
  *  OPEN-VARIANT.md §42). `flat` unless asked, so earlier batches stay comparable. */
 const PRECEDENT_PRICE = readPrecedentPrice(process.env.PRISONER_PRECEDENT_PRICE);
@@ -744,6 +751,7 @@ async function mainOpen(): Promise<void> {
       // eslint-disable-next-line no-console
       write: (text: string) => console.log(text),
       ...(conditions ? { conditions } : {}),
+      view: VIEW,
     });
 
   const modelWarden = () =>
@@ -835,6 +843,13 @@ async function mainOpen(): Promise<void> {
       : `HUMAN SEAT (\`PRISONER_HUMAN=${SEAT}\`): ${SEAT === "prisoner" ? PRISONER_NAME : WARDEN_NAME} was played by a person at a terminal, shown exactly ` +
         "what the model in that chair would have been shown (`src/open/humanSeat.ts`). NOT a model-vs-model game: never pool it with one as evidence."
   );
+  if (SEAT !== "off") {
+    transcript.push(
+      VIEW === "prose"
+        ? "View: PROSE (`PRISONER_VIEW=prose`): the human seat's own situation was shown as deterministic prose composed by code (`src/open/proseView.ts`, the-prisoner#21), never a different information set than the raw view below -- the player could type \"raw\" at any intent prompt to see it on demand."
+        : "View: RAW (the default): the human seat's own situation was shown exactly as the model's own prompt opens, unchanged since before the-prisoner#21."
+    );
+  }
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
