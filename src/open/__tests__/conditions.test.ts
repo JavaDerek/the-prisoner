@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { openConditions, readConditionsMode, readDoorMode } from "../conditions.js";
-import { buildOpenWorld } from "../world.js";
+import { buildOpenWorld, OPEN_DOOR_LOCK_MAX } from "../world.js";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { createOpenMind, type OpenPrincipalContext } from "../mind.js";
 import { CONDITION_LIST_OPENING } from "../conditionList.js";
@@ -122,6 +122,33 @@ describe("the door condition (§46): the cell's other way out, stated", () => {
     } finally {
       destroyTestDb();
     }
+  });
+
+  // OPEN-VARIANT.md §50 (issue #19): under `PRISONER_DOOR_PRICE=threshold` the
+  // condition must instead name the threshold the world enforces, exactly as
+  // condition 1 names the bar's -- never keep claiming "no threshold to meet".
+  it("under doorPrice threshold, names the lock's own threshold, the way condition 1 names the bar's", () => {
+    const conditions = openConditions({ door: "stated", doorPrice: "threshold" });
+    expect(conditions.length).toBe(7);
+    expect(conditions[1]).toEqual({
+      when: [`the lock's integrity is at or below ${OPEN_DOOR_LOCK_MAX}`],
+      then: "Mara Voss can open the door",
+      for: "Mara Voss",
+    });
+  });
+
+  it("says nothing the world does not do, under threshold too: the door's exit declares exactly this gate", () => {
+    createTestDb();
+    try {
+      expect(buildOpenWorld({ doorPrice: "threshold" }).exits.door.openWhenPartAtMost).toBe(OPEN_DOOR_LOCK_MAX);
+    } finally {
+      destroyTestDb();
+    }
+  });
+
+  it("doorPrice defaults to free: the door condition keeps saying there is none", () => {
+    expect(openConditions({ door: "stated" })).toEqual(openConditions({ door: "stated", doorPrice: "free" }));
+    expect(openConditions({ door: "stated" })[1].then).toBe("Mara Voss can open it, with no threshold to meet first");
   });
 });
 

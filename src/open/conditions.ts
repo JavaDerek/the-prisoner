@@ -1,6 +1,6 @@
 import { SEARCH_SUSPICION_THRESHOLD, SEARCH_CATCH_LOCK_MAX, SEARCH_CATCH_SPOON_MIN } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
-import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX } from "./world.js";
+import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX, OPEN_DOOR_LOCK_MAX, type DoorPriceMode } from "./world.js";
 import type { Condition } from "./conditionList.js";
 
 /**
@@ -20,19 +20,26 @@ export type DoorMode = "unstated" | "stated";
  *  threshold, where the window's is 50. Its own test asserts that against the
  *  world, so the condition cannot outlive the fact.
  *
- *  `unstated` is the default and is byte-identical to every batch before it. */
-export function openConditions(options: { door?: DoorMode } = {}): Condition[] {
+ *  `unstated` is the default and is byte-identical to every batch before it.
+ *
+ *  `doorPrice` (§50, issue #19) decides what the STATED clause claims, so it
+ *  can never say more or less than `world.ts` enforces: `threshold` names the
+ *  lock's own gate the way the window's own condition names the bar's;
+ *  `free` (the default) keeps saying there is none. */
+export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPriceMode } = {}): Condition[] {
   const grounds = `warden suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}`;
   const catches = `${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends`;
   const examines = (what: string) => `${WARDEN_NAME} closely examines ${what}`;
   const finds = (what: string) => `${WARDEN_NAME} finds ${what}`;
+  const doorCondition: Condition =
+    options.doorPrice === "threshold"
+      ? { when: [`the lock's integrity is at or below ${OPEN_DOOR_LOCK_MAX}`], then: `${PRISONER_NAME} can open the door`, for: PRISONER_NAME }
+      : { when: ["the door is shut"], then: `${PRISONER_NAME} can open it, with no threshold to meet first`, for: PRISONER_NAME };
   return [
     { when: [`the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}`], then: `${PRISONER_NAME} can open the window`, for: PRISONER_NAME },
     // Kept beside the window so everything the reader can do stays together at
     // the top of the list; under this arm the catch conditions are 4-7.
-    ...(options.door === "stated"
-      ? [{ when: ["the door is shut"], then: `${PRISONER_NAME} can open it, with no threshold to meet first`, for: PRISONER_NAME }]
-      : []),
+    ...(options.door === "stated" ? [doorCondition] : []),
     { when: ["a way out stands open"], then: `${PRISONER_NAME} can leave the cell through it, and she has escaped`, for: PRISONER_NAME },
     { when: [grounds, examines("the bar"), finds(`its integrity at or below ${OPEN_CATCH_BAR_MAX}`)], then: catches, for: WARDEN_NAME },
     { when: [grounds, examines("the lock"), finds(`its integrity at or below ${SEARCH_CATCH_LOCK_MAX}`)], then: catches, for: WARDEN_NAME },

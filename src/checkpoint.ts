@@ -46,7 +46,7 @@ import {
 } from "./loop.js";
 import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
 import { getVariant } from "./variant.js";
-import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf } from "./open/world.js";
+import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, OPEN_DOOR_LOCK_MAX } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { createReferee } from "./open/referee.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
@@ -139,6 +139,9 @@ const CONDITIONS = readConditionsMode(process.env.PRISONER_CONDITIONS);
 /** Open variant only: whether her conditions state the cell's other way out
  *  (`src/open/conditions.ts`, OPEN-VARIANT.md §46). Unstated unless asked. */
 const DOOR = readDoorMode(process.env.PRISONER_DOOR);
+/** Open variant only: whether the door's passage is gated on the lock
+ *  (`src/open/world.ts`, OPEN-VARIANT.md §50, issue #19). Free unless asked. */
+const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
 /** A PERSON in one of the two chairs (`src/open/humanSeat.ts`, the-prisoner#11):
  *  `PRISONER_HUMAN=prisoner|warden`. Unset is two models, which every recorded
  *  batch is -- and a transcript with a person in it says so, so it can never be
@@ -695,7 +698,7 @@ async function main(): Promise<void> {
  * `npm run referee-replay` reads for §5.2's consistency measurement.
  */
 async function mainOpen(): Promise<void> {
-  const openWorld = buildOpenWorld();
+  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE });
   const resolver = buildOpenResolver();
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })],
@@ -744,12 +747,12 @@ async function mainOpen(): Promise<void> {
     });
 
   const modelWarden = () =>
-    WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR }) } : {}) });
-  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR }) : undefined) : modelWarden();
+    WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE }) } : {}) });
+  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE }) : undefined) : modelWarden();
   const prisonerMind =
     SEAT === "prisoner"
-      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR }))
-      : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR }) }) });
+      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE }))
+      : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -820,6 +823,11 @@ async function mainOpen(): Promise<void> {
     DOOR === "stated"
       ? "Door: STATED (`PRISONER_DOOR=stated`): her conditions also say the door can be opened with no threshold to meet, which is what the world declares (§46). The catch conditions are numbered 4-7 under this arm."
       : "Door: UNSTATED (the default): only the window is stated as a way she can open. The cell's other exit is named in no condition of her own."
+  );
+  transcript.push(
+    DOOR_PRICE === "threshold"
+      ? `Door price: THRESHOLD (\`PRISONER_DOOR_PRICE=threshold\`): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MAX}, exactly like the window on the bar (§50, issue #19).`
+      : "Door price: FREE (the default): the door's passage has no threshold to meet, today's behaviour, unchanged."
   );
   transcript.push(
     SEAT === "off"

@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { getResource } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
-import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys } from "../world.js";
+import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys, readDoorPrice, OPEN_DOOR_LOCK_MAX } from "../world.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 
 describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant built stays)", () => {
@@ -62,5 +62,41 @@ describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant bui
     // resource write through the ordinary path is enough to prove the
     // entity exists and is distinct from the cell.
     expect(world.entityIdFor.key_ring).not.toBe(world.base.cellId);
+  });
+
+  // OPEN-VARIANT.md §50 (issue #19): the door route cost nothing while the
+  // window needed the bar worn to 50. `doorPrice: "threshold"` gates the
+  // door on the lock exactly as the window is already gated on the bar;
+  // `free` (the default, and what every batch before this arm played by)
+  // leaves `openWhenPartAtMost: null`, unchanged.
+  it("doorPrice defaults to free: the door keeps no threshold", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    expect(world.exits.door.openWhenPartAtMost).toBeNull();
+  });
+
+  it("doorPrice: threshold gates the door on the lock at OPEN_DOOR_LOCK_MAX, mirroring the window's own gate on the bar", () => {
+    createTestDb();
+    const world = buildOpenWorld({ doorPrice: "threshold" });
+    expect(world.exits.door.openWhenPartAtMost).toBe(OPEN_DOOR_LOCK_MAX);
+    // The window is untouched by this arm.
+    expect(world.exits.window.openWhenPartAtMost).toBe(50);
+  });
+});
+
+describe("readDoorPrice: PRISONER_DOOR_PRICE (§50)", () => {
+  it("leaves the door free unless asked", () => {
+    expect(readDoorPrice(undefined)).toBe("free");
+    expect(readDoorPrice("")).toBe("free");
+    expect(readDoorPrice("free")).toBe("free");
+  });
+
+  it("prices it when asked for", () => {
+    expect(readDoorPrice("threshold")).toBe("threshold");
+  });
+
+  it("stops the run rather than guessing", () => {
+    expect(() => readDoorPrice("expensive")).toThrow(/PRISONER_DOOR_PRICE/);
+    expect(() => readDoorPrice("expensive")).toThrow(/"free"/);
   });
 });
