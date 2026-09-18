@@ -1,5 +1,5 @@
-import { renderConditionList, type Condition } from "./conditionList.js";
-import { renderSeatSituation, type OpenPrincipalContext } from "./mind.js";
+import { CONDITION_LIST_OPENING, type Condition } from "./conditionList.js";
+import { seatSituationParts, type OpenPrincipalContext } from "./mind.js";
 
 /**
  * The-prisoner#21: a human-fiction view of a turn, for the PLAYER only, that
@@ -15,7 +15,9 @@ import { renderSeatSituation, type OpenPrincipalContext } from "./mind.js";
  * that function, and never changes what `OpenPrincipalContext` carries.
  * It only re-presents the SAME `context` (identity, motive, briefing,
  * perceivedObjects) and the SAME `conditions`, in paragraphs instead of
- * labelled blocks.
+ * labelled blocks -- composed from `seatSituationParts` (mind.ts), the same
+ * pieces `renderSeatSituation` itself joins, so this module reads DATA,
+ * never another renderer's finished string.
  *
  * THE HARD CONSTRAINT this file exists under: a re-presentation, never a
  * different information set. Every belief line's number and its "as of
@@ -132,32 +134,42 @@ function sceneParagraph(objects: OpenPrincipalContext["perceivedObjects"]): stri
   return ["In the cell around you:", ...items].join(" ");
 }
 
-const OBJECTS_HEADER = "What you can currently reach or perceive:";
-
 /**
- * Lifts the trailing "rules that stay state-based" sentences straight out
- * of `renderSeatSituation`'s own raw text, rather than re-deriving them a
- * second time from the mechanics constants it reads (`mind.ts`'s
- * `stateBasedRules`, private to that module and not one of the files this
- * issue may touch). Located by that function's own literal header line,
- * then by skipping exactly one line per perceived object (or its one
- * "nothing to act on" fallback line) plus the blank line after it -- both
- * of which `renderSeatSituation`'s own byte-for-byte test already pins, so
- * this cannot silently desync from what the model reads without that test
- * failing too.
- *
- * Returns `[]` if the header is ever not found, rather than guessing --
- * that costs only this closing reference paragraph, never a belief, an
- * object, the clock, the conditions, or the news, which this module reads
- * directly from `context` and never through this extraction.
+ * One condition as a sentence, keeping every threshold number in `when` and
+ * the `then` clause verbatim (both are the caller's own authored content --
+ * `conditions.ts` -- and this module never touches their words, only their
+ * shape), plus a trailing citation of its number and WHOSE it is. The
+ * `(for you)` / `(for Warden Croft)` distinction is load-bearing (§44: she
+ * cites conditions by number and reasons about whose they are), so it is
+ * kept as literally as `renderConditionList` (conditionList.ts) keeps it --
+ * "you" only when this is the reader's own condition, the other party's
+ * name otherwise -- never dropped for the sake of a smoother sentence.
  */
-function stateRuleLines(rawSituation: string, perceivedCount: number): readonly string[] {
-  const lines = rawSituation.split("\n");
-  const headerIndex = lines.indexOf(OBJECTS_HEADER);
-  if (headerIndex === -1) return [];
-  const objectLineCount = perceivedCount > 0 ? perceivedCount : 1;
-  const rulesStart = headerIndex + 1 + objectLineCount + 1;
-  return lines.slice(rulesStart).filter((line) => line.length > 0);
+function conditionSentence(condition: Condition, index: number, selfName: string): string {
+  const whose = condition.for === selfName ? "you" : condition.for;
+  return `Once ${condition.when.join(", and ")}, ${condition.then} -- condition ${index + 1}, for ${whose}.`;
+}
+
+/** Every number and every attribution a condition carries, in one flowing
+ *  paragraph instead of `renderConditionList`'s labelled
+ *  `CONDITION N (for X): If ..., then ...` block -- the most prompt-shaped
+ *  part of the raw view, and the owner's own complaint (§48, #21) named
+ *  exactly this shape. Reuses `CONDITION_LIST_OPENING` (conditionList.ts)
+ *  rather than re-authoring it, so the two views open on the same claim. */
+function conditionsParagraph(conditions: readonly Condition[] | undefined, selfName: string): string {
+  if (!conditions || conditions.length === 0) return "";
+  return [CONDITION_LIST_OPENING, ...conditions.map((c, i) => conditionSentence(c, i, selfName))].join(" ");
+}
+
+/** The rules that stay state-based (`seatSituationParts(...).ruleLines`,
+ *  mind.ts), already complete sentences -- joined into one paragraph rather
+ *  than kept as the raw view's own line-per-rule block, since prose is fine
+ *  here too as long as every number in them survives, which they do
+ *  unmodified: this module only changes how the sentences are JOINED, never
+ *  their words. */
+function rulesParagraph(ruleLines: readonly string[]): string {
+  if (ruleLines.length === 0) return "";
+  return ["Some things about this cell never change:", ...ruleLines].join(" ");
 }
 
 /**
@@ -170,9 +182,7 @@ export function renderProseSituation(selfName: string, otherName: string, contex
   const parsed = parseBriefing(context.briefing);
   const paragraphs: string[] = [];
 
-  if (conditions && conditions.length > 0) {
-    paragraphs.push(renderConditionList(conditions, { reader: selfName }).join("\n"));
-  }
+  paragraphs.push(conditionsParagraph(conditions, selfName));
 
   paragraphs.push(`${context.identity} ${context.motive}`.trim());
 
@@ -201,8 +211,8 @@ export function renderProseSituation(selfName: string, otherName: string, contex
   for (const belief of parsed.beliefs) knowledge.push(beliefSentence(belief));
   if (knowledge.length > 0) paragraphs.push(knowledge.join(" "));
 
-  const rules = stateRuleLines(renderSeatSituation(selfName, otherName, context, conditions), context.perceivedObjects.length);
-  if (rules.length > 0) paragraphs.push(["The rules that never change, stated plainly:", ...rules].join("\n"));
+  const parts = seatSituationParts(selfName, otherName, context, conditions);
+  paragraphs.push(rulesParagraph(parts.ruleLines));
 
   return paragraphs.filter((p) => p.length > 0).join("\n\n");
 }

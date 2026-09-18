@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { renderProseSituation } from "../proseView.js";
 import { renderSeatSituation, type OpenPrincipalContext } from "../mind.js";
 import { openConditions } from "../conditions.js";
+import type { Condition } from "../conditionList.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 
 /**
@@ -48,6 +49,11 @@ describe("the prose view (the-prisoner#21)", () => {
     // The raw view's own object-list line shape (`- <id>: <description>`) must not survive verbatim.
     expect(prose).not.toMatch(/^- door:/m);
     expect(prose).not.toMatch(/^- lock:/m);
+    // The raw view's own condition-list scaffolding must not survive either
+    // -- the owner's complaint (§48) named this as the most prompt-shaped
+    // part of the seat's view.
+    expect(prose).not.toContain("START LIST OF CONDITIONS");
+    expect(prose).not.toMatch(/CONDITION \d+ \(for /);
   });
 
   it("never calls a model -- it is a pure function of the same context the raw view renders", () => {
@@ -83,8 +89,11 @@ describe("the prose view (the-prisoner#21)", () => {
     expect(prose).toContain("It stands open now.");
 
     // The condition list, the clock, the news, and identity/motive are all
-    // part of what the raw view tells the player too.
-    expect(prose).toContain("CONDITION 1");
+    // part of what the raw view tells the player too. (Every threshold
+    // number and every attribution the conditions carry is pinned more
+    // rigorously by the dedicated test below.)
+    expect(prose).toContain("the bar's integrity is at or below 50");
+    expect(prose).toMatch(/for you/);
     expect(prose).toContain("round 4");
     expect(prose).toContain("30");
     expect(prose).toContain("Warden Croft examines the bar closely.");
@@ -94,6 +103,58 @@ describe("the prose view (the-prisoner#21)", () => {
     expect(prose).toContain("work the lock loose, then try the door");
     expect(prose).toContain("Mara Voss");
     expect(prose).toContain("Get out of this cell");
+  });
+
+  it("proses the conditions into sentences, but keeps every threshold number and every attribution -- (for you)/(for Warden Croft) is load-bearing (§44: she cites conditions by number and reasons about whose they are)", () => {
+    // A custom, distinct-numbers condition list (never `openConditions()`'s
+    // own numbers, which happen to reuse 40 for both a threshold and a
+    // belief stamp elsewhere in this fixture) -- so this test could not pass
+    // by coincidence.
+    const conditions: Condition[] = [
+      { when: ["the rope's fray is at or above 77"], then: "Mara Voss can climb the rope", for: PRISONER_NAME },
+      {
+        when: ["warden suspicion is at or above 63", "Warden Croft searches the mattress"],
+        then: "Warden Croft catches Mara Voss and the game ends",
+        for: WARDEN_NAME,
+      },
+    ];
+    const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, CONTEXT, conditions);
+
+    // Every threshold number in every clause.
+    expect(prose).toContain("77");
+    expect(prose).toContain("63");
+    // Every clause of a multi-clause condition, not just the first.
+    expect(prose).toContain("warden suspicion is at or above 63");
+    expect(prose).toContain("Warden Croft searches the mattress");
+    // Every outcome, verbatim.
+    expect(prose).toContain("Mara Voss can climb the rope");
+    expect(prose).toContain("Warden Croft catches Mara Voss and the game ends");
+    // Attribution survives in both directions: "you" for the reader's own
+    // condition, the other party's name for the other's.
+    expect(prose).toMatch(/for you/);
+    expect(prose).toContain(`for ${WARDEN_NAME}`);
+    // Numbered, so a player can still cite one by number as she does in §44.
+    expect(prose).toMatch(/condition 1\b/);
+    expect(prose).toMatch(/condition 2\b/);
+    // Never the raw view's own labelled block.
+    expect(prose).not.toContain("START LIST OF CONDITIONS");
+    expect(prose).not.toMatch(/CONDITION \d+ \(for /);
+  });
+
+  it("keeps a briefing line that matches none of this module's known templates verbatim, in place, rather than dropping it silently", () => {
+    // A future edit to `buildOpenBriefing` could add a line shape this
+    // module has never seen. The `other` bucket is the safety net: anything
+    // unrecognised is kept, not summarised or discarded.
+    const context: OpenPrincipalContext = {
+      ...CONTEXT,
+      briefing: [
+        "Round 4 of 30.",
+        "A brand-new kind of briefing line this module has never been taught to recognise.",
+        "At the end of round 30 you are transferred to a maximum-security block, and this chance is gone.",
+      ].join("\n"),
+    };
+    const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, context, undefined);
+    expect(prose).toContain("A brand-new kind of briefing line this module has never been taught to recognise.");
   });
 
   it("does not invent anything: every sentence traces to identity, motive, briefing or a perceived object's own description", () => {

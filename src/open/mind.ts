@@ -186,14 +186,41 @@ function objectLines(context: OpenPrincipalContext): string[] {
   return context.perceivedObjects.map((o) => `- ${o.id}: ${o.description}`);
 }
 
-/** OPEN-VARIANT.md §34: the condition list opens the prompt, read from this mind's own side. */
-function conditionPreamble(selfName: string, conditions?: readonly Condition[]): string[] {
-  const lines = conditions ? renderConditionList(conditions, { reader: selfName }) : [];
-  return lines.length > 0 ? [...lines, ""] : [];
-}
-
 function identityLines(selfName: string, otherName: string, context: OpenPrincipalContext): string[] {
   return [`You are ${selfName}. The other person in the cell is ${otherName}.`, context.identity, `Your motive: ${context.motive}`, "", context.briefing];
+}
+
+/** The raw pieces `renderSeatSituation` joins into the model's own prompt
+ *  opening, exported as DATA (the-prisoner#21) so another renderer of the
+ *  SAME situation -- `proseView.ts`'s human-fiction view -- can compose from
+ *  them directly instead of parsing `renderSeatSituation`'s own rendered
+ *  string. Nothing here changes what `renderSeatSituation` outputs: it now
+ *  builds its lines from exactly these four arrays, so the two can never
+ *  drift apart, and the existing byte-for-byte test against the model's own
+ *  prompt (`humanSeat.test.ts`) is the guard that a change to either one
+ *  would trip. */
+export interface SeatSituationParts {
+  /** The condition-list lines (OPEN-VARIANT.md §34), read from THIS mind's
+   *  own side -- `[]` when the game gives this chair no conditions. */
+  readonly conditionLines: readonly string[];
+  /** Who this principal is, the other principal's name, its motive, and its
+   *  own briefing (belief, news, notes, plan) -- everything about THIS turn. */
+  readonly identityLines: readonly string[];
+  /** One line per perceived object (or the one "nothing to act on" fallback),
+   *  the SAME array the referee is handed as `perceivedObjects`. */
+  readonly objectLines: readonly string[];
+  /** The rules that stay state-based regardless of conditions (§9), restated
+   *  from the closed variant's own mechanics constants. */
+  readonly ruleLines: readonly string[];
+}
+
+export function seatSituationParts(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): SeatSituationParts {
+  return {
+    conditionLines: conditions ? renderConditionList(conditions, { reader: selfName }) : [],
+    identityLines: identityLines(selfName, otherName, context),
+    objectLines: objectLines(context),
+    ruleLines: stateBasedRules(conditions),
+  };
 }
 
 /**
@@ -207,14 +234,15 @@ function identityLines(selfName: string, otherName: string, context: OpenPrincip
  * model's alone: the answer format, the JSON, the candidates.
  */
 export function renderSeatSituation(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+  const parts = seatSituationParts(selfName, otherName, context, conditions);
   return [
-    ...conditionPreamble(selfName, conditions),
-    ...identityLines(selfName, otherName, context),
+    ...(parts.conditionLines.length > 0 ? [...parts.conditionLines, ""] : []),
+    ...parts.identityLines,
     "",
     "What you can currently reach or perceive:",
-    ...objectLines(context),
+    ...parts.objectLines,
     "",
-    ...stateBasedRules(conditions),
+    ...parts.ruleLines,
   ].join("\n");
 }
 
