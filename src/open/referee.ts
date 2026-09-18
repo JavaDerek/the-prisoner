@@ -70,28 +70,33 @@ export interface RefereeRuling {
    *  the new thing is, or `none`. Read only when the effect is `derive`. */
   product: string;
   /** OPEN-VARIANT.md §51's seventh question (the-prisoner#17), asked only
-   *  under the `PRISONER_INSTRUMENT=checked` arm: the object, among what the
-   *  actor perceives or holds, that the intent names as its tool -- or
-   *  `"none"` when the question was not asked (the arm is off), was not
-   *  answered, or the intent uses no tool. Never gates applicability by
-   *  itself; see `missingInstrument`. Optional (rather than required and
-   *  always `"none"`) so a `RefereeRuling` hand-built before this arm
-   *  existed (`loop.test.ts`, `transcript.test.ts` -- other agents' files
-   *  tonight) keeps typechecking without being touched; `computeRuling`
-   *  always sets it. */
+   *  under the `PRISONER_INSTRUMENT=checked` arm: THREE closed keys -- an
+   *  object among what the actor perceives or holds (the act uses that
+   *  tool), `"none"` (the act uses no tool at all), or `"absent"` (the
+   *  intent names a tool that is none of those objects). `"none"` is also
+   *  what this reads as when the question was not asked (the arm is off) or
+   *  went unanswered. Gates applicability only via the `"absent"` case --
+   *  see `missingInstrument`, which is the trustworthy half of it. Optional
+   *  (rather than required and always `"none"`) so a `RefereeRuling`
+   *  hand-built before this arm existed (`loop.test.ts`, `transcript.test.ts`
+   *  -- other agents' files tonight) keeps typechecking without being
+   *  touched; `computeRuling` always sets it. */
   instrument?: string;
-  /** Set when the referee tried to name an instrument outside the closed
-   *  set handed to it -- an object this principal does not currently
-   *  perceive or hold -- with a citation that is a genuine verbatim quote of
-   *  the intent (checked here the same literal way `run-dmcp`'s own reader
-   *  checks any citation, since the engine's own check never ran: an
-   *  unknown answer key is rejected before its citation is examined).
-   *  `null`/absent when the arm is off, no such offer was made, or its
-   *  citation did not check out. When set, the ruling is NOT applicable
-   *  (OPEN-VARIANT.md §51, the-prisoner#17: "an intent citing a tool the
-   *  principal does not have becomes impossible"). Optional for the same
-   *  reason `instrument` is. */
-  missingInstrument?: { name: string; citation: RangedCitation } | null;
+  /** Set when `instrument` is the legal key `"absent"` AND its citation
+   *  verified against the actor's own intent -- the referee's own closed-key
+   *  judgment that the intent names a tool it does not have, cited verbatim
+   *  exactly like every other answer (never a rejected, out-of-vocabulary
+   *  offer: `"absent"` is a normal member of the question's `answerKeys`, so
+   *  a referee that follows its instructions perfectly can still report
+   *  this). `null`/absent when the arm is off, the answer is not
+   *  `"absent"`, or its citation did not verify. Applicability is gated
+   *  directly on `instrument === "absent"` (OPEN-VARIANT.md §51,
+   *  the-prisoner#17), the same way `effectKind === "none"` already gates
+   *  it unconditionally -- a badly-cited `"absent"` still blocks (fail-safe:
+   *  blocking is always the safe direction here), but only a verified one is
+   *  trustworthy enough to report as a specific reason, which is what this
+   *  field is for. Optional for the same reason `instrument` is. */
+  missingInstrument?: { citation: RangedCitation } | null;
   /** Whether this ruling passed every citation and "declared in the
    *  scenario" check (this module's own check; `planEffect`, `effects.ts`,
    *  does the scenario-declaration half) -- when `false`, the intent does
@@ -320,12 +325,14 @@ function buildQuestions(
     },
     // OPEN-VARIANT.md §51, the-prisoner#17: asked only under the
     // `PRISONER_INSTRUMENT=checked` arm, so the request every earlier batch
-    // recorded is unchanged when it is off. The answer keys are exactly
-    // `targetKeys` -- the same closed set of objects this principal
-    // currently perceives or holds, plus `none` -- so the referee has no
-    // legal way to name a tool that is not there; if it names one anyway,
-    // `run-dmcp`'s own reader records that as an `unknown-answer-key`
-    // rejection (`computeRuling`, below reads that record, never the prose).
+    // recorded is unchanged when it is off. THREE closed keys, all legal:
+    // `targetKeys` (this principal's own currently perceived/held objects,
+    // plus `none`) for a real tool or no tool at all, and `absent` for the
+    // one case those cannot express -- the intent names a tool that is none
+    // of those objects. `absent` is answered and cited exactly like every
+    // other key (never a rejected, out-of-vocabulary offer): a referee that
+    // follows the closed-key instruction perfectly can still tell the truth
+    // about a phantom tool, because the truth has a legal key to land on.
     ...(instrumentMode === "checked"
       ? [
           {
@@ -333,9 +340,9 @@ function buildQuestions(
             prompt:
               "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something " +
               "worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently " +
-              "perceives or holds, or 'none' if the intent uses no such tool, or names one the actor does not have. " +
-              "Cite the exact words in the actor's intent that name it.",
-            answerKeys: targetKeys,
+              "perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is " +
+              "not among those objects. Cite the exact words in the actor's intent that name it.",
+            answerKeys: [...targetKeys, "absent"],
             safeDefault: "none",
           },
         ]
@@ -364,32 +371,6 @@ function citationCheck(answer: AnsweredQuestion, requiredSourceId: string | null
 }
 
 const NO_INSTRUMENT_CITATION: CitationCheck = { citation: null, requiredSourceId: null, verified: false };
-
-/**
- * OPEN-VARIANT.md §51, the-prisoner#17: the positive signal that the referee
- * tried to name an instrument outside the closed set it was given -- an
- * object this principal does not currently perceive or hold. `run-dmcp`'s
- * own reader checks answer-key membership BEFORE it ever looks at a
- * citation (`turnReader.ts`'s `runLadder`: `unknown-answer-key` is rejected
- * first), so a rejected offer's citation was never run through the engine's
- * own verbatim check. This function runs the identical check itself --
- * `intentText.includes(quote)`, the same literal presence test `run-dmcp`'s
- * own module doc comment defends as not "pattern-matching meaning" -- so an
- * offer only counts when its citation is genuine, not merely present.
- * Nothing here reads what the offered answerKey or the quote MEAN; both are
- * opaque strings checked for membership and substring, exactly as every
- * other citation in this module is.
- */
-function missingInstrumentFrom(answer: AnsweredQuestion | undefined, intentText: string): { name: string; citation: RangedCitation } | null {
-  if (!answer) return null;
-  for (const rejected of answer.rejected) {
-    if (rejected.reason !== "unknown-answer-key") continue;
-    const { sourceId, quote } = rejected.offer.citation;
-    if (sourceId !== INTENT_SOURCE_ID || quote.length === 0 || !intentText.includes(quote)) continue;
-    return { name: rejected.offer.answerKey, citation: { sourceId, quote } };
-  }
-  return null;
-}
 
 /** Whether `(objectId, property)` is declared in the scenario -- the check
  *  a property answer must pass. The default knows the §4.1 objects only; a
@@ -429,8 +410,14 @@ export function computeRuling(
   const propertyCitation = citationCheck(propertyAnswer, targetObjectId !== "none" ? descriptionSourceId(targetObjectId) : null);
   const productCitation = citationCheck(productAnswer, INTENT_SOURCE_ID);
   const instrumentCitation = instrumentAnswer ? citationCheck(instrumentAnswer, INTENT_SOURCE_ID) : NO_INSTRUMENT_CITATION;
-  const intentText = request.sources.find((s) => s.id === INTENT_SOURCE_ID)?.text ?? "";
-  const missingInstrument = missingInstrumentFrom(instrumentAnswer, intentText);
+  // OPEN-VARIANT.md §51, the-prisoner#17: `absent` is a normal, LEGAL member
+  // of `instrument`'s own closed answerKeys (`buildQuestions`) -- the
+  // referee's own judgment that the intent names a tool it does not have,
+  // never a rejected offer this code reads meaning into. A verified citation
+  // (from the actor's intent, like every other answer) makes it a
+  // trustworthy, reportable reason; an unverified one still blocks below
+  // (fail-safe), it just is not reported as one.
+  const missingInstrument = instrument === "absent" && instrumentCitation.verified && instrumentCitation.citation !== null ? { citation: instrumentCitation.citation } : null;
 
   const propertyNamedWhenRequired = !effectRequiresProperty(effectKind) || (property !== "none" && isDeclared(targetObjectId, property));
   // OPEN-VARIANT.md §13.1: a derive names a declared product, cited from the
@@ -441,12 +428,17 @@ export function computeRuling(
   const applicable =
     targetObjectId !== "none" &&
     effectKind !== "none" &&
+    // OPEN-VARIANT.md §51, the-prisoner#17: the same unconditional pattern
+    // `effectKind !== "none"` already uses -- the closed key itself is
+    // trusted, regardless of its own citation quality (blocking is always
+    // the safe direction; `missingInstrument`, above, is the separate,
+    // citation-gated record of WHY, for reporting).
+    instrument !== "absent" &&
     targetCitation.verified &&
     effectCitation.verified &&
     propertyCitation.verified &&
     propertyNamedWhenRequired &&
-    productNamedWhenRequired &&
-    missingInstrument === null;
+    productNamedWhenRequired;
 
   return {
     targetObjectId,

@@ -389,7 +389,7 @@ describe("PRISONER_INSTRUMENT (OPEN-VARIANT.md §51, the-prisoner#17)", () => {
     expect(questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
   });
 
-  it("checked: a seventh 'instrument' question is asked, with answer keys the actor's own perceived objects plus none", async () => {
+  it("checked: a seventh 'instrument' question is asked, with answer keys the actor's own perceived objects, none, and absent", async () => {
     let questions: readonly { id: string; answerKeys: readonly string[] }[] = [];
     await createReferee(
       [
@@ -401,24 +401,47 @@ describe("PRISONER_INSTRUMENT (OPEN-VARIANT.md §51, the-prisoner#17)", () => {
       { instrumentMode: "checked" }
     ).rule("I pick the lock using the wire.", [LOCK]);
     const instrument = questions.find((q) => q.id === "instrument");
-    expect(instrument?.answerKeys).toEqual(["lock", "none"]);
+    expect(instrument?.answerKeys).toEqual(["lock", "none", "absent"]);
   });
 
-  it("PLANTED VIOLATION: checked, and the referee names a tool the actor does not have -- rejected as unknown-answer-key, and the ruling is impossible with the citation it was offered", async () => {
+  it("checked, and the referee legally answers 'absent' for a tool the actor does not have -- cited from the intent like every other answer, the ruling is not applicable, and the citation is kept as the reason", async () => {
     const intent = "I pick the lock using the wire.";
     const transport: ReaderTransport = async (request) =>
       request.questions.flatMap((q): TransportAnswer[] => {
         if (q.id === "target") return [{ questionId: "target", answerKey: "lock", citation: { sourceId: "intent", quote: "pick the lock" } }];
         if (q.id === "effect") return [{ questionId: "effect", answerKey: "open", citation: { sourceId: "intent", quote: "pick the lock" } }];
         if (q.id === "property") return [{ questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:lock", quote: "A steel lock" } }];
-        // "wire" is not among what the actor perceives or holds (only "lock" is) -- an unavailable instrument, named anyway.
-        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "wire", citation: { sourceId: "intent", quote: "the wire" } }];
+        // "wire" is not among what the actor perceives or holds (only "lock" is): `absent` is the
+        // LEGAL key for this, not a rule-broken offer of "wire" itself -- the referee never has to
+        // name the object at all, only cite the words in the intent that name it.
+        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "absent", citation: { sourceId: "intent", quote: "using the wire" } }];
         return [];
       });
     const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule(intent, [LOCK]);
 
-    expect(ruling.missingInstrument).toEqual({ name: "wire", citation: { sourceId: "intent", quote: "the wire" } });
+    expect(ruling.instrument).toBe("absent");
+    expect(ruling.missingInstrument).toEqual({ citation: { sourceId: "intent", quote: "using the wire" } });
     expect(ruling.applicable).toBe(false);
+  });
+
+  it("PLANTED VIOLATION: 'absent' cited from the wrong source (not the intent) still blocks the ruling, fail-safe, but is not reported as a trustworthy reason", async () => {
+    const intent = "I pick the lock using the wire.";
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") return [{ questionId: "target", answerKey: "lock", citation: { sourceId: "intent", quote: "pick the lock" } }];
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "open", citation: { sourceId: "intent", quote: "pick the lock" } }];
+        if (q.id === "property") return [{ questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:lock", quote: "A steel lock" } }];
+        // Cites the LOCK's own description, not the intent -- a real quote (so run-dmcp's own
+        // verbatim check passes it), but not from the source this question requires.
+        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "absent", citation: { sourceId: "desc:lock", quote: "A steel lock" } }];
+        return [];
+      });
+    const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule(intent, [LOCK]);
+
+    expect(ruling.instrument).toBe("absent");
+    expect(ruling.citations.instrument?.verified).toBe(false);
+    expect(ruling.missingInstrument).toBeNull(); // not a trustworthy reason to report
+    expect(ruling.applicable).toBe(false); // but still blocked -- blocking is the safe direction
   });
 
   it("checked, and the named instrument is one the actor really has: no gate, the ruling stands on its other merits", async () => {
@@ -449,6 +472,23 @@ describe("PRISONER_INSTRUMENT (OPEN-VARIANT.md §51, the-prisoner#17)", () => {
         return [];
       });
     const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule("I scrape the bar.", [BAR]);
+
+    expect(ruling.instrument).toBe("none");
+    expect(ruling.missingInstrument).toBeNull();
+    expect(ruling.applicable).toBe(true);
+  });
+
+  it("checked, and the referee explicitly answers 'none' (an act that uses no tool at all): no gate, same as any other applicable ruling", async () => {
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") return [{ questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "kick the door" } }];
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "noise", citation: { sourceId: "intent", quote: "kick the door" } }];
+        if (q.id === "property") return [{ questionId: "property", answerKey: "none", citation: { sourceId: "desc:door", quote: "iron-bound planks" } }];
+        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "none", citation: { sourceId: "intent", quote: "I kick the door" } }];
+        return [];
+      });
+    const DOOR: ObjectPerception = { id: "door", description: "A heavy door of iron-bound planks in a stone frame." };
+    const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule("I kick the door.", [DOOR]);
 
     expect(ruling.instrument).toBe("none");
     expect(ruling.missingInstrument).toBeNull();
