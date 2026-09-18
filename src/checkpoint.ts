@@ -33,6 +33,7 @@ import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
 import { pinnedDependencyVersion } from "./packageInfo.js";
+import { describeRunRevision } from "./runRevision.js";
 import { readSkipVoice, resolveVoiceModel, resolveRefereeModel } from "./modelRoles.js";
 import { summarizeLoadedModels, type OllamaPsResponse } from "./ollamaStatus.js";
 import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "./ollamaSwap.js";
@@ -497,6 +498,7 @@ async function main(): Promise<void> {
   }
   transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
+  transcript.push(`Code revision: ${describeRunRevision()}`);
   transcript.push(`Models loaded on doris at start (/api/ps): ${loadedAtStart}`);
   if (residentsAtStart.length > 0) transcript.push(`Resident at start: ${residentsAtStart.map((n) => `\`${n}\``).join(", ")}.`);
   transcript.push("");
@@ -812,6 +814,7 @@ async function mainOpen(): Promise<void> {
   transcript.push(`Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}. Referee timeout: ${REFEREE_TIMEOUT_MS ?? "default (12000ms)"}.`);
   transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
+  transcript.push(`Code revision: ${describeRunRevision()}`);
   transcript.push(`Models loaded at start (/api/ps): ${loadedAtStart}`);
   if (residentsAtStart.length > 0) transcript.push(`Resident at start: ${residentsAtStart.map((n) => `\`${n}\``).join(", ")}.`);
   transcript.push(`Referee requests for replay: \`checkpoints/${stamp}.referee.json\`.`);

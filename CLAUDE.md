@@ -108,7 +108,10 @@ says at the moment each game starts. On 2026-09-17 a ten-game batch ran while br
 merged into `main`; the merges happened to be arms defaulting to off and byte-identical prompts, and
 the round-1 briefings were compared across the batch afterwards to confirm nothing moved -- but that
 was luck, not method. Check out the commit the batch is for (a worktree is cheapest) and run from
-there, so the batch's own transcripts name a single revision.
+there, so the batch's own transcripts name a single revision. Every transcript now prints
+`Code revision: <sha> (clean)` -- or says plainly that the tree had uncommitted changes and names no
+single revision (`src/runRevision.ts`) -- so a reader can check that a batch was pinned instead of
+taking the runner's word for it.
 
 ## Never pattern-match meaning
 
