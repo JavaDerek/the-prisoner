@@ -3433,3 +3433,67 @@ keystrokes: plumbing evidence, not play.
 
 A human seat is also the one run that must not be detached (`nohup`), which is the opposite of every
 other real run here.
+
+## 52. A voice fragment reached the transcript as a full line (the-prisoner#20)
+
+The owner's first human game (§47), round 2, `PRISONER_VOICE_MODEL=ancient-awakening:12b`:
+`checkpoints/2026-09-18T02-40-27-834Z.md` round 1 shows the model doing the job properly --
+`"That bar's seen a lot of years..."` -- and round 2 shows the same model returning `Voss,`, a
+fragment ending mid-clause. It passed `mind-seam`'s own `coerceProposal` (non-empty after trim is
+the whole check) and reached the other principal's briefing as dialogue: *"Croft says: \"Voss,\""*.
+Same model, same call shape, one round apart -- a per-call failure, not a bad model choice.
+
+**Confirmed before choosing anything: voice cannot touch a ruling.** `createOpenMind`'s two-call
+branch (`src/open/mind.ts`) builds the returned `OpenProposal` as `intent: wits.intent, line:
+voice?.line ?? ""` -- `wits.intent` unconditionally, never `voice.intent`. The voice call's own
+schema (`VOICE_SCHEMA`) asks for an `intent` field too (`mind-seam`'s `Proposal` shape requires it),
+but that field is computed and then never read anywhere in `consider()` -- it is discarded outright,
+not merely deprioritised. The wits call's schema (`OPEN_WITS_SCHEMA`) has no `line` property at all,
+so there is no path back the other way either. This is exactly what `mind.ts`'s own header comment
+already claimed ("the wits call's `intent` is always what reaches the referee"); this issue's fix
+touches only what a transcript prints, never what the referee sees.
+
+**Rule chosen: (a), a fragment is a voice silence.** The alternative -- re-ask once, in the shape of
+`mother-of-invention`'s `regenerate` -- was not taken: it costs a whole extra model call and a GPU
+swap per occurrence, on a machine that fits one model at a time (root CLAUDE.md), to fix a role whose
+entire job is one line of flavour text nothing else ever reads. A voice call that produces nothing
+useful is already exactly like a voice call that timed out or came back unparseable -- a warden who
+says nothing is in character -- so this reuses that existing path instead of inventing a second kind
+of voice failure.
+
+**The predicate, stated exactly, and applied to shape only:** in `coerceVoiceProposal` (`src/open/
+mind.ts`), the SEPARATE voice call's own `coerce` wraps `coerceProposal` and additionally rejects
+(returns `null`, same as any other malformed answer) whenever the trimmed `line`'s last character is
+a comma, a semicolon, or a colon (`FRAGMENT_LINE_ENDINGS`). No complete English utterance legitimately
+ends on one of those three marks, and the check reads exactly one character -- never what the line
+says. A rejection here is not a new kind of failure: `mind-seam`'s own `coerceProposal` returning
+`null` already reports `SilenceReason: "rejected"` through `onVoiceSilence`, the same recorded,
+counted path a timeout or an unparseable answer takes, so no change to `checkpoint.ts` was needed --
+no new reason was introduced for it to count. `wits.intent` is untouched; the caller falls back to an
+empty `line`, exactly as it already does for a voice call that fails any other way.
+
+**What this rule wrongly rejects**, because it looks only at the final character and never at
+meaning: a real one-word line ending in terminal punctuation -- `"Enough."` -- is untouched (there is
+a passing test for exactly this), but a deliberate trailing comma for effect (`"Names, ranks, nothing
+else,"`), a colon introducing something with nothing after it (`"Listen carefully:"`), or a rare
+semicolon-joined line, all read as fragments and are silenced the same way a truncated one would be.
+That is the accepted cost: telling a deliberate trailing comma apart from a truncated one requires
+judging what the line means, which CLAUDE.md's "never pattern-match meaning" forbids. Scope is
+deliberately narrow to the SEPARATE voice call only (`voiceMind`, `witsModel !== voiceModel`) and not
+the single-call/collapsed path (`witsModel === voiceModel`, the default under `PRISONER_SKIP_VOICE=1`
+and the path most test runs use): there, `line` and `intent` come from the same JSON object, and
+returning `null` from that `coerce` silences the WHOLE half-round, discarding a good `intent` over a
+punctuation quirk in the spoken line -- a much more expensive failure than losing one line of flavour
+text. Leaving that path alone is a deliberate choice, not an oversight.
+
+Tests: `src/open/__tests__/mind.test.ts` -- "a voice line cut off mid-clause (ends in a comma) is
+treated as a voice silence, not printed" (asserts `intent` survives, `line` becomes `""`,
+`onVoiceSilence` fires with `"rejected"`), "semicolon- and colon-ending lines are the same shape of
+fragment", and "a genuine short line ending in terminal punctuation is never rejected for its length
+alone" (`"Enough."` passes through unchanged).
+
+A live check, for the session owner only (this agent never calls a model): run the same human-seat
+command as §47 with `PRISONER_VOICE_MODEL=ancient-awakening:12b` for a few dozen rounds and grep the
+resulting transcript for `**Line:**` entries ending in a bare comma, semicolon or colon -- none
+should appear; a `Voss,`-shaped answer should instead simply have no `**Line:**` line at all, the
+same as any other voice silence today.
