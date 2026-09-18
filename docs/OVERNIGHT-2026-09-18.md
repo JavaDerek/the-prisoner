@@ -13,7 +13,7 @@ time; everything below came out of that one four-round game. Evidence is in OPEN
 | **#16** "reached past what is here" | **DONE, closed**, and the issue's framing was wrong: `targetKeys` never offers an unperceived object, so "out of reach" and "named nothing the world models" are the same ruling and the old wording was wrong for every case it could be reached from. Now "matches none of what is here". §49 |
 | **#17** an instrument that does not exist | **ARM BUILT, default off.** `PRISONER_INSTRUMENT=checked` adds a seventh referee question with three legal keys — a perceived object, `none`, or `absent` (the intent names a tool she does not have) — which blocks the ruling with a positive reason. First version detected it only when the model broke its own closed-key instruction; sent back and rebuilt. **Re-ruled live: the referee answered `instrument=none` 10/10 with the arm on, never `absent`** -- the mechanism is sound and this referee will not use it. §51.6. See D2 |
 | **#18** "pull a wire out" ruled `wear` | **ARM BUILT, default off.** `PRISONER_DERIVE_WORDING=sharpened`. **Re-ruled live and it works: `wear` 10/10 under baseline, `derive`/`wire` 9/10 under `sharpened`.** The shared-cause theory in the issue is refuted -- the raw reply shows `product: none` carried an empty citation object, a moot answer's bookkeeping, not a missed one. §51.6. This also shuts the exploit Derek walked, since a real wire then exists a turn before it is cited |
-| **#19** the door costs nothing | **TWO ARMS, default unchanged, and a measured result.** See D1 — this is the item that matters most. §50 |
+| **#19** the door costs nothing | **THREE ARMS, 22 games, and a refutation of my own explanation.** She takes the door when it is free (8 of 11) and never when priced (0 of 11, at gates of 30 AND 60). `free` stays the default. See D1. §50.5, §50.7 |
 | **#20** a voice fragment as dialogue | **DONE, closed.** One-character shape rule (a line ending in `,` `;` `:` is a voice silence), plus the finding that mattered more: `onVoiceSilence` was wired nowhere, so every voice failure was already invisible. §52 |
 | **#21** a human-fiction view | **ROUTE 1 DONE, open for route 2.** `PRISONER_VIEW=prose`, default `raw`, human seat only. A completeness test pins every belief value, stamp, object and threshold through the prose path; a line-length test pins the wall-of-text regression the first version had. §53 |
 | **#22** social intents | **PROPOSAL WRITTEN, nothing built.** `docs/issues/SOCIAL-INTENTS.md`. Its central move is to refuse the belief-writing effect outright and get the same play from a person's own physical property plus `noise` at a principal. See D5 |
@@ -51,7 +51,7 @@ Hence the third arm, `PRISONER_DOOR_PRICE=margin`, gating the lock at **60**: tw
 and still safe to be found at. **Not parity** — 3 turns and 30 suspicion against the window's 5 and 50 —
 because claiming parity was the first arm's mistake. What it buys is the first room where both ways out
 are worth starting, which is the precondition mother-of-invention's thesis has never had. §50.6. A
-free-vs-margin batch is queued and will be reported here.
+free-vs-margin batch is measured, and it is dead too — §50.7. **My mechanism was wrong**; see D1.
 
 ## Log
 
@@ -76,11 +76,23 @@ free-vs-margin batch is queued and will be reported here.
 
 ## Decisions for Derek
 
-**D1. The door's price.** `free` is still the default and every recorded batch is comparable to it.
-`threshold` (30) is measured and dead — keep it as the arm that proves the catch-band argument, or delete
-it. `margin` (60) is built and being measured now. The question: **does the door become a real second
-route at 60, and if it does, should `margin` become the default?** Making it default changes what every
-future batch compares against, which is why I have not.
+**D1. The door's price — answered by the batch, and not in my favour.** Twenty-two games:
+`free` 8 door escapes of 11; `threshold` (30) 0 of 7; `margin` (60) 0 of 4, with **not one prisoner intent
+in eleven priced games ruled against the door or the lock**. §50.6 pre-committed my catch-band explanation
+and its prediction that a gate of 60 — first openable step safely above the catch line — would be used.
+It was not. What stands is her own reading: the door is work, the window is the plan she already has,
+distance and not danger. `threshold` also cost her the batch's only defeat, since pricing the door out
+leaves only the route that runs the bar toward its own catch line.
+
+So: **`free` stays the default** and is the only setting where the door is a route at all; `threshold` and
+`margin` are kept as the arms that carry the refutation, or deleted — they have no other use. **And §46's
+"two paths both actually used" precondition is not reachable by pricing this door.** What you decide here
+is whether to keep the two dead arms, not which one to promote.
+
+**D1a (new, filed as #23).** In all twenty-two games condition 1 is the window, and she plans the window
+from round 1 in every one. The operative cause may be **the order of her condition list**, not any price.
+One line to test against `margin`; it reaches `conditionList.ts`, which brink's minds share
+(`brink-workshop#107`). Filed rather than built, because the list's content is where your decisions live.
 
 **D2. Promoting #17 and #18.** Both are arms with byte-identical requests when off, and the re-rule has
 now separated them. **#18's `sharpened` wording works** -- `wear` 10/10 under baseline, `derive` with
