@@ -3451,9 +3451,10 @@ The four rounds, from the transcript's own referee tables:
 | 4 | "pick the lock using the wire" | open on `lock` | `door_passage: 0 -> 1` |
 | 4 | "leave the cell through the door" | leave | out of the cell |
 
-**Thirty-odd model games never took this route.** Every contested game ground at the bar until
-suspicion pinned at 100 and the warden searched (§31.2), and §41/§45 measured that fixation four
-separate ways. The reason is now plain, and it is not that the minds were dull: **her condition list
+**Thirty-odd model games never took this route.** Every contested game ground at the bar until the
+warden looked at it and found it worn -- the catch is a warden look finding the bar at 50 or below
+while suspicion is at 40 or above (§31.2's original round-100 arithmetic was corrected at §33) --
+and §41/§45 measured that fixation four separate ways. The reason is now plain, and it is not that the minds were dull: **her condition list
 names the window as the way to win and the lock only as a way to be caught.** The owner read the same
 list, ignored the framing, and walked out of the door she was never told was an exit.
 
@@ -3474,9 +3475,10 @@ Four defects, in the order they cost the most:
    `wire` derivable from the cot (§13). `product` came back `none` with no offer at all, so the two
    failures may share one cause: the referee never considered a product.
 4. **A social intent has nowhere to land** (#22, under #5). The heart attack was ruled impossible for
-   the three structural reasons §31.2 named — presence unmodelled, a principal not a target, no effect
-   writing a belief — and the refusal told him his attempt "reached past what is here", which is wrong
-   about the cause in the one way that matters: nothing was out of reach, and no object was named at
+   the three structural reasons **§32.3** named — presence unmodelled, a principal not a target, no
+   effect writing a belief. (§31.2, which tonight's first drafts and issues #16/#22 cited for this, is
+   the round-six arithmetic instead, and §33 corrected that too.) The refusal told him his attempt
+   "reached past what is here", which is wrong about the cause in the one way that matters: nothing was out of reach, and no object was named at
    all. He then planned to strike the warden and run past her, which cannot be attempted either.
    **Thirty games of models never pressed here; a person did it on turn two.** That is the evidence
    #5 was waiting for.
