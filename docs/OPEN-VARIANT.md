@@ -3576,6 +3576,18 @@ plainer "matches none of what is here" only for a genuine `"none"`. Absent that,
 floor: it never claims a cause the ruling cannot prove, and it stops telling a player who names a
 person that they should stand closer.
 
+**§49's own consequence, found and fixed the same night.** The transcript records
+`half.context.briefing`, and the briefing was where those duplicated object descriptions lived — so
+removing the duplication took the object descriptions out of the evidence as well. Tonight's own batch
+proves it: Derek's game (before the fix) prints "You perceive the window..." eight times; every game after
+it prints the descriptions nowhere at all. That is the channel a mind actually learns through — an
+authored description with the state readings composed onto it, *"It stands open now: the bar is out of its
+widest gap"* — and it is what issues #6 and #7 both turn on, and what every one of §34.4's catches was a
+warden reading. Now: the authored set appears once in the transcript header, each half-round lists the ids
+the mind perceived (so the referee's own target answer keys are recoverable), and any description that has
+CHANGED from the authored one is printed in full on that half-round. **A fix that removes evidence is a
+close cousin of §52's fix that produced none.**
+
 ## 50. Pricing the door: the two routes made comparable in cost, and §46 put back in question (2026-09-17, issue #19)
 
 **The owner's own human game found what §46 had only theorised.** Playing the prisoner herself

@@ -158,6 +158,38 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
   return lines;
 }
 
+/** The authored description for an object id, or `undefined` for anything this
+ *  game derived (OPEN-VARIANT.md §13) -- which therefore always prints. */
+function authoredDescription(objectId: string): string | undefined {
+  return OPEN_OBJECTS.find((o) => o.id === objectId)?.description;
+}
+
+/**
+ * What this principal was shown about the cell, for the transcript.
+ *
+ * The briefing used to carry each object's description and the transcript
+ * records the briefing, so a transcript happened to show this. §49 removed that
+ * duplication -- rightly, it was in every prompt twice -- and the object list
+ * now lives only where `renderSeatSituation` builds it, which the transcript
+ * never recorded. The effect was that the channel a mind actually learns
+ * through, an authored description plus the state readings composed onto it
+ * ("It stands open now"), left the evidence entirely. Issues #6 and #7 both
+ * turn on that channel, and §34.4's catches are all a warden reading it.
+ *
+ * Every id, so the referee's own target answer keys are recoverable from the
+ * transcript; the full sentence only for a description that has CHANGED from the
+ * authored one, because the unchanged text is in the header once and repeating
+ * eleven objects per half-round would treble a transcript to say nothing new.
+ */
+function perceivedLines(half: OpenHalfRoundResult): string[] {
+  const objects = half.context.perceivedObjects;
+  if (objects.length === 0) return ["**Perceived:** nothing it could act on."];
+  const lines = [`**Perceived:** ${objects.map((o) => o.id).join(", ")}`];
+  const changed = objects.filter((o) => o.description !== authoredDescription(o.id));
+  for (const object of changed) lines.push(`- ${object.id}, as it stands: ${object.description}`);
+  return lines;
+}
+
 export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote, voiceSilence?: SilenceNote): string[] {
   const lines: string[] = [];
   lines.push(`### Round ${half.roundN} (t=${half.t}) -- the ${half.principal}`);
@@ -166,6 +198,7 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   lines.push("```");
   lines.push(half.context.briefing);
   lines.push("```");
+  lines.push(...perceivedLines(half));
 
   const p = half.proposal;
   if (!p) {

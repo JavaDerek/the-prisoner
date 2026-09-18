@@ -309,6 +309,36 @@ describe("open checkpoint transcript", () => {
     expect(text).not.toContain("**Silence.**");
   });
 
+  // Regression from tonight's own #15 fix: the transcript records
+  // `half.context.briefing`, and the briefing used to carry each object's
+  // description, so a transcript happened to show what a mind was shown about
+  // the cell. With that duplication removed (§49) the object list lives only in
+  // the prompt, which the transcript never recorded -- so the channel a mind
+  // actually learns through (an authored description plus its state readings,
+  // e.g. "It stands open now") stopped appearing in the evidence. #6 and #7
+  // both turn on exactly that channel.
+  it("records what the mind perceived: the ids, and in full any description that has changed from the authored one", () => {
+    const text = renderOpenHalfRound({
+      principal: "warden", t: 2, roundN: 1,
+      context: {
+        principalId: "w", identity: "", motive: "", briefing: "B",
+        perceivedObjects: [
+          { id: "bar", description: "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked." },
+          { id: "window", description: "A small window set in the wall at shoulder height. It stands open now: the bar is out of its widest gap." },
+        ],
+      },
+      proposal: { intent: "I look around." },
+      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
+      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null,
+    }).join("\n");
+    // Every id it could act on, so the target answer key set is recoverable.
+    expect(text).toContain("**Perceived:** bar, window");
+    // The changed description in full -- this is the sentence a mind reasons from.
+    expect(text).toContain("It stands open now: the bar is out of its widest gap.");
+    // The unchanged one is not repeated: it is in the header, once.
+    expect(text).not.toContain("dry and cracked");
+  });
+
   it("referee requests: one entry per ruled half-round, labelled, carrying the exact request for replay", async () => {
     const game = await playCatchGame();
     const requests = refereeRequestsFor(game.halves);

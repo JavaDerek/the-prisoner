@@ -49,6 +49,7 @@ import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.
 import { getVariant } from "./variant.js";
 import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
+import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
@@ -886,6 +887,15 @@ async function mainOpen(): Promise<void> {
         : "View: RAW (the default): the human seat's own situation was shown exactly as the model's own prompt opens, unchanged since before the-prisoner#21."
     );
   }
+  transcript.push("");
+  // The authored descriptions, once: every referee citation in this file quotes
+  // one of them (`desc:<id>: "..."`), and every mind reads them each turn, so a
+  // transcript that does not carry them cannot be checked on its own. Each
+  // half-round below adds only the descriptions that have CHANGED from these
+  // (`perceivedLines`, §49's own consequence).
+  transcript.push("## Objects as authored");
+  transcript.push("");
+  for (const object of OPEN_OBJECTS) transcript.push(`- \`${object.id}\`: ${object.description}`);
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
