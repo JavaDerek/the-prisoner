@@ -3975,6 +3975,18 @@ resulting transcript for `**Line:**` entries ending in a bare comma, semicolon o
 should appear; a `Voss,`-shaped answer should instead simply have no `**Line:**` line at all, the
 same as any other voice silence today.
 
+**Follow-up, the same night: the open variant never wired `onVoiceSilence` at all.** Found while
+reviewing this fix rather than by it: `checkpoint.ts`'s `mainOpen()` passed `onSilence` (the wits
+call) and nothing for the voice call, in either variant, so every voice failure -- a timeout, an
+unparseable answer, and now a fragment -- degraded to an empty line with nothing in the transcript
+to say why. **§52's own rule would have been invisible in the evidence it exists to produce.** Now
+recorded per principal and rendered on the half-round that acted, as `**Voice silence.**
+SilenceReason: ...` with the raw text, deliberately distinct from `**Silence.**` -- the world moved
+that half-round and only the line is missing, so it must not read like a silent turn -- plus a count
+in the run's own console summary. The general shape of the mistake is worth keeping: **a rule whose
+effects are invisible cannot be measured, and a fix that produces no evidence is indistinguishable
+from no fix.**
+
 ## 53. A human-fiction view: prose composed by code, never a different information set (2026-09-18, issue #21)
 
 §48's own list of what the owner's first human game found wrong named this as the third defect,

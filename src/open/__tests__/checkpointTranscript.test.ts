@@ -288,6 +288,27 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain("RAW_MODEL_TEXT");
   });
 
+  // the-prisoner#20's own finding: a voice call that fails degrades to an empty
+  // line, and nothing in the open variant's transcript ever said so -- the
+  // fragment rule added under §52 would have been invisible in the evidence it
+  // exists to produce.
+  it("a half-round that acted but whose VOICE failed says so, without claiming the half-round was silent", () => {
+    const text = renderOpenHalfRound(
+      {
+        principal: "warden", t: 2, roundN: 1,
+        context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
+        proposal: { intent: "I examine the bar closely." },
+        ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
+        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null,
+      },
+      undefined,
+      { reason: "rejected", text: "Voss," }
+    ).join("\n");
+    expect(text).toContain("**Voice silence.** SilenceReason: `rejected`");
+    expect(text).toContain("Voss,");
+    expect(text).not.toContain("**Silence.**");
+  });
+
   it("referee requests: one entry per ruled half-round, labelled, carrying the exact request for replay", async () => {
     const game = await playCatchGame();
     const requests = refereeRequestsFor(game.halves);

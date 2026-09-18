@@ -158,7 +158,7 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
   return lines;
 }
 
-export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote): string[] {
+export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote, voiceSilence?: SilenceNote): string[] {
   const lines: string[] = [];
   lines.push(`### Round ${half.roundN} (t=${half.t}) -- the ${half.principal}`);
   lines.push("");
@@ -186,6 +186,21 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
     return lines;
   }
 
+  // the-prisoner#20: the VOICE call can fail on a half-round that acted --
+  // a timeout, an unparseable answer, or (since §52) a line cut off
+  // mid-clause. The proposal is intact and the world moved; only the line is
+  // missing, so this is NOT a silent half-round and must not read like one.
+  // Until this line existed, every such failure degraded to an empty line
+  // with nothing in the transcript to say why, including §52's own rule.
+  if (voiceSilence) {
+    lines.push(`**Voice silence.** SilenceReason: \`${voiceSilence.reason ?? "unknown"}\`.`);
+    if (voiceSilence.text !== undefined) {
+      lines.push("**Raw voice text:**");
+      lines.push("```");
+      lines.push(voiceSilence.text);
+      lines.push("```");
+    }
+  }
   if (p.witsModel !== undefined) lines.push(`**Wits model:** \`${p.witsModel}\` (${p.witsMs?.toFixed(0) ?? "?"}ms)`);
   if (p.voiceModel !== undefined) lines.push(`**Voice model:** \`${p.voiceModel}\` (${p.voiceMs?.toFixed(0) ?? "?"}ms)`);
   if (p.thoughts) lines.push(`**Thoughts:** ${p.thoughts}`);

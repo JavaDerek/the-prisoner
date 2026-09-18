@@ -728,6 +728,13 @@ async function mainOpen(): Promise<void> {
   );
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
+  // the-prisoner#20: this variant never passed `onVoiceSilence` at all, so a
+  // voice call that timed out, came back unparseable, or (since §52) ended
+  // mid-clause left an empty line and no trace of why -- including §52's own
+  // rule, which would have been invisible in the evidence it exists to
+  // produce. Recorded per principal, rendered on the half-round that acted.
+  const lastVoiceSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
+  let voiceSilenceCount = 0;
   const mindOptions = (principal: OpenPrincipal) => ({
     baseUrl: MODEL_URL,
     witsModel: WITS_MODEL,
@@ -736,6 +743,10 @@ async function mainOpen(): Promise<void> {
     ensureLoaded,
     onSilence: (reason: string, _context: unknown, detail?: { text?: string; parsed?: unknown }) => {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
+    },
+    onVoiceSilence: (reason: string, _context: unknown, detail?: { text?: string; parsed?: unknown }) => {
+      lastVoiceSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
+      voiceSilenceCount += 1;
     },
   });
   // A person in one of the two chairs (the-prisoner#11): the same seam, the same referee,
@@ -893,8 +904,9 @@ async function mainOpen(): Promise<void> {
         const ms = performance.now() - halfStart;
         timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
         const passive = WARDEN_MODE === "passive" && half.principal === "warden" ? { reason: "passive warden (§26)" } : undefined;
-        transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal])));
+        transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal]), lastVoiceSilence[half.principal]));
         lastSilence[half.principal] = undefined;
+        lastVoiceSilence[half.principal] = undefined;
         // With a person in a chair the screen must tell them nothing their briefing would
         // not: the model run's per-half "possible / impossible" line is the other side's
         // outcome, which is exactly what the fog exists to withhold. They learn a turn
@@ -953,6 +965,10 @@ async function mainOpen(): Promise<void> {
     console.log(`Transcript written to ${file}`);
     // eslint-disable-next-line no-console
     console.log(`Result: ${game.ended?.kind ?? "timeout"} at round ${game.endedAtRound ?? ROUNDS}`);
+    // the-prisoner#20: counted here as well as rendered per half-round, so a
+    // run whose voice model misbehaved says so without reading the transcript.
+    // eslint-disable-next-line no-console
+    console.log(`Voice silences: ${voiceSilenceCount}`);
   } catch (err) {
     // A bad run is still evidence (CLAUDE.md: transcripts committed unedited,
     // including bad runs): write what was played, and why it stopped.
