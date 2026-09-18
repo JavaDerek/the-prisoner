@@ -107,8 +107,22 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   if (target) {
     return `Your last attempt (${quoted(proposal.intent)}) met the ${obj} as it is: ${target.description}`;
   }
+  // issue #16: this used to say the attempt "reached past what is here" --
+  // read, correctly, as "stand closer" -- for EVERY `target: "none"`
+  // ruling. That is wrong whenever the intent named nothing the world
+  // models at all (a person, a belief): the referee's own `target`
+  // question (referee.ts's `buildQuestions`) already folds "names no
+  // object" and "names an object this principal cannot reach or perceive"
+  // into the same closed key, because `targetKeys` never offers an id
+  // outside what this principal already perceives -- an out-of-reach real
+  // object cannot be NAMED by id here any more than a person can.
+  // `RefereeRuling` (target/effect/property, citations, `raw.answers`)
+  // carries nothing that tells the two apart -- no candidate id, no flag
+  // for "recognised but unreachable" -- so this claims only what the
+  // ruling actually supports: nothing here was matched, not why. Naming
+  // what IS here stays, as positive, ruling-backed information.
   const reachable = half.context.perceivedObjects.map((o) => label(o.id)).join(", ");
-  return `Your last attempt (${quoted(proposal.intent)}) reached past what is here; within your reach are: ${reachable}.`;
+  return `Your last attempt (${quoted(proposal.intent)}) matches none of what is here: ${reachable}.`;
 }
 
 export function renderForOther(half: OpenHalfRoundResult): string[] {

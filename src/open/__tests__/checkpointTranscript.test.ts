@@ -140,7 +140,11 @@ describe("open checkpoint transcript", () => {
     const text = renderOpenHalfRound(find(game, 1, "prisoner")).join("\n");
     expect(text).toContain("**Ruled:** impossible");
     expect(text).toContain("| target | `none` | (none) | no |");
-    expect(text).toContain("within your reach are:");
+    // issue #16: "within your reach are:" implied a distance/reach failure
+    // that the ruling never established; the honest wording says only what
+    // the ruling shows -- nothing here was matched -- and still names what
+    // is here.
+    expect(text).toContain("matches none of what is here:");
   });
 
   it("offers the reader rejected are shown with their reason, and questions the referee offered nothing for are named", async () => {
