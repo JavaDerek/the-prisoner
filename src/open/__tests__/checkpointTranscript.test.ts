@@ -173,6 +173,37 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain("No offer from the referee for: perceptibility.");
   });
 
+  it("OPEN-VARIANT.md §51, the-prisoner#17: PRISONER_INSTRUMENT=checked shows the referee's seventh question, with its own citation and verified flag", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const intent = "I pick the lock using the wire.";
+    const transport = async (request: { questions: readonly { id: string }[] }) =>
+      request.questions.map((q) => ({
+        questionId: q.id,
+        answerKey: ({ target: "lock", effect: "open", property: "integrity", magnitude: "moderate", perceptibility: "silent", instrument: "absent" } as Record<string, string>)[q.id] ?? "none",
+        citation: q.id === "property" ? { sourceId: "desc:lock", quote: "A steel lock" } : { sourceId: "intent", quote: q.id === "instrument" ? "using the wire" : "pick the lock" },
+      }));
+    const game = await runOpenGame({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: createReferee([transport], { instrumentMode: "checked" }),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>(null),
+      prisonerMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent }),
+      rounds: 1,
+    });
+    const half = find(game, 1, "prisoner");
+    const text = renderOpenHalfRound(half).join("\n");
+    expect(text).toContain('| instrument | `absent` | intent: "using the wire" | yes |');
+    expect(half.ruling?.applicable).toBe(false);
+    expect(half.ruling?.missingInstrument).toEqual({ citation: { sourceId: "intent", quote: "using the wire" } });
+  });
+
+  it("off (the default): no instrument row is shown at all -- the arm never asked the question", async () => {
+    const game = await playCatchGame();
+    const text = renderOpenHalfRound(find(game, 2, "prisoner")).join("\n");
+    expect(text).not.toContain("| instrument |");
+  });
+
   it("a citation given as a word range shows the range and the quote rebuilt from it, accepted or rejected (OPEN-VARIANT.md §18.3)", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();

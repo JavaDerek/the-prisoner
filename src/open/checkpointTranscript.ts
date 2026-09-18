@@ -28,6 +28,14 @@ export interface SilenceNote {
 
 const QUESTION_IDS = ["target", "effect", "product", "property", "magnitude", "perceptibility"] as const;
 
+/** OPEN-VARIANT.md §51, the-prisoner#17: the referee's seventh question,
+ *  asked only under `PRISONER_INSTRUMENT=checked`. Not simply appended to
+ *  `QUESTION_IDS` -- a ruling made under the (default) `off` arm carries no
+ *  `instrument` answer at all, and rendering a fake `| instrument | \`?\` |
+ *  (none) | n/a |` row on every transcript that never asked the question
+ *  would be worse than the gap it replaces. */
+const INSTRUMENT_QUESTION_ID = "instrument" as const;
+
 /** A citation as the human reader audits it: its source, the word range the
  *  referee named when it cited by range (OPEN-VARIANT.md §18.3), and the
  *  quote -- rebuilt from that range, or as the referee gave it. */
@@ -40,14 +48,19 @@ function citationCell(citation: RangedCitation | null | undefined): string {
 function refereeTable(half: OpenHalfRoundResult): string[] {
   const ruling = half.ruling;
   if (!ruling) return [];
+  // OPEN-VARIANT.md §51, the-prisoner#17: present in `raw.answers` only when
+  // `PRISONER_INSTRUMENT=checked` actually asked it this half-round.
+  const askedInstrument = ruling.raw.answers.some((a) => a.questionId === INSTRUMENT_QUESTION_ID);
+  const questionIds: readonly string[] = askedInstrument ? [...QUESTION_IDS, INSTRUMENT_QUESTION_ID] : QUESTION_IDS;
   const verifiedFor: Record<string, boolean | undefined> = {
     target: ruling.citations.target.verified,
     effect: ruling.citations.effect.verified,
     property: ruling.citations.property.verified,
     product: ruling.effectKind === "derive" ? ruling.citations.product.verified : undefined,
+    instrument: askedInstrument ? ruling.citations.instrument?.verified : undefined,
   };
   const lines = ["| question | answer | citation | verified |", "|---|---|---|---|"];
-  for (const id of QUESTION_IDS) {
+  for (const id of questionIds) {
     const answer = ruling.raw.answers.find((a) => a.questionId === id);
     const verified = verifiedFor[id];
     const verifiedCell = verified === undefined ? "n/a" : verified ? "yes" : "no";
