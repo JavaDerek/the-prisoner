@@ -48,7 +48,7 @@ import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.
 import { getVariant } from "./variant.js";
 import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, OPEN_DOOR_LOCK_MAX } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
-import { createReferee } from "./open/referee.js";
+import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
 import { runOpenGame } from "./open/game.js";
@@ -142,6 +142,14 @@ const DOOR = readDoorMode(process.env.PRISONER_DOOR);
 /** Open variant only: whether the door's passage is gated on the lock
  *  (`src/open/world.ts`, OPEN-VARIANT.md §50, issue #19). Free unless asked. */
 const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
+/** Open variant only: the referee's seventh question, naming the instrument
+ *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
+ *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
+const INSTRUMENT = readInstrumentMode(process.env.PRISONER_INSTRUMENT);
+/** Open variant only: the effect question's sharpened derive/wear wording
+ *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
+ *  (the pre-existing text) unless asked -- the same D3 lesson. */
+const DERIVE_WORDING = readDeriveWordingMode(process.env.PRISONER_DERIVE_WORDING);
 /** A PERSON in one of the two chairs (`src/open/humanSeat.ts`, the-prisoner#11):
  *  `PRISONER_HUMAN=prisoner|warden`. Unset is two models, which every recorded
  *  batch is -- and a transcript with a person in it says so, so it can never be
@@ -714,6 +722,8 @@ async function mainOpen(): Promise<void> {
       isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined,
       kindOf: (objectId) => derivedKindOf(openWorld, objectId),
       propertiesOf: (objectId) => declaredPropertyKeys(openWorld, objectId),
+      instrumentMode: INSTRUMENT,
+      deriveWording: DERIVE_WORDING,
     }
   );
 
@@ -836,6 +846,16 @@ async function mainOpen(): Promise<void> {
     DOOR_PRICE === "threshold"
       ? `Door price: THRESHOLD (\`PRISONER_DOOR_PRICE=threshold\`): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MAX}, exactly like the window on the bar (§50, issue #19).`
       : "Door price: FREE (the default): the door's passage has no threshold to meet, today's behaviour, unchanged."
+  );
+  transcript.push(
+    INSTRUMENT === "checked"
+      ? "Instrument: CHECKED (`PRISONER_INSTRUMENT=checked`): a seventh referee question names the instrument an act uses, from the objects this principal perceives or holds, none, or absent (a tool named that is none of those); absent is ruled impossible (§51, the-prisoner#17)."
+      : "Instrument: UNASKED (the default): the referee is never asked what tool an act uses (§51, the-prisoner#17)."
+  );
+  transcript.push(
+    DERIVE_WORDING === "sharpened"
+      ? "Derive wording: SHARPENED (`PRISONER_DERIVE_WORDING=sharpened`): the effect question adds an explicit keep-the-piece test distinguishing derive from wear (§51, the-prisoner#18)."
+      : "Derive wording: BASELINE (the default): the effect question's original derive/wear wording, unchanged (§51, the-prisoner#18)."
   );
   transcript.push(
     SEAT === "off"

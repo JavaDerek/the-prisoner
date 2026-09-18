@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
-import { createReferee, type ObjectPerception } from "../referee.js";
+import { createReferee, readInstrumentMode, readDeriveWordingMode, type ObjectPerception } from "../referee.js";
 
 const BAR: ObjectPerception = {
   id: "bar",
@@ -366,5 +366,178 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(ruling.citations.target.citation).toEqual({ sourceId: "intent", quote: "file the bar" });
     expect(ruling.citations.effect.citation).toEqual({ sourceId: "intent", quote: "file", from: 2, to: 2 });
     expect(ruling.raw.answers.find((a) => a.questionId === "effect")?.citation).toEqual({ sourceId: "intent", quote: "file", from: 2, to: 2 });
+  });
+});
+
+describe("PRISONER_INSTRUMENT (OPEN-VARIANT.md §51, the-prisoner#17)", () => {
+  it("readInstrumentMode: unset is off, 'checked' is legal, anything else throws", () => {
+    expect(readInstrumentMode(undefined)).toBe("off");
+    expect(readInstrumentMode("")).toBe("off");
+    expect(readInstrumentMode("checked")).toBe("checked");
+    expect(readInstrumentMode("off")).toBe("off");
+    expect(() => readInstrumentMode("wat")).toThrow(/PRISONER_INSTRUMENT/);
+  });
+
+  it("off (the default): no seventh question is asked at all -- the request is unchanged from before this arm existed", async () => {
+    let questions: readonly { id: string }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("I pick the lock using the wire.", [LOCK]);
+    expect(questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
+  });
+
+  it("checked: a seventh 'instrument' question is asked, with answer keys the actor's own perceived objects, none, and absent", async () => {
+    let questions: readonly { id: string; answerKeys: readonly string[] }[] = [];
+    await createReferee(
+      [
+        async (request) => {
+          questions = request.questions;
+          return [];
+        },
+      ],
+      { instrumentMode: "checked" }
+    ).rule("I pick the lock using the wire.", [LOCK]);
+    const instrument = questions.find((q) => q.id === "instrument");
+    expect(instrument?.answerKeys).toEqual(["lock", "none", "absent"]);
+  });
+
+  it("checked, and the referee legally answers 'absent' for a tool the actor does not have -- cited from the intent like every other answer, the ruling is not applicable, and the citation is kept as the reason", async () => {
+    const intent = "I pick the lock using the wire.";
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") return [{ questionId: "target", answerKey: "lock", citation: { sourceId: "intent", quote: "pick the lock" } }];
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "open", citation: { sourceId: "intent", quote: "pick the lock" } }];
+        if (q.id === "property") return [{ questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:lock", quote: "A steel lock" } }];
+        // "wire" is not among what the actor perceives or holds (only "lock" is): `absent` is the
+        // LEGAL key for this, not a rule-broken offer of "wire" itself -- the referee never has to
+        // name the object at all, only cite the words in the intent that name it.
+        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "absent", citation: { sourceId: "intent", quote: "using the wire" } }];
+        return [];
+      });
+    const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule(intent, [LOCK]);
+
+    expect(ruling.instrument).toBe("absent");
+    expect(ruling.missingInstrument).toEqual({ citation: { sourceId: "intent", quote: "using the wire" } });
+    expect(ruling.applicable).toBe(false);
+  });
+
+  it("PLANTED VIOLATION: 'absent' cited from the wrong source (not the intent) still blocks the ruling, fail-safe, but is not reported as a trustworthy reason", async () => {
+    const intent = "I pick the lock using the wire.";
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") return [{ questionId: "target", answerKey: "lock", citation: { sourceId: "intent", quote: "pick the lock" } }];
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "open", citation: { sourceId: "intent", quote: "pick the lock" } }];
+        if (q.id === "property") return [{ questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:lock", quote: "A steel lock" } }];
+        // Cites the LOCK's own description, not the intent -- a real quote (so run-dmcp's own
+        // verbatim check passes it), but not from the source this question requires.
+        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "absent", citation: { sourceId: "desc:lock", quote: "A steel lock" } }];
+        return [];
+      });
+    const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule(intent, [LOCK]);
+
+    expect(ruling.instrument).toBe("absent");
+    expect(ruling.citations.instrument?.verified).toBe(false);
+    expect(ruling.missingInstrument).toBeNull(); // not a trustworthy reason to report
+    expect(ruling.applicable).toBe(false); // but still blocked -- blocking is the safe direction
+  });
+
+  it("checked, and the named instrument is one the actor really has: no gate, the ruling stands on its other merits", async () => {
+    const SPOON: ObjectPerception = { id: "spoon", description: "A dented aluminium spoon." };
+    const intent = "I scrape the bar with my spoon.";
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") return [{ questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "scrape the bar" } }];
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "wear", citation: { sourceId: "intent", quote: "scrape the bar" } }];
+        if (q.id === "property") return [{ questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } }];
+        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "spoon", citation: { sourceId: "intent", quote: "my spoon" } }];
+        return [];
+      });
+    const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule(intent, [BAR, SPOON]);
+
+    expect(ruling.missingInstrument).toBeNull();
+    expect(ruling.instrument).toBe("spoon");
+    expect(ruling.citations.instrument?.verified).toBe(true);
+    expect(ruling.applicable).toBe(true);
+  });
+
+  it("checked, and no instrument offer arrives at all: falls to safe default 'none', no gate", async () => {
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") return [{ questionId: "target", answerKey: "bar", citation: { sourceId: "intent", quote: "scrape the bar" } }];
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "wear", citation: { sourceId: "intent", quote: "scrape the bar" } }];
+        if (q.id === "property") return [{ questionId: "property", answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } }];
+        return [];
+      });
+    const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule("I scrape the bar.", [BAR]);
+
+    expect(ruling.instrument).toBe("none");
+    expect(ruling.missingInstrument).toBeNull();
+    expect(ruling.applicable).toBe(true);
+  });
+
+  it("checked, and the referee explicitly answers 'none' (an act that uses no tool at all): no gate, same as any other applicable ruling", async () => {
+    const transport: ReaderTransport = async (request) =>
+      request.questions.flatMap((q): TransportAnswer[] => {
+        if (q.id === "target") return [{ questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "kick the door" } }];
+        if (q.id === "effect") return [{ questionId: "effect", answerKey: "noise", citation: { sourceId: "intent", quote: "kick the door" } }];
+        if (q.id === "property") return [{ questionId: "property", answerKey: "none", citation: { sourceId: "desc:door", quote: "iron-bound planks" } }];
+        if (q.id === "instrument") return [{ questionId: "instrument", answerKey: "none", citation: { sourceId: "intent", quote: "I kick the door" } }];
+        return [];
+      });
+    const DOOR: ObjectPerception = { id: "door", description: "A heavy door of iron-bound planks in a stone frame." };
+    const ruling = await createReferee([transport], { instrumentMode: "checked" }).rule("I kick the door.", [DOOR]);
+
+    expect(ruling.instrument).toBe("none");
+    expect(ruling.missingInstrument).toBeNull();
+    expect(ruling.applicable).toBe(true);
+  });
+});
+
+describe("PRISONER_DERIVE_WORDING (OPEN-VARIANT.md §51, the-prisoner#18)", () => {
+  it("readDeriveWordingMode: unset is baseline, 'sharpened' is legal, anything else throws", () => {
+    expect(readDeriveWordingMode(undefined)).toBe("baseline");
+    expect(readDeriveWordingMode("")).toBe("baseline");
+    expect(readDeriveWordingMode("sharpened")).toBe("sharpened");
+    expect(readDeriveWordingMode("baseline")).toBe("baseline");
+    expect(() => readDeriveWordingMode("wat")).toThrow(/PRISONER_DERIVE_WORDING/);
+  });
+
+  it("baseline (the default): the effect question's derive/wear wording is byte-identical to before this arm existed", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("pull a wire out of the cot", [{ id: "cot", description: "twists of wire" }]);
+    const effect = questions.find((q) => q.id === "effect");
+    expect(effect?.prompt).toContain(
+      "derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand."
+    );
+    expect(effect?.prompt).not.toContain("whatever verb");
+  });
+
+  it("sharpened: the effect question adds an explicit keep-the-piece test, naming the declared derivable kinds, not a keyword list this repository wrote", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee(
+      [
+        async (request) => {
+          questions = request.questions;
+          return [];
+        },
+      ],
+      { deriveWording: "sharpened" }
+    ).rule("pull a wire out of the cot", [{ id: "cot", description: "twists of wire" }]);
+    const effect = questions.find((q) => q.id === "effect");
+    // The example objects come from `derivedObjects.ts`'s own table (§13.3), the
+    // same `deriveExamples` string the un-sharpened prompt already builds from it --
+    // never a verb or noun list typed fresh into this test's expectation of the code.
+    expect(effect?.prompt).toContain("a length of wire from the cot");
+    expect(effect?.prompt).toContain("holding a separate new thing");
+    expect(effect?.prompt).toContain("a piece is kept afterward");
+    expect(effect?.prompt).toContain("whatever verb");
   });
 });

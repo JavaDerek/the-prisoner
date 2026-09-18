@@ -3943,3 +3943,193 @@ player can still cite a condition by number the way she does in §44, and its "w
 (`"you"` for the reader's own, the other party's name otherwise) mirrors `renderConditionList`'s own
 choice exactly, computed the same way from the same `Condition.for` field, so a reader of both views
 sees the identical claim about who a condition belongs to.
+## 51. An instrument that does not exist, and a derive the referee never chose (2026-09-18, the-prisoner#17/#18)
+
+§48's own first human game (`checkpoints/2026-09-18T02-40-27-834Z.md`) escaped in four rounds on a
+wire the world never made — §48 named both defects (items 2 and 3) but left their relationship open
+("the two failures may share one cause: the referee never considered a product"). This section settles
+that question with evidence, then builds and arms both fixes. Two referee tables, read in full rather
+than trusted from the issue text:
+
+**Round 2 (t=6), the prisoner: "pull a wire out of the cot."**
+
+| question | answer | citation | verified |
+|---|---|---|---|
+| target | `cot` | intent, words 3-5: "wire out of" | yes |
+| effect | `wear` | intent, words 1-6: "pull a wire out of the" | yes |
+| product | `none` | (none) | n/a |
+| property | `integrity` | desc:cot: "twists of wire" | yes |
+| magnitude | `slight` | intent, words 1-2: "pull a" | n/a |
+| perceptibility | `silent` | (none) | n/a |
+
+No offer from the referee for: product, perceptibility. Resolved `cot_wire_integrity: 100 -> 90`.
+**Derived objects made this game: 0.**
+
+**Round 3 (t=8), the prisoner: "pick the lock using the wire."**
+
+| question | answer | citation | verified |
+|---|---|---|---|
+| target | `lock` | intent, words 1-5: "pick the lock using the" | yes |
+| effect | `open` | intent, words 1-5: "pick the lock using the" | yes |
+| product | `none` | (none) | n/a |
+| property | `integrity` | desc:lock: "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame." | yes |
+
+No offer from the referee for: product. Resolved `door_passage: 0 -> 1`. **The wire does not exist and
+nothing checked.** Escaped the next turn.
+
+### 51.1 The two issues do not share a cause
+
+§48's own question, and issue #18's "worth checking first": did the model ever consider a product at
+all, given round 2's `product` came back `none` with no offer? The recorded reply settles it —
+`checkpoints/2026-09-18T02-40-27-834Z.referee.json`, entry 3, is the model's raw JSON for that half-round:
+
+```
+{"questionId": "effect", "answerKey": "wear", "citation": {"sourceId": "intent", "from": 1, "to": 6}},
+{"questionId": "product", "answerKey": "none", "citation": {}},
+```
+
+The model ruled `effect: wear` directly, with its own real citation (`intent, words 1-6`) — a
+deliberate, separate answer, not a default it fell into for want of a product. `product: none` came
+with an EMPTY citation object (no `sourceId`), which `refereeTransport.ts`'s `coerceAnswers` drops
+outright (`if (!citation || typeof citation.sourceId !== "string") continue;`), so the reader records
+it as "no offer" — the same bookkeeping artifact that would show up for ANY question the referee
+correctly judges moot and cites nothing for, `product` on a `wear` ruling among them (the effect
+question's own prompt says so: *"Answer none for every other effect"*). The model was not confused
+about product; it was confused about effect, and product dutifully followed.
+
+**Verdict: no shared cause.** #18 is a referee prompt-clarity problem in the **effect** question — the
+same class of ambiguity §18.4/§18.5 already fixed once for wear vs reveal, now recurring for wear vs
+derive. #17 is a missing contract: no question the referee is ever asked names the instrument an act
+uses, so a citation naming a tool that was never created passes every check that existed, exactly as
+`derivedObjects.ts`'s own header already warned ("O1 never verified that the spoon was to hand... and
+O3 does not start").
+
+### 51.2 #17: the instrument, an arm (`PRISONER_INSTRUMENT`, default `off`)
+
+A seventh referee question, asked only when `PRISONER_INSTRUMENT=checked`: which object, among what
+the actor perceives or holds, does the intent use as its tool. `off` (default) omits the question
+entirely; the request every earlier batch recorded is unchanged, byte for byte (`referee.test.ts`:
+"off (the default): no seventh question is asked at all").
+
+**First draft, and why it was sent back.** The first build gave this question two answer keys — the
+actor's own perceived/held objects, plus `none` — reasoning that a referee with no LEGAL way to answer
+`wire` would have that attempt rejected by `run-dmcp`'s own `unknown-answer-key` check, and reading
+that rejection record as the "named but unavailable" signal. **The owner caught the flaw before it
+shipped**: that design detects a phantom instrument only when the referee BREAKS its own closed-key
+instruction. A referee that follows instructions perfectly answers `none` for "pick the lock using the
+wire" — no rule was broken, so nothing was rejected, and the exploit proceeds exactly as before. Two
+kinds of model behaviour then look identical from the outside — "no phantom instruments happened" and
+"the mechanism cannot see them" — and `checked` at 0/N could mean either. That is not a result the
+owner can act on.
+
+**The fix: give the true answer a LEGAL key.** Three closed keys, not two: each object this principal
+perceives or holds (the act uses that tool); `none` (the act uses no tool at all — kicking a door,
+shouting); and `absent` (the intent names a tool that is not among those objects). A referee obeying
+its instructions perfectly can now answer `absent` for "pick the lock using the wire," cited from the
+intent — `"using the wire"` — exactly the same discipline as every other answer. Nothing is read from
+a rejection any more; `absent` is answered and accepted through the ordinary path, the same as `wear`
+or `derive` or any other key. Whether it names a keyword list in code: it does not — `absent` is one
+more literal in `answerKeys`, structurally identical to `none`, and the referee still decides when to
+use it from the intent's own words, which this code never reads.
+
+When `instrument` comes back `absent`, `computeRuling` marks the ruling **not applicable**,
+unconditionally — the same pattern `effectKind !== "none"` already uses to gate applicability on a
+closed key directly, regardless of that key's own citation quality (blocking is always the safe
+direction here, OPEN-VARIANT.md §2 invariant 3). A SEPARATE, citation-gated field,
+`missingInstrument`, is set only when `absent`'s own citation verifies against the actor's intent —
+the trustworthy half, kept for reporting a specific reason; an `absent` cited from the wrong source
+still blocks (fail-safe) but is not reported as one. `perception.ts` (unmodified, out of this task's
+file list) already renders the block as a positive reason from the target's own authored description:
+*"Your last attempt ... met the lock as it is: A steel lock set in the cell door..."* — not the
+literal "she has no wire" the issue imagined, but the same family of positive, non-leaking reason
+every other impossible ruling gets, from code this fix did not need to touch.
+
+**What this arm does NOT do, now honestly true rather than honestly limited.** It no longer depends on
+the referee model breaking its own instructions. It DOES still depend on the referee model correctly
+*judging* that the named tool is unavailable and choosing `absent` over `none` — a genuine reasoning
+step, not a mechanical one, so `checked` at 0/N is still a real, reportable finding about this
+referee's judgement (§51.4), just no longer confoundable with "the mechanism cannot see a phantom
+instrument at all."
+
+**Tests** (`referee.test.ts`, describe block "PRISONER_INSTRUMENT"): `readInstrumentMode` accepts
+`off`/`checked`/unset, throws otherwise; `off` asks the original six questions only; `checked` adds
+the seventh with the actor's own perceived objects, `none`, and `absent` as its keys; a LEGAL `absent`
+answer, cited from the intent, is accepted normally, gives `missingInstrument`, and blocks the ruling;
+an `absent` cited from the wrong source still blocks but is not reported as a trustworthy reason
+(planted violation); a real, held instrument (`spoon`) is accepted normally and gates nothing; an
+explicit `none` answer gates nothing; no instrument offer at all falls to safe default `none` and
+gates nothing.
+
+**`checkpointTranscript.ts` now renders the seventh question too** (`the-prisoner#17`'s remaining
+gap, closed once this task's file list was widened to include it): its row appears only in a
+transcript whose ruling actually asked the question, so a game run under `off` shows no fake
+`instrument: ?` line.
+
+### 51.3 #18: sharpen derive vs wear, an arm (`PRISONER_DERIVE_WORDING`, default `baseline`)
+
+Prompt-side work only, in the effect question, gated behind `PRISONER_DERIVE_WORDING=sharpened`. The
+baseline text already lists the declared derivable kinds by example (*"derive (make a new thing from
+part of the target and keep it: a length of wire from the cot, ...)"*) — built from
+`derivedObjects.ts`'s own table via the SAME `deriveExamples` string the un-sharpened prompt already
+uses, per this task's constraint that the referee is given the same facts the world holds, never a
+keyword list of tool nouns compiled in code. `sharpened` adds one sentence, built from that identical
+string:
+
+> An act that ends with the actor holding a separate new thing -- *(the same declared-kind examples)*
+> -- is derive, whatever verb names how the piece comes free (pull, tear, cut, scrape, untwist, dig):
+> the test is whether a piece is kept afterward, not which verb describes taking it.
+
+This names verbs generically (a closed, small set describing HOW a piece comes free, not WHICH game
+object it is), the same register the baseline text already uses for its own aim-not-method
+distinction ("Judge by the intent's aim, not its method"). `baseline` is the pre-existing sentence,
+unchanged byte for byte (`referee.test.ts`: "the effect question's derive/wear wording is
+byte-identical to before this arm existed").
+
+**Tests** (`referee.test.ts`, describe block "PRISONER_DERIVE_WORDING"): `readDeriveWordingMode`
+accepts `baseline`/`sharpened`/unset, throws otherwise; `baseline` leaves the exact pre-existing
+sentence in place and adds nothing; `sharpened` adds the keep-the-piece sentence, naming the declared
+kinds from `derivedObjects.ts`, never a fresh list typed into the test.
+
+This cannot be validated by a scripted referee (scripted rulings are looked up by intent string, never
+by reading a prompt), so there is no unit test asserting the wording actually changes a live model's
+choice — only that the PROMPT changed as intended. Whether it moves a real referee from `wear` to
+`derive` is exactly what §51.4's script measures.
+
+### 51.4 The live validation, ready to run (never run by this agent)
+
+`checkpoints/2026-09-18-instrument-derive/rerule.mts` calls the real referee directly — no game loop,
+no database, no checkpoint file — against the exact 11 objects the prisoner perceived in
+`checkpoints/2026-09-18T02-40-27-834Z.md` (copied verbatim from that transcript, `wire` absent because
+it was never made), through the same one-model-at-a-time swapper `npm run checkpoint` uses.
+
+```bash
+npx tsx checkpoints/2026-09-18-instrument-derive/rerule.mts both
+# or, to match the exploit's own referee model exactly:
+RERULE_N=10 PRISONER_REFEREE_MODEL=qwen2.5:14b npx tsx checkpoints/2026-09-18-instrument-derive/rerule.mts both
+```
+
+Needs `doris` reachable at `PRISONER_MODEL_URL` (default `http://doris:11434/v1`), nothing else
+resident that this run does not list in `PRISONER_OLLAMA_RESIDENT_MODELS` (the swapper refuses to
+start otherwise, naming what it found). Roughly `4 * N` referee calls total (`derive`: 2 wordings x N;
+`instrument`: 2 modes x N) — `N=8` (the default) is 32 calls; run `derive` or `instrument` alone
+(first CLI argument) to halve that.
+
+**What would confirm #18's arm:** under `baseline`, most of the `derive` script's `N` trials on "pull
+a wire out of the cot" should reproduce the exploit's own `wear` (this is the reproduction, not the
+fix); under `sharpened`, a majority shifting to `effect: derive, product: wire, applicable: true` is
+the evidence the wording change works, on this referee model, for this intent. A shift that is small,
+or that trades one ambiguity for another (§18.6's own lesson: a fix for one confusion can create a
+new one elsewhere), is a reason to read the raw per-trial lines the script prints, not just the
+totals.
+
+**What would confirm #17's arm:** under `off`, `applicable` should be `true` on "pick the lock using
+the wire" in every trial (the exploit, reproduced). Under `checked`, ANY trials with `instrument:
+absent`, `missingInstrument` set and `applicable: false` are the arm working, cited legally against
+the intent rather than read out of a rejection — §51.2's redesign means this measures the referee's
+own judgement, not the mechanism's blind spot. 0/N under `checked` is still a real finding (this
+referee, on this intent, chose `none` over `absent`) and a reason to try the other referee model
+(`qwen2.5:14b` vs the current default `qwen3:14b`) before concluding the wording needs more work — but
+it is no longer confoundable with "the mechanism cannot see a phantom instrument at all." Neither arm
+should be promoted to default from this script alone — per the D3 lesson (§40.1), that needs a batch
+of real games under each arm, scored the way §5.2/§5.3 already score every other batch in this
+document, not a 32-call spot check.
