@@ -34,7 +34,7 @@ import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
 import { pinnedDependencyVersion } from "./packageInfo.js";
 import { describeRunRevision } from "./runRevision.js";
-import { readSkipVoice, resolveVoiceModel, resolveRefereeModel } from "./modelRoles.js";
+import { readSkipVoice, resolveVoiceModel, resolveRefereeModel, resolveNarratorModel } from "./modelRoles.js";
 import { summarizeLoadedModels, type OllamaPsResponse } from "./ollamaStatus.js";
 import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "./ollamaSwap.js";
 import {
@@ -63,6 +63,7 @@ import { openConditions, readConditionsMode, readDoorMode } from "./open/conditi
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
+import { createNarrator } from "./open/narrator.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
 
@@ -164,10 +165,22 @@ const SEAT = readSeatMode(process.env.PRISONER_HUMAN);
  *  from the identical data. No-op with no seat: read regardless so a
  *  misconfigured value is caught even in a model-vs-model run. */
 const VIEW = readViewMode(process.env.PRISONER_VIEW);
+/** D3 (2026-09-18), the-prisoner#21 route 2: `PRISONER_NARRATOR_MODEL`, the
+ *  narrator role `src/open/narrator.ts` calls when `VIEW === "narrated"`.
+ *  Configured exactly like the other roles, defaulting to the VOICE model
+ *  (`modelRoles.ts`'s own comment: the role that already writes prose well
+ *  here) rather than a third default to keep track of. Read unconditionally,
+ *  same reasoning as `VIEW` itself: a misconfigured value is caught even in
+ *  a run that never seats a person. */
+const NARRATOR_MODEL = resolveNarratorModel(VOICE_MODEL, process.env.PRISONER_NARRATOR_MODEL);
 /** Open variant only: how a known approach is priced (`src/open/precedent.ts`,
  *  OPEN-VARIANT.md §42). `flat` unless asked, so earlier batches stay comparable. */
 const PRECEDENT_PRICE = readPrecedentPrice(process.env.PRISONER_PRECEDENT_PRICE);
-const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : [])])];
+// The narrator only ever calls a model when a person is seated AND asked for
+// the narrated view -- added to the allowed/swapped roster only then, so a
+// run that never uses it never has to account for it in `/api/ps`.
+const NARRATOR_IN_USE = VARIANT === "open" && SEAT !== "off" && VIEW === "narrated";
+const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : []), ...(NARRATOR_IN_USE ? [NARRATOR_MODEL] : [])])];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
 const ensureLoaded = (model: string): Promise<void> => swapper.withModel(model, async () => {});
@@ -760,6 +773,37 @@ async function mainOpen(): Promise<void> {
   rl?.on("close", () => {
     inputClosed = true;
   });
+  // D3 (2026-09-18), the-prisoner#21 route 2: the narrator role, built only
+  // when it can actually be called (`NARRATOR_IN_USE`) -- the human seat
+  // only, never wired anywhere a model prompt is built. `narratorRejections`
+  // is the run's own count of narrations `verifyNarration` caught and
+  // discarded before a player ever saw them -- "a liability the player never
+  // sees is a liability that cannot mislead them," but it must still be
+  // counted and recorded where a transcript will show it (this task's brief).
+  let narratorRejections = 0;
+  let narratorSilences = 0;
+  const narrator = NARRATOR_IN_USE
+    ? createNarrator({
+        baseUrl: MODEL_URL,
+        model: NARRATOR_MODEL,
+        timeoutMs: THINK_TIMEOUT_MS,
+        ensureLoaded,
+        // The authored catalogue only (not `openWorld.derived`, which grows
+        // during play and this narrator is constructed once, before any
+        // round runs) -- enough for `verifyNarration`'s `invented-object`
+        // check to catch a narration that leaks a real object this
+        // principal does not currently perceive.
+        knownWorldLabels: OPEN_OBJECTS.map((o) => o.id.replace(/_/g, " ")),
+        onRejected: (violations) => {
+          narratorRejections += 1;
+          // eslint-disable-next-line no-console
+          console.log(`Narrator rejected (falling back to the prose view): ${violations.map((v) => v.kind).join(", ")}`);
+        },
+        onSilence: () => {
+          narratorSilences += 1;
+        },
+      })
+    : undefined;
   const seatMind = (selfName: string, otherName: string, conditions: ReturnType<typeof openConditions> | undefined) =>
     createHumanSeatMind({
       selfName,
@@ -776,6 +820,7 @@ async function mainOpen(): Promise<void> {
       write: (text: string) => console.log(text),
       ...(conditions ? { conditions } : {}),
       view: VIEW,
+      ...(narrator ? { narrator } : {}),
     });
 
   const modelWarden = () =>
@@ -882,10 +927,18 @@ async function mainOpen(): Promise<void> {
   );
   if (SEAT !== "off") {
     transcript.push(
-      VIEW === "prose"
-        ? "View: PROSE (`PRISONER_VIEW=prose`): the human seat's own situation was shown as deterministic prose composed by code (`src/open/proseView.ts`, the-prisoner#21), never a different information set than the raw view below -- the player could type \"raw\" at any intent prompt to see it on demand."
-        : "View: RAW (the default): the human seat's own situation was shown exactly as the model's own prompt opens, unchanged since before the-prisoner#21."
+      VIEW === "narrated"
+        ? `View: NARRATED (\`PRISONER_VIEW=narrated\`, D3): the human seat's own situation was shown as prose from a narrator model (\`${NARRATOR_MODEL}\`, \`src/open/narrator.ts\`) over the SAME data \`prose\` composes from, but ONLY once \`verifyNarration\` found nothing wrong with it -- a rejected or silent narration fell back to the deterministic prose view instead (\`src/open/proseView.ts\`), never shown to the player as an error. The player could type "raw" at any intent prompt to see the raw view on demand.`
+        : VIEW === "prose"
+          ? "View: PROSE (`PRISONER_VIEW=prose`): the human seat's own situation was shown as deterministic prose composed by code (`src/open/proseView.ts`, the-prisoner#21), never a different information set than the raw view below -- the player could type \"raw\" at any intent prompt to see it on demand."
+          : "View: RAW (the default): the human seat's own situation was shown exactly as the model's own prompt opens, unchanged since before the-prisoner#21."
     );
+    if (VIEW === "narrated") {
+      transcript.push(
+        `Narrator model: \`${NARRATOR_MODEL}\` (\`PRISONER_NARRATOR_MODEL\`, defaults to the voice model). ` +
+          "See docs/OPEN-VARIANT.md's own section on this switch for what `verifyNarration` checks, and what it plainly cannot."
+      );
+    }
   }
   transcript.push("");
   // The authored descriptions, once: every referee citation in this file quotes
@@ -957,6 +1010,15 @@ async function mainOpen(): Promise<void> {
     transcript.push("### Half-round timings");
     transcript.push(...timings);
     transcript.push("");
+    if (VIEW === "narrated") {
+      transcript.push("### Narrator (D3, the-prisoner#21 route 2)");
+      transcript.push("");
+      transcript.push(
+        `Narrator calls rejected by \`verifyNarration\` (fell back to the prose view): ${narratorRejections}. ` +
+          `Silent (empty/unparseable/timed out, never reached the checker): ${narratorSilences}.`
+      );
+      transcript.push("");
+    }
     transcript.push("### GPU swaps");
     transcript.push("");
     const swapEvents = swapper.swapEvents;
@@ -984,6 +1046,13 @@ async function mainOpen(): Promise<void> {
     // run whose voice model misbehaved says so without reading the transcript.
     // eslint-disable-next-line no-console
     console.log(`Voice silences: ${voiceSilenceCount}`);
+    if (VIEW === "narrated") {
+      // D3, the-prisoner#21 route 2: printed regardless of whether either
+      // count is zero, same reasoning as Voice silences above -- a run whose
+      // narrator misbehaved says so without reading the transcript.
+      // eslint-disable-next-line no-console
+      console.log(`Narrator rejections: ${narratorRejections}. Narrator silences: ${narratorSilences}.`);
+    }
   } catch (err) {
     // A bad run is still evidence (CLAUDE.md: transcripts committed unedited,
     // including bad runs): write what was played, and why it stopped.

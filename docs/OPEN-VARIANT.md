@@ -4420,3 +4420,151 @@ condition"); the tag was chosen so a player can still cite a condition by number
 §44, and its "whose" wording (`"you"` for the reader's own, the other party's name otherwise) mirrors
 `renderConditionList`'s own choice exactly, computed the same way from the same `Condition.for`
 field, so a reader of both views sees the identical claim about who a condition belongs to.
+
+## 54. The narrator model, as a switch, with acceptance tests for the one failure mode that matters (2026-09-18, D3, issue #21 route 2)
+
+§53 built route 1 (deterministic prose) and deliberately deferred route 2, naming the reason: "a
+narrator that invents a detail the player then acts on, producing an intent the referee must rule
+impossible -- worse than the labelled-block view it would replace, because a false fact FEELS like
+ground truth exactly where the raw view's honesty was the whole point of seating a person at all."
+D3, this morning, is the owner's answer: build it anyway, but "as a switch, with acceptance tests
+that will tell us if the narration becomes a liability." This section is that switch --
+`PRISONER_VIEW=narrated`, `src/open/narrator.ts` -- and the tests that decide whether it stays on.
+
+**The human seat only, exactly as §53.** No model prompt is touched, ever: `narrator.ts` is never
+imported by `mind.ts`'s prompt builders, and a narrated prompt would change the benchmark underneath
+the project (root CLAUDE.md/§53's own rule, restated because it applies here with MORE force than to
+route 1 -- route 1 cannot be wrong; a model can). `PRISONER_HUMAN=off` (the default, every recorded
+batch) never constructs a narrator at all (`checkpoint.ts`'s `NARRATOR_IN_USE`), so a run that never
+seats a person never has to account for it in `/api/ps` or the swap roster.
+
+**Same data as route 1, on purpose.** The issue's own brief: the narrator is given "the SAME
+structured data the prose view composes from." `narrator.ts`'s `buildNarratorFacts` is nothing but
+`seatSituationParts` (`mind.ts`, unchanged, §53's own export) plus `parseBriefing` (`proseView.ts`,
+exported for exactly this reuse) over the identical `context.briefing` -- never a second,
+independently-written reading of the same text that could quietly diverge from route 1's. One
+consequence worth stating: `proseView.ts` gained two exports (`parseBriefing`, and the `BeliefFact`/
+`ParsedBriefing` types it returns) and nothing else changed in that file -- `renderProseSituation`'s
+own behaviour, and every test pinning it, is untouched.
+
+**The model role, configured like every other.** `PRISONER_NARRATOR_MODEL` (`modelRoles.ts`'s
+`resolveNarratorModel`), defaulting to the VOICE model rather than a third default to remember -- the
+issue's own reasoning: voice is "the natural home for the prose `ancient-awakening` already writes
+well." The call itself goes through `mind-seam`'s `createLocalMind`, through `ensureLoaded`
+(`ollamaSwap.ts`), the identical one-model-on-the-GPU discipline every other role in this repository
+already uses -- no second endpoint, no parallel call.
+
+**The verifier: a checker over (data, narration), never a second model.** `verifyNarration(facts,
+narration, options)` returns every violation it finds, checked one by one against the SAME
+`NarratorFacts` the prompt was built from:
+
+1. **`invented-number`** -- any integer in the narration that appears nowhere in the data (every
+   number in the condition lines, the identity/briefing text, the object descriptions, and the
+   state-based rule sentences, unioned into one set). Catches the brief's "invents a fact" example
+   directly: a number the narrator made up.
+2. **`dropped-belief`** -- a belief never mentioned at all, or mentioned without its value, or
+   mentioned without its "as of round N" stamp surviving anywhere in the text. Catches a dropped
+   belief value or stamp.
+3. **`contradicts-belief`** -- a sentence that names a belief's label AND carries a number, where
+   that number is not the belief's own value. Catches "says 85 where the belief is 80" -- scoped to
+   the SENTENCE naming the belief, so a stray unrelated number elsewhere in the narration is never
+   flagged as a contradiction (that risk is `invented-number`'s job instead).
+4. **`dropped-object`** -- a perceived object never mentioned, by id or its spaced label, anywhere in
+   the narration.
+5. **`invented-object`** -- OPTIONAL, fires only when the caller supplies `knownWorldLabels` (the
+   real run passes the authored catalogue, `OPEN_OBJECTS`): a label from that wider set, mentioned in
+   the narration, that is not among what THIS principal currently perceives. Catches "an object that
+   does not exist" in the sense the brief actually means it -- not in the data the narrator was given
+   -- and, as a side effect, catches a narrator leaking fog-protected information (an object the
+   player has not yet perceived). Without a catalogue this check never fires, so omitting it can only
+   ever forgo a check, never manufacture a false positive.
+6. **`dropped-condition`** -- a number inside a condition's own clauses (never the `CONDITION N (for
+   X):` ordinal `renderConditionList` prefixes each line with -- an explicit strip, so a list position
+   is never mistaken for a threshold) that does not survive into the narration.
+7. **`dropped-clock`** -- the round number or the total rounds missing entirely.
+8. **`contradicts-state`** -- open/closed polarity ONLY, the brief's own example ("says a way out
+   stands open when it does not"): an object's description contains open-state language and a
+   narration sentence naming it asserts closed, or the reverse. Deliberately this narrow -- see below.
+9. **`speaks-for-other`** -- a mind-state verb (thinks, feels, plans, decides, intends, believes,
+   wants, hopes, remembers, resolves, wonders, suspects) applied to the OTHER principal's name in one
+   sentence. This principal's context never carries the other's private mind, so any such claim is
+   invented by construction, whether or not it happens to be plausible -- the mind's own rule ("You
+   never decide what happens next... Speak only as yourself") applies to a narrator with more force,
+   because the player will believe it.
+10. **`narrates-outcome`** -- a fixed, narrow phrase list ("you succeed", "you manage to", "and it
+    works", "you are caught", ...) asserting a pending attempt has already resolved. Only a referee
+    rules an outcome; a narrator asserting one is exactly the failure mode the issue named as the
+    reason route 2 was deferred in the first place.
+
+**Load-bearing at runtime, not just tested in isolation.** `createNarrator`'s `narrate()` calls
+`verifyNarration` itself: any violation and the narration is discarded before `narrate()` ever
+returns it -- the caller gets `null`, never an unverified string. `humanSeat.ts`'s `consider()`
+reads `null` as "fall back to the prose view" (`view === "narrated" && narrator` in the ternary that
+picks the situation text), the same deterministic, model-free rendering §53 built, so a rejected
+narration degrades to something that was already proven never to invent anything -- never to the raw
+labelled view (that would be a visible, jarring mode switch mid-game) and never to nothing (a blank
+turn would look like a bug). The fallback is silent to the PLAYER (nothing about it is shown on
+screen -- a narration failing verification is not the player's problem to read about mid-game), but
+never silent to the RECORD: `checkpoint.ts` counts `narratorRejections` and `narratorSilences`
+(the latter: the model call itself came back empty, unparseable, or timed out, never even reaching
+the checker) separately, prints both in the run's own console summary the moment either count could
+matter (mirroring the existing `Voice silences:` line), and writes a `### Narrator` section into the
+transcript with both counts plus, per rejection, the violation kinds logged live. **"A liability the
+player never sees is a liability that cannot mislead them"** -- the owner's own words -- but it must
+still be counted, and it is.
+
+**What this verifier cannot catch, stated plainly.** A plausible sentence with no number, no
+recognisable object, no outcome phrase, and no mind-state verb about the other principal, that is
+nonetheless false: *"the corridor is quiet"* when nothing in the data says whether it is, or any
+other atmospheric claim invented from whole cloth but checkable only by knowing what the sentence
+MEANS. This is not a gap this checker failed to close -- it is the boundary CLAUDE.md's own "never
+pattern-match meaning" draws for the referee, applied here for the identical reason: a mechanical
+checker that is SOMETIMES right about meaning is worse than one that says plainly what it cannot do,
+because a false sense of safety is itself a liability. `contradicts-state`'s own scope is a smaller
+version of the same limit, named explicitly in its own comment: it catches exactly one polarity
+(open/closed) and nothing else a description might assert (locked/unlocked, warm/cold, clean/dirty,
+any property this game does not happen to test) -- extending it word pair by word pair is possible
+but each pair is a new, hand-chosen vocabulary decision, not a generalisation. **What would actually
+catch the "quiet corridor" case:** a SECOND, independent model call asking "is this specific sentence
+supported by the facts below, yes or no" -- which is a genuinely different mechanism (an LLM-as-judge
+step) with its own cost (a second call, on a machine that fits one model at a time) and its own new
+failure mode (a judge that is itself sometimes wrong), not a free extension of the mechanical checks
+above. Not built here; route 1's existence (and this section's own honesty) is what makes it possible
+to decide later whether that cost is worth paying, rather than assuming the mechanical checker already
+covers it.
+
+**Tests.** `src/open/__tests__/narrator.test.ts`: one test per violation kind above (a clean
+narration first, to prove the fixture is achievable at all -- "changed value", "an object that does
+not exist" gated behind a supplied catalogue, "an outcome asserted", and the rest), plus the
+documented-limit case itself ("the corridor is quiet" slips through, asserted as a passing test, not
+left to prose in this document alone), plus `createNarrator`'s own three behaviours: a clean narration
+reaches the caller after `ensureLoaded` runs; a narration that fails verification never reaches the
+caller and reports its violations through `onRejected`; a silent model call is reported through
+`onSilence`, never counted as a rejection. `src/open/__tests__/humanSeat.test.ts` gained its own
+`describe` block: `readViewMode("narrated")` is recognised; a verified narration is shown; a `null`
+narration (via a scripted `Narrator` stand-in, the same `scriptedMind`-style reasoning `mind-seam`
+itself uses for tests) falls back to the prose rendering of the same data; typing `raw` still reprints
+the raw view under `narrated`, exactly as under `prose`; and constructing a seat with `view:
+"narrated"` and no `narrator` throws at construction rather than failing silently mid-game.
+
+**The live check, for the session owner only (this agent never calls a model, per this task's hard
+rule).** Same shape as §47's own command, `PRISONER_VIEW=narrated` added and a narrator model named
+(or left unset, to default to the voice model):
+
+```bash
+PRISONER_VARIANT=open PRISONER_HUMAN=prisoner PRISONER_VIEW=narrated \
+  PRISONER_MODEL_URL=http://doris:11434/v1 \
+  PRISONER_WITS_MODEL=qwen3:14b PRISONER_VOICE_MODEL=ancient-awakening:12b \
+  PRISONER_NARRATOR_MODEL=ancient-awakening:12b PRISONER_REFEREE_MODEL=qwen2.5:14b \
+  PRISONER_REFEREE_TIMEOUT_MS=180000 PRISONER_THINK_TIMEOUT_MS=180000 \
+  PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
+  npm run checkpoint
+```
+
+What to look for: the prose actually reads as prose (not a repeat of the raw view); every belief's
+number and stamp survive somewhere in it; nothing on screen contradicts what typing `raw` shows for
+the same turn; the console line after each rejected narration (if any) names which check fired,
+and the `Narrator rejections:`/`Narrator silences:` line at the end of the run; and, in the written
+transcript's own `### Narrator` section, whether the rejection count across a real game is zero, low,
+or high enough that the owner should read this section's own honesty about `contradicts-state` and
+the "quiet corridor" limit before deciding whether route 2 earns its place over route 1 for real play.

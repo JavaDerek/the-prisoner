@@ -84,12 +84,16 @@ PRISONER_VARIANT=open PRISONER_HUMAN=prisoner \
 Leave it unset for anything measured. A transcript with a person in it says so in its own header and
 must never be pooled with a model batch, because a batch means identical conditions.
 
-`PRISONER_VIEW=raw|prose` (the-prisoner#21) chooses *how* the seat's own situation is shown, never
-*what*: `raw` (unset, the default) is the labelled-block view the model itself reads, byte-identical
-to its prompt; `prose` is deterministic prose composed by code from the identical context
-(`src/open/proseView.ts`) -- no model call, and pinned by a completeness test so a future edit
-cannot quietly drop a belief's stamp or an object's description while the prose still reads fine.
-Either way, typing `raw` at the intent prompt reprints the raw NPC view on demand and asks again.
+`PRISONER_VIEW=raw|prose|narrated` (the-prisoner#21) chooses *how* the seat's own situation is shown,
+never *what*: `raw` (unset, the default) is the labelled-block view the model itself reads,
+byte-identical to its prompt; `prose` is deterministic prose composed by code from the identical
+context (`src/open/proseView.ts`) -- no model call, and pinned by a completeness test so a future
+edit cannot quietly drop a belief's stamp or an object's description while the prose still reads
+fine. `narrated` (D3, 2026-09-18, OPEN-VARIANT.md's own narrator section) asks a model
+(`PRISONER_NARRATOR_MODEL`, `src/open/narrator.ts`) for prose over the SAME data and shows it only
+once `verifyNarration` finds nothing wrong with it; a narration that fails falls back to `prose`,
+silently to the player, with the failure counted and recorded in the transcript. Every mode: typing
+`raw` at the intent prompt reprints the raw NPC view on demand and asks again.
 
 ## Never run `npm run format` on this repository
 

@@ -38,3 +38,15 @@ export const DEFAULT_REFEREE_MODEL = "qwen3:14b";
 export function resolveRefereeModel(raw: string | undefined): string {
   return raw === undefined || raw === "" ? DEFAULT_REFEREE_MODEL : raw;
 }
+
+/** `PRISONER_NARRATOR_MODEL` (the-prisoner#21 route 2, `src/open/narrator.ts`):
+ *  the-narrator role, configured exactly like wits/voice/referee -- one
+ *  model, resolved the same way, never a second endpoint or a second swap
+ *  discipline. Unset or empty defaults to the VOICE model, not the wits
+ *  model: the voice role is already "the natural home for the prose
+ *  `ancient-awakening` already writes well" (issue #21), so a narrator with
+ *  no model of its own re-uses that same role rather than inventing a third
+ *  default to keep track of. */
+export function resolveNarratorModel(voiceModel: string, raw: string | undefined): string {
+  return raw === undefined || raw === "" ? voiceModel : raw;
+}
