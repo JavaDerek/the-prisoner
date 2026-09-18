@@ -3303,3 +3303,49 @@ Noted alongside it, for whoever renders this list next: every condition marked `
 the reader in the **third person** in its body (*"then Mara Voss can open the window"*), so each one
 asks the reader to resolve that they are the same person. That is a `conditionList.ts` rendering choice
 and therefore a question for every future caller of it, not a Prisoner one.
+
+### 46.5 Screening the two open wordings: the fix failed, the pronoun might not have
+
+Both questions §46.4 left were screened by asking her round 1 directly, no games:
+`checkpoints/2026-09-17-door/screen.mts` builds the prompt through the real builder with an
+intercepting fetchFn, so only the conditions differ, and counts whether her intent, and separately her
+**plan**, names the door route. A 2x2 of wording (v1, v2) against person (the body naming her, or
+saying "you" as the `(for you)` marker already does), 8 asks a cell:
+
+| | intent | plan |
+|---|---|---|
+| v1 / name (what §46 shipped) | 2/8 | 2/8 |
+| v1 / you | 5/8 | 5/8 |
+| v2 / name | 2/8 | 2/8 |
+| v2 / you | 2/8 | 3/8 |
+
+**v2 does nothing.** It is the same 2/8 as v1 with the name, and 2/8 again with "you". So §46.4's
+diagnosis was wrong: she *said* the door was rejected on "uncertainty about its current state", the
+clause was rewritten to remove exactly that uncertainty, and it changed nothing. **A mind's stated
+reason is not evidence of the operative cause** — worth remembering, because that transcript quote
+looked like a finding.
+
+The person cell was then run properly, 24 asks a side, v1 only:
+
+| | name | you | Fisher exact |
+|---|---|---|---|
+| intent names the door | 3/24 | 7/24 | p = 0.29 |
+| **plan** names the door | 3/24 | **10/24** | **p = 0.049** |
+
+Pooled with the 8-ask cells for the same two conditions: intent 5/32 vs 12/32 (p = 0.088), plan 5/32
+vs 15/32 (p = 0.014).
+
+**Suggestive, and deliberately not shipped.** Against it: the pooling was decided after seeing both
+runs, two measures were tested so 0.049 is marginal before any correction, and the pre-specified run on
+its own leaves the intent measure flat. For it: every one of the four comparisons points the same way,
+across two runs, and the effect would be large if real (about 12% to 40% on the plan).
+
+Its shape is the mirror of §45's blanket run, and that is the part worth keeping. There the intent left
+the obvious route while the plan stayed on it -- a detour. Here the **plan** moves further than the
+intent (10 against 7), which is intention moving ahead of action. The measure that separates them is
+the one this document adopted after §45, and it is the only measure that showed anything at all tonight.
+
+What would settle it: one confirmatory run, 24 a side, **committed in advance to the plan measure
+alone and to no pooling**. If it replicates, the change is one line in `conditionList.ts` -- and that
+module has not shipped to `mind-seam` yet (D4, `brink-workshop#107`), so this is the cheapest moment
+it could ever be found. Until then the third person stays, and no caller should be told otherwise.
