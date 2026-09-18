@@ -118,3 +118,28 @@ physical state (posture, distress) be a bounded numeric property like every obje
 but posture is arguably not gradual — or a flag kind the current vocabulary has no analogue for? And which
 of the three gaps do you want built first? The proposal recommends presence, because the primitive already
 exists and is merely never read.
+
+## The day after: D2, D3 and D5 built and measured (2026-09-18, afternoon)
+
+| Decision | State |
+|---|---|
+| **D1** the door's price | Answered by me, not by you: `free` stays the default, `threshold` and `margin` kept as the arms that carry the refutation. Nothing needed |
+| **D2** promote #17/#18 | **Measured: no.** 14 games, two configurations, **0 derive rulings in 107 prisoner turns**. The sharpened wording is correct and inert — it repairs the ruling you hit and nothing a model does. #17 stays off too: the referee will not use the `absent` key (§51.6). §57.1 |
+| **D3** the narrator | **BUILT.** `PRISONER_VIEW=narrated`, a narrator role over the same data, with a ten-check verifier that DISCARDS a failing narration and falls back to the deterministic prose — plus a calibration test proving the verifier accepts known-good prose, so it cannot be silently strict. §54 |
+| **D4** #16's third target key | Still yours. Explained plainly in chat: it splits "named something you cannot reach" from "named something this world has no concept of", which today read alike. Low stakes |
+| **D5** the three social gaps | **BUILT, all three, posture on your scale.** Presence read from the `location_id` that already existed; a person as a legal target; `posture` 100/50/0 with band readings. Nothing entered the engine. **Measured: the models never use any of it** — 0 person-targets and 0 `noise` effects in 4 games, from either principal. §55, §56, §57.2 |
+
+**The day's finding, and it is about the minds rather than the plumbing** (§57.3): every affordance added
+in twenty-four hours is one you reached for within four rounds of your first game and the models have
+never touched — the door when it costs anything (0 of 11), making a tool (0 of 14), an act aimed at a
+person (0 of 4). Each mechanism was verified to work when exercised. Given a route that works they do not
+look for another; given a new kind of act they do not try it.
+
+**So the human seat is the instrument.** Four rounds of your play produced four defects and a retraction
+of §46; twenty-two model games produced confirmations of what you found. The caution that follows for
+anything built next: **measure whether anything reaches for it before promoting it, because the mechanism
+working is not evidence that it matters.**
+
+**Left running or unresolved:** #23 (does the condition list's ORDER decide her route — the live confound
+behind the door result), D4, and the narrator's own live check, which wants a human game rather than a
+batch.
