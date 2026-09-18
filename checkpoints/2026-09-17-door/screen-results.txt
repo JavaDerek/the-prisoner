@@ -1,2 +1,2 @@
-v1 / name: intent names the door 3/24, plan names it 3/24
-v1 / you: intent names the door 7/24, plan names it 10/24
+v1 / name: intent names the door 8/24, plan names it 9/24
+v1 / you: intent names the door 7/24, plan names it 8/24

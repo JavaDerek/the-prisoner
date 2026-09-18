@@ -3349,3 +3349,36 @@ What would settle it: one confirmatory run, 24 a side, **committed in advance to
 alone and to no pooling**. If it replicates, the change is one line in `conditionList.ts` -- and that
 module has not shipped to `mind-seam` yet (D4, `brink-workshop#107`), so this is the cheapest moment
 it could ever be found. Until then the third person stays, and no caller should be told otherwise.
+
+### 46.6 The confirmation: it did not replicate, and the control moved as much as the effect
+
+The run §46.5 asked for, pre-committed to the plan measure and to no pooling, 24 a side, same script
+and settings (`checkpoints/2026-09-17-door/screen-person-confirm-n24.log`):
+
+| plan names the door | run 1 | **confirmation** |
+|---|---|---|
+| v1 / name | 3/24 | **9/24** |
+| v1 / you | 10/24 | **8/24** |
+
+**p = 1.000 on the pre-committed test.** The direction even reverses. Both runs combined: 12/48 against
+18/48, p = 0.271. §46.5's 0.049 was a false positive, and its pooled 0.014 was worse than useless
+because pooling assumed the runs were exchangeable.
+
+The diagnostic sits in the control column. **The `name` cell moved from 3/24 to 9/24 with nothing
+changed between them** (p = 0.093 against itself) — a swing as large as the effect being chased. So
+the measurement's run-to-run variance is on the order of the contrast, and this method cannot resolve
+an effect of this size at 24 asks a side. That number is the useful output of the whole exercise:
+**a future screen here needs a much larger effect, or several times the samples, and a control cell
+re-run every time.** A single arm measured once says very little, however clean its p-value looks.
+
+**The person question is therefore unresolved, not answered**, and `conditionList.ts` keeps the third
+person it has. Nobody should carry either a fix or a dismissal of it into `mind-seam` on this evidence
+(D4, `brink-workshop#107`).
+
+Two things survive the evening intact, both methodological, and they are worth more than the result
+that failed:
+
+- **A mind's stated reason is not evidence of the operative cause** (§46.5): the door was rejected with
+  a specific complaint, the complaint was removed, and nothing changed.
+- **Score the plan, not the intent** (§45, §46.2): an intent that leaves the obvious route while the
+  plan stays on it is a detour, and the distinction is what made §46.2's result readable at all.
