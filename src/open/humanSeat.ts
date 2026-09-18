@@ -1,5 +1,5 @@
 import { renderSeatSituation, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
-import { proseBlocks } from "./proseView.js";
+import { proseBlocks, type ProseBlockKind } from "./proseView.js";
 import { createDeltaView } from "./deltaView.js";
 import type { Narrator } from "./narrator.js";
 import type { Condition } from "./conditionList.js";
@@ -123,12 +123,34 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   // when the player asks for it on demand below.
   const delta = createDeltaView();
   const proseSituation = (context: OpenPrincipalContext): string => delta.render(proseBlocks(selfName, otherName, context, options.conditions));
+  // OPEN-VARIANT.md §61: CODE RENDERS STATE, THE MODEL RENDERS THE ROOM.
+  //
+  // Everything except the scene -- the conditions, the identity, the clock and
+  // the news, notes and plan, and every belief WITH its "as of round N" stamp
+  // -- goes through the same delta a prose turn uses, so a narrated turn shows
+  // it exactly as precisely, and shows the standing parts once. The narration
+  // replaces the SCENE block alone, which is the one part of the view a model
+  // is better at than a `${label}: ${description}` catalogue.
+  //
+  // This is why `narrator.ts`'s rejecting class could shrink to the lying
+  // kinds without the player losing a number: a narrator that says nothing
+  // about the bar's integrity costs them nothing, because the line above the
+  // narration already said 100, as of round 0. Asking a model to recite what
+  // code prints perfectly is how §60's first attempt threw away good prose
+  // over a missing "round 1 of 30".
+  const stateBlocks = (context: OpenPrincipalContext): string =>
+    delta.render(proseBlocks(selfName, otherName, context, options.conditions).filter((b) => b.kind !== ("scene" as ProseBlockKind)));
+  const narratedSituation = async (context: OpenPrincipalContext): Promise<string> => {
+    const narration = narrator ? await narrator.narrate(selfName, otherName, context, options.conditions) : null;
+    if (narration === null) return proseSituation(context);
+    return [stateBlocks(context), narration].filter((part) => part.length > 0).join("\n\n");
+  };
   return {
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
       const situation =
         view === "narrated" && narrator
-          ? ((await narrator.narrate(selfName, otherName, context, options.conditions)) ?? proseSituation(context))
+          ? await narratedSituation(context)
           : view === "prose"
             ? proseSituation(context)
             : renderSeatSituation(selfName, otherName, context, options.conditions);

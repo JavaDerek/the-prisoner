@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { buildNarratorFacts, verifyNarration, createNarrator, formatViolationTally, type NarrationViolation } from "../narrator.js";
+import { buildNarratorFacts, verifyNarration, createNarrator, formatViolationTally, REJECTING_KINDS, rejectingViolations, type NarrationViolation } from "../narrator.js";
 import type { OpenPrincipalContext } from "../mind.js";
 import type { Condition } from "../conditionList.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
@@ -48,6 +48,14 @@ function verify(narration: string, context = MINI_CONTEXT, conditions: readonly 
 
 function kinds(violations: readonly NarrationViolation[]): string[] {
   return violations.map((v) => v.kind);
+}
+
+/** A model that answers with exactly `content`, and never touches a network. */
+function fakeFetch(content: string): typeof fetch {
+  return vi.fn(async () => ({
+    ok: true,
+    text: async () => JSON.stringify({ choices: [{ message: { content } }] }),
+  })) as unknown as typeof fetch;
 }
 
 describe("verifyNarration -- a checker over (data, narration), the-prisoner#21 route 2", () => {
@@ -159,13 +167,6 @@ describe("verifyNarration -- a checker over (data, narration), the-prisoner#21 r
 });
 
 describe("createNarrator -- the model role, verified before it ever reaches a player", () => {
-  function fakeFetch(content: string): typeof fetch {
-    return vi.fn(async () => ({
-      ok: true,
-      text: async () => JSON.stringify({ choices: [{ message: { content } }] }),
-    })) as unknown as typeof fetch;
-  }
-
   it("returns the model's narration once it passes verification, and loads the model first", async () => {
     const ensureLoaded = vi.fn(async () => {});
     const narrator = createNarrator({
@@ -258,5 +259,113 @@ describe("formatViolationTally: rejections are evidence for the transcript, neve
 
   it("orders ties by name, so a transcript diff between two runs is stable", () => {
     expect(formatViolationTally(new Map([["invented-number", 3], ["dropped-clock", 3]]))).toBe("dropped-clock 3, invented-number 3");
+  });
+});
+
+/**
+ * 2026-09-18, OPEN-VARIANT.md §60. The owner sat in the chair and said of the
+ * PROSE view -- route 1, no model anywhere near it -- "This is the prose
+ * view?!" It was not prose. It was the raw view with different punctuation,
+ * because the completeness rule both routes were built under leaves code
+ * nothing to do but re-space a catalogue. §58.1 read that as a fact about the
+ * narrator; it is a fact about the rule.
+ *
+ * The owner's decision: keep the numbers, free the scene. A narration may
+ * leave an object or a condition out of the SCENE; it may never be vague
+ * about state, and it may never invent.
+ */
+describe("the rejecting class: what actually discards a narration (§60)", () => {
+  it("never rejects for leaving an object or a condition out of the scene -- those are counted, not fatal", () => {
+    expect(REJECTING_KINDS.has("dropped-object")).toBe(false);
+    expect(REJECTING_KINDS.has("dropped-condition")).toBe(false);
+  });
+
+  it("always rejects a narration that LIES -- invents, contradicts, speaks for the other, or rules an outcome", () => {
+    for (const kind of ["invented-number", "invented-object", "contradicts-belief", "contradicts-state", "speaks-for-other", "narrates-outcome"] as const) {
+      expect(REJECTING_KINDS.has(kind), `${kind} must still discard a narration`).toBe(true);
+    }
+  });
+
+  // NOT a relaxation, and §61's doc comment on REJECTING_KINDS says why at
+  // length: the seat renders every belief with its stamp, and the clock, by
+  // CODE, above the narration. A player gets those numbers with a guarantee no
+  // prompt can offer, so a narrator is no longer asked to carry them and is no
+  // longer discarded for writing prose instead of a recital.
+  it("leaves state to the code above it rather than discarding prose that did not recite the clock", () => {
+    expect(REJECTING_KINDS.has("dropped-belief")).toBe(false);
+    expect(REJECTING_KINDS.has("dropped-clock")).toBe(false);
+  });
+
+  it("still catches a narration that states a belief's number WRONGLY -- silence is fine, a false number never is", () => {
+    const wrong = "It is round 4 of 30. The bar's integrity was 60 as of round 2. The door stands open.";
+    expect(rejectingViolations(verify(wrong)).map((v) => v.kind)).toContain("contradicts-belief");
+  });
+
+  it("shows a scene that names one object and skips the rest, and counts what it skipped", async () => {
+    const context: OpenPrincipalContext = {
+      ...MINI_CONTEXT,
+      perceivedObjects: [
+        { id: "door", description: "A heavy door of iron-bound planks. It stands open now." },
+        { id: "bucket", description: "A tin slop bucket with a wire handle." },
+        { id: "blanket", description: "A heavy grey wool blanket." },
+      ],
+    };
+    const scene =
+      "Round 4 of 30, and the bar integrity was 80 when you last looked, as of round 2. " +
+      "The door stands open before you, iron-bound planks and all.";
+    const onObserved = vi.fn();
+    const onRejected = vi.fn();
+    const narrator = createNarrator({
+      baseUrl: "http://x",
+      model: "narrator-model",
+      fetchFn: fakeFetch(JSON.stringify({ narration: scene })),
+      onObserved,
+      onRejected,
+    });
+    const result = await narrator.narrate(PRISONER_NAME, WARDEN_NAME, context, NO_CONDITIONS);
+    expect(result).toBe(scene);
+    expect(onRejected).not.toHaveBeenCalled();
+    const [observed] = onObserved.mock.calls[0] as [NarrationViolation[]];
+    expect(kinds(observed).filter((k) => k === "dropped-object")).toHaveLength(2);
+  });
+
+  it("shows a pure scene that mentions no number at all, and counts what it left out", async () => {
+    const onObserved = vi.fn();
+    const scene = "The door stands open before you, its iron-bound planks dark against the corridor beyond.";
+    const narrator = createNarrator({
+      baseUrl: "http://x",
+      model: "narrator-model",
+      fetchFn: fakeFetch(JSON.stringify({ narration: scene })),
+      onObserved,
+    });
+    expect(await narrator.narrate(PRISONER_NAME, WARDEN_NAME, MINI_CONTEXT, NO_CONDITIONS)).toBe(scene);
+    expect(kinds(onObserved.mock.calls[0][0] as NarrationViolation[])).toContain("dropped-belief");
+  });
+
+  it("still discards a narration that invents a detail the player would act on", async () => {
+    const onRejected = vi.fn();
+    const narrator = createNarrator({
+      baseUrl: "http://x",
+      model: "narrator-model",
+      fetchFn: fakeFetch(JSON.stringify({ narration: CLEAN_NARRATION + " You notice 7 fresh scratches scored into the frame." })),
+      onRejected,
+    });
+    expect(await narrator.narrate(PRISONER_NAME, WARDEN_NAME, MINI_CONTEXT, NO_CONDITIONS)).toBeNull();
+    expect(kinds(onRejected.mock.calls[0][0] as NarrationViolation[])).toContain("invented-number");
+  });
+
+  // The completeness rule was enforced on the LABEL as one contiguous string
+  // ("bar integrity"), which no English sentence about it would ever contain:
+  // a narrator writing "the bar's integrity" was told it had dropped the
+  // belief. Freeing the scene is worth nothing if the mandatory checks are
+  // still only satisfiable by the catalogue's own word order.
+  it("accepts a belief written as English rather than as its label, so long as the number and the stamp are exact", () => {
+    const written = "It is round 4 of 30. The bar's integrity was 80 the last time you looked at it, back in round 2. The door stands open.";
+    expect(kinds(verify(written))).not.toContain("dropped-belief");
+  });
+
+  it("still catches a belief whose words are there but whose number is wrong", () => {
+    const wrong = "It is round 4 of 30. The bar's integrity was 60 as of round 2. The door stands open.";
+    expect(kinds(verify(wrong))).toContain("contradicts-belief");
   });
 });

@@ -785,6 +785,11 @@ async function mainOpen(): Promise<void> {
   let narratorRejections = 0;
   let narratorSilences = 0;
   const narratorRejectionKinds = new Map<string, number>();
+  // §60: narrations the player DID see, with the catalogue they chose to leave
+  // out counted anyway. This is the number that says whether freeing the scene
+  // bought readable prose or only a looser checker.
+  let narratorShownWithGaps = 0;
+  const narratorObservedKinds = new Map<string, number>();
   const narrator = NARRATOR_IN_USE
     ? createNarrator({
         baseUrl: MODEL_URL,
@@ -806,6 +811,10 @@ async function mainOpen(): Promise<void> {
         onRejected: (violations) => {
           narratorRejections += 1;
           for (const v of violations) narratorRejectionKinds.set(v.kind, (narratorRejectionKinds.get(v.kind) ?? 0) + 1);
+        },
+        onObserved: (violations) => {
+          narratorShownWithGaps += 1;
+          for (const v of violations) narratorObservedKinds.set(v.kind, (narratorObservedKinds.get(v.kind) ?? 0) + 1);
         },
         onSilence: () => {
           narratorSilences += 1;
@@ -1031,6 +1040,11 @@ async function mainOpen(): Promise<void> {
         `Narrator calls rejected by \`verifyNarration\` (fell back to the prose view): ${narratorRejections}. ` +
           `Silent (empty/unparseable/timed out, never reached the checker): ${narratorSilences}. ` +
           `Violations by kind: ${formatViolationTally(narratorRejectionKinds)}.`
+      );
+      transcript.push("");
+      transcript.push(
+        `Narrations SHOWN that left part of the catalogue out (§60, never a fault): ${narratorShownWithGaps}. ` +
+          `What they left out, by kind: ${formatViolationTally(narratorObservedKinds)}.`
       );
       transcript.push("");
     }

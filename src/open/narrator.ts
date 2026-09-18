@@ -61,6 +61,12 @@ export interface NarratorFacts {
   readonly parts: SeatSituationParts;
   readonly parsed: ParsedBriefing;
   readonly objects: readonly ObjectPerception[];
+  /** The conditions THEMSELVES, not only `parts.conditionLines`'s rendering
+   *  of them: `quotesACondition` has to recognise a condition said back in
+   *  whichever words a view chose, and the two views in this repository
+   *  already disagree about the connectives ("If X, then Y" against "Once X,
+   *  Y"). The authored clauses inside are what both render verbatim. */
+  readonly conditions: readonly Condition[];
 }
 
 export function buildNarratorFacts(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): NarratorFacts {
@@ -68,6 +74,7 @@ export function buildNarratorFacts(selfName: string, otherName: string, context:
     parts: seatSituationParts(selfName, otherName, context, conditions),
     parsed: parseBriefing(context.briefing),
     objects: context.perceivedObjects,
+    conditions: conditions ?? [],
   };
 }
 
@@ -107,6 +114,88 @@ function escapeRegExp(s: string): string {
 
 function mentionsLabel(text: string, label: string): boolean {
   return new RegExp(`\\b${escapeRegExp(label)}\\b`, "i").test(text);
+}
+
+/**
+ * Does this sentence talk about the belief `label` names?
+ *
+ * By its WORDS, close together, in any order -- never as one contiguous
+ * string (§60). A belief's label is this repository's own key spelling, "bar
+ * integrity"; no English sentence about it contains that, because English
+ * writes "the bar's integrity" or "the integrity of the bar". The contiguous
+ * test made `dropped-belief` unsatisfiable by prose, which mattered little
+ * while EVERY completeness kind was fatal and matters entirely now that the
+ * belief checks are among the mandatory ones.
+ *
+ * PROXIMITY, not mere presence, and the calibration test is why: a condition
+ * sentence reads "...closely examines the lock, and Warden Croft finds its
+ * integrity at or below 40...", which contains every word of the label "lock
+ * integrity" and is not a claim about the reader's belief at all. Scoring that
+ * as a belief sentence made its threshold (40) look like a contradiction of
+ * the belief (100). The words of a label that a sentence is really ABOUT sit
+ * within a few tokens of each other; the words of two different clauses do
+ * not.
+ *
+ * Deliberately nothing cleverer: no stemming, no synonyms, no judging what the
+ * sentence MEANS. A narration that names a belief and then states its number
+ * wrongly is caught by `contradicts-belief`, on the number, which is the check
+ * that can actually be right about it.
+ */
+const BELIEF_WINDOW_SLACK = 3;
+
+/** Punctuation and case removed, whitespace collapsed -- so a sentence can be
+ *  recognised as one of the data's own lines however the view that printed it
+ *  chose to punctuate it. */
+function normalise(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/**
+ * Is this narration sentence just one of the CONDITIONS the narrator was
+ * given, said back?
+ *
+ * `contradicts-belief` compares the numbers in a sentence about a belief
+ * against that belief's value, and a condition breaks it: "Once the bar's
+ * integrity is at or below 50, Mara Voss can open the window" is genuinely
+ * about the bar's integrity, sits right next to the word, and carries 50 --
+ * which is a THRESHOLD, not a claim that the bar is at 50. Scored as a belief
+ * sentence it reads as a contradiction of a belief of 100, which is how the
+ * deterministic prose view -- whose own conditions are rendered verbatim --
+ * managed to fail a checker built to catch narrators inventing things.
+ *
+ * Recognised by the data, never by meaning: a condition's own `when` clauses
+ * are authored text that every view renders verbatim, so a sentence containing
+ * one is saying back what it was given. Matched on the CLAUSES rather than on
+ * a rendered line because the two views in this repository already render the
+ * same condition differently ("If X, then Y" against "Once X, Y"), and a third
+ * would be free to differ again. No attempt to tell a hypothetical from an
+ * assertion in general -- that is exactly the judgement of MEANING this module
+ * refuses at its own top.
+ */
+function quotesACondition(facts: NarratorFacts, sentence: string): boolean {
+  const normalised = normalise(sentence);
+  return facts.conditions.some((condition) =>
+    condition.when.some((clause) => {
+      const normalisedClause = normalise(clause);
+      return normalisedClause.length > 0 && normalised.includes(normalisedClause);
+    })
+  );
+}
+
+
+function mentionsBelief(sentence: string, label: string): boolean {
+  const words = label.toLowerCase().split(/\s+/).filter((w) => w.length > 0);
+  if (words.length === 0) return false;
+  const tokens = sentence.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 0);
+  const window = words.length + BELIEF_WINDOW_SLACK;
+  for (let start = 0; start + words.length <= tokens.length; start += 1) {
+    const slice = tokens.slice(start, start + window);
+    if (words.every((w) => slice.some((t) => t.startsWith(w)))) return true;
+  }
+  return false;
 }
 
 const OPEN_STATE_WORDS = /\bstands? open\b|\bis open\b|\bopen now\b|\bswings? open\b|\blies open\b/i;
@@ -174,6 +263,56 @@ export interface NarrationViolation {
   readonly detail: string;
 }
 
+/**
+ * The violation kinds that DISCARD a narration, as against the ones a run
+ * merely counts (owner's decision, 2026-09-18, OPEN-VARIANT.md §60/§61).
+ *
+ * It is the LYING class, and only that: `invented-number`, `invented-object`,
+ * `contradicts-belief`, `contradicts-state`, `speaks-for-other`,
+ * `narrates-outcome`. Each is a narration telling the player something the
+ * world does not contain -- a detail they would then act on, the other
+ * principal's private mind, which this chair is never given, or an outcome no
+ * referee ruled. That is the liability D3 was built to catch, and it is fatal.
+ *
+ * READ THIS BEFORE CONCLUDING THAT PRECISION WAS TRADED AWAY. The completeness
+ * kinds are not here, and `dropped-belief` and `dropped-clock` in particular
+ * left this set for a reason that is the opposite of a relaxation: **the seat
+ * stopped asking a narrator to carry state at all.** `humanSeat.ts` renders
+ * every belief with its exact value and its "as of round N" stamp, the clock,
+ * the news, the conditions and the standing rules ITSELF, by code, through
+ * `deltaView.ts` -- and hands the narrator the one job a model is actually
+ * better at, the room. A player therefore gets those numbers with a guarantee
+ * no prompt can offer, and the narration is judged on whether it LIES, because
+ * that is now the only thing it can get wrong that the code above it does not
+ * already get right.
+ *
+ * The evidence that forced it (§61): asked to write a scene AND to restate the
+ * clock, a real narrator wrote the scene, skipped "round 1 of 30", and was
+ * discarded for it -- with no invention, no contradiction and nothing else
+ * wrong. Rejecting good prose over a number that code prints perfectly one
+ * line above is not a standard, it is a waste.
+ *
+ * `verifyNarration` still finds and returns every violation of every kind --
+ * the checker's job is to see, not to decide -- and this set is what
+ * `createNarrator` consults when deciding whether a player may see it. The
+ * rest are counted into the transcript (`onObserved`), because how much of the
+ * catalogue a narrator chooses to leave behind is worth knowing.
+ */
+export const REJECTING_KINDS: ReadonlySet<NarrationViolation["kind"]> = new Set<NarrationViolation["kind"]>([
+  "invented-number",
+  "invented-object",
+  "contradicts-belief",
+  "contradicts-state",
+  "speaks-for-other",
+  "narrates-outcome",
+]);
+
+/** The subset of `violations` that discards a narration -- empty means a
+ *  player may see it, whatever else was counted. */
+export function rejectingViolations(violations: readonly NarrationViolation[]): NarrationViolation[] {
+  return violations.filter((v) => REJECTING_KINDS.has(v.kind));
+}
+
 export interface VerifyNarrationOptions {
   readonly selfName: string;
   readonly otherName: string;
@@ -208,7 +347,7 @@ export function verifyNarration(facts: NarratorFacts, narration: string, options
   // 2/3. Beliefs: dropped (value or stamp missing) and contradicted (a
   // sentence about this belief gives a different number).
   for (const belief of facts.parsed.beliefs) {
-    const labelSentences = narrationSentences.filter((s) => s.toLowerCase().includes(belief.label.toLowerCase()));
+    const labelSentences = narrationSentences.filter((s) => mentionsBelief(s, belief.label));
     if (labelSentences.length === 0) {
       violations.push({ kind: "dropped-belief", detail: `"${belief.label}" (value ${belief.value}, as of round ${belief.asOfRound}) is never mentioned` });
     } else {
@@ -219,6 +358,7 @@ export function verifyNarration(facts: NarratorFacts, narration: string, options
         violations.push({ kind: "dropped-belief", detail: `"${belief.label}"'s stamp (as of round ${belief.asOfRound}) does not appear anywhere in the narration` });
       }
       for (const s of labelSentences) {
+        if (quotesACondition(facts, s)) continue;
         const nums = extractIntegers(s);
         if (nums.length > 0 && !nums.includes(belief.value)) {
           violations.push({ kind: "contradicts-belief", detail: `a sentence about "${belief.label}" gives ${nums.join(", ")}, but the belief is ${belief.value}: "${s}"` });
@@ -355,11 +495,29 @@ function coerceNarratorReply(raw: unknown): NarratorReply | null {
   return { intent: narration, narration };
 }
 
+/**
+ * §61.1: `mind.ts`'s `objectLines` renders `- loose_tile: <description>`,
+ * because an object's ID is the key a referee rules against and that is
+ * exactly right for the prompts that ask for an intent. A narrator is writing
+ * for a person, and the first real run had it echo the id straight into the
+ * prose ("your fingers brushing the loose_tile's cracked surface").
+ *
+ * Fixed HERE and nowhere else: `mind.ts` feeds the wits and voice prompts, and
+ * editing it to suit a narrator would move the benchmark every measured run
+ * sits on. This is a prompt-shaping step over data this module already holds.
+ * The FACTS keep the id -- `verifyNarration` matches on both spellings
+ * (`mentionsLabel`), so nothing here weakens the checker.
+ */
+function spacedObjectLines(facts: NarratorFacts): string[] {
+  const ids = facts.objects.map((o) => o.id).filter((id) => id.includes("_"));
+  return facts.parts.objectLines.map((line) => ids.reduce((acc, id) => acc.replace(id, id.replace(/_/g, " ")), line));
+}
+
 function factsAsPromptLines(facts: NarratorFacts): string[] {
   const lines: string[] = [];
   if (facts.parts.conditionLines.length > 0) lines.push(...facts.parts.conditionLines, "");
   lines.push(...facts.parts.identityLines, "");
-  lines.push("Perceived objects:", ...facts.parts.objectLines, "");
+  lines.push("Perceived objects:", ...spacedObjectLines(facts), "");
   lines.push(...facts.parts.ruleLines);
   return lines;
 }
@@ -373,10 +531,26 @@ function buildNarratorPrompt(selfName: string, otherName: string, facts: Narrato
     "Write the scene as flowing narrative prose, second person, for the player to read.",
     "RULES, followed exactly:",
     "- Use ONLY the facts given above. Never invent a number, an object, an action, or a state that is not stated above.",
-    '- Every belief above must appear, with its exact value AND its "as of round N" stamp, in words close to those.',
-    "- Every perceived object listed above must be mentioned.",
-    "- Every number in the condition list above (if any) must appear.",
-    "- The round number and the total number of rounds must both appear.",
+    "- Write the ROOM, and only the room. The player is shown the clock, every number they know with the round they " +
+      "learned it in, the conditions and the rules separately, in full, right above your prose -- so you do not need to " +
+      "repeat any of them, and prose that recites them reads worse than prose that does not.",
+    "- A SCENE, not an inventory. Foreground what a person standing in this room would actually notice. You do NOT have " +
+      "to mention every object listed above; the player can ask for the full list at any time and it costs them nothing.",
+    "- If you do give a number, it must be one of the numbers above, said exactly.",
+    // §61.1: with completeness no longer holding it to the catalogue, the
+    // first real narrator filled the space with invented atmosphere --
+    // moonlight, a smell of damp, stars, and "no guards on this side this
+    // late at night", which is fabricated tactical information a player would
+    // act on. `verifyNarration` cannot catch any of it (§54's own documented
+    // limit: a plausible sentence with no number, no known object and no
+    // outcome word). The prompt is the only lever this side of a second
+    // verifier model, so it says the quiet part explicitly and by category.
+    "- Add NOTHING that is not written above. No weather, no light or darkness, no time of day, no sounds, no smells, " +
+      "no temperature, no other rooms, and no other people. If the descriptions above do not mention it, it does not " +
+      "exist and you may not put it in the room.",
+    "- You may re-order what is above, connect it into flowing sentences, and choose what to foreground. You may not " +
+      "add to it. Every concrete thing in your prose must be traceable to a line above.",
+    `- Write about ${selfName} as "you" throughout. Never switch to her name or to "she" for the person you are addressing.`,
     `- Never write what ${otherName} thinks, feels, plans, wants, believes, hopes, or decides -- you are only given what ${selfName} perceives, never ${otherName}'s own mind.`,
     "- Never say what happens as a RESULT of anything -- only a referee decides outcomes. Describe the scene as it stands, not what will happen next.",
     'Answer with one JSON object: {"narration": string}.',
@@ -404,6 +578,13 @@ export interface CreateNarratorOptions {
    *  liability that cannot mislead them," but it must still be COUNTED and
    *  recorded where a transcript will show it (`checkpoint.ts`). */
   onRejected?: (violations: readonly NarrationViolation[], raw: string) => void;
+  /** The narration was SHOWN, and `verifyNarration` still found violations in
+   *  it -- from §60 on, the kinds outside `REJECTING_KINDS`: a scene that left
+   *  an object or a condition out. Never a fault, and never hidden either:
+   *  this is how a run measures how much of the catalogue its narrator is
+   *  actually choosing to leave behind, which is the number that says whether
+   *  §60 bought readable prose or only a looser checker. */
+  onObserved?: (violations: readonly NarrationViolation[], raw: string) => void;
   /** See `VerifyNarrationOptions.knownWorldLabels`. */
   knownWorldLabels?: readonly string[];
 }
@@ -437,10 +618,12 @@ export function createNarrator(options: CreateNarratorOptions): Narrator {
       const reply = await localMind.consider(context);
       if (reply === null) return null;
       const violations = verifyNarration(facts, reply.narration, { selfName, otherName, knownWorldLabels: options.knownWorldLabels });
-      if (violations.length > 0) {
+      // §60: every violation is still FOUND; only the rejecting class decides.
+      if (rejectingViolations(violations).length > 0) {
         options.onRejected?.(violations, reply.narration);
         return null;
       }
+      if (violations.length > 0) options.onObserved?.(violations, reply.narration);
       return reply.narration;
     },
   };

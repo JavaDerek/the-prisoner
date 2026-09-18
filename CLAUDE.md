@@ -105,10 +105,21 @@ never goes through it**, as the default view or as the on-demand escape hatch: i
 to the model's prompt, which is what every measured run reads and what §47's like-for-like seat
 depends on.
 
-**Before widening what `verifyNarration` rejects, read OPEN-VARIANT.md §58.1.** Its completeness
-kinds (`dropped-*`) make `narrated` unable to produce prose at all -- the first human game rejected
-every narration on those alone, with zero violations from the kinds that mean the narrator LIED.
-Whether a narration may be lossy is an open question about §47's rule, not a calibration knob.
+Under `narrated`, **code renders state and the model renders the room** (§61): the seat itself shows
+the conditions, the identity, the clock and news, notes and plan, and every belief WITH its stamp,
+through that same delta -- the narration replaces the SCENE block alone. That is why
+`verifyNarration` discards only the lying kinds (`invented-*`, `contradicts-*`, `speaks-for-other`,
+`narrates-outcome`) and merely counts the `dropped-*` ones: a narrator is never asked to carry a
+number, so it is never discarded for failing to recite one. **Read §61 before moving a kind between
+those two sets** -- the split is two different claims about a narration, not a strictness dial.
+
+**`PRISONER_NARRATOR_MODEL` wants the most obedient model available, not the best writer available**
+(§61.1). This is measured, not taste: with completeness no longer holding a narration to the
+catalogue, `ancient-awakening:12b` filled the room with invented moonlight, smells, stars and "no
+guards on this side this late at night" -- fabricated tactical information a player would act on,
+which `verifyNarration` structurally cannot catch (§54's own documented limit). Tightening the
+prompt made that model worse. `qwen3:14b` on the identical prompt stays inside the data. The
+residual is only catchable by a second verifier model, which is a cost decision (§61.1), still open.
 
 ## Never run `npm run format` on this repository
 

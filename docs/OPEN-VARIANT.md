@@ -4961,3 +4961,114 @@ object whose description changed is one item that moved, not one object leaving 
 arriving. `proseView.ts` now emits its blocks with those keys (`proseBlocks`, `ProseItem`) rather
 than a finished string another module would have to take apart with a regular expression to guess
 the same thing.
+
+## 60. "This is the prose view?!" — the completeness rule, not the narrator (2026-09-18)
+
+§58.1 read the narrator's 100% rejection rate as a fact about the narrator. It is a fact about the
+rule both routes were built under, and the owner found it by looking at **route 1**, where no model
+is involved at all:
+
+> This is the prose view?!
+
+It was not prose. `The window: A small window set in the wall at shoulder height...` is a catalogue
+entry with a colon in it; `Once the bar's integrity is at or below 50, Mara Voss can open the window
+-- condition 1, for you.` is a truth table with commas. §53 re-punctuated the raw view. It did not
+rewrite it, **and it could not**: pinned by a completeness test that requires every object's
+description, every belief's value and stamp and every condition's threshold to survive verbatim,
+code has nothing left to do but re-space a data dump. Real prose has to choose what to foreground
+and what to leave implicit, and that is a judgement, which means a model.
+
+So route 1 and route 2 fail identically, for one reason. Route 1's failure stayed invisible for a
+day only because nobody had sat in the chair long enough to say so out loud.
+
+**Owner's decision: keep the numbers, free the scene.** A narration may leave an object or a
+condition out; it may never be vague about state and may never invent. §61 is what that turned into
+once it met a real model, and the shape it settled in is better than the decision as written.
+
+### 60.1 Two checker bugs the freeing exposed
+
+Both were harmless while every completeness kind was fatal, and both would have made the freed
+checker wrong:
+
+- **A belief's label was matched as one contiguous string.** `"bar integrity"` is this repository's
+  key spelling; no English sentence contains it, because English writes "the bar's integrity". So
+  `dropped-belief` was unsatisfiable by prose — fine when the narration had to be a recital, fatal
+  the moment the belief checks became the mandatory ones. Now matched by its words, in any order,
+  **within a few tokens of each other**. Proximity is load-bearing: "...examines the lock, and
+  Warden Croft finds its integrity at or below 40..." contains every word of "lock integrity" and is
+  not a claim about the reader's belief at all.
+- **A condition read as a contradiction of a belief.** "Once the bar's integrity is at or below 50"
+  is genuinely about the bar's integrity, sits right next to the words, and carries 50 — a
+  *threshold*, not a claim that the bar is at 50. Scored as a belief sentence it contradicted a
+  belief of 100, which is how the deterministic prose view managed to fail a checker built to catch
+  narrators inventing things. A sentence containing one of a condition's own authored `when` clauses
+  is now recognised as saying back what it was given — matched on the clauses, not on a rendered
+  line, because the two views already render the same condition differently ("If X, then Y" against
+  "Once X, Y").
+
+## 61. Code renders state, the model renders the room (2026-09-18)
+
+§60 as decided was still wrong in one place, and one call to a real narrator showed it.
+
+Asked to write a scene **and** to restate the clock, `ancient-awakening:12b` wrote the scene and
+skipped "round 1 of 30". It was discarded for that — with no invention, no contradiction, nothing
+else wrong. Rejecting good prose over a number that code prints perfectly one line above is not a
+standard; it is a waste.
+
+The fix inverts the split. **The seat renders everything except the scene** — the conditions, the
+identity, the clock and the news, notes and plan, and every belief with its exact value and its "as
+of round N" stamp — by code, through §59's delta, so a narrated turn is as precise as a prose turn
+and shows the standing parts once. The narration replaces the **scene block alone**, which is the
+one part of the view a model is better at than a `${label}: ${description}` catalogue.
+
+`REJECTING_KINDS` therefore shrinks to the lying class: `invented-*`, `contradicts-*`,
+`speaks-for-other`, `narrates-outcome`. **This is not the precision trade the owner was asked to
+approve** — it is a stronger guarantee reached from the other side. A player gets those numbers from
+code, which no prompt can promise, and the narration is judged on whether it lies, because that is
+now the only thing it can get wrong that the code above it does not already get right.
+
+### 61.1 What freeing the scene actually bought, and what it cost
+
+It bought prose. The first readable round this project has produced for a person is in §61.2 below.
+
+It cost the thing §54 wrote down as its own limit and could afford to leave theoretical, because
+completeness was accidentally holding the line: **a plausible sentence with no number, no known
+object and no outcome word, that is nonetheless false.** With the catalogue no longer compulsory,
+that space is where a narrator now spends its effort. `ancient-awakening:12b`, first run:
+
+> a thin sliver of **moonlight** ... the air **smells of stone dust and old damp** ... **there are
+> no guards on this side this late at night** ... the **stars** are bright and silent
+
+No moonlight, no smell, no corridor, no stars anywhere in the data — and "no guards on this side
+this late at night" is **fabricated tactical information a player would act on**. `verifyNarration`
+caught none of it and structurally cannot.
+
+Tightening the prompt by category (no weather, no light, no sounds, no smells, no other rooms, no
+other people; re-order what is above, never add to it) made that model *worse*, not better: it moved
+on to inventing Croft's footsteps approaching down a corridor — while Croft is **in the room**,
+which the data says plainly and `contradicts-state` does not cover, since it only checks open/closed
+polarity.
+
+**The model turned out to matter more than the prompt.** `qwen3:14b` — an instruction-following
+model rather than a creative-writing one — on the identical prompt and data stays inside the
+descriptions almost entirely. Residual invention at the margins (a smell derived from the wool
+blanket and the rust, where the player is standing, the keys "clinking against the stone floor" when
+the data has them on Croft's belt), but nothing of the "no guards tonight" kind.
+
+So `PRISONER_NARRATOR_MODEL` is not a free choice, and a creative-writing model is the wrong tool
+for a view that must not invent. This is worth stating as more than a tip: **the narrator role wants
+the most obedient model available, not the best writer available**, because the prose it is asked
+for is re-presentation, not composition.
+
+**Left open, and it is the same open question §54 named:** the residual is only catchable by a
+second, independent verifier model asking "is this sentence supported by the facts". That is another
+tenant on the 4090 and another swap per turn, which is a cost decision, not a code one.
+
+### 61.2 One more bug the first real run showed
+
+`mind.ts`'s `objectLines` renders `- loose_tile: <description>`, because an object's id is the key
+the referee rules against — exactly right for the prompts that ask for an intent, and wrong for a
+narrator writing for a person, which duly echoed it: "your fingers brushing the **loose_tile's**
+cracked surface". Fixed in `narrator.ts` alone, as a prompt-shaping step over data it already holds.
+`mind.ts` feeds the wits and voice prompts, and editing it to suit a narrator would move the
+benchmark every measured run sits on.

@@ -257,3 +257,79 @@ describe("the prose view holds back the standing world once the player has read 
     expect(written.join("\n")).toContain("One of five vertical iron bars.");
   });
 });
+
+// OPEN-VARIANT.md §60: a narration may leave objects and conditions out of the
+// scene, which is what freed it to be prose. The conditions are the rules of
+// the game, so the seat shows them by code instead -- once, through the same
+// delta -- rather than leaving the rulebook to a narrator's discretion.
+describe("narrated: the narrator gets the room, the rulebook is shown by code (§60)", () => {
+  const CONDITIONS = openConditions();
+  const SCENE = "The cell is quiet. Round 1 of 12, and the bar's integrity was 100 when you last looked, back in round 1.";
+
+  it("shows the conditions in full alongside the first narration, however little the narration says", async () => {
+    const { mind, written } = seat(["wait", "", ""], { view: "narrated", narrator: scriptedNarrator(SCENE), conditions: CONDITIONS });
+    await mind.consider(CONTEXT);
+    const shown = written.join("\n");
+    expect(shown).toContain(SCENE);
+    expect(shown).toContain("condition 1, for you.");
+  });
+
+  it("holds the conditions back on a later turn, leaving the narration to carry the round on its own", async () => {
+    const written: string[] = [];
+    const { ask } = player("wait", "", "", "wait", "", "");
+    const mind = createHumanSeatMind({
+      selfName: PRISONER_NAME,
+      otherName: WARDEN_NAME,
+      ask,
+      write: (t) => written.push(t),
+      view: "narrated",
+      narrator: scriptedNarrator(SCENE),
+      conditions: CONDITIONS,
+    });
+    await mind.consider(CONTEXT);
+    written.length = 0;
+    await mind.consider({ ...CONTEXT, briefing: "Round 2 of 12.\nbar integrity: 100 (as of round 1)" });
+    const second = written.join("\n");
+    expect(second).toContain(SCENE);
+    expect(second).not.toContain("condition 1, for you.");
+  });
+
+  it("falls back to the full prose view when a narration is rejected, with nothing about the conditions lost", async () => {
+    const { mind, written } = seat(["wait", "", ""], { view: "narrated", narrator: scriptedNarrator(null), conditions: CONDITIONS });
+    await mind.consider(CONTEXT);
+    const shown = written.join("\n");
+    expect(shown).toContain("condition 1, for you.");
+    expect(shown).toContain("One of five vertical iron bars.");
+  });
+});
+
+// §61: the narration replaces the SCENE and nothing else. Every number the
+// player plays against is rendered by code above it, which is what let the
+// verifier stop discarding prose for failing to recite the clock.
+describe("narrated: code renders state, the model renders the room (§61)", () => {
+  const SCENE = "The cell is quiet. Iron bars cross the window, and one of them is rusted through at the foot.";
+
+  it("shows the clock, the news and every belief with its stamp by code, whatever the narration says", async () => {
+    const { mind, written } = seat(["wait", "", ""], { view: "narrated", narrator: scriptedNarrator(SCENE) });
+    // A belief line as `briefing.ts` actually renders one, trailing period and
+    // all -- CONTEXT's own is a shorthand older tests share, which
+    // `parseBriefing` keeps verbatim as news rather than reading as a belief.
+    await mind.consider({ ...CONTEXT, briefing: "Round 1 of 12.\nbar integrity: 100 (as of round 1)." });
+    const shown = written.join("\n");
+    expect(shown).toContain(SCENE);
+    expect(shown).toContain("This is round 1 of 12.");
+    expect(shown).toContain("Your last word on the bar integrity was 100, as of round 1.");
+  });
+
+  it("leaves the object catalogue to the narration -- the one block a model is better at", async () => {
+    const { mind, written } = seat(["wait", "", ""], { view: "narrated", narrator: scriptedNarrator(SCENE) });
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).not.toContain("The bar: One of five vertical iron bars.");
+  });
+
+  it('"raw" still reaches the full catalogue the narration chose not to list', async () => {
+    const { mind, written } = seat(["raw", "wait", "", ""], { view: "narrated", narrator: scriptedNarrator(SCENE) });
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).toContain("One of five vertical iron bars.");
+  });
+});
