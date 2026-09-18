@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { createOpenMind, renderSeatSituation, type OpenPrincipalContext } from "../mind.js";
 import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, type ViewMode } from "../humanSeat.js";
+import type { Narrator } from "../narrator.js";
 import { openConditions } from "../conditions.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 
@@ -19,7 +20,7 @@ function player(...lines: string[]): { ask: (prompt: string) => Promise<string |
   return { asked, ask: async (prompt: string) => (asked.push(prompt), lines[i++]) };
 }
 
-function seat(lines: string[], options: { conditions?: ReturnType<typeof openConditions>; view?: ViewMode } = {}) {
+function seat(lines: string[], options: { conditions?: ReturnType<typeof openConditions>; view?: ViewMode; narrator?: Narrator } = {}) {
   const written: string[] = [];
   const { ask, asked } = player(...lines);
   const mind = createHumanSeatMind({
@@ -29,8 +30,16 @@ function seat(lines: string[], options: { conditions?: ReturnType<typeof openCon
     write: (text) => written.push(text),
     ...(options.conditions ? { conditions: options.conditions } : {}),
     ...(options.view ? { view: options.view } : {}),
+    ...(options.narrator ? { narrator: options.narrator } : {}),
   });
   return { mind, written, asked };
+}
+
+/** A narrator stand-in: fixed script, and it never touches a network --
+ *  exactly `mind-seam`'s own `scriptedMind` reasoning applied to `narrator.ts`'s
+ *  `Narrator` interface, which is not itself a `Mind`. */
+function scriptedNarrator(script: string | null): Narrator {
+  return { narrate: async () => script };
 }
 
 // the-prisoner#11's terminal half: a person in one of the two chairs, through the same
@@ -113,12 +122,13 @@ describe("the human seat", () => {
 // the-prisoner#21: a human-fiction view of a turn, for the player only, that
 // changes nothing about what the player knows.
 describe("PRISONER_VIEW chooses how the seat is shown -- never what it is shown", () => {
-  it("unset or 'raw' is today's view; 'prose' is the new one; anything else stops the run", () => {
+  it("unset or 'raw' is today's view; 'prose' and 'narrated' (D3) are recognised; anything else stops the run", () => {
     expect(readViewMode(undefined)).toBe("raw");
     expect(readViewMode("")).toBe("raw");
     expect(readViewMode("raw")).toBe("raw");
     expect(readViewMode("prose")).toBe("prose");
-    expect(() => readViewMode("narrated")).toThrow(/PRISONER_VIEW/);
+    expect(readViewMode("narrated")).toBe("narrated");
+    expect(() => readViewMode("fiction")).toThrow(/PRISONER_VIEW/);
   });
 
   it("defaults to the raw view -- no `view` option changes nothing from before this issue", async () => {
@@ -140,5 +150,38 @@ describe("PRISONER_VIEW chooses how the seat is shown -- never what it is shown"
     expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
     expect(written.join("\n")).toContain("- bar: One of five vertical iron bars.");
     expect(asked.filter((p) => p.startsWith("What do you try this turn?")).length).toBe(2);
+  });
+});
+
+// D3 (2026-09-18), route 2 of the-prisoner#21: the narrator model, a switch
+// beside "raw"/"prose", human seat only, no model prompt ever touched.
+describe("PRISONER_VIEW=narrated -- the narrator model, shown only once verified (D3)", () => {
+  it("shows the narrator's own prose once it is given a verified narration", async () => {
+    const narrator = scriptedNarrator("A hush sits over the cell tonight.");
+    const { mind, written } = seat(["I test the bar.", ""], { view: "narrated", narrator });
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).toContain("A hush sits over the cell tonight.");
+  });
+
+  it("falls back to the prose view when the narrator returns null -- a failed verification or a silent model, never shown to the player as an error", async () => {
+    const narrator = scriptedNarrator(null);
+    const { mind, written } = seat(["I test the bar.", ""], { view: "narrated", narrator });
+    await mind.consider(CONTEXT);
+    const shown = written.join("\n");
+    // The prose view's own rendering of the same data, not the raw labelled blocks.
+    expect(shown).not.toContain("- bar: One of five vertical iron bars.");
+    expect(shown).toContain("One of five vertical iron bars.");
+  });
+
+  it("typing 'raw' still reprints the raw NPC view on demand under 'narrated', exactly as under 'prose'", async () => {
+    const narrator = scriptedNarrator("A hush sits over the cell tonight.");
+    const { mind, written, asked } = seat(["raw", "I test the bar.", ""], { view: "narrated", narrator });
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    expect(written.join("\n")).toContain("- bar: One of five vertical iron bars.");
+    expect(asked.filter((p) => p.startsWith("What do you try this turn?")).length).toBe(2);
+  });
+
+  it("'narrated' with no narrator configured is a configuration error, caught at construction, never guessed past", () => {
+    expect(() => seat(["I test the bar.", ""], { view: "narrated" })).toThrow(/narrator/i);
   });
 });

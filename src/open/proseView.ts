@@ -53,13 +53,18 @@ const GROUNDS_LINE = /^You have grounds to search: suspicion (\d+)\.$/;
 const NOTES_LINE = /^Your notes from last round: (.+)$/;
 const PLAN_LINE = /^Your plan, from your last turn: (.+)$/;
 
-interface BeliefFact {
+/** Exported for `narrator.ts` (the-prisoner#21 route 2): the narrator is
+ *  given "the SAME structured data the prose view composes from" (this
+ *  task's brief), which means this exact parse of `context.briefing` --
+ *  never a second, independently-written parser that could drift from this
+ *  one and read the identical briefing text differently. */
+export interface BeliefFact {
   readonly label: string;
   readonly value: number;
   readonly asOfRound: number;
 }
 
-interface ParsedBriefing {
+export interface ParsedBriefing {
   readonly roundN?: number;
   readonly totalRounds?: number;
   readonly beliefs: readonly BeliefFact[];
@@ -82,8 +87,14 @@ interface ParsedBriefing {
  *  words (CLAUDE.md's "never pattern-match meaning" is about a referee
  *  judging free-text INTENT; this is the opposite direction, recognising
  *  this repository's own deterministic output). Anything that matches
- *  nothing here is kept, verbatim, in `other` -- never dropped. */
-function parseBriefing(briefing: string): ParsedBriefing {
+ *  nothing here is kept, verbatim, in `other` -- never dropped.
+ *
+ *  Exported for `narrator.ts` (the-prisoner#21 route 2): the narrator is
+ *  given "the SAME structured data the prose view composes from" (this
+ *  task's brief), which means this exact parse of `context.briefing` --
+ *  never a second, independently-written parser that could read the
+ *  identical briefing text differently and drift from this one. */
+export function parseBriefing(briefing: string): ParsedBriefing {
   const beliefs: BeliefFact[] = [];
   const other: string[] = [];
   let roundN: number | undefined;

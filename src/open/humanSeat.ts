@@ -1,5 +1,6 @@
 import { renderSeatSituation, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
 import { renderProseSituation } from "./proseView.js";
+import type { Narrator } from "./narrator.js";
 import type { Condition } from "./conditionList.js";
 
 /**
@@ -35,15 +36,20 @@ export type SeatMode = "off" | "prisoner" | "warden";
  *  prompt opening (`renderSeatSituation`, mind.ts). `prose` is deterministic
  *  prose composed by code from the SAME `OpenPrincipalContext` and the SAME
  *  conditions (`proseView.ts`) -- no model call, nothing invented, nothing
- *  the raw view does not also say. */
-export type ViewMode = "raw" | "prose";
+ *  the raw view does not also say. `narrated` (D3, route 2, `narrator.ts`)
+ *  asks a model for prose over the SAME data and shows it only once
+ *  `verifyNarration` finds nothing wrong with it -- a narration that fails
+ *  that check is discarded and this falls back to `prose`, silently to the
+ *  player (the failure is still counted, by `checkpoint.ts`, where a
+ *  transcript will show it). */
+export type ViewMode = "raw" | "prose" | "narrated";
 
-/** `PRISONER_VIEW=raw|prose` chooses HOW the human seat is shown, never
- *  WHAT it is shown. Anything else stops the run rather than guessing. */
+/** `PRISONER_VIEW=raw|prose|narrated` chooses HOW the human seat is shown,
+ *  never WHAT it is shown. Anything else stops the run rather than guessing. */
 export function readViewMode(raw: string | undefined): ViewMode {
   if (raw === undefined || raw === "") return "raw";
-  if (raw === "raw" || raw === "prose") return raw;
-  throw new Error(`PRISONER_VIEW: unrecognised value ${JSON.stringify(raw)} -- must be "raw", "prose" or unset`);
+  if (raw === "raw" || raw === "prose" || raw === "narrated") return raw;
+  throw new Error(`PRISONER_VIEW: unrecognised value ${JSON.stringify(raw)} -- must be "raw", "prose", "narrated" or unset`);
 }
 
 /** `PRISONER_HUMAN=prisoner|warden` seats a person in that chair; unset (the default) is
@@ -79,9 +85,17 @@ export interface CreateHumanSeatOptions {
   conditions?: readonly Condition[];
   /** the-prisoner#21. Unset (or `"raw"`): today's view. `"prose"`: the
    *  fiction view, `proseView.ts`'s `renderProseSituation` over the same
-   *  data. Either way, typing `"raw"` at the intent prompt shows the raw
-   *  NPC view on demand -- see `consider` below. */
+   *  data. `"narrated"`: `narrator.ts`'s model narrator over the same data,
+   *  verified before being shown (see `narrator` below); a rejected or
+   *  absent narration falls back to `"prose"`. Either way, typing `"raw"` at
+   *  the intent prompt shows the raw NPC view on demand -- see `consider`
+   *  below. */
   view?: ViewMode;
+  /** REQUIRED when `view` is `"narrated"` -- the constructed narrator role
+   *  (`narrator.ts`'s `createNarrator`), so this file never builds a model
+   *  call itself. Checked at construction time (fail fast, same as every
+   *  other misconfiguration in this file), never guessed past. */
+  narrator?: Narrator;
 }
 
 function typed(raw: string | undefined): string | undefined {
@@ -92,14 +106,24 @@ function typed(raw: string | undefined): string | undefined {
 export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   const { selfName, otherName, ask, write } = options;
   const view = options.view ?? "raw";
+  // Fail fast, same as every other misconfiguration in this file: a narrator
+  // is REQUIRED for "narrated", checked once at construction rather than on
+  // every turn, and held in a variable `tsc` can narrow to non-optional so
+  // `consider` below never needs a non-null assertion to call it.
+  if (view === "narrated" && !options.narrator) {
+    throw new Error('PRISONER_VIEW=narrated needs a narrator: createHumanSeatMind was not given one (options.narrator). Configure PRISONER_NARRATOR_MODEL and wire narrator.ts\'s createNarrator, or use "raw"/"prose" instead.');
+  }
+  const narrator = options.narrator;
   return {
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
-      write(
-        view === "prose"
-          ? renderProseSituation(selfName, otherName, context, options.conditions)
-          : renderSeatSituation(selfName, otherName, context, options.conditions)
-      );
+      const situation =
+        view === "narrated" && narrator
+          ? ((await narrator.narrate(selfName, otherName, context, options.conditions)) ?? renderProseSituation(selfName, otherName, context, options.conditions))
+          : view === "prose"
+            ? renderProseSituation(selfName, otherName, context, options.conditions)
+            : renderSeatSituation(selfName, otherName, context, options.conditions);
+      write(situation);
       write("");
       // The one line of the model's prompt that is about the game rather than about
       // answering in JSON, and the only thing a player needs told: there is no move list.
