@@ -3821,6 +3821,78 @@ left standing is only the measured fact that pricing the door at all removes it 
 game of the batch went out of the window at round 7 with no intent ruled against the door or the lock,
 which is one game and points the wrong way for me.
 
+### 50.7 The margin arm refutes §50.5's mechanism: she takes the door when it is free, and prices it out of her plans at any gate
+
+Four games an arm, `free` against `margin`, arms alternating, otherwise identical, run from a worktree
+pinned at `6bf2189` per this repository's own rule. All twenty-two door-arm games together:
+
+```
+arm        stated end      rnd exit                 susp bar lock doorT winT  rev        stamp
+free       true   escaped    6 window                 74  40  100     0    6  pre-header 2026-09-18T03-25-07-182Z
+free       true   escaped    2 door                    5 100  100     2    0  pre-header 2026-09-18T03-31-13-042Z
+free       true   escaped    3 door                   22  85  100     2    1  pre-header 2026-09-18T03-45-36-451Z
+free       true   escaped    6 window                 68  40  100     0    6  pre-header 2026-09-18T03-55-12-159Z
+free       true   escaped    2 door                    5 100  100     2    0  pre-header 2026-09-18T04-06-56-579Z
+free       true   escaped    3 door                   35  75  100     2    1  pre-header 2026-09-18T04-16-56-720Z
+free       true   escaped    2 door                    5 100  100     2    0  cd95cc2    2026-09-18T04-25-18-928Z
+free       true   escaped    2 door                    5 100  100     2    0  pre-header 2026-09-18T04-35-48-519Z
+free       true   escaped    2 door                    5 100  100     2    0  pre-header 2026-09-18T04-44-03-426Z
+free       true   escaped    6 window                 56  47  100     0    6  pre-header 2026-09-18T04-51-43-849Z
+free       true   escaped    3 door                   32  85  100     2    1  pre-header 2026-09-18T05-05-36-651Z
+margin     true   escaped    7 window                 71  46  100     0    7  pre-header 2026-09-18T04-37-33-173Z
+margin     true   escaped    6 window                 71  47  100     0    6  pre-header 2026-09-18T04-46-14-770Z
+margin     true   escaped    8 window                 67  45  100     0    8  pre-header 2026-09-18T04-57-30-868Z
+margin     true   escaped    6 window                 60  47  100     0    6  pre-header 2026-09-18T05-08-50-529Z
+threshold  true   escaped    6 window                 74  40  100     0    6  pre-header 2026-09-18T03-33-17-658Z
+threshold  true   escaped    6 window                 76  47  100     0    6  pre-header 2026-09-18T03-39-08-817Z
+threshold  true   escaped    6 window                 74  40  100     0    6  pre-header 2026-09-18T03-48-47-155Z
+threshold  true   escaped    6 window                 64  40  100     0    6  pre-header 2026-09-18T04-00-34-578Z
+threshold  true   escaped    8 window                 67  45  100     0    8  pre-header 2026-09-18T04-09-37-620Z
+threshold  true   escaped    6 window                 84  40  100     0    6  bfb5e27    2026-09-18T04-20-12-820Z
+threshold  true   caught     6 -                      86  25  100     0    5  fe1169f    2026-09-18T04-28-00-756Z
+
+free: 11 games, escaped 11, out through the door 8, mean escape round 3.4, mean final suspicion 28.4, games where she aimed at the door or lock at all 8
+
+margin: 4 games, escaped 4, out through the door 0, mean escape round 6.8, mean final suspicion 67.3, games where she aimed at the door or lock at all 0
+
+threshold: 7 games, escaped 6, out through the door 0, mean escape round 6.3, mean final suspicion 75.0, games where she aimed at the door or lock at all 0
+```
+
+| arm | games | out the door | games that aimed at the door or lock at all | mean escape round | mean final suspicion |
+|---|---|---|---|---|---|
+| `free` | 11 | **8** | 8 | 3.4 | 28 |
+| `threshold` (lock ≤ 30) | 7 | 0 | 0 | 6.3 | 75 |
+| `margin` (lock ≤ 60) | 4 | **0** | **0** | 6.8 | 67 |
+
+**The prediction §50.6 wrote down before this batch is refuted, and it was mine.** The catch-band mechanism
+said she declined `threshold` because reaching a gate of 30 means crossing the band where a look can catch
+her, and it predicted she WOULD use a door gated at 60, whose first openable step (60) sits safely above
+the catch line (40). She never aimed at it, in four games, not once. **Zero door escapes across eleven
+games of the two priced arms; eight door escapes in eleven games when the door is free.**
+
+**What stands is the rival, simpler reading:** she takes the door when it costs nothing and prices it out
+of her plans at any gate at all. Not out of danger — 60 is safe — but because it is work, and the window
+is the route she already has a plan for. Her own words in §50.5's caught game turn out to be exactly
+right, and my inference from the numbers exactly wrong: *"The lock is at 100, so focusing on the door is
+less urgent."* Distance, not danger. **This is §46.5's lesson pointing the other way for once — a mind's
+stated reason was not evidence of the operative cause, and neither was my arithmetic; the difference is
+that hers was right.**
+
+**The consequence for §46 and for `mother-of-invention`.** §46 wanted "a room where two paths are both
+actually used" as the precondition its thesis has never had, and got it by making the door free — which is
+not a choice but a dominant answer. This batch says **that precondition is not reachable by pricing the
+door**: every price tested removes the door from her plans entirely, so the room offers one live route
+under `threshold` and `margin` and one dominant route under `free`. Adjusting the door's gate cannot
+produce a genuine choice here.
+
+**The next experiment this suggests, and it is cheap.** In every game of every arm, condition 1 is the
+window. She plans the window from round 1 in all twenty-two games, whatever the door costs. So the
+operative cause may not be price at all but **the order of her own condition list** — the route named
+first is the route she plans. That is testable at one line's cost against the `margin` arm (state the door
+condition before the window's and change nothing else), it distinguishes "any price kills the door" from
+"the first-named route wins", and it bears directly on `conditionList.ts`, which is shared infrastructure
+under D4. Filed rather than built: the list's content is where the owner's own decisions live (§40).
+
 ## 51. An instrument that does not exist, and a derive the referee never chose (2026-09-18, the-prisoner#17/#18)
 
 §48's own first human game (`checkpoints/2026-09-18T02-40-27-834Z.md`) escaped in four rounds on a
