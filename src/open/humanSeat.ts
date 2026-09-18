@@ -1,4 +1,5 @@
 import { renderSeatSituation, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
+import { renderProseSituation } from "./proseView.js";
 import type { Condition } from "./conditionList.js";
 
 /**
@@ -27,6 +28,23 @@ import type { Condition } from "./conditionList.js";
  * is testable without a terminal; `checkpoint.ts` supplies the real readline.
  */
 export type SeatMode = "off" | "prisoner" | "warden";
+
+/** the-prisoner#21: a human-fiction view of a turn, for the player only,
+ *  that changes nothing about what the player knows. `raw` (unset, the
+ *  default) is exactly today's view -- byte-identical to the model's own
+ *  prompt opening (`renderSeatSituation`, mind.ts). `prose` is deterministic
+ *  prose composed by code from the SAME `OpenPrincipalContext` and the SAME
+ *  conditions (`proseView.ts`) -- no model call, nothing invented, nothing
+ *  the raw view does not also say. */
+export type ViewMode = "raw" | "prose";
+
+/** `PRISONER_VIEW=raw|prose` chooses HOW the human seat is shown, never
+ *  WHAT it is shown. Anything else stops the run rather than guessing. */
+export function readViewMode(raw: string | undefined): ViewMode {
+  if (raw === undefined || raw === "") return "raw";
+  if (raw === "raw" || raw === "prose") return raw;
+  throw new Error(`PRISONER_VIEW: unrecognised value ${JSON.stringify(raw)} -- must be "raw", "prose" or unset`);
+}
 
 /** `PRISONER_HUMAN=prisoner|warden` seats a person in that chair; unset (the default) is
  *  two models, exactly as every batch so far. Anything else stops the run rather than
@@ -59,6 +77,11 @@ export interface CreateHumanSeatOptions {
   /** The condition list, when the game gives this principal one (OPEN-VARIANT.md §34) --
    *  the same list the model in this chair would be shown, never a different one. */
   conditions?: readonly Condition[];
+  /** the-prisoner#21. Unset (or `"raw"`): today's view. `"prose"`: the
+   *  fiction view, `proseView.ts`'s `renderProseSituation` over the same
+   *  data. Either way, typing `"raw"` at the intent prompt shows the raw
+   *  NPC view on demand -- see `consider` below. */
+  view?: ViewMode;
 }
 
 function typed(raw: string | undefined): string | undefined {
@@ -68,10 +91,15 @@ function typed(raw: string | undefined): string | undefined {
 
 export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   const { selfName, otherName, ask, write } = options;
+  const view = options.view ?? "raw";
   return {
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
-      write(renderSeatSituation(selfName, otherName, context, options.conditions));
+      write(
+        view === "prose"
+          ? renderProseSituation(selfName, otherName, context, options.conditions)
+          : renderSeatSituation(selfName, otherName, context, options.conditions)
+      );
       write("");
       // The one line of the model's prompt that is about the game rather than about
       // answering in JSON, and the only thing a player needs told: there is no move list.
@@ -81,7 +109,22 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       );
       write("");
 
-      const intent = typed(await ask("What do you try this turn? (Enter to do nothing)\n> "));
+      // the-prisoner#21's raw-view escape hatch: whatever this seat is shown
+      // by, typing "raw" reprints the model's own NPC view -- the simplest
+      // honest way to check the fiction view is not hiding or reshaping
+      // anything -- and asks again, spending no turn.
+      let intent: string | undefined;
+      for (;;) {
+        const answer = typed(await ask('What do you try this turn? (Enter to do nothing; type "raw" to see the raw NPC view)\n> '));
+        if (answer !== undefined && answer.toLowerCase() === "raw") {
+          write("");
+          write(renderSeatSituation(selfName, otherName, context, options.conditions));
+          write("");
+          continue;
+        }
+        intent = answer;
+        break;
+      }
       if (intent === undefined) {
         write("You do nothing this turn.");
         return null;
