@@ -3722,47 +3722,73 @@ touching the lock) still bypasses the gate this arm relies on.
 
 ### 50.5 Measured: `threshold` did not make the routes comparable, it made the door dead
 
-Nine games, arms alternating, `PRISONER_DOOR=stated`, `qwen3:14b` wits, voice skipped, referee
-`qwen2.5:14b`, 30 rounds available. Read by `checkpoints/2026-09-18-door-price/analyse.mts`, which
-counts the REFEREE's own `target` answers rather than anything in her prose:
+Fourteen games, arms alternating, `PRISONER_DOOR=stated`, `qwen3:14b` wits, voice skipped, referee
+`qwen2.5:14b`, 30 rounds available. Read by `checkpoints/2026-09-18-door-price/analyse.mts`, which counts
+the REFEREE's own `target` answers rather than anything in her prose:
 
 ```
-arm        stated end      rnd exit                 susp bar lock doorT winT  stamp
-free       true   escaped    6 window                 74  40  100     0    6  2026-09-18T03-25-07-182Z
-free       true   escaped    2 door                    5 100  100     2    0  2026-09-18T03-31-13-042Z
-free       true   escaped    3 door                   22  85  100     2    1  2026-09-18T03-45-36-451Z
-free       true   escaped    6 window                 68  40  100     0    6  2026-09-18T03-55-12-159Z
-free       true   escaped    2 door                    5 100  100     2    0  2026-09-18T04-06-56-579Z
-threshold  true   escaped    6 window                 74  40  100     0    6  2026-09-18T03-33-17-658Z
-threshold  true   escaped    6 window                 76  47  100     0    6  2026-09-18T03-39-08-817Z
-threshold  true   escaped    6 window                 74  40  100     0    6  2026-09-18T03-48-47-155Z
-threshold  true   escaped    6 window                 64  40  100     0    6  2026-09-18T04-00-34-578Z
+arm        stated end      rnd exit                 susp bar lock doorT winT  rev        stamp
+free       true   escaped    6 window                 74  40  100     0    6  pre-header 2026-09-18T03-25-07-182Z
+free       true   escaped    2 door                    5 100  100     2    0  pre-header 2026-09-18T03-31-13-042Z
+free       true   escaped    3 door                   22  85  100     2    1  pre-header 2026-09-18T03-45-36-451Z
+free       true   escaped    6 window                 68  40  100     0    6  pre-header 2026-09-18T03-55-12-159Z
+free       true   escaped    2 door                    5 100  100     2    0  pre-header 2026-09-18T04-06-56-579Z
+free       true   escaped    3 door                   35  75  100     2    1  pre-header 2026-09-18T04-16-56-720Z
+free       true   escaped    2 door                    5 100  100     2    0  cd95cc2    2026-09-18T04-25-18-928Z
+threshold  true   escaped    6 window                 74  40  100     0    6  pre-header 2026-09-18T03-33-17-658Z
+threshold  true   escaped    6 window                 76  47  100     0    6  pre-header 2026-09-18T03-39-08-817Z
+threshold  true   escaped    6 window                 74  40  100     0    6  pre-header 2026-09-18T03-48-47-155Z
+threshold  true   escaped    6 window                 64  40  100     0    6  pre-header 2026-09-18T04-00-34-578Z
+threshold  true   escaped    8 window                 67  45  100     0    8  pre-header 2026-09-18T04-09-37-620Z
+threshold  true   escaped    6 window                 84  40  100     0    6  bfb5e27    2026-09-18T04-20-12-820Z
+threshold  true   caught     6 -                      86  25  100     0    5  fe1169f    2026-09-18T04-28-00-756Z
 
-free: 5 games, escaped 5, out through the door 3, mean escape round 3.8, mean final suspicion 34.8, games where she aimed at the door or lock at all 3
+free: 7 games, escaped 7, out through the door 5, mean escape round 3.4, mean final suspicion 30.6, games where she aimed at the door or lock at all 5
 
-threshold: 4 games, escaped 4, out through the door 0, mean escape round 6.0, mean final suspicion 72.0, games where she aimed at the door or lock at all 0
+threshold: 7 games, escaped 6, out through the door 0, mean escape round 6.3, mean final suspicion 75.0, games where she aimed at the door or lock at all 0
 ```
 
-**Under `free` she goes out of the door in 3 of 5 games** (rounds 2, 2 and 3, for 5, 5 and 22
-suspicion), and out of the window in the other two at round 6. **Under `threshold` she goes out of the
-door in none of four**, all at round 6 through the window, mean final suspicion 72 — and the measure
-that matters is the last column: **not one prisoner intent in four games was ruled against the door or
-the lock.** She did not pay the door's new price. She stopped considering the door at all.
+| arm | games | out the door | caught | mean escape round | mean final suspicion | games that aimed at the door or lock at all |
+|---|---|---|---|---|---|---|
+| `free` | 7 | **5** | 0 | 3.4 | 31 | 5 |
+| `threshold` (lock ≤ 30) | 7 | **0** | **1** | 6.3 | 75 | **0** |
 
-**She is right to, and the arithmetic in §50.2 could not see why.** The lock wears 20 at a time, so its
-steps are 100, 80, 60, 40, 20; `SEARCH_CATCH_LOCK_MAX` catches her at 40 or below. Every step at or
-below a gate of 30 is a step she can be caught at, so reaching the gate means passing through the catch
-band. The window never asks that: the bar's steps put 40 at or below `OPEN_WINDOW_BAR_MAX` (50) while
-still above `OPEN_CATCH_BAR_MAX` (30). **A route is only worth starting if some wear step leaves the way
-out openable while its own part is still safe to be found at.** §50.2 matched turns and suspicion
-exactly and missed that, which is why parity on paper produced a dead route in play. §44 had already
-shown she reads her conditions and reasons about them correctly; this is that, again, and it is the
-second time this document has been surprised by her getting it right.
+**Under `threshold` not one prisoner intent in seven games was ruled against the door or the lock.** She
+did not pay the door's new price; she stopped considering the door at all. And the arm is not merely
+inert: pricing the door out leaves her only the route that runs the bar down toward its own catch line,
+and **the batch's single loss is under this arm** — bar worn to 25, suspicion 86, caught at round 6.
 
-The property is now a test rather than an argument (`world.test.ts`): the window has exactly one such
-step (40); `threshold` has none. A gate of 50 would have none either — 40 is the first step under it, and
-40 is catchable — so the obvious "mirror the window's own 50" is also wrong, and was proposed and
-withdrawn while this section was being written.
+**Her own private thoughts, that game, round 5, before the turn that lost it:**
+
+> "The bar's integrity is at 40, which meets Condition 1, allowing me to open the window. However,
+> opening the window would raise suspicion and risk Warden Croft examining the window (Condition 7). I
+> must weigh the immediate escape against the risk of being caught. Alternatively, I could chip the bar
+> further to make it easier to remove, but that would take more time and raise suspicion further. **The
+> lock is at 100, so focusing on the door is less urgent.**"
+
+She reasons about the door explicitly and sets it aside *because its gate is far*, then keeps chipping and
+is caught. This is §44's finding a third time: she reads her conditions and reasons about them correctly,
+and the arm's effect is the one her reasoning implies.
+
+**Why §50.2's arithmetic could not see this.** The lock wears 20 at a time — steps 100, 80, 60, 40, 20 —
+and `SEARCH_CATCH_LOCK_MAX` catches her at 40 or below, so every step at or below a gate of 30 is a step
+she can be caught at: reaching the gate means crossing the catch band. The window never asks that, because
+the bar's steps put 40 at or below `OPEN_WINDOW_BAR_MAX` (50) while still above `OPEN_CATCH_BAR_MAX` (30).
+**A route is only worth starting if some wear step leaves the way out openable while its own part is still
+safe to be found at.** §50.2 matched turns and suspicion exactly and missed that, which is how parity on
+paper produced a dead route in play. A gate of 50 fails identically — 40 is the first step under it — so
+"mirror the window's own 50" is wrong too; it was proposed to the owner and withdrawn an hour later.
+
+The property is a test rather than an argument now (`world.test.ts`): the window has exactly one such step
+(40), `threshold` has none.
+
+**One honesty note about this batch.** Its last three games name three different revisions (`cd95cc2`,
+`bfb5e27`, `fe1169f`) because branches were merged into `main` while it ran — the mistake that produced
+`CLAUDE.md`'s "run a batch from a pinned commit" rule and `runRevision.ts`'s header line. Everything merged
+mid-batch was an arm defaulting to off or a transcript-only change, the round-one briefings were compared
+across the batch and are identical, and the door behaviour is the same on either side of every merge (the
+round-2 door escapes appear under `pre-header` and under `cd95cc2`). The finding stands; the method was
+still wrong, and the free-vs-margin batch runs from a pinned worktree.
 
 ### 50.6 The `margin` arm: the lowest gate that leaves the door worth starting
 
