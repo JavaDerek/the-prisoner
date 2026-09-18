@@ -3204,3 +3204,102 @@ against a certain win is not a reason to invent, at 30 or at 100, visible or not
 mother-of-invention#2 is probably not another mechanism in this room — it is the same mechanisms in a
 game where the obvious path does not win. That is the owner's stated direction, and this section is the
 evidence for it rather than an argument against finishing here.
+
+## 46. The cell's other way out, stated (2026-09-17)
+
+§45 ended by saying the next test of `mother-of-invention#2` belonged in a game where the obvious path
+does not win. Before moving, one thing was worth checking here: **the cell has two ways out, and only
+one of them has ever been stated as one.**
+
+`world.ts` declares `door: exit("door", "lock", corridor, null)` — `openWhenPartAtMost: **null**`, no
+threshold at all, where the window's is 50. A passing test (`game.test.ts`) escapes through it at
+round 2 with the lock untouched, and a real referee ruled it possible once in real play (2026-09-14,
+*"Use the spoon to push the bolt back through the gap in the door"*, citing the door's own
+description). §16's door test failed only because no object was called `door`; §17 split the ways out
+into objects of their own and fixed that, and **the route was never tried in real play again**.
+
+Meanwhile her condition list named exactly one way to win — the window — and named the door's part, the
+lock, only in a condition that catches her. Every batch this document records measured a mind that had
+been told about one exit and warned about the other.
+
+### 46.1 The arm
+
+`PRISONER_DOOR=stated` adds one condition, beside the window so everything the reader can do stays at
+the top of the list (the catches renumber to 4-7):
+
+> CONDITION 2 (for you): If the door is shut, then Mara Voss can open it, with no threshold to meet first.
+
+`unstated` is the default and is byte-identical to every earlier batch. The claim is exactly what the
+world declares, and `conditions.test.ts` asserts it against `buildOpenWorld().exits`, so the sentence
+cannot outlive the fact: put a gate on the door and the test goes red.
+
+### 46.2 Six games: stating it moves her, and moves her plan
+
+Batch F's configuration, arms alternating, precedent ON with a fresh copy of the committed ledger each
+game (bar 19 episodes, lock 2, door 1), **pick OFF so every turn is her own choice**. Driver
+`checkpoints/2026-09-17-door/run-door.sh`, measure `door.mts`, which routes a turn by the referee's
+recorded target and scores the plan separately by mention.
+
+| | door UNSTATED | door STATED |
+|---|---|---|
+| Result | escaped r8, r8, r6 — all by the window | escaped r6, **r4, r4** — **two by the door** |
+| Prisoner turns | 22 | 14 |
+| …on the window route | **22** | 10 |
+| …on the door route | **0** | **4** |
+| Games that touched the door at all | **0 of 3** | **2 of 3** |
+| Turns whose PLAN named it | 0 | 4 |
+
+**The first prisoner in this project's history to leave by the door did so in this batch**, twice. And
+it was the plan that moved, not only the intent — the distinction §45 insisted on:
+
+> **Replanned because:** The door is currently shut, allowing immediate escape via Condition 2, which
+> is faster than damaging the bar further.
+
+Both door games cite the condition by number, which is §44's finding holding again: a mind that reads
+this list reasons with it explicitly.
+
+### 46.3 What this is not, and the trap it walked into
+
+**It is not a novelty result, and it is not evidence for precedent.** In both games her stated reason
+is **speed** — *"faster than damaging the bar further"*, *"bypassing the need to damage the bar
+further"*. The ledger was in front of her the whole time, telling her the bar is the most-repeated act
+in the cell's history, and she never once cites it. What moved her was being told a faster route
+existed, not being told the old one was stale.
+
+Worse for the thesis, and worth stating plainly: **the door is strictly better than the window** — two
+rounds against five or six — so stating it did not give her a choice, it gave her a new obvious answer.
+The room still has a dominant path; §41.4's problem is not solved, only relocated. That is visible in
+the numbers: the `stated` games are shorter (r6, r4, r4 against r8, r8, r6), which is what a better
+route looks like, not what deliberation looks like.
+
+So what six games bought is smaller than it first appears, and still worth having: **for the first time
+the cell has two paths a mind will actually use.** Precedent has somewhere to tip a decision, which it
+has never had in any batch this document records. The measurement that would test the thesis is now
+possible and was not before: make the two routes **comparable in cost**, state both, and ask whether the
+ledger decides which she takes. If she still picks purely on speed, precedent is not a novelty mechanism
+in any room, and that is a result worth having before building one elsewhere.
+
+### 46.4 A flaw in the wording, found by the mind
+
+The one `stated` game that stayed at the window shows the clause is mis-specified, and in exactly the
+way §45.1 warned about. Her candidates named the door twice and rejected it both times:
+
+> *"Try to open the door (Condition 2 allows opening the door if it's shut, but **uncertainty about its
+> current state** complicates this attempt.)"*
+> *"Attempt to open the door (Condition 2 allows opening if the door is shut, but **unsure if this
+> applies to a locked door**)"*
+
+The antecedent — *"if the door is shut"* — is a state she **cannot observe**: she holds beliefs about
+bar integrity and lock integrity, and none about `door_passage`. A condition gated on something
+invisible is the same mistake as a price charged in a currency she cannot see, one section later. Even
+the game she won this way hesitated over it: *"I must verify if the door's state (shut) aligns with the
+condition's requirements."*
+
+A truthful v2 with a verifiable antecedent, not yet run: *"If the door stands in the cell wall, then
+Mara Voss can try to open it; the lock's integrity is not a threshold she must reach first."* That also
+answers the second doubt, which the current clause leaves open.
+
+Noted alongside it, for whoever renders this list next: every condition marked `(for you)` refers to
+the reader in the **third person** in its body (*"then Mara Voss can open the window"*), so each one
+asks the reader to resolve that they are the same person. That is a `conditionList.ts` rendering choice
+and therefore a question for every future caller of it, not a Prisoner one.
