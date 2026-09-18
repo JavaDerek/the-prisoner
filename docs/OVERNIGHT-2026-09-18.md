@@ -11,8 +11,8 @@ time; everything below came out of that one four-round game. Evidence is in OPEN
 | **A human seat** (#11's terminal half) | **DONE, played.** `PRISONER_HUMAN=prisoner\|warden` seats a person at a terminal against the model in the other chair, through the same seam and the same referee. The player reads the model's own prompt opening byte for byte (`renderSeatSituation`, test-pinned). §47. The console was never needed for this. |
 | **#15** every object described twice | **DONE, closed.** The briefing's copy is gone; `renderSeatSituation`'s stays, because it is the array the referee is handed. Verified no fact was briefing-only. **This changed every prompt.** §49 |
 | **#16** "reached past what is here" | **DONE, closed**, and the issue's framing was wrong: `targetKeys` never offers an unperceived object, so "out of reach" and "named nothing the world models" are the same ruling and the old wording was wrong for every case it could be reached from. Now "matches none of what is here". §49 |
-| **#17** an instrument that does not exist | **ARM BUILT, default off.** `PRISONER_INSTRUMENT=checked` adds a seventh referee question with three legal keys — a perceived object, `none`, or `absent` (the intent names a tool she does not have) — which blocks the ruling with a positive reason. First version detected it only when the model broke its own closed-key instruction; sent back and rebuilt. §51. **Live re-rule running.** |
-| **#18** "pull a wire out" ruled `wear` | **ARM BUILT, default off.** `PRISONER_DERIVE_WORDING=sharpened`. The shared-cause theory in the issue is refuted: the raw reply shows `product: none` carried an empty citation object, which is a moot answer's bookkeeping, not a missed one. §51 |
+| **#17** an instrument that does not exist | **ARM BUILT, default off.** `PRISONER_INSTRUMENT=checked` adds a seventh referee question with three legal keys — a perceived object, `none`, or `absent` (the intent names a tool she does not have) — which blocks the ruling with a positive reason. First version detected it only when the model broke its own closed-key instruction; sent back and rebuilt. **Re-ruled live: the referee answered `instrument=none` 10/10 with the arm on, never `absent`** -- the mechanism is sound and this referee will not use it. §51.6. See D2 |
+| **#18** "pull a wire out" ruled `wear` | **ARM BUILT, default off.** `PRISONER_DERIVE_WORDING=sharpened`. **Re-ruled live and it works: `wear` 10/10 under baseline, `derive`/`wire` 9/10 under `sharpened`.** The shared-cause theory in the issue is refuted -- the raw reply shows `product: none` carried an empty citation object, a moot answer's bookkeeping, not a missed one. §51.6. This also shuts the exploit Derek walked, since a real wire then exists a turn before it is cited |
 | **#19** the door costs nothing | **TWO ARMS, default unchanged, and a measured result.** See D1 — this is the item that matters most. §50 |
 | **#20** a voice fragment as dialogue | **DONE, closed.** One-character shape rule (a line ending in `,` `;` `:` is a voice silence), plus the finding that mattered more: `onVoiceSilence` was wired nowhere, so every voice failure was already invisible. §52 |
 | **#21** a human-fiction view | **ROUTE 1 DONE, open for route 2.** `PRISONER_VIEW=prose`, default `raw`, human seat only. A completeness test pins every belief value, stamp, object and threshold through the prose path; a line-length test pins the wall-of-text regression the first version had. §53 |
@@ -82,10 +82,16 @@ it. `margin` (60) is built and being measured now. The question: **does the door
 route at 60, and if it does, should `margin` become the default?** Making it default changes what every
 future batch compares against, which is why I have not.
 
-**D2. Promoting #17 and #18.** Both are arms with byte-identical requests when off. The re-rule tells us
-whether this referee will use the `absent` key at all and whether the sharpened derive wording moves
-"pull a wire out" from `wear` to `derive`. Even a clean result is not a promotion: per D3's own lesson,
-that needs a batch of real games.
+**D2. Promoting #17 and #18.** Both are arms with byte-identical requests when off, and the re-rule has
+now separated them. **#18's `sharpened` wording works** -- `wear` 10/10 under baseline, `derive` with
+`product=wire` 9/10 under the arm -- and is my recommendation as the next arm to measure in real games,
+because it also shuts the exploit path of #17 in practice. **#17's question does not work with this
+referee**: offered the legal, true key `absent`, it answered `instrument=none` in all ten trials for an
+intent that says *using the wire*. The mechanism blocks correctly when that key is answered, so the
+bottleneck is judgement, not contract -- and that distinction only exists because the first version of the
+arm was sent back and rebuilt. Left off. If retried, test the question's own wording, not the plumbing.
+One caution for both: the sharpened arm gave 9/10 rather than 10/10 at temperature 0, so there is a small
+standing noise floor here (§46.5).
 
 **D3. The prose view.** It is faithful and scannable, and it is still a briefing rather than a scene —
 real fiction would not enumerate eleven objects, and the requirement that every fact survive is what
