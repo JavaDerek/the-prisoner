@@ -4772,3 +4772,69 @@ one issue, since presence turned out to be a `location_id` that already existed 
 **Not yet measured in a real game.** The arm is off by default and no batch has run under it. What it should
 be asked first: does a model prisoner ever use it, or is it another mechanism she declines the way she
 declined the priced door (§50.7)? Do not promote it on the strength of the mechanism working.
+
+## 57. Three mechanisms measured in one day, and the minds decline all three (2026-09-18)
+
+The owner's decisions D2, D3 and D5 were built this morning and measured this afternoon. The measurements
+agree with each other and with §50.7, and together they say something sharper than any of them alone.
+
+### 57.1 The derive wording changes nothing, because nothing asks it to (D2, issue #18)
+
+Fourteen games, two configurations, arms alternating, pinned revisions, voice skipped
+(`checkpoints/2026-09-18-derive-wording/analyse.mts`):
+
+| configuration | games | derive rulings | prisoner turns | things made |
+|---|---|---|---|---|
+| default, `baseline` | 4 | **0** | 31 | 0 |
+| default, `sharpened` | 4 | **0** | 35 | 0 |
+| precedent on, `baseline` | 3 | **0** | 18 | 0 |
+| precedent on, `sharpened` | 3 | **0** | 23 | 0 |
+
+§51.6 established that the sharpened wording flips the ruling 9 times in 10 **when the intent occurs**.
+In 107 prisoner turns of real play it never occurred. So the fix is correct and inert: it repairs
+exactly the ruling the owner hit in the first human game (§48) and nothing a model does today.
+
+**A hypothesis of mine died here too, and cheaply.** Across the committed history a game with precedent
+ON contains a derive 38% of the time against 7% with it OFF, which looked like the ledger producing
+making-things behaviour. Holding precedent ON and varying only the wording gives zero derives in six
+games: the historical gap is an era effect, not a precedent effect. It was flagged as confounded when
+first noticed, and tested rather than repeated.
+
+*Not claimed:* the precedent arm's `baseline` lost 2 of 3 while `sharpened` lost 0 of 3. Three games a
+side, on a measure nobody pre-committed to, well inside §46.5's noise floor. It is noise until someone
+tests it properly.
+
+### 57.2 Presence, a person as a target, and posture: never used (D5, issue #22, §55 and §56)
+
+Four complete games under `PRISONER_PRESENCE=modelled`, both principals perceiving each other every turn,
+each carrying a readable posture ("She is on her feet." appears ~20 times a game in what the other reads):
+
+**Zero intents ruled against a person. Zero `noise` effects. From either principal.**
+
+Croft stands in Voss's perceived-object list all game as a legal referee target, with a declared property
+that can be changed and a description that would report the change, and Voss never once aims at her.
+Nor Croft at Voss. The mechanisms are live and visible — the posture readings prove the channel works —
+and both minds ignore them completely.
+
+### 57.3 What the day actually established
+
+Every affordance added in the last twenty-four hours is one **the owner reached for within four rounds of
+his first game, and the models have never touched**:
+
+| affordance | human | models |
+|---|---|---|
+| the door, when it costs anything (§50.7) | took it at r4 when free | 0 of 11 priced games |
+| making a tool from the cot (§48, §57.1) | tried it on turn 3 | 0 of 14 games |
+| an act aimed at a person (§48, §57.2) | tried it on turn 2 | 0 of 4 games |
+
+This is not a failure of the mechanisms; each was verified to work when exercised. It is a fact about the
+minds: **given a route that works, they do not look for another, and given a new kind of act, they do not
+try it.** §41 named this once ("free-turn novelty is a property of the room"), §45 and §50.7 found it
+again from different directions, and it now holds across three mechanisms added specifically to widen
+what is possible.
+
+**The instrument that finds things here is a person in the seat.** Four rounds of human play produced
+four defects and a retraction; twenty-two model games produced confirmations of what the human found.
+That is an argument for the human seat (§47) as a standing part of the method, not a one-off — and a
+caution for any future mechanism: **build it, but measure whether anything reaches for it before
+promoting it, because the mechanism working is not evidence that it matters.**
