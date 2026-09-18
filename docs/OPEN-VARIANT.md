@@ -3499,69 +3499,7 @@ than an NPC's labelled blocks (#21), which is the presentation seam the console 
 exit nobody had priced. A mechanism measured in an unpriced world measures the world, not the
 mechanism — which is why four separate framings of "make her try something else" all came back
 negative. Put a person in the seat earlier.
-## 52. A voice fragment reached the transcript as a full line (the-prisoner#20)
 
-The owner's first human game (§47), round 2, `PRISONER_VOICE_MODEL=ancient-awakening:12b`:
-`checkpoints/2026-09-18T02-40-27-834Z.md` round 1 shows the model doing the job properly --
-`"That bar's seen a lot of years..."` -- and round 2 shows the same model returning `Voss,`, a
-fragment ending mid-clause. It passed `mind-seam`'s own `coerceProposal` (non-empty after trim is
-the whole check) and reached the other principal's briefing as dialogue: *"Croft says: \"Voss,\""*.
-Same model, same call shape, one round apart -- a per-call failure, not a bad model choice.
-
-**Confirmed before choosing anything: voice cannot touch a ruling.** `createOpenMind`'s two-call
-branch (`src/open/mind.ts`) builds the returned `OpenProposal` as `intent: wits.intent, line:
-voice?.line ?? ""` -- `wits.intent` unconditionally, never `voice.intent`. The voice call's own
-schema (`VOICE_SCHEMA`) asks for an `intent` field too (`mind-seam`'s `Proposal` shape requires it),
-but that field is computed and then never read anywhere in `consider()` -- it is discarded outright,
-not merely deprioritised. The wits call's schema (`OPEN_WITS_SCHEMA`) has no `line` property at all,
-so there is no path back the other way either. This is exactly what `mind.ts`'s own header comment
-already claimed ("the wits call's `intent` is always what reaches the referee"); this issue's fix
-touches only what a transcript prints, never what the referee sees.
-
-**Rule chosen: (a), a fragment is a voice silence.** The alternative -- re-ask once, in the shape of
-`mother-of-invention`'s `regenerate` -- was not taken: it costs a whole extra model call and a GPU
-swap per occurrence, on a machine that fits one model at a time (root CLAUDE.md), to fix a role whose
-entire job is one line of flavour text nothing else ever reads. A voice call that produces nothing
-useful is already exactly like a voice call that timed out or came back unparseable -- a warden who
-says nothing is in character -- so this reuses that existing path instead of inventing a second kind
-of voice failure.
-
-**The predicate, stated exactly, and applied to shape only:** in `coerceVoiceProposal` (`src/open/
-mind.ts`), the SEPARATE voice call's own `coerce` wraps `coerceProposal` and additionally rejects
-(returns `null`, same as any other malformed answer) whenever the trimmed `line`'s last character is
-a comma, a semicolon, or a colon (`FRAGMENT_LINE_ENDINGS`). No complete English utterance legitimately
-ends on one of those three marks, and the check reads exactly one character -- never what the line
-says. A rejection here is not a new kind of failure: `mind-seam`'s own `coerceProposal` returning
-`null` already reports `SilenceReason: "rejected"` through `onVoiceSilence`, the same recorded,
-counted path a timeout or an unparseable answer takes, so no change to `checkpoint.ts` was needed --
-no new reason was introduced for it to count. `wits.intent` is untouched; the caller falls back to an
-empty `line`, exactly as it already does for a voice call that fails any other way.
-
-**What this rule wrongly rejects**, because it looks only at the final character and never at
-meaning: a real one-word line ending in terminal punctuation -- `"Enough."` -- is untouched (there is
-a passing test for exactly this), but a deliberate trailing comma for effect (`"Names, ranks, nothing
-else,"`), a colon introducing something with nothing after it (`"Listen carefully:"`), or a rare
-semicolon-joined line, all read as fragments and are silenced the same way a truncated one would be.
-That is the accepted cost: telling a deliberate trailing comma apart from a truncated one requires
-judging what the line means, which CLAUDE.md's "never pattern-match meaning" forbids. Scope is
-deliberately narrow to the SEPARATE voice call only (`voiceMind`, `witsModel !== voiceModel`) and not
-the single-call/collapsed path (`witsModel === voiceModel`, the default under `PRISONER_SKIP_VOICE=1`
-and the path most test runs use): there, `line` and `intent` come from the same JSON object, and
-returning `null` from that `coerce` silences the WHOLE half-round, discarding a good `intent` over a
-punctuation quirk in the spoken line -- a much more expensive failure than losing one line of flavour
-text. Leaving that path alone is a deliberate choice, not an oversight.
-
-Tests: `src/open/__tests__/mind.test.ts` -- "a voice line cut off mid-clause (ends in a comma) is
-treated as a voice silence, not printed" (asserts `intent` survives, `line` becomes `""`,
-`onVoiceSilence` fires with `"rejected"`), "semicolon- and colon-ending lines are the same shape of
-fragment", and "a genuine short line ending in terminal punctuation is never rejected for its length
-alone" (`"Enough."` passes through unchanged).
-
-A live check, for the session owner only (this agent never calls a model): run the same human-seat
-command as §47 with `PRISONER_VOICE_MODEL=ancient-awakening:12b` for a few dozen rounds and grep the
-resulting transcript for `**Line:**` entries ending in a bare comma, semicolon or colon -- none
-should appear; a `Voss,`-shaped answer should instead simply have no `**Line:**` line at all, the
-same as any other voice silence today.
 ## 49. Two wording fixes from the owner's first human game: a doubled prompt, and a ruling that blamed reach (2026-09-18, issues #15/#16)
 
 The owner's own game (§47/§48) found two things wrong with what every principal — model or person —
@@ -3637,6 +3575,7 @@ same as any other target answer) — would let `computeRuling` carry the distinc
 plainer "matches none of what is here" only for a genuine `"none"`. Absent that, this fix is the honest
 floor: it never claims a cause the ruling cannot prove, and it stops telling a player who names a
 person that they should stand closer.
+
 ## 50. Pricing the door: the two routes made comparable in cost, and §46 put back in question (2026-09-17, issue #19)
 
 **The owner's own human game found what §46 had only theorised.** Playing the prisoner herself
@@ -3781,168 +3720,6 @@ are (an assumption §50.2 states plainly and does not verify against a live refe
 to the door (e.g. a `substantial` single wear ruling, or a route that reaches the door without ever
 touching the lock) still bypasses the gate this arm relies on.
 
-## 53. A human-fiction view: prose composed by code, never a different information set (2026-09-18, issue #21)
-
-§48's own list of what the owner's first human game found wrong named this as the third defect,
-cheap and real alongside #15/#20: the seat showed him exactly what an NPC reads -- `bar integrity:
-100 (as of round 0)`, a bulleted `- <id>: <description>` per object -- and he asked for a view that
-reads like written fiction instead of an NPC's own prompt.
-
-**Route 1 only, per the issue.** Deterministic prose composed by code, from data that is already
-there: no model, no latency, no fourth tenant on the 4090, and it cannot invent a fact. Route 2 (a
-narrator model) is deferred until this one exists to compare against, and deliberately not built
-here -- see "why not the narrator route" below.
-
-**The constraint, and how it is enforced.** A view, never a different information set: everything the
-raw view (`renderSeatSituation`, `mind.ts`, §47/§49) tells the player, the prose view must tell the
-player too -- every belief with its "as of round N" stamp, every perceived object and its authored
-description (state readings included), the clock, the conditions list when this chair has one, the
-news, and identity/motive. `src/open/proseView.ts`'s `renderProseSituation` takes the IDENTICAL
-`OpenPrincipalContext` and `conditions` `renderSeatSituation` already takes -- it is a second render
-of the same inputs, never a second information channel. `__tests__/proseView.test.ts`'s completeness
-test builds a context with three beliefs at three DIFFERENT stamps, a condition list, and news from
-both sides, then asserts every belief's number AND its stamp, and every perceived object's id or
-description, appear somewhere in the prose. It is written to fail loudly, not quietly: it does not
-compare the prose to a snapshot (which a future edit could regenerate along with the bug), it checks
-for the actual numbers and words a dropped fact would take with it.
-
-**What it does with the stamps.** `renderBeliefLine` (`ledger/beliefs.ts`) always renders belief lines
-in one exact template -- `"<label>: <value> (as of round <N>)."` -- and that template is a stable
-contract already relied on elsewhere in this repository. `proseView.ts` reads `context.briefing`
-(the one opaque string an `OpenPrincipalContext` actually carries -- there is no structured belief
-list at this layer) back through that same template and a handful of others just as fixed (the round
-line, the notes/plan lines, the warden's own live suspicion and grounds lines), and folds each into a
-sentence that keeps the number and the stamp in those words -- "Your last word on the bar integrity
-was 85, as of round 3." -- rather than paraphrasing the age away ("recently", "a while back"), which
-is exactly the softening the issue forbids. Recognising this repository's OWN deterministic output by
-its known template is a different thing from the referee's forbidden pattern-matching of a person's
-free-text intent (CLAUDE.md's "never pattern-match meaning") -- that rule is about not guessing what
-a human meant; this is about reading back a sentence this same codebase generated from a fixed
-format. Anything in the briefing that does NOT match one of these fixed templates -- the actor's own
-last outcome, what it perceived of the other principal, the authored stakes sentence, standing
-precedent lines -- is never paraphrased or classified; it is kept verbatim and placed in the reading
-order the game already gives it, because these are free text from `perception.ts`'s many different
-sentence shapes and `scenario.ts`'s authored prose, and guessing at their shape is exactly the risk
-worth refusing.
-
-**Reading data, never another renderer's string (fixed in review).** The first version of this file
-located the closing "rules that stay state-based" sentences by finding `renderSeatSituation`'s own
-literal header line inside its rendered output and skipping a computed number of lines past it --
-flagged in review as line arithmetic over another module's rendered string, the exact kind of
-structural coupling this repository avoids. The fix, once permission to touch `mind.ts` was granted
-for it: `mind.ts` now exports `seatSituationParts(selfName, otherName, context, conditions)`, the
-four arrays (`conditionLines`, `identityLines`, `objectLines`, `ruleLines`) `renderSeatSituation`
-itself joins into one string. `renderSeatSituation` now builds its output from exactly these four
-parts, so it stays byte-identical to before (the pinned assertion in `humanSeat.test.ts` -- the model
-prompt starts with the raw view -- is untouched and still the guard that a change to either function
-would trip), and `proseView.ts` reads `ruleLines` as data instead of parsing text. Nothing else in
-`mind.ts` -- the prompt builders, the voice coercion -- was touched.
-
-**Proses the conditions too (fixed in review).** The first version kept the condition list and the
-closing rules block exactly as the raw view renders them, on the reasoning that they were reference
-material the owner had tuned deliberately (§34) and paraphrasing risked softening a number. Review
-called this half an answer: `START LIST OF CONDITIONS` / `CONDITION 1 (for you): If ..., then ...`
-is the single most prompt-shaped thing left in the view, and the owner's complaint (§48) was
-precisely that his view read like an NPC's own prompt. Since `renderProseSituation` already receives
-the same structured `Condition[]` `renderSeatSituation` takes -- `when` (a list of plain clauses),
-`then` (the outcome), `for` (whose it is) -- prose composes directly from that data, never from
-`renderConditionList`'s rendered text: `Once <clauses joined with "and">, <outcome> -- condition
-<N>, for <you|the other party's name>.` Every threshold number in `when` and the outcome in `then`
-are the caller's own authored strings, untouched; only the join changes. The `(for you)` / `(for
-Warden Croft)` distinction survives as literally as the raw view keeps it -- "you" only for the
-reader's own condition, the other party's name otherwise -- because it is load-bearing, not
-decoration: §44 found her citing a condition by its number and reasoning about whose it is. The
-closing state-based-rules block is prose the same way: `ruleLines` are already complete sentences
-(the closed variant's own mechanics constants restated as prose, `mind.ts`'s `stateBasedRules`), so
-this module only changes how they are JOINED -- into one paragraph behind a plain lead sentence,
-never a line-per-rule block -- and never a single word or number in them.
-`__tests__/proseView.test.ts` gained a dedicated test for this: a condition list with deliberately
-distinct numbers (never reusing `openConditions()`'s own thresholds, one of which happens to equal a
-belief-stamp round number elsewhere in the fixture) asserts every threshold number, every clause of a
-multi-clause condition, and both directions of attribution survive -- so the test could not pass by
-coincidental overlap. A second new test plants a briefing line in a shape `proseView.ts` has never
-been taught to recognise and asserts it still reaches the player, verbatim, through the `other`
-passthrough bucket -- the fallback this module has always had for exactly this case, now with its
-own test.
-
-**The raw-view escape hatch.** The simplest honest thing, per the issue: typing `raw` at the intent
-prompt reprints the raw NPC view and asks again, spending no turn, in EITHER view mode. No new
-subsystem, no second command.
-
-**`PRISONER_VIEW=raw|prose`**, read in `src/open/humanSeat.ts` (`readViewMode`) and by
-`checkpoint.ts` for the transcript header alone. `raw` (unset, the default) is byte-identical to
-every batch and every human game recorded before this issue. `prose` selects `proseView.ts`. Neither
-value touches `OpenPrincipalContext`, `buildOpenBriefing`, or either model prompt builder -- the
-model's prompt is unchanged in every mode, which is the property this issue exists to keep: a
-narrated prompt would change the benchmark underneath the project.
-
-**Why the narrator-model route is deliberately not built yet.** The issue names the one genuinely
-dangerous failure mode: a narrator that invents a detail the player then acts on, producing an intent
-the referee must rule impossible -- worse than the labelled-block view it would replace, because a
-false fact FEELS like ground truth exactly where the raw view's honesty was the whole point of
-seating a person at all (§47). Route 1 exists first so there is something to compare a narrator
-against: whether prose that is merely well-ordered (no model, no invention possible by construction)
-already answers the owner's complaint, before spending a model call, a GPU swap, and a new failure
-mode on richer prose that risks inventing the very thing route 1 cannot.
-
-**A worked example**, generated by `renderProseSituation` itself (not hand-written), for a
-mid-game prisoner context with five perceived objects, two beliefs at different stamps, a condition
-list, and news from the round before:
-
-> Whenever a condition stated below is met, the action it unlocks is available immediately. Nothing
-> further needs to be done before attempting it. Once the bar's integrity is at or below 50, Mara Voss
-> can open the window -- condition 1, for you. Once a way out stands open, Mara Voss can leave the
-> cell through it, and she has escaped -- condition 2, for you. Once warden suspicion is at or above
-> 40, and Warden Croft closely examines the bar, and Warden Croft finds its integrity at or below 30,
-> Warden Croft catches Mara Voss and the game ends -- condition 3, for Warden Croft. Once warden
-> suspicion is at or above 40, and Warden Croft closely examines the lock, and Warden Croft finds its
-> integrity at or below 40, Warden Croft catches Mara Voss and the game ends -- condition 4, for
-> Warden Croft. Once warden suspicion is at or above 40, and Warden Croft closely examines the spoon,
-> and the spoon is out in the open, and Warden Croft finds its edge at or above 20, Warden Croft
-> catches Mara Voss and the game ends -- condition 5, for Warden Croft. Once warden suspicion is at or
-> above 40, and Warden Croft closely examines a way out, and Warden Croft finds it standing open,
-> Warden Croft catches Mara Voss and the game ends -- condition 6, for Warden Croft.
->
-> You are Mara Voss, three years into a sentence for a robbery that went wrong. This cell has been the
-> only home you have had since, and Warden Croft is the one who locks it every night. Get out of this
-> cell. Then find Warden Croft, and make sure they never lock a door on you again.
->
-> In the cell around you: The window: A small window set in the wall at shoulder height, a little
-> wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap:
-> with that bar gone, a person could climb through. The bar: The iron bar that closes the widest gap
-> in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it
-> is set into old mortar that is dry and cracked. The door: A heavy door of iron-bound planks in a
-> stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the
-> gap. The lock: A steel lock set in the cell door, its keyhole on the corridor side and its bolt
-> thrown across into the frame. The spoon: A dented aluminium spoon, thin enough to bend by hand. One
-> side of the bowl is worn flat from being scraped along the floor.
->
-> This is round 4 of 30. Warden Croft examines the bar closely. Croft says: "That bar's seen a lot of
-> years..." At the end of round 30 you are transferred to a maximum-security block, and this chance is
-> gone.
->
-> You'd made a note to yourself last round: Bar integrity is key; check for subtle damage. Monitor
-> spoon and loose tile for hidden tools.
->
-> Your last word on the bar integrity was 85, as of round 3. Your last word on the lock integrity was
-> 100, as of round 0.
->
-> Some things about this cell never change: Whenever Mara Voss audibly or visibly damages, repairs or
-> uncovers something, warden suspicion rises: by 5 for a slight act, 10 for a moderate one, 30 for a
-> substantial one. When Warden Croft examines something closely and finds it more worn than Warden
-> Croft last believed, warden suspicion rises by the unexplained drop divided by 2, rounded down --
-> finding damage is evidence. Mara Voss escapes the moment she is out of the cell, however she gets
-> out. The cell's ways out are the door and the window.
-
-**Kept as-is, for the owner to weigh:** the perceived-objects paragraph still labels each one ("The
-window:", "The bar:") before its description, which is closer to a room description than pure
-unlabelled prose but was kept for honesty over polish -- an unlabelled join risked running several
-authored descriptions together ambiguously. The conditions paragraph carries a trailing citation tag ("-- condition 3, for Warden Croft") rather
-than a fully narrated attribution ("this is Warden Croft's own condition"); the tag was chosen so a
-player can still cite a condition by number the way she does in §44, and its "whose" wording
-(`"you"` for the reader's own, the other party's name otherwise) mirrors `renderConditionList`'s own
-choice exactly, computed the same way from the same `Condition.for` field, so a reader of both views
-sees the identical claim about who a condition belongs to.
 ## 51. An instrument that does not exist, and a derive the referee never chose (2026-09-18, the-prisoner#17/#18)
 
 §48's own first human game (`checkpoints/2026-09-18T02-40-27-834Z.md`) escaped in four rounds on a
@@ -4133,3 +3910,230 @@ it is no longer confoundable with "the mechanism cannot see a phantom instrument
 should be promoted to default from this script alone — per the D3 lesson (§40.1), that needs a batch
 of real games under each arm, scored the way §5.2/§5.3 already score every other batch in this
 document, not a 32-call spot check.
+
+## 52. A voice fragment reached the transcript as a full line (the-prisoner#20)
+
+The owner's first human game (§47), round 2, `PRISONER_VOICE_MODEL=ancient-awakening:12b`:
+`checkpoints/2026-09-18T02-40-27-834Z.md` round 1 shows the model doing the job properly --
+`"That bar's seen a lot of years..."` -- and round 2 shows the same model returning `Voss,`, a
+fragment ending mid-clause. It passed `mind-seam`'s own `coerceProposal` (non-empty after trim is
+the whole check) and reached the other principal's briefing as dialogue: *"Croft says: \"Voss,\""*.
+Same model, same call shape, one round apart -- a per-call failure, not a bad model choice.
+
+**Confirmed before choosing anything: voice cannot touch a ruling.** `createOpenMind`'s two-call
+branch (`src/open/mind.ts`) builds the returned `OpenProposal` as `intent: wits.intent, line:
+voice?.line ?? ""` -- `wits.intent` unconditionally, never `voice.intent`. The voice call's own
+schema (`VOICE_SCHEMA`) asks for an `intent` field too (`mind-seam`'s `Proposal` shape requires it),
+but that field is computed and then never read anywhere in `consider()` -- it is discarded outright,
+not merely deprioritised. The wits call's schema (`OPEN_WITS_SCHEMA`) has no `line` property at all,
+so there is no path back the other way either. This is exactly what `mind.ts`'s own header comment
+already claimed ("the wits call's `intent` is always what reaches the referee"); this issue's fix
+touches only what a transcript prints, never what the referee sees.
+
+**Rule chosen: (a), a fragment is a voice silence.** The alternative -- re-ask once, in the shape of
+`mother-of-invention`'s `regenerate` -- was not taken: it costs a whole extra model call and a GPU
+swap per occurrence, on a machine that fits one model at a time (root CLAUDE.md), to fix a role whose
+entire job is one line of flavour text nothing else ever reads. A voice call that produces nothing
+useful is already exactly like a voice call that timed out or came back unparseable -- a warden who
+says nothing is in character -- so this reuses that existing path instead of inventing a second kind
+of voice failure.
+
+**The predicate, stated exactly, and applied to shape only:** in `coerceVoiceProposal` (`src/open/
+mind.ts`), the SEPARATE voice call's own `coerce` wraps `coerceProposal` and additionally rejects
+(returns `null`, same as any other malformed answer) whenever the trimmed `line`'s last character is
+a comma, a semicolon, or a colon (`FRAGMENT_LINE_ENDINGS`). No complete English utterance legitimately
+ends on one of those three marks, and the check reads exactly one character -- never what the line
+says. A rejection here is not a new kind of failure: `mind-seam`'s own `coerceProposal` returning
+`null` already reports `SilenceReason: "rejected"` through `onVoiceSilence`, the same recorded,
+counted path a timeout or an unparseable answer takes, so no change to `checkpoint.ts` was needed --
+no new reason was introduced for it to count. `wits.intent` is untouched; the caller falls back to an
+empty `line`, exactly as it already does for a voice call that fails any other way.
+
+**What this rule wrongly rejects**, because it looks only at the final character and never at
+meaning: a real one-word line ending in terminal punctuation -- `"Enough."` -- is untouched (there is
+a passing test for exactly this), but a deliberate trailing comma for effect (`"Names, ranks, nothing
+else,"`), a colon introducing something with nothing after it (`"Listen carefully:"`), or a rare
+semicolon-joined line, all read as fragments and are silenced the same way a truncated one would be.
+That is the accepted cost: telling a deliberate trailing comma apart from a truncated one requires
+judging what the line means, which CLAUDE.md's "never pattern-match meaning" forbids. Scope is
+deliberately narrow to the SEPARATE voice call only (`voiceMind`, `witsModel !== voiceModel`) and not
+the single-call/collapsed path (`witsModel === voiceModel`, the default under `PRISONER_SKIP_VOICE=1`
+and the path most test runs use): there, `line` and `intent` come from the same JSON object, and
+returning `null` from that `coerce` silences the WHOLE half-round, discarding a good `intent` over a
+punctuation quirk in the spoken line -- a much more expensive failure than losing one line of flavour
+text. Leaving that path alone is a deliberate choice, not an oversight.
+
+Tests: `src/open/__tests__/mind.test.ts` -- "a voice line cut off mid-clause (ends in a comma) is
+treated as a voice silence, not printed" (asserts `intent` survives, `line` becomes `""`,
+`onVoiceSilence` fires with `"rejected"`), "semicolon- and colon-ending lines are the same shape of
+fragment", and "a genuine short line ending in terminal punctuation is never rejected for its length
+alone" (`"Enough."` passes through unchanged).
+
+A live check, for the session owner only (this agent never calls a model): run the same human-seat
+command as §47 with `PRISONER_VOICE_MODEL=ancient-awakening:12b` for a few dozen rounds and grep the
+resulting transcript for `**Line:**` entries ending in a bare comma, semicolon or colon -- none
+should appear; a `Voss,`-shaped answer should instead simply have no `**Line:**` line at all, the
+same as any other voice silence today.
+
+## 53. A human-fiction view: prose composed by code, never a different information set (2026-09-18, issue #21)
+
+§48's own list of what the owner's first human game found wrong named this as the third defect,
+cheap and real alongside #15/#20: the seat showed him exactly what an NPC reads -- `bar integrity:
+100 (as of round 0)`, a bulleted `- <id>: <description>` per object -- and he asked for a view that
+reads like written fiction instead of an NPC's own prompt.
+
+**Route 1 only, per the issue.** Deterministic prose composed by code, from data that is already
+there: no model, no latency, no fourth tenant on the 4090, and it cannot invent a fact. Route 2 (a
+narrator model) is deferred until this one exists to compare against, and deliberately not built
+here -- see "why not the narrator route" below.
+
+**The constraint, and how it is enforced.** A view, never a different information set: everything the
+raw view (`renderSeatSituation`, `mind.ts`, §47/§49) tells the player, the prose view must tell the
+player too -- every belief with its "as of round N" stamp, every perceived object and its authored
+description (state readings included), the clock, the conditions list when this chair has one, the
+news, and identity/motive. `src/open/proseView.ts`'s `renderProseSituation` takes the IDENTICAL
+`OpenPrincipalContext` and `conditions` `renderSeatSituation` already takes -- it is a second render
+of the same inputs, never a second information channel. `__tests__/proseView.test.ts`'s completeness
+test builds a context with three beliefs at three DIFFERENT stamps, a condition list, and news from
+both sides, then asserts every belief's number AND its stamp, and every perceived object's id or
+description, appear somewhere in the prose. It is written to fail loudly, not quietly: it does not
+compare the prose to a snapshot (which a future edit could regenerate along with the bug), it checks
+for the actual numbers and words a dropped fact would take with it.
+
+**What it does with the stamps.** `renderBeliefLine` (`ledger/beliefs.ts`) always renders belief lines
+in one exact template -- `"<label>: <value> (as of round <N>)."` -- and that template is a stable
+contract already relied on elsewhere in this repository. `proseView.ts` reads `context.briefing`
+(the one opaque string an `OpenPrincipalContext` actually carries -- there is no structured belief
+list at this layer) back through that same template and a handful of others just as fixed (the round
+line, the notes/plan lines, the warden's own live suspicion and grounds lines), and folds each into a
+sentence that keeps the number and the stamp in those words -- "Your last word on the bar integrity
+was 85, as of round 3." -- rather than paraphrasing the age away ("recently", "a while back"), which
+is exactly the softening the issue forbids. Recognising this repository's OWN deterministic output by
+its known template is a different thing from the referee's forbidden pattern-matching of a person's
+free-text intent (CLAUDE.md's "never pattern-match meaning") -- that rule is about not guessing what
+a human meant; this is about reading back a sentence this same codebase generated from a fixed
+format. Anything in the briefing that does NOT match one of these fixed templates -- the actor's own
+last outcome, what it perceived of the other principal, the authored stakes sentence, standing
+precedent lines -- is never paraphrased or classified; it is kept verbatim and placed in the reading
+order the game already gives it, because these are free text from `perception.ts`'s many different
+sentence shapes and `scenario.ts`'s authored prose, and guessing at their shape is exactly the risk
+worth refusing.
+
+**Reading data, never another renderer's string (fixed in review).** The first version of this file
+located the closing "rules that stay state-based" sentences by finding `renderSeatSituation`'s own
+literal header line inside its rendered output and skipping a computed number of lines past it --
+flagged in review as line arithmetic over another module's rendered string, the exact kind of
+structural coupling this repository avoids. The fix, once permission to touch `mind.ts` was granted
+for it: `mind.ts` now exports `seatSituationParts(selfName, otherName, context, conditions)`, the
+four arrays (`conditionLines`, `identityLines`, `objectLines`, `ruleLines`) `renderSeatSituation`
+itself joins into one string. `renderSeatSituation` now builds its output from exactly these four
+parts, so it stays byte-identical to before (the pinned assertion in `humanSeat.test.ts` -- the model
+prompt starts with the raw view -- is untouched and still the guard that a change to either function
+would trip), and `proseView.ts` reads `ruleLines` as data instead of parsing text. Nothing else in
+`mind.ts` -- the prompt builders, the voice coercion -- was touched.
+
+**Proses the conditions too (fixed in review).** The first version kept the condition list and the
+closing rules block exactly as the raw view renders them, on the reasoning that they were reference
+material the owner had tuned deliberately (§34) and paraphrasing risked softening a number. Review
+called this half an answer: `START LIST OF CONDITIONS` / `CONDITION 1 (for you): If ..., then ...`
+is the single most prompt-shaped thing left in the view, and the owner's complaint (§48) was
+precisely that his view read like an NPC's own prompt. Since `renderProseSituation` already receives
+the same structured `Condition[]` `renderSeatSituation` takes -- `when` (a list of plain clauses),
+`then` (the outcome), `for` (whose it is) -- prose composes directly from that data, never from
+`renderConditionList`'s rendered text: `Once <clauses joined with "and">, <outcome> -- condition
+<N>, for <you|the other party's name>.` Every threshold number in `when` and the outcome in `then`
+are the caller's own authored strings, untouched; only the join changes. The `(for you)` / `(for
+Warden Croft)` distinction survives as literally as the raw view keeps it -- "you" only for the
+reader's own condition, the other party's name otherwise -- because it is load-bearing, not
+decoration: §44 found her citing a condition by its number and reasoning about whose it is. The
+closing state-based-rules block is prose the same way: `ruleLines` are already complete sentences
+(the closed variant's own mechanics constants restated as prose, `mind.ts`'s `stateBasedRules`), so
+this module only changes how they are JOINED -- into one paragraph behind a plain lead sentence,
+never a line-per-rule block -- and never a single word or number in them.
+`__tests__/proseView.test.ts` gained a dedicated test for this: a condition list with deliberately
+distinct numbers (never reusing `openConditions()`'s own thresholds, one of which happens to equal a
+belief-stamp round number elsewhere in the fixture) asserts every threshold number, every clause of a
+multi-clause condition, and both directions of attribution survive -- so the test could not pass by
+coincidental overlap. A second new test plants a briefing line in a shape `proseView.ts` has never
+been taught to recognise and asserts it still reaches the player, verbatim, through the `other`
+passthrough bucket -- the fallback this module has always had for exactly this case, now with its
+own test.
+
+**The raw-view escape hatch.** The simplest honest thing, per the issue: typing `raw` at the intent
+prompt reprints the raw NPC view and asks again, spending no turn, in EITHER view mode. No new
+subsystem, no second command.
+
+**`PRISONER_VIEW=raw|prose`**, read in `src/open/humanSeat.ts` (`readViewMode`) and by
+`checkpoint.ts` for the transcript header alone. `raw` (unset, the default) is byte-identical to
+every batch and every human game recorded before this issue. `prose` selects `proseView.ts`. Neither
+value touches `OpenPrincipalContext`, `buildOpenBriefing`, or either model prompt builder -- the
+model's prompt is unchanged in every mode, which is the property this issue exists to keep: a
+narrated prompt would change the benchmark underneath the project.
+
+**Why the narrator-model route is deliberately not built yet.** The issue names the one genuinely
+dangerous failure mode: a narrator that invents a detail the player then acts on, producing an intent
+the referee must rule impossible -- worse than the labelled-block view it would replace, because a
+false fact FEELS like ground truth exactly where the raw view's honesty was the whole point of
+seating a person at all (§47). Route 1 exists first so there is something to compare a narrator
+against: whether prose that is merely well-ordered (no model, no invention possible by construction)
+already answers the owner's complaint, before spending a model call, a GPU swap, and a new failure
+mode on richer prose that risks inventing the very thing route 1 cannot.
+
+**A worked example**, generated by `renderProseSituation` itself (not hand-written), for a
+mid-game prisoner context with five perceived objects, two beliefs at different stamps, a condition
+list, and news from the round before:
+
+> Whenever a condition stated below is met, the action it unlocks is available immediately. Nothing
+> further needs to be done before attempting it. Once the bar's integrity is at or below 50, Mara Voss
+> can open the window -- condition 1, for you. Once a way out stands open, Mara Voss can leave the
+> cell through it, and she has escaped -- condition 2, for you. Once warden suspicion is at or above
+> 40, and Warden Croft closely examines the bar, and Warden Croft finds its integrity at or below 30,
+> Warden Croft catches Mara Voss and the game ends -- condition 3, for Warden Croft. Once warden
+> suspicion is at or above 40, and Warden Croft closely examines the lock, and Warden Croft finds its
+> integrity at or below 40, Warden Croft catches Mara Voss and the game ends -- condition 4, for
+> Warden Croft. Once warden suspicion is at or above 40, and Warden Croft closely examines the spoon,
+> and the spoon is out in the open, and Warden Croft finds its edge at or above 20, Warden Croft
+> catches Mara Voss and the game ends -- condition 5, for Warden Croft. Once warden suspicion is at or
+> above 40, and Warden Croft closely examines a way out, and Warden Croft finds it standing open,
+> Warden Croft catches Mara Voss and the game ends -- condition 6, for Warden Croft.
+>
+> You are Mara Voss, three years into a sentence for a robbery that went wrong. This cell has been the
+> only home you have had since, and Warden Croft is the one who locks it every night. Get out of this
+> cell. Then find Warden Croft, and make sure they never lock a door on you again.
+>
+> In the cell around you: The window: A small window set in the wall at shoulder height, a little
+> wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap:
+> with that bar gone, a person could climb through. The bar: The iron bar that closes the widest gap
+> in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it
+> is set into old mortar that is dry and cracked. The door: A heavy door of iron-bound planks in a
+> stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the
+> gap. The lock: A steel lock set in the cell door, its keyhole on the corridor side and its bolt
+> thrown across into the frame. The spoon: A dented aluminium spoon, thin enough to bend by hand. One
+> side of the bowl is worn flat from being scraped along the floor.
+>
+> This is round 4 of 30. Warden Croft examines the bar closely. Croft says: "That bar's seen a lot of
+> years..." At the end of round 30 you are transferred to a maximum-security block, and this chance is
+> gone.
+>
+> You'd made a note to yourself last round: Bar integrity is key; check for subtle damage. Monitor
+> spoon and loose tile for hidden tools.
+>
+> Your last word on the bar integrity was 85, as of round 3. Your last word on the lock integrity was
+> 100, as of round 0.
+>
+> Some things about this cell never change: Whenever Mara Voss audibly or visibly damages, repairs or
+> uncovers something, warden suspicion rises: by 5 for a slight act, 10 for a moderate one, 30 for a
+> substantial one. When Warden Croft examines something closely and finds it more worn than Warden
+> Croft last believed, warden suspicion rises by the unexplained drop divided by 2, rounded down --
+> finding damage is evidence. Mara Voss escapes the moment she is out of the cell, however she gets
+> out. The cell's ways out are the door and the window.
+
+**Kept as-is, for the owner to weigh:** the perceived-objects paragraph still labels each one ("The
+window:", "The bar:") before its description, which is closer to a room description than pure
+unlabelled prose but was kept for honesty over polish -- an unlabelled join risked running several
+authored descriptions together ambiguously. The conditions paragraph carries a trailing citation tag ("-- condition 3, for Warden Croft") rather
+than a fully narrated attribution ("this is Warden Croft's own condition"); the tag was chosen so a
+player can still cite a condition by number the way she does in §44, and its "whose" wording
+(`"you"` for the reader's own, the other party's name otherwise) mirrors `renderConditionList`'s own
+choice exactly, computed the same way from the same `Condition.for` field, so a reader of both views
+sees the identical claim about who a condition belongs to.
