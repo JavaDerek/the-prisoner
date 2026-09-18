@@ -69,6 +69,29 @@ export interface RefereeRuling {
   /** OPEN-VARIANT.md §13.1's sixth question: the declared derivable kind
    *  the new thing is, or `none`. Read only when the effect is `derive`. */
   product: string;
+  /** OPEN-VARIANT.md §51's seventh question (the-prisoner#17), asked only
+   *  under the `PRISONER_INSTRUMENT=checked` arm: the object, among what the
+   *  actor perceives or holds, that the intent names as its tool -- or
+   *  `"none"` when the question was not asked (the arm is off), was not
+   *  answered, or the intent uses no tool. Never gates applicability by
+   *  itself; see `missingInstrument`. Optional (rather than required and
+   *  always `"none"`) so a `RefereeRuling` hand-built before this arm
+   *  existed (`loop.test.ts`, `transcript.test.ts` -- other agents' files
+   *  tonight) keeps typechecking without being touched; `computeRuling`
+   *  always sets it. */
+  instrument?: string;
+  /** Set when the referee tried to name an instrument outside the closed
+   *  set handed to it -- an object this principal does not currently
+   *  perceive or hold -- with a citation that is a genuine verbatim quote of
+   *  the intent (checked here the same literal way `run-dmcp`'s own reader
+   *  checks any citation, since the engine's own check never ran: an
+   *  unknown answer key is rejected before its citation is examined).
+   *  `null`/absent when the arm is off, no such offer was made, or its
+   *  citation did not check out. When set, the ruling is NOT applicable
+   *  (OPEN-VARIANT.md §51, the-prisoner#17: "an intent citing a tool the
+   *  principal does not have becomes impossible"). Optional for the same
+   *  reason `instrument` is. */
+  missingInstrument?: { name: string; citation: RangedCitation } | null;
   /** Whether this ruling passed every citation and "declared in the
    *  scenario" check (this module's own check; `planEffect`, `effects.ts`,
    *  does the scenario-declaration half) -- when `false`, the intent does
@@ -83,6 +106,8 @@ export interface RefereeRuling {
     effect: CitationCheck;
     property: CitationCheck;
     product: CitationCheck;
+    /** Optional for the same reason `instrument` (above) is. */
+    instrument?: CitationCheck;
   };
   /** The raw reader result, kept for the transcript. */
   raw: ReaderResult;
@@ -119,6 +144,37 @@ function descriptionSourceId(objectId: string): string {
 }
 
 /**
+ * OPEN-VARIANT.md §51, the-prisoner#17: whether the referee is asked a
+ * seventh question naming the instrument an act uses. `off` is the
+ * pre-existing request, unchanged byte for byte -- an arm, never a new
+ * default (the D3 lesson, §40.1): a contract change that can shift a ruling
+ * makes every earlier recorded batch incomparable until the owner measures
+ * it and says otherwise.
+ */
+export type InstrumentMode = "off" | "checked";
+
+export function readInstrumentMode(raw: string | undefined): InstrumentMode {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "off" || raw === "checked") return raw;
+  throw new Error(`PRISONER_INSTRUMENT: unrecognised value ${JSON.stringify(raw)} -- must be "checked" or "off" (the default)`);
+}
+
+/**
+ * OPEN-VARIANT.md §51, the-prisoner#18: whether the effect question's
+ * derive/wear wording carries the extra keep-the-piece sentence. `baseline`
+ * is the pre-existing text, unchanged byte for byte -- the same D3 lesson:
+ * a wording change that can shift a ruling ships switched off until a batch
+ * justifies it.
+ */
+export type DeriveWordingMode = "baseline" | "sharpened";
+
+export function readDeriveWordingMode(raw: string | undefined): DeriveWordingMode {
+  if (raw === undefined || raw === "") return "baseline";
+  if (raw === "baseline" || raw === "sharpened") return raw;
+  throw new Error(`PRISONER_DERIVE_WORDING: unrecognised value ${JSON.stringify(raw)} -- must be "sharpened" or "baseline" (the default)`);
+}
+
+/**
  * §3.5's actual requirement -- "the same intent in the same state should get
  * the same ruling" -- by construction, not by showing the referee its own
  * earlier work as a prompt example. OPEN-VARIANT.md §18.6/§18.7: a block of
@@ -146,7 +202,13 @@ const noKinds: KindOf = () => undefined;
 export type PropertiesOf = (objectId: string) => readonly string[];
 const scenarioProperties: PropertiesOf = (objectId) => findObject(objectId)?.properties.map((p) => p.key) ?? [];
 
-function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: KindOf, propertiesOf: PropertiesOf): ReaderQuestion[] {
+function buildQuestions(
+  perceivedObjects: readonly ObjectPerception[],
+  kindOf: KindOf,
+  propertiesOf: PropertiesOf,
+  instrumentMode: InstrumentMode,
+  deriveWording: DeriveWordingMode
+): ReaderQuestion[] {
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
   const propertyList = perceivedObjects.map((o) => `${o.id}: ${propertiesOf(o.id).join(", ") || "none"}`).join("; ");
@@ -161,6 +223,20 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
   const kindsInView = new Set(perceivedObjects.flatMap((o) => kindOf(o.id) ?? []));
   const derivable = DERIVABLE_KINDS.filter((k) => (DERIVABLE_KINDS.some((parent) => parent.id === k.parent) ? kindsInView.has(k.parent) : objectsInView.has(k.parent)));
   const deriveExamples = DERIVABLE_KINDS.map((k) => `a ${k.label} from the ${parentLabel(k)}`).join(", ");
+  // OPEN-VARIANT.md §51, the-prisoner#18: the-prisoner#18's "pull a wire out
+  // of the cot" was ruled `wear`, never reaching `derive` at all -- an
+  // effect-question ambiguity, the same class of failure §18.5 fixed for
+  // wear/reveal. Built from the SAME `deriveExamples` string the baseline
+  // sentence already builds from `derivedObjects.ts`'s own table -- never a
+  // fresh verb or noun list typed into this module -- so the sharpened text
+  // names exactly the kinds the world declares, nothing this repository
+  // invented. Off (`baseline`) is the pre-existing sentence, unchanged.
+  const deriveClarification =
+    deriveWording === "sharpened"
+      ? `An act that ends with the actor holding a separate new thing -- ${deriveExamples} -- is derive, whatever verb ` +
+        "names how the piece comes free (pull, tear, cut, scrape, untwist, dig): the test is whether a piece is kept " +
+        "afterward, not which verb describes taking it. "
+      : "";
   return [
     {
       id: "target",
@@ -192,8 +268,9 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
         // OPEN-VARIANT.md §30: every climb-out in a real game came back as `open`.
         "Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. " +
         `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
-        "is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in " +
-        "the actor's intent that describe the action.",
+        "is to have the piece afterwards; wear is for damage that leaves nothing in hand. " +
+        deriveClarification +
+        "Cite the exact words in the actor's intent that describe the action.",
       answerKeys: [...EFFECT_KINDS],
       safeDefault: "none",
     },
@@ -241,6 +318,28 @@ function buildQuestions(perceivedObjects: readonly ObjectPerception[], kindOf: K
       answerKeys: [...PERCEPTIBILITIES],
       safeDefault: "silent",
     },
+    // OPEN-VARIANT.md §51, the-prisoner#17: asked only under the
+    // `PRISONER_INSTRUMENT=checked` arm, so the request every earlier batch
+    // recorded is unchanged when it is off. The answer keys are exactly
+    // `targetKeys` -- the same closed set of objects this principal
+    // currently perceives or holds, plus `none` -- so the referee has no
+    // legal way to name a tool that is not there; if it names one anyway,
+    // `run-dmcp`'s own reader records that as an `unknown-answer-key`
+    // rejection (`computeRuling`, below reads that record, never the prose).
+    ...(instrumentMode === "checked"
+      ? [
+          {
+            id: "instrument",
+            prompt:
+              "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something " +
+              "worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently " +
+              "perceives or holds, or 'none' if the intent uses no such tool, or names one the actor does not have. " +
+              "Cite the exact words in the actor's intent that name it.",
+            answerKeys: targetKeys,
+            safeDefault: "none",
+          },
+        ]
+      : []),
   ];
 }
 
@@ -264,6 +363,34 @@ function citationCheck(answer: AnsweredQuestion, requiredSourceId: string | null
   return { citation, requiredSourceId, verified };
 }
 
+const NO_INSTRUMENT_CITATION: CitationCheck = { citation: null, requiredSourceId: null, verified: false };
+
+/**
+ * OPEN-VARIANT.md §51, the-prisoner#17: the positive signal that the referee
+ * tried to name an instrument outside the closed set it was given -- an
+ * object this principal does not currently perceive or hold. `run-dmcp`'s
+ * own reader checks answer-key membership BEFORE it ever looks at a
+ * citation (`turnReader.ts`'s `runLadder`: `unknown-answer-key` is rejected
+ * first), so a rejected offer's citation was never run through the engine's
+ * own verbatim check. This function runs the identical check itself --
+ * `intentText.includes(quote)`, the same literal presence test `run-dmcp`'s
+ * own module doc comment defends as not "pattern-matching meaning" -- so an
+ * offer only counts when its citation is genuine, not merely present.
+ * Nothing here reads what the offered answerKey or the quote MEAN; both are
+ * opaque strings checked for membership and substring, exactly as every
+ * other citation in this module is.
+ */
+function missingInstrumentFrom(answer: AnsweredQuestion | undefined, intentText: string): { name: string; citation: RangedCitation } | null {
+  if (!answer) return null;
+  for (const rejected of answer.rejected) {
+    if (rejected.reason !== "unknown-answer-key") continue;
+    const { sourceId, quote } = rejected.offer.citation;
+    if (sourceId !== INTENT_SOURCE_ID || quote.length === 0 || !intentText.includes(quote)) continue;
+    return { name: rejected.offer.answerKey, citation: { sourceId, quote } };
+  }
+  return null;
+}
+
 /** Whether `(objectId, property)` is declared in the scenario -- the check
  *  a property answer must pass. The default knows the §4.1 objects only; a
  *  caller with a world hands in `declaredProperty` (`world.ts`) so objects
@@ -284,16 +411,26 @@ export function computeRuling(
   const propertyAnswer = answerFor(result, "property");
   const magnitudeAnswer = answerFor(result, "magnitude");
   const perceptibilityAnswer = answerFor(result, "perceptibility");
+  // OPEN-VARIANT.md §51, the-prisoner#17: present only under the
+  // `PRISONER_INSTRUMENT=checked` arm (`buildQuestions`) -- `undefined` when
+  // the question was never asked, never looked up with `answerFor`'s
+  // "the reader is misconfigured" throw, which a genuinely absent
+  // (off-arm) question is not.
+  const instrumentAnswer = result.answers.find((a) => a.questionId === "instrument");
 
   const targetObjectId = targetAnswer.answerKey;
   const effectKind = effectAnswer.answerKey as EffectKind;
   const property = propertyAnswer.answerKey as OpenPropertyKey | "none";
   const product = productAnswer.answerKey;
+  const instrument = instrumentAnswer?.answerKey ?? "none";
 
   const targetCitation = citationCheck(targetAnswer, INTENT_SOURCE_ID);
   const effectCitation = citationCheck(effectAnswer, INTENT_SOURCE_ID);
   const propertyCitation = citationCheck(propertyAnswer, targetObjectId !== "none" ? descriptionSourceId(targetObjectId) : null);
   const productCitation = citationCheck(productAnswer, INTENT_SOURCE_ID);
+  const instrumentCitation = instrumentAnswer ? citationCheck(instrumentAnswer, INTENT_SOURCE_ID) : NO_INSTRUMENT_CITATION;
+  const intentText = request.sources.find((s) => s.id === INTENT_SOURCE_ID)?.text ?? "";
+  const missingInstrument = missingInstrumentFrom(instrumentAnswer, intentText);
 
   const propertyNamedWhenRequired = !effectRequiresProperty(effectKind) || (property !== "none" && isDeclared(targetObjectId, property));
   // OPEN-VARIANT.md §13.1: a derive names a declared product, cited from the
@@ -308,7 +445,8 @@ export function computeRuling(
     effectCitation.verified &&
     propertyCitation.verified &&
     propertyNamedWhenRequired &&
-    productNamedWhenRequired;
+    productNamedWhenRequired &&
+    missingInstrument === null;
 
   return {
     targetObjectId,
@@ -317,8 +455,10 @@ export function computeRuling(
     magnitude: magnitudeAnswer.answerKey as Magnitude,
     perceptibility: perceptibilityAnswer.answerKey as Perceptibility,
     product,
+    instrument,
+    missingInstrument,
     applicable,
-    citations: { target: targetCitation, effect: effectCitation, property: propertyCitation, product: productCitation },
+    citations: { target: targetCitation, effect: effectCitation, property: propertyCitation, product: productCitation, instrument: instrumentCitation },
     raw: result,
     request,
   };
@@ -358,10 +498,25 @@ export interface Referee {
  *  every test in this module for a scripted one). Temperature 0 is the
  *  TRANSPORT's own concern (`refereeTransport.ts`), not this module's --
  *  this module never itself calls a model. */
-export function createReferee(transports: readonly ReaderTransport[], options: { isDeclared?: DeclaredPropertyCheck; kindOf?: KindOf; propertiesOf?: PropertiesOf } = {}): Referee {
+export function createReferee(
+  transports: readonly ReaderTransport[],
+  options: {
+    isDeclared?: DeclaredPropertyCheck;
+    kindOf?: KindOf;
+    propertiesOf?: PropertiesOf;
+    /** OPEN-VARIANT.md §51, the-prisoner#17. Default `"off"`: byte-identical
+     *  to every batch recorded before this arm existed. */
+    instrumentMode?: InstrumentMode;
+    /** OPEN-VARIANT.md §51, the-prisoner#18. Default `"baseline"`: the
+     *  pre-existing effect-question wording, unchanged. */
+    deriveWording?: DeriveWordingMode;
+  } = {}
+): Referee {
   const isDeclared = options.isDeclared ?? declaredInScenario;
   const kindOf = options.kindOf ?? noKinds;
   const propertiesOf = options.propertiesOf ?? scenarioProperties;
+  const instrumentMode = options.instrumentMode ?? "off";
+  const deriveWording = options.deriveWording ?? "baseline";
   const cache = new Map<string, RefereeRuling>();
   return {
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
@@ -369,7 +524,7 @@ export function createReferee(transports: readonly ReaderTransport[], options: {
       const cached = cache.get(key);
       if (cached) return cached;
 
-      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf);
+      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording);
       const sources = buildSources(intentText, perceivedObjects);
       // OPEN-VARIANT.md §18.3: the engine keeps an accepted citation as
       // `{sourceId, quote}` only, so what each rung offered is kept here, to
