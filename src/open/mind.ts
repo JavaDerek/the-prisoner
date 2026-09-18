@@ -355,6 +355,47 @@ export interface CreateOpenMindOptions {
   conditions?: readonly Condition[];
 }
 
+/** the-prisoner#20: a voice line whose LAST character is one of these is
+ *  still mid-clause -- no complete English utterance legitimately ends on a
+ *  bare comma, semicolon or colon. This is a SHAPE check only (CLAUDE.md:
+ *  "never pattern-match meaning") -- it reads one character, never what the
+ *  words say -- and it runs only on the SEPARATE voice call's own `line`
+ *  (`voiceMind` below), the exact call this issue's evidence came from. */
+const FRAGMENT_LINE_ENDINGS = [",", ";", ":"];
+
+/** True for a line this repository will not print as dialogue -- see
+ *  `FRAGMENT_LINE_ENDINGS`. What this WRONGLY rejects, because it looks only
+ *  at the final character: a real one-word line ending in terminal
+ *  punctuation ("Enough.") is untouched, but a deliberate trailing comma for
+ *  effect ("Names, ranks, nothing else,") or a colon introducing something
+ *  with nothing after it ("Listen carefully:") reads as a fragment and is
+ *  silenced the same way a truncated one would be. Accepted: the shape rule
+ *  cannot tell those apart from the words alone, and telling them apart
+ *  would mean judging what the line means, which this repository forbids.
+ */
+function isFragmentLine(line: string): boolean {
+  return FRAGMENT_LINE_ENDINGS.includes(line.slice(-1));
+}
+
+/** Wraps `mind-seam`'s own `coerceProposal` for the SEPARATE voice call
+ *  only (`voiceMind` below): a fragment `line` (see `isFragmentLine`) makes
+ *  this return `null`, exactly like any other malformed answer, so it goes
+ *  through `mind-seam`'s existing "rejected" `SilenceReason` -- already the
+ *  same recorded, counted path a timeout or an unparseable answer takes
+ *  (`onVoiceSilence`), never a new category of its own. `wits.intent` is
+ *  never touched by this: the caller falls back to an empty `line`, exactly
+ *  as it already does for every other kind of voice failure. Re-asking the
+ *  model (mother-of-invention's `regenerate`) was the other option and was
+ *  not taken -- it costs a whole extra model call and GPU swap on a machine
+ *  that fits one model at a time, to fix a role whose ONLY job is a line of
+ *  flavour text nothing else ever reads (docs/OPEN-VARIANT.md §52). */
+function coerceVoiceProposal(raw: unknown): Proposal | null {
+  const proposal = coerceProposal(raw);
+  if (proposal === null) return null;
+  if (proposal.line !== undefined && isFragmentLine(proposal.line)) return null;
+  return proposal;
+}
+
 /**
  * Builds one open-mode mind. Single-call by default (`witsModel ===
  * voiceModel`, exactly the closed variant's own collapse rule in
@@ -431,7 +472,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     fetchFn: options.fetchFn,
     responseFormat: { jsonSchema: VOICE_SCHEMA, name: "voice" },
     prompt: (context) => buildVoicePrompt(options.selfName, options.otherName, context),
-    coerce: (raw) => coerceProposal(raw),
+    coerce: (raw) => coerceVoiceProposal(raw),
     onSilence: options.onVoiceSilence,
   });
 

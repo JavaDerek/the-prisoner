@@ -84,6 +84,70 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     expect(proposal?.voiceModel).toBe("voice-model");
   });
 
+  // the-prisoner#20: the voice model can return a fragment ("Voss,") that
+  // passes mind-seam's own `coerceProposal` (non-empty after trim) and would
+  // otherwise reach the briefing as a full line of dialogue. The rule is
+  // about SHAPE only, never meaning: a line whose last character is a
+  // comma, semicolon or colon is still mid-clause, so it is treated exactly
+  // like any other voice failure -- dropped, `onVoiceSilence` fires, wits'
+  // `intent` is untouched.
+  function dualFetch(voiceLine: string): typeof fetch {
+    let call = 0;
+    return vi.fn(async () => {
+      call += 1;
+      const content =
+        call === 1
+          ? JSON.stringify({ thoughts: "t", intent: "I press the loose tile.", plan: "p", notes: "n" })
+          : JSON.stringify({ intent: "voiced", line: voiceLine });
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
+    }) as unknown as typeof fetch;
+  }
+
+  it("dual-call path: a voice line cut off mid-clause (ends in a comma) is treated as a voice silence, not printed", async () => {
+    const onVoiceSilence = vi.fn();
+    const mind = createOpenMind({
+      baseUrl: "http://x",
+      selfName: "Warden Croft",
+      otherName: "Mara Voss",
+      witsModel: "wits-model",
+      voiceModel: "voice-model",
+      fetchFn: dualFetch("Voss,"),
+      onVoiceSilence,
+    });
+    const proposal = await mind.consider(CONTEXT);
+    expect(proposal?.intent).toBe("I press the loose tile."); // wits' decision survives a rejected voice call
+    expect(proposal?.line).toBe("");
+    expect(onVoiceSilence).toHaveBeenCalledWith("rejected", expect.anything(), expect.anything());
+  });
+
+  it("dual-call path: semicolon- and colon-ending lines are the same shape of fragment", async () => {
+    for (const line of ["Wait here;", "Listen to me:"]) {
+      const mind = createOpenMind({
+        baseUrl: "http://x",
+        selfName: "Warden Croft",
+        otherName: "Mara Voss",
+        witsModel: "wits-model",
+        voiceModel: "voice-model",
+        fetchFn: dualFetch(line),
+      });
+      const proposal = await mind.consider(CONTEXT);
+      expect(proposal?.line).toBe("");
+    }
+  });
+
+  it("dual-call path: a genuine short line ending in terminal punctuation is never rejected for its length alone", async () => {
+    const mind = createOpenMind({
+      baseUrl: "http://x",
+      selfName: "Warden Croft",
+      otherName: "Mara Voss",
+      witsModel: "wits-model",
+      voiceModel: "voice-model",
+      fetchFn: dualFetch("Enough."),
+    });
+    const proposal = await mind.consider(CONTEXT);
+    expect(proposal?.line).toBe("Enough.");
+  });
+
   it("GPU-safe swapping: each call's model is ensured loaded before that call's own request, in order", async () => {
     const events: string[] = [];
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
