@@ -185,3 +185,75 @@ describe("PRISONER_VIEW=narrated -- the narrator model, shown only once verified
     expect(() => seat(["I test the bar.", ""], { view: "narrated" })).toThrow(/narrator/i);
   });
 });
+
+// 2026-09-18, from the first real `PRISONER_VIEW=narrated` game: "I can
+// barely even read this." The seat re-printed the identical world every
+// round -- conditions, objects, identity, rules -- and the two or three
+// sentences that were new sat in the middle of it. `deltaView.ts` holds back
+// a standing block the player has ALREADY been shown with that exact text.
+describe("the prose view holds back the standing world once the player has read it (deltaView.ts)", () => {
+  const laterContext: OpenPrincipalContext = {
+    ...CONTEXT,
+    briefing: "Round 2 of 12.\nbar integrity: 100 (as of round 1)\nYour last attempt worked on the bar.",
+  };
+
+  it("shows the whole world on the first turn, and holds the unmoved parts back on the second", async () => {
+    const written: string[] = [];
+    const { ask } = player("wait", "", "", "wait", "", "");
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view: "prose" });
+
+    await mind.consider(CONTEXT);
+    const first = written.join("\n");
+    expect(first).toContain("You are Mara Voss.");
+    expect(first).toContain("One of five vertical iron bars.");
+
+    written.length = 0;
+    await mind.consider(laterContext);
+    const second = written.join("\n");
+    // The turn's own state, every turn: the clock, the news, the belief and
+    // its stamp -- the fog this seat exists to put a person inside.
+    expect(second).toContain("This is round 2 of 12.");
+    expect(second).toContain("Your last attempt worked on the bar.");
+    expect(second).toContain("as of round 1");
+    // The standing world, read once.
+    expect(second).not.toContain("You are Mara Voss.");
+    expect(second).not.toContain("One of five vertical iron bars.");
+    expect(second).toContain("held back");
+  });
+
+  it("shows an object again the moment its description moves", async () => {
+    const written: string[] = [];
+    const { ask } = player("wait", "", "", "wait", "", "");
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view: "prose" });
+    await mind.consider(CONTEXT);
+    written.length = 0;
+    await mind.consider({ ...laterContext, perceivedObjects: [{ id: "bar", description: "One of five vertical iron bars, bright where it has been scraped." }] });
+    expect(written.join("\n")).toContain("bright where it has been scraped");
+  });
+
+  // The rule this whole module lives under (OPEN-VARIANT.md §47, CLAUDE.md's
+  // "how, never what"): the raw view is the model's own prompt opening, byte
+  // for byte, and nothing here may touch it -- neither as the default view
+  // nor as the on-demand escape hatch a player types "raw" for.
+  it("never holds anything back from the raw view, on any turn", async () => {
+    const written: string[] = [];
+    const { ask } = player("wait", "", "", "wait", "", "");
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t) });
+    await mind.consider(CONTEXT);
+    written.length = 0;
+    await mind.consider(laterContext);
+    expect(written.join("\n")).toContain(renderSeatSituation(PRISONER_NAME, WARDEN_NAME, laterContext));
+    expect(written.join("\n")).not.toContain("held back");
+  });
+
+  it('typing "raw" reprints everything in full, however much the prose view has held back', async () => {
+    const written: string[] = [];
+    const { ask } = player("wait", "", "", "raw", "wait", "", "");
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view: "prose" });
+    await mind.consider(CONTEXT);
+    written.length = 0;
+    await mind.consider(laterContext);
+    expect(written.join("\n")).toContain(renderSeatSituation(PRISONER_NAME, WARDEN_NAME, laterContext));
+    expect(written.join("\n")).toContain("One of five vertical iron bars.");
+  });
+});

@@ -4838,3 +4838,126 @@ four defects and a retraction; twenty-two model games produced confirmations of 
 That is an argument for the human seat (§47) as a standing part of the method, not a one-off — and a
 caution for any future mechanism: **build it, but measure whether anything reaches for it before
 promoting it, because the mechanism working is not evidence that it matters.**
+
+## 58. The first human game in the narrated view, and the two things it found (2026-09-18)
+
+The owner sat in the prisoner's chair with `PRISONER_VIEW=narrated PRISONER_PRESENCE=modelled`
+— the first game anyone has played with D3's narrator switched on — and got two rounds in before
+stopping with "I can barely even read this."
+
+Three separate findings came out of two rounds. None of them is about the narrator being *bad*.
+
+### 58.1 The narrator was never shown, and could not have been
+
+Every round printed `Narrator rejected (falling back to the prose view):` and then a list. Round 1
+rejected on eighteen violations, round 2 on twenty-two. Read what kinds they were:
+
+```
+dropped-belief ×2, dropped-object ×6, dropped-condition ×8, dropped-clock ×2      (round 1)
+dropped-belief ×2, dropped-object ×10, dropped-condition ×8, dropped-clock ×2     (round 2)
+```
+
+Not one violation from the other class. No `invented-number`, no `invented-object`, no
+`contradicts-belief`, no `contradicts-state`, no `speaks-for-other`, no `narrates-outcome`. **The
+narrator did not lie once.** It was discarded both times for writing prose.
+
+That is not a miscalibration; it is what §54's checker asks for, read back honestly.
+`verifyNarration` requires every one of twelve perceived objects to be mentioned, every belief with
+both its value *and* its "as of round N" stamp, every threshold number in all six conditions, and
+both clock numbers. A narration that satisfies all of that **is the raw view with connective
+tissue**. The set of narrations that pass is the set that was not worth asking a model for.
+
+§54's own words were that the checker decides "whether a given narration is safe to show a player."
+It does not check safety. It checks losslessness. Those are different properties, and only the first
+is the liability D3 was built to catch — the second is the completeness rule from route 1
+(`proseView.ts`), which is enforceable there precisely *because* code composes that view and cannot
+choose to leave something out.
+
+So the finding is a fork, and it is left open here rather than closed by whoever noticed it:
+**either the narrator may be lossy (reject on the lying class alone, keep the completeness kinds as
+a counted observation), or `narrated` stays a mode that cannot produce prose.** Taking the first
+costs the seat's like-for-like property — a player would see less than the model in that chair. That
+is §47's rule, and changing it is not a bug fix.
+
+### 58.2 The rejection diagnostic was printed at the player
+
+`checkpoint.ts` logged one line of violation kinds per rejection, to stdout, immediately above the
+view the player was trying to read. A rejection is evidence about a narrator; evidence belongs in
+the transcript, where it can be counted across a run. It is now tallied by kind into the
+transcript's own narrator section (`formatViolationTally`, `narrator.ts`) and the player is told
+nothing — the fallback to prose was always meant to be seamless.
+
+Worth noting what the tally would have said about this run, had it existed: every rejection in the
+completeness class, none in the lying class. §58.1 is a finding the transcript should have been able
+to produce on its own, and could not.
+
+### 58.3 A bluff came back as furniture
+
+The owner told Croft there was a riot outside and shouted "look out behind you!!", and was told:
+
+> Your last attempt ("tell the warden there is a riot going on outside and he should leave
+> immediately") met the warden as it is: She can be seen, heard, spoken to, or touched by anyone
+> who shares this room with her. She is on her feet.
+
+That is `perception.ts`'s impossible branch, written for objects — "met the bar as it is: rust has
+pitted it near the bottom" — applied to the one target in this game that is somebody. §55 already
+found this exact nonsense one branch over, in `noise` ("made the warden ring out"), and fixed it
+there. The lesson generalises past the branch that got caught: **once a principal is a legal target,
+every outcome sentence needs person-shaped wording, not just the first one somebody tripped over.**
+The impossible branch now reads `met Warden Croft: <her description>` — the identical information,
+which is the positive reason §5.3 item 2 requires, in a frame that does not treat a person as a
+thing examined.
+
+One thing this did **not** fix, recorded because it is a design question and not a wording bug: the
+owner's spoken line ("look out behind you!!") is nowhere in what he was told back, so he could not
+tell whether Croft heard it, ignored it, or was unmoved by it. A speaker knows what they said, so
+nothing is *missing* in the fog sense; what is missing is any perception of the line *landing*.
+Whether a principal should perceive that their words reached the other is open.
+
+## 59. The standing world, read once (2026-09-18)
+
+§58's actual complaint, and the one that stopped the game.
+
+§53 fixed the *within-turn* layout: conditions and objects one per line under a lead, so a player
+could scan for the spoon instead of re-reading a paragraph. It could do nothing about the same
+twenty-seven lines arriving again on the next turn, and the turn after that. Round 2 of the owner's
+game re-printed six conditions, twelve object descriptions, the identity paragraph and the standing
+rules — **byte for byte identical to round 1** — with the three sentences that were actually new
+(the clock, what his attempt met, what Croft did) in the middle of it.
+
+Nothing was wrong with any block. The wall was made of repetition, and repetition is the one thing a
+player already has, because they read it last turn.
+
+`deltaView.ts` holds a block back when the player has already been shown that exact text, in this
+same run, and it is still true. On the real scenario: **27 lines on round 1, 3 on round 2.**
+
+The rule it lives under, and the reason it is a view and not an information change:
+
+- **The standing world** — conditions, identity/motive, the cell, the state-based rules — is shown
+  once, then only when it moves. A changed object shows *its own line* under the lead, not the other
+  eleven with it.
+- **The turn's state** — the clock and news, notes and plan, and every belief with its "as of round
+  N" stamp — is shown **every turn, however little it moved**. This is the fog the seat exists to
+  put a person inside, and a player reasoning against a stale belief needs the stamp in front of
+  them rather than in their memory of last turn.
+- **Every render that holds anything back says so**, names what, and points at `raw`, which reprints
+  the model's own view in full and costs no turn.
+- **The raw view never goes through this at all.** `PRISONER_VIEW=raw` is the default, is what every
+  measured run uses, and is byte-identical to the model's prompt opening — including when a player
+  in the prose view types "raw" to check that nothing is being hidden from them. Pinned by its own
+  test.
+
+What the player has been told, **cumulatively**, is unchanged, which is the sense in which §47's
+rule survives: a view chooses how, never what.
+
+The one thing a per-item delta cannot express is an item that is **gone** — an absence is not in the
+list of what is here. A removal therefore re-shows the whole block, which is exactly what the view
+did every turn before this module existed, so a removal is never told worse than it used to be.
+Telling it positively ("the warden has left") would mean a view composing a sentence about the
+world, which is `perception.ts`'s job.
+
+Comparison is **by key** (an object's id, a condition's position), never by the finished sentence: an
+object whose description changed is one item that moved, not one object leaving and another
+arriving. `proseView.ts` now emits its blocks with those keys (`proseBlocks`, `ProseItem`) rather
+than a finished string another module would have to take apart with a regular expression to guess
+the same thing.

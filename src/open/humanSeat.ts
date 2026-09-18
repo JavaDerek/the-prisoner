@@ -1,5 +1,6 @@
 import { renderSeatSituation, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
-import { renderProseSituation } from "./proseView.js";
+import { proseBlocks } from "./proseView.js";
+import { createDeltaView } from "./deltaView.js";
 import type { Narrator } from "./narrator.js";
 import type { Condition } from "./conditionList.js";
 
@@ -114,14 +115,22 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
     throw new Error('PRISONER_VIEW=narrated needs a narrator: createHumanSeatMind was not given one (options.narrator). Configure PRISONER_NARRATOR_MODEL and wire narrator.ts\'s createNarrator, or use "raw"/"prose" instead.');
   }
   const narrator = options.narrator;
+  // One delta per seat, for the life of the game (`deltaView.ts`, 2026-09-18):
+  // the prose view shows the standing world once and then only when it moves,
+  // because the first real `narrated` game re-printed all of it every round
+  // and the news drowned in it. The RAW view never goes through this -- it is
+  // byte-identical to the model's own prompt and stays that way, including
+  // when the player asks for it on demand below.
+  const delta = createDeltaView();
+  const proseSituation = (context: OpenPrincipalContext): string => delta.render(proseBlocks(selfName, otherName, context, options.conditions));
   return {
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
       const situation =
         view === "narrated" && narrator
-          ? ((await narrator.narrate(selfName, otherName, context, options.conditions)) ?? renderProseSituation(selfName, otherName, context, options.conditions))
+          ? ((await narrator.narrate(selfName, otherName, context, options.conditions)) ?? proseSituation(context))
           : view === "prose"
-            ? renderProseSituation(selfName, otherName, context, options.conditions)
+            ? proseSituation(context)
             : renderSeatSituation(selfName, otherName, context, options.conditions);
       write(situation);
       write("");

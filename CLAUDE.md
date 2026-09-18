@@ -95,6 +95,21 @@ once `verifyNarration` finds nothing wrong with it; a narration that fails falls
 silently to the player, with the failure counted and recorded in the transcript. Every mode: typing
 `raw` at the intent prompt reprints the raw NPC view on demand and asks again.
 
+`prose` and the `narrated` fallback show the **standing world once** (`src/open/deltaView.ts`,
+OPEN-VARIANT.md §59): conditions, identity, the cell and the state-based rules are held back on a
+later turn when the player has already been shown that exact text and it is still true, so the
+turn's own news is not buried under twenty-odd identical lines. The turn's state -- the clock, the
+news, notes and plan, and every belief WITH its "as of round N" stamp -- is shown every turn
+regardless, and any render that holds something back says what and points at `raw`. **The raw view
+never goes through it**, as the default view or as the on-demand escape hatch: it stays byte-identical
+to the model's prompt, which is what every measured run reads and what §47's like-for-like seat
+depends on.
+
+**Before widening what `verifyNarration` rejects, read OPEN-VARIANT.md §58.1.** Its completeness
+kinds (`dropped-*`) make `narrated` unable to produce prose at all -- the first human game rejected
+every narration on those alone, with zero violations from the kinds that mean the narrator LIED.
+Whether a narration may be lossy is an open question about §47's rule, not a calibration knob.
+
 ## Never run `npm run format` on this repository
 
 `prettier` is a dependency and `format`/`format:check` exist, but **this code is not

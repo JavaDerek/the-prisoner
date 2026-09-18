@@ -153,18 +153,6 @@ function beliefSentence(belief: BeliefFact): string {
   return `Your last word on the ${belief.label} was ${belief.value}, as of round ${belief.asOfRound}.`;
 }
 
-/** One perceived object per line, under a short lead line -- NOT one flowing
- *  paragraph (the layout-only fix, review round 2): eleven authored
- *  descriptions run together read as a wall a player cannot scan for "what
- *  did the spoon say again?" The TEXT of each item is unchanged from the
- *  prose-paragraph version; only the join between them changed, from a
- *  space to a newline. */
-function sceneParagraph(objects: OpenPrincipalContext["perceivedObjects"]): string {
-  if (objects.length === 0) return "You perceive nothing you could act on right now.";
-  const items = objects.map((o) => `The ${spacedLabel(o.id)}: ${o.description}`);
-  return ["In the cell around you:", ...items].join("\n");
-}
-
 /**
  * One condition as a sentence, keeping every threshold number in `when` and
  * the `then` clause verbatim (both are the caller's own authored content --
@@ -179,21 +167,6 @@ function sceneParagraph(objects: OpenPrincipalContext["perceivedObjects"]): stri
 function conditionSentence(condition: Condition, index: number, selfName: string): string {
   const whose = condition.for === selfName ? "you" : condition.for;
   return `Once ${condition.when.join(", and ")}, ${condition.then} -- condition ${index + 1}, for ${whose}.`;
-}
-
-/** Every number and every attribution a condition carries, one sentence per
- *  line under a short lead line -- NOT run together into one paragraph
- *  (the layout-only fix, review round 2): six conditions joined by spaces
- *  read as a single block a player has to re-read end to end to find
- *  condition 6, which is worse for scanning than the `CONDITION N (for X)`
- *  block it replaced, even though every word in it is the same prose this
- *  file already composed. The SENTENCES are unchanged (`conditionSentence`)
- *  -- only the join between them changed, from a space to a newline.
- *  Reuses `CONDITION_LIST_OPENING` (conditionList.ts) rather than
- *  re-authoring it, so the two views open on the same claim. */
-function conditionsParagraph(conditions: readonly Condition[] | undefined, selfName: string): string {
-  if (!conditions || conditions.length === 0) return "";
-  return [CONDITION_LIST_OPENING, ...conditions.map((c, i) => conditionSentence(c, i, selfName))].join("\n");
 }
 
 /** The rules that stay state-based (`seatSituationParts(...).ruleLines`,
@@ -245,31 +218,101 @@ export function isExemptFromLineLength(line: string): boolean {
 }
 
 /**
- * The prose view: paragraphs composed by code from the identical data
- * `renderSeatSituation` renders, for the human seat alone
- * (`humanSeat.ts`'s `view: "prose"`). Never called by anything that builds
- * a model prompt.
+ * Which part of the situation a block is. Exported for `deltaView.ts`
+ * (2026-09-18), which decides per kind whether a block is STANDING (the
+ * world as it is -- worth showing once, then only when it changes) or
+ * TURN state (the news, the clock, what this principal believes and when
+ * -- always shown, however little it moved). That decision needs to know
+ * which block is which, and the honest way to know is for this module to
+ * SAY so, in a field, rather than for another module to match its finished
+ * prose with a regular expression and guess.
  */
-export function renderProseSituation(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+export type ProseBlockKind = "conditions" | "identity" | "scene" | "news" | "notesAndPlan" | "knowledge" | "rules";
+
+/**
+ * One block of the prose view, with its kind and -- for the two blocks that
+ * are genuinely LISTS (the conditions and the scene) -- its lead line and
+ * its items kept apart from the joined text. `deltaView.ts` needs the items
+ * separately to hold back the eleven objects that did not change while
+ * showing the one that did; everything else compares whole.
+ *
+ * `text` is always the finished block exactly as `renderProseSituation`
+ * prints it, so a caller that wants the whole view never has to re-join
+ * anything itself and cannot re-join it differently.
+ */
+export interface ProseBlock {
+  readonly kind: ProseBlockKind;
+  readonly text: string;
+  /** List blocks only: the short line above the items ("In the cell around
+   *  you:"), which a delta view repeats whenever it shows any item. */
+  readonly lead?: string;
+  /** List blocks only: one independently-comparable item per entry. */
+  readonly items?: readonly ProseItem[];
+}
+
+/**
+ * One item of a list block, with the WHAT it is about kept apart from the
+ * words describing it. The key is what makes "the bar now has a bright
+ * scrape along it" a changed item rather than one object vanishing and an
+ * unrelated one appearing -- a distinction a delta view cannot make from the
+ * finished sentences, and must never try to make by splitting them on
+ * punctuation. It is this module's own stable identifier (an object's id, a
+ * condition's position), never anything authored.
+ */
+export interface ProseItem {
+  readonly key: string;
+  readonly text: string;
+}
+
+function listBlock(kind: ProseBlockKind, lead: string, items: readonly ProseItem[]): ProseBlock {
+  return { kind, lead, items, text: [lead, ...items.map((i) => i.text)].join("\n") };
+}
+
+/**
+ * The prose view, as its blocks -- the composition step
+ * `renderProseSituation` is now a join over. Same data, same order, same
+ * sentences; the only thing this adds is a NAME for each block, which is
+ * what lets a caller treat the standing world differently from the turn's
+ * news without pattern-matching finished prose.
+ */
+export function proseBlocks(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): ProseBlock[] {
   const parsed = parseBriefing(context.briefing);
-  const paragraphs: string[] = [];
+  const blocks: ProseBlock[] = [];
 
-  paragraphs.push(conditionsParagraph(conditions, selfName));
+  if (conditions && conditions.length > 0) {
+    blocks.push(
+      listBlock(
+        "conditions",
+        CONDITION_LIST_OPENING,
+        conditions.map((c, i) => ({ key: `condition ${i + 1}`, text: conditionSentence(c, i, selfName) }))
+      )
+    );
+  }
 
-  paragraphs.push(`${context.identity} ${context.motive}`.trim());
+  blocks.push({ kind: "identity", text: `${context.identity} ${context.motive}`.trim() });
 
-  paragraphs.push(sceneParagraph(context.perceivedObjects));
+  if (context.perceivedObjects.length === 0) {
+    blocks.push({ kind: "scene", text: "You perceive nothing you could act on right now." });
+  } else {
+    blocks.push(
+      listBlock(
+        "scene",
+        "In the cell around you:",
+        context.perceivedObjects.map((o) => ({ key: o.id, text: `The ${spacedLabel(o.id)}: ${o.description}` }))
+      )
+    );
+  }
 
   if (parsed.roundN !== undefined && parsed.totalRounds !== undefined) {
-    paragraphs.push([`This is round ${parsed.roundN} of ${parsed.totalRounds}.`, ...parsed.other].join(" "));
+    blocks.push({ kind: "news", text: [`This is round ${parsed.roundN} of ${parsed.totalRounds}.`, ...parsed.other].join(" ") });
   } else if (parsed.other.length > 0) {
-    paragraphs.push(parsed.other.join(" "));
+    blocks.push({ kind: "news", text: parsed.other.join(" ") });
   }
 
   const notesAndPlan: string[] = [];
   if (parsed.notes !== undefined) notesAndPlan.push(`You'd made a note to yourself last round: ${parsed.notes}`);
   if (parsed.plan !== undefined) notesAndPlan.push(`Your plan, from your last turn, was: ${parsed.plan}`);
-  if (notesAndPlan.length > 0) paragraphs.push(notesAndPlan.join(" "));
+  if (notesAndPlan.length > 0) blocks.push({ kind: "notesAndPlan", text: notesAndPlan.join(" ") });
 
   const knowledge: string[] = [];
   if (parsed.suspicion !== undefined) {
@@ -281,10 +324,23 @@ export function renderProseSituation(selfName: string, otherName: string, contex
     if (parsed.hasGrounds) knowledge.push("That is enough to search her cell outright, whenever you choose to.");
   }
   for (const belief of parsed.beliefs) knowledge.push(beliefSentence(belief));
-  if (knowledge.length > 0) paragraphs.push(knowledge.join(" "));
+  if (knowledge.length > 0) blocks.push({ kind: "knowledge", text: knowledge.join(" ") });
 
   const parts = seatSituationParts(selfName, otherName, context, conditions);
-  paragraphs.push(rulesParagraph(parts.ruleLines));
+  const rules = rulesParagraph(parts.ruleLines);
+  if (rules.length > 0) blocks.push({ kind: "rules", text: rules });
 
-  return paragraphs.filter((p) => p.length > 0).join("\n\n");
+  return blocks.filter((b) => b.text.length > 0);
+}
+
+/**
+ * The prose view: paragraphs composed by code from the identical data
+ * `renderSeatSituation` renders, for the human seat alone
+ * (`humanSeat.ts`'s `view: "prose"`). Never called by anything that builds
+ * a model prompt.
+ */
+export function renderProseSituation(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+  return proseBlocks(selfName, otherName, context, conditions)
+    .map((b) => b.text)
+    .join("\n\n");
 }
