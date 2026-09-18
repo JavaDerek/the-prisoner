@@ -3433,3 +3433,67 @@ keystrokes: plumbing evidence, not play.
 
 A human seat is also the one run that must not be detached (`nohup`), which is the opposite of every
 other real run here.
+
+## 48. The first human game: escaped at round 4, through the door, for 15 suspicion (2026-09-17)
+
+The owner played his own game, prisoner's seat, model warden (`qwen3:14b` wits, `ancient-awakening:12b`
+voice, `qwen2.5:14b` referee), 30 rounds available, conditions `list` and door `unstated` — the
+defaults. Transcript: `checkpoints/2026-09-18T02-40-27-834Z.md`. He escaped in four rounds and the
+warden ended at **suspicion 15**, having never had grounds to search.
+
+The four rounds, from the transcript's own referee tables:
+
+| round | intent | ruled | resolved |
+|---|---|---|---|
+| 1 | "Examine the bar's integrity closely" | reveal | bar integrity is 100 |
+| 2 | "drop to the ground and pretend to be having a heart attack" | **impossible**, target `none` | nothing |
+| 3 | "pull a wire out of the cot" | **wear** on `cot` | `cot_wire_integrity: 100 -> 90` |
+| 4 | "pick the lock using the wire" | open on `lock` | `door_passage: 0 -> 1` |
+| 4 | "leave the cell through the door" | leave | out of the cell |
+
+**Thirty-odd model games never took this route.** Every contested game ground at the bar until
+suspicion pinned at 100 and the warden searched (§31.2), and §41/§45 measured that fixation four
+separate ways. The reason is now plain, and it is not that the minds were dull: **her condition list
+names the window as the way to win and the lock only as a way to be caught.** The owner read the same
+list, ignored the framing, and walked out of the door she was never told was an exit.
+
+Four defects, in the order they cost the most:
+
+1. **The door is free** (#19). `world.ts` gives its passage `openWhenPartAtMost: null` where the
+   window's is 50, so one audible `open` ends the game. The lock's integrity was 100 before that turn
+   and 100 after — it was never damaged, merely opened. The window costs five or six audible `wear`
+   turns and the suspicion that comes with them; the door costs two turns and 15. **Every catch
+   condition is gated on suspicion ≥ 40, so this route cannot be punished at all.**
+2. **The instrument need not exist** (#17). "using the wire" was cited verbatim from the intent and
+   verified as a citation. There was no wire: round 3 produced a slightly bent cot, and the
+   transcript's own summary reads "Made this game: 0". §10.7's documented gap — a citation is checked
+   for being verbatim and from a named source, never for justifying the effect — is now a
+   game-winning exploit rather than a theoretical weakness.
+3. **The clearest derive intent there is was ruled `wear`** (#18). "pull a wire out of the cot", with
+   a plan that said "get a wire from the cot, use it to pick the lock", against a world that declares
+   `wire` derivable from the cot (§13). `product` came back `none` with no offer at all, so the two
+   failures may share one cause: the referee never considered a product.
+4. **A social intent has nowhere to land** (#22, under #5). The heart attack was ruled impossible for
+   the three structural reasons §31.2 named — presence unmodelled, a principal not a target, no effect
+   writing a belief — and the refusal told him his attempt "reached past what is here", which is wrong
+   about the cause in the one way that matters: nothing was out of reach, and no object was named at
+   all. He then planned to strike the warden and run past her, which cannot be attempted either.
+   **Thirty games of models never pressed here; a person did it on turn two.** That is the evidence
+   #5 was waiting for.
+
+**§46's conclusion is now in question, and this is the correction.** That section stated the door as a
+condition, saw 2 of 3 games escape at round 4, and read it as the arm moving the plan. The route was
+free the whole time: the arm did not create it, it only pointed at it. §46's door escapes are evidence
+about the door's price, not about novelty or precedent, and the comparison needs re-running once the
+door costs something.
+
+Three presentation findings from the same hour, cheap and real: every object is described to the
+player **twice**, once by the briefing and once by the perceived-object list, in the models' prompts
+as much as the human's view (#15); the voice model emitted the fragment `Voss,` and the game printed
+it as a line of dialogue (#20); and the owner asked for a view that reads like written fiction rather
+than an NPC's labelled blocks (#21), which is the presentation seam the console will need anyway.
+
+**The generalisable lesson.** Every number in §31 through §46 was measured inside a room whose fastest
+exit nobody had priced. A mechanism measured in an unpriced world measures the world, not the
+mechanism — which is why four separate framings of "make her try something else" all came back
+negative. Put a person in the seat earlier.
