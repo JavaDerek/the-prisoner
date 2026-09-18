@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
 import { createReferee, readInstrumentMode, readDeriveWordingMode, type ObjectPerception } from "../referee.js";
+import { suspicionEligible } from "../loop.js";
 
 const BAR: ObjectPerception = {
   id: "bar",
@@ -539,5 +540,73 @@ describe("PRISONER_DERIVE_WORDING (OPEN-VARIANT.md §51, the-prisoner#18)", () =
     expect(effect?.prompt).toContain("holding a separate new thing");
     expect(effect?.prompt).toContain("a piece is kept afterward");
     expect(effect?.prompt).toContain("whatever verb");
+  });
+});
+
+// OPEN-VARIANT.md §54 (issue #22, the-prisoner's own SOCIAL-INTENTS.md
+// proposal): THE GROUNDING RULE, and the owner's own reason for approving
+// the proposal -- "a state change must be grounded in a citation describing
+// the physical act, never in the claim about the act." A prisoner who can
+// move the world by asserting things wins by assertion, which is what the
+// referee exists to prevent. This is the SAME discipline every other test
+// in this file already exercises for objects (`citationCheck`'s own
+// `requiredSourceId`, always the TARGET's own `desc:<id>` source for the
+// property question, never `intent`); this test plants it specifically
+// against a PERCEIVED PRINCIPAL, so the discipline is pinned before gap 3
+// (a person's own bounded numeric property) ever gives it something real to
+// protect.
+describe("THE GROUNDING RULE (OPEN-VARIANT.md §54, issue #22): a person-property change must cite the target's own description, never the spoken words", () => {
+  const PRISONER: ObjectPerception = { id: "prisoner", description: "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her." };
+
+  it("PLANTED VIOLATION: a property citation sourced from the actor's own INTENT (the spoken claim), not the target's own description, is refused -- even when a person-property is (hypothetically) declared", async () => {
+    // `isDeclared` is stubbed to ALWAYS say yes, isolating the citation-
+    // SOURCE discipline from "no property is declared for a person at all"
+    // (effects.test.ts's own, separate defence-in-depth test) -- this test
+    // asks: if gap 3 ever declares one, does grounding still hold?
+    const alwaysDeclared = () => true;
+    const transport = scriptedTransport({
+      target: { answerKey: "prisoner", citation: { sourceId: "intent", quote: "drop to the ground" } },
+      effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "drop to the ground" } },
+      // THE VIOLATION: the grounding citation names the actor's own SPOKEN
+      // intent ("I am having a heart attack") as if it were a description
+      // of Voss's own body -- exactly the failure mode SOCIAL-INTENTS.md
+      // warns against: winning by assertion, not by a physical act.
+      property: { answerKey: "integrity", citation: { sourceId: "intent", quote: "drop to the ground" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "drop to the ground" } },
+      perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "drop to the ground" } },
+    });
+    const referee = createReferee([transport], { isDeclared: alwaysDeclared });
+    const ruling = await referee.rule("I drop to the ground and clutch my chest.", [PRISONER]);
+
+    expect(ruling.citations.property.verified).toBe(false);
+    expect(ruling.applicable).toBe(false);
+  });
+
+  it("the identical ruling is applicable once the property citation is moved to the TARGET's own description", async () => {
+    const alwaysDeclared = () => true;
+    const transport = scriptedTransport({
+      target: { answerKey: "prisoner", citation: { sourceId: "intent", quote: "drop to the ground" } },
+      effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "drop to the ground" } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:prisoner", quote: "She can be seen, heard, spoken to, or touched" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "drop to the ground" } },
+      perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "drop to the ground" } },
+    });
+    const referee = createReferee([transport], { isDeclared: alwaysDeclared });
+    const ruling = await referee.rule("I drop to the ground and clutch my chest.", [PRISONER]);
+
+    expect(ruling.citations.property.verified).toBe(true);
+    expect(ruling.applicable).toBe(true);
+  });
+
+  it("a noise ruled at a perceived principal never bumps warden_suspicion by itself -- only a visible/audible WEAR-shaped effect, or the warden's own look, ever does (the asymmetry, unchanged by this gap)", () => {
+    // `noise` is never in the suspicion-eligible set (`loop.ts`), the exact
+    // rule that already keeps CONCEAL/REVEAL quiet -- unaffected by a
+    // principal now being a legal `noise` target. Structural, not a mock:
+    // if this ever flipped, THIS is the line that would need to change, and
+    // it would need a one-sentence justification next to it, not a silent
+    // edit.
+    expect(suspicionEligible("noise")).toBe(false);
+    expect(suspicionEligible("reveal")).toBe(false);
+    expect(suspicionEligible("conceal")).toBe(false);
   });
 });

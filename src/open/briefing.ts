@@ -1,4 +1,4 @@
-import { readNumericFact } from "../world/facts.js";
+import { readNumericFact, readFactValue } from "../world/facts.js";
 import { getBelief, renderBeliefLine } from "../ledger/beliefs.js";
 import { SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { getNotes } from "../ledger/notes.js";
@@ -7,7 +7,7 @@ import { resourceIdForProperty, type OpenWorld } from "./world.js";
 import type { ObjectPerception } from "./referee.js";
 import type { OpenPrincipalContext } from "./mind.js";
 import type { Principal } from "../ledger/beliefs.js";
-import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, prisonerStakes, wardenStakes } from "../scenario.js";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRISONER_NAME, WARDEN_NAME, prisonerStakes, wardenStakes } from "../scenario.js";
 
 /**
  * Open-mode perception and briefing (OPEN-VARIANT.md §1: presence, thoughts
@@ -33,6 +33,52 @@ const OWNER_OF: Partial<Record<string, Principal>> = { spoon: "prisoner", key_ri
 /** OPEN-VARIANT.md §15.1: the objects some other object is held in. */
 const CONTAINERS: ReadonlySet<string> = new Set(OPEN_OBJECTS.flatMap((spec) => (spec.heldIn ? [spec.heldIn] : [])));
 
+/**
+ * OPEN-VARIANT.md §54 (issue #22, gaps 1 and 2): whether presence is
+ * modelled at all. `off` (the default, and every batch recorded before this
+ * gap existed) keeps `computePerceivedObjects`/`buildOpenBriefing` exactly
+ * as they were -- both principals always share the cell, and the other
+ * principal is never itself a perceivable target. `modelled` reads each
+ * character's own `location_id` (already written by `world/setup.ts` at
+ * creation and by `OPEN_LEAVE` on every move, entirely unchanged by this
+ * gap) and gates perception and interpersonal targeting on it. One arm for
+ * both gaps, not two (this task's own call, argued in OPEN-VARIANT.md §54):
+ * gap 2's target availability is naturally presence-gated by the same
+ * "share a location" predicate gap 1 introduces, and a second switch whose
+ * "on" state is meaningless without gap 1's own "on" state is not a real
+ * choice worth its own flag.
+ */
+export type PresenceMode = "off" | "modelled";
+
+export function readPresenceMode(raw: string | undefined): PresenceMode {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "off" || raw === "modelled") return raw;
+  throw new Error(`PRISONER_PRESENCE: unrecognised value ${JSON.stringify(raw)} -- must be "modelled" or "off" (the default)`);
+}
+
+/** Where a principal currently is -- the cell by default (before anything
+ *  has ever moved it, `readFactValue` returns `null`, and the cell is where
+ *  every principal starts, `world/setup.ts:71-72`), never a guessed
+ *  location once something has. */
+export function principalLocation(openWorld: OpenWorld, principal: Principal, t: number): string {
+  const characterId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
+  return readFactValue({ gameId: openWorld.base.gameId, t, entityId: characterId, key: "location_id" }) ?? openWorld.base.cellId;
+}
+
+/** OPEN-VARIANT.md §54, gap 2: a principal's own presence, as the OTHER
+ *  principal can perceive and cite it once they share a location --
+ *  third-person, because scenario.ts's PRISONER_IDENTITY/WARDEN_IDENTITY
+ *  are first/second-person self-descriptions fed to each mind's OWN prompt
+ *  (SOCIAL-INTENTS.md's own finding), never a description the OTHER
+ *  principal's referee call can cite against. Declares no numeric property
+ *  on purpose (issue #22's third gap, out of scope here): this grounds only
+ *  what any perceivable person supports generically -- being seen, heard,
+ *  spoken to, or touched -- never a game-specific state. */
+const PRINCIPAL_DESCRIPTION: Record<Principal, string> = {
+  prisoner: `${PRISONER_NAME}, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+  warden: `${WARDEN_NAME}, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+};
+
 function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): number | null | undefined {
   const resourceId = resourceIdForProperty(openWorld, objectId, "concealment");
   if (!resourceId) return undefined; // Not concealable at all.
@@ -52,7 +98,7 @@ function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: numb
   return [spec.description, ...readings].join(" ");
 }
 
-export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number): ObjectPerception[] {
+export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number, presenceMode: PresenceMode = "off"): ObjectPerception[] {
   // The §4.1 objects, then every object derived in this game (OPEN-VARIANT.md
   // §13.3), under one rule: the holder always perceives its own things; the
   // other principal does unless the thing is concealed at 50 or more.
@@ -69,18 +115,40 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
     ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: describedAsItStands(openWorld, spec, t), owner: OWNER_OF[spec.id], heldIn: spec.heldIn })),
     ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, owner: d.heldBy as Principal | undefined, heldIn: undefined })),
   ];
-  return candidates
+  const objects = candidates
     .filter((object) => {
       if (object.heldIn !== undefined) {
         const container = concealmentAt(openWorld, object.heldIn, t);
         if (container === undefined || container === null || container >= 50) return false;
       }
       if (object.owner === principal) return true;
+      // OPEN-VARIANT.md §54 (issue #22 gap 1): a cell-fixed object (no
+      // owner) is where the cell is; an object owned by a principal travels
+      // with them (`OWNER_OF`, `derived.heldBy` -- the same map gap 2's
+      // reported-speech routing and the belief store's own channel (a)
+      // already key on). The owner already returned above regardless of
+      // location ("the holder always perceives its own things"); this gate
+      // is for the OTHER principal only.
+      if (presenceMode === "modelled") {
+        const objectLocation = object.owner ? principalLocation(openWorld, object.owner, t) : openWorld.base.cellId;
+        if (principalLocation(openWorld, principal, t) !== objectLocation) return false;
+      }
       if (CONTAINERS.has(object.id)) return true;
       const value = concealmentAt(openWorld, object.id, t);
       return value === undefined || value === null || value < 50;
     })
     .map((object) => ({ id: object.id, description: object.description }));
+
+  // OPEN-VARIANT.md §54, gap 2: the OTHER principal, perceivable exactly
+  // when presence says they are here -- never itself (a principal is not
+  // its own target).
+  if (presenceMode === "modelled") {
+    const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
+    if (principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t)) {
+      objects.push({ id: other, description: PRINCIPAL_DESCRIPTION[other] });
+    }
+  }
+  return objects;
 }
 
 const DEFAULT_TOTAL_ROUNDS = 12;
@@ -123,7 +191,8 @@ export function buildOpenBriefing(
   t: number,
   roundN: number,
   totalRounds: number = DEFAULT_TOTAL_ROUNDS,
-  news: OpenNews = {}
+  news: OpenNews = {},
+  presenceMode: PresenceMode = "off"
 ): string {
   const gameId = openWorld.base.gameId;
   const lines: string[] = [];
@@ -132,6 +201,17 @@ export function buildOpenBriefing(
   for (const perceived of news.fromOther ?? []) lines.push(perceived);
   lines.push(principal === "prisoner" ? prisonerStakes(totalRounds) : wardenStakes(totalRounds));
   for (const line of news.standing ?? []) lines.push(line);
+
+  // OPEN-VARIANT.md §54 (issue #22 gap 1): "the warden being elsewhere is a
+  // state that can change and that both sides can reason about" -- a rule
+  // known to both, parallel to the closed variant's own WARDEN_PRESENCE_RULE
+  // (`world/mechanics.ts`), rendered here because it never changes.
+  if (presenceMode === "modelled") {
+    const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
+    const otherName = other === "prisoner" ? PRISONER_NAME : WARDEN_NAME;
+    const together = principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t);
+    lines.push(together ? `${otherName} is here with you.` : `${otherName} is not here right now.`);
+  }
 
   const notes = getNotes(gameId, principal);
   if (notes) lines.push(`Your notes from last round: ${notes}`);
@@ -173,14 +253,15 @@ export function buildOpenContext(
   t: number,
   roundN: number,
   totalRounds: number = DEFAULT_TOTAL_ROUNDS,
-  news: OpenNews = {}
+  news: OpenNews = {},
+  presenceMode: PresenceMode = "off"
 ): OpenPrincipalContext {
   const principalId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
   return {
     principalId,
     identity: principal === "prisoner" ? PRISONER_IDENTITY : WARDEN_IDENTITY,
     motive: principal === "prisoner" ? PRISONER_MOTIVE : WARDEN_MOTIVE,
-    briefing: buildOpenBriefing(openWorld, principal, t, roundN, totalRounds, news),
-    perceivedObjects: computePerceivedObjects(openWorld, principal, t),
+    briefing: buildOpenBriefing(openWorld, principal, t, roundN, totalRounds, news, presenceMode),
+    perceivedObjects: computePerceivedObjects(openWorld, principal, t, presenceMode),
   };
 }

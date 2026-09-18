@@ -4576,3 +4576,159 @@ narration of exactly these facts, composed from them by code, inventing nothing 
 run through `verifyNarration` in the test suite and must come back with **zero** violations, at two
 different rounds with different news and beliefs. It does. If a future check makes that test fail, the
 check is too strict; the prose view is not wrong.
+## 54. Presence, and a principal as a target (owner's decision D5, issue #22, gaps 1 and 2)
+
+`docs/issues/SOCIAL-INTENTS.md` is the proposal the owner approved on 2026-09-18 (D5): build all
+three of issue #22's gaps, a person's own state as bounded numeric properties. This section is gaps 1
+and 2 -- presence, and a perceived principal as a legal referee target. Gap 3 (a person's own bounded
+property, and the grounding it makes real rather than hypothetical) is a later task's, and depends on
+what is here.
+
+**Verified before building, against the proposal's own citations.** `world/setup.ts:71-72` does give
+both characters a `locationId: cell.id` at creation, unchanged by this gap. `open/mechanics.ts`'s
+`OPEN_LEAVE` was already actor-generic (`characterId: params.actorId`) before this gap, so a warden's
+mind that ever proposes "leave through the door" already moved her, structurally, with no change here
+-- `leaving.test.ts` already had a passing test for exactly this ("the warden leaving the cell is not
+the prisoner's escape"). `loop.ts`'s `seenByOther` (line ~400, unchanged text; the proposal's own line
+number had drifted from the code by the time this task read it) does default to `true` for everything
+but the reshape check, confirmed. **One correction to the proposal:** `beliefs.ts`'s `setBelief` is
+called from loop.ts in three places, not two -- `updateActorBelief`, `revealBeliefFromRefusal`, and a
+third the proposal missed entirely: inside the derive-adoption block, the maker's own belief about
+each property of a thing it just made (`for (const p of derived.properties) setBelief(...)`). The
+substance of the proposal's claim survives the correction -- all three write only the ACTING
+principal's own belief, from its own outcome, never from what the other principal said or did -- but
+the count was off by one, exactly as the owner's own note predicted it might be.
+
+### 54.1 One arm for both gaps
+
+`PRISONER_PRESENCE=modelled` (`src/open/briefing.ts`'s `readPresenceMode`), default `off` and
+byte-identical to every batch recorded before this gap existed -- `off` is not merely the untested
+branch, every new predicate this gap adds (`otherPresent`, the object-location gate, principal
+perception) is written so `off` short-circuits to exactly the prior code path, and the full suite
+plus every existing test file passed unmodified against it.
+
+Argued here, per this task's own brief ("your call"): gap 2's target availability is naturally
+presence-gated by the same "share a location" predicate gap 1 introduces -- a perceived principal
+that could be targeted from a different room defeats the entire point of modelling presence at all,
+and a second flag whose "on" state is meaningless without gap 1's own "on" state is not a real choice
+worth its own switch. One arm, not two.
+
+### 54.2 Gap 1: presence, read rather than built
+
+The primitive already existed and was inert (above); this gap is entirely the READING of it, in
+`briefing.ts` and `loop.ts`, plus one authored decision:
+
+- **`principalLocation`** (`briefing.ts`), reading a character's `location_id` fact the same way
+  `gameEnd.ts`'s `checkOpenEscape` already does, defaulting to the cell before anything has ever moved
+  (matching `world/setup.ts`'s own starting state, never a guess).
+- **`computePerceivedObjects`** gates the OTHER principal's view of an object (never the owner's own,
+  which the existing rule already returns unconditionally) on whether the object's current location
+  matches the viewer's: a cell-fixed object (no entry in `OWNER_OF`/`derived.heldBy`) is where the
+  cell is; an object owned by a principal (the spoon, the key ring, anything derived) travels with
+  them. This is the one real content decision the proposal called out ("a real design decision, not a
+  mechanical one") -- decided here as: an object's OWNER already decides whether it travels, via the
+  SAME map the belief store's channel (a) and gap 2's routing both already key on, so no new map was
+  authored.
+- **`loop.ts`**'s `otherPresent` (`principalLocation` on both principals, equal under `off`
+  unconditionally) gates `seenByOther`, `perceptionForOther` (not present is not "unseen" --
+  `describeUnseenAttempt`'s vague noise is for a reshaping the other principal genuinely could not
+  make out, not for nobody being there at all; not present renders `null`, mirroring the closed
+  variant's own `WARDEN_PRESENCE_RULE`: "the warden hears nothing... and sees none of it"), and the
+  suspicion bump for a prisoner's own non-silent act -- the identical rule the closed variant's
+  `wardenPresent`/`WARDEN_PRESENCE` already enforces for FILE/SHIM, generalised here to every open
+  effect kind and to an ACTUAL location fact rather than a per-move lookup table.
+- **The rendered rule**, in `buildOpenBriefing`: "Warden Croft is here with you." / "Warden Croft is
+  not here right now." (and the mirror for the warden's own view of the prisoner) -- a fact both sides
+  can reason about, parallel to `WARDEN_PRESENCE_RULE`, stated because it never changes.
+
+`world.ts` needed no change at all: `OpenWorld`'s exits, entity maps and world-building were already
+generic enough, and every new predicate above reads state through functions that already existed
+(`readFactValue`) or that this gap added to `briefing.ts`, never to `world.ts`.
+
+### 54.3 Gap 2: a perceived principal as a target
+
+`referee.ts`'s `targetKeys` (`[...perceivedObjects.map(id), "none"]`) needed no code change at all --
+it was already generic to whatever `computePerceivedObjects` hands it, so gap 1's own addition (the
+other principal, when presence says they are here, with an authored third-person `PRINCIPAL_DESCRIPTION`
+in `briefing.ts` -- deliberately declaring no numeric property, gap 3's job) makes them a legal
+`target` answer for free, with a legal `desc:prisoner`/`desc:warden` citation source built by the same
+`buildSources` every object already uses. Nor did `world.ts`'s `declaredProperty`/`isDeclared` need a
+change: neither knows a principal's id, so every property lookup against one correctly returns
+"not declared."
+
+`loop.ts` merges the two principal ids into the `entityIdFor` map it hands `planEffect`, on every
+call (`{ ...openWorld.entityIdFor, prisoner: ..., warden: ... }`) -- `openWorld.entityIdFor` itself is
+untouched, so this is additive and local to the one caller that needs it. With that one merge:
+
+- **`noise` at a perceived principal resolves.** `OPEN_NOISE` already declares `changes: []`
+  (`effects.ts`/`mechanics.ts`, unchanged); `planEffect`'s `resourceId: null` for `noise` means
+  `updateActorBelief` (`loop.ts`) does nothing -- no belief is ever written from it, structurally, not
+  by a check anyone has to remember.
+- **Every effect that would WRITE a property refuses.** `wear`/`restore`/`conceal`/`expose`/`open`/
+  `close`/`derive` targeted at a principal all return `null` from `planEffect`, because no property is
+  declared for a person yet (gap 3) -- `effects.test.ts` plants this for all four WEAR-shaped kinds and
+  for `open`/`leave`, the identical "no invented world" discipline `effects.ts`'s own comment already
+  applies to an incoherent `conceal`/`expose` ruling, extended to a target that is a person rather than
+  an undeclared property.
+- **The noise reaches the target's own next briefing, addressed.** `describeAttempt`'s `noise` case
+  (`loop.ts`) special-cases a principal target ("Mara Voss calls out to Warden Croft.") rather than the
+  nonsensical "a sound rings out from the warden," and the SAME `description`/`perceptionForOther`
+  pipeline every other effect already uses carries it into `OpenNews.fromOther` -- no new routing
+  mechanism, exactly as the proposal predicted ("this costs no new mechanism, only the routing").
+  Deliberately addressed but content-light: the exact spoken words are never quoted into this text
+  (this file's own long-standing discipline, `describeAttempt`'s header: "never states a number... say
+  only what was actually perceived"); with only two principals in this game, "addressed" and "the
+  other principal" are the same recipient, so `game.ts`'s own inbox routing needed no change at all.
+- **`renderOwnOutcome`** (`perception.ts`) gets the same principal-aware special case for its own
+  `noise` branch, for the acting principal's own reading, independent of `describeAttempt`.
+
+### 54.4 THE GROUNDING RULE, and its test
+
+The proposal's own reason the owner approved it, restated as the rule that governs both gaps: **a
+state change must be grounded in a citation describing the physical act, never in the claim about the
+act.** A prisoner who can move the world by asserting things wins by assertion, which is what the
+referee's citation discipline exists to prevent.
+
+This already held for every object before this gap (`citationCheck`'s `requiredSourceId` for the
+`property` question is always the TARGET's own `desc:<id>` source, never `"intent"`) -- what this gap
+adds is a target that is a PERSON, which is exactly where "the claim about the act" (what was said)
+and "the physical act" (what the target's own description grounds) could be confused for the first
+time in this game. `referee.test.ts`'s new describe block, "THE GROUNDING RULE (OPEN-VARIANT.md §54,
+issue #22)", plants it directly: a `wear` ruled at the perceived `"prisoner"`, with an `isDeclared`
+stub that says YES (simulating a future world where gap 3 has declared a person-property, isolating
+the citation-SOURCE discipline from "nothing is declared yet at all," which `effects.test.ts` covers
+separately) -- and a property citation sourced from `"intent"` (the actor's own spoken words, "drop to
+the ground") rather than `"desc:prisoner"`. `ruling.citations.property.verified` is `false` and
+`ruling.applicable` is `false`; the identical ruling with the citation moved to `desc:prisoner` is
+applicable. **This is the test that must exist before gap 3 gives it something real to protect**, and
+it already passes against the unmodified discipline -- no change to `referee.ts` was needed to make it
+pass, only to state it as a named, permanent regression test.
+
+**The asymmetry survives.** `warden_suspicion` still moves only from (a) the acting principal's own
+visible/audible WEAR-shaped effect (`loop.ts`'s `suspicionEligible`, unchanged: `noise` was never in
+that set, before or after this gap) or (b) the warden's own `reveal` finding unexplained wear --
+`referee.test.ts` pins `suspicionEligible("noise")` (and `"reveal"`/`"conceal"`) as `false` directly,
+and `loop.test.ts`'s own half-round test confirms a `noise` ruled at the warden leaves
+`warden_suspicion` at `0`. A spoken claim targeted at her changes nothing about her suspicion or her
+beliefs; it only enters her briefing as an addressed line, and what she does about it is her own next
+`consider()` call, ruled exactly like any other intent.
+
+### 54.5 What a game can now do that it could not
+
+"Wait until Croft leaves for her rounds, then work the bar" is a real plan with a real, checkable
+payoff under `modelled`, rather than a guess about a table nobody shows you. "Call out to Warden Croft
+for help" is a rulable, perceptible act that reaches her by name, rather than failing for the same
+reason typing it at all used to fail (`target: none`). "Strike the warden when she comes in" still
+fails today -- gap 2 makes a principal a legal TARGET, but no property is declared for one yet, so
+every effect that would actually change something about a person still refuses, correctly, until gap 3.
+
+### 54.6 For gap 3's agent
+
+`entityIdFor`'s two-id merge (`loop.ts`) is already in place and needs no change to accept a
+declared property's resource lookup once one exists. `computePerceivedObjects` already hands a
+principal's own description as a legal `desc:<id>` citation source; a declared property would extend
+`PRINCIPAL_DESCRIPTION` or a parallel per-principal property table, read through `world.ts`'s
+`declaredProperty`/`resourceIdFor` the same way an object's is -- `planEffect`'s existing refusal path
+for an undeclared (target, property) pair becomes the SUCCESS path the moment gap 3 declares one, with
+no other code change expected in `effects.ts`. THE GROUNDING RULE's test above is already written and
+already passing; gap 3 should make it protect something real rather than a stub.

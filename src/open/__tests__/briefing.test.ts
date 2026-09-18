@@ -2,7 +2,8 @@ import { describe, it, expect, afterEach } from "vitest";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
-import { computePerceivedObjects, buildOpenBriefing, buildOpenContext } from "../briefing.js";
+import { planEffect } from "../effects.js";
+import { computePerceivedObjects, buildOpenBriefing, buildOpenContext, readPresenceMode } from "../briefing.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 import { setNotes } from "../../ledger/notes.js";
 import { seedInitialBeliefs } from "../../ledger/beliefs.js";
@@ -118,5 +119,102 @@ describe("open-mode perception and briefing", () => {
     const perceived = computePerceivedObjects(world, "prisoner", world.base.clock.t0);
     expect(perceived.length).toBeGreaterThan(0);
     expect(perceived.some((o) => o.id === "spoon")).toBe(true);
+  });
+
+  // OPEN-VARIANT.md §54 (issue #22 gap 1/2): `PRISONER_PRESENCE=modelled`,
+  // default `off`, byte-identical to today.
+  describe("presence (§54, PRISONER_PRESENCE, issue #22)", () => {
+    it("readPresenceMode: off by default, modelled when asked, rejects anything else", () => {
+      expect(readPresenceMode(undefined)).toBe("off");
+      expect(readPresenceMode("")).toBe("off");
+      expect(readPresenceMode("modelled")).toBe("modelled");
+      expect(() => readPresenceMode("elsewhere")).toThrow(/PRISONER_PRESENCE/);
+    });
+
+    it("off (the default, and with no argument at all): computePerceivedObjects never includes the other principal, exactly as before this gap existed", () => {
+      createTestDb();
+      const world = buildOpenWorld();
+      const t0 = world.base.clock.t0;
+      expect(computePerceivedObjects(world, "prisoner", t0).some((o) => o.id === "warden")).toBe(false);
+      expect(computePerceivedObjects(world, "prisoner", t0, "off")).toEqual(computePerceivedObjects(world, "prisoner", t0));
+    });
+
+    it("modelled: each principal perceives the OTHER principal, cited from an authored description, while they share the cell", () => {
+      createTestDb();
+      const world = buildOpenWorld();
+      const t0 = world.base.clock.t0;
+      const prisonerView = computePerceivedObjects(world, "prisoner", t0, "modelled");
+      const wardenView = computePerceivedObjects(world, "warden", t0, "modelled");
+      const warden = prisonerView.find((o) => o.id === "warden");
+      const prisoner = wardenView.find((o) => o.id === "prisoner");
+      expect(warden?.description).toBeTruthy();
+      expect(prisoner?.description).toBeTruthy();
+      // Never itself: a principal is not its own target.
+      expect(prisonerView.some((o) => o.id === "prisoner")).toBe(false);
+      expect(wardenView.some((o) => o.id === "warden")).toBe(false);
+    });
+
+    it("modelled: once the warden leaves through the door, the prisoner no longer perceives her, or her key ring, which travels with her -- and she still perceives the (cell-fixed) bar", () => {
+      createTestDb();
+      const world = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      const open = planEffect({
+        targetObjectId: "door",
+        effectKind: "open",
+        property: "passage",
+        magnitude: "moderate",
+        entityIdFor: world.entityIdFor,
+        resourceIdFor: world.resourceIdFor,
+        exits: world.exits,
+        description: "opens the door",
+      });
+      if (!open) throw new Error("no plan");
+      resolver.resolve({ gameId: world.base.gameId, mechanic: open.mechanic, parameters: open.parameters });
+      const leave = planEffect({
+        targetObjectId: "door",
+        effectKind: "leave",
+        property: "none",
+        magnitude: "slight",
+        entityIdFor: world.entityIdFor,
+        resourceIdFor: world.resourceIdFor,
+        exits: world.exits,
+        actorId: world.base.wardenId,
+        description: "leaves through the door",
+      });
+      if (!leave) throw new Error("no plan");
+      resolver.resolve({ gameId: world.base.gameId, mechanic: leave.mechanic, parameters: leave.parameters });
+
+      const t = world.base.clock.wardenT(2);
+      const prisonerView = computePerceivedObjects(world, "prisoner", t, "modelled");
+      expect(prisonerView.some((o) => o.id === "warden")).toBe(false);
+      expect(prisonerView.some((o) => o.id === "key_ring")).toBe(false);
+      expect(prisonerView.some((o) => o.id === "bar")).toBe(true);
+
+      // The warden, from the corridor, no longer perceives the prisoner or
+      // the (cell-fixed) bar -- but still perceives her own key ring, which
+      // travels with her.
+      const wardenView = computePerceivedObjects(world, "warden", t, "modelled");
+      expect(wardenView.some((o) => o.id === "prisoner")).toBe(false);
+      expect(wardenView.some((o) => o.id === "bar")).toBe(false);
+      expect(wardenView.some((o) => o.id === "key_ring")).toBe(true);
+    });
+
+    it("modelled: the briefing states presence as a rule both know; off says nothing about it", () => {
+      createTestDb();
+      const world = buildOpenWorld();
+      const off = buildOpenBriefing(world, "prisoner", world.base.clock.t0, 1);
+      expect(off).not.toMatch(/here with you|not here/i);
+
+      const on = buildOpenBriefing(world, "prisoner", world.base.clock.t0, 1, 12, {}, "modelled");
+      expect(on).toMatch(/here with you/i);
+    });
+
+    it("buildOpenContext threads presence through to both the briefing text and perceivedObjects", () => {
+      createTestDb();
+      const world = buildOpenWorld();
+      const context = buildOpenContext(world, "prisoner", world.base.clock.t0, 1, 12, {}, "modelled");
+      expect(context.briefing).toMatch(/here with you/i);
+      expect(context.perceivedObjects.some((o) => o.id === "warden")).toBe(true);
+    });
   });
 });

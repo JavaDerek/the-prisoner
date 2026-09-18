@@ -51,6 +51,7 @@ import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, 
 import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
+import { readPresenceMode } from "./open/briefing.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
 import { runOpenGame } from "./open/game.js";
@@ -149,6 +150,7 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
  *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
  *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const INSTRUMENT = readInstrumentMode(process.env.PRISONER_INSTRUMENT);
+const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
 /** Open variant only: the effect question's sharpened derive/wear wording
  *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
  *  (the pre-existing text) unless asked -- the same D3 lesson. */
@@ -915,6 +917,11 @@ async function mainOpen(): Promise<void> {
       : "Instrument: UNASKED (the default): the referee is never asked what tool an act uses (§51, the-prisoner#17)."
   );
   transcript.push(
+    PRESENCE === "modelled"
+      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name (§54, issue #22)."
+      : "Presence: OFF (the default): both principals are always treated as present to each other, as every batch before this gap recorded (§54, issue #22)."
+  );
+  transcript.push(
     DERIVE_WORDING === "sharpened"
       ? "Derive wording: SHARPENED (`PRISONER_DERIVE_WORDING=sharpened`): the effect question adds an explicit keep-the-piece test distinguishing derive from wear (§51, the-prisoner#18)."
       : "Derive wording: BASELINE (the default): the effect question's original derive/wear wording, unchanged (§51, the-prisoner#18)."
@@ -966,6 +973,7 @@ async function mainOpen(): Promise<void> {
       wardenMind,
       prisonerMind,
       rounds: ROUNDS,
+      presenceMode: PRESENCE,
       ...(precedent ? { precedent } : {}),
       ...(PICK ? { pick: PICK } : {}),
       onHalfRound: (half) => {
