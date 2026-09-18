@@ -91,6 +91,25 @@ to its prompt; `prose` is deterministic prose composed by code from the identica
 cannot quietly drop a belief's stamp or an object's description while the prose still reads fine.
 Either way, typing `raw` at the intent prompt reprints the raw NPC view on demand and asks again.
 
+## Never run `npm run format` on this repository
+
+`prettier` is a dependency and `format`/`format:check` exist, but **this code is not
+prettier-formatted** -- `npx prettier --check src/` fails on files nobody has touched in weeks, at
+every print width. Running `--write` reformats whole files to 80 columns and buries a two-line change
+in several hundred lines of rewrapping; it happened once, on 2026-09-17, and had to be reverted.
+Match the surrounding style by hand instead: wide lines, comments that say *why*, `§` references into
+`docs/DESIGN.md` or `docs/OPEN-VARIANT.md`. `npm run lint` and `npm run typecheck` are the checks that
+mean something here, plus `npx vitest run`.
+
+## Run a batch from a pinned commit, not from live `main`
+
+A batch means identical conditions (§31), and `npm run checkpoint` executes whatever the working tree
+says at the moment each game starts. On 2026-09-17 a ten-game batch ran while branches were being
+merged into `main`; the merges happened to be arms defaulting to off and byte-identical prompts, and
+the round-1 briefings were compared across the batch afterwards to confirm nothing moved -- but that
+was luck, not method. Check out the commit the batch is for (a worktree is cheapest) and run from
+there, so the batch's own transcripts name a single revision.
+
 ## Never pattern-match meaning
 
 In the closed variant, a move is validated by literal membership (after ASCII uppercasing) in a list
