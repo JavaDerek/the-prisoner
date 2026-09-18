@@ -3560,3 +3560,78 @@ command as §47 with `PRISONER_VOICE_MODEL=ancient-awakening:12b` for a few doze
 resulting transcript for `**Line:**` entries ending in a bare comma, semicolon or colon -- none
 should appear; a `Voss,`-shaped answer should instead simply have no `**Line:**` line at all, the
 same as any other voice silence today.
+## 49. Two wording fixes from the owner's first human game: a doubled prompt, and a ruling that blamed reach (2026-09-18, issues #15/#16)
+
+The owner's own game (§47/§48) found two things wrong with what every principal — model or person —
+is shown, both in `src/open/`, neither behind a model call to reproduce.
+
+**#15: every object's description was said twice.** `briefing.ts`'s `buildOpenBriefing` ended with a
+loop rendering `You perceive the <id>: <authored description>` for every perceived object; `mind.ts`'s
+`objectLines` (inside the exported `renderSeatSituation`) rendered the SAME array, moments later, as
+`- <id>: <authored description>`. Both read from `computePerceivedObjects`, both used the identical
+`describedAsItStands` text (authored description plus any state reading, e.g. "It stands open now."),
+so the sentences were byte-for-byte identical — with eleven objects, roughly 22 duplicate lines in
+front of every single decision, for the models exactly as much as for a person.
+
+The fix removed the loop from `buildOpenBriefing` and kept `renderSeatSituation`'s copy, for the
+reasons §47 already gives for why that copy has to be the one: it is the same array `loop.ts` hands
+the referee as `perceivedObjects`, so a mind is never shown an object the referee itself could not
+target, and it is the copy `humanSeat.test.ts` pins byte-for-byte against the model prompt, so the
+human and the model keep seeing the same thing. No fact was lost — `buildOpenContext`'s
+`perceivedObjects` field carries the identical descriptions forward — only the second rendering of it.
+Everything else the briefing said (news, beliefs, notes, the standing plan, warden suspicion) is
+untouched.
+
+**This changes every prompt.** Roughly half the context a mind read each turn was this repeat (§48
+called it "a possible, untested contributor to the bar-fixation §41/§45 kept measuring"); removing it
+shortens every model prompt and every human view alike. Nothing here says the drag on attention was
+real — that was always speculative — but any future batch's prompt length, and anything measuring how
+minds use the objects list, is no longer comparable to a batch run before this commit. Treat 2026-09-18
+as the line: batches from either side of it are not the same conditions.
+
+**#16: an impossible ruling with no object named said the actor's attempt "reached past what is
+here."** `perception.ts`'s `renderOwnOutcome`, on a ruling with `targetObjectId === "none"`, said so
+unconditionally — read by the owner, correctly, as "stand closer" when he typed `drop to the ground and
+pretend to be having a heart attack` and was told the same thing. The cause was wrong: nothing was out
+of reach, because the intent named a person, and a person is not an object the referee's `target`
+question can ever be asked about.
+
+**Why one wording, not two.** The issue asked to distinguish, using only the referee's own answers
+(never a scan of the intent text — CLAUDE.md's "never pattern-match meaning" applies exactly here):
+"named a real object this principal cannot reach or perceive" from "named nothing the world models at
+all". Tracing `referee.ts`'s own `buildQuestions` (owned by another agent tonight, not touched by this
+fix) shows the two cases cannot be told apart from the ruling, because the question itself already
+folds them together: `targetKeys` is built as `[...perceivedObjects.map(id), "none"]` — the closed set
+of ids a `target` answer may take is exactly what THIS principal already perceives, plus `"none"`.
+An object that is real but out of this principal's reach was never offered as an answerable key in the
+first place, so the referee cannot name it any more than it can name a person; both collapse onto the
+identical `"none"` key, with the identical kind of citation (a verbatim quote from the actor's own
+intent — there is no target description left to cite). `RefereeRuling` (`targetObjectId`, `property`,
+`citations.target`, `raw.answers[].fromSafeDefault`) carries nothing else to split on: no candidate id
+for "recognised but unreachable", no separate key for "not physically modelled". Using
+`raw.answers[].rejected` (offers the ladder discarded for `unknown-answer-key`) was considered and
+rejected as a discriminator: a rejected target offer only shows the transport proposed a string outside
+`targetKeys` — it could equally be a real, currently-unperceived object's id or a hallucinated
+non-object like `"warden"`, and reading anything into the string itself would be exactly the
+pattern-matching CLAUDE.md forbids.
+
+**The wording chosen** claims only what the ruling supports — that nothing perceived was matched — and
+names what IS perceivable, since that much the ruling does carry and it is useful, positive
+information (`perception.ts`'s own rule: rendered from structured fields, in positive nouns, never
+referee prose):
+
+> Your last attempt ("drop to the ground and pretend to be having a heart attack.") matches none of
+> what is here: window, bar, door, lock, spoon, loose tile, cot, blanket, bucket, meal tray, key ring.
+
+It replaces both branches that used to say "reached past what is here" / "within your reach are" —
+the safe-default path (no transport ever answered) and the explicit, cited `"none"` path — because both
+reach `renderOwnOutcome` with the identical signal and neither can be honestly told apart today.
+
+**What the referee would have to give us to do better.** A `target` question that offered a THIRD
+outcome distinct from `"none"` — e.g. a caller-side flag or key meaning "the intent names a specific
+thing that is not in `perceivedObjects`" (which the referee could still cite verbatim from the intent,
+same as any other target answer) — would let `computeRuling` carry the distinction, and
+`renderOwnOutcome` could then honestly say "reached past what is here" only for that key and the
+plainer "matches none of what is here" only for a genuine `"none"`. Absent that, this fix is the honest
+floor: it never claims a cause the ruling cannot prove, and it stops telling a player who names a
+person that they should stand closer.

@@ -97,4 +97,26 @@ describe("open-mode perception and briefing", () => {
     expect(context.identity).toContain("Voss");
     expect(context.perceivedObjects.length).toBeGreaterThan(0);
   });
+
+  // Issue #15: `briefing.ts` used to render "You perceive the <id>: <description>"
+  // for every perceived object, and `mind.ts`'s `objectLines` (inside
+  // `renderSeatSituation`) rendered the SAME array as "- <id>: <description>"
+  // right below it -- the same sentence, twice, in front of every decision.
+  // The briefing keeps everything that is NOT a plain description repeat
+  // (news, beliefs, notes, the plan) and drops only the per-object loop;
+  // `perceivedObjects` -- the same array `renderSeatSituation` renders from
+  // -- is still the one source of truth for what this principal can act on.
+  it("the briefing does not itself list each object's description -- that is renderSeatSituation's job, once (issue #15)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const briefing = buildOpenBriefing(world, "prisoner", world.base.clock.t0, 1);
+    expect(briefing).not.toMatch(/You perceive the/);
+    // Everything else buildOpenBriefing has always said stays said.
+    expect(briefing).toMatch(/^Round 1 of \d+\.$/m);
+    // The information itself is not lost -- it is still the array the mind
+    // and the human seat render from.
+    const perceived = computePerceivedObjects(world, "prisoner", world.base.clock.t0);
+    expect(perceived.length).toBeGreaterThan(0);
+    expect(perceived.some((o) => o.id === "spoon")).toBe(true);
+  });
 });

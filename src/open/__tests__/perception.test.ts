@@ -96,6 +96,57 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
     expectPositive(text);
   });
 
+  // Issue #16: `perception.ts` used to tell EVERY `target: "none"` ruling
+  // that the attempt "reached past what is here" -- wrong about the cause
+  // whenever the intent named no object the world models at all (a person,
+  // a belief), rather than a real one out of reach. The owner's own game
+  // hit exactly this: "drop to the ground and pretend to be having a heart
+  // attack" was ruled `target: none` (nothing about a person is in
+  // `targetKeys`, referee.ts's own `buildQuestions`) and told him he had
+  // "reached past what is here" -- read, correctly, as "stand closer".
+  //
+  // The referee's own `target` question (referee.ts, not touched by this
+  // fix) already folds BOTH cases -- "names no object" and "names an object
+  // this principal cannot reach or perceive" -- into the same closed key,
+  // `"none"`, with the same kind of citation (a verbatim quote from the
+  // actor's own intent, never the target's description, since there is no
+  // target). Nothing in `RefereeRuling` distinguishes which of the two
+  // happened -- `targetObjectId`, `citations.target` and `raw.answers`
+  // carry a citation and a fromSafeDefault flag, but never a candidate
+  // object that was named-but-unreachable, because `targetKeys` never
+  // offers an id outside what THIS principal already perceives (an
+  // unreachable object could not be named by id in the first place). So the
+  // honest fix is one wording for every `target: "none"` ruling, that
+  // claims only what the ruling actually shows -- nothing here was matched
+  // -- and never a cause (distance, reach) the ruling cannot support.
+  it("an impossible ruling with no object named does not blame the actor's reach (issue #16)", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    // A referee that explicitly rules "none", with a real citation from the
+    // actor's own intent -- not the empty-transports/safe-default path the
+    // test above exercises, so this covers the OTHER way a "none" target
+    // reaches renderOwnOutcome: a referee that looked and found no object.
+    const result = await half(
+      openWorld,
+      "prisoner",
+      { intent: "I drop to the ground and pretend to be having a heart attack." },
+      [ruling({ target: "none", effect: "none", property: "none", intentQuote: "pretend to be having a heart attack", descQuote: "" })]
+    );
+    expect(result.ruling?.applicable).toBe(false);
+    const text = renderOwnOutcome(result) as string;
+    expect(text).toContain("drop to the ground and pretend to be having a heart attack");
+    // The old wording read as "stand closer" -- wrong when nothing was
+    // named at all. It must be gone, in both the safe-default case above
+    // and this explicit-`none` case.
+    expect(text).not.toMatch(/reached past/);
+    expect(text).not.toMatch(/within your reach/);
+    // What IS true, and all the ruling actually supports: nothing here
+    // matched. Still lists what the actor can act on -- positive, useful
+    // information the ruling does carry.
+    expect(text).toContain("bar");
+    expectPositive(text);
+  });
+
   it("a refusal states the value the world actually holds", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();
