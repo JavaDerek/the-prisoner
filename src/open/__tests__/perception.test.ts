@@ -37,6 +37,23 @@ async function half(openWorld: OpenWorld, principal: Principal, proposal: OpenPr
   });
 }
 
+/** As `half`, but with presence modelled (OPEN-VARIANT.md §55) -- the arm
+ *  under which the OTHER principal is a perceived object, and so the only
+ *  one where a ruling can name a principal as its target. */
+async function halfWithPresence(openWorld: OpenWorld, principal: Principal, proposal: OpenProposal | null, transports: readonly ReaderTransport[]): Promise<OpenHalfRoundResult> {
+  const t = principal === "warden" ? openWorld.base.clock.wardenT(1) : openWorld.base.clock.prisonerT(1);
+  return runOpenHalfRound({
+    openWorld,
+    resolver: buildOpenResolver(),
+    referee: createReferee(transports),
+    principal,
+    roundN: 1,
+    t,
+    context: buildOpenContext(openWorld, principal, t, 1, undefined, undefined, "modelled"),
+    mind: scriptedMind<OpenPrincipalContext, OpenProposal>(proposal),
+  });
+}
+
 const BAR_WEAR = { target: "bar", effect: "wear", property: "integrity", intentQuote: "scrape the bar", descQuote: "Rust has pitted it near the bottom" };
 
 // The same list invariants.test.ts scans describeAttempt with (§2 invariant 7).
@@ -144,6 +161,42 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
     // matched. Still lists what the actor can act on -- positive, useful
     // information the ruling does carry.
     expect(text).toContain("bar");
+    expectPositive(text);
+  });
+
+  // OPEN-VARIANT.md §55 (issue #22 gap 2) made a principal a legal target and
+  // fixed the `noise` branch, where "made the warden ring out" was nonsense.
+  // The SAME nonsense survived one branch over, in the impossible path: a
+  // human game (2026-09-18) bluffed the warden and was told its attempt "met
+  // the warden as it is: She can be seen, heard, spoken to, or touched by
+  // anyone who shares this room with her" -- the object wording ("met the bar
+  // as it is") applied to a person, and the definite article and "as it is"
+  // both read as though Croft were furniture. Once a principal can be a
+  // target, EVERY outcome branch needs person-shaped wording, not only the
+  // one that got caught first.
+  it("an impossible ruling against a principal names them as a person, never as furniture (§55, issue #22 gap 2)", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld({ presence: "modelled" });
+    const result = await halfWithPresence(
+      openWorld,
+      "prisoner",
+      { intent: "I tell the warden there is a riot going on outside and she should leave immediately.", line: "Look out behind you!" },
+      [ruling({ target: "warden", effect: "none", property: "none", intentQuote: "tell the warden there is a riot", descQuote: "" })]
+    );
+    expect(result.ruling?.applicable).toBe(false);
+    const text = renderOwnOutcome(result) as string;
+    // The person, by name -- not "the warden" as a definite-article object.
+    expect(text).toContain("Warden Croft");
+    // The wording this module CONTROLS: between the actor's own quoted
+    // intent (which says "the warden" because the PLAYER typed it) and the
+    // authored description (which says "Warden Croft, the warden" verbatim
+    // and must survive untouched). Neither of those is this module's words.
+    const wording = text.slice(text.lastIndexOf('")') + 2, text.indexOf(":", text.lastIndexOf('")')));
+    expect(wording).not.toMatch(/the warden/i);
+    expect(wording).not.toMatch(/as it is/);
+    // Still the positive reason the object branch gives: what the actor
+    // perceives of the target, verbatim from its own description.
+    expect(text).toContain("on her feet");
     expectPositive(text);
   });
 

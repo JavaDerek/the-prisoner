@@ -26,6 +26,21 @@ function label(id: string): string {
   return id.replace(/_/g, " ");
 }
 
+/** OPEN-VARIANT.md §55 (issue #22 gap 2) made a principal a legal ruling
+ *  target. A principal is a PERSON, and every sentence this module renders
+ *  about one has to be shaped for a person rather than for furniture --
+ *  `noise`'s own special case ("made the warden ring out" is nonsense) was
+ *  the first branch to need it, not the only one. */
+function isPrincipalTarget(id: string): boolean {
+  return id === "prisoner" || id === "warden";
+}
+
+/** A principal's own name, for the sentences that address one as a person.
+ *  Never `label(id)` -- "the warden" is the definite article for a thing. */
+function principalName(id: string): string {
+  return id === "prisoner" ? PRISONER_NAME : WARDEN_NAME;
+}
+
 function quoted(intent: string): string {
   return `"${intent}"`;
 }
@@ -75,8 +90,8 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       // `noise` target, and "made the warden ring out" is nonsense --
       // mirrors `loop.ts`'s own `describeAttempt` special case for the
       // same reason.
-      if (ruling.targetObjectId === "prisoner" || ruling.targetObjectId === "warden") {
-        return `Your last attempt called out to ${ruling.targetObjectId === "prisoner" ? PRISONER_NAME : WARDEN_NAME}.`;
+      if (isPrincipalTarget(ruling.targetObjectId)) {
+        return `Your last attempt called out to ${principalName(ruling.targetObjectId)}.`;
       }
       return `Your last attempt made the ${obj} ring out.`;
     }
@@ -112,6 +127,16 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   // derived in this game (OPEN-VARIANT.md §13) is its composed one.
   const target = ruling.targetObjectId !== "none" ? half.context.perceivedObjects.find((o) => o.id === ruling.targetObjectId) : undefined;
   if (target) {
+    // A PERSON, not a thing (§55, issue #22 gap 2): "met the warden as it
+    // is" was what a human game (2026-09-18) was told after bluffing Croft
+    // -- the object wording, definite article and all, applied to the one
+    // target in the game that is somebody. The information is identical
+    // (the authored description this principal was itself shown, verbatim,
+    // which is the positive reason §5.3 item 2 requires); only the frame
+    // around it changes, from a thing examined to a person met.
+    if (isPrincipalTarget(ruling.targetObjectId)) {
+      return `Your last attempt (${quoted(proposal.intent)}) met ${principalName(ruling.targetObjectId)}: ${target.description}`;
+    }
     return `Your last attempt (${quoted(proposal.intent)}) met the ${obj} as it is: ${target.description}`;
   }
   // issue #16: this used to say the attempt "reached past what is here" --
