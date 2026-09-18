@@ -65,6 +65,7 @@ import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
+import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
 
@@ -182,7 +183,25 @@ const PRECEDENT_PRICE = readPrecedentPrice(process.env.PRISONER_PRECEDENT_PRICE)
 // the narrated view -- added to the allowed/swapped roster only then, so a
 // run that never uses it never has to account for it in `/api/ps`.
 const NARRATOR_IN_USE = VARIANT === "open" && SEAT !== "off" && VIEW === "narrated";
-const CONFIGURED_MODELS = [...new Set([WITS_MODEL, VOICE_MODEL, ...(VARIANT === "open" ? [REFEREE_MODEL] : []), ...(NARRATOR_IN_USE ? [NARRATOR_MODEL] : [])])];
+// OPEN-VARIANT.md §63: the second verifier. On by default whenever a narrator
+// runs, because the evidence for it is a whole human game played under
+// invented prose with `Narrator rejections: 0` -- `PRISONER_NARRATION_AUDIT=off`
+// turns it off for anyone who wants to see a raw narrator again. Its model
+// defaults to the REFEREE's, not the narrator's: a narrator auditing itself is
+// the one arrangement guaranteed to agree with itself, and the referee model is
+// already chosen for obedience over style (§62) and already resident either
+// side of a narration, so the audit usually costs a generation and no swap.
+const NARRATION_AUDIT_ON = NARRATOR_IN_USE && process.env.PRISONER_NARRATION_AUDIT !== "off";
+const NARRATION_AUDIT_MODEL = process.env.PRISONER_NARRATION_AUDIT_MODEL || REFEREE_MODEL;
+const CONFIGURED_MODELS = [
+  ...new Set([
+    WITS_MODEL,
+    VOICE_MODEL,
+    ...(VARIANT === "open" ? [REFEREE_MODEL] : []),
+    ...(NARRATOR_IN_USE ? [NARRATOR_MODEL] : []),
+    ...(NARRATION_AUDIT_ON ? [NARRATION_AUDIT_MODEL] : []),
+  ]),
+];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
 const swapper = new OllamaModelSwapper({ nativeBaseUrl: NATIVE_BASE_URL, allowedModels: ALLOWED_MODELS });
 const ensureLoaded = (model: string): Promise<void> => swapper.withModel(model, async () => {});
@@ -785,6 +804,11 @@ async function mainOpen(): Promise<void> {
   let narratorRejections = 0;
   let narratorSilences = 0;
   const narratorRejectionKinds = new Map<string, number>();
+  // §63: what the second verifier cut, and how often it could not be asked.
+  let narrationsRedacted = 0;
+  let sentencesCut = 0;
+  let auditUnavailable = 0;
+  const cutReasons: string[] = [];
   // §60: narrations the player DID see, with the catalogue they chose to leave
   // out counted anyway. This is the number that says whether freeing the scene
   // bought readable prose or only a looser checker.
@@ -819,6 +843,19 @@ async function mainOpen(): Promise<void> {
         onSilence: () => {
           narratorSilences += 1;
         },
+        ...(NARRATION_AUDIT_ON
+          ? {
+              auditor: createNarrationAuditor({ baseUrl: MODEL_URL, model: NARRATION_AUDIT_MODEL, timeoutMs: THINK_TIMEOUT_MS, ensureLoaded }),
+              onRedacted: (cut: readonly SentenceVerdict[]) => {
+                narrationsRedacted += 1;
+                sentencesCut += cut.length;
+                for (const c of cut) cutReasons.push(`- "${c.sentence}" -- ${c.why}`);
+              },
+              onAuditUnavailable: () => {
+                auditUnavailable += 1;
+              },
+            }
+          : {}),
       })
     : undefined;
   const seatMind = (selfName: string, otherName: string, conditions: ReturnType<typeof openConditions> | undefined) =>
@@ -1046,6 +1083,21 @@ async function mainOpen(): Promise<void> {
         `Narrations SHOWN that left part of the catalogue out (§60, never a fault): ${narratorShownWithGaps}. ` +
           `What they left out, by kind: ${formatViolationTally(narratorObservedKinds)}.`
       );
+      transcript.push("");
+      if (NARRATION_AUDIT_ON) {
+        transcript.push(
+          `Second verifier (§63), \`${NARRATION_AUDIT_MODEL}\`: narrations with at least one sentence cut: ${narrationsRedacted}. ` +
+            `Sentences cut in total: ${sentencesCut}. Times the auditor could not be asked (narration shown unaudited): ${auditUnavailable}.`
+        );
+        if (cutReasons.length > 0) {
+          transcript.push("");
+          transcript.push("What it cut, and why -- the evidence for whether this verifier earns its generation:");
+          transcript.push("");
+          transcript.push(...cutReasons);
+        }
+      } else {
+        transcript.push("Second verifier (§63): OFF for this run (`PRISONER_NARRATION_AUDIT=off`).");
+      }
       transcript.push("");
     }
     transcript.push("### GPU swaps");

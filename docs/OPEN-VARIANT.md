@@ -5131,3 +5131,74 @@ That gap is worth closing generically: a citation naming one perceived object ca
 that names a different one. It needs care around parts and wholes — a bar *is* part of the window,
 and §17.2 depends on exactly that relationship being legal — so it is recorded here as a design
 question rather than patched in. **Left open.**
+
+## 63. The second verifier, and the escape played under invented prose (2026-09-18)
+
+The §62 fix worked: the player typed "pull a wire out of the cot", got `derive`/`wire`, picked the
+lock, opened the door and **escaped at round 3**. Every ruling correct.
+
+The narration, in the same run, reported `Narrator rejections: 0` while telling the player:
+
+> An ancient fan creaks in the corner ... To your right, another cot ... to your left, the steel door
+>
+> **The bar across the window seems a little weaker than before** — the rust pitted deep into its
+> iron grain now, flakes of it breaking free with each pass of your cot wire.
+
+There is no fan and there is one cot. The bar was at **100 and had never been touched**. That last
+sentence told a player their escape route was progressing when it was not, and it is invisible to
+every mechanical check: it names no number, so `contradicts-belief` has nothing to compare; it
+invents no object id; it asserts no outcome. This is exactly the limit §54 wrote down and could
+afford to leave theoretical while completeness held a narration to the catalogue.
+
+**It also corrects §61.** That section argued a narrator dropping a belief costs the player nothing,
+because the code above prints the number. That is true of **silence** and false of a **vague
+assertion**, and `verifyNarration` cannot tell the two apart. Only a reader can.
+
+### 63.1 Cut sentences, never narrations
+
+The auditor (`narrationAudit.ts`) is a model given the facts and the narration split into numbered
+sentences, answering supported/unsupported per sentence. It runs only after the mechanical checker
+passes, which stays exactly as it was — cheap, deterministic, and better than a model at the things
+it is good at.
+
+The design question was what to do with a verdict, and measurement settled it. Unsupported sentences
+per narration, this scenario:
+
+| narrator | round 1 | round 2 | round 3 | clean narrations |
+|---|---|---|---|---|
+| `ancient-awakening:12b` | 2/5 | 3/3 | 3/10 | **0 of 3** |
+| `qwen3:14b` | 3/16 | 2/12 | 0/6 | **1 of 3** |
+
+Discarding a whole narration for any one bad sentence throws away *every* narration the better
+writer produces and two thirds of the safer one's — **§58.1's failure exactly**, a checker so strict
+that the mode it guards can never run. So an unsupported sentence is **cut** and the rest is shown.
+
+Cutting is safe in the way that matters: removing a sentence can only make a narration say less. It
+cannot make the remainder false, and it cannot hide state, because §61 has code rendering every
+belief, the clock and the news above the prose. What it costs is smoothness.
+
+With the auditor attached, over three rounds: **`qwen3:14b` narrating → 0 fallbacks, 4 sentences
+cut. `ancient-awakening:12b` narrating → 1 of 2 rounds lost everything**, and invention still slipped
+through the survivors ("the meal tray, the last remnant of the warden's presence", while Croft is
+standing in the room). The recommendation follows the measurement, and it is the same one §61.1
+reached from the other direction: **the narrator role wants the obedient model.** The auditor is not
+a licence to put a fabulist in the chair.
+
+### 63.2 What it is not
+
+Not an oracle. It is one more reader with its own blind spots, and it is visibly inconsistent — it
+cut a sentence for "dust motes" in the same narration where it passed "cold nights that cut you to
+the bone". An empty verdict list is not proof that a narration is true.
+
+Not a reason to discard a turn when it is down: an auditor that times out shows the narration
+**unaudited**, counted in the transcript, because an unreachable checker silently ending the
+narrated view is the §58.1 failure wearing a different hat.
+
+Not self-audited: `PRISONER_NARRATION_AUDIT_MODEL` defaults to the **referee's** model, not the
+narrator's. A narrator auditing itself is the one arrangement guaranteed to agree with itself, and
+the referee model is already chosen for obedience over style (§62) and already resident on either
+side of a narration — so the audit usually costs a generation and no GPU swap.
+
+`PRISONER_NARRATION_AUDIT=off` restores the pre-§63 behaviour for anyone who wants to see a raw
+narrator again. Every cut sentence and its reason goes into the transcript, which is the evidence for
+whether this verifier earns its generation.

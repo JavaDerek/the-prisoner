@@ -4,6 +4,7 @@ import { seatSituationParts, type OpenPrincipalContext, type SeatSituationParts 
 import { parseBriefing, type ParsedBriefing } from "./proseView.js";
 import type { ObjectPerception } from "./referee.js";
 import type { Condition } from "./conditionList.js";
+import type { NarrationAuditor, SentenceVerdict } from "./narrationAudit.js";
 
 /**
  * The-prisoner#21 route 2 (D3, 2026-09-18): a narrator model, deferred at
@@ -585,6 +586,21 @@ export interface CreateNarratorOptions {
    *  actually choosing to leave behind, which is the number that says whether
    *  §60 bought readable prose or only a looser checker. */
   onObserved?: (violations: readonly NarrationViolation[], raw: string) => void;
+  /** OPEN-VARIANT.md §63: the second verifier, a model asked sentence by
+   *  sentence whether the prose is SUPPORTED by the facts -- §54's own named
+   *  answer to what `verifyNarration` cannot catch. Optional: without one,
+   *  this role behaves exactly as it did before §63. Runs only AFTER the
+   *  mechanical checker has passed a narration, because the mechanical one is
+   *  free and catches things a model reading for sense waves through. */
+  auditor?: NarrationAuditor;
+  /** The auditor cut at least one sentence. The player is told nothing -- they
+   *  read the prose that survived -- but a run must be able to show how much
+   *  of its narrator it is throwing away. */
+  onRedacted?: (cut: readonly SentenceVerdict[], raw: string) => void;
+  /** The auditor could not be reached or answered unusably. The narration is
+   *  shown UNAUDITED rather than discarded: an auditor that is down must not
+   *  quietly turn every turn into the prose view. */
+  onAuditUnavailable?: () => void;
   /** See `VerifyNarrationOptions.knownWorldLabels`. */
   knownWorldLabels?: readonly string[];
 }
@@ -624,7 +640,16 @@ export function createNarrator(options: CreateNarratorOptions): Narrator {
         return null;
       }
       if (violations.length > 0) options.onObserved?.(violations, reply.narration);
-      return reply.narration;
+      if (!options.auditor) return reply.narration;
+      const audit = await options.auditor.audit(facts, reply.narration);
+      if (!audit.audited) {
+        options.onAuditUnavailable?.();
+        return reply.narration;
+      }
+      if (audit.unsupported.length > 0) options.onRedacted?.(audit.unsupported, reply.narration);
+      // Nothing survived: there is no scene left to show, so the caller falls
+      // back to the prose view exactly as it does for a rejected narration.
+      return audit.kept.length > 0 ? audit.kept : null;
     },
   };
 }

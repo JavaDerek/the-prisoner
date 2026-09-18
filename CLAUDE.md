@@ -126,7 +126,17 @@ catalogue, `ancient-awakening:12b` filled the room with invented moonlight, smel
 guards on this side this late at night" -- fabricated tactical information a player would act on,
 which `verifyNarration` structurally cannot catch (§54's own documented limit). Tightening the
 prompt made that model worse. `qwen3:14b` on the identical prompt stays inside the data. The
-residual is only catchable by a second verifier model, which is a cost decision (§61.1), still open.
+residual is what the second verifier now catches (§63).
+
+**The second verifier is ON whenever a narrator runs** (§63, `src/open/narrationAudit.ts`): a model
+is given the facts and the narration split into sentences, and any sentence it calls unsupported is
+**cut**, with the rest shown. Cut rather than reject, because measured rejection rates make
+all-or-nothing identical to §58.1 -- it would discard every `ancient-awakening:12b` narration and two
+thirds of `qwen3:14b`'s. Cutting can only make prose say LESS, and §61 already renders every belief
+and the clock above it. Its model defaults to the REFEREE's, never the narrator's (a narrator
+auditing itself agrees with itself), and `PRISONER_NARRATION_AUDIT=off` restores the old behaviour.
+**An auditor is not a licence to put a fabulist in the narrator chair** -- with it attached,
+`ancient-awakening:12b` still loses about half its turns wholesale, and `qwen3:14b` loses none.
 
 ## Never run `npm run format` on this repository
 
