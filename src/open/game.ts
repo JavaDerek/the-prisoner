@@ -6,7 +6,7 @@ import { runOpenHalfRound, type OpenHalfRoundResult, type KnownApproach } from "
 import { seenAttempts } from "./precedent.js";
 import type { PickCondition } from "./pickCondition.js";
 import { checkOpenGameEnd, type OpenGameEnd } from "./gameEnd.js";
-import { buildOpenContext, type OpenNews } from "./briefing.js";
+import { buildOpenContext, type OpenNews, type PresenceMode } from "./briefing.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
 import { seedInitialBeliefs, type Principal } from "../ledger/beliefs.js";
 import { TIME_DECAY_AMOUNT } from "../world/mechanics.js";
@@ -21,8 +21,9 @@ import { RESOURCE_MIN, RESOURCE_MAX } from "../world/setup.js";
  *
  * Shared with the closed variant, unchanged: the half-round clock, the belief
  * store (seeded with the same starting truths), notes (persisted inside
- * `runOpenHalfRound`). Warden presence is NOT modelled in O1 (§9.3's last
- * bullet); every non-silent act reaches the other principal.
+ * `runOpenHalfRound`). Presence (OPEN-VARIANT.md §54, issue #22 gap 1) is an
+ * arm, `presenceMode`, default `"off"`: every non-silent act reaches the
+ * other principal exactly as before, unless `PRISONER_PRESENCE=modelled`.
  *
  * News is held here, in memory, per principal: after each half-round the
  * actor's own outcome goes to the actor's next briefing, and what the other
@@ -49,8 +50,11 @@ export async function runOpenGame(params: {
    *  forced away from a known approach. Absent in the baseline. */
   pick?: PickCondition;
   onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
+  /** OPEN-VARIANT.md §54 (issue #22, gaps 1 and 2). Default `"off"`. */
+  presenceMode?: PresenceMode;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
+  const presenceMode = params.presenceMode ?? "off";
   const gameId = openWorld.base.gameId;
   const clock = openWorld.base.clock;
   seedInitialBeliefs(openWorld.base);
@@ -72,7 +76,7 @@ export async function runOpenGame(params: {
 
       const news: OpenNews = { ...inbox[principal], standing: params.precedent?.[principal], ...(plans[principal] ? { plan: plans[principal] } : {}) };
       inbox[principal] = { fromOther: [] };
-      const context = buildOpenContext(openWorld, principal, t, n, rounds, news);
+      const context = buildOpenContext(openWorld, principal, t, n, rounds, news, presenceMode);
 
       const half = await runOpenHalfRound({
         openWorld,
@@ -83,6 +87,7 @@ export async function runOpenGame(params: {
         t,
         context,
         mind: minds[principal],
+        presenceMode,
         ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
         ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []).map((k) => k.text), ...seenAttempts(halves)], ...(params.pick.regenerate ? { regenerate: true } : {}) } } : {}),
         ...(principal === "prisoner" && params.pick?.onReplan

@@ -1,7 +1,7 @@
 import { ResolveProtocolError } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
 import { findKind } from "./derivedObjects.js";
-import { PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
 
 /**
  * What each principal learns from a half-round, rendered by code from
@@ -71,6 +71,13 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       return `Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`;
     }
     if (ruling.effectKind === "noise") {
+      // OPEN-VARIANT.md §54 (issue #22 gap 2): a principal is now a legal
+      // `noise` target, and "made the warden ring out" is nonsense --
+      // mirrors `loop.ts`'s own `describeAttempt` special case for the
+      // same reason.
+      if (ruling.targetObjectId === "prisoner" || ruling.targetObjectId === "warden") {
+        return `Your last attempt called out to ${ruling.targetObjectId === "prisoner" ? PRISONER_NAME : WARDEN_NAME}.`;
+      }
       return `Your last attempt made the ${obj} ring out.`;
     }
     if (ruling.effectKind === "derive") {

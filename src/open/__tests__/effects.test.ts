@@ -218,3 +218,58 @@ describe("planEffect: reshaping (OPEN-VARIANT.md §14.2)", () => {
     expect(plan?.derived?.replaces).toBeNull();
   });
 });
+
+// OPEN-VARIANT.md §54 (issue #22, gap 2): a perceived principal is now a
+// legal target, on the same terms as a perceived object -- `entityIdFor`
+// merged with the principal's own character id, exactly the way every
+// other caller of `planEffect` already merges in whatever this half-round's
+// world declares (loop.ts). No world/entityIdFor change was needed to make
+// this legal: the map is generic, this is just a new kind of value in it.
+describe("planEffect: a perceived principal as a target (OPEN-VARIANT.md §54, issue #22 gap 2)", () => {
+  const withPrincipals = { ...entityIdFor, prisoner: "e-prisoner", warden: "e-warden" };
+
+  it("noise ruled at a perceived principal builds OPEN_NOISE with no resource at all -- nothing here can ever write a belief", () => {
+    const plan = planEffect({
+      targetObjectId: "warden",
+      effectKind: "noise",
+      property: "none",
+      magnitude: "moderate",
+      entityIdFor: withPrincipals,
+      resourceIdFor,
+      description: "calls out to the warden",
+    });
+    expect(plan?.mechanic).toBe("OPEN_NOISE");
+    expect(plan?.resourceId).toBeNull();
+    expect(plan?.isWearType).toBe(false);
+  });
+
+  // THE GROUNDING RULE (SOCIAL-INTENTS.md, the owner's own reason for
+  // approving it): a state change must be grounded in a citation describing
+  // the physical act, never in the claim about the act. No property is
+  // declared for a principal at all (gap 3, deliberately not built here --
+  // "with a person's own state as bounded numeric properties" is the NEXT
+  // agent's job), so every effect that would WRITE something refuses,
+  // exactly the "no invented world" discipline `effects.ts`'s own comment
+  // already applies to an incoherent conceal/expose ruling -- never a
+  // guess at what property a person-directed `wear` or `conceal` could
+  // possibly mean.
+  it("PLANTED VIOLATION: a wear/restore/conceal/expose ruled at a perceived principal is refused -- no property is declared for a person", () => {
+    for (const effectKind of ["wear", "restore", "conceal", "expose"] as const) {
+      const plan = planEffect({
+        targetObjectId: "prisoner",
+        effectKind,
+        property: effectKind === "conceal" || effectKind === "expose" ? "concealment" : "integrity",
+        magnitude: "moderate",
+        entityIdFor: withPrincipals,
+        resourceIdFor,
+        description: "strikes at the prisoner",
+      });
+      expect(plan).toBeNull();
+    }
+  });
+
+  it("PLANTED VIOLATION: open/close/leave/derive ruled at a perceived principal are refused -- a person is not a way out or a derivable parent", () => {
+    expect(planEffect({ targetObjectId: "warden", effectKind: "open", property: "passage", magnitude: "slight", entityIdFor: withPrincipals, resourceIdFor, exits: {}, description: "x" })).toBeNull();
+    expect(planEffect({ targetObjectId: "warden", effectKind: "leave", property: "none", magnitude: "slight", entityIdFor: withPrincipals, resourceIdFor, exits: {}, actorId: "e-prisoner", description: "x" })).toBeNull();
+  });
+});

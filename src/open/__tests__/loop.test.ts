@@ -4,11 +4,44 @@ import { getResource } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty, type OpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
+import { planEffect } from "../effects.js";
 import { createReferee, type Referee, type RefereeRuling } from "../referee.js";
 import { runOpenHalfRound, precedentTextFor, KNOWN_APPROACH_SUSPICION_BUMP } from "../loop.js";
 import { getBelief, setBelief } from "../../ledger/beliefs.js";
 import { getNotes } from "../../ledger/notes.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
+import { WARDEN_NAME } from "../../scenario.js";
+
+/** Moves the warden out through the door, the way real play does it: open,
+ *  then leave (`leaving.test.ts`'s own pattern). Used only by §54's presence
+ *  tests below. */
+function moveWardenOut(openWorld: OpenWorld, resolver: ReturnType<typeof buildOpenResolver>) {
+  const open = planEffect({
+    targetObjectId: "door",
+    effectKind: "open",
+    property: "passage",
+    magnitude: "moderate",
+    entityIdFor: openWorld.entityIdFor,
+    resourceIdFor: openWorld.resourceIdFor,
+    exits: openWorld.exits,
+    description: "opens the door",
+  });
+  if (!open) throw new Error("no plan");
+  resolver.resolve({ gameId: openWorld.base.gameId, mechanic: open.mechanic, parameters: open.parameters });
+  const leave = planEffect({
+    targetObjectId: "door",
+    effectKind: "leave",
+    property: "none",
+    magnitude: "slight",
+    entityIdFor: openWorld.entityIdFor,
+    resourceIdFor: openWorld.resourceIdFor,
+    exits: openWorld.exits,
+    actorId: openWorld.base.wardenId,
+    description: "leaves through the door",
+  });
+  if (!leave) throw new Error("no plan");
+  resolver.resolve({ gameId: openWorld.base.gameId, mechanic: leave.mechanic, parameters: leave.parameters });
+}
 
 const BAR_PERCEPTION = { id: "bar", description: "One of five vertical iron bars... Rust has pitted it near the bottom." };
 
@@ -397,5 +430,133 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
     expect(result.revealFor).toEqual({ objectId: "bar", property: "integrity", value: 80 });
     // 100 (prior belief) - 80 (revealed) = 20 drop / EVIDENCE_SUSPICION_DIVISOR (2) = 10.
     expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(10);
+  });
+
+  // OPEN-VARIANT.md §54 (issue #22, gap 1): "what a principal can perceive
+  // of the other's acts ... becomes conditioned on presence." `presenceMode`
+  // defaults to "off", byte-identical to every test above this one.
+  describe("presence (§54, issue #22 gap 1)", () => {
+    it("off (the default, and with no argument at all): a wear the warden cannot possibly have seen -- she already left -- still bumps suspicion and still reaches her, unaffected by this gap unless the arm is on", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      moveWardenOut(openWorld, resolver);
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I file at the bar with my spoon." });
+
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee: grounderReferee(),
+        principal: "prisoner",
+        roundN: 2,
+        t: openWorld.base.clock.prisonerT(2),
+        context: context(openWorld),
+        mind,
+        // presenceMode omitted entirely.
+      });
+
+      expect(result.perceptionForOther).not.toBeNull();
+      expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBeGreaterThan(0);
+    });
+
+    it("modelled: once the warden has left through the door, the SAME audible wear still happens (a physical fact) but raises no suspicion and reaches no one", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      moveWardenOut(openWorld, resolver);
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I file at the bar with my spoon." });
+
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee: grounderReferee(),
+        principal: "prisoner",
+        roundN: 2,
+        t: openWorld.base.clock.prisonerT(2),
+        context: context(openWorld),
+        mind,
+        presenceMode: "modelled",
+      });
+
+      expect(result.outcome).toBeTruthy(); // the bar still wears -- a physical fact
+      expect(result.perceptionForOther).toBeNull(); // nobody was there to notice
+      expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(0);
+    });
+
+    it("modelled: while they still share the cell, an audible wear behaves exactly as under 'off'", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I file at the bar with my spoon." });
+
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee: grounderReferee(),
+        principal: "prisoner",
+        roundN: 1,
+        t: openWorld.base.clock.prisonerT(1),
+        context: context(openWorld),
+        mind,
+        presenceMode: "modelled",
+      });
+
+      expect(result.perceptionForOther).not.toBeNull();
+      expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBeGreaterThan(0);
+    });
+  });
+
+  // OPEN-VARIANT.md §54 (issue #22, gap 2): "a noise ruled at a perceived
+  // principal carries the spoken claim into that principal's own next
+  // briefing as reported speech ... the same perceptionForOther string,
+  // addressed rather than ambient, landing in OpenNews.fromOther." Built
+  // from a hand-built `RefereeRuling`, exactly like the "not declared in
+  // the scenario" test above -- this exercises loop.ts's OWN routing
+  // directly, independent of what any real referee transport would answer.
+  describe("a principal as a target (§54, issue #22 gap 2)", () => {
+    function noiseAtWarden(): RefereeRuling {
+      return {
+        targetObjectId: "warden",
+        effectKind: "noise",
+        property: "none",
+        magnitude: "moderate",
+        perceptibility: "audible",
+        product: "none",
+        applicable: true,
+        citations: {
+          target: { citation: { sourceId: "intent", quote: "call out to the warden" }, requiredSourceId: "intent", verified: true },
+          effect: { citation: { sourceId: "intent", quote: "call out to the warden" }, requiredSourceId: "intent", verified: true },
+          property: { citation: { sourceId: "desc:warden", quote: "can be seen, heard, spoken to" }, requiredSourceId: "desc:warden", verified: true },
+          product: { citation: null, requiredSourceId: "intent", verified: false },
+        },
+        raw: { answers: [], unmatched: [] },
+        request: { questions: [], sources: [] },
+      };
+    }
+
+    it("a noise ruled at a perceived principal resolves, reaches that principal's own next briefing by name, and touches no resource at all -- no belief can ever be written from it", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I call out to the warden for help." });
+      const referee: Referee = { rule: async () => noiseAtWarden() };
+
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee,
+        principal: "prisoner",
+        roundN: 1,
+        t: openWorld.base.clock.prisonerT(1),
+        context: context(openWorld),
+        mind,
+        presenceMode: "modelled",
+      });
+
+      expect(result.outcome).toBeTruthy();
+      expect(result.perceptionForOther).toContain(WARDEN_NAME);
+      expect(result.resourceName).toBeNull();
+      expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(0);
+    });
   });
 });

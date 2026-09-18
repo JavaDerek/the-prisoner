@@ -194,6 +194,47 @@ describe("renderForOther: what the other principal perceives, and nothing more",
   });
 });
 
+// OPEN-VARIANT.md §54 (issue #22 gap 2): a perceived principal is now a
+// legal target, and `noise` at one is the routing the proposal describes --
+// a full half-round, through the real referee, not a hand-built ruling.
+describe("a principal as a target (OPEN-VARIANT.md §54, issue #22 gap 2)", () => {
+  afterEach(() => destroyTestDb());
+
+  it("a noise ruled at a perceived principal reads coherently in both the actor's own outcome and the target's own next briefing -- addressed by name, never a number or the intent's exact words", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const t = openWorld.base.clock.prisonerT(1);
+    const context = buildOpenContext(openWorld, "prisoner", t, 1, 12, {}, "modelled");
+    const target = context.perceivedObjects.find((o) => o.id === "warden");
+    if (!target) throw new Error("presence did not make the warden perceivable");
+
+    const result = await runOpenHalfRound({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: createReferee([ruling({ target: "warden", effect: "noise", property: "none", intentQuote: "call out to the warden for help", descQuote: target.description })]),
+      principal: "prisoner",
+      roundN: 1,
+      t,
+      context,
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I call out to the warden for help." }),
+      presenceMode: "modelled",
+    });
+
+    expect(result.outcome).toBeTruthy();
+    expect(result.resourceName).toBeNull(); // no resource touched -- no belief possible
+
+    const own = renderOwnOutcome(result) as string;
+    expect(own).toContain("Warden Croft");
+    expect(own).not.toContain("I call out to the warden for help."); // never the intent's own words
+    expectPositive(own);
+
+    const forOther = renderForOther(result).join("\n");
+    expect(forOther).toContain("Warden Croft");
+    expect(forOther).not.toMatch(/\d/);
+    expectPositive(forOther);
+  });
+});
+
 describe("buildOpenContext with news: own outcome, the other's perceptible acts, beliefs", () => {
   afterEach(() => destroyTestDb());
 
