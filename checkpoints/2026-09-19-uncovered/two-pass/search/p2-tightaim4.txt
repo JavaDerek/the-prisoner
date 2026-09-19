@@ -1,0 +1,22 @@
+A referee can rule on these kinds of effect and no others:
+wear (lower a property: scraping, chipping, bending, filing, striking, damaging or dulling a thing),
+restore (raise or reset a property),
+reveal (learn a property's true value: examine, inspect, check, look under or into),
+conceal (hide a thing, raise concealment),
+expose (uncover a hidden thing, lower concealment),
+noise (a perceptible event with no state change),
+open (make a way out passable in one act),
+close (shut a way out),
+leave (go out through a way out),
+derive (make a new thing from part of something and keep it).
+
+Below is a neutral description of an attempted action. Answer with JSON holding exactly five fields:
+- "aim_is_a_kind": "yes" if the stated aim is itself one of the kinds above, "no" if it is not, "no aim" if there is no stated aim.
+- "nearest_kind": the one kind nearest to the physical result.
+- "fit_percent": a whole number from 0 to 100 -- how well that kind names the change the physical result describes. 100: the physical result is exactly the change that kind names. 50: it shares the kind's mechanism but changes something the kind does not reach. 0: nothing in common beyond a resemblance.
+- "why": one sentence saying what the percentage rests on.
+- "answer": "covered" if the stated aim is a kind, or the fit is high enough that the referee should rule the action as that kind; "uncovered" otherwise.
+
+Description:
+{{EXTRACTION}}
+{{INTENT_LINE}}

@@ -5785,3 +5785,46 @@ one §4 prescribes for any new form: the wording that closes the scrape gap goes
 a pass proceeds to the arm. The design's D8 (per-question, `effect` and `product`) stands; what changes
 if S passes is *where the question is asked*: its own request, not the base one -- which also leaves
 the base request byte-identical with no arm needed on it at all.
+
+### 67.5 The two-pass reading: describe first, map second (2026-09-19, night)
+
+The owner's idea, after §67.3's separate call over-fired on "scrape": *split the decision in two.* Pass
+1 only **describes** the intent, with no list of kinds anywhere in its prompt -- what it acts on, what the
+world looks like afterward, and the stated aim if the intent gives one. Pass 2 gets that description and
+**maps** it: is the stated aim a kind; the nearest kind to the physical result; a fit percentage; and its
+own `covered`/`uncovered`. The answer stays the model's; no threshold in code. Built as
+`coverage2.html`, then driven by a Sonnet agent through `two-pass/search/twopass.py` over the same
+thirteen labelled intents, thinking OFF throughout (the owner's call, confirmed: thinking-on scored one
+lower and took eight times longer). Fifteen of a budget of forty attempts; every prompt pair and every
+trace is in `results.jsonl`.
+
+**Search rows (13):** baseline 10/13 with one false alarm; the agent's best pair 10/13 with **none**.
+Two changes to pass 1 did it: fill `stated_aim` only when the intent gives a reason, never by restating
+the action (§67.3's own warning, seen in the log as `stated_aim: "scrape down through the floor with
+the spoon"`); and describe the full extent of a change, including what it does to whether a way out is
+passable. Three differently-worded pairs landed on the identical 10/13, which the agent reads as a
+ceiling, not luck.
+
+**Holdout (15 intents labelled before the search and never shown to the agent):** **13/15**, found 4/5
+uncovered, one false alarm -- "smash the bucket against the door to make a racket", labelled `noise`,
+described by pass 1 as a dented door and a broken bucket and mapped to `wear` at 50, which is not a
+wrong reading of smashing. First evidence tonight that any wording generalises past the rows it was
+tuned on.
+
+**The one hole, on both sets, is digging.** "dig under the loose_tile" -> `reveal` 75; "scrape down
+through the floor" -> `expose` 75; "dig through the wall behind the cot" -> `wear` 75. Every other
+uncovered intent scored 30-60 at its nearest kind and every covered intent 75-100; digging lands at 75
+every time, on the covered side of the model's own line. The agent's diagnosis, which the traces
+support: pass 1 never sees the room, so "dig under the tile" describes as *the tile is removed,
+revealing a gap beneath it* -- the same reading the game's referee gave in §66.6 -- and nothing
+downstream can recover what the words did not carry. Seven further strategies (a reveal/expose ban,
+redirecting `acts_on` to the material, scope clauses in pass 2, recalibrated percentages, a
+one-act-versus-partial framing, showing pass 2 the intent) either left the digs unchanged or bought
+them at the cost of a new false alarm.
+
+**What this establishes and what it does not.** The reading is real and it is a two-call shape at
+roughly four seconds a call with thinking off. It cannot know that in *this* room the floor under the
+tile is packed earth, because nobody told it; whether giving pass 1 the target's description moves the
+digs without moving the covered rows is the next experiment, and it is one run. None of this is a
+pre-committed measurement: it is the owner's hand work and a bounded search, on the record so the next
+`PREDICTION.md` starts from it rather than from §67.3.

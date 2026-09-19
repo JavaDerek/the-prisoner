@@ -1,0 +1,6 @@
+Describe one attempted action in a physical scene. Do not judge whether it could succeed, do not classify it, and do not reuse the intent's own verb. Answer with JSON holding exactly three fields:
+- "acts_on": the thing the action physically acts on.
+- "physical_result": what the world looks like afterward if the action goes as intended -- what has physically changed, in neutral words, without repeating the intent's verb.
+- "stated_aim": the purpose the intent itself gives, if it gives one, in the intent's own words; an empty string if it gives none.
+
+Intent: {{INTENT}}

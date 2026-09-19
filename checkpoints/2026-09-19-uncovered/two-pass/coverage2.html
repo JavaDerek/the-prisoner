@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coverage in two passes</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdad4; --good:#1f7a4d; --bad:#b3362b; --accent:#2f5bd3; --warn:#8a5a00; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 -apple-system, system-ui, sans-serif; }
+  main { max-width: 1500px; margin: 0 auto; padding: 20px; }
+  h1 { font-size:20px; margin:0 0 6px; } h2 { font-size:14px; margin:0 0 6px; color:var(--muted); font-weight:600; }
+  .goal { background:#eef2fd; border:1px solid #c7d4f7; border-radius:10px; padding:12px 14px; margin-bottom:16px; }
+  .goal b { color:var(--accent); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; } @media (max-width:1000px) { .two { grid-template-columns:1fr; } }
+  textarea { width:100%; height:26vh; font:13px/1.5 ui-monospace, Menlo, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:10px; }
+  button { font:inherit; padding:8px 14px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; }
+  button:disabled { opacity:.5; cursor:default; }
+  label { color:var(--muted); font-size:13px; }
+  select, input { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; }
+  .score { font-size:22px; font-weight:700; margin:0 0 10px; }
+  .score.win { color:var(--good); } .score span { font-size:14px; font-weight:400; color:var(--muted); }
+  table { border-collapse:collapse; width:100%; font-size:13.5px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:500; font-size:12.5px; }
+  td.mark { font-size:20px; width:30px; }
+  tr.ok td.mark { color:var(--good); } tr.no td.mark { color:var(--bad); } tr.pending td { color:var(--muted); }
+  td.got { font-family: ui-monospace, Menlo, monospace; white-space:nowrap; }
+  td.ex pre, td.map pre { margin:0; white-space:pre-wrap; font-size:11.5px; background:#f7f7f5; padding:6px; border-radius:6px; max-width:340px; }
+  td.map .k { font-family: ui-monospace, Menlo, monospace; font-weight:600; }
+  td.map .fit-yes { color:var(--good); } td.map .fit-no { color:var(--bad); }
+  .muted { color:var(--muted); font-size:12.5px; }
+  .group { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; padding-top:14px; }
+  details summary { cursor:pointer; color:var(--muted); font-size:13px; }
+  pre.sample { white-space:pre-wrap; font-size:12px; background:#f7f7f5; padding:8px; border-radius:6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Coverage in two passes</h1>
+  <div class="goal">
+    <b>The idea:</b> pass 1 only <b>describes</b> the intent — no list of kinds anywhere in its prompt — as three fields: what it acts on, what the world looks like afterward, and the stated aim if there is one. Pass 2 gets that description and does the <b>mapping</b>: is the stated aim a kind; what is the nearest kind to the physical result and does it fit; a fit percentage for it, then covered or uncovered. The mapping stays with the model; the threshold box is only a second way to read the same percentages, and the score line says which one it used. The extra columns show each pass's output so a ✗ can be blamed on the description or on the mapping.
+  </div>
+
+  <div class="panel two">
+    <div>
+      <h2>Pass 1 — describe <span class="muted">· <code>{{INTENT}}</code> is replaced by the intent</span></h2>
+      <textarea id="p1"></textarea>
+    </div>
+    <div>
+      <h2>Pass 2 — map <span class="muted">· <code>{{EXTRACTION}}</code> is pass 1's JSON; <code>{{INTENT}}</code> is the intent, or removed when the toggle is off</span></h2>
+      <textarea id="p2"></textarea>
+    </div>
+    <div class="row" style="grid-column:1/-1">
+      <button class="primary" id="go">Run the ticked rows</button>
+      <label>runs each</label><select id="runs"><option selected>1</option><option>3</option></select>
+      <label>model</label><input id="model" value="qwen3:14b" size="12">
+      <label><input type="checkbox" id="think" checked> thinking on</label>
+      <label><input type="checkbox" id="seeIntent"> mapper also sees the original intent</label>
+      <label>score by</label><select id="scoreBy"><option value="model" selected>the model's own answer</option><option value="threshold">fit % at or above the threshold →</option></select><input id="threshold" value="70" size="3">
+      <button id="all">tick all</button><button id="none">untick all</button><button id="failed">tick only the ✗ rows</button>
+      <button id="reset">reset both prompts</button>
+      <span class="muted">Both passes: temperature 0, one user message, a strict JSON schema on the reply so the fields always parse.</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="score" id="score">—</div>
+    <table id="tbl"></table>
+    <details style="margin-top:10px"><summary>the exact prompts sent for the first ticked row</summary><pre class="sample" id="sample"></pre></details>
+  </div>
+</main>
+
+<script>
+const ENDPOINT = "http://doris:11434/v1/chat/completions";
+const $ = (id) => document.getElementById(id);
+
+const P1_DEFAULT = `Describe one attempted action in a physical scene. Do not judge whether it could succeed, do not classify it, and do not reuse the intent's own verb. Answer with JSON holding exactly three fields:
+- "acts_on": the thing the action physically acts on.
+- "physical_result": what the world looks like afterward if the action goes as intended -- what has physically changed, in neutral words, without repeating the intent's verb.
+- "stated_aim": the purpose the intent itself gives, if it gives one, in the intent's own words; an empty string if it gives none.
+
+Intent: {{INTENT}}`;
+
+const P2_DEFAULT = `A referee can rule on these kinds of effect and no others:
+wear (lower a property: scraping, chipping, bending, filing, striking, damaging or dulling a thing),
+restore (raise or reset a property),
+reveal (learn a property's true value: examine, inspect, check, look under or into),
+conceal (hide a thing, raise concealment),
+expose (uncover a hidden thing, lower concealment),
+noise (a perceptible event with no state change),
+open (make a way out passable in one act),
+close (shut a way out),
+leave (go out through a way out),
+derive (make a new thing from part of something and keep it).
+
+Below is a neutral description of an attempted action. Answer with JSON holding exactly five fields:
+- "aim_is_a_kind": "yes" if the stated aim is itself one of the kinds above, "no" if it is not, "no aim" if there is no stated aim.
+- "nearest_kind": the one kind nearest to the physical result.
+- "fit_percent": a whole number from 0 to 100 -- how well that kind names the change the physical result describes. 100: the physical result is exactly the change that kind names. 50: it shares the kind's mechanism but changes something the kind does not reach. 0: nothing in common beyond a resemblance.
+- "why": one sentence saying what the percentage rests on.
+- "answer": "covered" if the stated aim is a kind, or the fit is high enough that the referee should rule the action as that kind; "uncovered" otherwise.
+
+Description:
+{{EXTRACTION}}
+{{INTENT_LINE}}`;
+
+const ROWS = [
+  { group: "should read UNCOVERED — the world has no term for this", want: "uncovered", text: "dig under the loose_tile", kind: "none of them", why: "removing earth to get through — nearest is wear, but the floor isn't an object and the tile has no integrity" },
+  { want: "uncovered", text: "dig under the loose_tile with my fingers", kind: "none of them", why: "same act; the tool changes nothing" },
+  { want: "uncovered", text: "scrape down through the floor with the spoon", note: "invented", kind: "none of them", why: "digging a passage; the floor isn't a thing in the room" },
+  { want: "uncovered", text: "wedge the spoon under the door to jam it shut", note: "invented", kind: "none of them", why: "obstructing — close is the nearest, but the door is already shut and nothing models jamming" },
+  { want: "uncovered", text: "set fire to the blanket", note: "invented", kind: "none of them", why: "burning — wear is the nearest, and it's a stretch" },
+  { group: "should read COVERED — the world models this, even when it can't be done", want: "covered", text: "Dig through the loose tile to see if there's anything hidden underneath.", note: "the trap: says \"dig\", but the aim is to look", kind: "reveal", why: "she says why: to see what's there" },
+  { want: "covered", text: "Use the spoon and grit from the loose_tile to scrape the window bar's weld again", note: "the one-pass wording failed here: scraping is wear", kind: "wear", why: "abrading metal; it fails because the bar is welded, not because the act is unnamed" },
+  { want: "covered", text: "Use the spoon to strike the window's bar repeatedly", kind: "wear", why: "hitting to damage" },
+  { want: "covered", text: "Pry up the loose tile to see what's underneath", kind: "reveal", why: "lifting the lid to look" },
+  { want: "covered", text: "Use the spoon to push the door's bolt back", kind: "open", why: "making a way out passable" },
+  { want: "covered", text: "Use the loose tile to hide the spoon under it", kind: "conceal", why: "hiding a thing" },
+  { want: "covered", text: "Use the spoon to strike the lock repeatedly", kind: "wear", why: "hitting to damage" },
+  { want: "covered", text: "Climb through the open door", kind: "leave", why: "going out through a way out" },
+];
+
+const SCHEMA1 = { type: "json_schema", json_schema: { name: "describe", strict: true, schema: { type: "object", properties: { acts_on: { type: "string" }, physical_result: { type: "string" }, stated_aim: { type: "string" } }, required: ["acts_on", "physical_result", "stated_aim"], additionalProperties: false } } };
+const SCHEMA2 = { type: "json_schema", json_schema: { name: "map", strict: true, schema: { type: "object", properties: { aim_is_a_kind: { type: "string", enum: ["yes", "no", "no aim"] }, nearest_kind: { type: "string" }, fit_percent: { type: "integer", minimum: 0, maximum: 100 }, why: { type: "string" }, answer: { type: "string", enum: ["covered", "uncovered"] } }, required: ["aim_is_a_kind", "nearest_kind", "fit_percent", "why", "answer"], additionalProperties: false } } };
+
+function p1Prompt(intent) { return $("p1").value.replaceAll("{{INTENT}}", intent); }
+function p2Prompt(extraction, intent) {
+  const line = $("seeIntent").checked ? `Original intent: ${intent}` : "";
+  return $("p2").value.replaceAll("{{EXTRACTION}}", JSON.stringify(extraction, null, 1)).replaceAll("{{INTENT_LINE}}", line).replaceAll("{{INTENT}}", $("seeIntent").checked ? intent : "").replace(/\n{3,}/g, "\n\n").trim();
+}
+async function ask(prompt, schema) {
+  const body = { model: $("model").value.trim(), temperature: 0, stream: false, tools: [], response_format: schema, messages: [{ role: "user", content: prompt }] };
+  if (!$("think").checked) body.reasoning_effort = "none";
+  const res = await fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await res.json(); const txt = j?.choices?.[0]?.message?.content ?? "";
+  try { return JSON.parse(txt); } catch { return { _raw: txt }; }
+}
+async function twoPass(intent) {
+  const ex = await ask(p1Prompt(intent), SCHEMA1);
+  const map = await ask(p2Prompt(ex, intent), SCHEMA2);
+  return { ex, map, answer: map.answer || "(no answer)" };
+}
+
+const picked = ROWS.map(() => true);
+let lastResults = [];
+function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function draw(results) {
+  lastResults = results;
+  let html = "<tr><th></th><th></th><th>intent</th><th>should be</th><th>wanted</th><th>got</th><th>pass 1 — what it described</th><th>pass 2 — how it mapped</th></tr>";
+  ROWS.forEach((r, i) => {
+    if (r.group) html += `<tr><td colspan=8 class="group">${r.group}</td></tr>`;
+    const res = results[i];
+    const cls = !res ? "pending" : res.ok ? "ok" : "no";
+    const ex = res ? `<pre>${esc(JSON.stringify(res.ex, null, 1))}</pre>` : "";
+    const m = res && res.map ? res.map : null;
+    const map = m ? `aim is a kind: <b>${esc(m.aim_is_a_kind)}</b><br>nearest: <span class="k">${esc(m.nearest_kind)}</span> · fit <b class="fit-${Number(m.fit_percent) >= Number($("threshold").value) ? "yes" : "no"}">${esc(m.fit_percent)}%</b> · model says <b>${esc(m.answer)}</b><br><span class="muted">${esc(m.why)}</span>${m._raw ? `<pre>${esc(m._raw)}</pre>` : ""}` : "";
+    html += `<tr class="${cls}"><td><input type="checkbox" class="pick" data-i="${i}" ${picked[i] ? "checked" : ""}></td><td class="mark">${!res ? "·" : res.ok ? "✓" : "✗"}</td><td>${r.text}${r.note ? `<div class="muted">${r.note}</div>` : ""}</td><td><b>${r.kind}</b><div class="muted">${r.why}</div></td><td>${r.want}</td><td class="got">${res ? res.got : ""}</td><td class="ex">${ex}</td><td class="map">${map}</td></tr>`;
+  });
+  $("tbl").innerHTML = html;
+  $("tbl").querySelectorAll(".pick").forEach((cb) => { cb.onchange = () => { picked[Number(cb.dataset.i)] = cb.checked; }; });
+  const done = results.filter(Boolean);
+  const ran = ROWS.filter((r, i) => results[i]);
+  const okU = done.filter((r) => r.ok && r.want === "uncovered").length, nU = ran.filter((r) => r.want === "uncovered").length;
+  const okC = done.filter((r) => r.ok && r.want === "covered").length, nC = ran.filter((r) => r.want === "covered").length;
+  const win = done.length === ROWS.length && done.every((r) => r.ok);
+  const allGreen = done.length > 0 && done.every((r) => r.ok);
+  $("score").className = "score" + (win ? " win" : "");
+  const rule = $("scoreBy").value === "model" ? "scored by the model's answer" : `scored by fit ≥ ${$("threshold").value}% (or a stated aim that is a kind)`;
+  $("score").innerHTML = done.length ? `${done.filter((r) => r.ok).length} / ${done.length} right <span>· ${rule}</span> <span>· found ${okU}/${nU} of the uncovered ones · false alarms ${nC - okC}/${nC}</span>${win ? " — every row green. Paste both prompts into the chat." : allGreen ? " — every ticked row green; tick all and run once more to be sure." : ""}` : "—";
+}
+
+$("p1").value = P1_DEFAULT; $("p2").value = P2_DEFAULT; draw([]);
+$("reset").onclick = () => { $("p1").value = P1_DEFAULT; $("p2").value = P2_DEFAULT; };
+$("all").onclick = () => { picked.fill(true); draw(lastResults); };
+$("none").onclick = () => { picked.fill(false); draw(lastResults); };
+$("failed").onclick = () => { ROWS.forEach((_, i) => { picked[i] = !!(lastResults[i] && !lastResults[i].ok); }); draw(lastResults); };
+
+$("go").onclick = async () => {
+  const n = Number($("runs").value); const results = lastResults.slice();
+  picked.forEach((p, i) => { if (p) results[i] = undefined; });
+  $("go").disabled = true; draw(results);
+  const first = ROWS[picked.findIndex(Boolean)] || ROWS[0];
+  $("sample").textContent = `--- pass 1 ---\n${p1Prompt(first.text)}\n\n--- pass 2 (with a placeholder extraction) ---\n${p2Prompt({ acts_on: "…", physical_result: "…", stated_aim: "…" }, first.text)}`;
+  for (let i = 0; i < ROWS.length; i++) {
+    if (!picked[i]) continue;
+    const r = ROWS[i]; const runs = [];
+    for (let k = 0; k < n; k++) { try { runs.push(await twoPass(r.text)); } catch (e) { runs.push({ ex: { _error: String(e) }, map: null, answer: "error" }); } }
+    const verdictOf = (x) => {
+      if ($("scoreBy").value === "model" || !x.map) return x.answer;
+      const aim = x.map.aim_is_a_kind === "yes", pct = Number(x.map.fit_percent);
+      return aim || pct >= Number($("threshold").value) ? "covered" : "uncovered";
+    };
+    runs.forEach((x) => { x.verdict = verdictOf(x); });
+    const unc = runs.filter((x) => x.verdict === "uncovered").length, cov = runs.filter((x) => x.verdict === "covered").length;
+    const majority = unc * 2 > n ? "uncovered" : cov * 2 > n ? "covered" : runs.map((x) => x.verdict).join("/");
+    // Show the first run's passes; when runs disagree, show the first run that went the majority's way.
+    const shown = runs.find((x) => x.verdict === majority) || runs[0];
+    results[i] = { ok: majority === r.want, got: n === 1 ? runs[0].verdict : `${majority} (${unc}/${n} uncovered)`, ex: shown.ex, map: shown.map, want: r.want };
+    draw(results);
+  }
+  $("go").disabled = false;
+};
+</script>
+</body>
+</html>

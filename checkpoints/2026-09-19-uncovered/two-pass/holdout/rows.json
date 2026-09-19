@@ -1,0 +1,107 @@
+[
+ {
+  "want": "covered",
+  "text": "Try to bend the bar",
+  "kind": "wear/open",
+  "why": "forcing the bar; recorded as open on the open window",
+  "note": "recorded"
+ },
+ {
+  "want": "covered",
+  "text": "Use the spoon to chip at the rusted bar",
+  "kind": "wear",
+  "why": "damaging metal",
+  "note": "recorded"
+ },
+ {
+  "want": "covered",
+  "text": "Use the spoon to pry the lock's bolt open",
+  "kind": "open",
+  "why": "making a way out passable",
+  "note": "recorded"
+ },
+ {
+  "want": "covered",
+  "text": "remove the loose tile to check underneath",
+  "kind": "reveal",
+  "why": "aim stated: to check",
+  "note": "recorded"
+ },
+ {
+  "want": "covered",
+  "text": "Use the spoon to bend the lock's bolt",
+  "kind": "wear",
+  "why": "deforming a part",
+  "note": "recorded"
+ },
+ {
+  "want": "covered",
+  "text": "Poke the loose tile with the spoon to see if anything is hidden beneath it",
+  "kind": "reveal",
+  "why": "aim stated: to see",
+  "note": "recorded"
+ },
+ {
+  "want": "covered",
+  "text": "Scratch the steel lock with the spoon to lower its integrity",
+  "kind": "wear",
+  "why": "says so in the world's own words",
+  "note": "recorded"
+ },
+ {
+  "want": "covered",
+  "text": "tear a strip from the blanket",
+  "kind": "derive",
+  "why": "a new thing kept from part of something",
+  "note": "invented"
+ },
+ {
+  "want": "covered",
+  "text": "bury the banknotes in the grit under the tile",
+  "kind": "conceal",
+  "why": "hiding a thing",
+  "note": "invented"
+ },
+ {
+  "want": "covered",
+  "text": "smash the bucket against the door to make a racket",
+  "kind": "noise",
+  "why": "a perceptible event, no state change",
+  "note": "invented"
+ },
+ {
+  "want": "uncovered",
+  "text": "dig through the wall behind the cot with the spoon",
+  "kind": "none of them",
+  "why": "excavating a passage; the wall isn't an object",
+  "note": "invented"
+ },
+ {
+  "want": "uncovered",
+  "text": "pour the slop bucket under the door to flood the corridor",
+  "kind": "none of them",
+  "why": "nothing models liquid or the corridor's state",
+  "note": "invented"
+ },
+ {
+  "want": "uncovered",
+  "text": "melt the weld on the bar with a flame from the blanket",
+  "kind": "none of them",
+  "why": "heat; nearest is wear and it isn't wear",
+  "note": "invented"
+ },
+ {
+  "want": "uncovered",
+  "text": "tunnel under the wall using the meal tray as a shovel",
+  "kind": "none of them",
+  "why": "excavating a passage",
+  "note": "invented"
+ },
+ {
+  "want": "uncovered",
+  "text": "prop the cot against the door so it cannot be opened from outside",
+  "kind": "none of them",
+  "why": "obstructing; close is nearest and the door is already shut",
+  "note": "invented"
+ }
+]

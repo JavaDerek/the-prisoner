@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coverage — find the wording</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdad4; --good:#1f7a4d; --bad:#b3362b; --accent:#2f5bd3; --warn:#8a5a00; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 -apple-system, system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  h1 { font-size:20px; margin:0 0 6px; }
+  .goal { background:#eef2fd; border:1px solid #c7d4f7; border-radius:10px; padding:12px 14px; margin-bottom:16px; }
+  .goal b { color:var(--accent); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }
+  textarea { width:100%; height:22vh; font:13.5px/1.5 ui-monospace, Menlo, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:10px; }
+  button { font:inherit; padding:8px 14px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; }
+  button:disabled { opacity:.5; cursor:default; }
+  label { color:var(--muted); font-size:13px; }
+  select, input { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; }
+  .score { font-size:22px; font-weight:700; margin:0 0 10px; }
+  .score.win { color:var(--good); } .score span { font-size:14px; font-weight:400; color:var(--muted); }
+  table { border-collapse:collapse; width:100%; }
+  th, td { text-align:left; padding:8px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:500; font-size:13px; }
+  td.mark { font-size:20px; width:36px; }
+  tr.ok td.mark { color:var(--good); } tr.no td.mark { color:var(--bad); } tr.pending td { color:var(--muted); }
+  td.got { font-family: ui-monospace, Menlo, monospace; }
+  .cite { color:var(--muted); font-size:13px; }
+  .muted { color:var(--muted); font-size:13px; }
+  details summary { cursor:pointer; color:var(--muted); font-size:13px; }
+  pre { white-space:pre-wrap; font-size:12px; background:#f7f7f5; padding:8px; border-radius:6px; }
+  .group { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; padding-top:14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Find the wording</h1>
+  <div class="goal">
+    <b>The job:</b> a question the referee is asked <b>on its own</b>, about one intent, that answers <b>uncovered</b> when the world has no term for what she's doing, and <b>covered</b> when it does. Edit the question, press Run, and try to make every row green. When it is, paste the question into the chat.
+    <div class="muted" style="margin-top:6px">Known so far: the wording below reads the digs right and the stated-aim trap right, but calls "scrape the bar's weld" uncovered — and scraping is <code>wear</code>. That's the row to fix without breaking the others.</div>
+  </div>
+
+  <div class="panel">
+    <textarea id="q"></textarea>
+    <div class="row">
+      <button class="primary" id="go">Run the ticked rows</button>
+      <label>runs each</label><select id="runs"><option selected>1</option><option>3</option></select>
+      <label>model</label><input id="model" value="qwen3:14b" size="12">
+      <label><input type="checkbox" id="think" checked> thinking on</label>
+      <button id="bare">wording that ran tonight</button>
+      <button id="glossed">same, with each kind explained</button>
+      <button id="all">tick all</button><button id="none">untick all</button><button id="failed">tick only the ✗ rows</button>
+      <span class="muted">The question is sent after the intent and before "Answer with exactly one of: covered, uncovered." — nothing else is in the prompt.</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="score" id="score">—</div>
+    <table id="tbl"></table>
+    <details style="margin-top:10px"><summary>the exact prompt sent for the first row</summary><pre id="sample"></pre></details>
+  </div>
+</main>
+
+<script>
+const ENDPOINT = "http://doris:11434/v1/chat/completions";
+const $ = (id) => document.getElementById(id);
+const KINDS = "wear, restore, reveal, conceal, expose, noise, open, close, leave, derive";
+const GLOSSED = "wear (lower a property: scraping, chipping, bending, filing, damaging or dulling something), restore (raise or reset a property), reveal (learn a property's true value: examine, inspect, check, look under), conceal (hide something, raise concealment), expose (uncover something hidden, lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act), close (shut a way out), leave (go out through a way out), derive (make a new thing from part of something and keep it)";
+const BARE = `The referee can rule on these kinds of effect and no others: ${KINDS}. Is what the actor's intent attempts named by one of those kinds? Answer covered if one of them names what is being done; uncovered if what is being done is not one of them, whatever it might lead to. Cite the words of the intent that name what is attempted.`;
+const GLOSS = `The referee can rule on these kinds of effect and no others: ${GLOSSED}. Is what the actor's intent attempts one of those kinds? Answer covered if one of them names what is being done; uncovered if what is being done is not one of them, whatever it might lead to. Cite the words of the intent that name what is attempted.`;
+
+// The thirteen intents, all real except the three marked invented. "want" is a human's label.
+const ROWS = [
+  { group: "should read UNCOVERED — the world has no term for this", want: "uncovered", text: "dig under the loose_tile", kind: "none of them", why: "removing earth to get through — nearest is wear, but the floor isn't an object and the tile has no integrity; tonight it was filed as reveal" },
+  { want: "uncovered", text: "dig under the loose_tile with my fingers", kind: "none of them", why: "same act; the tool changes nothing" },
+  { want: "uncovered", text: "scrape down through the floor with the spoon", note: "invented", kind: "none of them", why: "digging a passage; the floor isn't a thing in the room" },
+  { want: "uncovered", text: "wedge the spoon under the door to jam it shut", note: "invented", kind: "none of them", why: "obstructing — close is the nearest, but the door is already shut and nothing models jamming" },
+  { want: "uncovered", text: "set fire to the blanket", note: "invented", kind: "none of them", why: "burning — wear is the nearest, and it's a stretch" },
+  { group: "should read COVERED — the world models this, even when it can't be done", want: "covered", text: "Dig through the loose tile to see if there's anything hidden underneath.", note: "the trap: says \"dig\", but the aim is to look", kind: "reveal", why: "she says why: to see what's there" },
+  { want: "covered", text: "Use the spoon and grit from the loose_tile to scrape the window bar's weld again", note: "the one that fails tonight: scraping is wear", kind: "wear", why: "abrading metal; it fails because the bar is welded, not because the act is unnamed" },
+  { want: "covered", text: "Use the spoon to strike the window's bar repeatedly", note: "wear; the bar is welded, but that's the world's problem, not the vocabulary's", kind: "wear", why: "hitting to damage" },
+  { want: "covered", text: "Pry up the loose tile to see what's underneath", kind: "reveal", why: "lifting the lid to look" },
+  { want: "covered", text: "Use the spoon to push the door's bolt back", kind: "open", why: "making a way out passable" },
+  { want: "covered", text: "Use the loose tile to hide the spoon under it", kind: "conceal", why: "hiding a thing" },
+  { want: "covered", text: "Use the spoon to strike the lock repeatedly", kind: "wear", why: "hitting to damage" },
+  { want: "covered", text: "Climb through the open door", kind: "leave", why: "going out through a way out" },
+];
+
+function words(t) { const w = []; let s = -1; for (let i = 0; i <= t.length; i++) { const sp = i === t.length || t[i].trim() === ""; if (!sp && s < 0) s = i; else if (sp && s >= 0) { w.push([s, i]); s = -1; } } return w; }
+function prompt(intent, q) {
+  const numbered = words(intent).map((w, i) => `${i + 1}:${intent.slice(w[0], w[1])}`).join(" ");
+  return [
+    "You are ruling on one attempted action in a physical scene, as a referee -- not a character. Answer every question below.",
+    "", "SOURCES (the only text you may cite):", "", 'source "intent":', intent, `words: ${numbered}`, "",
+    "QUESTIONS:", `- id "coverage": ${q.trim()} Answer with exactly one of: covered, uncovered.`, "",
+    'Answer with a JSON array, one entry per question: [{"questionId": string, "answerKey": string, "citation": {"sourceId": string, "from": number, "to": number}}, ...].',
+    '"sourceId" is a source\'s label exactly as written above, such as "intent" -- no brackets, nothing added.',
+    '"from" and "to" are the numbers of the first and last words of the span you cite in that source, as numbered above; for a single word, "from" and "to" are the same number.',
+    'A citation may instead give "quote" in place of "from" and "to".',
+    '"quote" is copied from that source character for character: the same capital letters and punctuation, one unbroken span, never shortened with "...", never paraphrased, and never empty.',
+  ].join("\n");
+}
+function firstJsonArray(text) {
+  try { const w = JSON.parse(text); if (Array.isArray(w)) return w; } catch {}
+  const s = text.indexOf("["); if (s < 0) return null; let d = 0;
+  for (let i = s; i < text.length; i++) { if (text[i] === "[") d++; else if (text[i] === "]") { d--; if (d === 0) { try { const p = JSON.parse(text.slice(s, i + 1)); return Array.isArray(p) ? p : null; } catch { return null; } } } }
+  return null;
+}
+function citeOf(intent, c) {
+  if (!c) return ""; if (c.quote) return c.quote;
+  const w = words(intent); const a = w[c.from - 1], b = w[Math.min(c.to, w.length) - 1];
+  return a && b ? intent.slice(a[0], b[1]) : JSON.stringify(c);
+}
+async function ask(intent, q) {
+  const body = { model: $("model").value.trim(), temperature: 0, stream: false, tools: [], messages: [{ role: "user", content: prompt(intent, q) }] };
+  if (!$("think").checked) body.reasoning_effort = "none";
+  const res = await fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await res.json(); const content = j?.choices?.[0]?.message?.content ?? "";
+  const arr = firstJsonArray(content) || [];
+  const a = arr.find((x) => String(x.questionId || "").includes("coverage"));
+  return { key: a ? a.answerKey : "(no answer)", cite: a ? citeOf(intent, a.citation) : "" };
+}
+
+const picked = ROWS.map(() => true);
+let lastResults = [];
+function draw(results) {
+  lastResults = results;
+  let html = "<tr><th></th><th></th><th>intent</th><th>should be</th><th>wanted</th><th>got</th><th>it cited</th></tr>";
+  ROWS.forEach((r, i) => {
+    if (r.group) html += `<tr><td colspan=7 class="group">${r.group}</td></tr>`;
+    const res = results[i];
+    const cls = !res ? "pending" : res.ok ? "ok" : "no";
+    html += `<tr class="${cls}"><td><input type="checkbox" class="pick" data-i="${i}" ${picked[i] ? "checked" : ""}></td><td class="mark">${!res ? "·" : res.ok ? "✓" : "✗"}</td><td>${r.text}${r.note ? `<div class="muted">${r.note}</div>` : ""}</td><td><b>${r.kind}</b><div class="muted">${r.why}</div></td><td>${r.want}</td><td class="got">${res ? res.got : ""}</td><td class="cite">${res ? res.cite : ""}</td></tr>`;
+  });
+  $("tbl").innerHTML = html;
+  $("tbl").querySelectorAll(".pick").forEach((cb) => { cb.onchange = () => { picked[Number(cb.dataset.i)] = cb.checked; }; });
+  const done = results.filter(Boolean);
+  const ran = ROWS.filter((r, i) => results[i]);
+  const okU = done.filter((r) => r.ok && r.want === "uncovered").length, nU = ran.filter((r) => r.want === "uncovered").length;
+  const okC = done.filter((r) => r.ok && r.want === "covered").length, nC = ran.filter((r) => r.want === "covered").length;
+  const win = done.length === ROWS.length && done.every((r) => r.ok);
+  const allGreen = done.length > 0 && done.every((r) => r.ok);
+  $("score").className = "score" + (win ? " win" : "");
+  $("score").innerHTML = done.length ? `${done.filter((r) => r.ok).length} / ${done.length} right <span>· found ${okU}/${nU} of the uncovered ones · false alarms ${nC - okC}/${nC}</span>${win ? " — every row green. Paste the question into the chat." : allGreen ? " — every ticked row green; tick all and run once more to be sure." : ""}` : "—";
+}
+
+$("bare").onclick = () => { $("q").value = BARE; };
+$("all").onclick = () => { picked.fill(true); draw(lastResults); };
+$("none").onclick = () => { picked.fill(false); draw(lastResults); };
+$("failed").onclick = () => { ROWS.forEach((_, i) => { picked[i] = !!(lastResults[i] && !lastResults[i].ok); }); draw(lastResults); };
+$("glossed").onclick = () => { $("q").value = GLOSS; };
+$("q").value = BARE; draw([]);
+$("go").onclick = async () => {
+  const q = $("q").value, n = Number($("runs").value); const results = lastResults.slice();
+  picked.forEach((p, i) => { if (p) results[i] = undefined; });
+  $("go").disabled = true; $("sample").textContent = prompt((ROWS[picked.findIndex(Boolean)] || ROWS[0]).text, q); draw(results);
+  for (let i = 0; i < ROWS.length; i++) {
+    if (!picked[i]) continue;
+    const r = ROWS[i]; const got = [], cites = [];
+    for (let k = 0; k < n; k++) { try { const a = await ask(r.text, q); got.push(a.key); cites.push(a.cite); } catch (e) { got.push("error"); cites.push(String(e)); } }
+    const unc = got.filter((g) => g === "uncovered").length;
+    const majority = unc * 2 > n ? "uncovered" : (got.filter((g) => g === "covered").length * 2 > n ? "covered" : got.join("/"));
+    results[i] = { ok: majority === r.want, got: n === 1 ? got[0] : `${majority} (${unc}/${n} uncovered)`, cite: [...new Set(cites)].map((c) => `"${c}"`).join(" · "), want: r.want };
+    draw(results);
+  }
+  $("go").disabled = false;
+};
+</script>
+</body>
+</html>
