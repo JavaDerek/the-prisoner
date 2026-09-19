@@ -5310,11 +5310,33 @@ Round 1 only. One model. One scenario. One run per cell except the anchor. The s
 are refutations and stand on their own; the affordance result is a single clean A/B and does not yet have
 a number.
 
-**The replication that would earn one:** the 2x2 at n=10 per cell, two mechanical binary metrics -- *is
-`derive` in the candidate set*, *is `derive` the intent* -- with the prediction pre-committed first
-(§50.6's discipline): the affordance clause drives **candidacy**, the interaction drives **choice**,
-welding alone produces no derive. **It is falsified if the wire enters the candidate set at similar rates
-with and without the clause.**
+**The replication, run the same night: NOT FALSIFIED.** 2x2 at n=10, 40/40 parsed, prediction committed
+to `checkpoints/2026-09-19-condition-and-affordance/PREDICTION.md` before the first call (§50.6's
+discipline). Metrics are mechanical and binary: *is `derive` in the candidate set*, *is `derive` the
+intent*.
+
+| cell | `derive_cand` | `derive_intent` |
+|---|---|---|
+| open + functional | **0/10** | 0/10 |
+| open + advertised | **9/10** | **0/10** |
+| welded + functional | 1/10 | 0/10 |
+| welded + advertised | **10/10** | **6/10** |
+
+The falsifier was "the wire enters the candidate set at similar rates with and without the clause." It is
+**0/10 against 9/10** with the route open, **1/10 against 10/10** with it welded. One clause, nineteen
+candidacies out of twenty against one out of twenty.
+
+All four predictions held, including the boring ones: welding alone produces no derive (1/10, 0/10), and
+open+functional reproduces the anchor exactly (0/10).
+
+**`open+advertised` is the cell that proves neither factor is sufficient.** She thinks of the wire nine
+times out of ten and takes it zero times out of ten; all ten runs attacked the bar. The affordance makes
+the act available, the topology makes it not worth taking, and she is right.
+
+**The 6/10 in the last cell understates the effect.** The four runs that did not take the wire all chose
+*"move the loose tile to check underneath"* -- the other tool-hunting act. So **10/10 chose
+tool-acquisition behaviour** there, split 6 wire / 4 tile, against 10/10 direct bar-attack in
+`open+advertised`. The switch is not 60%, it is total; what varies within it is which tool she goes for.
 
 Two arms decide how far it generalises, and neither is worth running before the core: the same 2x2
 advertising the **blanket's loose thread** instead of the wire (a rule, or a quirk of the cot?), and the
@@ -5323,7 +5345,24 @@ artifact?).
 
 ### 64.6 The lesson that does not belong in this repository
 
-If it replicates, the generalisable rule is one sentence and it is the engine's, not this game's:
-**describe an object by what can be done to it, not by what it does.** That is
-`run-dmcp/docs/AUTHORING-GUIDE.md` material, and root `CLAUDE.md` names the five files that have to move
-together when it lands. It should not be written there until the core replication has a number.
+The generalisable rule is one sentence and it is the engine's, not this game's:
+
+> **Give an object manipulable properties, not just a function.**
+
+**An earlier draft of this section said "describe an object by what can be done to it," and that wording is
+wrong enough to do damage.** It reads as *name the use*, which is the failure mode that makes prose lame --
+"a tube that could be made into a shotgun barrel" hands the player the plan and spends the intrigue. Look
+at what actually worked: `"thin enough to bend by hand"` and `"thin enough to untwist by hand"` name no use
+at all. They state a physical property a hand could act on, and the mind does the inferential work --
+she invented "pick the lock" herself, unprompted. The wire's failing was never a missing use; its entire
+description was its *role in the furniture* (it holds the springs on) and it had no properties of its own.
+
+**The second lever costs no intrigue at all:** topology. Welding the window released four new intentions
+with not one word of prose changed. An author who does not want to advertise can instead make the obvious
+route non-dominant.
+
+This is `run-dmcp/docs/AUTHORING-GUIDE.md` material and root `CLAUDE.md` names the five files that move
+together when it lands. Two arms are still unrun and both bear on whether it belongs there: the same 2x2
+advertising the **blanket's loose thread** (a rule, or a quirk of the cot?), and the key cells on
+**`qwen2.5:14b`**, which cannot reason at all. The second matters most -- if the clause moves a mind with
+no reasoning, the rule is about how minds read prose rather than a qwen3 finding.
