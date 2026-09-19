@@ -31,8 +31,8 @@ const SITES = ["target", "effect", "property"] as const;
 
 const HERE = new URL(".", import.meta.url).pathname;
 const arm = process.argv[2];
-if (arm !== "OFF" && arm !== "ON") {
-  console.error("usage: replay-f0.mts OFF|ON [N]");
+if (arm !== "OFF" && arm !== "ON" && arm !== "ON2") {
+  console.error("usage: replay-f0.mts OFF|ON|ON2 [N]");
   process.exit(1);
 }
 const n = process.argv[3] ? Number(process.argv[3]) : 5;

@@ -1,0 +1,1347 @@
+{
+ "arm": "ON",
+ "n": 5,
+ "model": "qwen3:14b",
+ "baseUrl": "http://doris:11434/v1",
+ "thinking": "off",
+ "started": "2026-09-19T23:33:52.339Z",
+ "results": [
+  {
+   "label": "D: dig under the loose_tile",
+   "kind": "D",
+   "intent": "dig under the loose_tile",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "ON",
+   "target": {
+    "key": "loose_tile",
+    "agreement": 1,
+    "counts": {
+     "loose_tile": 5
+    },
+    "cites": [
+     "under the loose_tile",
+     "under the loose_tile",
+     "under the loose_tile",
+     "under the loose_tile",
+     "under the loose_tile"
+    ]
+   },
+   "effect": {
+    "key": "reveal",
+    "agreement": 1,
+    "counts": {
+     "reveal": 5
+    },
+    "cites": [
+     "dig under the loose_tile",
+     "dig under the loose_tile",
+     "dig under the loose_tile",
+     "dig under the loose_tile",
+     "dig under the loose_tile"
+    ]
+   },
+   "property": {
+    "key": "concealment",
+    "agreement": 1,
+    "counts": {
+     "concealment": 5
+    },
+    "cites": [
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig under the loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 18
+  },
+  {
+   "label": "D: dig under the loose_tile with my fingers",
+   "kind": "D",
+   "intent": "dig under the loose_tile with my fingers",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "ON",
+   "target": {
+    "key": "loose_tile",
+    "agreement": 1,
+    "counts": {
+     "loose_tile": 5
+    },
+    "cites": [
+     "loose_tile",
+     "loose_tile",
+     "loose_tile",
+     "loose_tile",
+     "loose_tile"
+    ]
+   },
+   "effect": {
+    "key": "reveal",
+    "agreement": 1,
+    "counts": {
+     "reveal": 5
+    },
+    "cites": [
+     "dig",
+     "dig",
+     "dig",
+     "dig",
+     "dig"
+    ]
+   },
+   "property": {
+    "key": "concealment",
+    "agreement": 1,
+    "counts": {
+     "concealment": 5
+    },
+    "cites": [
+     "beneath it",
+     "beneath it",
+     "beneath it",
+     "beneath it",
+     "beneath it"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "my fingers",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "my fingers",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "my fingers",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "my fingers",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "loose_tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "my fingers",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 18
+  },
+  {
+   "label": "[invented] D: scrape down through the floor with the spoon",
+   "kind": "D",
+   "intent": "scrape down through the floor with the spoon",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "ON",
+   "target": {
+    "key": "floor",
+    "agreement": 1,
+    "counts": {
+     "floor": 5
+    },
+    "cites": [
+     "the floor",
+     "the floor",
+     "the floor",
+     "the floor",
+     "the floor"
+    ]
+   },
+   "effect": {
+    "key": "wear",
+    "agreement": 1,
+    "counts": {
+     "wear": 5
+    },
+    "cites": [
+     "scrape",
+     "scrape",
+     "scrape",
+     "scrape",
+     "scrape"
+    ]
+   },
+   "property": {
+    "key": "integrity",
+    "agreement": 1,
+    "counts": {
+     "integrity": 5
+    },
+    "cites": [
+     "loose",
+     "loose",
+     "loose",
+     "loose",
+     "loose"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "floor",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 0.8
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "the floor",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "the spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "the floor",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "the spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "the floor",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "the spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "the floor",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "the spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "the floor",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "the spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 18
+  },
+  {
+   "label": "[invented] D: dig an escape tunnel",
+   "kind": "D",
+   "intent": "dig an escape tunnel",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "ON",
+   "target": {
+    "key": "floor",
+    "agreement": 1,
+    "counts": {
+     "floor": 5
+    },
+    "cites": [
+     "dig an escape tunnel",
+     "dig",
+     "dig",
+     "dig",
+     "dig"
+    ]
+   },
+   "effect": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": []
+   },
+   "property": {
+    "key": "integrity",
+    "agreement": 1,
+    "counts": {
+     "integrity": 5
+    },
+    "cites": [
+     "loose enough to",
+     "loose enough to",
+     "loose enough to",
+     "loose enough to",
+     "loose enough to"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "floor",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "substantial",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose enough to",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose enough to",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose enough to",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose enough to",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "dig",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose enough to",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "dig an escape tunnel",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 18
+  }
+ ]
+}

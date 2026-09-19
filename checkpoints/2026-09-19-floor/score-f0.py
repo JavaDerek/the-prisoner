@@ -3,7 +3,7 @@
 Counts keys the replay wrote. It never reads what an intent means: the D/T
 labels come from build-requests.py, committed before the first call.
 
-usage: python3 score-f0.py results-OFF-*.json results-ON-*.json
+usage: python3 score-f0.py results-OFF-*.json results-ON-*.json   (or results-ON2-*.json for the encapsulation arm)
 """
 import json, sys, glob
 
