@@ -53,7 +53,7 @@ import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
-import { readPresenceMode } from "./open/briefing.js";
+import { readPresenceMode, authoredDescription } from "./open/briefing.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
 import { runOpenGame } from "./open/game.js";
@@ -1069,7 +1069,10 @@ async function mainOpen(): Promise<void> {
   // (`perceivedLines`, §49's own consequence).
   transcript.push("## Objects as authored");
   transcript.push("");
-  for (const object of OPEN_OBJECTS) transcript.push(`- \`${object.id}\`: ${object.description}`);
+  // §64.3: under the welded arm the window's and the bar's authored text is
+  // not `OPEN_OBJECTS`'s -- ask for the text this run actually played, or this
+  // header describes a different room than every perception line below it.
+  for (const object of OPEN_OBJECTS) transcript.push(`- \`${object.id}\`: ${authoredDescription(object, WINDOW)}`);
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");

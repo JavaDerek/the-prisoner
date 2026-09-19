@@ -3,7 +3,7 @@ import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { planEffect } from "../effects.js";
-import { computePerceivedObjects, buildOpenBriefing, buildOpenContext, readPresenceMode } from "../briefing.js";
+import { computePerceivedObjects, buildOpenBriefing, buildOpenContext, readPresenceMode, authoredDescription } from "../briefing.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 import { setNotes } from "../../ledger/notes.js";
 import { seedInitialBeliefs } from "../../ledger/beliefs.js";
@@ -265,5 +265,30 @@ describe("open-mode perception and briefing", () => {
       expect(briefing).toMatch(/bar integrity: 100/);
       expect(briefing).toMatch(/lock integrity: 100/);
     });
+  });
+});
+
+describe("authoredDescription (§64.3): the transcript's own header must name the room that was played", () => {
+  it("gives the welded text for the window and the bar under `welded`, and OPEN_OBJECTS's own under `open`", () => {
+    const window = OPEN_OBJECTS.find((o) => o.id === "window");
+    const bar = OPEN_OBJECTS.find((o) => o.id === "bar");
+    if (!window || !bar) throw new Error("the scenario declares no window or bar");
+
+    expect(authoredDescription(window, "open")).toBe(window.description);
+    expect(authoredDescription(bar, "open")).toBe(bar.description);
+
+    expect(authoredDescription(window, "welded")).toContain("welded at every crossing");
+    expect(authoredDescription(bar, "welded")).toContain("It does not move");
+    // The open room's own promise is exactly what welding removes; a transcript
+    // header still carrying it is a transcript that misstates its own run.
+    expect(authoredDescription(window, "welded")).not.toContain("with that bar gone");
+  });
+
+  it("leaves every other object's authored text alone under either arm", () => {
+    for (const spec of OPEN_OBJECTS) {
+      if (spec.id === "window" || spec.id === "bar") continue;
+      expect(authoredDescription(spec, "welded")).toBe(spec.description);
+      expect(authoredDescription(spec, "open")).toBe(spec.description);
+    }
   });
 });

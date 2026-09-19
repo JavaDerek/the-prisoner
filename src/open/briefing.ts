@@ -3,7 +3,7 @@ import { getBelief, renderBeliefLine } from "../ledger/beliefs.js";
 import { SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { getNotes } from "../ledger/notes.js";
 import { OPEN_PERSONS, OPEN_OBJECTS, type OpenObjectSpec } from "./scenarioObjects.js";
-import { resourceIdForProperty, type OpenWorld } from "./world.js";
+import { resourceIdForProperty, type OpenWorld, type WindowMode } from "./world.js";
 import type { ObjectPerception } from "./referee.js";
 import type { OpenPrincipalContext } from "./mind.js";
 import type { Principal } from "../ledger/beliefs.js";
@@ -92,6 +92,18 @@ const WELDED_DESCRIPTION: Readonly<Record<string, string>> = {
   bar: "An iron bar welded into the window's grid, set flush in sound stone. It does not move.",
 };
 
+/** The authored text an object actually carries under a given window arm
+ *  (§64.3) -- `welded` swaps the window's and the bar's, every other object
+ *  keeps `OPEN_OBJECTS`'s own. Exported because the TRANSCRIPT header needs
+ *  the same answer the minds get: `checkpoint.ts` used to print `OPEN_OBJECTS`
+ *  straight, so a welded run's "Objects as authored" section described the
+ *  open room the game never played, while all 120 perception lines below it
+ *  described the welded one. The descriptions a reader checks a citation
+ *  against must be the ones that were cited.  */
+export function authoredDescription(spec: OpenObjectSpec, windowMode: WindowMode): string {
+  return windowMode === "welded" && spec.id in WELDED_DESCRIPTION ? WELDED_DESCRIPTION[spec.id] : spec.description;
+}
+
 function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): number | null | undefined {
   const resourceId = resourceIdForProperty(openWorld, objectId, "concealment");
   if (!resourceId) return undefined; // Not concealable at all.
@@ -123,8 +135,7 @@ function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: numb
   // other object's stays `OPEN_OBJECTS`'s own. The bar's `integrity` reading
   // never fires either way -- `windowMode === "welded"` means `buildOpenWorld`
   // never created a resource for it, so `readings` above already found none.
-  const baseDescription = openWorld.windowMode === "welded" && spec.id in WELDED_DESCRIPTION ? WELDED_DESCRIPTION[spec.id] : spec.description;
-  return [baseDescription, ...readings].join(" ");
+  return [authoredDescription(spec, openWorld.windowMode), ...readings].join(" ");
 }
 
 export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number, presenceMode: PresenceMode = "off"): ObjectPerception[] {
