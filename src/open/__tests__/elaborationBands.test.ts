@@ -186,8 +186,17 @@ describe("elaborationBandProblems / assertElaborationBandsReady (§9 row P1's ow
 // calls with no arguments. Today, with no `npm run price-world` run ever
 // made, `ELABORATION_BANDS` is empty -- correctly refusing, not a bug.
 describe("assertElaborationBandsReady() against the REAL scenario (§9 row P1b's own integration point)", () => {
-  it("refuses: no price-world run has ever been made, so a real PRISONER_ELABORATE=property game correctly cannot start", () => {
-    expect(() => assertElaborationBandsReady()).toThrow(/elaborationBands: cannot start/);
+  // Was "refuses: no price-world run has ever been made" until the build run
+  // was made (2026-09-19, §4.2a): 38 pairs read from description alone, 30
+  // model-read and 8 author-set from the owner's 4-of-5 majority decision. The
+  // assertion is inverted rather than deleted because the useful thing to pin
+  // is now the stronger one -- every acquirable pair carries a fresh band, so
+  // a description edited without re-running `price-world` turns this red, which
+  // is the precondition every measured game in §4.8 depends on. The refusal
+  // paths themselves stay covered above, against injected rows.
+  it("is ready: the committed table prices every acquirable pair against the current descriptions", () => {
+    expect(elaborationBandProblems()).toEqual([]);
+    expect(() => assertElaborationBandsReady()).not.toThrow();
   });
 });
 
