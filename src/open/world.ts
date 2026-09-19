@@ -56,6 +56,15 @@ export interface OpenWorld {
    *  content -- `buildOpenWorld` creates them the same way it always has;
    *  `adoptAcquiredProperty` only looks the id up here. */
   namedLocations: Readonly<Record<string, string>>;
+  /** OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8. `"open"` (the
+   *  default): unchanged. `"welded"`: the bar declares no property at all
+   *  (§64.3's "its integrity belief removed, and its condition removed"),
+   *  so `declaredProperty`/`declaredPropertyKeys` below never offer it and
+   *  the window is never built as an exit (see `buildOpenWorld`). Read
+   *  directly off the world by `briefing.ts` (welded description text,
+   *  belief line suppression) -- never threaded as a second parameter next
+   *  to `openWorld`, since every caller that needs it already has one. */
+  windowMode: WindowMode;
 }
 
 /** One property acquired onto an existing object (WORLD-ELABORATION-DESIGN.md
@@ -153,6 +162,29 @@ function propertyToken(objectId: string, propertyKey: string): string {
   return `${objectId}.${propertyKey}`;
 }
 
+/**
+ * OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8: the welded-window
+ * arm -- reproducing §64.3's measured room as closely as the real game
+ * allows. Ground truth: `~/rpg/prisoner-prompt-lab/prisoner-prompt-r1-welded.txt`,
+ * diffed against `prisoner-prompt-r1-susp-hidden.txt` (§64.3's open control).
+ * "Bars flush and welded, the bar immovable, its integrity belief removed,
+ * and its condition removed -- everything else untouched": `"welded"` never
+ * creates a resource for the bar's own `integrity` property at all (see
+ * `buildOpenWorld`), so nothing can wear it, reveal it, or gate the window's
+ * passage on it, and the window is never built as an exit -- the door stays
+ * the one working way out.
+ */
+export type WindowMode = "open" | "welded";
+
+/** `open` unless asked otherwise: every batch recorded before this arm
+ *  played by a bar that wears down and a window gated on it. Anything else
+ *  stops the run rather than guessing. */
+export function readWindowMode(raw: string | undefined): WindowMode {
+  if (raw === undefined || raw === "") return "open";
+  if (raw === "open" || raw === "welded") return raw;
+  throw new Error(`PRISONER_WINDOW: unrecognised value ${JSON.stringify(raw)} -- must be "welded" or "open" (the default)`);
+}
+
 export type DoorPriceMode = "free" | "threshold" | "margin";
 
 /** `free` unless asked otherwise: the door's passage has no threshold to
@@ -176,9 +208,10 @@ function doorGate(mode: DoorPriceMode | undefined): number | null {
   return null;
 }
 
-export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: "off" | "modelled" } = {}): OpenWorld {
+export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: "off" | "modelled"; window?: WindowMode } = {}): OpenWorld {
   const base = buildWorld();
   const gameId = base.gameId;
+  const windowMode = options.window ?? "open";
 
   const entityIdFor: Record<string, string> = {
     bar: base.barId,
@@ -186,7 +219,11 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     loose_tile: base.looseTileId,
   };
   const resourceIdFor: Record<string, string> = {
-    [propertyToken("bar", "integrity")]: base.resources.barIntegrity,
+    // §64.3: welded, the bar's own integrity is never a resource at all --
+    // no belief, no wear, no reveal, no exit gate. The closed variant's own
+    // `barIntegrity` resource still exists underneath (`buildWorld()` always
+    // creates it), simply never exposed here.
+    ...(windowMode === "welded" ? {} : { [propertyToken("bar", "integrity")]: base.resources.barIntegrity }),
     // The lock too: `gameEnd.ts`'s escape check reads `base.resources.
     // lockIntegrity`, so a second `lock_integrity` resource here would be
     // one no escape could ever read.
@@ -194,7 +231,7 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     [propertyToken("spoon", "edge")]: base.resources.spoonEdge,
   };
   const resourceNameById: Record<string, string> = {
-    [base.resources.barIntegrity]: "bar_integrity",
+    ...(windowMode === "welded" ? {} : { [base.resources.barIntegrity]: "bar_integrity" }),
     [base.resources.lockIntegrity]: "lock_integrity",
     [base.resources.spoonEdge]: "spoon_edge",
   };
@@ -229,6 +266,10 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     }
 
     for (const property of spec.properties) {
+      // §64.3: the one property this arm removes -- skipped here, not just
+      // left unset above, so a welded bar never gets a fresh resource
+      // created for it either.
+      if (windowMode === "welded" && spec.id === "bar" && property.key === "integrity") continue;
       const token = propertyToken(spec.id, property.key);
       if (!resourceIdFor[token]) {
         resourceIdFor[token] = boundedResolveOnly(base.cellId, property.resourceName, property.initialValue, property.min, property.max);
@@ -273,10 +314,15 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     // gap. `free` (the default) keeps that true; `threshold` (issue #19,
     // §50) gates it on the lock like the window is gated on the bar.
     door: exit("door", "lock", corridor.id, doorGate(options.doorPrice)),
-    window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX),
+    // §64.3: welded, the window is never built as an exit at all -- the bar
+    // has no integrity resource to gate it on, and no other route through it
+    // is declared. `effects.ts`'s `open`/`leave` both already refuse an
+    // intent against an object that names no exit ("no invented world"), so
+    // omitting the entry is enough; nothing downstream needs a special case.
+    ...(windowMode === "welded" ? {} : { window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX) }),
   };
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id } };
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {
@@ -299,7 +345,13 @@ export function declaredProperty(world: OpenWorld, objectId: string, key: string
   // (the presence arm), so `off` keeps answering exactly as it always did.
   const person = OPEN_PERSONS.find((p) => p.id === objectId);
   if (person) return resourceIdForProperty(world, objectId, key) ? person.properties.find((p) => p.key === key) : undefined;
-  return findProperty(objectId, key as OpenPropertyKey);
+  // §64.3: the same gate, generalised -- a §4.1 property is declared only
+  // where this world actually built a resource for it. Every property but
+  // the bar's own `integrity` under the welded arm always has one (`buildOpenWorld`
+  // creates every declared property's resource unconditionally), so this is
+  // a no-op everywhere else; it is what makes welded's dropped resource
+  // (above) also a dropped property, with no second, redeclared check here.
+  return resourceIdForProperty(world, objectId, key) ? findProperty(objectId, key as OpenPropertyKey) : undefined;
 }
 
 /** Every property key an object declares, derived in this game, acquired
@@ -311,7 +363,8 @@ export function declaredPropertyKeys(world: OpenWorld, objectId: string): string
   if (derived) return derived.properties.map((p) => p.key);
   const person = OPEN_PERSONS.find((p) => p.id === objectId);
   if (person) return resourceIdForProperty(world, objectId, person.properties[0].key) ? person.properties.map((p) => p.key) : [];
-  const staticKeys = OPEN_OBJECTS.find((o) => o.id === objectId)?.properties.map((p) => p.key) ?? [];
+  // §64.3: the same resource-presence gate as `declaredProperty`, above.
+  const staticKeys = (OPEN_OBJECTS.find((o) => o.id === objectId)?.properties ?? []).filter((p) => resourceIdForProperty(world, objectId, p.key) !== undefined).map((p) => p.key);
   const acquiredKeys = world.acquired.filter((a) => a.objectId === objectId).map((a) => a.property.key);
   return [...staticKeys, ...acquiredKeys];
 }

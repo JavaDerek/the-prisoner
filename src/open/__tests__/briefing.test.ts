@@ -217,4 +217,53 @@ describe("open-mode perception and briefing", () => {
       expect(context.perceivedObjects.some((o) => o.id === "warden")).toBe(true);
     });
   });
+
+  // OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8: the welded-window
+  // arm. Ground truth ~/rpg/prisoner-prompt-lab/prisoner-prompt-r1-welded.txt --
+  // this task's brief: "match its substance, so the game arm and the measured
+  // finding are about the same room." Diffed against prisoner-prompt-r1-susp-
+  // hidden.txt (the open control), only the window's and the bar's own text
+  // change; everything else stays byte-identical.
+  describe("PRISONER_WINDOW=welded (§64.3)", () => {
+    it("open (the default) describes the window and bar exactly as authored -- unchanged", () => {
+      createTestDb();
+      const world = buildOpenWorld({ window: "open" });
+      const described = (id: string) => computePerceivedObjects(world, "prisoner", world.base.clock.t0).find((o) => o.id === id)?.description;
+      expect(described("window")).toBe(
+        "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+      );
+      expect(described("bar")).toBe(
+        "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+      );
+    });
+
+    it("welded: the window and bar read exactly as the prompt lab's own welded room -- everything else untouched", () => {
+      createTestDb();
+      const world = buildOpenWorld({ window: "welded" });
+      const described = (id: string) => computePerceivedObjects(world, "prisoner", world.base.clock.t0).find((o) => o.id === id)?.description;
+      expect(described("window")).toBe("A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing.");
+      expect(described("bar")).toBe("An iron bar welded into the window's grid, set flush in sound stone. It does not move.");
+      // Every other object is untouched -- spot-check one.
+      const authored = OPEN_OBJECTS.find((o) => o.id === "spoon")?.description;
+      expect(described("spoon")).toBe(authored);
+    });
+
+    it("welded: no bar_integrity belief line, even when the shared belief store has one seeded (the closed variant's own resource, untouched); lock_integrity still renders", () => {
+      createTestDb();
+      const world = buildOpenWorld({ window: "welded" });
+      seedInitialBeliefs(world.base); // the same shared seeding every game does, closed or open.
+      const briefing = buildOpenBriefing(world, "prisoner", world.base.clock.t0, 1, 30);
+      expect(briefing).not.toMatch(/bar integrity/);
+      expect(briefing).toMatch(/lock integrity: 100/);
+    });
+
+    it("open (the default) keeps the bar_integrity belief line -- byte-identical to every batch before this arm", () => {
+      createTestDb();
+      const world = buildOpenWorld({ window: "open" });
+      seedInitialBeliefs(world.base);
+      const briefing = buildOpenBriefing(world, "prisoner", world.base.clock.t0, 1, 30);
+      expect(briefing).toMatch(/bar integrity: 100/);
+      expect(briefing).toMatch(/lock integrity: 100/);
+    });
+  });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { getResource } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
-import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys, readDoorPrice, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN, OPEN_WINDOW_BAR_MAX, OPEN_CATCH_BAR_MAX } from "../world.js";
+import { buildOpenWorld, resourceIdForProperty, declaredProperty, declaredPropertyKeys, readDoorPrice, readWindowMode, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN, OPEN_WINDOW_BAR_MAX, OPEN_CATCH_BAR_MAX } from "../world.js";
 import { SEARCH_CATCH_LOCK_MAX } from "../../world/mechanics.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 
@@ -118,6 +118,73 @@ describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant bui
     // Still not free: two wear turns before the door can be opened at all.
     expect(OPEN_DOOR_LOCK_MARGIN).toBeLessThan(100);
     expect(world.exits.window.openWhenPartAtMost).toBe(OPEN_WINDOW_BAR_MAX);
+  });
+});
+
+// OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8: the welded-window
+// arm -- ground truth ~/rpg/prisoner-prompt-lab/prisoner-prompt-r1-welded.txt,
+// diffed against prisoner-prompt-r1-susp-hidden.txt (§64.3's open control).
+// "bars flush and welded, the bar immovable, its integrity belief removed,
+// and its condition removed -- everything else untouched": no resource for
+// the bar's integrity at all, so nothing can wear it, reveal it, or gate the
+// window's own passage on it.
+describe("buildOpenWorld: PRISONER_WINDOW=welded (§64.3)", () => {
+  afterEach(() => destroyTestDb());
+
+  it("open (the default) is untouched: the bar keeps its integrity resource and the window keeps its gate", () => {
+    createTestDb();
+    const world = buildOpenWorld({ window: "open" });
+    expect(resourceIdForProperty(world, "bar", "integrity")).toBe(world.base.resources.barIntegrity);
+    expect(declaredPropertyKeys(world, "bar")).toEqual(["integrity"]);
+    expect(declaredProperty(world, "bar", "integrity")).toBeDefined();
+    expect(world.exits.window).toBeDefined();
+    expect(world.exits.window.openWhenPartAtMost).toBe(OPEN_WINDOW_BAR_MAX);
+  });
+
+  it("welded: the bar declares no property at all -- no belief, no wear, no reveal, no condition", () => {
+    createTestDb();
+    const world = buildOpenWorld({ window: "welded" });
+    expect(resourceIdForProperty(world, "bar", "integrity")).toBeUndefined();
+    expect(declaredPropertyKeys(world, "bar")).toEqual([]);
+    expect(declaredProperty(world, "bar", "integrity")).toBeUndefined();
+  });
+
+  it("welded: the window is not a way out at all -- the bar cannot be worn loose, so nothing gates it open", () => {
+    createTestDb();
+    const world = buildOpenWorld({ window: "welded" });
+    expect(world.exits.window).toBeUndefined();
+    // The door is untouched: still the one working way out.
+    expect(world.exits.door).toBeDefined();
+  });
+
+  it("welded still reuses the closed variant's bar entity (immovable, not absent) -- only its own property is gone", () => {
+    createTestDb();
+    const world = buildOpenWorld({ window: "welded" });
+    expect(world.entityIdFor.bar).toBe(world.base.barId);
+  });
+
+  it("defaults to open when unset, byte-identical to every batch before this arm", () => {
+    createTestDb();
+    const withoutOption = buildOpenWorld();
+    expect(resourceIdForProperty(withoutOption, "bar", "integrity")).toBe(withoutOption.base.resources.barIntegrity);
+    expect(withoutOption.exits.window.openWhenPartAtMost).toBe(OPEN_WINDOW_BAR_MAX);
+  });
+});
+
+describe("readWindowMode: PRISONER_WINDOW (§64.3)", () => {
+  it("leaves the window open unless asked", () => {
+    expect(readWindowMode(undefined)).toBe("open");
+    expect(readWindowMode("")).toBe("open");
+    expect(readWindowMode("open")).toBe("open");
+  });
+
+  it("welds it when asked for", () => {
+    expect(readWindowMode("welded")).toBe("welded");
+  });
+
+  it("stops the run rather than guessing", () => {
+    expect(() => readWindowMode("shut")).toThrow(/PRISONER_WINDOW/);
+    expect(() => readWindowMode("shut")).toThrow(/"open"/);
   });
 });
 

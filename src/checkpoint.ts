@@ -47,7 +47,7 @@ import {
 } from "./loop.js";
 import { newWitsSummary, noteWitsEvent, renderWitsSummary } from "./witsSummary.js";
 import { getVariant } from "./variant.js";
-import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
+import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, readWindowMode, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
@@ -149,6 +149,10 @@ const DOOR = readDoorMode(process.env.PRISONER_DOOR);
 /** Open variant only: whether the door's passage is gated on the lock
  *  (`src/open/world.ts`, OPEN-VARIANT.md §50, issue #19). Free unless asked. */
 const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
+/** Open variant only: the welded-window arm (`src/open/world.ts`,
+ *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
+ *  asked -- an arm, not a new default (the D3 lesson, §40.1). */
+const WINDOW = readWindowMode(process.env.PRISONER_WINDOW);
 /** Open variant only: the referee's seventh question, naming the instrument
  *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
  *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
@@ -771,7 +775,7 @@ async function mainOpen(): Promise<void> {
   // this throws naming every acquirable pair -- correct, not a bug.
   if (ELABORATE !== "off") assertElaborationBandsReady();
 
-  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE });
+  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW });
   const resolver = buildOpenResolver();
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })],
@@ -908,12 +912,12 @@ async function mainOpen(): Promise<void> {
     });
 
   const modelWarden = () =>
-    WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE }) } : {}) });
-  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE }) : undefined) : modelWarden();
+    WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) } : {}) });
+  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) : undefined) : modelWarden();
   const prisonerMind =
     SEAT === "prisoner"
-      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE }))
-      : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE }) }) });
+      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }))
+      : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -992,6 +996,11 @@ async function mainOpen(): Promise<void> {
       : DOOR_PRICE === "margin"
         ? `Door price: MARGIN (\`PRISONER_DOOR_PRICE=margin\`): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MARGIN} -- the lowest gate that leaves a wear step where the door is openable and the lock is still safe to be found at, which ${OPEN_DOOR_LOCK_MAX} did not (§50.5).`
         : "Door price: FREE (the default): the door's passage has no threshold to meet, today's behaviour, unchanged."
+  );
+  transcript.push(
+    WINDOW === "welded"
+      ? "Window: WELDED (`PRISONER_WINDOW=welded`): the bar is flush and welded, immovable -- its integrity property, its belief line and its own condition are all gone; only the door is a working way out (§64.3)."
+      : "Window: OPEN (the default): the bar wears down and gates the window's own passage, as every batch before this arm recorded (§64.3)."
   );
   transcript.push(
     INSTRUMENT === "checked"

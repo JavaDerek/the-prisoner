@@ -3,7 +3,7 @@ import { openConditions, readConditionsMode, readDoorMode } from "../conditions.
 import { buildOpenWorld, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "../world.js";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { createOpenMind, type OpenPrincipalContext } from "../mind.js";
-import { CONDITION_LIST_OPENING } from "../conditionList.js";
+import { CONDITION_LIST_OPENING, renderConditionList } from "../conditionList.js";
 
 // OPEN-VARIANT.md §34: the game's thresholds, fed to the generic condition list
 // from the same constants the rules sentences and the game's own checks use.
@@ -180,5 +180,55 @@ describe("readDoorMode: PRISONER_DOOR (§46)", () => {
 
   it("stops the run rather than guessing", () => {
     expect(() => readDoorMode("open")).toThrow(/unrecognised value/);
+  });
+});
+
+// OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8: welding the
+// window drops its own condition (§64.3's "and its condition removed") --
+// the window-unlock condition and the bar's own catch condition -- leaving
+// exactly the four conditions the prompt lab's ground truth shows
+// (~/rpg/prisoner-prompt-lab/prisoner-prompt-r1-welded.txt).
+describe("openConditions: PRISONER_WINDOW=welded (§64.3)", () => {
+  it("open (the default) is untouched: six conditions, byte-identical to every batch before this arm", () => {
+    expect(openConditions({ window: "open" })).toEqual(openConditions());
+    expect(openConditions().length).toBe(6);
+  });
+
+  it("welded: exactly four conditions, matching the prompt lab's own welded room", () => {
+    const conditions = openConditions({ window: "welded" });
+    expect(conditions).toEqual([
+      { when: ["a way out stands open"], then: "Mara Voss can leave the cell through it, and she has escaped", for: "Mara Voss" },
+      {
+        when: ["warden suspicion is at or above 40", "Warden Croft closely examines the lock", "Warden Croft finds its integrity at or below 40"],
+        then: "Warden Croft catches Mara Voss and the game ends",
+        for: "Warden Croft",
+      },
+      {
+        when: ["warden suspicion is at or above 40", "Warden Croft closely examines the spoon", "the spoon is out in the open", "Warden Croft finds its edge at or above 20"],
+        then: "Warden Croft catches Mara Voss and the game ends",
+        for: "Warden Croft",
+      },
+      {
+        when: ["warden suspicion is at or above 40", "Warden Croft closely examines a way out", "Warden Croft finds it standing open"],
+        then: "Warden Croft catches Mara Voss and the game ends",
+        for: "Warden Croft",
+      },
+    ]);
+  });
+
+  it("welded plus a stated door: her own two conditions first (the window-unlock condition is gone, not the door's), then the three remaining catches", () => {
+    const conditions = openConditions({ window: "welded", door: "stated" });
+    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft"]);
+    expect(conditions.length).toBe(5);
+  });
+
+  it("as rendered text, matches the prompt lab's own numbered list verbatim (CONDITION 1-4)", () => {
+    const conditions = openConditions({ window: "welded" });
+    const rendered = renderConditionList(conditions, { reader: "Mara Voss" });
+    expect(rendered).toContain("CONDITION 1 (for you): If a way out stands open, then Mara Voss can leave the cell through it, and she has escaped.");
+    expect(rendered).toContain(
+      "CONDITION 2 (for Warden Croft): If warden suspicion is at or above 40, and Warden Croft closely examines the lock, and Warden Croft finds its integrity at or below 40, then Warden Croft catches Mara Voss and the game ends."
+    );
+    expect(rendered.join("\n")).not.toContain("the bar");
   });
 });

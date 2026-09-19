@@ -79,6 +79,19 @@ const PRINCIPAL_DESCRIPTION: Record<Principal, string> = {
   warden: `${WARDEN_NAME}, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
 };
 
+/** OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8: the welded-window
+ *  arm's own text for the two objects it changes, copied verbatim from the
+ *  prompt lab's own ground truth
+ *  (`~/rpg/prisoner-prompt-lab/prisoner-prompt-r1-welded.txt`, diffed against
+ *  `prisoner-prompt-r1-susp-hidden.txt`, the open control) -- this task's own
+ *  brief: "match its substance, so the game arm and the measured finding are
+ *  about the same room." Every other object keeps `OPEN_OBJECTS`'s own
+ *  description, untouched. */
+const WELDED_DESCRIPTION: Readonly<Record<string, string>> = {
+  window: "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing.",
+  bar: "An iron bar welded into the window's grid, set flush in sound stone. It does not move.",
+};
+
 function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): number | null | undefined {
   const resourceId = resourceIdForProperty(openWorld, objectId, "concealment");
   if (!resourceId) return undefined; // Not concealable at all.
@@ -106,7 +119,12 @@ function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: numb
     const band = property.readRanges?.find((range) => value <= range.atOrBelow);
     return band ? [band.text] : [];
   });
-  return [spec.description, ...readings].join(" ");
+  // §64.3: welded swaps the window's and bar's own authored text; every
+  // other object's stays `OPEN_OBJECTS`'s own. The bar's `integrity` reading
+  // never fires either way -- `windowMode === "welded"` means `buildOpenWorld`
+  // never created a resource for it, so `readings` above already found none.
+  const baseDescription = openWorld.windowMode === "welded" && spec.id in WELDED_DESCRIPTION ? WELDED_DESCRIPTION[spec.id] : spec.description;
+  return [baseDescription, ...readings].join(" ");
 }
 
 export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number, presenceMode: PresenceMode = "off"): ObjectPerception[] {
@@ -187,7 +205,11 @@ export type OpenNews = {
  *  `seedInitialBeliefs`) but never rendered: nothing in the open variant
  *  reads it (§12), and shown, minds planned around it (OPEN-VARIANT.md §33.9). */
 function beliefResourceNames(openWorld: OpenWorld): string[] {
-  const names = OPEN_OBJECTS.flatMap((spec) => spec.properties.map((p) => p.resourceName));
+  // §64.3: a property with no built resource (the bar's own `integrity`,
+  // under the welded arm) is never a belief line either -- the same
+  // resource-presence gate `declaredPropertyKeys` (`world.ts`) uses, so this
+  // module never needs its own second notion of "declared".
+  const names = OPEN_OBJECTS.flatMap((spec) => spec.properties.filter((p) => resourceIdForProperty(openWorld, spec.id, p.key) !== undefined).map((p) => p.resourceName));
   const derived = openWorld.derived.flatMap((d) => d.properties.map((p) => p.resourceName));
   return [...new Set([...names, ...derived])];
 }
