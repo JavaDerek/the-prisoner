@@ -5465,3 +5465,36 @@ That is a mechanical authoring rule after all -- at L2, naming the manipulation,
 together): the lesson is still worth writing, but as *"describe the objects that could matter with
 properties that imply what they could become"*, never as a blanket instruction to enrich every description.
 Two objects is still two objects; a third would be worth having before anything propagates.
+
+## 65. The world elaborates at an honest price (2026-09-19, vision)
+
+**Not built. Not measured. A design direction, written down the night §64 found the thing it answers.**
+The cross-repo brief is `docs/WORLD-ELABORATION-BRIEF.md`; it belongs to `run-dmcp` and should become an
+issue there.
+
+§64 established that the minds were never short of imagination -- the cell has eleven objects and exactly
+one stated method of opening one way out, and they took it because it was the only route the world
+promised would work. Hand-authoring a second route fixes this cell. The direction that fixes the class:
+
+> An attempt may require a fact the world does not hold. The world may acquire that fact, at a stated
+> cost, recorded as state rather than narrated as prose.
+
+A Dungeon Master asked to dig out with a spoon does not refuse; it says the floor is dirt and prices the
+attempt honestly -- *send a postcard on your 75th birthday*. **Refusal teaches a mind the world is small.
+An honest price teaches it the world is real**, and leaves the choice genuinely open. The price is the
+mechanism, not the yes: a world that says yes to everything has no game.
+
+**brink is the place to build it first, and that reversed on inspection.** Its resolve already returns a
+closed set of codes that are precisely "the world lacks what your attempt needs" -- `UNKNOWN_FLASHPOINT`,
+`INVALID_VERB`, `NO_PRESENCE_AT_FLASHPOINT`, `OFF_RAMP_CLOSED` -- and it already has an honest price
+*enforced rather than narrated*: prestige zero-sum and conserved, DEFCON bounded with 1 as
+shared-loss-no-winner, crises that tick regardless of the fiction. "Full retaliation ends the world" is
+`GAME_OVER_NUCLEAR_WAR`, already an outcome. **This repository has neither half.** §3.5's referee rules in
+closed keys with verbatim citations and cannot invent a magnitude, deliberately -- pricing an improvised
+affordance here is a new capability, not a wider prompt.
+
+**What it costs us specifically.** Two games would no longer share a world, and every number in §33-§64 is
+anchored to a fixed scenario. The shape that keeps replay: the referee returns *"unsupported -- requires
+X"* instead of a denial; a separate, logged elaboration step decides yes/no and a price; the decision is
+persisted and written to a log exactly as `.referee.json` is, so a replay replays elaborations too. Which
+elaborations fired then becomes a measurement in its own right, and probably an interesting one.
