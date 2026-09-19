@@ -7,7 +7,7 @@ describe("pinnedDependencyVersion (item 10) -- read the real pin, never hard-cod
   });
 
   it("reads run-dmcp's exact pinned version from package.json", () => {
-    expect(pinnedDependencyVersion("run-dmcp")).toBe("0.8.0");
+    expect(pinnedDependencyVersion("run-dmcp")).toBe("0.9.0");
   });
 
   it("throws, naming the package, for a dependency not declared", () => {
