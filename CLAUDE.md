@@ -191,9 +191,28 @@ never reach `run-dmcp` or `mind-seam`. An engine or seam issue filed from here d
 structurally ("two principals, one location, contended physical state"), never in this game's own
 terms.
 
-## Custody is out, for now
+## Custody is not built, though the engine no longer blocks it
 
-`run-dmcp`'s `IntendedChange` is numeric-only until engine issue E3 lands. SEARCH, CONFISCATE, and
-any mechanic that would move an item's owner are out of scope. Do not move ownership outside
-`resolver.resolve()` to work around this — that is a second write path, and the engine records
-decisions, it does not make them anywhere but at that one choke point.
+`run-dmcp`'s `IntendedChange` (`src/timeline/resolve.ts`, this repo pinned at `run-dmcp@0.8.0`) is no
+longer numeric-only. Alongside `write` (a numeric fact key, delta or set) and `transfer` (a conserved
+numeric amount moved between two entities), `set`, `create` and `destroy` shipped in 0.7.0 and 0.8.0
+(engine issues #32, #34): `set` changes a non-numeric column on an entity's own projected row, and the
+engine's own doc comment gives this exact case as its example — "a thing changing owner, a character
+changing place." `create`/`destroy` bring an entity into or out of existence. the-prisoner#5 names
+this directly: what used to be blocked at the protocol is now only blocked by this game's own
+referee, which still proposes one of eleven fixed effects (`src/open/effects.ts`) rather than the
+engine's five change kinds directly.
+
+That makes an item's owner representable, not built. `mechanics.ts` already writes an item's
+`owner_id`/`owner_type` (the engine's own `items` columns) once, at creation (`derive`'s `create` leg,
+`src/open/mechanics.ts:227`) — the same columns a `{ kind: "set", entityId: <item>, key: "owner_id",
+value: <new owner's EntityRef> }` could change afterward. Nothing in this game emits that today: no
+effect moves an item's owner, `transfer` is unused here (it only ever carries a numeric resource,
+never an item), and there is no SEARCH, CONFISCATE, or any other custody move in either variant.
+Loosening the referee toward the engine's own five kinds is the-prisoner#5's step 1, and a custody
+mechanic is downstream of that step, not shipped by this paragraph.
+
+What does not change: ownership must never move outside `resolver.resolve()`. That would be a second
+write path, and the engine records decisions, it does not make them anywhere but at that one choke
+point — true when this section described a numeric-only protocol, and still true now that the part of
+the protocol that used to block custody is gone.
