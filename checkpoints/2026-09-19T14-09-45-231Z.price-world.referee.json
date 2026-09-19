@@ -1,0 +1,4198 @@
+[
+  {
+    "label": "price-world: window.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:window",
+          "text": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar closes its widest gap: with that bar gone,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar closes its widest gap: with that bar gone,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar closes its widest gap: with that bar gone,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar closes its widest gap: with that bar gone,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: window.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:window",
+          "text": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: window.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:window",
+          "text": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "single rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "single rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "single rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:window",
+              "quote": "single rusted bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: bar.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:bar",
+          "text": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "iron bar"
+            },
+            "rejected": [
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "hard",
+                  "citation": {
+                    "sourceId": "desc:bar",
+                    "quote": "Rust has pitted it near",
+                    "from": 20,
+                    "to": 24
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: bar.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:bar",
+          "text": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "iron bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "iron bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "iron bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "iron bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "iron bar"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: bar.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:bar",
+          "text": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bar",
+              "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: door.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:door",
+          "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy door of iron-bound planks"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy door of iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy door of iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy door of iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy door of iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: door.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:door",
+          "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "iron-bound planks in a stone frame."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: door.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:door",
+          "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:door",
+              "quote": "heavy"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: lock.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: lock.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: lock.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:lock",
+          "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:lock",
+              "quote": "steel lock"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: spoon.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "thin enough to bend by"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "thin enough to bend by"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "thin enough to bend by"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "thin enough to bend by"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "thin enough to bend by"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: spoon.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:spoon",
+          "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "thin enough to bend by"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "aluminium"
+            },
+            "rejected": [
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "thin enough to bend by",
+                    "from": 5,
+                    "to": 9
+                  }
+                }
+              },
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "worn flat from being scraped along the floor.",
+                    "from": 17,
+                    "to": 24
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "aluminium"
+            },
+            "rejected": [
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "thin enough to bend by",
+                    "from": 5,
+                    "to": 9
+                  }
+                }
+              },
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "worn flat from being scraped along the floor.",
+                    "from": 17,
+                    "to": 24
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "aluminium"
+            },
+            "rejected": [
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "thin enough to bend by",
+                    "from": 5,
+                    "to": 9
+                  }
+                }
+              },
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "worn flat from being scraped along the floor.",
+                    "from": 17,
+                    "to": 24
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:spoon",
+              "quote": "aluminium"
+            },
+            "rejected": [
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "thin enough to bend by",
+                    "from": 5,
+                    "to": 9
+                  }
+                }
+              },
+              {
+                "reason": "duplicate-answer",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:spoon",
+                    "quote": "worn flat from being scraped along the floor.",
+                    "from": 17,
+                    "to": 24
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: loose_tile.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: loose_tile.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: loose_tile.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:loose_tile",
+          "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:loose_tile",
+              "quote": "cracked across one corner."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: cot.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: cot.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "bolted to the"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "bolted to the"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "bolted to the"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "bolted to the"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "bolted to the"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: cot.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:cot",
+          "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "bolted to the"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:cot",
+              "quote": "iron frame is"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: blanket.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "frayed along the hem,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "frayed along the hem, with a loose thread running down one edge"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "frayed along the hem, with a loose thread running down one edge"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "frayed along the hem, with a loose thread running down one edge"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "frayed along the hem, with a loose thread running down one edge"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: blanket.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: blanket.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:blanket",
+          "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:blanket",
+              "quote": "thick and coarse,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: bucket.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "rings sharply when anything strikes it."
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: bucket.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: bucket.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": true,
+            "answeredByRung": null,
+            "citation": null,
+            "rejected": [
+              {
+                "reason": "quote-not-in-source",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:bucket",
+                    "quote": "tin slop bucket... It rings sharply when anything strikes it."
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": true,
+            "answeredByRung": null,
+            "citation": null,
+            "rejected": [
+              {
+                "reason": "quote-not-in-source",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:bucket",
+                    "quote": "tin slop bucket... It rings sharply when anything strikes it."
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": true,
+            "answeredByRung": null,
+            "citation": null,
+            "rejected": [
+              {
+                "reason": "quote-not-in-source",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:bucket",
+                    "quote": "tin slop bucket... It rings sharply when anything strikes it."
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": true,
+            "answeredByRung": null,
+            "citation": null,
+            "rejected": [
+              {
+                "reason": "quote-not-in-source",
+                "rung": 0,
+                "offer": {
+                  "questionId": "difficulty",
+                  "answerKey": "trivial",
+                  "citation": {
+                    "sourceId": "desc:bucket",
+                    "quote": "tin slop bucket... It rings sharply when anything strikes it."
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: bucket.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:bucket",
+          "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:bucket",
+              "quote": "tin"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: meal_tray.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel tray"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel tray"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel tray"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel tray"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel tray"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: meal_tray.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: meal_tray.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel tray"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: meal_tray.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:meal_tray",
+          "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:meal_tray",
+              "quote": "steel"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: key_ring.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: key_ring.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: key_ring.concealment",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's concealment, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "trivial",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "Croft's belt"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: key_ring.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:key_ring",
+          "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:key_ring",
+              "quote": "heavy iron ring"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: banknotes.integrity",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's integrity, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:banknotes",
+          "text": "A fold of banknotes wrapped in a strip of oilcloth, ten notes of a hundred each, soft and grey with damp."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "in a strip of"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: banknotes.edge",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's edge, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:banknotes",
+          "text": "A fold of banknotes wrapped in a strip of oilcloth, ten notes of a hundred each, soft and grey with damp."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "in a strip of"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "in a strip of"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "in a strip of"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "in a strip of"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "in a strip of"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  },
+  {
+    "label": "price-world: banknotes.passage",
+    "request": {
+      "questions": [
+        {
+          "id": "difficulty",
+          "prompt": "From this description alone -- the object's own authored text, and nothing an actor might later say -- if a person with ordinary means set out to wear through this thing's passage, how much work is it: trivial (a turn or two), hard (many turns), ruinous (real, and longer than a game), or impossible (something in the material, the fixing, or the position rules it out)? Cite the exact words in the description that support your answer.",
+          "answerKeys": [
+            "trivial",
+            "hard",
+            "ruinous",
+            "impossible"
+          ],
+          "safeDefault": "impossible"
+        }
+      ],
+      "sources": [
+        {
+          "id": "desc:banknotes",
+          "text": "A fold of banknotes wrapped in a strip of oilcloth, ten notes of a hundred each, soft and grey with damp."
+        }
+      ]
+    },
+    "replies": [
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "impossible",
+            "fromSafeDefault": true,
+            "answeredByRung": null,
+            "citation": null,
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a strip of oilcloth,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a strip of oilcloth,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a strip of oilcloth,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      },
+      {
+        "answers": [
+          {
+            "questionId": "difficulty",
+            "answerKey": "hard",
+            "fromSafeDefault": false,
+            "answeredByRung": 0,
+            "citation": {
+              "sourceId": "desc:banknotes",
+              "quote": "wrapped in a strip of oilcloth,"
+            },
+            "rejected": []
+          }
+        ],
+        "unmatched": []
+      }
+    ]
+  }
+]
