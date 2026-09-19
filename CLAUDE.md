@@ -175,7 +175,10 @@ judgement is audited by humans in transcripts, never approximated by a lexical c
 changes can silently diverge when one interaction spans two objects, because an instruction that lives
 in only one reader question's prompt does not reach another question's answer. If you find a new
 authoring lesson here, generalise it into that guide (its own neutral vocabulary, never this
-repository's words) rather than leaving it only in this game's own docs.
+repository's words) rather than leaving it only in this game's own docs. The guide's declared-space
+lesson is the one to read before the next elaborable thing is authored: what an object may ever come
+to acquire is declared up front and separately from what its description says it is right now, and
+collapsing the two is what turns an acquired fact into narration nothing can audit.
 
 ## Never run against a real database
 
