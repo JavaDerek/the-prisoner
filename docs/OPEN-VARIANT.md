@@ -5650,3 +5650,62 @@ still there.
 
 **Not retuned (D5).** No band was changed after seeing any of this. The `trivial` reading for
 (loose_tile, integrity) stands exactly as the build run wrote it.
+
+### 66.6 The referee absorbs the unexpected into the nearest declared key
+
+After the sweep was stopped, one more probe. §66.4 said she never fails on the tile; the obvious reply
+is that nothing ever gave her the idea of digging, which is the gap `mother-of-invention` exists for.
+So: add §64.6's L2 clause to the tile — a manipulation named, never a purpose — and see whether she
+reaches for the floor. One clause, everything else identical to cell B, n=10, thinking OFF:
+
+> "…a shallow hollow of dry grit about the size of a hand. **Under the grit the floor is packed earth,
+> dry and crumbling, loose enough to scrape away by hand.**"
+
+| | cell B (shipped text) | + the clause |
+|---|---|---|
+| targets the tile | 6/10 | **9/10** |
+| says "dig" | 0/10 | **2/10** |
+| **ruled impossible** | **0/10** | **0/10** |
+
+**The lever worked on her language and changed nothing that matters.** Both dig attempts were ruled:
+
+```
+effect   `reveal`       cited "dig under the loose_tile"
+property `concealment`  cited "beneath it is"
+Ruled:   possible
+```
+
+**The absorption happens at the `effect` question, one step before the property.** "Dig under" was read
+as *uncovering*, not as *removing material*. Once the effect is `reveal`, `concealment` is the correct
+property and the ruling is sound. Had the effect read as `wear`, it would have needed `integrity`, which
+the tile has not got, and the refusal would have arrived. The tile's own text steers it: *"beneath it is
+a shallow hollow"* frames the tile as a lid, so digging reads as lifting the lid.
+
+**And underneath that, the structural fact: the floor is not an object.** A principal can only target a
+declared object, and there is no `floor`. So "dig through the floor" has nowhere to land and falls onto
+the tile, whose modelled business is hiding things. The clause added above describes earth that **no
+object owns**. Tier 1 adds a property to an existing object; a route through the floor wants either the
+tile to carry `integrity` meaning "the floor here" (which is what `ELABORABLE_EXITS` already assumes) or
+a new object, which is Tier 2 and deliberately unbuilt.
+
+**The generalisation, and it is not about cells.** A closed-key referee cannot express novelty. Its
+answer space is enumerated in advance, so the most it can say is *"nothing in the description grounds
+this"* — it has no way to say *"I have no term for what is being attempted."* Those are different
+statements and today they collapse into `none`, or worse are absorbed into the nearest key that fits.
+Elaboration only fires when the base ruling **fails**, and a ruling that finds a poor match does not
+fail; it succeeds at the wrong thing. **The missing piece is a third answer**, and giving the referee a
+word for it is the open question — a *reading* ("the declared vocabulary does not cover this intent")
+belongs with the turn reader and both games get it; a *verdict* belongs to the caller and every game
+builds its own, which is what §3.3 currently assumes. brink meets the same wall the first time a player
+describes a blockade its verb list half-matches (§8.1: both triggers reduce to the same thing).
+
+**A side finding on the build-time read, which is about stability, not prose.** Re-pricing after the
+clause moved `loose_tile.edge` and `loose_tile.passage` from `review` (4/5 splits) to `trivial` at 5/5,
+and review rows across the table from 8 to 4 — the sentence made the reader agree with itself. But
+`bar.passage`, whose description did not change at all, went the other way: `hard` at 5/5 in the first
+run, a 4/5 split in the second. **The text did not change; the reader did.** No band should be treated
+as a property of the prose without that in view.
+
+A test page for the two questions is committed beside the transcripts (`dig.html`, and the byte-exact
+round-1 prompt it loads): it runs her wits call and then the referee's own `property` question on
+whatever she proposes, so a wording can be tried against both halves at once.

@@ -250,7 +250,13 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
     heldBy: "the floor",
     description:
       "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and " +
-      "beneath it is a shallow hollow of dry grit about the size of a hand.",
+      "beneath it is a shallow hollow of dry grit about the size of a hand. " +
+      // §64.6/§64.8a's L2 lever, 2026-09-19: the shipped text advertises a HIDING PLACE and she uses
+      // it as one (12 attempts on this tile across 31 games, not one of them a failure). This clause
+      // says what the hollow bottoms out on, naming a MANIPULATION ("scrape away by hand", the shape
+      // of the spoon's own "thin enough to bend by hand") and never a purpose -- §64.6's level 3
+      // hands the player the plan and spends the discovery.
+      "Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand.",
     // O1 gave the tile no property (the spoon's own concealment carried the
     // hiding). OPEN-VARIANT.md §15.2 gives it `concealment`: 100 is the tile
     // down and the grit undisturbed, and it gates what is held in the hollow

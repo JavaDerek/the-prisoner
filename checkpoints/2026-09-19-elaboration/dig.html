@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prisoner Prompt Lab — dig baby dig</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdad4; --good:#1f7a4d; --bad:#b3362b; --accent:#2f5bd3; --warn:#8a5a00; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 -apple-system, system-ui, sans-serif; }
+  main { max-width: 1400px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:16px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  h1 { font-size:18px; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 12px; }
+  h2 { font-size:14px; margin:0 0 8px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  label { color:var(--muted); font-size:12px; }
+  input, select { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  textarea { width:100%; font:12.5px/1.45 ui-monospace, Menlo, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; background:#fff; }
+  #tile { height:8vh; } #prompt { height:34vh; } #refprompt { height:14vh; }
+  button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  .note { background:#fffdf5; border:1px solid #efe3c0; color:var(--warn); border-radius:8px; padding:9px 11px; font-size:12.5px; margin-bottom:12px; }
+  .tally { font-size:15px; font-weight:600; margin-bottom:10px; }
+  .tally span { font-weight:400; color:var(--muted); font-size:12.5px; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:10px; background:#fff; }
+  .card.good { border-left:5px solid var(--good); } .card.bad { border-left:5px solid var(--bad); }
+  .card.meh { border-left:5px solid var(--line); }
+  .intent { font-weight:600; margin-bottom:4px; }
+  .cands { color:var(--muted); font-size:12.5px; margin:6px 0 0; padding-left:18px; }
+  .cands li.hit { color:var(--ink); font-weight:600; }
+  .verdict { font-size:12px; margin-top:6px; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:999px; font-size:11.5px; border:1px solid var(--line); }
+  .pill.fail { background:#fdecea; color:var(--bad); border-color:#f3c3bd; }
+  .pill.ok { background:#eaf5ef; color:var(--good); border-color:#bfe0cd; }
+  .pill.dig { background:#eef2fd; color:var(--accent); border-color:#c7d4f7; }
+  code { background:#f2f1ee; padding:1px 4px; border-radius:4px; font-size:12px; }
+  .muted { color:var(--muted); font-size:12.5px; }
+</style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>Dig baby dig</h1>
+    <p class="sub">Round 1, welded window, door priced at margin. The exact prompt the game sends — edit the tile, see what she reaches for, and whether the referee would let her.</p>
+
+    <div class="note">
+      <b>One model at a time.</b> This posts straight to doris, which fits one model. If a batch is running there, wait — you will collide with it, and a batch stops when it finds a model it did not load.
+    </div>
+
+    <div class="row">
+      <label>model</label><input id="model" value="qwen3:14b" size="16">
+      <label>runs</label><select id="runs"><option>1</option><option selected>5</option><option>10</option></select>
+      <label>temp</label><input id="temp" value="0.9" size="4">
+      <label><input type="checkbox" id="think"> thinking on</label>
+      <button class="primary" id="go">Run</button>
+      <button id="reset">Reset tile</button>
+    </div>
+
+    <h2>The tile, as authored <span class="muted">— edit this, it rewrites the line in the prompt below and is what the referee is shown</span></h2>
+    <textarea id="tile"></textarea>
+
+    <h2 style="margin-top:12px">Her prompt, verbatim <span class="muted">— byte-exact from the game</span></h2>
+    <textarea id="prompt"></textarea>
+
+    <h2 style="margin-top:12px">Referee's <code>property</code> question, verbatim</h2>
+    <p class="muted" style="margin:0 0 6px">This is the question that decides whether her attempt <b>fails</b>. It only matters that she says "dig" if this comes back <code>none</code> — that refusal is what makes the world offer a price.</p>
+    <textarea id="refprompt"></textarea>
+  </section>
+
+  <section class="panel">
+    <h2>Results</h2>
+    <div class="tally" id="tally">—</div>
+    <div id="out"></div>
+  </section>
+</main>
+
+<script>
+const ENDPOINT = "http://doris:11434/v1/chat/completions";
+const $ = (id) => document.getElementById(id);
+
+const TILE_DEFAULT = "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand.";
+
+// The referee's own property question, verbatim from a real request
+// (checkpoints/2026-09-19-elaboration/**/*.referee.json), with the welded
+// object/property list it actually carried.
+const REF_DEFAULT = `Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible. Cite the exact words in the TARGET OBJECT'S OWN description that make it possible.`;
+
+let basePrompt = "";
+
+function tileLine(desc) { return "- loose_tile: " + desc; }
+
+function applyTile() {
+  const desc = $("tile").value.trim();
+  const lines = $("prompt").value.split("\n");
+  const i = lines.findIndex((l) => l.startsWith("- loose_tile:"));
+  if (i >= 0) { lines[i] = tileLine(desc); $("prompt").value = lines.join("\n"); }
+}
+
+fetch("prisoner-prompt-r1-welded-dig.txt").then((r) => r.text()).then((t) => {
+  basePrompt = t;
+  $("prompt").value = t;
+  const line = t.split("\n").find((l) => l.startsWith("- loose_tile:"));
+  $("tile").value = line ? line.replace("- loose_tile: ", "") : TILE_DEFAULT;
+});
+$("refprompt").value = REF_DEFAULT;
+$("tile").addEventListener("input", applyTile);
+$("reset").onclick = () => { $("tile").value = TILE_DEFAULT; applyTile(); };
+
+const WITS_SCHEMA = {
+  type: "json_schema",
+  json_schema: { name: "wits", strict: true, schema: {
+    type: "object",
+    properties: {
+      thoughts: { type: "string" },
+      candidates: { type: "array", minItems: 2, maxItems: 5, items: { type: "object",
+        properties: { text: { type: "string" }, reason: { type: "string" } },
+        required: ["text","reason"], additionalProperties: false } },
+      intent: { type: "string" },
+      plan: { type: "string" },
+      notes: { type: "string" }
+    },
+    required: ["thoughts","candidates","intent","plan","notes"], additionalProperties: false
+  } }
+};
+
+const REF_SCHEMA = {
+  type: "json_schema",
+  json_schema: { name: "ruling", strict: true, schema: {
+    type: "object",
+    properties: { property: { type: "string", enum: ["integrity","edge","concealment","passage","none"] }, citation: { type: "string" } },
+    required: ["property","citation"], additionalProperties: false
+  } }
+};
+
+async function ask(prompt, schema, temperature) {
+  const body = { model: $("model").value.trim(), messages: [{ role: "user", content: prompt }],
+                 stream: false, temperature, response_format: schema, tools: [] };
+  if (!$("think").checked) body.reasoning_effort = "none";
+  const res = await fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await res.json();
+  const txt = j?.choices?.[0]?.message?.content ?? "";
+  try { return JSON.parse(txt); } catch { return { _raw: txt }; }
+}
+
+// Lexical only, and only for THIS page's tally -- it never decides anything in
+// the game. The game never pattern-matches meaning; this is a reading aid.
+const DIGGY = /\bdig|burrow|tunnel|excavat|scoop|claw|gouge/i;
+
+async function rule(intent) {
+  const desc = $("tile").value.trim();
+  const p = `INTENT (the actor's own words): ${intent}\n\nSOURCE desc:loose_tile: ${desc}\n\nThe target object is loose_tile.\n\n${$("refprompt").value.trim()}\n\nAnswer as JSON: {"property": one of integrity|edge|concealment|passage|none, "citation": the exact words you cite}`;
+  return ask(p, REF_SCHEMA, 0);
+}
+
+$("go").onclick = async () => {
+  const n = parseInt($("runs").value, 10);
+  const temp = parseFloat($("temp").value);
+  $("go").disabled = true; $("out").innerHTML = ""; $("tally").textContent = "running…";
+  let dig = 0, fails = 0, done = 0;
+  for (let i = 0; i < n; i++) {
+    const r = await ask($("prompt").value, WITS_SCHEMA, temp);
+    const intent = r.intent ?? "(unparsed)";
+    const cands = r.candidates ?? [];
+    const isDig = DIGGY.test(intent);
+    const anyDigCand = cands.some((c) => DIGGY.test(c.text || ""));
+    if (isDig) dig++;
+    const verdict = await rule(intent);
+    const failed = verdict.property === "none";
+    if (failed) fails++;
+    done++;
+    const card = document.createElement("div");
+    card.className = "card " + (failed ? "good" : isDig ? "meh" : "bad");
+    card.innerHTML =
+      `<div class="intent">${escapeHtml(intent)}</div>` +
+      `<div>${isDig ? '<span class="pill dig">digs</span> ' : ""}` +
+      (failed ? '<span class="pill fail">referee: none → WOULD FAIL → elaboration fires</span>'
+              : `<span class="pill ok">referee: ${escapeHtml(verdict.property ?? "?")} → succeeds, no trigger</span>`) + `</div>` +
+      `<div class="verdict muted">cited: ${escapeHtml(verdict.citation ?? "—")}</div>` +
+      `<ul class="cands">${cands.map((c) => `<li class="${DIGGY.test(c.text||"") ? "hit" : ""}">${escapeHtml(c.text)}</li>`).join("")}</ul>` +
+      (anyDigCand && !isDig ? `<div class="verdict muted">a dig was considered but not chosen</div>` : "");
+    $("out").appendChild(card);
+    $("tally").innerHTML = `${dig}/${done} dig &nbsp;·&nbsp; <b>${fails}/${done} would fail</b> <span>— only a failure lets the world offer a price</span>`;
+  }
+  $("go").disabled = false;
+};
+
+function escapeHtml(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c])); }
+</script>
+</body>
+</html>
