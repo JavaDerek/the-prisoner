@@ -1,0 +1,1640 @@
+[
+ {
+  "label": "[expect open] Remove the bar",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 3\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Remove the bar",
+    "from": 1,
+    "to": 3
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Remove the bar",
+  "expected": "open",
+  "i": 1,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 3\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Remove the bar",
+    "from": 1,
+    "to": 3
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Remove the bar",
+  "expected": "open",
+  "i": 2,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 3\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Remove the bar",
+    "from": 1,
+    "to": 3
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to remove the bar",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 7,\n      \"to\": 7\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 5,\n      \"to\": 6\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 7,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the",
+     "from": 5,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to remove the bar",
+     "from": 1,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "remove the",
+    "from": 5,
+    "to": 6
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to remove the bar",
+  "expected": "open",
+  "i": 1,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 7,\n      \"to\": 7\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 5,\n      \"to\": 6\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 7,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the",
+     "from": 5,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to remove the bar",
+     "from": 1,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "remove the",
+    "from": 5,
+    "to": 6
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to remove the bar",
+  "expected": "open",
+  "i": 2,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 7,\n      \"to\": 7\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 5,\n      \"to\": 6\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 7,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the",
+     "from": 5,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to remove the bar",
+     "from": 1,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "remove the",
+    "from": 5,
+    "to": 6
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Pull the bar out of the window",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window",
+     "from": 1,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": ""
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": ""
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window",
+     "from": 1,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Pull the bar out of the window",
+    "from": 1,
+    "to": 7
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": [
+     {
+      "reason": "empty-quote",
+      "rung": 0,
+      "offer": {
+       "questionId": "product",
+       "answerKey": "none",
+       "citation": {
+        "sourceId": "intent",
+        "quote": ""
+       }
+      }
+     }
+    ]
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": [
+     {
+      "reason": "empty-quote",
+      "rung": 0,
+      "offer": {
+       "questionId": "magnitude",
+       "answerKey": "moderate",
+       "citation": {
+        "sourceId": "intent",
+        "quote": ""
+       }
+      }
+     }
+    ]
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Pull the bar out of the window",
+  "expected": "open",
+  "i": 1,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window",
+     "from": 1,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": ""
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": ""
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window",
+     "from": 1,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Pull the bar out of the window",
+    "from": 1,
+    "to": 7
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": [
+     {
+      "reason": "empty-quote",
+      "rung": 0,
+      "offer": {
+       "questionId": "product",
+       "answerKey": "none",
+       "citation": {
+        "sourceId": "intent",
+        "quote": ""
+       }
+      }
+     }
+    ]
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": [
+     {
+      "reason": "empty-quote",
+      "rung": 0,
+      "offer": {
+       "questionId": "magnitude",
+       "answerKey": "moderate",
+       "citation": {
+        "sourceId": "intent",
+        "quote": ""
+       }
+      }
+     }
+    ]
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Pull the bar out of the window",
+  "expected": "open",
+  "i": 2,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 7\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window",
+     "from": 1,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": ""
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": ""
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window",
+     "from": 1,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Pull the bar out of the window",
+    "from": 1,
+    "to": 7
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": [
+     {
+      "reason": "empty-quote",
+      "rung": 0,
+      "offer": {
+       "questionId": "product",
+       "answerKey": "none",
+       "citation": {
+        "sourceId": "intent",
+        "quote": ""
+       }
+      }
+     }
+    ]
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": [
+     {
+      "reason": "empty-quote",
+      "rung": 0,
+      "offer": {
+       "questionId": "magnitude",
+       "answerKey": "moderate",
+       "citation": {
+        "sourceId": "intent",
+        "quote": ""
+       }
+      }
+     }
+    ]
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Take the bar out",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 4\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 4\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Take the bar out",
+    "from": 1,
+    "to": 4
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Take the bar out",
+  "expected": "open",
+  "i": 1,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 4\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 4\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Take the bar out",
+    "from": 1,
+    "to": 4
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Take the bar out",
+  "expected": "open",
+  "i": 2,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\n    \"questionId\": \"target\",\n    \"answerKey\": \"bar\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 3,\n      \"to\": 3\n    }\n  },\n  {\n    \"questionId\": \"effect\",\n    \"answerKey\": \"open\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 4\n    }\n  },\n  {\n    \"questionId\": \"product\",\n    \"answerKey\": \"none\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"property\",\n    \"answerKey\": \"integrity\",\n    \"citation\": {\n      \"sourceId\": \"desc:bar\",\n      \"from\": 32,\n      \"to\": 38\n    }\n  },\n  {\n    \"questionId\": \"magnitude\",\n    \"answerKey\": \"moderate\",\n    \"citation\": {\n      \"quote\": \"\"\n    }\n  },\n  {\n    \"questionId\": \"perceptibility\",\n    \"answerKey\": \"audible\",\n    \"citation\": {\n      \"sourceId\": \"intent\",\n      \"from\": 1,\n      \"to\": 4\n    }\n  }\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar",
+     "from": 3,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked.",
+     "from": 32,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Take the bar out",
+    "from": 1,
+    "to": 4
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": true,
+    "answeredByRung": null,
+    "citation": null,
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [
+   "product",
+   "magnitude"
+  ],
+  "finalEffect": "open"
+ }
+]

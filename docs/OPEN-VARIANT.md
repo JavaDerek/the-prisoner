@@ -5202,3 +5202,128 @@ side of a narration — so the audit usually costs a generation and no GPU swap.
 `PRISONER_NARRATION_AUDIT=off` restores the pre-§63 behaviour for anyone who wants to see a raw
 narrator again. Every cut sentence and its reason goes into the transcript, which is the evidence for
 whether this verifier earns its generation.
+
+## 64. The route is the room's topology, and an act must be advertised before it is thinkable (2026-09-19)
+
+Raw captures, every prompt variant, and the batch script: `checkpoints/2026-09-19-condition-and-affordance/`.
+All of it is round 1, `qwen3:14b`, temperature 0.9, `reasoning_effort` unset (the setting every game has
+used), precedent OFF, run against the wits prompt captured as `prisoner-prompt-r1-flat.txt`.
+
+**Method note, and it is the reason this section exists at all.** Nine experiments in about ninety minutes,
+against three days of batches. One anchor at n=15; everything after it at n=1. That asymmetry is
+deliberate and Derek's: **n=1 is enough to disprove, n=5 is what proving costs.** Six of the nine were
+refutations and each one cost a single call.
+
+### 64.1 The anchor: she does the same thing fifteen times
+
+Three arms of five, identical but for one line -- `warden suspicion` hidden (as she plays today), stated
+as 0, stated as 35. **14 of 14 parsed runs attacked the bar with the spoon. Zero tried `derive`.**
+
+The `susp=35` arm is the one that refutes the hypothesis it was built to test. At 35, a "+30 substantial"
+act puts her at 65 against a catch threshold of 40 -- self-destruction -- and she did it 5 of 5. She is
+not blind to the number either: "suspicion" appears in her hidden reasoning 15/15 and in `thoughts` 14/15.
+**She reads the balance, reasons about it, and it does not constrain her choice.** Risk aversion under
+hidden state is not what was happening, and showing her the number changes nothing.
+
+Generation was never narrow: 16-17 *distinct* candidates per arm. But every one was a different
+**instrument** aimed at the same **intention** -- strike the bar, scrape the bar, bend the bar, hit the bar
+with the bucket, scratch it with the meal tray, abrade it with grit from the tile. §41 from a fifth
+direction, and the cheapest look at it yet: *a find changes the instrument, never the intention.*
+
+### 64.2 Seven permutations, each n=1
+
+| # | change from the anchor | she goes to |
+|---|---|---|
+| 1 | `warden suspicion` shown as 0 / as 35 | **bar** (refuted) |
+| 2 | condition list reordered, bar condition demoted 1st -> 6th | **bar** (refuted) |
+| 3 | CONDITION 1 renamed to a cot-derived tool, exit becomes the lock | **cot** |
+| 4 | as 3, but the exit stays the window (isolates the noun) | **cot** |
+| 5 | two actionable conditions, bar *and* cot | **cot** -- picks one, does not explore both |
+| 6 | her win condition deleted entirely | **bar** |
+| 7 | win condition *and* every prose cue deleted (rust, cracked mortar, `bar integrity`, and the window's own "with that bar gone, a person could climb through") | **bar** |
+
+Experiment 7 is the one that changes the reading. With nothing naming the bar she still reasoned her way
+to it -- and her reasoning tripled to 11,384 characters doing so: *"The primary escape route is through the
+window. The bar in the window is a critical obstacle."* The prompt still says **the cell's ways out are the
+door and the window**, and the lock's keyhole is on the corridor side. The window is the only tractable
+exit and the bar is the only thing in it.
+
+**So it is not salience and not noun-following. It is topology.** Experiments 3-5 worked because naming the
+cot *created a second viable path*, not because it redirected her attention. The map moved, not her focus.
+
+### 64.3 Two necessary conditions, separated
+
+Welding the window shut -- bars flush and welded, bar immovable, its integrity belief and its condition
+removed, everything else untouched -- **released exploration**: four new intentions (dig under the tile,
+bend the spoon into a tool, strike the door with the bucket, pull the tile out), zero bar candidates. The
+minds are not incurious. They were never unblocked.
+
+But she still did not `derive`, while *explicitly hunting for a tool to make*. She reached for the spoon.
+The reason is in the prose:
+
+```
+spoon:  "A dented aluminium spoon, thin enough to bend by hand."
+cot:    "...the springs are held to the frame by twists of wire."
+```
+
+The spoon's description **advertises an affordance**. The wire's states a **function** -- it is what holds
+the springs on. One reads as a tool, the other as furniture.
+
+Adding one clause to the cot -- `twists of wire, thin enough to untwist by hand` -- against the welded
+control, a clean single-clause A/B, produced `derive` as the **first candidate and the chosen intent**,
+with a three-step plan behind it. It also produced *"Tug on the blanket's loose thread"* -- a second
+described-but-never-used affordance that fourteen games never touched.
+
+The 2x2 completes, and neither factor is sufficient alone:
+
+| | window open | window welded |
+|---|---|---|
+| wire described functionally | bar (14/14), wire never a candidate | tile + spoon, wire never a candidate |
+| wire advertised | bar -- but wire **enters the candidate set** | **derive chosen** |
+
+- **Advertising the affordance makes the act thinkable** -- it enters the candidate set.
+- **Closing the obvious route makes it chosen** -- it becomes the intent.
+
+And she is right both times. With the window open, scraping the bar genuinely is the better move and
+picking up a wire that opens nothing is a wasted turn. **She was never failing to be creative. She was
+correctly declining a worse option.**
+
+### 64.4 What this does to mother-of-invention, which is not what it looks like
+
+It does **not** show the mechanisms are wrong. It shows **the measurements that appeared to kill them were
+never fair tests**. Every batch behind "0 of 14 derives" (§57), the priced door (§50.7) and the
+person-as-target arm (§55) ran with the obvious route open and the alternatives unadvertised. Precedent
+and pick were being asked to steer a mind toward options that were **invisible** or **dominated**. A
+mechanism that nudges *selection* can do nothing when its target is not in the candidate set, and should
+do nothing when it is but is genuinely worse.
+
+So moi's actual efficacy is still unmeasured, after three days of measuring. The order that follows is:
+fix the instrument (a scenario where alternatives are advertised and the obvious route is not dominant),
+*then* test a mechanism in it. Nothing gets deleted; 0.1.2 stays published and pinned.
+
+`mind-seam` is untouched by any of this, in both directions -- it holds no context and would be
+indifferent to the opposite result too.
+
+### 64.5 What it does not establish, and what would falsify it
+
+Round 1 only. One model. One scenario. One run per cell except the anchor. The suspicion and order results
+are refutations and stand on their own; the affordance result is a single clean A/B and does not yet have
+a number.
+
+**The replication that would earn one:** the 2x2 at n=10 per cell, two mechanical binary metrics -- *is
+`derive` in the candidate set*, *is `derive` the intent* -- with the prediction pre-committed first
+(§50.6's discipline): the affordance clause drives **candidacy**, the interaction drives **choice**,
+welding alone produces no derive. **It is falsified if the wire enters the candidate set at similar rates
+with and without the clause.**
+
+Two arms decide how far it generalises, and neither is worth running before the core: the same 2x2
+advertising the **blanket's loose thread** instead of the wire (a rule, or a quirk of the cot?), and the
+key cells on **`qwen2.5:14b`**, which cannot reason at all (an authoring rule for any mind, or a qwen3
+artifact?).
+
+### 64.6 The lesson that does not belong in this repository
+
+If it replicates, the generalisable rule is one sentence and it is the engine's, not this game's:
+**describe an object by what can be done to it, not by what it does.** That is
+`run-dmcp/docs/AUTHORING-GUIDE.md` material, and root `CLAUDE.md` names the five files that have to move
+together when it lands. It should not be written there until the core replication has a number.

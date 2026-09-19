@@ -1,0 +1,3876 @@
+[
+ {
+  "label": "[expect open] Remove the bar",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 2, \"to\": 3}},\n  {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}},\n  {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 2,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar",
+     "from": 1,
+     "to": 3
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Remove the bar",
+    "from": 1,
+    "to": 3
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to remove the bar",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}},\n  {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 4, \"to\": 7}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 5}},\n  {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 7}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to remove the bar",
+     "from": 4,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove",
+     "from": 5,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the bar",
+     "from": 5,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "to remove the bar",
+    "from": 4,
+    "to": 7
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to remove the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Pull the bar out of the window",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}},\n  {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 4}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 7}},\n  {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 4}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window",
+     "from": 1,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out",
+     "from": 1,
+     "to": 4
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Pull the bar out",
+    "from": 1,
+    "to": 4
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out of the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull the bar out"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Take the bar out",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\":\"target\",\"answerKey\":\"window\",\"citation\":{\"sourceId\":\"intent\",\"from\":2,\"to\":3}},\n{\"questionId\":\"effect\",\"answerKey\":\"open\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":4}},\n{\"questionId\":\"product\",\"answerKey\":\"none\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":4}},\n{\"questionId\":\"property\",\"answerKey\":\"passage\",\"citation\":{\"sourceId\":\"desc:window\",\"from\":31,\"to\":39}},\n{\"questionId\":\"magnitude\",\"answerKey\":\"moderate\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":4}},\n{\"questionId\":\"perceptibility\",\"answerKey\":\"audible\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":4}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 2,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out",
+     "from": 1,
+     "to": 4
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Take the bar out",
+    "from": 1,
+    "to": 4
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Take the bar out"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to pry the bar out of the mortar",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}},\n  {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 11}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 5}},\n  {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 11}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry the bar out of the mortar",
+     "from": 5,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry",
+     "from": 5,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry the bar out",
+     "from": 5,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry the bar out of the mortar",
+     "from": 5,
+     "to": 11
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "pry the bar out of the mortar",
+    "from": 5,
+    "to": 11
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry the bar out of the mortar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "pry the bar out of the mortar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to lever the bar out of the mortar",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}},\n  {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 11}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 11}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "lever the bar out of the mortar",
+     "from": 5,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "lever the bar out",
+     "from": 5,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "lever the bar out of the mortar",
+     "from": 5,
+     "to": 11
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "lever the bar out of the mortar",
+    "from": 5,
+    "to": 11
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "lever the bar out of the mortar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "lever the bar out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "lever the bar out of the mortar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Attempt to remove the bar from the window",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 8}}, {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 8}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}, {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 5}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "from the window",
+     "from": 6,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the bar from the window",
+     "from": 3,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Attempt to remove",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Attempt to remove",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the bar",
+     "from": 3,
+     "to": 5
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "remove the bar from the window",
+    "from": 3,
+    "to": 8
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "from the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the bar from the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Attempt to remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Attempt to remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to twist and remove the bar",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\":\"target\",\"answerKey\":\"window\",\"citation\":{\"sourceId\":\"intent\",\"from\":8,\"to\":9}},{\"questionId\":\"effect\",\"answerKey\":\"open\",\"citation\":{\"sourceId\":\"intent\",\"from\":5,\"to\":7}},{\"questionId\":\"product\",\"answerKey\":\"none\",\"citation\":{\"sourceId\":\"intent\",\"from\":7,\"to\":7}},{\"questionId\":\"property\",\"answerKey\":\"passage\",\"citation\":{\"sourceId\":\"desc:window\",\"from\":31,\"to\":39}},{\"questionId\":\"magnitude\",\"answerKey\":\"moderate\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":5}},{\"questionId\":\"perceptibility\",\"answerKey\":\"audible\",\"citation\":{\"sourceId\":\"intent\",\"from\":5,\"to\":9}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 8,
+     "to": 9
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "twist and remove",
+     "from": 5,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove",
+     "from": 7,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to twist",
+     "from": 1,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "twist and remove the bar",
+     "from": 5,
+     "to": 9
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "twist and remove",
+    "from": 5,
+    "to": 7
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "twist and remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon to twist"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "twist and remove the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect open] Use the spoon to push back the bolt through the gap",
+  "expected": "open",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"door\", \"citation\": {\"sourceId\": \"intent\", \"from\": 7, \"to\": 11}},\n  {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:door\", \"from\": 11, \"to\": 29}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"slight\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 6}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"silent\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "door",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bolt through the gap",
+     "from": 7,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "push back the bolt",
+     "from": 5,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:door",
+     "quote": "It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap.",
+     "from": 11,
+     "to": 29
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "push back",
+     "from": 5,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon",
+     "from": 1,
+     "to": 3
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "push back the bolt",
+    "from": 5,
+    "to": 8
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "door",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bolt through the gap"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "push back the bolt"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:door",
+     "quote": "It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "push back"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect wear] Continue abrading the bar with the spoon to reduce its integrity",
+  "expected": "wear",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 4}}, {\"questionId\": \"effect\", \"answerKey\": \"wear\", \"citation\": {\"sourceId\": \"intent\", \"from\": 2, \"to\": 11}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 11}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 20, \"to\": 26}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 2, \"to\": 7}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 3,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "abrading the bar with the spoon to reduce its integrity",
+     "from": 2,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to reduce its integrity",
+     "from": 8,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,",
+     "from": 20,
+     "to": 26
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Continue abrading",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "abrading the bar with the spoon",
+     "from": 2,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "wear",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "abrading the bar with the spoon to reduce its integrity",
+    "from": 2,
+    "to": 11
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "abrading the bar with the spoon to reduce its integrity"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to reduce its integrity"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Continue abrading"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "abrading the bar with the spoon"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "wear"
+ },
+ {
+  "label": "[expect wear] Use the spoon to scrape at the rusted bottom of the bar",
+  "expected": "wear",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 11, \"to\": 12}},\n  {\"questionId\": \"effect\", \"answerKey\": \"wear\", \"citation\": {\"sourceId\": \"intent\", \"from\": 4, \"to\": 9}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 5}},\n  {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 20, \"to\": 26}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"slight\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 6}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 9}}\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 11,
+     "to": 12
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to scrape at the rusted bottom",
+     "from": 4,
+     "to": 9
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape",
+     "from": 5,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,",
+     "from": 20,
+     "to": 26
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "spoon to scrape at",
+     "from": 3,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape at the rusted bottom",
+     "from": 5,
+     "to": 9
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "wear",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "to scrape at the rusted bottom",
+    "from": 4,
+    "to": 9
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to scrape at the rusted bottom"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "spoon to scrape at"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "scrape at the rusted bottom"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "wear"
+ },
+ {
+  "label": "[expect wear] Use the spoon to damage the bar further",
+  "expected": "wear",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}},\n  {\"questionId\": \"effect\", \"answerKey\": \"wear\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 7}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}},\n  {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 20, \"to\": 26}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 8}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "damage the bar",
+     "from": 5,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "damage the bar further",
+     "from": 5,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,",
+     "from": 20,
+     "to": 26
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "further",
+     "from": 8,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon",
+     "from": 1,
+     "to": 3
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "wear",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "damage the bar",
+    "from": 5,
+    "to": 7
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "damage the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "damage the bar further"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "further"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "wear"
+ },
+ {
+  "label": "[expect wear] Use the spoon to strike the bar repeatedly",
+  "expected": "wear",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}}, {\"questionId\": \"effect\", \"answerKey\": \"wear\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}}, {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}}, {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 20, \"to\": 38}}, {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 8, \"to\": 8}}, {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "strike the bar repeatedly",
+     "from": 5,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.",
+     "from": 20,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "repeatedly",
+     "from": 8,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "strike the bar repeatedly",
+     "from": 5,
+     "to": 8
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "wear",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "strike the bar repeatedly",
+    "from": 5,
+    "to": 8
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "strike the bar repeatedly"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Use the spoon"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "repeatedly"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "strike the bar repeatedly"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "wear"
+ },
+ {
+  "label": "[expect wear] Use the spoon to chip away the mortar around the bar",
+  "expected": "wear",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 10, \"to\": 11}},\n  {\"questionId\": \"effect\", \"answerKey\": \"open\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 6}},\n  {\"questionId\": \"property\", \"answerKey\": \"passage\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"slight\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 6}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 8}}\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 10,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away the mortar",
+     "from": 5,
+     "to": 8
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away",
+     "from": 5,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away",
+     "from": 5,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away the mortar",
+     "from": 5,
+     "to": 8
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "open",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "chip away the mortar",
+    "from": 5,
+    "to": 8
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "open",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away the mortar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "passage",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "chip away the mortar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "open"
+ },
+ {
+  "label": "[expect reveal] Examine the bar for signs of damage or wear",
+  "expected": "reveal",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\":\"target\",\"answerKey\":\"bar\",\"citation\":{\"sourceId\":\"intent\",\"from\":2,\"to\":3}},{\"questionId\":\"effect\",\"answerKey\":\"reveal\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":9}},{\"questionId\":\"product\",\"answerKey\":\"none\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":3}},{\"questionId\":\"property\",\"answerKey\":\"integrity\",\"citation\":{\"sourceId\":\"desc:bar\",\"from\":20,\"to\":26}},{\"questionId\":\"magnitude\",\"answerKey\":\"slight\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":1}},{\"questionId\":\"perceptibility\",\"answerKey\":\"visible\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":3}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 2,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "reveal",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine the bar for signs of damage or wear",
+     "from": 1,
+     "to": 9
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine the bar",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,",
+     "from": 20,
+     "to": 26
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine the bar",
+     "from": 1,
+     "to": 3
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "reveal",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Examine the bar for signs of damage or wear",
+    "from": 1,
+    "to": 9
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "reveal",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine the bar for signs of damage or wear"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Examine the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "reveal"
+ },
+ {
+  "label": "[expect leave] Climb out through the window",
+  "expected": "leave",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 4, \"to\": 5}},\n  {\"questionId\": \"effect\", \"answerKey\": \"leave\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 5}},\n  {\"questionId\": \"property\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 35, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 5}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window",
+     "from": 4,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out through",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out through the window",
+     "from": 1,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "a person could climb through.",
+     "from": 35,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out through the window",
+     "from": 1,
+     "to": 5
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "leave",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Climb out through",
+    "from": 1,
+    "to": 3
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out through"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out through the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb out through the window"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "leave"
+ },
+ {
+  "label": "[expect leave] Climb through the window and escape",
+  "expected": "leave",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[{\"questionId\":\"target\",\"answerKey\":\"window\",\"citation\":{\"sourceId\":\"intent\",\"from\":3,\"to\":4}},\n{\"questionId\":\"effect\",\"answerKey\":\"leave\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":2}},\n{\"questionId\":\"product\",\"answerKey\":\"none\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":6}},\n{\"questionId\":\"property\",\"answerKey\":\"none\",\"citation\":{\"sourceId\":\"desc:window\",\"from\":35,\"to\":39}},\n{\"questionId\":\"magnitude\",\"answerKey\":\"moderate\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":4}},\n{\"questionId\":\"perceptibility\",\"answerKey\":\"visible\",\"citation\":{\"sourceId\":\"intent\",\"from\":1,\"to\":6}}]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window",
+     "from": 3,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through the window and escape",
+     "from": 1,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "a person could climb through.",
+     "from": 35,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through the window",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through the window and escape",
+     "from": 1,
+     "to": 6
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "leave",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Climb through",
+    "from": 1,
+    "to": 2
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through the window and escape"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Climb through the window and escape"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "leave"
+ },
+ {
+  "label": "[expect leave] Squeeze through the gap in the window where the bar was",
+  "expected": "leave",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 7}},\n  {\"questionId\": \"effect\", \"answerKey\": \"leave\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}},\n  {\"questionId\": \"property\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 31, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 7}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window",
+     "from": 6,
+     "to": 7
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze through",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze through",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through.",
+     "from": 31,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze through the gap in the window",
+     "from": 1,
+     "to": 7
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "leave",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Squeeze through",
+    "from": 1,
+    "to": 2
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze through"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze through"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "with that bar gone, a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Squeeze through the gap in the window"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "leave"
+ },
+ {
+  "label": "[expect leave] Get out through the window",
+  "expected": "leave",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"window\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 5}},\n  {\"questionId\": \"effect\", \"answerKey\": \"leave\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 5}},\n  {\"questionId\": \"property\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"desc:window\", \"from\": 35, \"to\": 39}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 5}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "through the window",
+     "from": 3,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out through",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out through the window",
+     "from": 1,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "a person could climb through.",
+     "from": 35,
+     "to": 39
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out through the window",
+     "from": 1,
+     "to": 5
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "leave",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Get out through",
+    "from": 1,
+    "to": 3
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "window",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "through the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out through"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out through the window"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:window",
+     "quote": "a person could climb through."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Get out through the window"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "leave"
+ },
+ {
+  "label": "[expect leave] Slip out of the open door",
+  "expected": "leave",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"door\", \"citation\": {\"sourceId\": \"intent\", \"from\": 4, \"to\": 6}},\n  {\"questionId\": \"effect\", \"answerKey\": \"leave\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 6}},\n  {\"questionId\": \"property\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"desc:door\", \"from\": 1, \"to\": 10}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"slight\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"silent\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "door",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the open door",
+     "from": 4,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip out of",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip out of the open door",
+     "from": 1,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "desc:door",
+     "quote": "A heavy door of iron-bound planks in a stone frame.",
+     "from": 1,
+     "to": 10
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip out",
+     "from": 1,
+     "to": 2
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "leave",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Slip out of",
+    "from": 1,
+    "to": 3
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "door",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the open door"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "leave",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip out of"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip out of the open door"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:door",
+     "quote": "A heavy door of iron-bound planks in a stone frame."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Slip out"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "leave"
+ },
+ {
+  "label": "[expect wear] Rub the spoon back and forth against the bar",
+  "expected": "wear",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "[\n  {\"questionId\": \"target\", \"answerKey\": \"spoon\", \"citation\": {\"sourceId\": \"intent\", \"from\": 2, \"to\": 3}},\n  {\"questionId\": \"effect\", \"answerKey\": \"restore\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 6}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 9}},\n  {\"questionId\": \"property\", \"answerKey\": \"edge\", \"citation\": {\"sourceId\": \"desc:spoon\", \"from\": 11, \"to\": 24}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 4, \"to\": 6}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 9}}\n]",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "spoon",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the spoon",
+     "from": 2,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "restore",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub the spoon back and forth",
+     "from": 1,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub the spoon back and forth against the bar",
+     "from": 1,
+     "to": 9
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "edge",
+    "citation": {
+     "sourceId": "desc:spoon",
+     "quote": "One side of the bowl is worn flat from being scraped along the floor.",
+     "from": 11,
+     "to": 24
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "back and forth",
+     "from": 4,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub the spoon back and forth against the bar",
+     "from": 1,
+     "to": 9
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "restore",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Rub the spoon back and forth",
+    "from": 1,
+    "to": 6
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "spoon",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the spoon"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "restore",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub the spoon back and forth"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub the spoon back and forth against the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "edge",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:spoon",
+     "quote": "One side of the bowl is worn flat from being scraped along the floor."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "back and forth"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub the spoon back and forth against the bar"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "restore"
+ },
+ {
+  "label": "[expect wear] Grind at the bar with the spoon's edge to weaken it",
+  "expected": "wear",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 3, \"to\": 4}},\n  {\"questionId\": \"effect\", \"answerKey\": \"wear\", \"citation\": {\"sourceId\": \"intent\", \"from\": 9, \"to\": 11}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 9, \"to\": 11}},\n  {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 20, \"to\": 38}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 2}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"audible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 8}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar",
+     "from": 3,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to weaken it",
+     "from": 9,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to weaken it",
+     "from": 9,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.",
+     "from": 20,
+     "to": 38
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Grind at",
+     "from": 1,
+     "to": 2
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Grind at the bar with the spoon's edge",
+     "from": 1,
+     "to": 8
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "wear",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "to weaken it",
+    "from": 9,
+    "to": 11
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "wear",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to weaken it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to weaken it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Grind at"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "audible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Grind at the bar with the spoon's edge"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "wear"
+ },
+ {
+  "label": "[expect derive] Pull a length of wire from the cot springs and keep it",
+  "expected": "derive",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"cot\", \"citation\": {\"sourceId\": \"intent\", \"from\": 6, \"to\": 9}},\n  {\"questionId\": \"effect\", \"answerKey\": \"derive\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 12}},\n  {\"questionId\": \"product\", \"answerKey\": \"wire\", \"citation\": {\"sourceId\": \"intent\", \"from\": 2, \"to\": 5}},\n  {\"questionId\": \"property\", \"answerKey\": \"integrity\", \"citation\": {\"sourceId\": \"desc:cot\", \"from\": 31, \"to\": 41}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 5}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"silent\", \"citation\": {\"sourceId\": \"intent\", \"from\": 10, \"to\": 12}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "cot",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "from the cot springs",
+     "from": 6,
+     "to": 9
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "derive",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull a length of wire from the cot springs and keep it",
+     "from": 1,
+     "to": 12
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "wire",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "a length of wire",
+     "from": 2,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "citation": {
+     "sourceId": "desc:cot",
+     "quote": "the springs are held to the frame by twists of wire.",
+     "from": 31,
+     "to": 41
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull a length of wire",
+     "from": 1,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "and keep it",
+     "from": 10,
+     "to": 12
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "derive",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Pull a length of wire from the cot springs and keep it",
+    "from": 1,
+    "to": 12
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "cot",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "from the cot springs"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "derive",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull a length of wire from the cot springs and keep it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "wire",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "a length of wire"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "integrity",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:cot",
+     "quote": "the springs are held to the frame by twists of wire."
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Pull a length of wire"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "and keep it"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "derive"
+ },
+ {
+  "label": "[expect expose] Remove the loose tile to get at the hollow beneath it",
+  "expected": "expose",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"loose_tile\", \"citation\": {\"sourceId\": \"intent\", \"from\": 2, \"to\": 4}},\n  {\"questionId\": \"effect\", \"answerKey\": \"expose\", \"citation\": {\"sourceId\": \"intent\", \"from\": 5, \"to\": 11}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 4}},\n  {\"questionId\": \"property\", \"answerKey\": \"concealment\", \"citation\": {\"sourceId\": \"desc:loose_tile\", \"from\": 13, \"to\": 22}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"moderate\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 4}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 4}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "loose_tile",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the loose tile",
+     "from": 2,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "expose",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to get at the hollow beneath it",
+     "from": 5,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the loose tile",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "concealment",
+    "citation": {
+     "sourceId": "desc:loose_tile",
+     "quote": "It rocks underfoot, and beneath it is a shallow hollow",
+     "from": 13,
+     "to": 22
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the loose tile",
+     "from": 1,
+     "to": 4
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the loose tile",
+     "from": 1,
+     "to": 4
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "expose",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "to get at the hollow beneath it",
+    "from": 5,
+    "to": 11
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "loose_tile",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the loose tile"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "expose",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to get at the hollow beneath it"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the loose tile"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "concealment",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:loose_tile",
+     "quote": "It rocks underfoot, and beneath it is a shallow hollow"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "moderate",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the loose tile"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the loose tile"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "expose"
+ },
+ {
+  "label": "[expect none-of-open] Remove the blanket from the cot",
+  "expected": "?",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"blanket\", \"citation\": {\"sourceId\": \"intent\", \"from\": 2, \"to\": 3}},\n  {\"questionId\": \"effect\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 6}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 3}},\n  {\"questionId\": \"property\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"desc:blanket\", \"from\": 1, \"to\": 5}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"slight\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 1}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"visible\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 6}}\n]\n```\n\nThe intent is a plain move — lifting the blanket off the cot — which changes no authored property of the blanket, so the effect is `none` (and therefore `product` and `property` are `none` as well). No force, time, or care is described, so magnitude is slight; a person picking up a blanket in a cell would be seen, so perceptibility is visible.",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "blanket",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the blanket",
+     "from": 2,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the blanket from the cot",
+     "from": 1,
+     "to": 6
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the blanket",
+     "from": 1,
+     "to": 3
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "desc:blanket",
+     "quote": "A heavy grey wool blanket,",
+     "from": 1,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove",
+     "from": 1,
+     "to": 1
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the blanket from the cot",
+     "from": 1,
+     "to": 6
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "none",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "Remove the blanket from the cot",
+    "from": 1,
+    "to": 6
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "blanket",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "the blanket"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the blanket from the cot"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the blanket"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:blanket",
+     "quote": "A heavy grey wool blanket,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "visible",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Remove the blanket from the cot"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "none"
+ },
+ {
+  "label": "[expect conceal] Rub grit from the hollow into the scratches on the bar to hide them",
+  "expected": "conceal",
+  "i": 0,
+  "status": 200,
+  "err": null,
+  "content": "```json\n[\n  {\"questionId\": \"target\", \"answerKey\": \"bar\", \"citation\": {\"sourceId\": \"intent\", \"from\": 9, \"to\": 11}},\n  {\"questionId\": \"effect\", \"answerKey\": \"conceal\", \"citation\": {\"sourceId\": \"intent\", \"from\": 12, \"to\": 14}},\n  {\"questionId\": \"product\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"intent\", \"from\": 13, \"to\": 13}},\n  {\"questionId\": \"property\", \"answerKey\": \"none\", \"citation\": {\"sourceId\": \"desc:bar\", \"from\": 20, \"to\": 26}},\n  {\"questionId\": \"magnitude\", \"answerKey\": \"slight\", \"citation\": {\"sourceId\": \"intent\", \"from\": 1, \"to\": 5}},\n  {\"questionId\": \"perceptibility\", \"answerKey\": \"silent\", \"citation\": {\"sourceId\": \"intent\", \"from\": 12, \"to\": 14}}\n]\n```",
+  "offered": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "on the bar",
+     "from": 9,
+     "to": 11
+    }
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to hide them",
+     "from": 12,
+     "to": 14
+    }
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "hide",
+     "from": 13,
+     "to": 13
+    }
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,",
+     "from": 20,
+     "to": 26
+    }
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub grit from the hollow",
+     "from": 1,
+     "to": 5
+    }
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to hide them",
+     "from": 12,
+     "to": 14
+    }
+   }
+  ],
+  "offeredEffect": {
+   "key": "conceal",
+   "citation": {
+    "sourceId": "intent",
+    "quote": "to hide them",
+    "from": 12,
+    "to": 14
+   }
+  },
+  "answers": [
+   {
+    "questionId": "target",
+    "answerKey": "bar",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "on the bar"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "effect",
+    "answerKey": "conceal",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to hide them"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "product",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "hide"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "property",
+    "answerKey": "none",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "desc:bar",
+     "quote": "Rust has pitted it near the bottom,"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "magnitude",
+    "answerKey": "slight",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "Rub grit from the hollow"
+    },
+    "rejected": []
+   },
+   {
+    "questionId": "perceptibility",
+    "answerKey": "silent",
+    "fromSafeDefault": false,
+    "answeredByRung": 0,
+    "citation": {
+     "sourceId": "intent",
+     "quote": "to hide them"
+    },
+    "rejected": []
+   }
+  ],
+  "uncited": [],
+  "finalEffect": "conceal"
+ }
+]
