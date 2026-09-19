@@ -2,7 +2,7 @@
 
 Written for: Derek, reading it first thing. The night's work list was
 `docs/WORLD-ELABORATION-DESIGN.md` §9's landing order, with all five §0 decisions already made.
-**Every buildable step landed. Nothing was measured, because the GPU was not mine to take.**
+**Every buildable step landed. The measurement then ran too** -- see the addendum at the end: the GPU was released mid-morning, P0 and cells A, B and one C1 game ran, and the sweep was stopped early on the owner's decision. The body below is as written before that, and is left unedited.
 
 Read §9 beside this file; the row names below are its row names.
 
@@ -166,3 +166,73 @@ and no cell ran.
   visibility modifiers and comments only, `buildQuestions` untouched.
 - 04:20. The fourth AUTHORING-GUIDE pointer added by hand, which E2 could not do while P2 held the
   tree. All five homes now move together.
+
+---
+
+# Addendum, 2026-09-19 mid-morning: the measurement ran
+
+The blocker above cleared: the owner confirmed `ancient-awakening:12b` could be evicted. Everything
+below happened after that, with the owner awake and deciding at each fork. Full write-up is
+`OPEN-VARIANT.md` §66; transcripts are `checkpoints/2026-09-19-elaboration/`.
+
+## What changed against the report above
+
+| Item above | Now |
+|---|---|
+| P0 blocked | **Done.** §66.1. Thinking OFF is coherent but cannot assemble a three-step plan; ON escaped at round 3. |
+| Build run: none | **Done, committed.** 38 pairs. §66.3. |
+| §4.8 table: no actuals | **A and B have actuals; C1 has one game; C2/C3/D/E never ran.** §66.4. |
+| Elasticity reading: unreadable | **Still unreadable, and now for a better reason.** §66.5. |
+
+## Two instruments had to be built first
+
+§4.8's instrument did not exist in the game: §64.3's welded window was a static prompt file fed
+straight to the model, and §64.7's thinking-off cells were raw-endpoint calls. Neither was a runnable
+arm, so no real 30-round game could use either. Both were built test-first, defaulting to today's
+behaviour: `PRISONER_WINDOW=open|welded` and `PRISONER_THINKING=on|off`. The welded arm reproduces the
+prompt lab's ground truth verbatim, diffed against its own open control.
+
+## Three defects found by reading output, not by testing
+
+1. **A welded run's transcript header described the open room.** `## Objects as authored` printed
+   `OPEN_OBJECTS` straight, so the header carried the window's *"with that bar gone, a person could
+   climb through"* -- the one promise welding exists to remove -- while all 120 perception lines below
+   it correctly described the welded room. The section a reader checks citations against was the wrong
+   one. Fixed before the batch.
+2. **The batch runner deleted committed transcripts.** Its first version cleared `checkpoints/*.md`
+   between games so each run would name a single revision; that directory also holds the repository's
+   own history. Caught on a smoke run by the dirty-tree line in the header, fixed to touch only
+   untracked files, and re-verified (`dirty=0`, `Code revision: (clean)`).
+3. **The `acquired` metric was blind.** `analyse.py` counted acquisitions by grepping for
+   `OPEN_ACQUIRE`, which the transcript renderer never emits. It would have reported `acquired 0/10`
+   on evidence incapable of showing anything else. Found by going looking for a positive case and
+   failing to find one; fixed to read the markers `checkpointTranscript.ts` actually writes, so B's
+   zero is now backed by its two explicit "nothing acquired" lines.
+
+## The result, in one paragraph
+
+Cell A held. Cell B was falsified, and §4.8's pre-named diagnosis for it was wrong -- the request never
+fired, because welding does not make her fail, it makes her do something else that works. One C1 game
+showed the trigger firing seven times over thirty rounds, acquisition reachable for only one `need` key
+in four (§4.3 authored numbers for `integrity` alone -- a content gap in the design), and the prisoner
+wearing the priced lock from 100 to 30 and walking out at round 11. The room still contains a route
+that works without elaboration, so the remaining seventeen games would have measured *"she had a route
+that worked"* rather than what an elaborated route costs. The owner stopped the sweep there.
+
+## The three things to look at now
+
+1. **§66.5's closing point: the dominant route has moved twice** -- window, then free door, then priced
+   door -- and each time we checked, a cheaper route was still there. A room that asks whether a mind
+   will pay for a route needs no unpaid route left in it, and that is scenario design, not band tuning.
+2. **§4.3's band table prices one `need` key of four.** Until `edge`, `concealment` and `passage` have
+   numbers, three quarters of what the referee can ground can never be acquired. Content, and yours.
+3. **The build run read zero pairs as `impossible` and zero as `ruinous`.** The `difficulty` read is
+   not discriminating between welded stone, a steel tray and a wool blanket. §7's provider facade was
+   built for exactly this test -- rebind that one role to a stronger backend and re-read, fifteen
+   minutes, no game.
+
+## Still true from the report above
+
+E1/E2, S1, P1, P1b, P2, B0 and B1 all landed and are pushed; `run-dmcp@0.9.0` is published and The
+Prisoner is its second real caller. The process notes above stand, including that P2 did not do literal
+test-first and that I verified its guards by hand.
