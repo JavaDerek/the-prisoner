@@ -1,0 +1,9509 @@
+{
+ "form": "Q",
+ "n": 5,
+ "model": "qwen3:14b",
+ "baseUrl": "http://doris:11434/v1",
+ "started": "2026-09-19T20:28:02.860Z",
+ "results": [
+  {
+   "label": "round 1, prisoner: dig under the loose_tile",
+   "kind": "U",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 0.8
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 0.8
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "expose",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the loose_tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 52
+  },
+  {
+   "label": "round 1, prisoner: dig under the loose_tile with my fingers",
+   "kind": "U",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-06-15-124Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "none",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 0.8
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": null,
+      "fromDefault": true,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": null,
+      "fromDefault": true,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": null,
+      "fromDefault": true,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": null,
+      "fromDefault": true,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": null,
+      "fromDefault": true,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under the loose_tile with my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "dig under"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "my fingers"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 54
+  },
+  {
+   "label": "round 1, prisoner: Bend the spoon into a hook",
+   "kind": "U",
+   "site": "product",
+   "siteQuestion": "product_coverage",
+   "source": "2026-09-19-elaboration/2026-09-19T14-27-57-863Z.referee.json",
+   "readsUncovered": true,
+   "uncoveredCount": 5,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "uncovered",
+   "uncoveredCitations": [
+    {
+     "sourceId": "intent",
+     "quote": "hook"
+    },
+    {
+     "sourceId": "intent",
+     "quote": "hook"
+    },
+    {
+     "sourceId": "intent",
+     "quote": "hook"
+    },
+    {
+     "sourceId": "intent",
+     "quote": "hook"
+    },
+    {
+     "sourceId": "intent",
+     "quote": "hook"
+    }
+   ],
+   "perQuestion": {
+    "target": {
+     "key": "spoon",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "derive",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "uncovered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "bend by hand."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "bend by"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "bend by"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "bend by"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "bend by"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon into a hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 85
+  },
+  {
+   "label": "round 7, prisoner: Continue bending the spoon to form a more precise hook",
+   "kind": "U",
+   "site": "product",
+   "siteQuestion": "product_coverage",
+   "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+   "readsUncovered": true,
+   "uncoveredCount": 4,
+   "agreementAtSite": 0.8,
+   "mostCommonAtSite": "uncovered",
+   "uncoveredCitations": [
+    {
+     "sourceId": "intent",
+     "quote": "a more precise hook"
+    },
+    {
+     "sourceId": "intent",
+     "quote": "a more precise hook"
+    },
+    {
+     "sourceId": "intent",
+     "quote": "a more precise hook"
+    },
+    {
+     "sourceId": "intent",
+     "quote": "a more precise hook"
+    }
+   ],
+   "perQuestion": {
+    "target": {
+     "key": "spoon",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "derive",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "uncovered",
+     "agreement": 0.8
+    },
+    "property": {
+     "key": "edge",
+     "agreement": 0.8
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Continue bending"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bending the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bending the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bending the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "uncovered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bending the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "a more precise hook"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 49
+  },
+  {
+   "label": "round 1, prisoner: Pry up the loose tile to see what's underneath",
+   "kind": "C",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/B/2026-09-19T14-57-27-743Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile to see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile to see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile to see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is a shallow hollow of dry grit"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Pry up the loose tile to see what's underneath"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 74
+  },
+  {
+   "label": "round 2, prisoner: Dig through the loose tile to see if there's anything hidden underneath.",
+   "kind": "C",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 0.8
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig through the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if there's anything hidden underneath."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Dig through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 66
+  },
+  {
+   "label": "round 1, prisoner: Use the spoon to push the door's bolt back",
+   "kind": "C",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Bon/2026-09-19T16-49-58-586Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "door",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "open",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "passage",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "silent",
+     "agreement": 0.8
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "edge of the bolt shows"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "edge of the bolt shows"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "edge of the bolt shows"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "edge of the bolt shows"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push the door's bolt back"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "edge of the bolt shows"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "push"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 57
+  },
+  {
+   "label": "round 19, prisoner: Use the loose tile to hide the spoon under it",
+   "kind": "C",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "conceal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "silent",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "conceal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "conceal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "conceal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "conceal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the loose tile"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "conceal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "beneath it is"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the loose tile to hide the spoon under it"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 49
+  },
+  {
+   "label": "round 1, prisoner: Use the spoon to strike the lock repeatedly",
+   "kind": "C",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Bon/2026-09-19T16-53-27-855Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "lock",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "substantial",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the lock"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:lock",
+       "quote": "A steel lock"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the lock"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:lock",
+       "quote": "A steel"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the lock"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:lock",
+       "quote": "A steel"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the lock"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:lock",
+       "quote": "A steel"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the lock"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:lock",
+       "quote": "A steel"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the lock repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 52
+  },
+  {
+   "label": "round 11, prisoner: Climb through the open door",
+   "kind": "C",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/C1/2026-09-19T15-00-02-592Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "door",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "leave",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "passage",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "leave",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "It stands open now."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "leave",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "It stands open now."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "leave",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "It stands open now."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "leave",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "It stands open now."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "leave",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "It stands open now."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Climb through the open door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 47
+  },
+  {
+   "label": "round 6, prisoner: Use the spoon and grit from the loose_tile to scrape the window bar's weld again",
+   "kind": "N",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/C1/2026-09-19T15-00-02-592Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "bar",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "window bar's weld"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "welded into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "window bar's weld"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "welded into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "window bar's weld"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "welded into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "window bar's weld"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "welded into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "window bar's weld"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "welded into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape the window bar's weld again"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 51
+  },
+  {
+   "label": "round 1, prisoner: Use the spoon to strike the window's bar repeatedly",
+   "kind": "N",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Bon/2026-09-19T16-58-59-863Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "bar",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 0.8
+    },
+    "magnitude": {
+     "key": "substantial",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the window's bar"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "It does not move."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the window's bar"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "It does not move."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the window's bar"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "It does not move."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the window's bar"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "It does not move."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the window's bar"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:bar",
+       "quote": "It does not move."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "strike the window's bar repeatedly"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 52
+  },
+  {
+   "label": "[excluded] round 1, prisoner: Try to bend the spoon to see if it can be used for something",
+   "kind": "X",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/B/2026-09-19T14-58-02-858Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "spoon",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "edge",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Try to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 55
+  },
+  {
+   "label": "[excluded] round 1, prisoner: Bend the spoon to see if it can fit through the window bars",
+   "kind": "X",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/B/2026-09-19T14-58-19-621Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "spoon",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "edge",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "silent",
+     "agreement": 0.8
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "if it can fit through"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "thin enough to bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Bend"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 50
+  },
+  {
+   "label": "[excluded] round 23, prisoner: Use the grit from the loose tile to refine the spoon's edge in secret",
+   "kind": "X",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "spoon",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "edge",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "silent",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "One side"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "One side"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "One side"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "One side"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "refine the spoon's edge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "Use"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "edge",
+      "cite": {
+       "sourceId": "desc:spoon",
+       "quote": "One side"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "secret"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 47
+  },
+  {
+   "label": "[supplement] round 1, prisoner: scrape down through the floor with the spoon",
+   "kind": "S",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 0.8
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 0.8
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the floor"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "to scrape away"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the floor"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "loose enough to scrape away"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the floor"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "loose enough to scrape away"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the floor"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "loose enough to scrape away"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the floor"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:loose_tile",
+       "quote": "loose enough to scrape away"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "scrape"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 122
+  },
+  {
+   "label": "[supplement] round 1, prisoner: wedge the spoon under the door to jam it shut",
+   "kind": "S",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "door",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "close",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "passage",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "silent",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "close",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "the gap."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "close",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "the gap."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "close",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "the gap."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "close",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "the gap."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "under the door"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "close",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "jam it shut"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": {
+       "sourceId": "desc:door",
+       "quote": "the gap."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge the"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "wedge"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "the spoon"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 63
+  },
+  {
+   "label": "[supplement] round 1, prisoner: set fire to the blanket",
+   "kind": "S",
+   "site": "effect",
+   "siteQuestion": "coverage",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "blanket",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "substantial",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "thick and coarse,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "A heavy grey wool blanket,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "A heavy grey wool blanket,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "A heavy grey wool blanket,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "A heavy grey wool blanket,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "set fire to the blanket"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 48
+  },
+  {
+   "label": "[supplement] round 1, prisoner: tie the blanket into a rope",
+   "kind": "S",
+   "site": "product",
+   "siteQuestion": "product_coverage",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+   "readsUncovered": false,
+   "uncoveredCount": 0,
+   "agreementAtSite": 1,
+   "mostCommonAtSite": "covered",
+   "uncoveredCitations": [],
+   "perQuestion": {
+    "target": {
+     "key": "blanket",
+     "agreement": 1
+    },
+    "coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "derive",
+     "agreement": 1
+    },
+    "product": {
+     "key": "strip",
+     "agreement": 1
+    },
+    "product_coverage": {
+     "key": "covered",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "blanket into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "strip",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "blanket into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "strip",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "thick and coarse,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "blanket into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "strip",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "thick and coarse,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "blanket into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "strip",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "thick and coarse,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "blanket",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "blanket into"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "derive",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie the blanket into a rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "strip",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product_coverage",
+      "key": "covered",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "rope"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": {
+       "sourceId": "desc:blanket",
+       "quote": "thick and coarse,"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": {
+       "sourceId": "intent",
+       "quote": "tie"
+      },
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 49
+  }
+ ]
+}

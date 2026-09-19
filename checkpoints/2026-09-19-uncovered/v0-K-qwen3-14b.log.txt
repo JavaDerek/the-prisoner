@@ -1,0 +1,29 @@
+V0 form K, N=5, referee qwen3:14b at http://doris:11434/v1, 19 requests, started 2026-09-19T20:10:18.818Z
+U effect  effect           derive      80%  unc 0/5  129s  round 1, prisoner: dig under the loose_tile
+U effect  effect           reveal      100%  unc 0/5  46s  round 1, prisoner: dig under the loose_tile with my fingers
+U product product          none        100%  unc 0/5  46s  round 1, prisoner: Bend the spoon into a hook
+U product product          none        100%  unc 0/5  69s  round 7, prisoner: Continue bending the spoon to form a more
+C effect  effect           reveal      100%  unc 0/5  43s  round 1, prisoner: Pry up the loose tile to see what's under
+C effect  effect           reveal      100%  unc 0/5  47s  round 2, prisoner: Dig through the loose tile to see if ther
+C effect  effect           open        100%  unc 0/5  53s  round 1, prisoner: Use the spoon to push the door's bolt bac
+C effect  effect           conceal     100%  unc 0/5  41s  round 19, prisoner: Use the loose tile to hide the spoon und
+C effect  effect           wear        100%  unc 0/5  41s  round 1, prisoner: Use the spoon to strike the lock repeated
+C effect  effect           leave       100%  unc 0/5  39s  round 11, prisoner: Climb through the open door
+N effect  effect           wear        100%  unc 0/5  46s  round 6, prisoner: Use the spoon and grit from the loose_til
+N effect  effect           wear        100%  unc 0/5  43s  round 1, prisoner: Use the spoon to strike the window's bar 
+X effect  effect           wear        100%  unc 0/5  58s  [excluded] round 1, prisoner: Try to bend the spoon to see i
+X effect  effect           reveal      100%  unc 0/5  97s  [excluded] round 1, prisoner: Bend the spoon to see if it ca
+X effect  effect           wear        100%  unc 0/5  45s  [excluded] round 23, prisoner: Use the grit from the loose t
+S effect  effect           reveal      80%  unc 0/5  89s  [supplement] round 1, prisoner: scrape down through the floo
+S effect  effect           close       100%  unc 0/5  43s  [supplement] round 1, prisoner: wedge the spoon under the do
+S effect  effect           wear        100%  unc 0/5  43s  [supplement] round 1, prisoner: set fire to the blanket
+S product product          strip       100%  unc 0/5  44s  [supplement] round 1, prisoner: tie the blanket into a rope
+
+RECALL (recorded U): 0/4 read uncovered  [kill: < 3/4]
+PRECISION (C+N): 0/8 read uncovered  [kill: any]
+INSTABILITY FLAGS (C+N with >=2/5 uncovered, not majority): 0
+STABILITY: 12/12 counted items at >= 80% agreement at site  [kill: < 80% of items]
+SUPPLEMENT (invented, reported separately): 0/4 read uncovered
+EXCLUDED (reported, never counted): round 1, prisoner: Try to bend the spoo -> covered (0/5); round 1, prisoner: Bend the spoon to se -> covered (0/5); round 23, prisoner: Use the grit from t -> covered (0/5)
+VERDICT for form K on qwen3:14b: DEAD (§4.5)
+results: /Users/derekferguson/rpg/the-prisoner/checkpoints/2026-09-19-uncovered/results-K-qwen3_14b-2026-09-19T20-10-18-817Z.json  (18 min)

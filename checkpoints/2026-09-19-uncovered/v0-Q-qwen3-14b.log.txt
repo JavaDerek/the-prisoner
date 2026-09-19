@@ -1,0 +1,29 @@
+V0 form Q, N=5, referee qwen3:14b at http://doris:11434/v1, 19 requests, started 2026-09-19T20:28:02.860Z
+U effect  coverage         covered     100%  unc 0/5  52s  round 1, prisoner: dig under the loose_tile
+U effect  coverage         covered     100%  unc 0/5  54s  round 1, prisoner: dig under the loose_tile with my fingers
+U product product_coverage uncovered   100%  unc 5/5  85s  round 1, prisoner: Bend the spoon into a hook  <- "hook" | "hook" | "hook" | "hook" | "hook"
+U product product_coverage uncovered   80%  unc 4/5  49s  round 7, prisoner: Continue bending the spoon to form a more  <- "a more precise hook" | "a more precise hook" | "a more precise hook" | "a more precise hook"
+C effect  coverage         covered     100%  unc 0/5  74s  round 1, prisoner: Pry up the loose tile to see what's under
+C effect  coverage         covered     100%  unc 0/5  66s  round 2, prisoner: Dig through the loose tile to see if ther
+C effect  coverage         covered     100%  unc 0/5  57s  round 1, prisoner: Use the spoon to push the door's bolt bac
+C effect  coverage         covered     100%  unc 0/5  49s  round 19, prisoner: Use the loose tile to hide the spoon und
+C effect  coverage         covered     100%  unc 0/5  52s  round 1, prisoner: Use the spoon to strike the lock repeated
+C effect  coverage         covered     100%  unc 0/5  47s  round 11, prisoner: Climb through the open door
+N effect  coverage         covered     100%  unc 0/5  51s  round 6, prisoner: Use the spoon and grit from the loose_til
+N effect  coverage         covered     100%  unc 0/5  52s  round 1, prisoner: Use the spoon to strike the window's bar 
+X effect  coverage         covered     100%  unc 0/5  55s  [excluded] round 1, prisoner: Try to bend the spoon to see i
+X effect  coverage         covered     100%  unc 0/5  50s  [excluded] round 1, prisoner: Bend the spoon to see if it ca
+X effect  coverage         covered     100%  unc 0/5  47s  [excluded] round 23, prisoner: Use the grit from the loose t
+S effect  coverage         covered     100%  unc 0/5  122s  [supplement] round 1, prisoner: scrape down through the floo
+S effect  coverage         covered     100%  unc 0/5  63s  [supplement] round 1, prisoner: wedge the spoon under the do
+S effect  coverage         covered     100%  unc 0/5  48s  [supplement] round 1, prisoner: set fire to the blanket
+S product product_coverage covered     100%  unc 0/5  49s  [supplement] round 1, prisoner: tie the blanket into a rope
+
+RECALL (recorded U): 2/4 read uncovered  [kill: < 3/4]
+PRECISION (C+N): 0/8 read uncovered  [kill: any]
+INSTABILITY FLAGS (C+N with >=2/5 uncovered, not majority): 0
+STABILITY: 12/12 counted items at >= 80% agreement at site  [kill: < 80% of items]
+SUPPLEMENT (invented, reported separately): 0/4 read uncovered
+EXCLUDED (reported, never counted): round 1, prisoner: Try to bend the spoo -> covered (0/5); round 1, prisoner: Bend the spoon to se -> covered (0/5); round 23, prisoner: Use the grit from t -> covered (0/5)
+VERDICT for form Q on qwen3:14b: DEAD (§4.5)
+results: /Users/derekferguson/rpg/the-prisoner/checkpoints/2026-09-19-uncovered/results-Q-qwen3_14b-2026-09-19T20-28-02-859Z.json  (19 min)

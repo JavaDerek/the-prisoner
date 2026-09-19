@@ -1,0 +1,4 @@
+[20:10:18] V0 start, code 828a9cd
+[20:28:02] K done exit 0
+[20:46:44] Q done exit 0
+[20:46:44] V0 COMPLETE

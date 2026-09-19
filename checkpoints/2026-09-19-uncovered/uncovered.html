@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prisoner Prompt Lab — uncovered</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdad4; --good:#1f7a4d; --bad:#b3362b; --accent:#2f5bd3; --warn:#8a5a00; --hi:#fff3c4; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 -apple-system, system-ui, sans-serif; }
+  main { max-width: 1500px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap:16px; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  h1 { font-size:18px; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 12px; }
+  h2 { font-size:14px; margin:14px 0 6px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  label { color:var(--muted); font-size:12px; }
+  input, select { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:#fff; max-width:100%; }
+  textarea { width:100%; font:12.5px/1.45 ui-monospace, Menlo, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; background:#fff; }
+  #prompt { height:52vh; }
+  button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  .note { background:#fffdf5; border:1px solid #efe3c0; color:var(--warn); border-radius:8px; padding:9px 11px; font-size:12.5px; margin-bottom:12px; }
+  .tally { font-size:15px; font-weight:600; margin:6px 0 10px; } .tally span { font-weight:400; color:var(--muted); font-size:12.5px; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; margin-bottom:8px; }
+  th, td { text-align:left; padding:4px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:500; }
+  tr.site td { background:var(--hi); }
+  td.key { font-family: ui-monospace, Menlo, monospace; }
+  .unc { color:var(--good); font-weight:600; } .cov { color:var(--muted); }
+  .card { border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin-bottom:8px; background:#fff; }
+  .card.good { border-left:5px solid var(--good); } .card.bad { border-left:5px solid var(--bad); } .card.meh { border-left:5px solid var(--line); }
+  .pill { display:inline-block; padding:1px 7px; border-radius:999px; font-size:11.5px; border:1px solid var(--line); margin-right:4px; }
+  .pill.U { background:#eef2fd; color:var(--accent); border-color:#c7d4f7; } .pill.C, .pill.N { background:#eaf5ef; color:var(--good); border-color:#bfe0cd; } .pill.X, .pill.S { background:#f2f1ee; color:var(--muted); }
+  code { background:#f2f1ee; padding:1px 4px; border-radius:4px; font-size:12px; }
+  .muted { color:var(--muted); font-size:12.5px; }
+  details summary { cursor:pointer; color:var(--muted); font-size:12.5px; }
+  pre { white-space:pre-wrap; font-size:11.5px; background:#f7f7f5; padding:8px; border-radius:6px; max-height:30vh; overflow:auto; }
+  .edited { color:var(--warn); font-size:12px; }
+</style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>Uncovered</h1>
+    <p class="sub">V0's exact referee prompts (WORLD-ELABORATION-DESIGN-2.md §4), what qwen3:14b actually answered five times, and a box to try to make it say "I have no term for this". Edit the prompt, run, compare.</p>
+
+    <div class="note">
+      <b>One model at a time.</b> This posts straight to doris, which fits one model. If a batch is running there, wait. The game's referee settings are the defaults here: <code>temperature 0</code>, no response schema, thinking ON (no <code>reasoning_effort</code>), one user message.
+    </div>
+
+    <div class="row">
+      <label>form</label>
+      <select id="form"><option value="K">K — uncovered as a key in the list</option><option value="Q" selected>Q — a separate coverage question</option></select>
+      <label>item</label>
+      <select id="item"></select>
+    </div>
+    <div class="row">
+      <label>model</label><input id="model" value="qwen3:14b" size="14">
+      <label>runs</label><select id="runs"><option selected>1</option><option>3</option><option>5</option></select>
+      <label>temp</label><input id="temp" value="0" size="3">
+      <label><input type="checkbox" id="think" checked> thinking on</label>
+      <button class="primary" id="go">Run</button>
+      <button id="reset">Restore V0's prompt</button>
+      <span id="edited" class="edited"></span>
+    </div>
+
+    <div id="meta" class="muted"></div>
+
+    <h2>Separate call <span class="muted">— the bit it gets wrong, on its own: intent + one question, no ruling in sight</span></h2>
+    <div class="row">
+      <label><input type="checkbox" id="withdesc"> include the target's description as a second source</label>
+      <button id="build">Build separate-call prompt →</button>
+      <span class="muted">replaces the box below; the answer table reads <code id="sepq">coverage</code></span>
+    </div>
+    <textarea id="cq" style="height:12vh"></textarea>
+
+    <h2>The prompt, byte-exact as sent <span class="muted">— edit anything; the answer table below reads the question ids and keys from the JSON the model returns, not from this text</span></h2>
+    <textarea id="prompt"></textarea>
+  </section>
+
+  <section class="panel">
+    <h2 style="margin-top:0">What V0 got back <span class="muted">— five replies at temperature 0, the labelled site highlighted</span></h2>
+    <div id="v0"></div>
+
+    <h2>Your runs</h2>
+    <div class="tally" id="tally">—</div>
+    <div id="out"></div>
+  </section>
+</main>
+
+<script>
+const ENDPOINT = "http://doris:11434/v1/chat/completions";
+const $ = (id) => document.getElementById(id);
+let DATA = null, current = null;
+
+fetch("uncovered-prompts.json").then((r) => r.json()).then((d) => { DATA = d; fillItems(); });
+
+function fillItems() {
+  const form = $("form").value;
+  const sel = $("item"); sel.innerHTML = "";
+  DATA[form].forEach((it, i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = `${it.kind} · ${it.site} · ${it.label.replace(/^\[(\w+)\] /, "[$1] ").replace(/round \d+, prisoner: /, "")}`;
+    sel.appendChild(o);
+  });
+  load();
+}
+function load() {
+  const form = $("form").value; current = DATA[form][Number($("item").value)];
+  $("prompt").value = current.prompt; $("edited").textContent = ""; sepQuestionId = null; $("sepq").textContent = current.siteQuestion;
+  $("cq").value = defaultCq();
+  $("meta").innerHTML = `<span class="pill ${current.kind}">${current.kind}</span> site <code>${current.site}</code> → question <code>${current.siteQuestion}</code> · recorded as <code>${current.source}</code>`;
+  renderV0(); $("out").innerHTML = ""; $("tally").textContent = "—";
+}
+$("form").onchange = fillItems; $("item").onchange = load;
+
+// The separate call. Same header and answer-format lines the game uses
+// (refereeTransport.ts buildPrompt), one or two sources, one question.
+let sepQuestionId = null;
+function numbered(text) { return wordsOf(text).map((w, i) => `${i + 1}:${text.slice(w[0], w[1])}`).join(" "); }
+function keysOf(qid) { return (current.questions.find((q) => q.id === qid) || { answerKeys: [] }).answerKeys.filter((k) => k !== "uncovered"); }
+function defaultCq() {
+  if (current.site === "product") {
+    return `If the actor ends up holding a new thing made from something in the cell, is that thing one of the declared kinds: ${keysOf("product").filter((k) => k !== "none").join(", ")}? Answer covered if one of them names it, or if the actor makes no new thing at all; uncovered if the actor makes a thing none of them names. Cite the words of the intent that name what is made.`;
+  }
+  return `The referee can rule on these kinds of effect and no others: ${keysOf("effect").filter((k) => k !== "none").join(", ")}. Is what the actor's intent attempts named by one of those kinds? Answer covered if one of them names what is being done; uncovered if what is being done is not one of them, whatever it might lead to. Cite the words of the intent that name what is attempted.`;
+}
+function targetId() {
+  const r = current.v0 && current.v0.replies[0]; const t = r && r.find((a) => a.q === "target");
+  return t && t.key !== "none" ? t.key : null;
+}
+$("build").onclick = () => {
+  const intent = current.sources.find((s) => s.id === "intent");
+  const qid = current.site === "product" ? "product_coverage" : "coverage";
+  sepQuestionId = qid; $("sepq").textContent = qid;
+  const blocks = [`source "intent":`, intent.text, `words: ${numbered(intent.text)}`, ""];
+  const t = targetId();
+  if ($("withdesc").checked && t) { const d = current.sources.find((s) => s.id === "desc:" + t); if (d) blocks.push(`source "${d.id}":`, d.text, `words: ${numbered(d.text)}`, ""); }
+  $("prompt").value = [
+    "You are ruling on one attempted action in a physical scene, as a referee -- not a character. Answer every question below.",
+    "", "SOURCES (the only text you may cite):", "", ...blocks, "QUESTIONS:",
+    `- id "${qid}": ${$("cq").value.trim()} Answer with exactly one of: covered, uncovered.`,
+    "",
+    'Answer with a JSON array, one entry per question: [{"questionId": string, "answerKey": string, "citation": {"sourceId": string, "from": number, "to": number}}, ...].',
+    '"sourceId" is a source\'s label exactly as written above, such as "intent" -- no brackets, nothing added.',
+    '"from" and "to" are the numbers of the first and last words of the span you cite in that source, as numbered above; for a single word, "from" and "to" are the same number.',
+    'A citation may instead give "quote" in place of "from" and "to".',
+    '"quote" is copied from that source character for character: the same capital letters and punctuation, one unbroken span, never shortened with "...", never paraphrased, and never empty.',
+  ].join("\n");
+  $("edited").textContent = "separate call — not V0's prompt";
+};
+$("reset").onclick = () => { $("prompt").value = current.prompt; $("edited").textContent = ""; sepQuestionId = null; $("sepq").textContent = current.siteQuestion; };
+$("prompt").addEventListener("input", () => { $("edited").textContent = $("prompt").value === current.prompt ? "" : "edited — not V0's prompt"; });
+
+// Display only (lexical, mirrors refereeTransport.ts's numbering): rebuild a
+// cited span from a word range so a citation can be read.
+function wordsOf(text) { const w = []; let s = -1; for (let i = 0; i <= text.length; i++) { const sp = i === text.length || text[i].trim() === ""; if (!sp && s < 0) s = i; else if (sp && s >= 0) { w.push([s, i]); s = -1; } } return w; }
+function spanOf(cite) {
+  if (!cite) return "";
+  const src = current.sources.find((s) => s.id === cite.sourceId);
+  if (cite.quote) return `${cite.sourceId}: "${cite.quote}"`;
+  if (!src || typeof cite.from !== "number") return JSON.stringify(cite);
+  const w = wordsOf(src.text); const a = w[cite.from - 1], b = w[Math.min(cite.to, w.length) - 1];
+  return a && b ? `${cite.sourceId} ${cite.from}-${cite.to}: "${src.text.slice(a[0], b[1])}"` : JSON.stringify(cite);
+}
+
+function answersTable(rows, siteQ) {
+  const tr = rows.map((a) => `<tr class="${a.q === siteQ ? "site" : ""}"><td>${a.q}</td><td class="key ${a.key === "uncovered" ? "unc" : "cov"}">${a.key}${a.fromDefault ? " <span class=muted>(safe default — nothing accepted)</span>" : ""}</td><td>${spanOf(a.cite)}</td></tr>`).join("");
+  return `<table><tr><th>question</th><th>answer</th><th>citation</th></tr>${tr}</table>`;
+}
+function renderV0() {
+  const v = current.v0;
+  if (!v) { $("v0").innerHTML = "<div class=muted>no V0 result recorded for this item</div>"; return; }
+  const pq = v.perQuestion[current.siteQuestion] || {};
+  const n = v.replies.length, unc = v.replies.filter((r) => (r.find((a) => a.q === current.siteQuestion) || {}).key === "uncovered").length;
+  const want = current.kind === "U" || current.kind === "S";
+  const cls = want ? (unc >= 3 ? "good" : "bad") : (unc === 0 ? "good" : "bad");
+  let html = `<div class="card ${cls}"><b>${current.siteQuestion}</b> → <code>${pq.key}</code> ${Math.round((pq.agreement || 0) * 100)}% of ${n}; <span class="${unc ? "unc" : "cov"}">uncovered ${unc}/${n}</span> <span class=muted>(${want ? "wanted uncovered" : "wanted quiet"})</span></div>`;
+  v.replies.forEach((r, i) => { html += `<details ${i === 0 ? "open" : ""}><summary>reply ${i + 1}</summary>${answersTable(r, current.siteQuestion)}</details>`; });
+  $("v0").innerHTML = html;
+}
+
+// Same tolerant parse as refereeTransport.ts's firstJsonArray, for display.
+function firstJsonArray(text) {
+  try { const w = JSON.parse(text); if (Array.isArray(w)) return w; } catch {}
+  const s = text.indexOf("["); if (s < 0) return null; let d = 0;
+  for (let i = s; i < text.length; i++) { if (text[i] === "[") d++; else if (text[i] === "]") { d--; if (d === 0) { try { const p = JSON.parse(text.slice(s, i + 1)); return Array.isArray(p) ? p : null; } catch { return null; } } } }
+  return null;
+}
+const qidOf = (q) => { const m = /^id "([^"]+)"$/.exec(q || ""); return m ? m[1] : q; };
+
+let runs = [];
+async function ask(prompt) {
+  const body = { model: $("model").value.trim(), temperature: Number($("temp").value), stream: false, tools: [], messages: [{ role: "user", content: prompt }] };
+  if (!$("think").checked) body.reasoning_effort = "none";
+  const t0 = performance.now();
+  const res = await fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await res.json();
+  const m = j?.choices?.[0]?.message || {};
+  return { content: m.content ?? "", reasoning: m.reasoning_content || m.reasoning || "", secs: Math.round((performance.now() - t0) / 1000) };
+}
+$("go").onclick = async () => {
+  const n = Number($("runs").value), prompt = $("prompt").value, edited = prompt !== current.prompt;
+  const siteQ = sepQuestionId || current.siteQuestion;
+  $("go").disabled = true; runs = []; $("out").innerHTML = ""; $("tally").textContent = "running…";
+  for (let i = 0; i < n; i++) {
+    let rep; try { rep = await ask(prompt); } catch (e) { rep = { content: "", reasoning: "", error: String(e), secs: 0 }; }
+    const arr = firstJsonArray(rep.content) || [];
+    const rows = arr.map((a) => ({ q: qidOf(a.questionId), key: a.answerKey, cite: a.citation }));
+    const site = rows.find((r) => r.q === siteQ);
+    runs.push({ rows, site, rep });
+    const cls = site?.key === "uncovered" ? "good" : "meh";
+    $("out").insertAdjacentHTML("beforeend", `<div class="card ${cls}"><div><b>run ${i + 1}</b> · ${rep.secs}s${edited ? " · <span class=edited>edited prompt</span>" : ""} · <b>${siteQ}</b> → <code>${site ? site.key : "(no answer for this question)"}</code>${rep.error ? " · <span class=unc style='color:var(--bad)'>" + rep.error + "</span>" : ""}</div>${answersTable(rows, siteQ)}<details><summary>raw reply${rep.reasoning ? " + hidden reasoning" : ""}</summary><pre>${rep.content.replace(/</g, "&lt;")}</pre>${rep.reasoning ? "<pre>" + rep.reasoning.replace(/</g, "&lt;") + "</pre>" : ""}</details></div>`);
+    const unc = runs.filter((r) => r.site?.key === "uncovered").length;
+    $("tally").innerHTML = `uncovered ${unc}/${runs.length} at <code>${siteQ}</code> <span>(V0 got ${current.v0 ? current.v0.replies.filter((r) => (r.find((a) => a.q === current.siteQuestion) || {}).key === "uncovered").length + "/" + current.v0.replies.length : "—"})</span>`;
+  }
+  $("go").disabled = false;
+};
+</script>
+</body>
+</html>

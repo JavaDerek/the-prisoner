@@ -5709,3 +5709,79 @@ as a property of the prose without that in view.
 A test page for the two questions is committed beside the transcripts (`dig.html`, and the byte-exact
 round-1 prompt it loads): it runs her wits call and then the referee's own `property` question on
 whatever she proposes, so a wording can be tried against both halves at once.
+
+## 67. V0: the `uncovered` reading at prompt level -- both forms dead, and the shape that is not (2026-09-19, evening)
+
+Design: `docs/WORLD-ELABORATION-DESIGN-2.md` §4. Prediction, instrument, request files, results and the
+lab page: `checkpoints/2026-09-19-uncovered/`. Code revision `828a9cd`, `src/` unchanged. No game ran and
+nothing was loaded: `qwen3:14b` was resident and is the referee under test.
+
+### 67.1 What was asked
+
+Nineteen recorded referee requests from the 2026-09-19-elaboration sidecars, labelled by a human before
+the first call (Appendix C, confirmed by the owner): four that should read `uncovered` (two digs at
+`effect`, two "bend the spoon into a hook" turns at `product`), six cleanly modelled, two modelled but
+ungrounded (the welded-bar scrapes -- `wear` is covered, the bar has no property), three ambiguous
+(replayed, never counted), four invented (reported separately, never pooled). Each replayed N=5 at
+temperature 0, thinking ON, in two forms: **K**, `uncovered` added as a key inside `effect`'s and
+`product`'s own lists; **Q**, a separate `coverage` question after `target` and a `product_coverage`
+question after `product`. Kill numbers pre-committed: recall < 3/4, any false positive, or < 80% of
+items at >= 80% agreement.
+
+### 67.2 What came back
+
+| | K | Q |
+|---|---|---|
+| recall (recorded U) | **0/4** | **2/4** -- both at `product` |
+| precision (C+N, labelled site) | 0/8 | 0/8 |
+| precision at `product` on the 17 non-hook items | 0/17 | 0/17 |
+| stability (counted items at >= 80%) | 12/12 | 12/12 |
+| supplement (invented) | 0/4 | 0/4 |
+| `uncovered` anywhere, all replies | **0 of 95** | 9 of 95, all on the two hooks |
+| wall clock | 18 min | 19 min |
+| verdict (§4.5) | **DEAD** | **DEAD** |
+
+**K reproduces the-prisoner#17's `absent` exactly:** a legal key, true for the case, never chosen -- the
+hook read `none` 10/10 with `uncovered` sitting beside it. One side effect worth keeping: merely adding
+the key moved the first dig's base ruling from `reveal` to `derive` with product `grit` at 4/5. Offering
+the option changed the ruling without ever being taken.
+
+**Q split by site.** Asked as its own question, the model said "no declared kind is a hook" 5/5 and 4/5,
+citing "hook" and "a more precise hook", and stayed `covered` on every other item at that site including
+the invented rope (absorbed into `strip`, arguably right). At `effect` it said `covered` on every one of
+the six positives, recorded and invented alike: digging, scraping down through the floor, wedging the
+door, setting fire to the blanket. Actions absorb; things being made do not.
+
+Both forms are dead by the numbers written before the first call, and no label was changed afterwards.
+
+### 67.3 The owner's question, and the shape that reads
+
+The owner, reading the prompt: it carries eleven descriptions with their numbered words and nine
+questions, and the coverage question is one line among them. *Can the decisions it gets right be taken
+as read, and the one it gets wrong asked as a separate call?* Tried by hand from the lab page
+(`uncovered.html`), same model and settings, one source and one question:
+
+- **"dig under the loose_tile" -> `uncovered` 5/5**, citing "dig", three to four seconds each. The same
+  intent read `covered` 5/5 under Q and `reveal`/`derive` 5/5 under K ninety minutes earlier.
+- The stated-aim trap held: "Dig through the loose tile to see if there's anything hidden underneath"
+  -> `covered`, citing the aim. It is not keying on the word "dig".
+- "Pry up the loose tile" -> `covered`.
+- **The welded-bar scrape -> `uncovered`, citing "scrape".** A false positive: scraping is `wear`. The
+  separate question lists the kinds as bare words; the game's effect question glosses each one. That
+  is the open item, and it is the owner's to futz with (`separate-call-hand-runs.md`).
+
+Three findings, in order of weight. **The reading is reachable on this model**, which V0 could not
+show. **It is reachable as a small separate call, not as a line in the big one** -- a witness that is
+not its own judge, costing one extra three-to-seven-second call per half-round, which is the same cost
+the `need` request already pays. **The extra call cannot be gated on failure**, because the whole
+finding is that the big ruling does not fail on the case it misses; it runs every half-round, and the
+hook case reaches it for free because that ruling already fails at `product`.
+
+### 67.4 What this does not yet establish
+
+n=5 on one positive and n=1 on three traps, by hand, is a lead and not a number. The next step is the
+one §4 prescribes for any new form: the wording that closes the scrape gap goes into a new
+`PREDICTION.md` as form **S**, replayed over the whole labelled set at the same kill numbers, and only
+a pass proceeds to the arm. The design's D8 (per-question, `effect` and `product`) stands; what changes
+if S passes is *where the question is asked*: its own request, not the base one -- which also leaves
+the base request byte-identical with no arm needed on it at all.

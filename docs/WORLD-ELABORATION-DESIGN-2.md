@@ -12,6 +12,18 @@ sidecar); run-dmcp `cc7de48` = `0.9.0`; mind-seam `0.5.0`; mother-of-invention `
 `run-dmcp@0.5.0` and `mind-seam@0.5.0`. doris held `qwen3:14b` resident while this was written and
 also holds `qwen3.5:27b`, `gemma4:31b` and `deepseek-r1:32b`, which matters for §4.6.
 
+**Addendum, 2026-09-19 evening, after V0 ran (OPEN-VARIANT.md §67).** Both pre-committed forms are
+**dead** on `qwen3:14b` by §4.5's own numbers: K recall 0/4 (the #17 result reproduced -- a legal key,
+never chosen), Q recall 2/4, both at the `product` site, none at `effect`. Precision was 0/8 for both.
+What the run could not show, the owner then found by hand from the lab page: the same dig reads
+`uncovered` 5/5 when the coverage question is asked **as its own small request** -- one source, one
+question -- rather than as a line among nine questions under eleven descriptions. Two of three traps
+held; the welded-bar scrape over-fired on "scrape", which is the open item. That shape is **form S**,
+not designed below: it is a separate request per half-round (the `need` request's shape and cost), it
+cannot be gated on failure, and it leaves the base request byte-identical. It proceeds only through a
+new `PREDICTION.md` at the same kill numbers. Everything below is kept as written; §4.3's "form P" is
+the nearest relative of S and the reason S was not tried first is in §4.3's own last paragraph.
+
 Read order for a building session: root `~/rpg/CLAUDE.md`; `run-dmcp/CLAUDE.md` hard rules 1, 2 and 4;
 the predecessor in full; OPEN-VARIANT.md §64–§66; then this file. Each repository's own `CLAUDE.md`
 governs inside it and nothing here overrides one.
