@@ -5203,7 +5203,7 @@ side of a narration — so the audit usually costs a generation and no GPU swap.
 narrator again. Every cut sentence and its reason goes into the transcript, which is the evidence for
 whether this verifier earns its generation.
 
-## 64. The route is the room's topology, and an act must be advertised before it is thinkable (2026-09-19)
+## 64. The route is the room's topology, and an object needs properties before its uses are thinkable (2026-09-19)
 
 Raw captures, every prompt variant, and the batch script: `checkpoints/2026-09-19-condition-and-affordance/`.
 All of it is round 1, `qwen3:14b`, temperature 0.9, `reasoning_effort` unset (the setting every game has
@@ -5347,7 +5347,30 @@ artifact?).
 
 The generalisable rule is one sentence and it is the engine's, not this game's:
 
-> **Give an object manipulable properties, not just a function.**
+> **Give an object physical properties. Not just its role in the furniture.**
+
+**Measured as a gradient, n=10 per level, window open (candidacy is the sensitive metric):**
+
+| level | the cot's wire, described as | `derive_cand` |
+|---|---|---|
+| 0 -- function only | "the springs are held to the frame by twists of wire" | **0/10** |
+| 1 -- physical properties only | "...each a hand's length of thin soft iron" | **6/10** |
+| 2 -- a manipulation named | "...thin enough to untwist by hand" | **9/10** |
+| 3 -- a purpose named | "wire you could pick the lock with" | never needed, never tested |
+
+**0 against 6 is the finding. 6 against 9 is inside the noise at this n.** Physical properties alone --
+gauge, length, material, no verb and no purpose -- take an object from never-considered to
+considered-most-of-the-time. Naming a manipulation may add a little on top; ten runs cannot say.
+
+**This is why the intrigue objection does not bite.** Level 3 is the lame one -- "a tube that could be
+made into a shotgun barrel" hands the player the plan and spends the discovery. Nothing here needs it.
+Level 1 is ordinary physical description, which is simply good prose, and the mind does the whole
+inferential leap unaided: at level 2 she invented "pick the lock" herself, and the lock's keyhole is on
+the corridor side, so it was not even a good idea. **The author writes the object. The mind writes the use.**
+
+And the mechanism is probably not about affordances at all. At level 0 the wire is not an object -- it is
+a fact about how the cot is assembled, a property of the furniture. Giving it a gauge and a length makes
+it a *thing*, and things can be picked up. The rule is about what counts as an object in the room.
 
 **An earlier draft of this section said "describe an object by what can be done to it," and that wording is
 wrong enough to do damage.** It reads as *name the use*, which is the failure mode that makes prose lame --
