@@ -5407,7 +5407,7 @@ there without walking into a lose condition, which is exactly where the non-reas
 very first real-prompt run (it chose to RAISE warden suspicion, its own `thoughts` contradicting its
 `intent`).
 
-### 64.8 The second object replicates the direction and collapses the magnitude
+### 64.8 The second object replicates -- and shows which level is the reliable lever
 
 The blanket's loose thread, same design, n=10 per level, thinking off:
 
@@ -5430,15 +5430,36 @@ shapeable, bendable, becomes-something. *"Coarse woollen yarn"* implies soft and
 never chosen in any condition, including while she was actively hunting for a tool, because in a cell whose
 only lock is unreachable a thread affords nothing.
 
-**So §64.6's rule as first written -- "give an object physical properties" -- is too strong.** This arm
-existed to decide whether the finding reached the engine's authoring guide, and it caught an over-general
-rule before it got there. The surviving version has two clauses:
+### 64.8a Both objects in one table, which is the reading that matters
 
-> **Properties make an object thinkable only when they imply what it could become.
-> Utility decides whether it is ever chosen.**
+| level | cot -- wire | blanket -- thread |
+|---|---|---|
+| **L0** function only / not mentioned | **0/10** | **0/10** |
+| **L1** properties only | **6/10** | **1/10** |
+| **L2** a manipulation named | **9/10** | **5/10** |
 
-Adding properties to nouns is not a mechanical fix. Which nouns deserve them is a design judgment, and this
-is now a weaker claim than the one committed an hour earlier and considerably more likely to be true.
+**Nothing collapsed, and an earlier draft of this section said it did.** Read across both objects:
+
+- **L0 is a floor at exactly zero**, twice. Twenty runs, never once considered.
+- **L2 produces a large jump on both**, 0->9 and 0->5.
+- **L1 is the only level where the objects diverge**, 6/10 against 1/10.
+
+**§64.6 got the lever backwards, and this arm is what shows it.** That section generalised from the wire
+and claimed properties alone are enough. When L1 failed on the blanket the first draft here swung to "there
+is no mechanical rule at all". Both are wrong: **L2 is the reliable lever -- it worked on both objects.**
+L1 is the one that depends on whether the material already implies a use. Iron wire is tool stock and
+carries its own implication; wool yarn does not and has to be told.
+
+The blanket number is the stronger of the two, not the weaker: she considers picking up a thread **half the
+time**, in a cell where a thread is good for nothing, because one clause says it can be pulled free.
+
+**What stays separate is choice.** The wire is chosen 6/10 once the window is welded. The thread is chosen
+**0/10 in every condition run tonight**, including while she was hunting for a tool. So:
+
+> **Description controls whether an act is CONSIDERED. Utility controls whether it is TAKEN.**
+> Two axes, each confirmed on two objects, and they do not substitute for each other.
+
+That is a mechanical authoring rule after all -- at L2, naming the manipulation, not at L1.
 
 **What this means for `run-dmcp/docs/AUTHORING-GUIDE.md`** (root `CLAUDE.md` names the five files that move
 together): the lesson is still worth writing, but as *"describe the objects that could matter with
