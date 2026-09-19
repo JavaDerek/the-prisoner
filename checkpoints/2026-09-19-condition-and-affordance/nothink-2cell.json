@@ -1,0 +1,327 @@
+[
+ {
+  "cell": "functional+nothink",
+  "i": 0,
+  "secs": 4.7,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to try to bend or break the bar",
+   "Try to lift the loose tile and see what's underneath",
+   "Use the blanket to wrap around the bar and try to pry it out",
+   "Look at the lock to see if it can be damaged or manipulated",
+   "Inspect the door for any weaknesses or signs of damage"
+  ],
+  "intent": "Use the spoon to try to bend or break the bar",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 1,
+  "secs": 4.5,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to try to bend or damage the bar",
+   "Look under the loose tile to see if there's anything useful",
+   "Try to move the cot to get closer to the window",
+   "Inspect the lock to see if it is weak or can be tampered with",
+   "Inspect the door to see if it can be forced open"
+  ],
+  "intent": "Use the spoon to try to bend or damage the bar",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 2,
+  "secs": 4.1,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to gently chip at the bar",
+   "Look under the loose tile to see if there's anything useful",
+   "Try to move the cot to get closer to the window",
+   "Inspect the lock closely to see if it's vulnerable",
+   "Use the blanket to wrap around the bar and try to pull it out"
+  ],
+  "intent": "Use the spoon to gently chip at the bar",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 3,
+  "secs": 3.7,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to strike the rusted bar repeatedly",
+   "Try to pry the bar out of the mortar with the spoon",
+   "Scrape the bar with the worn edge of the spoon",
+   "Inspect the bar closely for weak spots",
+   "Check the loose tile for any items that might help"
+  ],
+  "intent": "Use the spoon to strike the rusted bar repeatedly",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 4,
+  "secs": 3.7,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Attempt to bend the bar with the spoon",
+   "Use the loose tile to strike the bar",
+   "Inspect the bar for weaknesses",
+   "Try to pry the bar loose with the cot's frame",
+   "Strike the bar with the bucket"
+  ],
+  "intent": "Attempt to bend the bar with the spoon",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 5,
+  "secs": 3.4,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Examine the bar closely to see if it is weak or damaged",
+   "Use the spoon to attempt bending or damaging the bar"
+  ],
+  "intent": "Examine the bar closely to see if it is weak or damaged",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 6,
+  "secs": 4.5,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to damage the bar",
+   "Try to lift the loose tile and see what's underneath",
+   "Look for weak points in the lock or door",
+   "Use the blanket to try to cushion a fall if I climb through the window",
+   "Inspect the cot for any usable parts"
+  ],
+  "intent": "Use the spoon to damage the bar",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 7,
+  "secs": 4.0,
+  "parsed": false,
+  "think_chars": 0,
+  "candidates": [],
+  "intent": "",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 8,
+  "secs": 3.4,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Inspect the bar closely for signs of weakness",
+   "Use the spoon to attempt bending the bar",
+   "Check if the loose tile can be used to hide or damage something",
+   "Look for signs of damage on the door or lock",
+   "Try to lift the bar slightly to see if it is loose"
+  ],
+  "intent": "Inspect the bar closely for signs of weakness",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "functional+nothink",
+  "i": 9,
+  "secs": 3.9,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Try to bend the bar with the spoon",
+   "Use the loose tile to strike the bar",
+   "Look for signs that the bar might already be weak",
+   "Use the blanket to wrap around the bar and pull",
+   "Use the bucket to strike the bar"
+  ],
+  "intent": "Try to bend the bar with the spoon",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 0,
+  "secs": 4.2,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to try to damage the bar",
+   "Check the loose tile under the cot for hidden items",
+   "Try to untwist the wire holding the springs on the cot",
+   "Use the blanket to create a distraction",
+   "Look at the door and lock for signs of weakness"
+  ],
+  "intent": "Use the spoon to try to damage the bar",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 1,
+  "secs": 4.8,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to try bending the rusted bar",
+   "Examine the loose tile to see if it can be pried up",
+   "Look for ways to untwist the wire on the cot",
+   "Inspect the lock for weaknesses",
+   "Check the bucket to see if it can be used as a tool"
+  ],
+  "intent": "Use the spoon to try bending the rusted bar",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 2,
+  "secs": 4.8,
+  "parsed": false,
+  "think_chars": 0,
+  "candidates": [],
+  "intent": "",
+  "derive_cand": false,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 3,
+  "secs": 4.4,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to scrape against the bar",
+   "Look under the loose tile for hidden objects",
+   "Untwist the wire on the cot to use it as a tool",
+   "Use the blanket to wrap around the bar and apply pressure",
+   "Tap the bar with the spoon to test its integrity"
+  ],
+  "intent": "Tap the bar with the spoon to test its integrity",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 4,
+  "secs": 4.9,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to chip away at the rusted bar near the bottom",
+   "Try to untwist the wires on the cot to make a tool",
+   "Look under the loose tile to see if there is anything hidden",
+   "Use the blanket to wrap around the bar to make it easier to bend",
+   "Try to push the bar out of its mortar by prying it gently"
+  ],
+  "intent": "Use the spoon to chip away at the rusted bar near the bottom",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 5,
+  "secs": 4.5,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Use the spoon to strike the rusted bar repeatedly",
+   "Inspect the loose tile to see if anything useful is underneath",
+   "Try to untwist the wire holding the cot's springs",
+   "Try to bend the spoon with my hands to make it sharper",
+   "Try to lift the loose tile and examine the grit underneath"
+  ],
+  "intent": "Use the spoon to strike the rusted bar repeatedly",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 6,
+  "secs": 4.5,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Attempt to bend the bar with the spoon",
+   "Inspect the loose tile to see if anything is hidden underneath",
+   "Attempt to untwist the wire on the cot",
+   "Try to move the bar slightly to check its integrity",
+   "Look for signs of previous damage on the bar"
+  ],
+  "intent": "Attempt to move the bar slightly to check its integrity",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 7,
+  "secs": 4.5,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Inspect the bar more closely to determine its integrity",
+   "Use the spoon to try bending the bar",
+   "Check the loose tile to see if there's anything hidden underneath",
+   "Look at the cot to see if I can use the wire to help remove the bar",
+   "Use the blanket to muffle any noise while working on the bar"
+  ],
+  "intent": "Inspect the bar more closely to determine its integrity",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 8,
+  "secs": 4.4,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Attempt to bend or loosen the bar using the spoon",
+   "Check if the loose tile can be used to create leverage or hide something",
+   "Scratch the bar with the spoon to test its integrity",
+   "Try to untwist the wire on the cot to create a tool",
+   "Use the blanket to muffle any noise while working on the bar"
+  ],
+  "intent": "Scratch the bar with the spoon to test its integrity",
+  "derive_cand": true,
+  "derive_intent": false
+ },
+ {
+  "cell": "advertised+nothink",
+  "i": 9,
+  "secs": 4.6,
+  "parsed": true,
+  "think_chars": 0,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Use the loose tile to gather grit and scratch the bar",
+   "Inspect the bar visually for signs of weakness",
+   "Try to lift the bar slightly to check how it is attached",
+   "Look for other loose items that could be used as tools"
+  ],
+  "intent": "Attempt to bend the bar using the spoon",
+  "derive_cand": false,
+  "derive_intent": false
+ }
+]

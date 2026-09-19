@@ -5384,8 +5384,29 @@ description was its *role in the furniture* (it holds the springs on) and it had
 with not one word of prose changed. An author who does not want to advertise can instead make the obvious
 route non-dominant.
 
+### 64.7 The effect does not need reasoning at all
+
+Same two cells at `reasoning_effort: "none"`, n=10 each, window open, thinking verified off (0 reasoning
+chars on every run):
+
+| | thinking ON | thinking OFF |
+|---|---|---|
+| function only | 0/10 | **0/10** |
+| properties advertised | 9/10 | **8/10** |
+
+8 against 9 is noise at this n. **A mind doing zero deliberation notices the property and considers the act
+at the same rate as one burning 7,000 characters of reasoning** -- and does it in 4.4s instead of 15-25s.
+
+This is a cleaner generality test than the `qwen2.5:14b` arm that was planned, because it holds the model
+constant: same weights, same prompt, thinking the only variable, no model confound. **The rule is about how
+minds read prose, not about how hard they think.**
+
+It also sharpens §64's convergence finding. Thinking does not widen the candidate set -- 0/10 stays 0/10
+without it and 9/10 stays 8/10 with it. What thinking buys is the *coherence* to act on what is already
+there without walking into a lose condition, which is exactly where the non-reasoning model failed on the
+very first real-prompt run (it chose to RAISE warden suspicion, its own `thoughts` contradicting its
+`intent`).
+
 This is `run-dmcp/docs/AUTHORING-GUIDE.md` material and root `CLAUDE.md` names the five files that move
-together when it lands. Two arms are still unrun and both bear on whether it belongs there: the same 2x2
-advertising the **blanket's loose thread** (a rule, or a quirk of the cot?), and the key cells on
-**`qwen2.5:14b`**, which cannot reason at all. The second matters most -- if the clause moves a mind with
-no reasoning, the rule is about how minds read prose rather than a qwen3 finding.
+together when it lands. One arm still bears on it: the same 2x2 advertising the **blanket's loose thread**
+instead of the cot's wire -- a rule about objects, or a quirk of this one object?
