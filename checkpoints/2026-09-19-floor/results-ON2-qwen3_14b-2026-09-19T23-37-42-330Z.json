@@ -1,17 +1,17 @@
 {
- "arm": "ON",
+ "arm": "ON2",
  "n": 5,
  "model": "qwen3:14b",
  "baseUrl": "http://doris:11434/v1",
  "thinking": "off",
- "started": "2026-09-19T23:33:52.339Z",
+ "started": "2026-09-19T23:37:42.331Z",
  "results": [
   {
    "label": "D: dig under the loose_tile",
    "kind": "D",
    "intent": "dig under the loose_tile",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "loose_tile",
     "agreement": 1,
@@ -348,7 +348,7 @@
    "kind": "D",
    "intent": "dig under the loose_tile with my fingers",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "loose_tile",
     "agreement": 1,
@@ -384,11 +384,11 @@
      "concealment": 5
     },
     "cites": [
-     "beneath it",
-     "beneath it",
-     "beneath it",
-     "beneath it",
-     "beneath it"
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is"
     ]
    },
    "perQuestion": {
@@ -447,7 +447,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -498,7 +498,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -549,7 +549,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -600,7 +600,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -651,7 +651,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -685,7 +685,7 @@
    "kind": "D",
    "intent": "scrape down through the floor with the spoon",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "floor",
     "agreement": 1,
@@ -721,11 +721,11 @@
      "integrity": 5
     },
     "cites": [
-     "loose",
-     "loose",
-     "loose",
-     "loose",
-     "loose"
+     "loose enough to",
+     "loose enough to",
+     "loose enough to",
+     "loose enough to",
+     "loose enough to"
     ]
    },
    "perQuestion": {
@@ -751,7 +751,7 @@
     },
     "perceptibility": {
      "key": "visible",
-     "agreement": 0.8
+     "agreement": 1
     },
     "instrument": {
      "key": "spoon",
@@ -784,58 +784,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose",
-      "fromDefault": false,
-      "rejected": 0
-     },
-     {
-      "q": "magnitude",
-      "key": "moderate",
-      "cite": "scrape",
-      "fromDefault": false,
-      "rejected": 0
-     },
-     {
-      "q": "perceptibility",
-      "key": "silent",
-      "cite": "scrape",
-      "fromDefault": false,
-      "rejected": 0
-     },
-     {
-      "q": "instrument",
-      "key": "spoon",
-      "cite": "the spoon",
-      "fromDefault": false,
-      "rejected": 0
-     }
-    ],
-    [
-     {
-      "q": "target",
-      "key": "floor",
-      "cite": "the floor",
-      "fromDefault": false,
-      "rejected": 0
-     },
-     {
-      "q": "effect",
-      "key": "wear",
-      "cite": "scrape",
-      "fromDefault": false,
-      "rejected": 0
-     },
-     {
-      "q": "product",
-      "key": "none",
-      "cite": "scrape",
-      "fromDefault": false,
-      "rejected": 0
-     },
-     {
-      "q": "property",
-      "key": "integrity",
-      "cite": "loose",
+      "cite": "loose enough to",
       "fromDefault": false,
       "rejected": 0
      },
@@ -886,7 +835,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose",
+      "cite": "loose enough to",
       "fromDefault": false,
       "rejected": 0
      },
@@ -937,7 +886,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose",
+      "cite": "loose enough to",
       "fromDefault": false,
       "rejected": 0
      },
@@ -988,7 +937,58 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose",
+      "cite": "loose enough to",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "the spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "floor",
+      "cite": "the floor",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "loose enough to",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1022,7 +1022,7 @@
    "kind": "D",
    "intent": "dig an escape tunnel",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "floor",
     "agreement": 1,
@@ -1031,10 +1031,10 @@
     },
     "cites": [
      "dig an escape tunnel",
-     "dig",
-     "dig",
-     "dig",
-     "dig"
+     "dig an escape tunnel",
+     "dig an escape tunnel",
+     "dig an escape tunnel",
+     "dig an escape tunnel"
     ]
    },
    "effect": {
@@ -1052,11 +1052,11 @@
      "integrity": 5
     },
     "cites": [
-     "loose enough to",
-     "loose enough to",
-     "loose enough to",
-     "loose enough to",
-     "loose enough to"
+     "loose enough to scrape and dig away by hand,",
+     "loose enough to scrape and dig away by hand,",
+     "loose enough to scrape and dig away by hand,",
+     "loose enough to scrape and dig away by hand,",
+     "loose enough to scrape and dig away by hand,"
     ]
    },
    "perQuestion": {
@@ -1114,7 +1114,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose enough to",
+      "cite": "loose enough to scrape and dig away by hand,",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1144,7 +1144,7 @@
      {
       "q": "target",
       "key": "floor",
-      "cite": "dig",
+      "cite": "dig an escape tunnel",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1164,7 +1164,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose enough to",
+      "cite": "loose enough to scrape and dig away by hand,",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1194,7 +1194,7 @@
      {
       "q": "target",
       "key": "floor",
-      "cite": "dig",
+      "cite": "dig an escape tunnel",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1214,7 +1214,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose enough to",
+      "cite": "loose enough to scrape and dig away by hand,",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1244,7 +1244,7 @@
      {
       "q": "target",
       "key": "floor",
-      "cite": "dig",
+      "cite": "dig an escape tunnel",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1264,7 +1264,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose enough to",
+      "cite": "loose enough to scrape and dig away by hand,",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1294,7 +1294,7 @@
      {
       "q": "target",
       "key": "floor",
-      "cite": "dig",
+      "cite": "dig an escape tunnel",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1314,7 +1314,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "loose enough to",
+      "cite": "loose enough to scrape and dig away by hand,",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1348,7 +1348,7 @@
    "kind": "T",
    "intent": "Dig through the loose tile to see if there's anything hidden underneath.",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "loose_tile",
     "agreement": 1,
@@ -1384,11 +1384,11 @@
      "concealment": 5
     },
     "cites": [
-     "beneath it",
-     "beneath it",
-     "beneath it",
-     "beneath it",
-     "beneath it"
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is"
     ]
    },
    "perQuestion": {
@@ -1447,7 +1447,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1498,7 +1498,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1549,7 +1549,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1600,7 +1600,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1651,7 +1651,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1685,7 +1685,7 @@
    "kind": "T",
    "intent": "Pry up the loose tile to see what's underneath",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "loose_tile",
     "agreement": 1,
@@ -1707,11 +1707,11 @@
      "reveal": 5
     },
     "cites": [
-     "see what's underneath",
-     "see what's underneath",
-     "see what's underneath",
-     "see what's underneath",
-     "see what's underneath"
+     "to see what's underneath",
+     "to see what's underneath",
+     "to see what's underneath",
+     "to see what's underneath",
+     "to see what's underneath"
     ]
    },
    "property": {
@@ -1770,14 +1770,14 @@
      {
       "q": "effect",
       "key": "reveal",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
      {
       "q": "product",
       "key": "none",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1821,14 +1821,14 @@
      {
       "q": "effect",
       "key": "reveal",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
      {
       "q": "product",
       "key": "none",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1872,14 +1872,14 @@
      {
       "q": "effect",
       "key": "reveal",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
      {
       "q": "product",
       "key": "none",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1923,14 +1923,14 @@
      {
       "q": "effect",
       "key": "reveal",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
      {
       "q": "product",
       "key": "none",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
@@ -1974,14 +1974,14 @@
      {
       "q": "effect",
       "key": "reveal",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
      {
       "q": "product",
       "key": "none",
-      "cite": "see what's underneath",
+      "cite": "to see what's underneath",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2022,7 +2022,7 @@
    "kind": "T",
    "intent": "Scratch the loose tile to see if I can uncover something useful beneath it",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "loose_tile",
     "agreement": 1,
@@ -2058,11 +2058,11 @@
      "concealment": 5
     },
     "cites": [
-     "beneath it",
-     "beneath it",
-     "beneath it",
-     "beneath it",
-     "beneath it"
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is"
     ]
    },
    "perQuestion": {
@@ -2121,7 +2121,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2172,7 +2172,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2223,7 +2223,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2274,7 +2274,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2325,7 +2325,7 @@
      {
       "q": "property",
       "key": "concealment",
-      "cite": "beneath it",
+      "cite": "beneath it is",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2359,7 +2359,7 @@
    "kind": "T",
    "intent": "Use the spoon and grit from the loose_tile to scrape the window bar's weld again",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "bar",
     "agreement": 1,
@@ -2696,7 +2696,7 @@
    "kind": "T",
    "intent": "Use the spoon to strike the window's bar repeatedly",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "bar",
     "agreement": 1,
@@ -2704,11 +2704,11 @@
      "bar": 5
     },
     "cites": [
-     "window's",
-     "window's",
-     "window's",
-     "window's",
-     "window's"
+     "the",
+     "the",
+     "the",
+     "the",
+     "the"
     ]
    },
    "effect": {
@@ -2774,7 +2774,7 @@
      {
       "q": "target",
       "key": "bar",
-      "cite": "window's",
+      "cite": "the",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2825,7 +2825,7 @@
      {
       "q": "target",
       "key": "bar",
-      "cite": "window's",
+      "cite": "the",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2876,7 +2876,7 @@
      {
       "q": "target",
       "key": "bar",
-      "cite": "window's",
+      "cite": "the",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2927,7 +2927,7 @@
      {
       "q": "target",
       "key": "bar",
-      "cite": "window's",
+      "cite": "the",
       "fromDefault": false,
       "rejected": 0
      },
@@ -2978,7 +2978,7 @@
      {
       "q": "target",
       "key": "bar",
-      "cite": "window's",
+      "cite": "the",
       "fromDefault": false,
       "rejected": 0
      },
@@ -3026,14 +3026,14 @@
      }
     ]
    ],
-   "secs": 17
+   "secs": 18
   },
   {
    "label": "T: Use the spoon to push the door's bolt back",
    "kind": "T",
    "intent": "Use the spoon to push the door's bolt back",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "door",
     "agreement": 1,
@@ -3363,14 +3363,14 @@
      }
     ]
    ],
-   "secs": 17
+   "secs": 18
   },
   {
    "label": "T: Use the spoon to strike the lock repeatedly",
    "kind": "T",
    "intent": "Use the spoon to strike the lock repeatedly",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "lock",
     "agreement": 1,
@@ -3406,11 +3406,11 @@
      "integrity": 5
     },
     "cites": [
-     "A steel",
-     "A steel",
-     "A steel",
-     "A steel",
-     "A steel"
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
     ]
    },
    "perQuestion": {
@@ -3469,7 +3469,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "A steel",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
       "fromDefault": false,
       "rejected": 0
      },
@@ -3520,7 +3520,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "A steel",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
       "fromDefault": false,
       "rejected": 0
      },
@@ -3571,7 +3571,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "A steel",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
       "fromDefault": false,
       "rejected": 0
      },
@@ -3622,7 +3622,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "A steel",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
       "fromDefault": false,
       "rejected": 0
      },
@@ -3673,7 +3673,7 @@
      {
       "q": "property",
       "key": "integrity",
-      "cite": "A steel",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
       "fromDefault": false,
       "rejected": 0
      },
@@ -3707,7 +3707,7 @@
    "kind": "T",
    "intent": "Use the loose tile to hide the spoon under it",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "loose_tile",
     "agreement": 1,
@@ -4037,14 +4037,14 @@
      }
     ]
    ],
-   "secs": 17
+   "secs": 18
   },
   {
    "label": "T: Bend the spoon into a hook",
    "kind": "T",
    "intent": "Bend the spoon into a hook",
    "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
-   "arm": "ON",
+   "arm": "ON2",
    "target": {
     "key": "spoon",
     "agreement": 1,
@@ -4080,7 +4080,7 @@
      "edge": 5
     },
     "cites": [
-     "bend",
+     "thin enough",
      "bend",
      "bend",
      "bend",
@@ -4143,7 +4143,7 @@
      {
       "q": "property",
       "key": "edge",
-      "cite": "bend",
+      "cite": "thin enough",
       "fromDefault": false,
       "rejected": 0
      },
