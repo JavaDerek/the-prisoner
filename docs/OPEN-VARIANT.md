@@ -5562,3 +5562,91 @@ This is the second time the same shape has appeared: §64.5 found an available a
 the obvious route was open, and §50.7 found a priced route declined while a free one stood. A room meant
 to test whether a mind will pay for a route has to have no unpaid route left in it, and checking that
 costs one game.
+
+### 66.3 The build run: 38 pairs priced before any game (§4.2a)
+
+`npm run price-world` against a clean tree, `qwen3:14b`, N=5 per pair, **no intent in existence**. The
+whole point of the step is that the price is read from each object's authored description alone, so an
+actor's words can never reach it.
+
+| band | pairs |
+|---|---|
+| `hard` | 26 |
+| `trivial` | 4 |
+| `review` (below 5/5) | 8 |
+| `impossible` | **0** |
+| `ruinous` | **0** |
+
+**Zero `impossible` and zero `ruinous`, against a design that expected most pairs to read `impossible`
+on the first read** (§4.2a: "most of which are `impossible` on the first read"). The read is not
+discriminating between materials the way the band vocabulary assumes: welded stone, a steel tray and a
+wool blanket mostly all came back `hard`. §7's provider facade exists for exactly this question — bind
+the `difficulty` role to a stronger backend and re-read, fifteen minutes, no game — and it has not been
+done.
+
+All 8 review rows were 4/5 splits with a single dissenting reply, set by the owner to the majority and
+committed as author-set rows carrying their split (§4.2a's own procedure: a second roll would be
+fishing for agreement the first run declined to give). **(loose_tile, integrity) = `trivial`,
+model-read 5/5**, citing *"cracked across one corner."* — §4.8's own gating number, and not
+`impossible`, so the cells could run.
+
+### 66.4 The cells that ran, and why the rest did not
+
+| cell | n | predicted | actual | |
+|---|---|---|---|---|
+| A (open, round 1) | 10 | fired ≤ 2/10 | **fired 0/10, acquired 0/10** | held |
+| B (welded, round 1) | 10 | fired ≥ 6/10, acquired ≥ 3/10 | **fired 0/10 (prisoner), acquired 0/10** | **falsified** |
+| C1 (welded, 30 rounds, `trivial`) | **1 of 5** | pursued ≥ 3/5 | fired 7, acquired 0, pursued 0 | **stopped** |
+| C2, C3, D, E | 0 | — | **not run** | — |
+
+**There is no elasticity reading.** It is the ordering across C1/C2/C3 and two of those cells never ran.
+D5's verdict is therefore **not delivered** — neither "a price she will pay" nor §50.7 generalised. What
+follows is why spending four more hours would not have delivered it either.
+
+**A held by its predicted mechanism.** Her opening act — *"Try to bend the bar"* — is ruled **possible**,
+so no ruling fails and nothing can fire. §64's anchor, reproduced.
+
+**B's falsification is the useful one, because §4.8's pre-named diagnosis for it is wrong.** The design
+named the failure as *"`need` never lands on the pair; read the citations before touching the prompt."*
+The request never fired at all. In all ten games her round-1 act was ruled possible: pry the tile, lift
+the tile, bend the spoon. **Welding does not make her fail; it makes her do something else that works** —
+§64.3's "released exploration" arriving as a trigger problem. Elaboration triggers only on a *failed*
+ruling, and at round one she does not fail. The failures live later: P0's OFF game was ruled impossible
+17 of 30 times, every one of them in rounds 4-30, after she had committed to a plan the world could not
+support. **The round-1 cells are structurally near-blind to this mechanism.**
+
+### 66.5 Why the sweep was stopped, which is the finding
+
+One C1 game ran, 30 rounds at thinking ON, and answered three things at once.
+
+**The trigger fires well over thirty rounds.** Seven times in one game (five on her half-round, two on
+the warden's). Whatever else is wrong, elaboration is not a dead code path in real play.
+
+**Acquisition is reachable for one `need` key in four.** §4.3 authored band→numbers for `integrity`
+alone ("Proposed defaults for `integrity` acquired on a thing to be worn through"), so `edge`,
+`concealment` and `passage` fire, cite, verify — and then acquire nothing, because there are no numbers
+to acquire with. This is a **content gap in the design, not a defect in the code**, and the
+implementation documents it where it refuses. Six of the seven firings were `need: none` on the welded
+bar, correctly ungroundable and citing *"sound stone. It does not move."*; the seventh landed
+`need: edge` on the door, verified, and died at that gate.
+
+**And the priced door is still a working route.** She wore the lock from 100 to 30 over ten rounds and
+walked out at round 11. This does not contradict §50.7 so much as bound it: that section measured a
+priced door declined **while the window was open**, where the door was never worth attacking. Weld the
+window and the priced door becomes the *best* route, and she pays for it without hesitation.
+
+So the room still contains a route that works without elaboration, and the C cells would have measured
+*"she had a route that worked"* — which is §64.5 for the third time — rather than what an elaborated
+route costs. D5's own falsifier would have fired for the wrong cause, and a flat curve would have been
+read as a finding about the mind when it was a fact about the room. **The owner's decision, 2026-09-19:
+stop, and do not spend four hours confirming a confound already identified.**
+
+**What this costs and what it buys.** It costs the elasticity number, which remains unmeasured. It buys
+the knowledge that the question needs a room in which *nothing* works without elaboration — and that
+building one is scenario design, not band tuning. Twice now an instrument has been fixed and the
+dominant route has simply moved: window → free door → priced door. A room meant to ask whether a mind
+will pay for a route has to have no cheaper route left in it, and each time we have checked, one was
+still there.
+
+**Not retuned (D5).** No band was changed after seeing any of this. The `trivial` reading for
+(loose_tile, integrity) stands exactly as the build run wrote it.
