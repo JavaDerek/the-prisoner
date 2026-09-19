@@ -1,0 +1,2980 @@
+[
+ {
+  "label": "round 1, prisoner: dig under the loose_tile",
+  "kind": "U",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "dig under the loose_tile"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 1, prisoner: dig under the loose_tile with my fingers",
+  "kind": "U",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Dig/2026-09-19T18-06-15-124Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "dig under the loose_tile with my fingers"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 1, prisoner: Bend the spoon into a hook",
+  "kind": "U",
+  "site": "product",
+  "source": "2026-09-19-elaboration/2026-09-19T14-27-57-863Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Bend the spoon into a hook"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 7, prisoner: Continue bending the spoon to form a more precise hook",
+  "kind": "U",
+  "site": "product",
+  "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Continue bending the spoon to form a more precise hook"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 1, prisoner: Pry up the loose tile to see what's underneath",
+  "kind": "C",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/B/2026-09-19T14-57-27-743Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Pry up the loose tile to see what's underneath"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 2, prisoner: Dig through the loose tile to see if there's anything hidden underneath.",
+  "kind": "C",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Dig through the loose tile to see if there's anything hidden underneath."
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 1, prisoner: Use the spoon to push the door's bolt back",
+  "kind": "C",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Bon/2026-09-19T16-49-58-586Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Use the spoon to push the door's bolt back"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 19, prisoner: Use the loose tile to hide the spoon under it",
+  "kind": "C",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Use the loose tile to hide the spoon under it"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 1, prisoner: Use the spoon to strike the lock repeatedly",
+  "kind": "C",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Bon/2026-09-19T16-53-27-855Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Use the spoon to strike the lock repeatedly"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 11, prisoner: Climb through the open door",
+  "kind": "C",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/C1/2026-09-19T15-00-02-592Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Climb through the open door"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap. It stands open now."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 6, prisoner: Use the spoon and grit from the loose_tile to scrape the window bar's weld again",
+  "kind": "N",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/C1/2026-09-19T15-00-02-592Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Use the spoon and grit from the loose_tile to scrape the window bar's weld again"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "round 1, prisoner: Use the spoon to strike the window's bar repeatedly",
+  "kind": "N",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Bon/2026-09-19T16-58-59-863Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Use the spoon to strike the window's bar repeatedly"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "[excluded] round 1, prisoner: Try to bend the spoon to see if it can be used for something",
+  "kind": "X",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/B/2026-09-19T14-58-02-858Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Try to bend the spoon to see if it can be used for something"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "[excluded] round 1, prisoner: Bend the spoon to see if it can fit through the window bars",
+  "kind": "X",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/B/2026-09-19T14-58-19-621Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Bend the spoon to see if it can fit through the window bars"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "[excluded] round 23, prisoner: Use the grit from the loose tile to refine the spoon's edge in secret",
+  "kind": "X",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/2026-09-19T14-10-58-610Z.referee.json",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Use the grit from the loose tile to refine the spoon's edge in secret"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "[supplement] round 1, prisoner: scrape down through the floor with the spoon",
+  "kind": "S",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "scrape down through the floor with the spoon"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "[supplement] round 1, prisoner: wedge the spoon under the door to jam it shut",
+  "kind": "S",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "wedge the spoon under the door to jam it shut"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "[supplement] round 1, prisoner: set fire to the blanket",
+  "kind": "S",
+  "site": "effect",
+  "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "set fire to the blanket"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ },
+ {
+  "label": "[supplement] round 1, prisoner: tie the blanket into a rope",
+  "kind": "S",
+  "site": "product",
+  "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json (intent text replaced)",
+  "request": {
+   "questions": [
+    {
+     "id": "target",
+     "prompt": "Which object, if any, does the actor's intent act on? Answer with the object's id, or 'none' if the intent names no object the actor can reach or perceive. An intent that goes out through a way out acts on that way out: name it, never none. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "effect",
+     "prompt": "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose (lower concealment), noise (a perceptible event with no state change), open (make a way out passable in one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; wear is for damage or dulling with no way out as its goal. An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear. For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. derive (make a new thing from part of the target and keep it: a length of wire from the cot, a strip of wool from the blanket, a handful of grit from the loose tile, a hook from the length of wire, a cord from the strip of wool) is for an act whose aim is to have the piece afterwards; wear is for damage that leaves nothing in hand. Cite the exact words in the actor's intent that describe the action. If none of the kinds above names what the intent attempts, answer uncovered and cite the words of the intent that name what is attempted.",
+     "answerKeys": [
+      "wear",
+      "restore",
+      "reveal",
+      "conceal",
+      "expose",
+      "noise",
+      "open",
+      "close",
+      "leave",
+      "derive",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "product",
+     "prompt": "If the effect is derive, which declared kind of thing does the actor make from the target? One of: wire (a length of wire, from the cot), strip (a strip of wool, from the blanket), grit (a handful of grit, from the loose tile), or none. Answer none for every other effect. Cite the exact words in the actor's intent that name what is made. If the effect is derive and none of the kinds above names what is made, answer uncovered and cite the words of the intent that name what is made.",
+     "answerKeys": [
+      "wire",
+      "strip",
+      "grit",
+      "none",
+      "uncovered"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "property",
+     "prompt": "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none (none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. Or concealment for what may be hidden in, under or beneath it. The properties each object has: window: passage; bar: none; door: passage; lock: integrity; spoon: edge, concealment; loose_tile: concealment; cot: integrity; blanket: integrity; bucket: none; meal_tray: none; key_ring: none. Name only a property the target has; if it has none that fits, answer none. An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). Cite the exact words in the TARGET OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+     "answerKeys": [
+      "integrity",
+      "edge",
+      "concealment",
+      "passage",
+      "none"
+     ],
+     "safeDefault": "none"
+    },
+    {
+     "id": "magnitude",
+     "prompt": "How large is the effect: slight, moderate, or substantial? Cite the exact words in the actor's intent that show how much force, time or care goes into it.",
+     "answerKeys": [
+      "slight",
+      "moderate",
+      "substantial"
+     ],
+     "safeDefault": "slight"
+    },
+    {
+     "id": "perceptibility",
+     "prompt": "Is the effect silent, audible, or visible to someone else present? Cite the exact words in the actor's intent that show how it would or would not be noticed.",
+     "answerKeys": [
+      "silent",
+      "audible",
+      "visible"
+     ],
+     "safeDefault": "silent"
+    },
+    {
+     "id": "instrument",
+     "prompt": "Which object, if any, does the actor's intent use as a tool to carry out the effect -- something worked WITH, not the thing worked on? Answer with its id if it is among what the actor currently perceives or holds, 'none' if the intent uses no such tool, or 'absent' if it names a tool that is not among those objects. Cite the exact words in the actor's intent that name it.",
+     "answerKeys": [
+      "window",
+      "bar",
+      "door",
+      "lock",
+      "spoon",
+      "loose_tile",
+      "cot",
+      "blanket",
+      "bucket",
+      "meal_tray",
+      "key_ring",
+      "none",
+      "absent"
+     ],
+     "safeDefault": "none"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "tie the blanket into a rope"
+    },
+    {
+     "id": "desc:window",
+     "text": "A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing."
+    },
+    {
+     "id": "desc:bar",
+     "text": "An iron bar welded into the window's grid, set flush in sound stone. It does not move."
+    },
+    {
+     "id": "desc:door",
+     "text": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+    },
+    {
+     "id": "desc:lock",
+     "text": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    },
+    {
+     "id": "desc:spoon",
+     "text": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+    },
+    {
+     "id": "desc:loose_tile",
+     "text": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+    },
+    {
+     "id": "desc:cot",
+     "text": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+    },
+    {
+     "id": "desc:blanket",
+     "text": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+    },
+    {
+     "id": "desc:bucket",
+     "text": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+    },
+    {
+     "id": "desc:meal_tray",
+     "text": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+    },
+    {
+     "id": "desc:key_ring",
+     "text": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+    }
+   ]
+  }
+ }
+]
