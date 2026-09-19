@@ -2,6 +2,7 @@ import type { Resolver } from "run-dmcp";
 import type { OpenWorld } from "./world.js";
 import type { Referee } from "./referee.js";
 import type { ElaborationReferee } from "./elaborationReferee.js";
+import type { ElaborationBandRow, DifficultyBand } from "./elaborationBands.js";
 import type { OpenMind } from "./mind.js";
 import { runOpenHalfRound, type OpenHalfRoundResult, type KnownApproach } from "./loop.js";
 import { seenAttempts } from "./precedent.js";
@@ -57,6 +58,11 @@ export async function runOpenGame(params: {
    *  `PRISONER_ELABORATE=off` (the default) -- passed through to every
    *  half-round unchanged, never rebuilt per round. */
   elaborationReferee?: ElaborationReferee;
+  /** WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: the build-time band table
+   *  a fired elaboration is priced against, and Appendix C's forced-band
+   *  override -- both passed through to every half-round unchanged. */
+  elaborationBands?: readonly ElaborationBandRow[];
+  forcedElaborationBand?: DifficultyBand;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
   const presenceMode = params.presenceMode ?? "off";
@@ -94,6 +100,8 @@ export async function runOpenGame(params: {
         mind: minds[principal],
         presenceMode,
         ...(params.elaborationReferee ? { elaborationReferee: params.elaborationReferee } : {}),
+        ...(params.elaborationBands ? { elaborationBands: params.elaborationBands } : {}),
+        ...(params.forcedElaborationBand ? { forcedElaborationBand: params.forcedElaborationBand } : {}),
         ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
         ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []).map((k) => k.text), ...seenAttempts(halves)], ...(params.pick.regenerate ? { regenerate: true } : {}) } } : {}),
         ...(principal === "prisoner" && params.pick?.onReplan

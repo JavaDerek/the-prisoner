@@ -269,20 +269,27 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
       lines.push("```");
     }
   }
-  // WORLD-ELABORATION-DESIGN.md §4.1/§4.2, §9 row P1b: present only when the
+  // WORLD-ELABORATION-DESIGN.md §4.1/§4.2, §9 row P2: present only when the
   // base ruling did not apply and the `PRISONER_ELABORATE` arm asked the
-  // second, separate elaboration request -- fires and logs only, nothing is
-  // applied to the world yet (P2's own job).
+  // second, separate elaboration request.
   if (half.elaboration) {
     const e = half.elaboration;
-    lines.push(
-      `**Elaboration considered:** need \`${e.need}\`, ${citationCell(e.citation.citation)} (${e.citation.verified ? "verified" : "not verified"}). Fires and logs only -- nothing acquired.`
-    );
+    lines.push(`**Elaboration considered:** need \`${e.need}\`, ${citationCell(e.citation.citation)} (${e.citation.verified ? "verified" : "not verified"}).`);
     // The free consistency measurement (§4.1): only meaningful when the base
     // ruling actually named a property (the `plan === null` path) -- never
     // used to decide anything here or anywhere else.
     if (half.ruling && half.ruling.property !== "none") {
       lines.push(`  - agreement with the base ruling's own property (\`${half.ruling.property}\`): ${e.need === half.ruling.property ? "agrees" : "disagrees"}.`);
+    }
+    if (half.acquired) {
+      const a = half.acquired;
+      lines.push(`  - **acquired:** \`${a.objectId}.${a.need}\`, band \`${a.band}\` (${a.bandSource}), start value ${a.startValue}.`);
+      // Appendix C: `PRISONER_ELABORATE_BAND` overrides which band applied --
+      // shown ONLY when it actually changed something, so the override can
+      // never be mistaken for the world's own reading.
+      if (a.band !== a.builtBand) lines.push(`  - Elaboration band: forced \`${a.band}\` (built: \`${a.builtBand}\`).`);
+    } else {
+      lines.push("  - nothing acquired.");
     }
   }
   const learns = renderOwnOutcome(half);

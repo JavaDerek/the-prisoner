@@ -86,9 +86,15 @@ function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): numbe
 }
 
 /** OPEN-VARIANT.md §33.8: the authored description, then the reading of every
- *  property whose current value declares one (`OpenObjectProperty.reads`). */
+ *  property whose current value declares one (`OpenObjectProperty.reads`).
+ *  WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: a property acquired this
+ *  game (`openWorld.acquired`) reads exactly like a §4.1 one -- "a resource
+ *  is a resource" -- so it is simply appended to the static list before the
+ *  same fold runs; nothing below this line needed to change. */
 function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: number): string {
-  const readings = spec.properties.flatMap((property) => {
+  const acquiredProperties = openWorld.acquired.filter((a) => a.objectId === spec.id).map((a) => a.property);
+  const properties = [...spec.properties, ...acquiredProperties];
+  const readings = properties.flatMap((property) => {
     if (!property.reads && !property.readRanges) return [];
     const resourceId = resourceIdForProperty(openWorld, spec.id, property.key);
     const value = resourceId ? readNumericFact({ gameId: openWorld.base.gameId, t, entityId: resourceId, key: "value" }) : null;

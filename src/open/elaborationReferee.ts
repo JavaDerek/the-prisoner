@@ -178,8 +178,8 @@ export function elaborationHeaderLine(mode: ElaborateMode): string | null {
   return (
     "Elaboration: property (`PRISONER_ELABORATE=property`): a second, separate referee question, `need`, is asked " +
     "on a half-round whose base ruling did not apply, naming which property kind (if any) the target's own " +
-    "authored description could support (WORLD-ELABORATION-DESIGN.md §4.1, §4.2). Fires and logs only -- the " +
-    "price was read at build time (`npm run price-world`, `elaborationBands.ts`) and nothing is acquired yet " +
-    "(§9 row P1b)."
+    "authored description could support (WORLD-ELABORATION-DESIGN.md §4.1, §4.2). When `need` is grounded and the " +
+    "build-time table (`npm run price-world`, `elaborationBands.ts`) holds a priced band for the pair, the world " +
+    "acquires it in one resolution (`OPEN_ACQUIRE`, §4.4, §9 row P2); otherwise this fires and logs only."
   );
 }

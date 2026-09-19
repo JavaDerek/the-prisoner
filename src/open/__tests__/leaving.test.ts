@@ -24,6 +24,15 @@ import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
  * passable when its passage is open or when its part's integrity is spent.
  */
 
+/** `door`/`window` always carry a real passage resource -- only an
+ *  ELABORABLE_EXITS route (WORLD-ELABORATION-DESIGN.md §4.3, `acquiring.test.ts`)
+ *  ever has `null` (`world.ts`'s own `OpenExit.passageResourceId`). An
+ *  explicit check here, never `!`, so a genuine regression fails loudly. */
+function passageId(exit: { passageResourceId: string | null }): string {
+  if (exit.passageResourceId === null) throw new Error("expected a real passage resource, not an ELABORABLE_EXITS route");
+  return exit.passageResourceId;
+}
+
 function locationOf(characterId: string): string | null {
   return (getDatabase().prepare(`SELECT location_id AS v FROM characters WHERE id = ?`).get(characterId) as { v: string | null }).v;
 }
@@ -73,7 +82,7 @@ describe("leaving the cell (OPEN-VARIANT.md §12)", () => {
     const w = buildOpenWorld();
     expect(Object.keys(w.exits).sort()).toEqual(["door", "window"]);
     for (const exit of Object.values(w.exits)) {
-      expect(getResource(exit.passageResourceId)?.value).toBe(0);
+      expect(getResource(passageId(exit))?.value).toBe(0);
       expect(exit.destinationId).not.toBe(w.base.cellId);
     }
     expect(w.exits.door.destinationId).not.toBe(w.exits.window.destinationId);
@@ -89,9 +98,9 @@ describe("leaving the cell (OPEN-VARIANT.md §12)", () => {
     createTestDb();
     const w = buildOpenWorld();
     resolvePlan(w, plan(w, "open", "door", "passage"));
-    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(1);
+    expect(getResource(passageId(w.exits.door))?.value).toBe(1);
     resolvePlan(w, plan(w, "close", "door", "passage"));
-    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.door))?.value).toBe(0);
   });
 
   it("a principal can reveal a way out's passage: looking writes nothing, and is the only way to learn a way out stands open (#7)", () => {
@@ -154,9 +163,9 @@ describe("leaving the cell (OPEN-VARIANT.md §12)", () => {
     const w = buildOpenWorld();
     wearBarTo(w, OPEN_WINDOW_BAR_MAX); // §24: the window opens only once the bar is worn this far
     resolvePlan(w, plan(w, "open", "bar", "integrity"));
-    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(1);
+    expect(getResource(passageId(w.exits.window))?.value).toBe(1);
     resolvePlan(w, plan(w, "close", "lock", "integrity"));
-    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.door))?.value).toBe(0);
   });
 
   it("the door and the window are perceived by both principals, like every §4.1 object with no concealment (§17)", () => {
@@ -361,7 +370,7 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     createTestDb();
     const w = buildOpenWorld();
     const outcome = resolvePlan(w, plan(w, "open", "bar", "integrity"));
-    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.window))?.value).toBe(0);
     expect(outcome.result).toEqual(expect.objectContaining({ opened: false }));
     expect(outcome.transitions).toEqual([]);
   });
@@ -370,20 +379,20 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     createTestDb();
     const w = buildOpenWorld();
     resolvePlan(w, plan(w, "open", "window", "passage"));
-    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.window))?.value).toBe(0);
     wearBarTo(w, 51);
     resolvePlan(w, plan(w, "open", "window", "passage"));
-    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.window))?.value).toBe(0);
     wearBarTo(w, 50);
     resolvePlan(w, plan(w, "open", "window", "passage"));
-    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(1);
+    expect(getResource(passageId(w.exits.window))?.value).toBe(1);
   });
 
   it("the door has no threshold: the bolt pushed back through the gap still opens it through the lock at full integrity (the one real open, 2026-09-14)", () => {
     createTestDb();
     const w = buildOpenWorld();
     resolvePlan(w, plan(w, "open", "lock", "integrity"));
-    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(1);
+    expect(getResource(passageId(w.exits.door))?.value).toBe(1);
   });
 
   // OPEN-VARIANT.md §50 (issue #19): under `PRISONER_DOOR_PRICE=threshold` the
@@ -393,7 +402,7 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     createTestDb();
     const w = buildOpenWorld({ doorPrice: "threshold" });
     const outcome = resolvePlan(w, plan(w, "open", "lock", "integrity"));
-    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.door))?.value).toBe(0);
     expect(outcome.result).toEqual(expect.objectContaining({ opened: false }));
   });
 
@@ -402,10 +411,10 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     const w = buildOpenWorld({ doorPrice: "threshold" });
     wearLockTo(w, OPEN_DOOR_LOCK_MAX + 1);
     resolvePlan(w, plan(w, "open", "lock", "integrity"));
-    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.door))?.value).toBe(0);
     wearLockTo(w, OPEN_DOOR_LOCK_MAX);
     resolvePlan(w, plan(w, "open", "lock", "integrity"));
-    expect(getResource(w.exits.door.passageResourceId)?.value).toBe(1);
+    expect(getResource(passageId(w.exits.door))?.value).toBe(1);
   });
 
   it("close is never gated", () => {
@@ -415,7 +424,7 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     resolvePlan(w, plan(w, "open", "window", "passage"));
     wearBarTo(w, 0);
     resolvePlan(w, plan(w, "close", "bar", "integrity"));
-    expect(getResource(w.exits.window.passageResourceId)?.value).toBe(0);
+    expect(getResource(passageId(w.exits.window))?.value).toBe(0);
   });
 
   it("the actor is told the way out held, never that it opened or was already open", async () => {

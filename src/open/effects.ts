@@ -120,7 +120,7 @@ export function planEffect(params: {
   resourceIdFor: Readonly<Record<string, string>>;
   /** The cell's ways out (OPEN-VARIANT.md §12), keyed by the way-out object
    *  (§17.2), and who is acting -- both needed only by `leave`. */
-  exits?: Readonly<Record<string, { passageResourceId: string; integrityResourceId: string; destinationId: string; part: string; openWhenPartAtMost: number | null }>>;
+  exits?: Readonly<Record<string, { passageResourceId: string | null; integrityResourceId: string; destinationId: string; part: string; openWhenPartAtMost: number | null }>>;
   actorId?: string;
   /** Which properties an object declares -- the §4.1 table by default; a
    *  caller with a world hands in `declaredProperty` (`world.ts`) so an

@@ -193,6 +193,22 @@ export function assertElaborationBandsReady(rows: readonly ElaborationBandRow[] 
   throw new Error(`elaborationBands: cannot start with ${problems.length} unresolved row(s) -- ${named}. Run "npm run price-world", or set the review row by hand.`);
 }
 
+/**
+ * Appendix C's second arm, `PRISONER_ELABORATE_BAND`: unset (the default,
+ * meaning "the built table") or one of `DIFFICULTY_BANDS`. Overrides the
+ * table's own reading for every acquisition in the game -- `tryAcquire`
+ * (`loop.ts`) still requires a `priced` row to exist for the pair (a forced
+ * value never fabricates provenance from nothing); it only replaces which
+ * band that row's own numbers are read at. Exists for the §4.8 sweep and
+ * for nothing else (Appendix C: "the override exists for the sweep... and
+ * for nothing else").
+ */
+export function readElaborateBandMode(raw: string | undefined): DifficultyBand | undefined {
+  if (raw === undefined || raw === "") return undefined;
+  if ((DIFFICULTY_BANDS as readonly string[]).includes(raw)) return raw as DifficultyBand;
+  throw new Error(`PRISONER_ELABORATE_BAND: unrecognised value ${JSON.stringify(raw)} -- must be one of ${DIFFICULTY_BANDS.join(", ")}, or unset (the built table)`);
+}
+
 /** The price itself, for P1b's play-time lookup (§4.2: "The price is not
  *  asked here; it was read at build (§4.2a) and is a lookup."). `undefined`
  *  for anything not a clean `priced` row -- a caller that reaches here with

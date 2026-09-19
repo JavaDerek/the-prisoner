@@ -2,6 +2,7 @@ import { createItem, createLocation, createResource, declareBoundedConstraint, d
 import { buildWorld, type World } from "../world/setup.js";
 import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey, OPEN_PERSONS } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
+import { ELABORABLE_EXITS } from "./acquirableProperties.js";
 import type { Principal } from "../ledger/beliefs.js";
 
 /**
@@ -44,6 +45,27 @@ export interface OpenWorld {
    *  order. Kept out of `derived` so it leaves every briefing and every
    *  referee request, and kept at all so its id is never handed out again. */
   destroyed: DerivedObjectRecord[];
+  /** WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: every property acquired
+   *  this game onto an EXISTING §4.1 or derived object (never a whole new
+   *  object -- that is Tier 2, not built here). Registered by
+   *  `adoptAcquiredProperty` from an `OPEN_ACQUIRE` resolution's own
+   *  outcome. */
+  acquired: AcquiredPropertyRecord[];
+  /** §4.3's `ELABORABLE_EXITS`: the locations that table names by string
+   *  (`"corridor"`), resolved once at build time so no location id is
+   *  content -- `buildOpenWorld` creates them the same way it always has;
+   *  `adoptAcquiredProperty` only looks the id up here. */
+  namedLocations: Readonly<Record<string, string>>;
+}
+
+/** One property acquired onto an existing object (WORLD-ELABORATION-DESIGN.md
+ *  §4.4): which object, and the property itself -- shaped exactly like any
+ *  §4.1 property (`OpenObjectProperty`), so it is perceived, targeted and
+ *  believed about like one (`declaredProperty`/`declaredPropertyKeys` below,
+ *  `briefing.ts`'s `describedAsItStands`). */
+export interface AcquiredPropertyRecord {
+  objectId: string;
+  property: OpenObjectProperty;
 }
 
 /** One derived object (OPEN-VARIANT.md §13.3): an object like any other --
@@ -61,8 +83,11 @@ export interface DerivedObjectRecord {
 export interface OpenExit {
   /** The object whose `integrity` is §12's other way through (§17.2). */
   part: string;
-  /** The way out's own `passage`: 0 shut, 1 open. */
-  passageResourceId: string;
+  /** The way out's own `passage`: 0 shut, 1 open. `null` for an
+   *  ELABORABLE_EXITS route (§4.3): a dug or forced way has no explicit
+   *  "open" step of its own -- `OPEN_LEAVE` (`mechanics.ts`) treats a
+   *  `null` passage as never 1, so only the part's own integrity governs. */
+  passageResourceId: string | null;
   /** The part's integrity: spent (0) also makes the exit passable. */
   integrityResourceId: string;
   /** The location a principal who leaves through this exit is in. */
@@ -251,7 +276,7 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX),
   };
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [] };
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id } };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {
@@ -263,6 +288,13 @@ export function resourceIdForProperty(world: OpenWorld, objectId: string, proper
 export function declaredProperty(world: OpenWorld, objectId: string, key: string): OpenObjectProperty | undefined {
   const derived = world.derived.find((d) => d.id === objectId);
   if (derived) return derived.properties.find((p) => p.key === key);
+  // WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: a property acquired this
+  // game onto an EXISTING object -- checked before the static table, the
+  // same order `derived` already takes priority in, so a later ordinary
+  // wear/restore against it (§2: "Tier 1 makes acquirable facts actionable
+  // on first contact") is planned exactly like any §4.1 property.
+  const acquired = world.acquired.find((a) => a.objectId === objectId && a.property.key === key);
+  if (acquired) return acquired.property;
   // A person's own property exists only where this world actually built it
   // (the presence arm), so `off` keeps answering exactly as it always did.
   const person = OPEN_PERSONS.find((p) => p.id === objectId);
@@ -270,14 +302,18 @@ export function declaredProperty(world: OpenWorld, objectId: string, key: string
   return findProperty(objectId, key as OpenPropertyKey);
 }
 
-/** Every property key an object declares, derived in this game or §4.1 --
- *  what the referee's property question lists per object (OPEN-VARIANT.md §24). */
+/** Every property key an object declares, derived in this game, acquired
+ *  this game (§4.4), or §4.1 -- what the referee's property question lists
+ *  per object (OPEN-VARIANT.md §24), and what `hasRoomToElaborate` (`loop.ts`)
+ *  and `tryAcquire`'s own "never twice" guard (§2) both read. */
 export function declaredPropertyKeys(world: OpenWorld, objectId: string): string[] {
   const derived = world.derived.find((d) => d.id === objectId);
   if (derived) return derived.properties.map((p) => p.key);
   const person = OPEN_PERSONS.find((p) => p.id === objectId);
   if (person) return resourceIdForProperty(world, objectId, person.properties[0].key) ? person.properties.map((p) => p.key) : [];
-  return OPEN_OBJECTS.find((o) => o.id === objectId)?.properties.map((p) => p.key) ?? [];
+  const staticKeys = OPEN_OBJECTS.find((o) => o.id === objectId)?.properties.map((p) => p.key) ?? [];
+  const acquiredKeys = world.acquired.filter((a) => a.objectId === objectId).map((a) => a.property.key);
+  return [...staticKeys, ...acquiredKeys];
 }
 
 /** The id the next derived object of `kindId` gets: the kind's name, then
@@ -347,5 +383,51 @@ export function adoptDerivedObject(
 
   const record: DerivedObjectRecord = { id: params.id, kindId: kind.id, heldBy: params.heldBy, description: params.description, entityId, properties };
   world.derived.push(record);
+  return record;
+}
+
+/**
+ * WORLD-ELABORATION-DESIGN.md §4.4/"4. `adoptAcquiredProperty`", §9 row P2:
+ * registers what an `OPEN_ACQUIRE` resolution just created into the world's
+ * maps -- the derive path's own template (`adoptDerivedObject` above), but
+ * for a property acquired onto an EXISTING object rather than a whole new
+ * one. With run-dmcp 0.9.0's `constraints` (issue #42) carried on
+ * `OPEN_ACQUIRE`'s own `create` leg, this function does NOT need to declare
+ * bounds after `resolve()` returns -- the wart `adoptDerivedObject` still
+ * carries for the older path is not inherited here; this is issue #42's
+ * second caller.
+ *
+ * Also wires §4.3's `ELABORABLE_EXITS`: when `need` is `integrity` and the
+ * object is one the table names, the route it declares becomes real --
+ * `world.exits` gains an entry gated on this newly-acquired resource,
+ * exactly as `door`/`window` are gated on `bar`/`lock` (`buildOpenWorld`).
+ */
+export function adoptAcquiredProperty(
+  world: OpenWorld,
+  params: { objectId: string; need: OpenPropertyKey; resourceId: string; resourceName: string; property: Omit<OpenObjectProperty, "key" | "resourceName"> }
+): AcquiredPropertyRecord {
+  const property: OpenObjectProperty = { key: params.need, resourceName: params.resourceName, ...params.property };
+  const record: AcquiredPropertyRecord = { objectId: params.objectId, property };
+  world.acquired.push(record);
+  world.resourceIdFor[propertyToken(params.objectId, params.need)] = params.resourceId;
+  world.resourceNameById[params.resourceId] = params.resourceName;
+
+  if (params.need === "integrity" && !world.exits[params.objectId]) {
+    const route = ELABORABLE_EXITS[params.objectId];
+    const destinationId = route ? world.namedLocations[route.destination] : undefined;
+    if (route && destinationId) {
+      world.exits = {
+        ...world.exits,
+        [params.objectId]: {
+          part: params.objectId,
+          passageResourceId: null,
+          integrityResourceId: params.resourceId,
+          destinationId,
+          openWhenPartAtMost: route.openWhenIntegrityAtMost,
+        },
+      };
+    }
+  }
+
   return record;
 }

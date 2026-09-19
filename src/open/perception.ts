@@ -1,6 +1,8 @@
 import { ResolveProtocolError } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
 import { findKind } from "./derivedObjects.js";
+import { bandNumbersFor } from "./acquirableProperties.js";
+import type { OpenPropertyKey } from "./scenarioObjects.js";
 import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
 
 /**
@@ -58,6 +60,22 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
     return value !== undefined
       ? `Your last attempt on the ${obj} was refused by the world as it stands: its ${property} is ${value}.`
       : `Your last attempt on the ${obj} was refused by the world as it stands.`;
+  }
+
+  // WORLD-ELABORATION-DESIGN.md §4.6: positive, from state, rendered by
+  // code, never by a model -- the target's own authored description, then
+  // the band's `reads` line at the value the acquisition's own resolution
+  // just left it at (never the initial value: §4.4's leg 2 always wears it
+  // in the SAME resolution that creates it, so the band's own "start value
+  // renders nothing" rule never has anything to render here anyway).
+  if (half.acquired) {
+    const a = half.acquired;
+    const acquiredObj = label(a.objectId);
+    const target = half.context.perceivedObjects.find((o) => o.id === a.objectId);
+    const numbers = bandNumbersFor(a.need as OpenPropertyKey, a.band);
+    const wornLine = numbers?.readRanges.find((r) => a.startValue <= r.atOrBelow)?.text;
+    const base = target ? target.description : "";
+    return `Your last attempt (${quoted(proposal.intent)}) found the ${acquiredObj} as it is: ${base}${wornLine ? ` ${wornLine}` : ""}`;
   }
 
   if (outcome !== null && plan !== null) {

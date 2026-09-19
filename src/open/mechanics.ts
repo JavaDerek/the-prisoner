@@ -1,4 +1,4 @@
-import { createResolver, type Mechanic, type AdjudicationInput, type Adjudication, type IntendedWrite, type IntendedChange, type Resolver } from "run-dmcp";
+import { createResolver, type Mechanic, type AdjudicationInput, type Adjudication, type IntendedWrite, type IntendedChange, type EntityRef, type Resolver } from "run-dmcp";
 import { numericFactFrom } from "../world/facts.js";
 
 /**
@@ -51,8 +51,8 @@ function currentValue(input: AdjudicationInput, resourceId: string): number {
   return value;
 }
 
-function setResource(resourceId: string, value: number, min: number, max: number): IntendedWrite {
-  return { kind: "write", entityId: resourceId, key: "value", mode: "set", value, bounds: { minValue: min, maxValue: max } };
+function setResource(entityId: EntityRef, value: number, min: number, max: number): IntendedWrite {
+  return { kind: "write", entityId, key: "value", mode: "set", value, bounds: { minValue: min, maxValue: max } };
 }
 
 export const OPEN_WEAR: Mechanic = {
@@ -153,7 +153,13 @@ export const OPEN_PASSAGE: Mechanic = {
 
 export interface LeaveParams {
   characterId: string;
-  passageResourceId: string;
+  /** `null` for a route with no explicit "open" step of its own -- an
+   *  ELABORABLE_EXITS route (WORLD-ELABORATION-DESIGN.md §4.3): nobody
+   *  "opens" a dug hole; it is simply passable once its part's integrity
+   *  reaches the declared threshold, exactly the second half of this
+   *  mechanic's own `left` rule below, already true for the door/window
+   *  before this field could ever be `null`. */
+  passageResourceId: string | null;
   integrityResourceId: string;
   destinationId: string;
   description: string;
@@ -168,12 +174,90 @@ export const OPEN_LEAVE: Mechanic = {
   name: "OPEN_LEAVE",
   adjudicate(input: AdjudicationInput): Adjudication {
     const p = input.parameters as unknown as LeaveParams;
-    const passage = numericFactFrom(input.constraint.mustHonor, p.passageResourceId, "value");
+    const passage = p.passageResourceId ? numericFactFrom(input.constraint.mustHonor, p.passageResourceId, "value") : null;
     const integrity = numericFactFrom(input.constraint.mustHonor, p.integrityResourceId, "value");
     const left = passage === 1 || integrity === 0;
     return {
       changes: left ? [{ kind: "set", entityId: p.characterId, key: "location_id", value: p.destinationId }] : [],
       result: { mechanic: "OPEN_LEAVE", left, ...(left ? { destinationId: p.destinationId } : {}) },
+      description: p.description,
+    };
+  },
+};
+
+export interface AcquireParams {
+  /** Carried straight into `result` -- the mechanic never interprets either;
+   *  content-typed (`OpenPropertyKey`/`DifficultyBand`) at the caller
+   *  (`loop.ts`), plain strings here, matching this file's own header:
+   *  "these mechanics hold no scenario content of their own." */
+  need: string;
+  band: string;
+  bandSource: "model" | "author";
+  /** The target's location -- every §4.1 property's own resource is owned
+   *  the same way (`world.ts`'s `boundedResolveOnly`). */
+  ownerId: string;
+  resourceName: string;
+  /** The band's own initial value (§4.3) -- the create leg's `value`, BEFORE
+   *  the wear leg below ever runs. */
+  initialValue: number;
+  min: number;
+  max: number;
+  /** The band's wear at the ruled magnitude (§4.4 leg 2): "the first scrape
+   *  counts." */
+  wearAmount: number;
+  suspicionResourceId: string;
+  /** 0 when the perceptibility rules make no suspicion eligible -- leg 3 is
+   *  then omitted entirely, exactly as `loop.ts`'s own `bumpWardenSuspicion`
+   *  is a no-op for `amount <= 0`. */
+  suspicionAmount: number;
+  description: string;
+}
+
+const ACQUIRE_REF = "property:acquired";
+
+/**
+ * WORLD-ELABORATION-DESIGN.md §4.4: one resolution -- create the resource
+ * under `ref: "property:acquired"` at the band's initial value, carrying
+ * run-dmcp 0.9.0's `constraints` (issue #42) so it is `bounded` and
+ * `resolve_only` from the instant it exists, inside this SAME transaction
+ * (never a second, post-`resolve()` declaration -- the wart `adoptDerivedObject`
+ * still carries for the OLDER `create` path, and exactly what issue #42 was
+ * filed to remove for this, its second caller); wear it by the ruled
+ * magnitude (leg 2, pre-clamped and written with `mode: "set"`, matching
+ * `OPEN_WEAR`'s own style exactly -- "the first scrape counts," never a
+ * separate act); then, only when eligible, bump `warden_suspicion` by the
+ * ordinary magnitude bump (leg 3) -- UNCLAMPED, a raw `delta` against the
+ * bound `warden_suspicion` already carries from world setup, so a resolution
+ * that would push it past 100 is rejected by the engine's own registered
+ * constraint and the WHOLE resolution rolls back, including the create and
+ * the wear: "if any leg violates a constraint the whole resolution rolls
+ * back and nothing was acquired" (§4.4), proven by the engine's existing
+ * protocol rather than re-implemented here.
+ */
+export const OPEN_ACQUIRE: Mechanic = {
+  name: "OPEN_ACQUIRE",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as AcquireParams;
+    const startValue = clamp(p.initialValue - p.wearAmount, p.min, p.max);
+    const changes: IntendedChange[] = [
+      {
+        kind: "create",
+        ref: ACQUIRE_REF,
+        entityKind: "resource",
+        columns: { owner_id: p.ownerId, owner_type: "location", name: p.resourceName, value: p.initialValue, min_value: p.min, max_value: p.max, created_at: new Date().toISOString() },
+        constraints: [
+          { kind: "bounded", key: "value", minValue: p.min, maxValue: p.max },
+          { kind: "resolve_only", key: "value" },
+        ],
+      },
+      setResource({ ref: ACQUIRE_REF }, startValue, p.min, p.max),
+    ];
+    if (p.suspicionAmount > 0) {
+      changes.push({ kind: "write", entityId: p.suspicionResourceId, key: "value", mode: "delta", value: p.suspicionAmount, bounds: { minValue: 0, maxValue: 100 } });
+    }
+    return {
+      changes,
+      result: { mechanic: "OPEN_ACQUIRE", acquired: true, need: p.need, band: p.band, bandSource: p.bandSource, startValue },
       description: p.description,
     };
   },
@@ -244,5 +328,5 @@ export const OPEN_DERIVE: Mechanic = {
 };
 
 export function buildOpenResolver(): Resolver {
-  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE] });
+  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE] });
 }

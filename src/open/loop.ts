@@ -1,9 +1,11 @@
 import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Outcome, type Expectation } from "run-dmcp";
-import { adoptDerivedObject, retireDerivedObject, nextDerivedId, declaredProperty, declaredPropertyKeys, resourceIdForProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
+import { adoptDerivedObject, retireDerivedObject, nextDerivedId, adoptAcquiredProperty, declaredProperty, declaredPropertyKeys, resourceIdForProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
 import { findKind } from "./derivedObjects.js";
+import { bandNumbersFor } from "./acquirableProperties.js";
 import { computePerceivedObjects, principalLocation, type PresenceMode } from "./briefing.js";
 import type { Referee, RefereeRuling, ObjectPerception } from "./referee.js";
 import type { ElaborationReferee, ElaborationRuling } from "./elaborationReferee.js";
+import { ELABORATION_BANDS, type ElaborationBandRow, type DifficultyBand } from "./elaborationBands.js";
 import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent, PROPERTY_KEYS } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
 import { pick, type Verdict } from "mother-of-invention";
@@ -96,6 +98,17 @@ export interface OpenHalfRoundResult {
    *  does not ask for it. P1b only: fires and logs; nothing here is ever
    *  applied to the world (no mechanic exists yet -- that is P2). */
   elaboration: ElaborationRuling | null;
+  /** WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: set only when this
+   *  half-round's elaboration request (above) actually turned into an
+   *  `OPEN_ACQUIRE` resolution -- `null` on every half-round that never
+   *  asked (the arm off), that asked and got `need: none` or an
+   *  unverified/un-priced/`impossible` answer, or that asked but the pair
+   *  was already acquired (§2: never twice). `band` is what was actually
+   *  APPLIED (possibly `PRISONER_ELABORATE_BAND`-forced); `builtBand` is
+   *  always the table's own unforced reading, so a reader can tell the two
+   *  apart the way Appendix C requires ("the override can never be mistaken
+   *  for the world's own reading") even when they happen to agree. */
+  acquired: { objectId: string; need: string; band: Exclude<DifficultyBand, "impossible">; builtBand: DifficultyBand; bandSource: "model" | "author"; startValue: number; resourceName: string } | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -240,6 +253,113 @@ async function considerElaboration(
   return elaborationReferee.rule(proposal.intent, target);
 }
 
+/**
+ * WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: turns a fired elaboration
+ * ruling into the world's own acquisition, in ONE `OPEN_ACQUIRE` resolution
+ * -- or refuses, applying nothing, for any of §2's invariants: `need` is
+ * `none`; the `need` citation is not verified (grounded in the target's own
+ * description, never the actor's words); the pair is already acquired
+ * (`declaredPropertyKeys`, checked in code, never re-asked); the build-time
+ * table (`elaborationBands`) holds no `priced` row for this `(target, need)`
+ * pair, or the applied band is `impossible`; or this scenario has not yet
+ * authored band-numbers content for `need` at all (`bandNumbersFor`).
+ *
+ * THE BAND COMES FROM THE TABLE, NEVER FROM A RULING (§4.4's own words):
+ * this function never reads `elaboration.citation.quote` or
+ * `proposal.intent` to decide a band, only `elaboration.need` (WHICH kind)
+ * -- the band itself is a lookup from `elaborationBands`
+ * (`PRISONER_ELABORATE_BAND` may override which band applies, but never
+ * which pair does, and never invents a row that build time did not price).
+ *
+ * A `ResolveProtocolError`/`ConstraintViolationError` out of `resolve()`
+ * (the suspicion leg's OWN registered bound rejecting it, §4.4) is caught
+ * here and treated the same as any other refusal: nothing acquired, the
+ * half-round falls back to its ordinary "nothing happened" rendering.
+ */
+async function tryAcquire(
+  openWorld: OpenWorld,
+  resolver: Resolver,
+  elaboration: ElaborationRuling,
+  ruling: RefereeRuling,
+  principal: Principal,
+  otherPresent: boolean,
+  roundN: number,
+  forcedBand: DifficultyBand | undefined,
+  elaborationBands: readonly ElaborationBandRow[]
+): Promise<{ outcome: Outcome; result: OpenHalfRoundResult["acquired"]; perceptionForOther: string | null } | null> {
+  if (elaboration.need === "none" || !elaboration.citation.verified) return null;
+  const targetObjectId = elaboration.targetObjectId;
+  const need = elaboration.need;
+  // §2: never acquires the same (object, property) pair twice.
+  if (declaredPropertyKeys(openWorld, targetObjectId).includes(need)) return null;
+  const row = elaborationBands.find((r) => r.objectId === targetObjectId && r.need === need);
+  if (!row || row.status !== "priced") return null;
+  const builtBand = row.band;
+  const band = forcedBand ?? builtBand;
+  if (band === "impossible") return null;
+  const numbers = bandNumbersFor(need, band);
+  if (!numbers) return null;
+
+  const wearAmount = numbers.wear[ruling.magnitude];
+  const resourceName = `${targetObjectId}_${need}`;
+  // OPEN-VARIANT.md §9.3, generalised here exactly as `OPEN_WEAR` is: only a
+  // PRISONER's own non-silent act bumps the WARDEN's suspicion.
+  const suspicionAmount = principal === "prisoner" && otherPresent && ruling.perceptibility !== "silent" ? SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude] : 0;
+  const description = describeAttempt(principal, { targetObjectId, effectKind: "wear" });
+
+  let outcome: Outcome;
+  try {
+    outcome = resolver.resolve({
+      gameId: openWorld.base.gameId,
+      mechanic: "OPEN_ACQUIRE",
+      parameters: {
+        need,
+        band,
+        bandSource: row.bandSource,
+        ownerId: openWorld.base.cellId,
+        resourceName,
+        initialValue: numbers.initialValue,
+        min: numbers.min,
+        max: numbers.max,
+        wearAmount,
+        suspicionResourceId: openWorld.base.resources.wardenSuspicion,
+        suspicionAmount,
+        description,
+      },
+    });
+  } catch (err) {
+    if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) return null;
+    throw err;
+  }
+
+  const created = outcome.created.find((c) => c.ref === "property:acquired");
+  if (!created) return null; // Defensive: OPEN_ACQUIRE always creates under this ref once resolve() succeeds.
+  const startValue = (outcome.result as { startValue: number }).startValue;
+
+  adoptAcquiredProperty(openWorld, {
+    objectId: targetObjectId,
+    need,
+    resourceId: created.entityId,
+    resourceName,
+    property: { min: numbers.min, max: numbers.max, initialValue: numbers.initialValue, wear: numbers.wear, restore: numbers.restore, readRanges: numbers.readRanges },
+  });
+  // §4.5: the actor's belief in the new resource is stamped as of THIS
+  // round, at the post-scrape value -- the same channel (a) every other
+  // resolution's own belief update goes through (`updateActorBelief`),
+  // written directly here because there is no `EffectPlan.resourceId` for
+  // this path (there is no `plan` at all; `OPEN_ACQUIRE` is never reached
+  // through `planEffect`).
+  setBelief(openWorld.base.gameId, principal, resourceName, startValue, roundN);
+
+  const perceptionForOther = otherPresent && ruling.perceptibility !== "silent" ? description : null;
+
+  return {
+    outcome,
+    result: { objectId: targetObjectId, need, band, builtBand, bandSource: row.bandSource, startValue, resourceName },
+    perceptionForOther,
+  };
+}
+
 /** One authored, positive sentence per effect kind -- used as BOTH the
  *  resolved mechanic's own `description` (the ledger/transcript record) AND,
  *  when perceptibility allows it, the sentence relayed to the other
@@ -380,13 +500,30 @@ export async function runOpenHalfRound(params: {
    *  what keeps `off` byte-identical to every half-round recorded before
    *  this arm existed. */
   elaborationReferee?: ElaborationReferee;
+  /** WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: the build-time band table
+   *  a fired elaboration is priced against -- defaults to the real,
+   *  committed `ELABORATION_BANDS`; a test hands in its own fixture rows the
+   *  same way `lookupBand` itself already accepts an optional `rows`
+   *  parameter. Read only when an elaboration actually fires; unused
+   *  (imported, never called) under `PRISONER_ELABORATE=off`. */
+  elaborationBands?: readonly ElaborationBandRow[];
+  /** Appendix C's `PRISONER_ELABORATE_BAND`: forces which band a fired
+   *  elaboration applies, for the §4.8 sweep -- absent (the default) means
+   *  the built table's own reading always applies. */
+  forcedElaborationBand?: DifficultyBand;
 }): Promise<OpenHalfRoundResult> {
   const { openWorld, resolver, referee, principal, roundN, t, context, mind } = params;
   const presenceMode = params.presenceMode ?? "off";
+  // Hoisted: depends only on `t`/`principal`/`presenceMode`, never on the
+  // ruling or the plan, so both of §1.4's null paths (below) can use it for
+  // an acquisition's own suspicion eligibility exactly as the success path
+  // (further down) always has.
+  const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
+  const otherPresent = presenceMode === "off" || principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t);
 
   const considered = await mind.consider(context);
   if (considered === null) {
-    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null };
+    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null };
   }
 
   // §21: the recogniser is the referee itself, so "seen" means exactly what
@@ -461,7 +598,24 @@ export async function runOpenHalfRound(params: {
     const elaboration = params.elaborationReferee
       ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
       : null;
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration };
+    const acquired = elaboration
+      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
+      : null;
+    return {
+      ...base,
+      proposal,
+      ruling,
+      plan: null,
+      outcome: acquired?.outcome ?? null,
+      refusalError: null,
+      perceptionForOther: acquired?.perceptionForOther ?? null,
+      revealFor: null,
+      derived: null,
+      reshaped: null,
+      resourceName: acquired?.result?.resourceName ?? null,
+      elaboration,
+      acquired: acquired?.result ?? null,
+    };
   }
 
   const actorId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
@@ -525,16 +679,31 @@ export async function runOpenHalfRound(params: {
     const elaboration = params.elaborationReferee
       ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
       : null;
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration };
+    const acquired = elaboration
+      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
+      : null;
+    return {
+      ...base,
+      proposal,
+      ruling,
+      plan: null,
+      outcome: acquired?.outcome ?? null,
+      refusalError: null,
+      perceptionForOther: acquired?.perceptionForOther ?? null,
+      revealFor: null,
+      derived: null,
+      reshaped: null,
+      resourceName: acquired?.result?.resourceName ?? null,
+      elaboration,
+      acquired: acquired?.result ?? null,
+    };
   }
 
-  const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
-  // OPEN-VARIANT.md §55 (issue #22 gap 1): under `off` (the default),
-  // `otherPresent` is unconditionally true -- byte-identical to every
-  // batch recorded before this gap existed, which assumed the other
-  // principal is always here to perceive. Under `modelled`, the other
-  // principal genuinely has to share this location right now.
-  const otherPresent = presenceMode === "off" || principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t);
+  // `other`/`otherPresent` are hoisted to the top of this function (OPEN-VARIANT.md
+  // §55, issue #22 gap 1): under `off` (the default), `otherPresent` is
+  // unconditionally true -- byte-identical to every batch recorded before
+  // that gap existed. Under `modelled`, the other principal genuinely has
+  // to share this location right now.
   const seenByOther = otherPresent && (plan.derived?.replaces ? computePerceivedObjects(openWorld, other, t, presenceMode).some((o) => o.id === ruling.targetObjectId) : true);
 
   const expects = plan.isWearType && plan.resourceId ? wearExpectation(openWorld, principal, plan.resourceId) : undefined;
@@ -610,11 +779,11 @@ export async function runOpenHalfRound(params: {
       }
     }
 
-    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName, elaboration: null };
+    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName, elaboration: null, acquired: null };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);
-      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName, elaboration: null };
+      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName, elaboration: null, acquired: null };
     }
     throw err;
   }

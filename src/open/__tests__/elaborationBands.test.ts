@@ -8,6 +8,7 @@ import {
   lookupBand,
   isAuthorSet,
   isModelRead,
+  readElaborateBandMode,
   type ElaborationBandRow,
   type ModelPricedRow,
   type AuthorPricedRow,
@@ -187,5 +188,21 @@ describe("elaborationBandProblems / assertElaborationBandsReady (§9 row P1's ow
 describe("assertElaborationBandsReady() against the REAL scenario (§9 row P1b's own integration point)", () => {
   it("refuses: no price-world run has ever been made, so a real PRISONER_ELABORATE=property game correctly cannot start", () => {
     expect(() => assertElaborationBandsReady()).toThrow(/elaborationBands: cannot start/);
+  });
+});
+
+describe("readElaborateBandMode: PRISONER_ELABORATE_BAND (Appendix C)", () => {
+  it("unset (and empty) means the built table -- no override", () => {
+    expect(readElaborateBandMode(undefined)).toBeUndefined();
+    expect(readElaborateBandMode("")).toBeUndefined();
+  });
+  it("every DifficultyBand is legal, including impossible", () => {
+    expect(readElaborateBandMode("trivial")).toBe("trivial");
+    expect(readElaborateBandMode("hard")).toBe("hard");
+    expect(readElaborateBandMode("ruinous")).toBe("ruinous");
+    expect(readElaborateBandMode("impossible")).toBe("impossible");
+  });
+  it("anything else throws, naming the env var", () => {
+    expect(() => readElaborateBandMode("wat")).toThrow(/PRISONER_ELABORATE_BAND/);
   });
 });

@@ -52,7 +52,7 @@ import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
-import { assertElaborationBandsReady } from "./open/elaborationBands.js";
+import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
 import { readPresenceMode } from "./open/briefing.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
@@ -155,9 +155,14 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
 const INSTRUMENT = readInstrumentMode(process.env.PRISONER_INSTRUMENT);
 /** Open variant only: the play-time elaboration request (§9 row P1b,
  *  `src/open/elaborationReferee.ts`, WORLD-ELABORATION-DESIGN.md §4.1/§4.2).
- *  Off unless asked -- the same D3 lesson every arm here follows: fires and
- *  logs only, applies nothing yet (P2). */
+ *  Off unless asked -- the same D3 lesson every arm here follows. When
+ *  `need` is grounded and priced, the world acquires it (`OPEN_ACQUIRE`,
+ *  §4.4, §9 row P2). */
 const ELABORATE = readElaborateMode(process.env.PRISONER_ELABORATE);
+/** Appendix C's `PRISONER_ELABORATE_BAND`: forces which band a fired
+ *  elaboration applies, for the §4.8 sweep -- unset (the default) means the
+ *  built table's own reading always applies. */
+const ELABORATE_BAND = readElaborateBandMode(process.env.PRISONER_ELABORATE_BAND);
 const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
 /** Open variant only: the effect question's sharpened derive/wear wording
  *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
@@ -1009,6 +1014,10 @@ async function mainOpen(): Promise<void> {
   // before this arm existed.
   const elaborationLine = elaborationHeaderLine(ELABORATE);
   if (elaborationLine) transcript.push(elaborationLine);
+  // Appendix C: printed only when the arm is actually set -- unset means
+  // "the built table," which needs no line of its own (every per-half-round
+  // acquisition line already names its own built band, `checkpointTranscript.ts`).
+  if (ELABORATE_BAND) transcript.push(`Elaboration band override: forced \`${ELABORATE_BAND}\` for every acquisition this game (\`PRISONER_ELABORATE_BAND=${ELABORATE_BAND}\`).`);
   transcript.push(
     SEAT === "off"
       ? "Seats: both minds are models, as every recorded batch is."
@@ -1058,6 +1067,7 @@ async function mainOpen(): Promise<void> {
       rounds: ROUNDS,
       presenceMode: PRESENCE,
       ...(elaborationReferee ? { elaborationReferee } : {}),
+      ...(ELABORATE_BAND ? { forcedElaborationBand: ELABORATE_BAND } : {}),
       ...(precedent ? { precedent } : {}),
       ...(PICK ? { pick: PICK } : {}),
       onHalfRound: (half) => {

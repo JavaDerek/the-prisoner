@@ -79,7 +79,7 @@ function halfWithRuling(over: { targetObjectId: string; property: string; effect
     derived: null,
     reshaped: null,
     pick: null,
-    resourceName: null, elaboration: null,
+    resourceName: null, elaboration: null, acquired: null,
   };
 }
 
@@ -247,7 +247,7 @@ describe("open checkpoint transcript", () => {
       context: { principalId: "p", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
       proposal: { intent: "Lift the tile." },
       pick: { own: "Scrape the bar.", forced: true, overridden: true, verdicts: [{ candidate: "Scrape the bar.", verdict: "seen" }, { candidate: "Lift the tile.", verdict: "unseen" }] },
-      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null,
+      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null,
     }).join("\n");
     expect(text).toContain("**Forced pick:** overrode the mind's own intent: Scrape the bar.");
     expect(text).toContain("- seen: Scrape the bar.");
@@ -274,7 +274,7 @@ describe("open checkpoint transcript", () => {
       perceptionForOther: null,
       revealFor: null,
       derived: null,
-      reshaped: null, pick: null, resourceName: null, elaboration: null,
+      reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null,
     }).join("\n");
     expect(text).toContain("**Candidates:**");
     expect(text).toContain("Examine the bar closely. (check for damage)");
@@ -283,7 +283,7 @@ describe("open checkpoint transcript", () => {
 
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
-      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null },
+      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null },
       { reason: "unparseable", text: "RAW_MODEL_TEXT" }
     ).join("\n");
     expect(text).toContain("**Silence.** SilenceReason: `unparseable`");
@@ -301,7 +301,7 @@ describe("open checkpoint transcript", () => {
         context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
         proposal: { intent: "I examine the bar closely." },
         ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
-        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null,
+        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null,
       },
       undefined,
       { reason: "rejected", text: "Voss," }
@@ -331,7 +331,7 @@ describe("open checkpoint transcript", () => {
       },
       proposal: { intent: "I look around." },
       ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
-      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null,
+      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null,
     }).join("\n");
     // Every id it could act on, so the target answer key set is recoverable.
     expect(text).toContain("**Perceived:** bar, window");
