@@ -1,0 +1,384 @@
+[
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to chip at the rusted bar",
+   "Try to move the loose tile to see if anything is underneath",
+   "Scratch the bar with the spoon to test its integrity"
+  ],
+  "intent": "Use the spoon to chip at the rusted bar",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend or break the iron bar with the spoon",
+   "Use the loose tile to gather grit and scratch the bar",
+   "Try to lift the bar out of the mortar",
+   "Use the bucket to strike the bar and damage it",
+   "Use the blanket to wrap the bar and strike it with the cot"
+  ],
+  "intent": "Attempt to bend or break the iron bar with the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to damage the bar",
+   "Try to lift the loose tile to see if there is anything underneath",
+   "Inspect the door and lock more closely for weaknesses",
+   "Try to move the cot to get a better position near the window",
+   "Use the blanket to muffle any noise if I make a loud action"
+  ],
+  "intent": "Use the spoon to damage the bar",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Use the loose tile to create noise and distract the warden",
+   "Inspect the lock for weaknesses",
+   "Lay the blanket on the floor to muffle sounds",
+   "Attempt to push the bar out of the window"
+  ],
+  "intent": "Attempt to bend the bar using the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to strike the bar repeatedly.",
+   "Inspect the loose tile and dig into it with the spoon.",
+   "Try to pry the bar loose with the spoon.",
+   "Scratch the bar with the spoon to create more rust.",
+   "Use the spoon to scrape the rust off the bar."
+  ],
+  "intent": "Use the spoon to strike the bar repeatedly.",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon.",
+   "Use the loose tile to create a makeshift tool for breaking the bar.",
+   "Inspect the lock closely to determine if it can be tampered with.",
+   "Check the door for any signs of damage or possible tampering."
+  ],
+  "intent": "Attempt to bend the bar using the spoon.",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Use the bucket to strike the bar repeatedly",
+   "Scratch the bar with the worn side of the spoon",
+   "Pry the bar loose with the cot's frame",
+   "Check the loose tile for hidden tools"
+  ],
+  "intent": "Attempt to bend the bar using the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Inspect the loose tile for hidden objects",
+   "Try to move the cot to reach the window",
+   "Use the blanket to muffle noise while working on the bar",
+   "Check the meal tray for tools or clues"
+  ],
+  "intent": "Attempt to bend the bar using the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Try to bend or break the bar with the spoon",
+   "Use the loose tile to gather grit and scratch the bar",
+   "Check the lock on the door with the spoon",
+   "Look for signs of weakness in the door",
+   "Inspect the cot for any loose parts that could be used as tools"
+  ],
+  "intent": "Try to bend or break the bar with the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L0",
+  "parsed": true,
+  "candidates": [
+   "Try to bend the bar slightly with the spoon",
+   "Look under the loose tile for something useful",
+   "Use the bucket to strike the bar and test its integrity",
+   "Use the blanket to wrap around the bar for leverage"
+  ],
+  "intent": "Try to bend the bar slightly with the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to attempt to bend or damage the bar",
+   "Look under the loose tile to see if there\u2019s anything hidden that could help",
+   "Try to pull the bar out of the mortar",
+   "Check the lock\u2019s integrity to see if it\u2019s vulnerable",
+   "Use the blanket to muffle any noise while attempting to damage the bar"
+  ],
+  "intent": "Use the spoon to attempt to bend or damage the bar",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": false,
+  "candidates": [],
+  "intent": "",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": true,
+  "candidates": [
+   "Try to bend the bar with the spoon",
+   "Use the bucket to strike the bar",
+   "Check the loose tile for hidden tools",
+   "Inspect the lock for weaknesses",
+   "Try to move the cot to reach the window"
+  ],
+  "intent": "Try to bend the bar with the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to scrape at the rusted bar",
+   "Try to lift the loose tile and see if anything is underneath",
+   "Attempt to bend the spoon to create a makeshift tool",
+   "Look closely at the lock to see if it's vulnerable",
+   "Try to move the cot to get closer to the window"
+  ],
+  "intent": "Use the spoon to scrape at the rusted bar",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to chip at the rusted part of the bar",
+   "Try to lift the loose tile and see what's underneath",
+   "Scratch the lock with the spoon to lower its integrity",
+   "Try to bend the spoon to make it more effective for damaging the bar",
+   "Use the blanket to wrap around the bar and try to pull it out"
+  ],
+  "intent": "Use the spoon to chip at the rusted part of the bar",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": true,
+  "candidates": [
+   "Attempt to use the spoon to scratch the bar",
+   "Use the loose tile to strike the bar",
+   "Try to bend the spoon to weaken it",
+   "Inspect the bar for existing damage",
+   "Look for a way to use the blanket or bucket to damage the bar"
+  ],
+  "intent": "Attempt to use the spoon to scratch the bar",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": false,
+  "candidates": [],
+  "intent": "",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": false,
+  "candidates": [],
+  "intent": "",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend or break the bar using the spoon",
+   "Use the loose tile to gather grit and rub it against the bar",
+   "Try to pry the bar loose with the cot's frame",
+   "Inspect the bar more closely to assess its integrity",
+   "Attempt to hide the spoon under the cot to avoid suspicion"
+  ],
+  "intent": "Attempt to bend or break the bar using the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L1",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to chip away at the rusted part of the bar near the bottom",
+   "Try to pry the loose tile to see if there is anything useful underneath",
+   "Check the lock's integrity by tapping it with the spoon",
+   "Inspect the bolt on the door and see if it is loose or damaged"
+  ],
+  "intent": "Use the spoon to chip away at the rusted part of the bar near the bottom",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to scratch the bar",
+   "Try to lift the loose tile to see if there's anything underneath",
+   "Inspect the lock for signs of weakness",
+   "Pull the loose thread from the blanket",
+   "Tap the door to see if the bolt is loose"
+  ],
+  "intent": "Use the spoon to scratch the bar",
+  "thread_cand": true,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Use the loose tile to gather grit and scratch the bar",
+   "Try to pull the loose thread from the blanket",
+   "Inspect the lock closely to see if it can be tampered with",
+   "Attempt to move the cot to create leverage"
+  ],
+  "intent": "Attempt to bend the bar using the spoon",
+  "thread_cand": true,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to chip away at the rusted bar",
+   "Try to lift the loose tile and use the grit underneath to scratch the bar",
+   "Use the blanket to wrap around the bar and pull it out",
+   "Attempt to bend the spoon to weaken the bar further",
+   "Scratch the bar with the edge of the meal tray"
+  ],
+  "intent": "Use the spoon to chip away at the rusted bar",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Try to bend the bar with the spoon",
+   "Use the loose tile to gather grit and rub it on the bar",
+   "Try to pull the bar out of the mortar",
+   "Use the blanket to wrap around the bar and pull",
+   "Strike the bar with the bucket to damage it"
+  ],
+  "intent": "Try to bend the bar with the spoon",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Try to loosen the bar by scraping it with the spoon.",
+   "Use the loose tile to gather dry grit and try to weaken the bar's mortar.",
+   "Look for hidden weaknesses in the bar by examining it closely.",
+   "Try to bend the bar with the spoon.",
+   "Pull the loose thread from the blanket and use it to tie something useful."
+  ],
+  "intent": "Try to loosen the bar by scraping it with the spoon.",
+  "thread_cand": true,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Use the loose tile to gather grit and scratch the bar",
+   "Pull the loose thread from the blanket to create a rope-like tool",
+   "Strike the bar with the bucket to create noise and potentially damage it"
+  ],
+  "intent": "Attempt to bend the bar using the spoon",
+  "thread_cand": true,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Attempt to loosen the bar by scraping it with the spoon.",
+   "Use the loose tile to gather grit and scratch at the bar's mortar.",
+   "Inspect the loose thread on the blanket and pull it free.",
+   "Tap the door with the spoon to see if it can be pried open."
+  ],
+  "intent": "Attempt to loosen the bar by scraping it with the spoon.",
+  "thread_cand": true,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": false,
+  "candidates": [],
+  "intent": "",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the spoon to create a tool for breaking the bar",
+   "Try to lift the loose tile to see if there is something hidden underneath",
+   "Use the blanket to create a makeshift tool or to cushion an impact on the bar",
+   "Inspect the bar for weaknesses or signs of rust that could be exploited"
+  ],
+  "intent": "Inspect the bar for weaknesses or signs of rust that could be exploited",
+  "thread_cand": false,
+  "thread_intent": false
+ },
+ {
+  "cell": "blanket-L2",
+  "parsed": false,
+  "candidates": [],
+  "intent": "",
+  "thread_cand": false,
+  "thread_intent": false
+ }
+]

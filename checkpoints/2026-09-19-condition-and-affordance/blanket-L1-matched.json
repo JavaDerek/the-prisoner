@@ -1,0 +1,98 @@
+[
+ {
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to bend the bar slightly",
+   "Scratch the bar with the spoon to show wear",
+   "Tap the bar with the spoon to test its strength",
+   "Try to pry the bar loose with the spoon",
+   "Use the loose tile to create a distraction"
+  ],
+  "thread_cand": false
+ },
+ {
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Use the loose tile to create noise and distract Croft",
+   "Try to manipulate the lock with the spoon",
+   "Investigate the loose tile further"
+  ],
+  "thread_cand": false
+ },
+ {
+  "parsed": false,
+  "candidates": [],
+  "thread_cand": false
+ },
+ {
+  "parsed": true,
+  "candidates": [
+   "Attempt to bend the bar using the spoon",
+   "Use the loose tile to strike the bar",
+   "Try to pry the bar loose with the cot's frame",
+   "Try to kick the bar",
+   "Inspect the bar more closely to assess its integrity"
+  ],
+  "thread_cand": false
+ },
+ {
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to bend the bar slightly",
+   "Scratch the bar with the spoon to show wear",
+   "Use the loose tile to create a distraction by dropping it",
+   "Pull on the loose thread of the blanket to see if it helps",
+   "Look at the lock and door to assess their integrity"
+  ],
+  "thread_cand": true
+ },
+ {
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to scratch and damage the bar",
+   "Try to lift the loose tile and check underneath",
+   "Inspect the lock more closely",
+   "Use the blanket to wrap around the bar and apply pressure",
+   "Try to push the bar up and see if it can be removed"
+  ],
+  "thread_cand": false
+ },
+ {
+  "parsed": false,
+  "candidates": [],
+  "thread_cand": false
+ },
+ {
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to scrape at the rusted bar near the bottom where it is set into the mortar.",
+   "Try to bend the bar with my hands.",
+   "Use the loose tile to create a tool for prying the bar out.",
+   "Scratch the bar with the spoon to increase the rust and weaken it further."
+  ],
+  "thread_cand": false
+ },
+ {
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to scratch the bar repeatedly",
+   "Use the loose tile to strike the bar",
+   "Try to bend the bar with my hands",
+   "Use the blanket to wrap around the bar and pull it out",
+   "Strike the bar with the bucket"
+  ],
+  "thread_cand": false
+ },
+ {
+  "parsed": true,
+  "candidates": [
+   "Use the spoon to bend the bar slightly",
+   "Check the loose tile for anything useful",
+   "Scratch the bar with the spoon to weaken it",
+   "Use the blanket to wrap the spoon for better leverage",
+   "Inspect the bar for signs of rust or weakness"
+  ],
+  "thread_cand": false
+ }
+]

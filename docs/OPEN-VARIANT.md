@@ -5407,6 +5407,40 @@ there without walking into a lose condition, which is exactly where the non-reas
 very first real-prompt run (it chose to RAISE warden suspicion, its own `thoughts` contradicting its
 `intent`).
 
-This is `run-dmcp/docs/AUTHORING-GUIDE.md` material and root `CLAUDE.md` names the five files that move
-together when it lands. One arm still bears on it: the same 2x2 advertising the **blanket's loose thread**
-instead of the cot's wire -- a rule about objects, or a quirk of this one object?
+### 64.8 The second object replicates the direction and collapses the magnitude
+
+The blanket's loose thread, same design, n=10 per level, thinking off:
+
+| | cot (wire) | blanket (thread) |
+|---|---|---|
+| L0 -- not mentioned / function only | 0/10 | 0/10 |
+| L1 -- position only ("running down one edge", as shipped) | -- | **0/10** |
+| L1 -- length + material, matched in kind to the cot's | **6/10** | **1/10** |
+| L2 -- a manipulation named | **9/10** | **5/10** |
+| ever chosen as `intent`, any condition | 6/10 (welded) | **0/10** |
+
+**The first explanation was mine and it was wrong.** The shipped blanket text states only WHERE the thread
+is; the cot's L1 was written to carry length, gauge and material. So the L1s were not the same kind of
+sentence, and the run could not tell "the rule does not generalise" from "I gave the blanket a worse L1."
+A matched L1 -- *"an arm's length of coarse woollen yarn"* -- moved it from 0/10 to **1/10**. Sentence shape
+was not the difference.
+
+**What is left is the object.** *"Thin soft iron, a hand's length"* is **tool stock**: those properties imply
+shapeable, bendable, becomes-something. *"Coarse woollen yarn"* implies soft and weak. And the thread was
+never chosen in any condition, including while she was actively hunting for a tool, because in a cell whose
+only lock is unreachable a thread affords nothing.
+
+**So §64.6's rule as first written -- "give an object physical properties" -- is too strong.** This arm
+existed to decide whether the finding reached the engine's authoring guide, and it caught an over-general
+rule before it got there. The surviving version has two clauses:
+
+> **Properties make an object thinkable only when they imply what it could become.
+> Utility decides whether it is ever chosen.**
+
+Adding properties to nouns is not a mechanical fix. Which nouns deserve them is a design judgment, and this
+is now a weaker claim than the one committed an hour earlier and considerably more likely to be true.
+
+**What this means for `run-dmcp/docs/AUTHORING-GUIDE.md`** (root `CLAUDE.md` names the five files that move
+together): the lesson is still worth writing, but as *"describe the objects that could matter with
+properties that imply what they could become"*, never as a blanket instruction to enrich every description.
+Two objects is still two objects; a third would be worth having before anything propagates.
