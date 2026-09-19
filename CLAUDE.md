@@ -178,7 +178,13 @@ authoring lesson here, generalise it into that guide (its own neutral vocabulary
 repository's words) rather than leaving it only in this game's own docs. The guide's declared-space
 lesson is the one to read before the next elaborable thing is authored: what an object may ever come
 to acquire is declared up front and separately from what its description says it is right now, and
-collapsing the two is what turns an acquired fact into narration nothing can audit.
+collapsing the two is what turns an acquired fact into narration nothing can audit. The guide's
+surfaces lesson is this game's own §66.6 and §67.5 generalised: the packed earth under the loose tile
+was prose and not an object, so a dig had nowhere to land and every reading filed it as lifting the
+tile or scraping it. A physical scenario declares its floor, ceiling and walls as objects wherever a
+character could act on them. The first such row belongs in the measurement fixture
+(`docs/WORLD-ELABORATION-DESIGN-2.md` §6.7), never in the benchmark scenario, which keeps every
+recorded batch comparable.
 
 ## Never run against a real database
 
