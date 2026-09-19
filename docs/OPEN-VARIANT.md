@@ -5498,3 +5498,67 @@ anchored to a fixed scenario. The shape that keeps replay: the referee returns *
 X"* instead of a denial; a separate, logged elaboration step decides yes/no and a price; the decision is
 persisted and written to a log exactly as `.referee.json` is, so a replay replays elaborations too. Which
 elaborations fired then becomes a measurement in its own right, and probably an interesting one.
+
+## 66. The elaboration batch (2026-09-19)
+
+Transcripts: `checkpoints/2026-09-19-elaboration/`. Design: `docs/WORLD-ELABORATION-DESIGN.md`, whose
+§4.8 pre-commits the sweep. Two arms were built for this batch because the measurement needed
+instrument that only ever existed outside the game: `PRISONER_WINDOW=welded` (§64.3's welded room was
+a static prompt file fed straight to the model, never a runnable arm) and `PRISONER_THINKING=off`
+(§64.7's thinking-off cells were raw-endpoint calls the same way). Both default to today's behaviour.
+
+### 66.1 What one game each way bought, before any cell ran (§4.10)
+
+Two 30-round games, welded window, identical but for `PRISONER_THINKING`. §4.10 asked only whether
+thinking OFF stays coherent across rounds, because that decides whether eighteen games cost an evening
+or a week. It answered a larger question than it was asked.
+
+| | thinking OFF | thinking ON |
+|---|---|---|
+| wall clock | **8 min** | **45 min** |
+| result | timeout at round 30 | **escaped at round 3** |
+| prisoner turns ruled impossible | **17 of 30** | 2 of 3 |
+| distinct intentions across the game | 3 | 3 (in three rounds) |
+
+**On §4.10's own criteria, thinking OFF is clean.** Belief stamps are correct and correctly stale
+(`lock integrity: 100 (as of round 0)` on a lock she never touched, beside `loose tile concealment:
+100 (as of round 13)`); plans carry from turn to turn; notes continue; the budget is stated and
+counted. Nothing in the bookkeeping decays over thirty rounds. Had the question been only "does it
+stay coherent", the answer is yes.
+
+**It is nonetheless the wrong setting for this batch, and one game was enough to show it.** At OFF she
+spent rounds 4-18 on *"continue bending the spoon into a hook"* and rounds 19-30 on *"use the grit to
+refine the spoon's edge"* -- being ruled impossible more than half the game and never updating on the
+refusals. At ON she did, in three rounds: **bend the spoon into a hook → hook the bolt and pull it back
+→ escape through the open door.** The OFF mind never assembled that three-step plan; it is not that she
+declined the route, it is that she never reached it.
+
+This sharpens §64.7 rather than contradicting it. That section measured *candidacy at round one* and
+found thinking bought nothing -- 8/10 against 9/10 -- and it was right. What it could not see, being
+round-one only, is that thinking buys **execution across rounds**: holding a multi-step plan and acting
+on the world's answers. §64.7's own last paragraph guessed exactly this ("what thinking buys is the
+coherence to act on what is already there") and now has a thirty-round instance of it.
+
+**Consequence for the sweep, and it is a cost:** the full games run at thinking ON, at roughly 45
+minutes each. An unpursued route chosen by a mind that cannot execute a three-step plan is not evidence
+about price, which is the one thing §4.8 exists to measure. The round-1 cells stay OFF, as §4.8
+specifies and §64.7 justifies.
+
+### 66.2 The welded window does not remove the dominant route -- it swaps it
+
+The escape above is the finding, not an anecdote. §4.8 names the welded window as "the control that
+removes the dominant route". It is not: welding removes the *window*, and leaves the **door**, whose
+passage has no threshold to meet under the default `PRISONER_DOOR_PRICE=free`. A thinking mind opens it
+in three rounds. Every C cell run in that room would have read *not pursued* -- and the reading would
+have been about a free exit, never about the band, which is precisely the confound D5's own falsifier
+warns of ("the band is not what she is reading").
+
+So the sweep prices the door: `PRISONER_DOOR_PRICE=margin`, the lock gated at 60 (§50.6). §50.7 already
+measured that a priced door draws zero attempts at either gate, so the welded-and-priced room is one
+where the elaborated route is the only live way out -- which is the room §4.8 was always describing,
+and had not yet been given. **The owner's decision, 2026-09-19.**
+
+This is the second time the same shape has appeared: §64.5 found an available alternative declined while
+the obvious route was open, and §50.7 found a priced route declined while a free one stood. A room meant
+to test whether a mind will pay for a route has to have no unpaid route left in it, and checking that
+costs one game.
