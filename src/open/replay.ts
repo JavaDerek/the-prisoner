@@ -1,4 +1,4 @@
-import { createTurnReader, type ReadRequest, type ReaderTransport } from "run-dmcp";
+import { createTurnReader, type ReadRequest, type ReaderResult, type ReaderTransport } from "run-dmcp";
 
 /**
  * The replay tool (this task's brief: "A replay tool for §5.2's consistency
@@ -18,21 +18,29 @@ export interface KeyAgreement {
   sampleSize: number;
 }
 
-/** Re-asks ONE recorded request `n` times against `transports`, and reports
- *  per-question agreement. A question every replay answered with its
- *  `safeDefault` (because every rung was exhausted) still counts -- 100%
- *  agreement on the safe default is a real, meaningful consistency result,
- *  not a run this function should special-case away. */
-export async function replayRequest(request: ReadRequest, transports: readonly ReaderTransport[], n: number): Promise<KeyAgreement[]> {
+/** Re-asks ONE recorded request `n` times against `transports`, keeping both
+ *  the per-question tally `replayRequest` reports AND each replay's own
+ *  accepted `ReaderResult` -- WORLD-ELABORATION-DESIGN.md §4.2a's
+ *  `price-world` needs the latter (a `review` row carries "all five answers
+ *  and their citations"), and this is the ONE N-times loop both it and
+ *  `replayRequest` run: `replayRequest` is defined below in terms of this
+ *  function's `agreements`, never a second copy of the loop. */
+export async function replayRequestDetailed(
+  request: ReadRequest,
+  transports: readonly ReaderTransport[],
+  n: number
+): Promise<{ agreements: KeyAgreement[]; replies: ReaderResult[] }> {
   if (!Number.isInteger(n) || n < 1) {
     throw new Error(`replayRequest: n must be a positive integer, got ${JSON.stringify(n)}`);
   }
   const tally = new Map<string, Map<string, number>>();
   for (const q of request.questions) tally.set(q.id, new Map());
+  const replies: ReaderResult[] = [];
 
   for (let i = 0; i < n; i++) {
     const reader = createTurnReader({ questions: request.questions, transports });
     const result = await reader.read(request.sources);
+    replies.push(result);
     for (const answer of result.answers) {
       const counts = tally.get(answer.questionId);
       if (!counts) continue; // defensive: an answer for a question this request never asked.
@@ -40,7 +48,7 @@ export async function replayRequest(request: ReadRequest, transports: readonly R
     }
   }
 
-  return request.questions.map((q) => {
+  const agreements = request.questions.map((q) => {
     const counts = tally.get(q.id) ?? new Map<string, number>();
     let bestKey = q.safeDefault;
     let bestCount = 0;
@@ -52,6 +60,17 @@ export async function replayRequest(request: ReadRequest, transports: readonly R
     }
     return { questionId: q.id, mostCommonKey: bestKey, agreementRate: bestCount / n, sampleSize: n };
   });
+
+  return { agreements, replies };
+}
+
+/** Re-asks ONE recorded request `n` times against `transports`, and reports
+ *  per-question agreement. A question every replay answered with its
+ *  `safeDefault` (because every rung was exhausted) still counts -- 100%
+ *  agreement on the safe default is a real, meaningful consistency result,
+ *  not a run this function should special-case away. */
+export async function replayRequest(request: ReadRequest, transports: readonly ReaderTransport[], n: number): Promise<KeyAgreement[]> {
+  return (await replayRequestDetailed(request, transports, n)).agreements;
 }
 
 /** One transcript's worth of recorded requests, replayed and reported --

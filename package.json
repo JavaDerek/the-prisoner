@@ -17,7 +17,8 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "checkpoint": "tsx src/checkpoint.ts",
-    "referee-replay": "tsx src/open/refereeReplayCli.ts"
+    "referee-replay": "tsx src/open/refereeReplayCli.ts",
+    "price-world": "tsx src/open/priceWorldCli.ts"
   },
   "dependencies": {
     "mind-seam": "0.5.0",
