@@ -141,10 +141,21 @@ export interface CitationCheck {
 
 /** Structural, so the referee needs no import of any one transport. */
 export type RefereeExchangeRecord = { readonly ms: number; readonly status?: number; readonly content?: string; readonly error?: string };
-type ExchangeKeeping = { readonly lastExchange?: () => RefereeExchangeRecord | undefined };
+/** Exported for `elaborationReferee.ts` (WORLD-ELABORATION-DESIGN.md §4.2,
+ *  P1b): the second, separate referee this game asks needs the identical
+ *  per-rung exchange-recording shape, never a second copy of it. */
+export type ExchangeKeeping = { readonly lastExchange?: () => RefereeExchangeRecord | undefined };
 
-const INTENT_SOURCE_ID = "intent";
-function descriptionSourceId(objectId: string): string {
+/** Exported for `elaborationReferee.ts` (P1b): both referees cite the
+ *  actor's intent under the identical source id, never a second name for
+ *  the same thing. */
+export const INTENT_SOURCE_ID = "intent";
+/** Exported for `elaborationReferee.ts` (P1b): the elaboration request's
+ *  `need` answer is required to cite the SAME `desc:<id>` source the base
+ *  referee's own `property` question does -- reusing this naming function
+ *  is what keeps the two in agreement rather than risking a second,
+ *  differently-spelled convention. */
+export function descriptionSourceId(objectId: string): string {
   return `desc:${objectId}`;
 }
 
@@ -358,13 +369,19 @@ function buildSources(intentText: string, perceivedObjects: readonly ObjectPerce
   return sources;
 }
 
-function answerFor(result: ReaderResult, questionId: string): AnsweredQuestion {
+/** Exported for `elaborationReferee.ts` (P1b): the identical "a question
+ *  this reader was built with has no answer" defensive lookup, generic in
+ *  the question id, never reimplemented for the elaboration request's own
+ *  single `need` question. */
+export function answerFor(result: ReaderResult, questionId: string): AnsweredQuestion {
   const answer = result.answers.find((a) => a.questionId === questionId);
   if (!answer) throw new Error(`referee: no answer for question '${questionId}' -- the reader is misconfigured`);
   return answer;
 }
 
-function citationCheck(answer: AnsweredQuestion, requiredSourceId: string | null): CitationCheck {
+/** Exported for `elaborationReferee.ts` (P1b): the identical verbatim-source
+ *  check every one of this module's own answers is held to. */
+export function citationCheck(answer: AnsweredQuestion, requiredSourceId: string | null): CitationCheck {
   const citation: RangedCitation | null = answer.citation;
   const verified = citation !== null && requiredSourceId !== null && citation.sourceId === requiredSourceId;
   return { citation, requiredSourceId, verified };
@@ -463,8 +480,12 @@ export function computeRuling(
  * the first one on its rung with the same question, key, source and quote:
  * any earlier identical offer would have passed the same checks and been the
  * one accepted. A citation given as a quote has no range and gains none.
+ *
+ * Exported for `elaborationReferee.ts` (P1b): the second referee's own
+ * single-question request needs the identical range-rebuilding, never a
+ * second copy of it.
  */
-function withRanges(result: ReaderResult, offered: readonly unknown[]): ReaderResult {
+export function withRanges(result: ReaderResult, offered: readonly unknown[]): ReaderResult {
   const answers = result.answers.map((answer) => {
     const rungOffers = answer.answeredByRung === null ? undefined : offered[answer.answeredByRung];
     if (!answer.citation || !Array.isArray(rungOffers)) return answer;

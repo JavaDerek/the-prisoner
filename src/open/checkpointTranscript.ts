@@ -269,6 +269,22 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
       lines.push("```");
     }
   }
+  // WORLD-ELABORATION-DESIGN.md §4.1/§4.2, §9 row P1b: present only when the
+  // base ruling did not apply and the `PRISONER_ELABORATE` arm asked the
+  // second, separate elaboration request -- fires and logs only, nothing is
+  // applied to the world yet (P2's own job).
+  if (half.elaboration) {
+    const e = half.elaboration;
+    lines.push(
+      `**Elaboration considered:** need \`${e.need}\`, ${citationCell(e.citation.citation)} (${e.citation.verified ? "verified" : "not verified"}). Fires and logs only -- nothing acquired.`
+    );
+    // The free consistency measurement (§4.1): only meaningful when the base
+    // ruling actually named a property (the `plan === null` path) -- never
+    // used to decide anything here or anywhere else.
+    if (half.ruling && half.ruling.property !== "none") {
+      lines.push(`  - agreement with the base ruling's own property (\`${half.ruling.property}\`): ${e.need === half.ruling.property ? "agrees" : "disagrees"}.`);
+    }
+  }
   const learns = renderOwnOutcome(half);
   if (learns) lines.push(`**Actor learns:** ${learns}`);
   const perceived = renderForOther(half);
@@ -278,13 +294,26 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
 }
 
 /** The input `npm run referee-replay` reads: one entry per half-round the
- *  referee ruled on, with the exact request it was asked. */
+ *  referee ruled on, with the exact request it was asked -- plus, per
+ *  WORLD-ELABORATION-DESIGN.md §4.2 (§9 row P1b), a SECOND entry for any
+ *  half-round whose elaboration request fired, labelled distinctly
+ *  (`round N, <principal>, elaboration: <intent>`) so the two are never
+ *  confused when replayed. */
 export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { label: string; request: ReadRequest; replies: readonly (RefereeExchangeRecord | null)[] }[] {
   // OPEN-VARIANT.md §38: each rung's raw exchange beside the request. The replay tool reads only
   // `label` and `request`, so the file stays replayable.
-  return halves.flatMap((h) =>
-    h.ruling && h.proposal ? [{ label: `round ${h.roundN}, ${h.principal}: ${h.proposal.intent}`, request: h.ruling.request as ReadRequest, replies: h.ruling.exchanges ?? [] }] : []
-  );
+  return halves.flatMap((h) => {
+    const entries: { label: string; request: ReadRequest; replies: readonly (RefereeExchangeRecord | null)[] }[] = [];
+    if (h.ruling && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}: ${h.proposal.intent}`, request: h.ruling.request as ReadRequest, replies: h.ruling.exchanges ?? [] });
+    if (h.elaboration && h.proposal) {
+      entries.push({
+        label: `round ${h.roundN}, ${h.principal}, elaboration: ${h.proposal.intent}`,
+        request: h.elaboration.request as ReadRequest,
+        replies: h.elaboration.exchanges ?? [],
+      });
+    }
+    return entries;
+  });
 }
 
 /** Private strings shorter than this are not audited: a two-word intent can

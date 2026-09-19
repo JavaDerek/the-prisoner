@@ -7,7 +7,9 @@ import { createReferee } from "../referee.js";
 import { createRefereeTransport } from "../refereeTransport.js";
 import { runOpenGame, type OpenGameResult } from "../game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, fogAudit } from "../checkpointTranscript.js";
+import { replayTranscript } from "../replay.js";
 import type { OpenHalfRoundResult } from "../loop.js";
+import type { ElaborationRuling } from "../elaborationReferee.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
 import { scriptedReferee, RULINGS, SCRAPE, EXAMINE, OPEN_DOOR, LEAVE_DOOR, WORK_LOCK } from "./helpers/scriptedReferee.js";
 
@@ -77,7 +79,7 @@ function halfWithRuling(over: { targetObjectId: string; property: string; effect
     derived: null,
     reshaped: null,
     pick: null,
-    resourceName: null,
+    resourceName: null, elaboration: null,
   };
 }
 
@@ -245,7 +247,7 @@ describe("open checkpoint transcript", () => {
       context: { principalId: "p", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
       proposal: { intent: "Lift the tile." },
       pick: { own: "Scrape the bar.", forced: true, overridden: true, verdicts: [{ candidate: "Scrape the bar.", verdict: "seen" }, { candidate: "Lift the tile.", verdict: "unseen" }] },
-      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null,
+      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null,
     }).join("\n");
     expect(text).toContain("**Forced pick:** overrode the mind's own intent: Scrape the bar.");
     expect(text).toContain("- seen: Scrape the bar.");
@@ -272,7 +274,7 @@ describe("open checkpoint transcript", () => {
       perceptionForOther: null,
       revealFor: null,
       derived: null,
-      reshaped: null, pick: null, resourceName: null,
+      reshaped: null, pick: null, resourceName: null, elaboration: null,
     }).join("\n");
     expect(text).toContain("**Candidates:**");
     expect(text).toContain("Examine the bar closely. (check for damage)");
@@ -281,7 +283,7 @@ describe("open checkpoint transcript", () => {
 
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
-      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null },
+      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null },
       { reason: "unparseable", text: "RAW_MODEL_TEXT" }
     ).join("\n");
     expect(text).toContain("**Silence.** SilenceReason: `unparseable`");
@@ -299,7 +301,7 @@ describe("open checkpoint transcript", () => {
         context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
         proposal: { intent: "I examine the bar closely." },
         ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
-        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null,
+        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null,
       },
       undefined,
       { reason: "rejected", text: "Voss," }
@@ -329,7 +331,7 @@ describe("open checkpoint transcript", () => {
       },
       proposal: { intent: "I look around." },
       ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
-      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null,
+      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null,
     }).join("\n");
     // Every id it could act on, so the target answer key set is recoverable.
     expect(text).toContain("**Perceived:** bar, window");
@@ -346,6 +348,43 @@ describe("open checkpoint transcript", () => {
     expect(requests[1].label).toBe(`round 1, prisoner: ${IMPOSSIBLE}`);
     expect(requests[1].request.sources.find((s) => s.id === "intent")?.text).toBe(IMPOSSIBLE);
     expect(requests[1].request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
+  });
+
+  it("elaboration: a SECOND sidecar entry per half-round it fired on, labelled distinctly, and `npm run referee-replay` reads it unchanged (WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b)", async () => {
+    const elaboration: ElaborationRuling = {
+      targetObjectId: "loose_tile",
+      need: "passage",
+      citation: { citation: { sourceId: "desc:loose_tile", quote: "a hollow of dry grit" }, requiredSourceId: "desc:loose_tile", verified: true },
+      raw: { answers: [], unmatched: [] },
+      request: {
+        questions: [{ id: "need", prompt: "which property?", answerKeys: ["integrity", "edge", "concealment", "passage", "none"], safeDefault: "none" }],
+        sources: [
+          { id: "intent", text: "I lift the loose tile." },
+          { id: "desc:loose_tile", text: "a hollow of dry grit" },
+        ],
+      },
+    };
+    const half: OpenHalfRoundResult = { ...halfWithRuling({ targetObjectId: "loose_tile", property: "concealment", effectKind: "wear", product: "none" }), elaboration };
+
+    const requests = refereeRequestsFor([half]);
+    // One base entry, one elaboration entry -- the base request's own shape
+    // (the-prisoner's own load-bearing constraint) is untouched by this.
+    expect(requests.length).toBe(2);
+    expect(requests[0].label).toBe("round 1, prisoner: x");
+    expect(requests[1].label).toBe("round 1, prisoner, elaboration: x");
+    expect(requests[1].request.questions.map((q) => q.id)).toEqual(["need"]);
+
+    // "npm run referee-replay must replay it with no change" (§9 row P1b) --
+    // proved by feeding the exact sidecar shape `refereeRequestsFor` writes
+    // into the real replay tool (`replay.ts`) with a scripted transport.
+    const replayed = await replayTranscript(
+      requests,
+      [async (request) => request.questions.map((q) => ({ questionId: q.id, answerKey: "passage", citation: { sourceId: "desc:loose_tile", quote: "a hollow of dry grit" } }))],
+      3
+    );
+    expect(replayed.length).toBe(2);
+    expect(replayed[1].label).toBe(requests[1].label);
+    expect(replayed[1].agreements).toEqual([{ questionId: "need", mostCommonKey: "passage", agreementRate: 1, sampleSize: 3 }]);
   });
 
   it("referee requests carry each rung's raw exchange beside the request, when the transport kept one (OPEN-VARIANT.md §38)", async () => {

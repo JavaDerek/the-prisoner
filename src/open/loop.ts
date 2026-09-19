@@ -1,9 +1,10 @@
 import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Outcome, type Expectation } from "run-dmcp";
-import { adoptDerivedObject, retireDerivedObject, nextDerivedId, declaredProperty, resourceIdForProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
+import { adoptDerivedObject, retireDerivedObject, nextDerivedId, declaredProperty, declaredPropertyKeys, resourceIdForProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
 import { findKind } from "./derivedObjects.js";
 import { computePerceivedObjects, principalLocation, type PresenceMode } from "./briefing.js";
-import type { Referee, RefereeRuling } from "./referee.js";
-import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent } from "./effects.js";
+import type { Referee, RefereeRuling, ObjectPerception } from "./referee.js";
+import type { ElaborationReferee, ElaborationRuling } from "./elaborationReferee.js";
+import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent, PROPERTY_KEYS } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
 import { pick, type Verdict } from "mother-of-invention";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
@@ -85,6 +86,16 @@ export interface OpenHalfRoundResult {
    *  an `open` ruled on the bar writes the window's `passage`. Presentation
    *  only (the-prisoner#6) -- nothing reads this to decide anything. */
   resourceName: string | null;
+  /** WORLD-ELABORATION-DESIGN.md §4.1, §4.2, §9 row P1b: the play-time
+   *  elaboration request considered on this half-round, when the BASE
+   *  ruling did not apply (§1.4's two null paths: `!ruling.applicable`, and
+   *  `plan === null`) and the `PRISONER_ELABORATE` arm is on
+   *  (`elaborationReferee` present). `null` on every other half-round --
+   *  including a successful one, a silent one, and a refusal -- and always
+   *  `null` when the arm is off, so this field adds nothing to a batch that
+   *  does not ask for it. P1b only: fires and logs; nothing here is ever
+   *  applied to the world (no mechanic exists yet -- that is P2). */
+  elaboration: ElaborationRuling | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -178,6 +189,55 @@ function objectLabel(objectId: string): string {
  *  own id, since neither §4.1 nor a derived kind is ever spelled this way). */
 function isPrincipalId(id: string): id is Principal {
   return id === "prisoner" || id === "warden";
+}
+
+/** WORLD-ELABORATION-DESIGN.md §4.1 condition 2, evaluated purely from world
+ *  data (`declaredPropertyKeys`, `world.ts`) and never from a model call:
+ *  whether `targetObjectId` has ANY property kind left to acquire at all. A
+ *  target that already declares every key in `PROPERTY_KEYS` has no `need`
+ *  answer that could ever be a genuine gap, so asking would be a request
+ *  whose answer is already knowable from data the world owns -- the
+ *  condition is checked BEFORE the model is ever asked which specific kind,
+ *  not after, exactly because it does not depend on which kind. */
+function hasRoomToElaborate(openWorld: OpenWorld, targetObjectId: string): boolean {
+  const declared = new Set(declaredPropertyKeys(openWorld, targetObjectId));
+  return PROPERTY_KEYS.some((key) => !declared.has(key));
+}
+
+/**
+ * WORLD-ELABORATION-DESIGN.md §4.1/§4.2, §9 row P1b: fires the elaboration
+ * request on a half-round whose BASE ruling did not apply. Called from
+ * BOTH of §1.4's null paths, identically -- "the elaboration request is
+ * still asked in full" even when the base ruling already named a property
+ * the target lacks (the `plan === null` path); this function never reads
+ * `ruling.property` to decide anything, only to let its caller record the
+ * free consistency measurement afterwards (§4.1: "recorded, never used to
+ * decide").
+ *
+ * `elaborationReferee` is `undefined` under the `PRISONER_ELABORATE=off`
+ * arm (the default) -- callers check that first, so this function itself
+ * never has an "off" branch: it is simply never invoked in that case, which
+ * is what keeps `off` byte-identical to every half-round recorded before
+ * this file existed (no second request, no model call, nothing to log).
+ */
+async function considerElaboration(
+  openWorld: OpenWorld,
+  elaborationReferee: ElaborationReferee,
+  targetObjectId: string,
+  proposal: OpenProposal,
+  perceivedObjects: readonly ObjectPerception[]
+): Promise<ElaborationRuling | null> {
+  // §4.1 condition 1: a real, perceived object -- never "none", and never a
+  // principal (§2: "never a person as the target").
+  if (targetObjectId === "none" || isPrincipalId(targetObjectId)) return null;
+  // §4.1 condition 2.
+  if (!hasRoomToElaborate(openWorld, targetObjectId)) return null;
+  const target = perceivedObjects.find((o) => o.id === targetObjectId);
+  // Defensive: the base referee's own target answer keys are built from
+  // exactly this list (`referee.ts`'s `buildQuestions`), so a
+  // `targetObjectId` that came from a real ruling is always one of them.
+  if (!target) return null;
+  return elaborationReferee.rule(proposal.intent, target);
 }
 
 /** One authored, positive sentence per effect kind -- used as BOTH the
@@ -314,13 +374,19 @@ export async function runOpenHalfRound(params: {
   /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). Default `"off"`:
    *  byte-identical to every batch recorded before this gap existed. */
   presenceMode?: PresenceMode;
+  /** WORLD-ELABORATION-DESIGN.md §4.1, §9 row P1b: the play-time elaboration
+   *  referee -- present only under `PRISONER_ELABORATE=property`. Absent
+   *  (the default) means `considerElaboration` is never called, which is
+   *  what keeps `off` byte-identical to every half-round recorded before
+   *  this arm existed. */
+  elaborationReferee?: ElaborationReferee;
 }): Promise<OpenHalfRoundResult> {
   const { openWorld, resolver, referee, principal, roundN, t, context, mind } = params;
   const presenceMode = params.presenceMode ?? "off";
 
   const considered = await mind.consider(context);
   if (considered === null) {
-    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null };
+    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null };
   }
 
   // §21: the recogniser is the referee itself, so "seen" means exactly what
@@ -390,7 +456,12 @@ export async function runOpenHalfRound(params: {
 
   const ruling = await referee.rule(proposal.intent, context.perceivedObjects);
   if (!ruling.applicable) {
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null };
+    // WORLD-ELABORATION-DESIGN.md §1.4's first silent null path: the
+    // referee found nothing applicable. §4.1's first of its two routes.
+    const elaboration = params.elaborationReferee
+      ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
+      : null;
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration };
   }
 
   const actorId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
@@ -445,7 +516,16 @@ export async function runOpenHalfRound(params: {
   if (plan === null) {
     // Declared applicable by the referee, but not a real (object, property)
     // pair in the scenario -- "no invented world" (invariant 6). Do nothing.
-    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null };
+    // WORLD-ELABORATION-DESIGN.md §1.4's second silent null path, §4.1's
+    // second route: the elaboration request is still asked in full here --
+    // `ruling.property` already names the gap the base ruling found, and
+    // whether `elaboration.need` agrees with it is a free consistency
+    // measurement a reader (or a future test) can make from both fields,
+    // never something this function uses to decide anything.
+    const elaboration = params.elaborationReferee
+      ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
+      : null;
+    return { ...base, proposal, ruling, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration };
   }
 
   const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
@@ -530,11 +610,11 @@ export async function runOpenHalfRound(params: {
       }
     }
 
-    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName };
+    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName, elaboration: null };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);
-      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName };
+      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName, elaboration: null };
     }
     throw err;
   }

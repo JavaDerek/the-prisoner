@@ -6,6 +6,7 @@ import { buildOpenWorld, resourceIdForProperty, type OpenWorld } from "../world.
 import { buildOpenResolver } from "../mechanics.js";
 import { planEffect } from "../effects.js";
 import { createReferee, type Referee, type RefereeRuling } from "../referee.js";
+import type { ElaborationReferee, ElaborationRuling } from "../elaborationReferee.js";
 import { runOpenHalfRound, precedentTextFor, KNOWN_APPROACH_SUSPICION_BUMP } from "../loop.js";
 import { getBelief, setBelief } from "../../ledger/beliefs.js";
 import { getNotes } from "../../ledger/notes.js";
@@ -281,6 +282,205 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
 
     expect(result.plan).toBeNull();
     expect(result.outcome).toBeNull();
+  });
+
+  // WORLD-ELABORATION-DESIGN.md §4.1/§4.2, §9 row P1b: the play-time
+  // elaboration request. Fires, logs, applies nothing -- no mechanic exists
+  // yet (P2). Every test here uses a hand-built `elaborationReferee` whose
+  // `rule` never touches a model, exactly the discipline `manualRuling`
+  // above already uses for the base referee.
+  describe("the elaboration request (WORLD-ELABORATION-DESIGN.md §4.1/§4.2, §9 row P1b)", () => {
+    function scriptedElaborationReferee(need: string, onCalled?: () => void): ElaborationReferee {
+      return {
+        async rule(_intentText, target) {
+          onCalled?.();
+          return {
+            targetObjectId: target.id,
+            need: need as ElaborationRuling["need"],
+            citation: { citation: { sourceId: `desc:${target.id}`, quote: "x" }, requiredSourceId: `desc:${target.id}`, verified: true },
+            raw: { answers: [], unmatched: [] },
+            request: { questions: [], sources: [] },
+          };
+        },
+      };
+    }
+
+    it("fires on a failed half-round (the !applicable path) when the arm is on, and its own answer reaches the result", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I pray for the wall to open." });
+      // Ungrounded: the property citation never verified, so `applicable` is
+      // false -- §1.4's FIRST silent null path.
+      const ruling: RefereeRuling = {
+        targetObjectId: "bar",
+        effectKind: "wear",
+        property: "none",
+        magnitude: "moderate",
+        perceptibility: "audible",
+        product: "none",
+        applicable: false,
+        citations: {
+          target: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+          effect: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+          property: { citation: null, requiredSourceId: "desc:bar", verified: false },
+          product: { citation: null, requiredSourceId: "intent", verified: false },
+        },
+        raw: { answers: [], unmatched: [] },
+        request: { questions: [], sources: [] },
+      };
+      const referee: Referee = { rule: async () => ruling };
+
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee,
+        principal: "prisoner",
+        roundN: 1,
+        t: openWorld.base.clock.prisonerT(1),
+        context: context(openWorld),
+        mind,
+        elaborationReferee: scriptedElaborationReferee("integrity"),
+      });
+
+      expect(result.elaboration).not.toBeNull();
+      expect(result.elaboration?.need).toBe("integrity");
+      expect(result.elaboration?.targetObjectId).toBe("bar");
+      // P1b: fires and logs, applies nothing.
+      expect(result.plan).toBeNull();
+      expect(result.outcome).toBeNull();
+    });
+
+    it("the elaboration request is asked in full on the plan === null path too, and its need is recorded independently of the base ruling's own property (§4.1: a free consistency measurement, never used to decide)", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I do something to the meal tray." });
+      const manualRuling: RefereeRuling = {
+        targetObjectId: "meal_tray",
+        effectKind: "wear",
+        property: "integrity", // meal_tray has no declared "integrity" property -- plan === null
+        magnitude: "moderate",
+        perceptibility: "audible",
+        product: "none",
+        applicable: true,
+        citations: {
+          target: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+          effect: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+          property: { citation: { sourceId: "desc:meal_tray", quote: "x" }, requiredSourceId: "desc:meal_tray", verified: true },
+          product: { citation: null, requiredSourceId: "intent", verified: false },
+        },
+        raw: { answers: [], unmatched: [] },
+        request: { questions: [], sources: [] },
+      };
+      const referee: Referee = { rule: async () => manualRuling };
+      const mealTrayContext: OpenPrincipalContext = { ...context(openWorld), perceivedObjects: [{ id: "meal_tray", description: "A shallow steel tray..." }] };
+
+      // Scripted `need` DISAGREES with the base ruling's own `property`
+      // ("integrity") on purpose -- proving the disagreement changes nothing.
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee,
+        principal: "prisoner",
+        roundN: 1,
+        t: openWorld.base.clock.prisonerT(1),
+        context: mealTrayContext,
+        mind,
+        elaborationReferee: scriptedElaborationReferee("concealment"),
+      });
+
+      expect(result.elaboration?.need).toBe("concealment");
+      expect(result.ruling?.property).toBe("integrity");
+      // Recorded, never used to decide: the disagreement leaves the outcome
+      // exactly as the base-referee-only test above found it.
+      expect(result.plan).toBeNull();
+      expect(result.outcome).toBeNull();
+    });
+
+    it("off (no elaborationReferee) never fires -- elaboration stays null, byte-identical to every half-round before this arm existed", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I pray for the wall to open." });
+      const ruling: RefereeRuling = {
+        targetObjectId: "bar",
+        effectKind: "wear",
+        property: "none",
+        magnitude: "moderate",
+        perceptibility: "audible",
+        product: "none",
+        applicable: false,
+        citations: {
+          target: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+          effect: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+          property: { citation: null, requiredSourceId: "desc:bar", verified: false },
+          product: { citation: null, requiredSourceId: "intent", verified: false },
+        },
+        raw: { answers: [], unmatched: [] },
+        request: { questions: [], sources: [] },
+      };
+      const referee: Referee = { rule: async () => ruling };
+
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee,
+        principal: "prisoner",
+        roundN: 1,
+        t: openWorld.base.clock.prisonerT(1),
+        context: context(openWorld),
+        mind,
+        // no elaborationReferee -- the arm is off
+      });
+
+      expect(result.elaboration).toBeNull();
+    });
+
+    it("never fires against a perceived PRINCIPAL as the target (§2: never a person as the target) -- the elaboration referee is never even called", async () => {
+      createTestDb();
+      const openWorld = buildOpenWorld();
+      const resolver = buildOpenResolver();
+      const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I call out to the warden for help." });
+      // Ungrounded noise at the warden -- applicable false, but the target
+      // IS a real, perceived (under §55 modelled presence) principal id.
+      const ruling: RefereeRuling = {
+        targetObjectId: "warden",
+        effectKind: "noise",
+        property: "none",
+        magnitude: "slight",
+        perceptibility: "silent",
+        product: "none",
+        applicable: false,
+        citations: {
+          target: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+          effect: { citation: null, requiredSourceId: "intent", verified: false },
+          property: { citation: null, requiredSourceId: null, verified: false },
+          product: { citation: null, requiredSourceId: "intent", verified: false },
+        },
+        raw: { answers: [], unmatched: [] },
+        request: { questions: [], sources: [] },
+      };
+      const referee: Referee = { rule: async () => ruling };
+      let called = false;
+
+      const result = await runOpenHalfRound({
+        openWorld,
+        resolver,
+        referee,
+        principal: "prisoner",
+        roundN: 1,
+        t: openWorld.base.clock.prisonerT(1),
+        context: { ...context(openWorld), perceivedObjects: [{ id: "warden", description: "The warden." }] },
+        mind,
+        elaborationReferee: scriptedElaborationReferee("integrity", () => {
+          called = true;
+        }),
+      });
+
+      expect(result.elaboration).toBeNull();
+      expect(called).toBe(false);
+    });
   });
 
   it("a prisoner's non-silent WEAR bumps warden_suspicion (OPEN-VARIANT.md §9.3, grounds accrue)", async () => {

@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { createHash } from "node:crypto";
 import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
 import { createReferee, readInstrumentMode, readDeriveWordingMode, type ObjectPerception } from "../referee.js";
 import { suspicionEligible } from "../loop.js";
@@ -608,5 +609,23 @@ describe("THE GROUNDING RULE (OPEN-VARIANT.md §55, issue #22): a person-propert
     expect(suspicionEligible("noise")).toBe(false);
     expect(suspicionEligible("reveal")).toBe(false);
     expect(suspicionEligible("conceal")).toBe(false);
+  });
+
+  // WORLD-ELABORATION-DESIGN.md §4.1: "The base referee request is
+  // byte-identical to today's" -- this task's own load-bearing constraint,
+  // the-prisoner#17's own D3 lesson repeated: a request shape change would
+  // make every batch recorded against the OLD shape incomparable with one
+  // recorded after. The elaboration request (`elaborationReferee.ts`) is a
+  // SECOND, separate reader that only ever fires on a failed half-round --
+  // it adds no question here and reads no line of `buildQuestions` below,
+  // so this pin exists to prove exactly that, mechanically, rather than by
+  // review alone: a future edit that changes so much as one character of
+  // this module's own six questions must change this hash ON PURPOSE.
+  it("PIN: the base referee request's own six questions are byte-identical to what every recorded batch was asked -- unaffected by this task's elaboration request existing at all", async () => {
+    const referee = createReferee([]);
+    const ruling = await referee.rule("I file the bar with my spoon.", [BAR, LOCK]);
+    expect(ruling.request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
+    const fingerprint = createHash("sha256").update(JSON.stringify(ruling.request.questions), "utf8").digest("hex");
+    expect(fingerprint).toBe("6d0d6943dda923f349f4a91862e6105934c9948dd6bb821333f59c684214ebca");
   });
 });

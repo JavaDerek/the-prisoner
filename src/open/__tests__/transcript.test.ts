@@ -44,6 +44,7 @@ function half(over: Partial<OpenHalfRoundResult>): OpenHalfRoundResult {
     perceptionForOther: null,
     revealFor: null,
     resourceName: null,
+    elaboration: null,
     ...over,
   };
 }

@@ -177,3 +177,15 @@ describe("elaborationBandProblems / assertElaborationBandsReady (§9 row P1's ow
     expect(lookupBand("bar", "edge", [review])).toBeUndefined();
   });
 });
+
+// WORLD-ELABORATION-DESIGN.md §9 row P1b: "the arm refuses to start on any
+// `review` or stale hash" -- checked here against the REAL defaults
+// (`ELABORATION_BANDS`, `OPEN_OBJECTS`), which is exactly what
+// `checkpoint.ts`'s own `if (ELABORATE !== "off") assertElaborationBandsReady();`
+// calls with no arguments. Today, with no `npm run price-world` run ever
+// made, `ELABORATION_BANDS` is empty -- correctly refusing, not a bug.
+describe("assertElaborationBandsReady() against the REAL scenario (§9 row P1b's own integration point)", () => {
+  it("refuses: no price-world run has ever been made, so a real PRISONER_ELABORATE=property game correctly cannot start", () => {
+    expect(() => assertElaborationBandsReady()).toThrow(/elaborationBands: cannot start/);
+  });
+});

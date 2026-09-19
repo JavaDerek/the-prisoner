@@ -51,6 +51,8 @@ import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, 
 import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
+import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
+import { assertElaborationBandsReady } from "./open/elaborationBands.js";
 import { readPresenceMode } from "./open/briefing.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
@@ -151,6 +153,11 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
  *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
  *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const INSTRUMENT = readInstrumentMode(process.env.PRISONER_INSTRUMENT);
+/** Open variant only: the play-time elaboration request (§9 row P1b,
+ *  `src/open/elaborationReferee.ts`, WORLD-ELABORATION-DESIGN.md §4.1/§4.2).
+ *  Off unless asked -- the same D3 lesson every arm here follows: fires and
+ *  logs only, applies nothing yet (P2). */
+const ELABORATE = readElaborateMode(process.env.PRISONER_ELABORATE);
 const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
 /** Open variant only: the effect question's sharpened derive/wear wording
  *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
@@ -750,6 +757,15 @@ async function main(): Promise<void> {
  * `npm run referee-replay` reads for §5.2's consistency measurement.
  */
 async function mainOpen(): Promise<void> {
+  // WORLD-ELABORATION-DESIGN.md §4.2a, §9 row P1b: with the arm on, a game
+  // may not start against a band table with any row missing, under
+  // `review`, or stale against a live description -- checked before
+  // anything else (no world, no model swap, nothing) so a misconfigured run
+  // fails immediately rather than partway through round 1. Today, with no
+  // `npm run price-world` run ever made, `ELABORATION_BANDS` is empty and
+  // this throws naming every acquirable pair -- correct, not a bug.
+  if (ELABORATE !== "off") assertElaborationBandsReady();
+
   const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE });
   const resolver = buildOpenResolver();
   const referee = createReferee(
@@ -763,6 +779,15 @@ async function mainOpen(): Promise<void> {
       deriveWording: DERIVE_WORDING,
     }
   );
+  // WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b: a second, separate referee
+  // -- never a question appended to the one above -- present only under the
+  // arm. Same model, same transport shape, its own instance (never shared
+  // with `referee` above: each wraps its own transport to record its own
+  // per-rung exchanges, and the two are never asked concurrently within a
+  // half-round, so sharing would cost nothing either way, but a second
+  // instance keeps the two referees from any accidental coupling).
+  const elaborationReferee =
+    ELABORATE === "off" ? undefined : createElaborationReferee([createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })]);
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
   // the-prisoner#20: this variant never passed `onVoiceSilence` at all, so a
@@ -978,6 +1003,12 @@ async function mainOpen(): Promise<void> {
       ? "Derive wording: SHARPENED (`PRISONER_DERIVE_WORDING=sharpened`): the effect question adds an explicit keep-the-piece test distinguishing derive from wear (§51, the-prisoner#18)."
       : "Derive wording: BASELINE (the default): the effect question's original derive/wear wording, unchanged (§51, the-prisoner#18)."
   );
+  // WORLD-ELABORATION-DESIGN.md §4.7, §9 row P1b: `off` (the default) prints
+  // NO line at all here -- not even one saying so -- because a checkpoint
+  // transcript under `off` must stay byte-identical to every one recorded
+  // before this arm existed.
+  const elaborationLine = elaborationHeaderLine(ELABORATE);
+  if (elaborationLine) transcript.push(elaborationLine);
   transcript.push(
     SEAT === "off"
       ? "Seats: both minds are models, as every recorded batch is."
@@ -1026,6 +1057,7 @@ async function mainOpen(): Promise<void> {
       prisonerMind,
       rounds: ROUNDS,
       presenceMode: PRESENCE,
+      ...(elaborationReferee ? { elaborationReferee } : {}),
       ...(precedent ? { precedent } : {}),
       ...(PICK ? { pick: PICK } : {}),
       onHalfRound: (half) => {

@@ -1,6 +1,7 @@
 import type { Resolver } from "run-dmcp";
 import type { OpenWorld } from "./world.js";
 import type { Referee } from "./referee.js";
+import type { ElaborationReferee } from "./elaborationReferee.js";
 import type { OpenMind } from "./mind.js";
 import { runOpenHalfRound, type OpenHalfRoundResult, type KnownApproach } from "./loop.js";
 import { seenAttempts } from "./precedent.js";
@@ -52,6 +53,10 @@ export async function runOpenGame(params: {
   onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
   /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). Default `"off"`. */
   presenceMode?: PresenceMode;
+  /** WORLD-ELABORATION-DESIGN.md §4.1, §9 row P1b. Absent under
+   *  `PRISONER_ELABORATE=off` (the default) -- passed through to every
+   *  half-round unchanged, never rebuilt per round. */
+  elaborationReferee?: ElaborationReferee;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
   const presenceMode = params.presenceMode ?? "off";
@@ -88,6 +93,7 @@ export async function runOpenGame(params: {
         context,
         mind: minds[principal],
         presenceMode,
+        ...(params.elaborationReferee ? { elaborationReferee: params.elaborationReferee } : {}),
         ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
         ...(principal === "prisoner" && params.pick?.force(n) ? { forcePick: { seen: [...(params.precedent?.known ?? []).map((k) => k.text), ...seenAttempts(halves)], ...(params.pick.regenerate ? { regenerate: true } : {}) } } : {}),
         ...(principal === "prisoner" && params.pick?.onReplan
