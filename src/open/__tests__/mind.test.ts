@@ -388,4 +388,53 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn }).consider(CONTEXT);
     expect(prompt).not.toMatch(/guard[ _]attention/i);
   });
+
+  // OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md §4.8: the thinking
+  // switch, on the WITS call only -- the voice call never reasons about the
+  // world (CLAUDE.md: "the wits call's intent is always what reaches the
+  // referee"). `on` (unset, the default) must leave the outgoing body
+  // byte-identical to a call built with no `thinking` option at all, not
+  // just "looks unaffected".
+  describe("PRISONER_THINKING (§64.7)", () => {
+    const REPLY = JSON.stringify({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" });
+
+    async function capturedBody(thinking?: "on" | "off"): Promise<Record<string, unknown>> {
+      let capturedInit: RequestInit | undefined;
+      const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+        capturedInit = init;
+        return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: REPLY } }] }) };
+      }) as unknown as typeof fetch;
+      await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", model: "m", fetchFn, ...(thinking ? { thinking } : {}) }).consider(CONTEXT);
+      return JSON.parse(capturedInit?.body as string);
+    }
+
+    it("single-call path, off: sends reasoning_effort: 'none'", async () => {
+      const body = await capturedBody("off");
+      expect(body.reasoning_effort).toBe("none");
+    });
+
+    it("single-call path, on and unset: byte-identical -- no reasoning_effort key at all", async () => {
+      const withoutOption = await capturedBody(undefined);
+      const explicitOn = await capturedBody("on");
+      expect(withoutOption).not.toHaveProperty("reasoning_effort");
+      expect(explicitOn).toEqual(withoutOption);
+    });
+
+    it("dual-call path, off: the wits call carries it, the voice call never does", async () => {
+      let call = 0;
+      const bodies: Record<string, unknown>[] = [];
+      const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+        call += 1;
+        bodies.push(JSON.parse((init?.body as string) ?? "{}"));
+        if (call === 1) {
+          return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ thoughts: "t", intent: "i", plan: "p", notes: "n" }) } }] }) };
+        }
+        return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "voiced", line: "" }) } }] }) };
+      }) as unknown as typeof fetch;
+      await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", witsModel: "w", voiceModel: "v", fetchFn, thinking: "off" }).consider(CONTEXT);
+      expect(bodies).toHaveLength(2);
+      expect(bodies[0].reasoning_effort).toBe("none"); // wits
+      expect(bodies[1]).not.toHaveProperty("reasoning_effort"); // voice
+    });
+  });
 });

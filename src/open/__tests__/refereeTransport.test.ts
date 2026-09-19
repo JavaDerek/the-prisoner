@@ -175,6 +175,35 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
     expect(calls).toEqual(["qwen2.5:14b"]);
   });
 
+  // OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md §4.8: the thinking
+  // switch. `on` (unset, the default) is byte-identical to every batch
+  // recorded before this arm existed -- pinned directly against a captured
+  // body, not just "does not contain the field".
+  describe("PRISONER_THINKING (§64.7)", () => {
+    async function capturedBody(thinking?: "on" | "off"): Promise<Record<string, unknown>> {
+      let capturedInit: RequestInit | undefined;
+      const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+        capturedInit = init;
+        return { ok: true, json: async () => ({ choices: [{ message: { content: "[]" } }] }) };
+      }) as unknown as typeof fetch;
+      const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn, ...(thinking ? { thinking } : {}) });
+      await transport(REQUEST);
+      return JSON.parse(capturedInit?.body as string);
+    }
+
+    it("off: sends reasoning_effort: 'none'", async () => {
+      const body = await capturedBody("off");
+      expect(body.reasoning_effort).toBe("none");
+    });
+
+    it("on, and unset: the request body is byte-identical -- no reasoning_effort key at all", async () => {
+      const withoutOption = await capturedBody(undefined);
+      const explicitOn = await capturedBody("on");
+      expect(withoutOption).not.toHaveProperty("reasoning_effort");
+      expect(explicitOn).toEqual(withoutOption);
+    });
+  });
+
   describe("the prompt it builds (OPEN-VARIANT.md §11.4: citation mechanics)", () => {
     const RICH: ReadRequest = {
       questions: [{ id: "target", prompt: "Which object?", answerKeys: ["bar", "none"], safeDefault: "none" }],

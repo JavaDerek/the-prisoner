@@ -13,6 +13,7 @@ import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import type { ObjectPerception } from "./referee.js";
 import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX } from "./world.js";
 import { renderConditionList, type Condition } from "./conditionList.js";
+import { withThinking, type ThinkingMode } from "./thinking.js";
 
 /**
  * The open variant's minds (this task's brief, "Open-mode minds (both
@@ -381,6 +382,11 @@ export interface CreateOpenMindOptions {
   /** OPEN-VARIANT.md §34: state the thresholds as a condition list at the top
    *  of the wits prompt instead of as rule sentences. Absent: the baseline. */
   conditions?: readonly Condition[];
+  /** OPEN-VARIANT.md §64.7, `thinking.ts`. Applies to the WITS call only
+   *  (the single call, when `witsModel === voiceModel`, decides `intent` and
+   *  so counts as wits too) -- the separate voice call is never wrapped, in
+   *  either mode. Default `"on"`: unwrapped, byte-identical to today. */
+  thinking?: ThinkingMode;
 }
 
 /** the-prisoner#20: a voice line whose LAST character is one of these is
@@ -444,6 +450,10 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
   }
 
   const ensureLoaded = options.ensureLoaded ?? (async () => {});
+  // §64.7: the single-call path IS the wits call (it also carries voice's
+  // `line`, but `intent` -- what reaches the referee -- is decided there),
+  // so it is wrapped too; the separate `voiceMind` below never is.
+  const witsFetchFn = withThinking(options.fetchFn, options.thinking ?? "on");
 
   if (witsModel === voiceModel) {
     const singleMind = createLocalMind<OpenPrincipalContext, OpenProposal>({
@@ -451,7 +461,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
       model: witsModel,
       temperature: options.temperature,
       timeoutMs: options.timeoutMs,
-      fetchFn: options.fetchFn,
+      fetchFn: witsFetchFn,
       responseFormat: { jsonSchema: OPEN_SINGLE_CALL_SCHEMA, name: "proposal" },
       prompt: (context) => buildOpenSingleCallPrompt(options.selfName, options.otherName, context, options.conditions),
       coerce: (raw) => {
@@ -485,7 +495,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     model: witsModel,
     temperature: options.temperature,
     timeoutMs: options.timeoutMs,
-    fetchFn: options.fetchFn,
+    fetchFn: witsFetchFn,
     responseFormat: { jsonSchema: OPEN_WITS_SCHEMA, name: "wits" },
     prompt: (context) => buildOpenWitsPrompt(options.selfName, options.otherName, context, options.conditions),
     coerce: (raw) => coerceWits(raw) as { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; replanned?: boolean; replanBecause?: string; notes?: string; line?: string } | null,

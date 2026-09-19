@@ -1,4 +1,5 @@
 import type { ReadRequest, ReaderTransport, TransportAnswer } from "run-dmcp";
+import type { ThinkingMode } from "./thinking.js";
 
 /**
  * The referee's real transport (this task's brief: "The referee transport
@@ -45,6 +46,11 @@ export interface CreateRefereeTransportOptions {
    *  only one loaded at a time. Absent in every test in this repository
    *  except a real checkpoint run. */
   ensureLoaded?: (model: string) => Promise<void>;
+  /** OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md §4.8, `thinking.ts`.
+   *  Default `"on"`: `reasoning_effort` stays unset, byte-identical to every
+   *  batch recorded before this arm existed. `"off"` sends `reasoning_effort:
+   *  "none"`. */
+  thinking?: ThinkingMode;
 }
 
 const DEFAULT_TIMEOUT_MS = 12_000;
@@ -267,6 +273,10 @@ export function createRefereeTransport(options: CreateRefereeTransportOptions): 
           stream: false,
           tools: [],
           messages: [{ role: "user", content: buildPrompt(request) }],
+          // §64.7: "off" only -- "on" (the default) never adds this key at
+          // all, so the request stays byte-identical to every batch
+          // recorded before this arm existed.
+          ...(options.thinking === "off" ? { reasoning_effort: "none" } : {}),
         }),
         signal: AbortSignal.timeout(timeoutMs),
       });

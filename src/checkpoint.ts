@@ -68,6 +68,7 @@ import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
+import { readThinkingMode } from "./open/thinking.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
 
@@ -153,6 +154,12 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
  *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
  *  asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const WINDOW = readWindowMode(process.env.PRISONER_WINDOW);
+/** Open variant only: `reasoning_effort` on the wits and referee calls
+ *  (`src/open/thinking.ts`, OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md
+ *  §4.8). On (unset) is every batch recorded before this arm existed. Read
+ *  unconditionally, same reasoning as `VIEW` (below): a misconfigured value
+ *  is caught even in a closed-variant run that never reads it. */
+const THINKING = readThinkingMode(process.env.PRISONER_THINKING);
 /** Open variant only: the referee's seventh question, naming the instrument
  *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
  *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
@@ -778,7 +785,7 @@ async function mainOpen(): Promise<void> {
   const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW });
   const resolver = buildOpenResolver();
   const referee = createReferee(
-    [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })],
+    [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: THINKING })],
     // Objects derived in this game (OPEN-VARIANT.md §13) are targets too.
     {
       isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined,
@@ -796,7 +803,7 @@ async function mainOpen(): Promise<void> {
   // half-round, so sharing would cost nothing either way, but a second
   // instance keeps the two referees from any accidental coupling).
   const elaborationReferee =
-    ELABORATE === "off" ? undefined : createElaborationReferee([createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded })]);
+    ELABORATE === "off" ? undefined : createElaborationReferee([createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: THINKING })]);
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
   // the-prisoner#20: this variant never passed `onVoiceSilence` at all, so a
@@ -812,6 +819,7 @@ async function mainOpen(): Promise<void> {
     voiceModel: VOICE_MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
     ensureLoaded,
+    thinking: THINKING,
     onSilence: (reason: string, _context: unknown, detail?: { text?: string; parsed?: unknown }) => {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
     },
@@ -1001,6 +1009,11 @@ async function mainOpen(): Promise<void> {
     WINDOW === "welded"
       ? "Window: WELDED (`PRISONER_WINDOW=welded`): the bar is flush and welded, immovable -- its integrity property, its belief line and its own condition are all gone; only the door is a working way out (§64.3)."
       : "Window: OPEN (the default): the bar wears down and gates the window's own passage, as every batch before this arm recorded (§64.3)."
+  );
+  transcript.push(
+    THINKING === "off"
+      ? "Thinking: OFF (`PRISONER_THINKING=off`): the wits and referee calls carry `reasoning_effort: \"none\"` (§64.7)."
+      : "Thinking: ON (the default): `reasoning_effort` unset on every call, as every batch before this arm recorded (§64.7)."
   );
   transcript.push(
     INSTRUMENT === "checked"
