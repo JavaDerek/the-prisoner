@@ -5828,3 +5828,144 @@ tile is packed earth, because nobody told it; whether giving pass 1 the target's
 digs without moving the covered rows is the next experiment, and it is one run. None of this is a
 pre-committed measurement: it is the owner's hand work and a bounded search, on the record so the next
 `PREDICTION.md` starts from it rather than from §67.3.
+
+## 68. The night of 2026-09-19/20: two implementations, five probes, and a setting that invalidates half of them
+
+Checkpoints: `2026-09-19-floor/`, `2026-09-19-selftarget/`, `2026-09-20-person-target/`,
+`2026-09-20-capture/`. Design: `docs/SEAT-UI-AND-CAPTURE-SWEEP.md`. Every probe carried a
+`PREDICTION.md` committed before its first call, and every result file is committed unedited, including
+one run quarantined under `2026-09-20-capture/discarded/`.
+
+**Read §68.1 first. It puts a question mark over §68.3 through §68.6.**
+
+### 68.1 Thinking ON and OFF give different rulings, on the question everything fails at
+
+Every probe below ran at `PRISONER_THINKING=off`, on the strength of §64.7's finding that thinking makes
+no measurable difference and is ~8x faster. That finding was measured on a mind noticing an advertised
+property, and reproduced on the two-pass reading's own small call. **It was never measured on the
+referee's `target` question in a twelve-object room**, which is the question every probe here failed at.
+
+The owner played a live game (thinking ON, the default) and typed *"fake a heart attack"*. It ruled
+`prisoner` / `wear` / `posture`, moving her posture 100 -> 50. The same intent, replayed at N=5 against a
+byte-identical request, read `none` / `noise` / `none` **5/5 at thinking OFF**. Isolated with everything
+else held fixed:
+
+| intent | thinking OFF | thinking ON |
+|---|---|---|
+| pretend to have a heart attack | `none`/`noise`/`none` | **`prisoner`/`wear`/`posture`** |
+| fake a heart attack | `none`/`noise`/`none` | **`prisoner`/`wear`/`posture`** |
+| clutch my chest and pretend to collapse | **`prisoner`/`wear`/`posture`** | `none`/`noise`/`none` (80%) |
+| act like I am having a heart attack | `none`/`wear`/`none` | **`prisoner`/`wear`/`posture`** |
+
+**1 of 4 off, 3 of 4 on.** Same world, same six questions, same model, temperature 0; only
+`reasoning_effort` differs. It is not uniform improvement -- one intent moved the other way -- but it is
+far beyond the noise floor everything else today sat at (100% agreement, 32 of 33 items).
+
+**What this costs.** Every number in §68.3-§68.6 is provisional until replayed at thinking ON. The
+re-run of the capture sweep is in flight as this is written. **The lesson generalises past this project:
+a performance finding measured on one call was applied to a different call because it made every probe
+8x cheaper, and it produced conclusions that were wrong.** §64.7's finding is not withdrawn; its scope
+is now known to be narrower than it was used at.
+
+### 68.2 D3 is satisfied as the game ships, and the clause built for it was harmful
+
+The owner's decision (2026-09-19) was that a faked collapse moves the faker's posture. §68.1's table
+answers it: at thinking ON, 3 of 4 phrasings rule `prisoner`/`wear`/`posture` **with no clause at all**,
+which is what his own round 1 showed. The candidate clause -- *"A feigned or performed physical act still
+moves the body that performs it"* -- was measured at thinking OFF and scored **0 of 4, worse than
+silence**, having flattened onto `noise` the one phrasing that already worked. It was never landed, per
+its own prediction. Nothing needs building for D3.
+
+### 68.3 A person is a target now, and it reached play
+
+`briefing.ts` excluded the actor from her own perceived objects ("never itself"), against
+`docs/issues/SOCIAL-INTENTS.md`'s explicit ask and with no recorded decision. `PROPERTY_ANSWER_KEYS`
+omitted `posture` while the real caller's `declaredPropertyKeys` served it, so the property prompt read
+"warden: posture" while no answer key admitted it. Both are fixed (commit `1784d53`), every clause
+conditional on a person being in view, and the base request's fingerprint PIN still passes untouched.
+
+Measured live before and after: acts on the other person went from `warden`/`wear`/**`none`** to
+`warden`/`wear`/**`posture`** 5/5; self-directed acts from 0/4 to 2/4 at thinking OFF. In the owner's own
+game it works end to end -- a collapse renders as "She is crouched low", and Croft then examined the
+prisoner closely.
+
+**What did not work, and is the standing lesson of four probes:** offering `prisoner` as a bare target key
+bought nothing (0 of 4) until the prompts also said a body is a thing that can be acted on. Three separate
+readings have now died as "a legal key, true for the case, never chosen" -- #17's `absent`, V0's
+`uncovered`, and `prisoner` -- and in two of the three, merely offering the unchosen key **degraded a
+neighbouring ruling**.
+
+### 68.4 The referee's `target` question is the bottleneck, and it reads the intent's nouns
+
+Four probes converge on one mechanism. **When an intent contains a declared object's id or name, that
+object wins, whatever any description says.** `checkpoints/2026-09-19-floor/` is the cleanest case:
+declaring a `floor` object moved both digs that NAMED the floor (one had been ruled as damage to the
+*spoon*) and neither dig that named the tile on top of it; authoring the containment in words changed
+nothing, byte for byte, on all 13 items. The diagnostic row is "crouch down low", which answers
+`property: posture` **citing the actor's own description** while answering `target: none` -- it reads her
+body, names her property, grounds it in her text, and will not say it is hers.
+
+The clause that follows from this -- an act with no stated subject is the actor's own -- is specified in
+`SEAT-UI-AND-CAPTURE-SWEEP.md` §3.1 and **not built**; it wants its own prediction, at thinking ON.
+
+### 68.5 An unplaceable intent is not refused; it is captured by the most actionable thing in the room
+
+`checkpoints/2026-09-20-capture/`, 33 intents a person might type that name no object, labelled before
+the first call. At thinking OFF, in the **default** world, 19 of 29 non-control intents were ruled `open`
+on the escape route: "pray", "help", "save my game", "what time is it?", "gather my courage" all read
+`bar`/`open`/`integrity` at 100% agreement, citing themselves. The likely cause is the bar's own text --
+*"with that bar gone, a person could climb through"* -- the most actionable prose in the room. Nothing
+breaks, because the bar is at 100 and the window is gated on it, but the player is told their prayer was
+an attempt on the window.
+
+In the **welded** arm the same set produced only 2 captures, one of them game-ending: *"is the door
+locked?"* -> `door`/`open`/`passage`, and the door has no threshold under `PRISONER_DOOR_PRICE=free`.
+**Two arms of the same scenario differ by an order of magnitude in how often an unplaceable intent is
+captured**, which is itself the finding: capture rate is a property of the prose, not of the model.
+
+### 68.6 The citation guard is satisfied by a single function word
+
+Every capture above carries a verified citation, because the quoted span really is in the source. For
+*"is the door locked?"* the `target` answer cites **"the"** and the `effect` answer -- `open`, the ruling
+that ends the game -- cites **"is"**. `CLAUDE.md` already states that code can check a citation is
+verbatim but not that it justifies the ruling. What nobody had measured is the cost: the only automated
+grounding this system has is satisfiable by an article. Citation verification lives in `run-dmcp`'s
+`createTurnReader`, so this reaches every caller of the resolve protocol. **A minimum-length rule is not
+the fix** -- legitimate citations in the corpus are routinely one word ("scrape", "push", "dig", "iron",
+"Croft").
+
+### 68.7 The other principal is told things she cannot act on
+
+From the owner's live game, and this is authoring and rendering rather than reading:
+
+- `describeAttempt` renders `wear` as *"X works at the Y"*. With a person as the target, a prisoner faking
+  a collapse reaches the warden as **"Voss works at the prisoner."** Nothing downstream can recover a
+  collapse from that sentence. The renderer's vocabulary is object-shaped and a body does not fit it.
+- `renderForOther` carries the act's sentence and the spoken `line`, and its own header says "no number,
+  no property, **no intent text**". The owner typed a taunt as an intent, so it ruled `noise` at the
+  warden and she received *"Voss called out to Croft"* -- never the words. Speech reaches the other side
+  only through the `say` channel.
+- `WARDEN_IDENTITY`/`WARDEN_MOTIVE` author a security function: eleven years, never lost a prisoner, work
+  out the plan. **Nothing gives her a stake in whether a prisoner lives, or a pride to wound.** The owner's
+  reading, and it is the right one: a character told only what their job is will respond only to their
+  job. But the two rendering gaps above must close first, or even a well-authored warden is reacting to
+  "Voss works at the prisoner".
+
+These three are unbuilt and unmeasured. The generic half of the first belongs in the authoring guide
+(*describe an act in the vocabulary of the thing it was done to*); the third is testable as an arm rather
+than assumed.
+
+### 68.8 Two errors of method, both mine, both caught by a human playing the game
+
+**The wrong arm.** The capture sweep was built from a recorded `Dig`-cell request, which carries the
+WELDED window. The owner's live game is the default. §68.5's two capture rates are the size of that
+mistake. **The wrong question set.** Rebuilding against the default world, I carried `instrumentMode:
+"checked"` from the previous probe; the default is `off`, so my six-question game was measured with seven.
+Both errors are the same shape -- a working harness was copied instead of the request being derived from
+the game -- and the fix is `checkpoints/2026-09-20-capture/build-default.mts`, which takes its objects
+from `buildOpenWorld`/`computePerceivedObjects` and its question set from the defaults, so there is
+nothing left to mis-copy.
+
+Neither was found by a test. Both were found by the owner playing four rounds and pasting the transcript.
+That is the third time in two days a human at the terminal has beaten a batch, for the reason §64 gives:
+a mind proposes what the world affords, and a person does not.
