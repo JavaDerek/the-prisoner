@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createOpenMind, renderSeatSituation, type OpenPrincipalContext } from "../mind.js";
-import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, type ViewMode } from "../humanSeat.js";
+import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, wrapText, wrapWidth, type ViewMode } from "../humanSeat.js";
 import type { Narrator } from "../narrator.js";
 import { openConditions } from "../conditions.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
@@ -12,6 +12,17 @@ const CONTEXT: OpenPrincipalContext = {
   briefing: "Round 1 of 12.\nbar integrity: 100 (as of round 1)",
   perceivedObjects: [{ id: "bar", description: "One of five vertical iron bars." }],
 };
+
+/** §1.1 wraps every view's `write` path, so a long phrase this suite checks
+ *  for verbatim can land split across two written lines at whatever column
+ *  the wrap happened to fall on. `dewrap` undoes exactly that and nothing
+ *  else: a single `\n` (the kind wrapping inserts in place of a space) goes
+ *  back to a space, while a real paragraph break (`\n\n`, never touched by
+ *  wrapping) is left alone -- so a test can still assert on a whole
+ *  sentence without pinning it to one particular terminal width. */
+function dewrap(text: string): string {
+  return text.replace(/([^\n])\n(?!\n)/g, "$1 ");
+}
 
 /** A scripted player: each question is answered by the next line, in order. */
 function player(...lines: string[]): { ask: (prompt: string) => Promise<string | undefined>; asked: string[] } {
@@ -246,7 +257,7 @@ describe("the prose view holds back the standing world once the player has read 
 
     written.length = 0;
     await mind.consider(laterContext);
-    const second = written.join("\n");
+    const second = dewrap(written.join("\n"));
     // The turn's own state, every turn: the clock, the news, the belief and
     // its stamp -- the fog this seat exists to put a person inside.
     expect(second).toContain("This is round 2 of 12.");
@@ -279,7 +290,11 @@ describe("the prose view holds back the standing world once the player has read 
     await mind.consider(CONTEXT);
     written.length = 0;
     await mind.consider(laterContext);
-    expect(written.join("\n")).toContain(renderSeatSituation(PRISONER_NAME, WARDEN_NAME, laterContext));
+    // Wrapped, not the bare `renderSeatSituation` string: §1.1 wraps every
+    // view's `write` path, so the raw view's CONTENT stays byte-identical to
+    // the model's own prompt while its LINE BREAKS do not -- the guard this
+    // test exists for (never holding anything back) is unaffected either way.
+    expect(written.join("\n")).toContain(wrapText(renderSeatSituation(PRISONER_NAME, WARDEN_NAME, laterContext), wrapWidth(process.stdout.columns)));
     expect(written.join("\n")).not.toContain("held back");
   });
 
@@ -290,7 +305,7 @@ describe("the prose view holds back the standing world once the player has read 
     await mind.consider(CONTEXT);
     written.length = 0;
     await mind.consider(laterContext);
-    expect(written.join("\n")).toContain(renderSeatSituation(PRISONER_NAME, WARDEN_NAME, laterContext));
+    expect(written.join("\n")).toContain(wrapText(renderSeatSituation(PRISONER_NAME, WARDEN_NAME, laterContext), wrapWidth(process.stdout.columns)));
     expect(written.join("\n")).toContain("One of five vertical iron bars.");
   });
 });
@@ -306,7 +321,7 @@ describe("narrated: the narrator gets the room, the rulebook is shown by code (�
   it("shows the conditions in full alongside the first narration, however little the narration says", async () => {
     const { mind, written } = seat(["wait", "", ""], { view: "narrated", narrator: scriptedNarrator(SCENE), conditions: CONDITIONS });
     await mind.consider(CONTEXT);
-    const shown = written.join("\n");
+    const shown = dewrap(written.join("\n"));
     expect(shown).toContain(SCENE);
     expect(shown).toContain("condition 1, for you.");
   });
@@ -326,7 +341,7 @@ describe("narrated: the narrator gets the room, the rulebook is shown by code (�
     await mind.consider(CONTEXT);
     written.length = 0;
     await mind.consider({ ...CONTEXT, briefing: "Round 2 of 12.\nbar integrity: 100 (as of round 1)" });
-    const second = written.join("\n");
+    const second = dewrap(written.join("\n"));
     expect(second).toContain(SCENE);
     expect(second).not.toContain("condition 1, for you.");
   });
@@ -352,7 +367,7 @@ describe("narrated: code renders state, the model renders the room (§61)", () =
     // all -- CONTEXT's own is a shorthand older tests share, which
     // `parseBriefing` keeps verbatim as news rather than reading as a belief.
     await mind.consider({ ...CONTEXT, briefing: "Round 1 of 12.\nbar integrity: 100 (as of round 1)." });
-    const shown = written.join("\n");
+    const shown = dewrap(written.join("\n"));
     expect(shown).toContain(SCENE);
     expect(shown).toContain("This is round 1 of 12.");
     expect(shown).toContain("Your last word on the bar integrity was 100, as of round 1.");
@@ -368,5 +383,43 @@ describe("narrated: code renders state, the model renders the room (§61)", () =
     const { mind, written } = seat(["raw", "wait", "", ""], { view: "narrated", narrator: scriptedNarrator(SCENE) });
     await mind.consider(CONTEXT);
     expect(written.join("\n")).toContain("One of five vertical iron bars.");
+  });
+});
+
+// docs/SEAT-UI-AND-CAPTURE-SWEEP.md §1.1, verbatim from the owner's own
+// screenshot at 189 columns: "the words don't wrap properly" -- the terminal
+// hard-wrapped mid-word ("cra/cked", "V/oss"). Wrapping now happens on word
+// boundaries, in the seat's own write path, so every view gets it for free.
+describe("word wrapping (§1.1): on word boundaries, capped at 100, never inside a word", () => {
+  it("the width is the terminal's own columns, capped at 100, and 80 with no terminal at all", () => {
+    expect(wrapWidth(undefined)).toBe(80);
+    expect(wrapWidth(60)).toBe(60);
+    expect(wrapWidth(189)).toBe(100);
+  });
+
+  it("wraps a long line on word boundaries -- every line fits, and every word survives whole and in order", () => {
+    const long = "one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen";
+    const wrapped = wrapText(long, 20);
+    for (const line of wrapped.split("\n")) expect(line.length).toBeLessThanOrEqual(20);
+    // Un-wrapping (spaces for the breaks we inserted) recovers the original
+    // words in the original order -- nothing was dropped, added, or reordered.
+    expect(wrapped.replace(/\n/g, " ")).toBe(long);
+  });
+
+  it("a word longer than the width goes on its own line, unbroken -- never hyphenated or split", () => {
+    const hugeWord = "a".repeat(150);
+    const lines = wrapText(`before ${hugeWord} after`, 20).split("\n");
+    expect(lines).toContain(hugeWord);
+  });
+
+  it("preserves blank lines and existing line breaks -- it only ever ADDS a break, never moves one", () => {
+    const text = "first paragraph, short.\n\nsecond paragraph, also short.";
+    expect(wrapText(text, 80)).toBe(text);
+  });
+
+  it("the seat wraps everything it writes, in every view -- no written line ever exceeds the capped width", async () => {
+    const { mind, written } = seat(["I test the bar.", ""], { conditions: openConditions() });
+    await mind.consider(CONTEXT);
+    for (const chunk of written) for (const line of chunk.split("\n")) expect(line.length).toBeLessThanOrEqual(100);
   });
 });

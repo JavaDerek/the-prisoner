@@ -104,8 +104,69 @@ function typed(raw: string | undefined): string | undefined {
   return trimmed !== undefined && trimmed.length > 0 ? trimmed : undefined;
 }
 
+/**
+ * §1.1: the terminal's own columns, capped at 100 -- prose past ~100
+ * columns is unreadable regardless of how wide the terminal actually is,
+ * and `undefined` (no terminal, e.g. under `vitest`) falls back to 80
+ * rather than wrapping at `Infinity`.
+ */
+export function wrapWidth(columns: number | undefined): number {
+  return Math.min(columns ?? 80, 100);
+}
+
+/** One line, wrapped to `width` on word boundaries. Tokenised into words
+ *  AND the whitespace runs between them (not just words split on `" "`),
+ *  so more than one space survives a line that fits -- the same "never
+ *  collapse what was there" discipline `wrapText` applies to line breaks,
+ *  applied here to spaces. A word opens a fresh line even when it alone is
+ *  longer than `width`: unbroken is the rule, not "fits" (§1.1: never
+ *  hyphenate or split a word). */
+function wrapLine(line: string, width: number): string[] {
+  if (line.length === 0) return [""]; // a blank line stays blank
+  const tokens = line.match(/\S+|\s+/g) ?? [];
+  const lines: string[] = [];
+  let current = "";
+  for (const token of tokens) {
+    const isSpace = /^\s+$/.test(token);
+    if (current.length === 0) {
+      if (isSpace) continue; // a fresh line never opens with whitespace
+      current = token;
+      continue;
+    }
+    if (current.length + token.length <= width) {
+      current += token;
+      continue;
+    }
+    // Doesn't fit: close the line (a trailing space at the wrap point is
+    // dropped -- it would only be invisible padding) and start the next one
+    // with this token, unless the token itself is the whitespace that ran
+    // out of room, which simply does not open a new line.
+    lines.push(current.replace(/\s+$/, ""));
+    current = isSpace ? "" : token;
+  }
+  if (current.length > 0) lines.push(current.replace(/\s+$/, ""));
+  return lines;
+}
+
+/** §1.1: wraps `text` on word boundaries to `width` columns. Every line
+ *  break already in `text` is preserved exactly -- this only ever ADDS a
+ *  break inside an over-long line, never removes or moves one that was
+ *  already there, so a blank line stays a paragraph break. Applied by the
+ *  seat's own `write` below, so `raw`, `prose` and `narrated` all get it
+ *  without each view reimplementing it. */
+export function wrapText(text: string, width: number): string {
+  return text
+    .split("\n")
+    .flatMap((line) => wrapLine(line, width))
+    .join("\n");
+}
+
 export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
-  const { selfName, otherName, ask, write } = options;
+  const { selfName, otherName, ask, write: rawWrite } = options;
+  // Every `write` call below goes through this wrapper -- the ONE place
+  // wrapping happens, so `raw`, `prose` and `narrated` all get it for free
+  // rather than each view composing its own wrapped text (§1.1).
+  const write = (text: string): void => rawWrite(wrapText(text, wrapWidth(process.stdout.columns)));
   const view = options.view ?? "raw";
   // Fail fast, same as every other misconfiguration in this file: a narrator
   // is REQUIRED for "narrated", checked once at construction rather than on
