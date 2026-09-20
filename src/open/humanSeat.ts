@@ -164,29 +164,66 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       );
       write("");
 
-      // the-prisoner#21's raw-view escape hatch: whatever this seat is shown
-      // by, typing "raw" reprints the model's own NPC view -- the simplest
-      // honest way to check the fiction view is not hiding or reshaping
-      // anything -- and asks again, spending no turn.
+      // ONE question, because that is how interactive fiction works. The
+      // model's own proposal schema has three fields (`intent`, `line`,
+      // `plan`), and this seat used to ask a person for all three in a fixed
+      // order every single turn -- which forced the player to pre-classify
+      // their own action before the referee ever saw any of it. The owner
+      // played it and typed "pretend to have a heart attack" at the first
+      // question; the speech field, asked afterwards, was left blank, and the
+      // act reached the referee decomposed in a way nobody chose.
+      //
+      // So: the intent is the one thing asked. Speech and plan are
+      // AFFORDANCES the player reaches for, on the exact pattern
+      // the-prisoner#21's `raw` already set -- a literal command token this
+      // repository defined, compared literally, never a guess at what the
+      // typed words mean (the repo's "never pattern-match meaning" rule: a
+      // literal check for a token WE defined is fine; understanding English is
+      // not). `say` and `plan` spend no turn and ask again, so a turn costs one
+      // question unless the player wants more.
+      //
+      // `say <words>` and `plan <words>` take the rest of the line inline;
+      // bare `say`/`plan` ask for it. The words are carried verbatim either
+      // way and nothing infers them.
+      const COMMANDS = ["raw", "say", "plan"] as const;
+      const commandIn = (answer: string): { command: (typeof COMMANDS)[number]; rest: string } | null => {
+        const lowered = answer.toLowerCase();
+        for (const command of COMMANDS) {
+          if (lowered === command) return { command, rest: "" };
+          if (lowered.startsWith(`${command} `)) return { command, rest: answer.slice(command.length + 1) };
+        }
+        return null;
+      };
+
       let intent: string | undefined;
+      let line: string | undefined;
+      let plan: string | undefined;
       for (;;) {
-        const answer = typed(await ask('What do you try this turn? (Enter to do nothing; type "raw" to see the raw NPC view)\n> '));
-        if (answer !== undefined && answer.toLowerCase() === "raw") {
+        const answer = typed(
+          await ask('What do you do? (Enter to do nothing; "say" to speak, "plan" to set your plan, "raw" for the raw NPC view)\n> ')
+        );
+        const command = answer === undefined ? null : commandIn(answer);
+        if (command === null) {
+          intent = answer;
+          break;
+        }
+        if (command.command === "raw") {
           write("");
           write(renderSeatSituation(selfName, otherName, context, options.conditions));
           write("");
           continue;
         }
-        intent = answer;
-        break;
+        if (command.command === "say") {
+          line = typed(command.rest) ?? typed(await ask(`What do you say aloud to ${otherName}? (Enter to stay silent)\n> `));
+          continue;
+        }
+        plan = typed(command.rest) ?? typed(await ask("Your plan for the next few turns, shown back to you next turn (Enter to keep what you had)\n> "));
       }
       if (intent === undefined) {
         write("You do nothing this turn.");
         return null;
       }
 
-      const line = typed(await ask(`What do you say aloud to ${otherName}? (Enter to stay silent)\n> `));
-      const plan = typed(await ask("Your plan for the next few turns, shown back to you next turn (Enter to keep what you had)\n> "));
       write("(Your turn goes to the referee -- it takes a moment.)");
 
       return {

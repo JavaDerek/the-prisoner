@@ -85,13 +85,38 @@ describe("the human seat", () => {
     expect(shown).toContain("One of five vertical iron bars.");
   });
 
-  it("a line spoken aloud is asked for separately and carried as `line`; silence leaves the field off", async () => {
-    const spoke = seat(["I test the bar.", "Long night, warden."]);
-    expect(await spoke.mind.consider(CONTEXT)).toEqual({ intent: "I test the bar.", line: "Long night, warden." });
-    expect(spoke.asked.length).toBe(3);
+  it("ONE question in the ordinary case: what the player types is the intent, and nothing else is asked", async () => {
+    const { mind, asked } = seat(["I test the bar."]);
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    expect(asked.length).toBe(1);
+  });
 
-    const quiet = seat(["I test the bar.", "   "]);
+  it("the prompt offers the affordances rather than demanding them: say, plan, raw", async () => {
+    const { mind, asked } = seat(["I test the bar."]);
+    await mind.consider(CONTEXT);
+    expect(asked[0]).toContain('"say"');
+    expect(asked[0]).toContain('"plan"');
+    expect(asked[0]).toContain('"raw"');
+  });
+
+  it('"say <words>" carries them as `line` and asks again, so speaking costs no turn and no extra question', async () => {
+    const spoke = seat(["say Long night, warden.", "I test the bar."]);
+    expect(await spoke.mind.consider(CONTEXT)).toEqual({ intent: "I test the bar.", line: "Long night, warden." });
+    expect(spoke.asked.length).toBe(2);
+  });
+
+  it('a bare "say" asks what to say, then returns to the one question -- and blank keeps the field off', async () => {
+    const spoke = seat(["say", "Long night, warden.", "I test the bar."]);
+    expect(await spoke.mind.consider(CONTEXT)).toEqual({ intent: "I test the bar.", line: "Long night, warden." });
+    expect(spoke.asked[1]).toContain(WARDEN_NAME);
+
+    const quiet = seat(["say", "   ", "I test the bar."]);
     expect(await quiet.mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+  });
+
+  it("silence is the default: a player who never types say gets no `line` field at all", async () => {
+    const { mind } = seat(["I test the bar."]);
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
   });
 
   it("an empty intent is a turn spent doing nothing -- a silent half-round, and no further questions", async () => {
@@ -105,9 +130,21 @@ describe("the human seat", () => {
     expect(await mind.consider(CONTEXT)).toBeNull();
   });
 
-  it("takes a plan when the player types one, and invents neither a plan nor a `replanned` they did not give (§22)", async () => {
-    const { mind } = seat(["I test the bar.", "", "work the bar until it gives"]);
-    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar.", plan: "work the bar until it gives" });
+  it('takes a plan only when the player asks to set one ("plan <words>", or a bare "plan"), and invents neither a plan nor a `replanned` they did not give (§22)', async () => {
+    const inline = seat(["plan work the bar until it gives", "I test the bar."]);
+    expect(await inline.mind.consider(CONTEXT)).toEqual({ intent: "I test the bar.", plan: "work the bar until it gives" });
+
+    const prompted = seat(["plan", "work the bar until it gives", "I test the bar."]);
+    expect(await prompted.mind.consider(CONTEXT)).toEqual({ intent: "I test the bar.", plan: "work the bar until it gives" });
+  });
+
+  it("both affordances in one turn, in either order, still spend no turn and reach the referee once", async () => {
+    const { mind } = seat(["plan get her off her feet", "say Are you all right?", "drop to the ground and clutch my chest"]);
+    expect(await mind.consider(CONTEXT)).toEqual({
+      intent: "drop to the ground and clutch my chest",
+      line: "Are you all right?",
+      plan: "get her off her feet",
+    });
   });
 
   it("gives the player the condition list when the game gives this chair one -- the same list the model would read (§34)", async () => {
@@ -149,7 +186,7 @@ describe("PRISONER_VIEW chooses how the seat is shown -- never what it is shown"
     const { mind, written, asked } = seat(["raw", "I test the bar.", ""], { view: "prose" });
     expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
     expect(written.join("\n")).toContain("- bar: One of five vertical iron bars.");
-    expect(asked.filter((p) => p.startsWith("What do you try this turn?")).length).toBe(2);
+    expect(asked.filter((p) => p.startsWith("What do you do?")).length).toBe(2);
   });
 });
 
@@ -178,7 +215,7 @@ describe("PRISONER_VIEW=narrated -- the narrator model, shown only once verified
     const { mind, written, asked } = seat(["raw", "I test the bar.", ""], { view: "narrated", narrator });
     expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
     expect(written.join("\n")).toContain("- bar: One of five vertical iron bars.");
-    expect(asked.filter((p) => p.startsWith("What do you try this turn?")).length).toBe(2);
+    expect(asked.filter((p) => p.startsWith("What do you do?")).length).toBe(2);
   });
 
   it("'narrated' with no narrator configured is a configuration error, caught at construction, never guessed past", () => {
@@ -199,7 +236,7 @@ describe("the prose view holds back the standing world once the player has read 
 
   it("shows the whole world on the first turn, and holds the unmoved parts back on the second", async () => {
     const written: string[] = [];
-    const { ask } = player("wait", "", "", "wait", "", "");
+    const { ask } = player("wait", "wait");
     const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view: "prose" });
 
     await mind.consider(CONTEXT);
@@ -223,7 +260,7 @@ describe("the prose view holds back the standing world once the player has read 
 
   it("shows an object again the moment its description moves", async () => {
     const written: string[] = [];
-    const { ask } = player("wait", "", "", "wait", "", "");
+    const { ask } = player("wait", "wait");
     const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view: "prose" });
     await mind.consider(CONTEXT);
     written.length = 0;
@@ -237,7 +274,7 @@ describe("the prose view holds back the standing world once the player has read 
   // nor as the on-demand escape hatch a player types "raw" for.
   it("never holds anything back from the raw view, on any turn", async () => {
     const written: string[] = [];
-    const { ask } = player("wait", "", "", "wait", "", "");
+    const { ask } = player("wait", "wait");
     const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t) });
     await mind.consider(CONTEXT);
     written.length = 0;
@@ -248,7 +285,7 @@ describe("the prose view holds back the standing world once the player has read 
 
   it('typing "raw" reprints everything in full, however much the prose view has held back', async () => {
     const written: string[] = [];
-    const { ask } = player("wait", "", "", "raw", "wait", "", "");
+    const { ask } = player("wait", "raw", "wait");
     const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view: "prose" });
     await mind.consider(CONTEXT);
     written.length = 0;
@@ -276,7 +313,7 @@ describe("narrated: the narrator gets the room, the rulebook is shown by code (�
 
   it("holds the conditions back on a later turn, leaving the narration to carry the round on its own", async () => {
     const written: string[] = [];
-    const { ask } = player("wait", "", "", "wait", "", "");
+    const { ask } = player("wait", "wait");
     const mind = createHumanSeatMind({
       selfName: PRISONER_NAME,
       otherName: WARDEN_NAME,
