@@ -109,12 +109,50 @@ once against the prompt as it stands, once with a candidate clause saying a feig
 moves the body that feigns it. Prediction committed before the first call. **The clause is not landed
 overnight whatever the result** -- a pass earns it a PREDICTION.md and a session of its own.
 
-## 3. Not doing, on purpose
+## 3. The rest of the queue, in order
 
-The target-question clause for subjectless imperatives (D2); landing D3's clause; the held-ness arm in the
-model-visible list (specified above, built only if 1 and 2 land clean with time left, and then as its own
-default-off commit); anything in `run-dmcp`, `brink-workshop` or the console issues (#13, #14); and
-anything that opens a database or starts a game.
+The owner's instruction, on reading the first draft of this brief: *"Why not include the stuff you're not
+doing, also? I'm going to be sleeping for a long, long time. you should work on everything you can work on
+autonomously."* So the list below is no longer deferred; it is ordered. Each item is independently
+committable, and a measured item **lands only on a pass against numbers written before its first call** --
+the discipline every probe today used, unchanged by the wider scope.
+
+**3.1 The target clause for subjectless intents.** Three probes today concluded that the `target` question
+is the bottleneck and is decided by the nouns in the intent. Both remaining self-act failures are bare
+imperatives naming nobody ("crouch down low", "pretend to have a heart attack"), while the property question
+happily cites the actor's own description. A clause saying an act with no stated subject is the actor's own
+-- which is what an English imperative means -- is the obvious candidate. `PREDICTION.md` first, same kill
+numbers as `checkpoints/2026-09-19-selftarget` (3 of 4 self acts on `target: prisoner`, no trap moving),
+replayed against the live referee. Conditional on a person in view, like every clause landed tonight, so
+comparability is untouched with presence off.
+
+**3.2 D3's pretence clause.** Same treatment, own prediction, lands on a pass.
+
+**3.3 The held-ness arm.** `PRISONER_HOLDING`, default `off`, widening the model-visible perceived-objects
+list. Its own commit, TDD, and the default keeps every recorded batch comparable.
+
+**3.4 The night's record in `OPEN-VARIANT.md`.** Today produced three pre-committed probes (the floor
+object, the self-target arms, the live re-measurement) and two implementations, and none of it is in the
+document that is supposed to hold what this game has learned. Written as §68, in the shape §66 and §67 set:
+what was asked, what came back, what it means, what it does not establish.
+
+**3.5 The authoring guide's fourth lesson, which is now half-true.** It says to declare a surface as an
+object. The floor probe measured that declaring the surface helps only intents that NAME the surface: the
+two digs naming the tile did not move, and authoring the containment did not move them either, because the
+target question never consults a description. That correction has five homes per the root `CLAUDE.md`
+(`run-dmcp/docs/AUTHORING-GUIDE.md` and a pointer in each of four repos' `CLAUDE.md`), and it must be
+written in the engine's own neutral vocabulary -- no consumer's words -- with
+`run-dmcp/src/__tests__/engineVocabulary.test.ts` run to prove it. Cross-repo, so N commits, engine first,
+each saying which other repo it depends on (root `CLAUDE.md` hard rule 3).
+
+**3.6 A seat-UI story, as a file, not as a GitHub issue.** The repo keeps its own briefs in `docs/issues/`.
+Filing to GitHub is outward-facing and the owner is asleep, so this stays a local file he can file himself.
+
+**Still not doing, and these are real boundaries rather than caution:** anything that opens a database or
+starts a game; the console issues (#13, #14), which are an architecture with a home still undecided;
+`run-dmcp`'s Appendix A engine issue, gated on a caller measurably reaching for the reading; any change to
+`OPEN_OBJECTS`, the benchmark scenario, which keeps every recorded batch comparable; and pushing anything
+outside `the-prisoner` (see below).
 
 ## 4. Operating rules for the session
 
@@ -122,3 +160,13 @@ One model on doris (`curl -s http://doris:11434/api/ps` before any call; `qwen3:
 was resident at close). No real database -- a replay opens none. Never `npm run format`. TDD for every
 `src/` change, failing first, verified failing for the right reason. Labels committed before the first
 call; results committed unedited, including bad ones. Checkpoints named `checkpoints/2026-09-20-capture/`.
+
+**Pushing.** The owner pushed `the-prisoner` tonight on request and went to bed before answering the
+question for overnight. So: `the-prisoner` work is committed and pushed to `main` as each piece lands,
+which is what he chose tonight and is reversible. Anything in **another repository** -- §3.5's engine-side
+guide change -- is committed locally and left **unpushed** for him to read first, because it is the
+published engine and he has not been asked about it.
+
+**If something is ambiguous, the rule is: finish the unambiguous parts, write down the question, and leave
+the ambiguous part undone.** A note he reads at breakfast costs him a minute; a change he did not want
+costs him an afternoon.
