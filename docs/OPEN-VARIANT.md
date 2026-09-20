@@ -5861,8 +5861,10 @@ else held fixed:
 `reasoning_effort` differs. It is not uniform improvement -- one intent moved the other way -- but it is
 far beyond the noise floor everything else today sat at (100% agreement, 32 of 33 items).
 
-**What this costs.** Every number in §68.3-§68.6 is provisional until replayed at thinking ON. The
-re-run of the capture sweep is in flight as this is written. **The lesson generalises past this project:
+**What this costs.** Every number in §68.3-§68.6 is provisional until replayed at thinking ON. The first
+such replay has now landed and **retracted the alarming half of §68.5**: unplaceable intents ruled `open`
+fell from 19 of 29 to 1 of 29, and `target: none` rose from 6 to 23. The difference is not a few rulings
+shifting -- it is whether the referee will say "none" at all. **The lesson generalises past this project:
 a performance finding measured on one call was applied to a different call because it made every probe
 8x cheaper, and it produced conclusions that were wrong.** §64.7's finding is not withdrawn; its scope
 is now known to be narrower than it was used at.
@@ -5908,7 +5910,39 @@ body, names her property, grounds it in her text, and will not say it is hers.
 The clause that follows from this -- an act with no stated subject is the actor's own -- is specified in
 `SEAT-UI-AND-CAPTURE-SWEEP.md` §3.1 and **not built**; it wants its own prediction, at thinking ON.
 
-### 68.5 An unplaceable intent is not refused; it is captured by the most actionable thing in the room
+### 68.5 An unplaceable intent is captured at thinking OFF and correctly refused at thinking ON
+
+**AMENDED after the thinking-ON replay landed. The alarming version of this section was an artifact of
+the setting, and the game as it runs is fine.** Same 33 intents, same default world, same six questions,
+same model; only `reasoning_effort` differs:
+
+| | thinking OFF | thinking ON |
+|---|---|---|
+| non-control intents ruled `open` | **19 of 29** | **1 of 29** |
+| non-control intents ruled `target: none` | 6 of 29 | **23 of 29** |
+| controls landing on the object they name | 4 of 4 | 4 of 4 |
+| wall clock | 9 min | 97 min |
+
+At thinking ON the referee declines, correctly, for "pray", "help", "save my game", "what time is it?",
+"wait", "think about the robbery" and seventeen others. The single survivor is *"beg to be let out"* ->
+`window`/`open`, which is at least about a way out, and the window is gated on the bar regardless. The
+controls hold in both arms, so the instrument was measuring what it claimed to.
+
+**This is the deepest form of §68.1's finding, and it is worth more than the capture scare it replaces:
+thinking OFF makes the referee grab at objects; thinking ON lets it answer "none".** `none` is a legal,
+closed answer key and not an absence (`effects.ts`'s own header says so), and whether the model will
+*choose* it is the behaviour that changes. Every probe that turned on "the referee would not say none"
+or "the referee absorbed this into the nearest key" must be re-read with that in view.
+
+**What stands, unchanged by the amendment:** the two arms of the same scenario still differ by an order
+of magnitude at a fixed setting (19/29 default vs 2/33 welded, both at thinking OFF), so **capture rate
+is a property of the prose as well as of the setting**. The welded arm's game-ending capture -- *"is the
+door locked?"* -> `door`/`open` against an ungated door -- was measured at thinking OFF and has NOT been
+replayed at ON; until it is, it is a hazard of the measurement fixture and not a known bug in play.
+
+The paragraphs below are the original thinking-OFF reading, kept because results are not rewritten here.
+
+
 
 `checkpoints/2026-09-20-capture/`, 33 intents a person might type that name no object, labelled before
 the first call. At thinking OFF, in the **default** world, 19 of 29 non-control intents were ruled `open`

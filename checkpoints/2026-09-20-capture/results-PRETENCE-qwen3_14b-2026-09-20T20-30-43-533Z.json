@@ -1,0 +1,1207 @@
+{
+ "arm": "PRETENCE",
+ "n": 5,
+ "model": "qwen3:14b",
+ "baseUrl": "http://doris:11434/v1",
+ "thinking": "on",
+ "started": "2026-09-20T20:30:43.534Z",
+ "results": [
+  {
+   "label": "P: pretend to have a heart attack",
+   "kind": "P",
+   "intent": "pretend to have a heart attack",
+   "source": "live default world (presence modelled)",
+   "arm": "PRETENCE",
+   "target": {
+    "key": "prisoner",
+    "agreement": 1,
+    "counts": {
+     "prisoner": 5
+    },
+    "cites": [
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack"
+    ]
+   },
+   "effect": {
+    "key": "wear",
+    "agreement": 1,
+    "counts": {
+     "wear": 5
+    },
+    "cites": [
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack"
+    ]
+   },
+   "property": {
+    "key": "posture",
+    "agreement": 1,
+    "counts": {
+     "posture": 5
+    },
+    "cites": [
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet."
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "prisoner",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "posture",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "slight",
+     "agreement": 0.8
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "cite": "pretend",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "cite": "pretend",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "cite": "pretend",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "cite": "pretend",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 46
+  },
+  {
+   "label": "P: fake a heart attack",
+   "kind": "P",
+   "intent": "fake a heart attack",
+   "source": "live default world (presence modelled)",
+   "arm": "PRETENCE",
+   "target": {
+    "key": "prisoner",
+    "agreement": 1,
+    "counts": {
+     "prisoner": 5
+    },
+    "cites": [
+     "fake a heart attack",
+     "fake a heart attack",
+     "fake a heart attack",
+     "fake a heart attack",
+     "fake a heart attack"
+    ]
+   },
+   "effect": {
+    "key": "wear",
+    "agreement": 1,
+    "counts": {
+     "wear": 5
+    },
+    "cites": [
+     "fake a heart attack",
+     "fake a heart attack",
+     "fake a heart attack",
+     "fake a heart attack",
+     "fake a heart attack"
+    ]
+   },
+   "property": {
+    "key": "posture",
+    "agreement": 1,
+    "counts": {
+     "posture": 5
+    },
+    "cites": [
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet."
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "prisoner",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "posture",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "fake a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 39
+  },
+  {
+   "label": "P: clutch my chest and pretend to collapse",
+   "kind": "P",
+   "intent": "clutch my chest and pretend to collapse",
+   "source": "live default world (presence modelled)",
+   "arm": "PRETENCE",
+   "target": {
+    "key": "none",
+    "agreement": 0.8,
+    "counts": {
+     "prisoner": 1,
+     "none": 4
+    },
+    "cites": [
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse"
+    ]
+   },
+   "effect": {
+    "key": "noise",
+    "agreement": 0.8,
+    "counts": {
+     "wear": 1,
+     "noise": 4
+    },
+    "cites": [
+     "to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse"
+    ]
+   },
+   "property": {
+    "key": "none",
+    "agreement": 0.8,
+    "counts": {
+     "posture": 1,
+     "none": 4
+    },
+    "cites": [
+     "She is on her feet.",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse",
+     "clutch my chest and pretend to collapse"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "none",
+     "agreement": 0.8
+    },
+    "effect": {
+     "key": "noise",
+     "agreement": 0.8
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "none",
+     "agreement": 0.8
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 0.8
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "clutch",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "cite": "pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "clutch my chest and pretend to collapse",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 104
+  },
+  {
+   "label": "P: act like I am having a heart attack",
+   "kind": "P",
+   "intent": "act like I am having a heart attack",
+   "source": "live default world (presence modelled)",
+   "arm": "PRETENCE",
+   "target": {
+    "key": "prisoner",
+    "agreement": 0.8,
+    "counts": {
+     "none": 1,
+     "prisoner": 4
+    },
+    "cites": [
+     "act like I am having a heart attack",
+     "I",
+     "I",
+     "I",
+     "I"
+    ]
+   },
+   "effect": {
+    "key": "wear",
+    "agreement": 1,
+    "counts": {
+     "wear": 5
+    },
+    "cites": [
+     "act like I am having a heart attack",
+     "act like I am having a heart attack",
+     "act like I am having a heart attack",
+     "act like I am having a heart attack",
+     "act like I am having a heart attack"
+    ]
+   },
+   "property": {
+    "key": "posture",
+    "agreement": 0.8,
+    "counts": {
+     "none": 1,
+     "posture": 4
+    },
+    "cites": [
+     "act like I am having a heart attack",
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet.",
+     "She is on her feet."
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "prisoner",
+     "agreement": 0.8
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "posture",
+     "agreement": 0.8
+    },
+    "magnitude": {
+     "key": "substantial",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "I",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "I",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "I",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "prisoner",
+      "cite": "I",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "act like I am having a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 81
+  }
+ ]
+}
