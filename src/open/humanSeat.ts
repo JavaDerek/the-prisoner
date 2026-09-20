@@ -241,19 +241,35 @@ function holdingAnswer(selfName: string, context: OpenPrincipalContext): string 
   return ["You are holding:", ...held.map((object) => `- ${object.id}: ${object.description}`)].join("\n");
 }
 
-/** §1.4's `look <id>`: the SAME description text `context.perceivedObjects`
- *  already carries -- byte-identical to what the referee itself is handed
- *  -- never a second look-up and never forwarded. The id is matched
- *  literally, case-insensitively (a token comparison this repository
- *  defined, not a guess at meaning); an id she does not currently perceive
- *  is answered by a refusal naming what IS here, exactly as D4 asks,
- *  instead of being silently sent on as an intent. */
-function lookAnswer(context: OpenPrincipalContext, rawId: string): string {
+/**
+ * §1.4's info command for an object's description -- named `desc`, NOT
+ * `look`. `look` was tried first and rejected: `reveal` (one of the
+ * referee's own ten effect kinds, `effects.ts`) is a real, ruled,
+ * turn-costing action -- "learn a property's true value: examine, inspect,
+ * check, look under or into" -- and "look" is its most natural English
+ * verb. Recorded intents from real games include "Look closely at the bar
+ * to assess its current state." A command keyed on that word would swallow
+ * such an intent into a free re-print of the description she was already
+ * shown this turn, instead of a ruling, and silently cost her the ability
+ * to examine anything. `desc` cannot collide with an action verb, which is
+ * the whole point of renaming it -- so it is answered whenever the token
+ * itself is typed, INCLUDING with an id that matches nothing (§1.4's own
+ * point: `desc` is unambiguously meta either way, unlike `look`).
+ *
+ * The id itself is matched by exact, case-insensitive membership against
+ * `context.perceivedObjects` -- the SAME description text the referee
+ * itself is handed, byte-identical, never a second look-up -- the same
+ * discipline the closed variant's own `coerce` uses for a move: literal
+ * membership in a list this repository wrote, never a guess at meaning. An
+ * id that does not match exactly is refused, naming what IS here, rather
+ * than fuzzily resolved.
+ */
+function descAnswer(context: OpenPrincipalContext, rawId: string): string {
   const id = rawId.trim().toLowerCase();
   const here = context.perceivedObjects.map((object) => object.id).join(", ") || "nothing";
-  if (id.length === 0) return `Look at what? What you can see: ${here}.`;
+  if (id.length === 0) return `What you can see: ${here}.`;
   const found = context.perceivedObjects.find((object) => object.id.toLowerCase() === id);
-  return found ? `${found.id}: ${found.description}` : `There is nothing called '${rawId.trim()}' here. What you can see: ${here}.`;
+  return found ? `${found.id}: ${found.description}` : `Nothing here is called that. What you can see: ${here}.`;
 }
 
 /** §1.4's `conditions`: the exact lines `renderConditionList` produces for
@@ -274,7 +290,7 @@ const HELP_TEXT = [
   "  plan <words>    set your plan for the next few turns",
   "  raw             show the raw view -- what the model in this chair would see",
   "  holding         what you are carrying",
-  "  look <id>       the description of one thing you perceive",
+  "  desc <id>       the description of one thing you perceive (free -- not the same as examining it)",
   "  conditions      reprint this chair's condition list",
   "  help            this list",
   "Anything else you type is your intent for this turn.",
@@ -394,12 +410,20 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       // way and nothing infers them.
       //
       // §1.4 (D4) adds four more literal tokens on the exact same pattern:
-      // `holding`, `look <id>`, `conditions`, `help` -- answered by the seat
+      // `holding`, `desc <id>`, `conditions`, `help` -- answered by the seat
       // from what it already has, costing no turn, never reaching the
       // referee. Round 3 of the owner's own game was spent on "what am I
       // holding now?", typed as an intent and refused; these exist so that
       // question never has to leave the terminal.
-      const COMMANDS = ["raw", "say", "plan", "holding", "look", "conditions", "help"] as const;
+      //
+      // NOT `look`: `reveal` (`effects.ts`) is a real, ruled, turn-costing
+      // action whose most natural English verb IS "look" ("Look closely at
+      // the bar to assess its current state." is a recorded real intent).
+      // `say`/`plan` do not have this problem (speech-as-intent rules a
+      // near-useless `noise`) and `raw` is not an action verb at all --
+      // `desc` was chosen exactly because it cannot collide with anything a
+      // player would type as an action.
+      const COMMANDS = ["raw", "say", "plan", "holding", "desc", "conditions", "help"] as const;
       const commandIn = (answer: string): { command: (typeof COMMANDS)[number]; rest: string } | null => {
         const lowered = answer.toLowerCase();
         for (const command of COMMANDS) {
@@ -429,8 +453,8 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
           write(holdingAnswer(selfName, context));
           continue;
         }
-        if (command.command === "look") {
-          write(lookAnswer(context, command.rest));
+        if (command.command === "desc") {
+          write(descAnswer(context, command.rest));
           continue;
         }
         if (command.command === "conditions") {

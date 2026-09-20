@@ -550,25 +550,43 @@ describe("no-turn info commands (§1.4): holding, look, conditions, help", () =>
     expect(written.join("\n")).toMatch(/not holding anything/i);
   });
 
-  it('"look <id>" answers that object\'s own description -- the SAME text the referee itself is handed -- costs no turn, and is never forwarded', async () => {
-    const { mind, written, asked } = seat(["look bar", "I test the bar."]);
+  // "look" was rejected as the command token itself: `reveal` (one of the
+  // referee's own ten effect kinds) is a real, ruled, turn-costing action,
+  // and "look" is its most natural English verb -- recorded real-game
+  // intents include "Look closely at the bar to assess its current state."
+  // An interceptor keyed on the bare word "look" would silently swallow
+  // that into a free re-read of the description instead of a ruling. `desc`
+  // cannot collide with an action verb, which is the whole point of it.
+  it('an intent beginning with "look" reaches the referee UNTOUCHED -- examining is a real, ruled action ("reveal"), and must never be swallowed by a meta command', async () => {
+    const { mind } = seat(["look closely at the bar", "look under the loose_tile"]);
+    await expect(mind.consider(CONTEXT)).resolves.toEqual({ intent: "look closely at the bar" });
+  });
+
+  it('"desc <id>" answers that object\'s own description -- the SAME text the referee itself is handed -- costs no turn, and is never forwarded', async () => {
+    const { mind, written, asked } = seat(["desc bar", "I test the bar."]);
     expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
     expect(written.join("\n")).toContain("bar: One of five vertical iron bars.");
     expect(asked.length).toBe(2);
   });
 
-  it('"look" matches the id case-insensitively -- a literal token comparison, never English understanding', async () => {
-    const { mind, written } = seat(["look BAR", "I test the bar."]);
+  it('"desc" matches the id case-insensitively -- a literal membership test against the perceived list, never English understanding', async () => {
+    const { mind, written } = seat(["desc BAR", "I test the bar."]);
     await mind.consider(CONTEXT);
     expect(written.join("\n")).toContain("One of five vertical iron bars.");
   });
 
-  it('an unknown "look" id is refused by the seat, naming what IS here -- never forwarded as an intent', async () => {
-    const { mind, written } = seat(["look unicorn", "I test the bar."]);
+  it('"desc" with an id that is not exactly one she perceives is refused by the seat, naming what IS here -- never forwarded as an intent (it is unambiguously meta either way)', async () => {
+    const { mind, written } = seat(["desc unicorn", "I test the bar."]);
     expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
     const shown = written.join("\n");
-    expect(shown).toContain("unicorn");
+    expect(shown).toMatch(/nothing here is called that/i);
     expect(shown).toContain("bar");
+  });
+
+  it('a bare "desc" with no argument lists the ids she perceives, spending nothing', async () => {
+    const { mind, written } = seat(["desc", "I test the bar."]);
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    expect(written.join("\n")).toContain("bar");
   });
 
   it('"conditions" reprints the SAME condition list this chair was given (§34), costs no turn', async () => {
@@ -588,7 +606,7 @@ describe("no-turn info commands (§1.4): holding, look, conditions, help", () =>
     const { mind, written, asked } = seat(["help", "I test the bar."]);
     expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
     const shown = written.join("\n");
-    for (const token of ["say", "plan", "raw", "holding", "look", "conditions", "help"]) expect(shown).toContain(token);
+    for (const token of ["say", "plan", "raw", "holding", "desc", "conditions", "help"]) expect(shown).toContain(token);
     expect(asked.length).toBe(2);
   });
 
