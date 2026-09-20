@@ -28,7 +28,13 @@ import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRI
  * spoon-specific, matching the engine boundary's own "generic, with at
  * least one real caller" test.
  */
-const OWNER_OF: Partial<Record<string, Principal>> = { spoon: "prisoner", key_ring: "warden" };
+// Exported (the-prisoner#11's terminal half, §1.2/§1.4): the seat's own
+// status line and `holding` command need this SAME declared ownership --
+// never a second, hand-copied map that could drift from this one. Only the
+// static §4.1 objects are here; an object DERIVED and picked up during play
+// carries its own `heldBy` on `openWorld.derived`, which is not reachable
+// from `OpenPrincipalContext` today (see humanSeat.ts's own note on this).
+export const OWNER_OF: Partial<Record<string, Principal>> = { spoon: "prisoner", key_ring: "warden" };
 
 /** OPEN-VARIANT.md §15.1: the objects some other object is held in. */
 const CONTAINERS: ReadonlySet<string> = new Set(OPEN_OBJECTS.flatMap((spec) => (spec.heldIn ? [spec.heldIn] : [])));

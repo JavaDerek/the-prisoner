@@ -3,6 +3,10 @@ import { proseBlocks, type ProseBlockKind } from "./proseView.js";
 import { createDeltaView } from "./deltaView.js";
 import type { Narrator } from "./narrator.js";
 import type { Condition } from "./conditionList.js";
+import { OWNER_OF } from "./briefing.js";
+import type { ObjectPerception } from "./referee.js";
+import { WARDEN_NAME } from "../scenario.js";
+import type { Principal } from "../ledger/beliefs.js";
 
 /**
  * A PERSON in one of the two chairs (the-prisoner#11, its terminal half).
@@ -161,6 +165,72 @@ export function wrapText(text: string, width: number): string {
     .join("\n");
 }
 
+/** `createHumanSeatMind` is only ever handed `PRISONER_NAME`/`WARDEN_NAME`
+ *  as `selfName` (`checkpoint.ts`'s own `seatMind` calls, and every test in
+ *  this file) -- the same two constants `loop.ts`'s own `principal ===
+ *  "prisoner" ? PRISONER_NAME : WARDEN_NAME` goes the other way from. This
+ *  is the seat's own inverse of that, needed only for the seat-only
+ *  surfaces below (the status line, `holding`) that read `OWNER_OF`
+ *  (`briefing.ts`), which is keyed on `Principal`, never on a display name. */
+function principalFor(selfName: string): Principal {
+  return selfName === WARDEN_NAME ? "warden" : "prisoner";
+}
+
+/** §1.2's corollary and §1.4's `holding`: what THIS principal holds, read
+ *  from the SAME declared ownership the game itself uses (`OWNER_OF`)
+ *  rather than a second, hand-copied map. Restricted to what she currently
+ *  PERCEIVES (never merely "owns" -- a concealed item she owns is still
+ *  hers to hold, and `computePerceivedObjects` already lets an owner
+ *  perceive her own things regardless of concealment, so this only ever
+ *  drops something that has been destroyed since).
+ *
+ *  Deliberately incomplete, and left that way rather than guessed at: an
+ *  object DERIVED and picked up during play carries its own `heldBy` on
+ *  `openWorld.derived`, which never reaches `OpenPrincipalContext` --
+ *  `computePerceivedObjects`'s own final `.map` strips owner information
+ *  before anything reaches a mind, model or seat alike, and widening THAT
+ *  is the model-visible `PRISONER_HOLDING` arm (D1's corollary), a
+ *  different piece of work than this one. A held object created this game
+ *  will not appear here until that plumbing exists.
+ */
+function heldObjects(selfName: string, context: OpenPrincipalContext): readonly ObjectPerception[] {
+  const principal = principalFor(selfName);
+  return context.perceivedObjects.filter((object) => OWNER_OF[object.id] === principal);
+}
+
+/**
+ * §1.2: Infocom's own -- a stable status line, drawn once per turn,
+ * immediately above the prompt. CRITICAL CONSTRAINT: it may carry ONLY what
+ * THIS principal knows. Warden suspicion is fog the prisoner is never
+ * shown, and a status bar is exactly the kind of convenience that could
+ * leak it by accident, so every field here is either read back from a
+ * specific sentence already sitting in THIS SAME principal's own
+ * `context.briefing` (never copied wholesale -- copying the whole briefing
+ * would drag the warden's own live suspicion reading along with it), or is
+ * scenario-fixed content she has already been told elsewhere in this exact
+ * view (the cell -- see below).
+ */
+function seatStatusLine(selfName: string, otherName: string, context: OpenPrincipalContext): string {
+  const parts: string[] = [];
+  const round = /^Round (\d+) of (\d+)\./.exec(context.briefing);
+  if (round) parts.push(`Round ${round[1]} of ${round[2]}`);
+  // The whole game is one room (root `~/rpg/CLAUDE.md`: "two principals,
+  // one location"), and every view already opens by telling her so ("The
+  // other person in the cell is ..." -- `identityLines`, mind.ts). Restating
+  // it here costs nothing she was not already told in this same context.
+  parts.push("the cell");
+  const held = heldObjects(selfName, context);
+  parts.push(`holding: ${held.length > 0 ? held.map((object) => object.id).join(", ") : "nothing"}`);
+  // OPEN-VARIANT.md §55: presence is only ever STATED at all when it is
+  // modelled, in one of exactly these two sentences (`buildOpenBriefing`).
+  // Read back verbatim rather than re-derived, so this is never a second
+  // source of truth about where the other principal is. Neither sentence
+  // appears when presence is "off" (the default), and both principals share
+  // the cell by construction in that mode, so "is here" is simply true.
+  parts.push(context.briefing.includes(`${otherName} is not here right now.`) ? `${otherName} is not here` : `${otherName} is here`);
+  return parts.join(" | ");
+}
+
 export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   const { selfName, otherName, ask, write: rawWrite } = options;
   // Every `write` call below goes through this wrapper -- the ONE place
@@ -224,6 +294,14 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
           "A referee decides what actually happens; you only decide what you TRY."
       );
       write("");
+
+      // §1.2/§1.3: drawn once per turn, as the LAST thing before the prompt
+      // -- a stable band, the same shape every turn, so the prompt does not
+      // seem to wander around a screen whose size above it changes turn to
+      // turn (the raw view reprints all thirteen objects every single time,
+      // by design; the delta view holds most of it back, also by design --
+      // either way, this line is what stays put).
+      write(seatStatusLine(selfName, otherName, context));
 
       // ONE question, because that is how interactive fiction works. The
       // model's own proposal schema has three fields (`intent`, `line`,

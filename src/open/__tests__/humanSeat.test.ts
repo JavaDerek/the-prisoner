@@ -31,12 +31,15 @@ function player(...lines: string[]): { ask: (prompt: string) => Promise<string |
   return { asked, ask: async (prompt: string) => (asked.push(prompt), lines[i++]) };
 }
 
-function seat(lines: string[], options: { conditions?: ReturnType<typeof openConditions>; view?: ViewMode; narrator?: Narrator } = {}) {
+function seat(
+  lines: string[],
+  options: { conditions?: ReturnType<typeof openConditions>; view?: ViewMode; narrator?: Narrator; selfName?: string; otherName?: string } = {}
+) {
   const written: string[] = [];
   const { ask, asked } = player(...lines);
   const mind = createHumanSeatMind({
-    selfName: PRISONER_NAME,
-    otherName: WARDEN_NAME,
+    selfName: options.selfName ?? PRISONER_NAME,
+    otherName: options.otherName ?? WARDEN_NAME,
     ask,
     write: (text) => written.push(text),
     ...(options.conditions ? { conditions: options.conditions } : {}),
@@ -421,5 +424,58 @@ describe("word wrapping (§1.1): on word boundaries, capped at 100, never inside
     const { mind, written } = seat(["I test the bar.", ""], { conditions: openConditions() });
     await mind.consider(CONTEXT);
     for (const chunk of written) for (const line of chunk.split("\n")) expect(line.length).toBeLessThanOrEqual(100);
+  });
+});
+
+// docs/SEAT-UI-AND-CAPTURE-SWEEP.md §1.2: Infocom's own -- a stable status
+// line, drawn once per turn, immediately above the prompt. CRITICAL: it may
+// carry ONLY what THIS principal knows -- warden suspicion is fog the
+// prisoner is never shown, and this line is built from her own context
+// alone, never from world state she has no reading of.
+describe("the status line (§1.2): a stable band, built only from this principal's own context", () => {
+  it("shows the round (from her own briefing), the cell, what she holds, and whether the other principal is here", async () => {
+    const { mind, written } = seat(["I test the bar.", ""]);
+    await mind.consider(CONTEXT);
+    expect(dewrap(written.join("\n"))).toContain("Round 1 of 12 | the cell | holding: nothing | Warden Croft is here");
+  });
+
+  it("names what she holds, from the SAME declared ownership the game itself uses (OWNER_OF), not a second guess at it", async () => {
+    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }] };
+    const { mind, written } = seat(["I test the bar.", ""]);
+    await mind.consider(withSpoon);
+    expect(dewrap(written.join("\n"))).toContain("holding: spoon");
+  });
+
+  it("names the WARDEN's own held object when she is the one seated -- never the prisoner's", async () => {
+    const wardenSees: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "key_ring", description: "A heavy iron ring of keys." }] };
+    const { mind, written } = seat(["I watch the door.", ""], { selfName: WARDEN_NAME, otherName: PRISONER_NAME });
+    await mind.consider(wardenSees);
+    expect(dewrap(written.join("\n"))).toContain("holding: key_ring");
+  });
+
+  it("never leaks warden suspicion, even if it were somehow present in this principal's own briefing text", async () => {
+    // The raw view legitimately says "suspicion" already -- the STATE-BASED
+    // RULES every principal is told name the mechanic generically ("warden
+    // suspicion rises..."), and that is not fog. What must never appear is
+    // the STATUS LINE carrying the live number, so this plants the
+    // violation directly (the prisoner's own context never carries this
+    // line in practice -- `buildOpenBriefing` only renders it for the
+    // warden) and checks the one line this feature adds, not the whole raw
+    // dump the model already reads unchanged.
+    const leaky: OpenPrincipalContext = { ...CONTEXT, briefing: `${CONTEXT.briefing}\nwarden suspicion: 40.` };
+    const { mind, written } = seat(["I test the bar.", ""]);
+    await mind.consider(leaky);
+    const statusLines = dewrap(written.join("\n"))
+      .split("\n")
+      .filter((line) => line.includes(" | holding: "));
+    expect(statusLines.length).toBeGreaterThan(0);
+    for (const line of statusLines) expect(line).not.toMatch(/suspicion/i);
+  });
+
+  it("reads the other principal's presence back from the SAME sentence her own briefing already states, never inferring it", async () => {
+    const apart: OpenPrincipalContext = { ...CONTEXT, briefing: `${CONTEXT.briefing}\nWarden Croft is not here right now.` };
+    const { mind, written } = seat(["I test the bar.", ""]);
+    await mind.consider(apart);
+    expect(dewrap(written.join("\n"))).toContain("Warden Croft is not here");
   });
 });
