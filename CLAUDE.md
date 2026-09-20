@@ -184,7 +184,13 @@ was prose and not an object, so a dig had nowhere to land and every reading file
 tile or scraping it. A physical scenario declares its floor, ceiling and walls as objects wherever a
 character could act on them. The first such row belongs in the measurement fixture
 (`docs/WORLD-ELABORATION-DESIGN-2.md` §6.7), never in the benchmark scenario, which keeps every
-recorded batch comparable.
+recorded batch comparable. **Half of that lesson was then measured away and the guide now says so**
+(`checkpoints/2026-09-19-floor/`): declaring the surface moved every dig that NAMED the floor and not
+one that named the tile on top of it, and authoring the containment in words moved nothing at all. The
+referee's `target` question is answered from the words of the intent, so no description reaches an act
+whose words name something else -- which is the same conclusion `checkpoints/2026-09-19-selftarget/`
+and `checkpoints/2026-09-20-person-target/` reached from the other direction, and it is the standing
+reason to be suspicious of any fix that hopes a description will redirect a ruling.
 
 ## Never run against a real database
 
