@@ -1,0 +1,53 @@
+{
+ "note": "Labelled by a human stand-in BEFORE the first call, committed with PREDICTION.md. `expect` is what a person reading the intent says it acts on -- never what any code derived. `none` means: it names no object this principal perceives. Analysis counts the keys the referee wrote; these labels are only ever compared against them.",
+ "groups": {
+  "BODY": "an act on the actor's own body -- expect target `prisoner` once a person is a legal target",
+  "SPEECH": "saying, shouting, whispering -- expect `warden` (a person is there to be spoken at) or `none`",
+  "QUESTION": "a question asked of the world, not an act -- expect `none`; this is what the owner typed in round 3",
+  "WAIT": "doing nothing, or marking time -- expect `none`",
+  "META": "about the game rather than in it -- expect `none`",
+  "STAGE": "a stage direction or mood, no physical object -- expect `none`",
+  "OBJECT": "a control: it DOES name an object, and must land on that object"
+ },
+ "items": [
+  {"group": "BODY",     "intent": "crouch down low",                                  "expect": "prisoner"},
+  {"group": "BODY",     "intent": "stand up straight",                                "expect": "prisoner"},
+  {"group": "BODY",     "intent": "go limp",                                          "expect": "prisoner"},
+  {"group": "BODY",     "intent": "hold my breath",                                   "expect": "prisoner"},
+  {"group": "BODY",     "intent": "turn my back",                                     "expect": "prisoner"},
+  {"group": "BODY",     "intent": "sit down",                                         "expect": "prisoner"},
+  {"group": "SPEECH",   "intent": "shout for help",                                   "expect": "warden"},
+  {"group": "SPEECH",   "intent": "scream as loudly as I can",                        "expect": "warden"},
+  {"group": "SPEECH",   "intent": "whisper that I know what she did",                 "expect": "warden"},
+  {"group": "SPEECH",   "intent": "beg to be let out",                                "expect": "warden"},
+  {"group": "SPEECH",   "intent": "tell her the door is already open",                "expect": "warden"},
+  {"group": "QUESTION", "intent": "what am I holding now?",                            "expect": "none"},
+  {"group": "QUESTION", "intent": "what time is it?",                                 "expect": "none"},
+  {"group": "QUESTION", "intent": "how many rounds do I have left?",                   "expect": "none"},
+  {"group": "QUESTION", "intent": "is the door locked?",                               "expect": "door"},
+  {"group": "QUESTION", "intent": "where am I?",                                       "expect": "none"},
+  {"group": "WAIT",     "intent": "wait",                                              "expect": "none"},
+  {"group": "WAIT",     "intent": "do nothing and listen",                             "expect": "none"},
+  {"group": "WAIT",     "intent": "wait until she leaves",                             "expect": "none"},
+  {"group": "WAIT",     "intent": "count to one hundred",                              "expect": "none"},
+  {"group": "META",     "intent": "save my game",                                      "expect": "none"},
+  {"group": "META",     "intent": "start over",                                        "expect": "none"},
+  {"group": "META",     "intent": "show me my inventory",                              "expect": "none"},
+  {"group": "META",     "intent": "help",                                              "expect": "none"},
+  {"group": "STAGE",    "intent": "think about the robbery",                           "expect": "none"},
+  {"group": "STAGE",    "intent": "remember the night they brought me in",             "expect": "none"},
+  {"group": "STAGE",    "intent": "gather my courage",                                 "expect": "none"},
+  {"group": "STAGE",    "intent": "look around the cell",                              "expect": "none"},
+  {"group": "STAGE",    "intent": "pray",                                              "expect": "none"},
+  {"group": "OBJECT",   "intent": "Use the spoon to strike the lock repeatedly",        "expect": "lock"},
+  {"group": "OBJECT",   "intent": "Pry up the loose tile to see what's underneath",     "expect": "loose_tile"},
+  {"group": "OBJECT",   "intent": "Use the spoon to push the door's bolt back",         "expect": "door"},
+  {"group": "OBJECT",   "intent": "Climb through the window",                           "expect": "window"}
+ ],
+ "pretence": [
+  {"intent": "pretend to have a heart attack",            "expect": "prisoner"},
+  {"intent": "fake a heart attack",                       "expect": "prisoner"},
+  {"intent": "clutch my chest and pretend to collapse",   "expect": "prisoner"},
+  {"intent": "act like I am having a heart attack",       "expect": "prisoner"}
+ ]
+}
