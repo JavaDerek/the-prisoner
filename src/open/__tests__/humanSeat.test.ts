@@ -493,6 +493,30 @@ describe("the status line (§1.2): a stable band, built only from this principal
     const writesBeforeIt = trace.slice(0, firstAsk).filter((entry) => entry.startsWith("WRITE:"));
     expect(writesBeforeIt.at(-1)).toContain(" | holding: ");
   });
+
+  // A real status bar does not disappear the moment a no-turn command is
+  // used. The owner's own smoke test: `holding` then `desc <id>` each print
+  // their answer and re-ask "What do you do?" -- and the status line used to
+  // be drawn only once, before the FIRST ask, so it scrolled away and every
+  // later prompt in that same turn sat there with no band above it.
+  it("redraws the status line immediately before EVERY prompt in the turn, not just the first (§1.2, re-draw)", async () => {
+    const trace: string[] = [];
+    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }] };
+    const { ask } = player("holding", "desc bar", "I test the bar.");
+    const mind = createHumanSeatMind({
+      selfName: PRISONER_NAME,
+      otherName: WARDEN_NAME,
+      write: (t) => trace.push(`WRITE:${t}`),
+      ask: async (p) => (trace.push(`ASK:${p}`), await ask(p)),
+    });
+    expect(await mind.consider(withSpoon)).toEqual({ intent: "I test the bar." });
+
+    // Every ASK in the trace has the status line as the WRITE immediately
+    // before it -- not merely present somewhere earlier in the turn.
+    const askIndices = trace.reduce<number[]>((acc, entry, i) => (entry.startsWith("ASK:") ? [...acc, i] : acc), []);
+    expect(askIndices.length).toBe(3); // "What do you do?" asked three times: holding, desc, then the real intent.
+    for (const i of askIndices) expect(trace[i - 1]).toContain(" | holding: ");
+  });
 });
 
 // docs/SEAT-UI-AND-CAPTURE-SWEEP.md §1.3: "the input area moves" -- the raw

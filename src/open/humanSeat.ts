@@ -379,13 +379,22 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       );
       write("");
 
-      // §1.2/§1.3: drawn once per turn, as the LAST thing before the prompt
-      // -- a stable band, the same shape every turn, so the prompt does not
-      // seem to wander around a screen whose size above it changes turn to
-      // turn (the raw view reprints all thirteen objects every single time,
-      // by design; the delta view holds most of it back, also by design --
-      // either way, this line is what stays put).
-      write(seatStatusLine(selfName, otherName, context));
+      // §1.2/§1.3: a stable band, the LAST thing written before EVERY
+      // prompt this turn -- not only the first. A no-turn command
+      // (`holding`, `desc`, `raw`, a bare `say`/`plan`) answers and asks
+      // again without spending the turn, and the status line used to be
+      // written once before the loop began, so it scrolled away the moment
+      // any of those was used: a player who leaned on `holding`/`desc`
+      // repeatedly (exactly the players §1.2 exists for) lost the band for
+      // every prompt after the first. Redrawn here instead of once, so the
+      // pair always sits at the bottom together. Nothing in it can change
+      // mid-turn -- no info command touches state -- so this is purely
+      // about WHERE it is written, never a second computation of different
+      // content.
+      const askWithStatus = (prompt: string): Promise<string | undefined> => {
+        write(seatStatusLine(selfName, otherName, context));
+        return ask(prompt);
+      };
 
       // ONE question, because that is how interactive fiction works. The
       // model's own proposal schema has three fields (`intent`, `line`,
@@ -437,7 +446,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       let line: string | undefined;
       let plan: string | undefined;
       for (;;) {
-        const answer = typed(await ask('What do you do? (Enter to do nothing; "say", "plan", "raw", or "help" for more commands)\n> '));
+        const answer = typed(await askWithStatus('What do you do? (Enter to do nothing; "say", "plan", "raw", or "help" for more commands)\n> '));
         const command = answer === undefined ? null : commandIn(answer);
         if (command === null) {
           intent = answer;
@@ -466,10 +475,10 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
           continue;
         }
         if (command.command === "say") {
-          line = typed(command.rest) ?? typed(await ask(`What do you say aloud to ${otherName}? (Enter to stay silent)\n> `));
+          line = typed(command.rest) ?? typed(await askWithStatus(`What do you say aloud to ${otherName}? (Enter to stay silent)\n> `));
           continue;
         }
-        plan = typed(command.rest) ?? typed(await ask("Your plan for the next few turns, shown back to you next turn (Enter to keep what you had)\n> "));
+        plan = typed(command.rest) ?? typed(await askWithStatus("Your plan for the next few turns, shown back to you next turn (Enter to keep what you had)\n> "));
       }
       if (intent === undefined) {
         write("You do nothing this turn.");
