@@ -2,7 +2,7 @@ import { renderSeatSituation, type OpenMind, type OpenPrincipalContext, type Ope
 import { proseBlocks, type ProseBlockKind } from "./proseView.js";
 import { createDeltaView } from "./deltaView.js";
 import type { Narrator } from "./narrator.js";
-import type { Condition } from "./conditionList.js";
+import { renderConditionList, type Condition } from "./conditionList.js";
 import { OWNER_OF } from "./briefing.js";
 import type { ObjectPerception } from "./referee.js";
 import { WARDEN_NAME } from "../scenario.js";
@@ -231,6 +231,55 @@ function seatStatusLine(selfName: string, otherName: string, context: OpenPrinci
   return parts.join(" | ");
 }
 
+/** §1.4's `holding`: the SAME objects the status line's own "holding: ..."
+ *  field lists (`heldObjects` above), each with its full description in the
+ *  style `objectLines` (mind.ts) already uses for the perceived-objects
+ *  catalogue -- never a second rendering of what an object is. */
+function holdingAnswer(selfName: string, context: OpenPrincipalContext): string {
+  const held = heldObjects(selfName, context);
+  if (held.length === 0) return "You are not holding anything.";
+  return ["You are holding:", ...held.map((object) => `- ${object.id}: ${object.description}`)].join("\n");
+}
+
+/** §1.4's `look <id>`: the SAME description text `context.perceivedObjects`
+ *  already carries -- byte-identical to what the referee itself is handed
+ *  -- never a second look-up and never forwarded. The id is matched
+ *  literally, case-insensitively (a token comparison this repository
+ *  defined, not a guess at meaning); an id she does not currently perceive
+ *  is answered by a refusal naming what IS here, exactly as D4 asks,
+ *  instead of being silently sent on as an intent. */
+function lookAnswer(context: OpenPrincipalContext, rawId: string): string {
+  const id = rawId.trim().toLowerCase();
+  const here = context.perceivedObjects.map((object) => object.id).join(", ") || "nothing";
+  if (id.length === 0) return `Look at what? What you can see: ${here}.`;
+  const found = context.perceivedObjects.find((object) => object.id.toLowerCase() === id);
+  return found ? `${found.id}: ${found.description}` : `There is nothing called '${rawId.trim()}' here. What you can see: ${here}.`;
+}
+
+/** §1.4's `conditions`: the exact lines `renderConditionList` produces for
+ *  this reader -- the same call `seatSituationParts` (mind.ts) makes when
+ *  opening the turn -- reprinted on demand rather than only once at the
+ *  top. A chair the game gave no condition list to is told so plainly
+ *  rather than shown an empty answer. */
+function conditionsAnswer(selfName: string, conditions: readonly Condition[] | undefined): string {
+  const lines = conditions ? renderConditionList(conditions, { reader: selfName }) : [];
+  return lines.length > 0 ? lines.join("\n") : "This chair has no condition list.";
+}
+
+/** §1.4's `help`: the command set itself, in the same voice as the prompt's
+ *  own hint below -- computed once, since it depends on nothing per-turn. */
+const HELP_TEXT = [
+  "Commands (each costs no turn, and none of them reach the referee):",
+  '  say <words>     speak the words aloud',
+  "  plan <words>    set your plan for the next few turns",
+  "  raw             show the raw view -- what the model in this chair would see",
+  "  holding         what you are carrying",
+  "  look <id>       the description of one thing you perceive",
+  "  conditions      reprint this chair's condition list",
+  "  help            this list",
+  "Anything else you type is your intent for this turn.",
+].join("\n");
+
 export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   const { selfName, otherName, ask, write: rawWrite } = options;
   // Every `write` call below goes through this wrapper -- the ONE place
@@ -343,7 +392,14 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       // `say <words>` and `plan <words>` take the rest of the line inline;
       // bare `say`/`plan` ask for it. The words are carried verbatim either
       // way and nothing infers them.
-      const COMMANDS = ["raw", "say", "plan"] as const;
+      //
+      // §1.4 (D4) adds four more literal tokens on the exact same pattern:
+      // `holding`, `look <id>`, `conditions`, `help` -- answered by the seat
+      // from what it already has, costing no turn, never reaching the
+      // referee. Round 3 of the owner's own game was spent on "what am I
+      // holding now?", typed as an intent and refused; these exist so that
+      // question never has to leave the terminal.
+      const COMMANDS = ["raw", "say", "plan", "holding", "look", "conditions", "help"] as const;
       const commandIn = (answer: string): { command: (typeof COMMANDS)[number]; rest: string } | null => {
         const lowered = answer.toLowerCase();
         for (const command of COMMANDS) {
@@ -357,9 +413,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       let line: string | undefined;
       let plan: string | undefined;
       for (;;) {
-        const answer = typed(
-          await ask('What do you do? (Enter to do nothing; "say" to speak, "plan" to set your plan, "raw" for the raw NPC view)\n> ')
-        );
+        const answer = typed(await ask('What do you do? (Enter to do nothing; "say", "plan", "raw", or "help" for more commands)\n> '));
         const command = answer === undefined ? null : commandIn(answer);
         if (command === null) {
           intent = answer;
@@ -369,6 +423,22 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
           write("");
           write(renderSeatSituation(selfName, otherName, context, options.conditions));
           write("");
+          continue;
+        }
+        if (command.command === "holding") {
+          write(holdingAnswer(selfName, context));
+          continue;
+        }
+        if (command.command === "look") {
+          write(lookAnswer(context, command.rest));
+          continue;
+        }
+        if (command.command === "conditions") {
+          write(conditionsAnswer(selfName, options.conditions));
+          continue;
+        }
+        if (command.command === "help") {
+          write(HELP_TEXT);
           continue;
         }
         if (command.command === "say") {

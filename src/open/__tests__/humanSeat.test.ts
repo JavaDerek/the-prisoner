@@ -528,3 +528,74 @@ describe("the opening banner (§1.3): PRISONER_VIEW=prose, mentioned once, on th
     expect(narrated.written.join("\n")).not.toMatch(/PRISONER_VIEW=prose/);
   });
 });
+
+// docs/SEAT-UI-AND-CAPTURE-SWEEP.md §1.4 (D4): round 3 of the owner's own
+// game was spent on "what am I holding now?", which reached the referee as
+// an intent and was refused. A small fixed set of no-turn info commands, on
+// the EXACT pattern `raw`/`say`/`plan` already set: literal tokens this
+// repository defined, compared literally, answered by the seat from what it
+// already has, never forwarded to the referee.
+describe("no-turn info commands (§1.4): holding, look, conditions, help", () => {
+  it('"holding" answers from the same declared ownership the status line uses, costs no turn, and is never forwarded', async () => {
+    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }] };
+    const { mind, written, asked } = seat(["holding", "I test the bar."]);
+    expect(await mind.consider(withSpoon)).toEqual({ intent: "I test the bar." });
+    expect(written.join("\n")).toContain("spoon: A bent institutional spoon.");
+    expect(asked.length).toBe(2);
+  });
+
+  it('"holding" says so plainly when she is holding nothing', async () => {
+    const { mind, written } = seat(["holding", "I test the bar."]);
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).toMatch(/not holding anything/i);
+  });
+
+  it('"look <id>" answers that object\'s own description -- the SAME text the referee itself is handed -- costs no turn, and is never forwarded', async () => {
+    const { mind, written, asked } = seat(["look bar", "I test the bar."]);
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    expect(written.join("\n")).toContain("bar: One of five vertical iron bars.");
+    expect(asked.length).toBe(2);
+  });
+
+  it('"look" matches the id case-insensitively -- a literal token comparison, never English understanding', async () => {
+    const { mind, written } = seat(["look BAR", "I test the bar."]);
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).toContain("One of five vertical iron bars.");
+  });
+
+  it('an unknown "look" id is refused by the seat, naming what IS here -- never forwarded as an intent', async () => {
+    const { mind, written } = seat(["look unicorn", "I test the bar."]);
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    const shown = written.join("\n");
+    expect(shown).toContain("unicorn");
+    expect(shown).toContain("bar");
+  });
+
+  it('"conditions" reprints the SAME condition list this chair was given (§34), costs no turn', async () => {
+    const { mind, written, asked } = seat(["conditions", "I test the bar."], { conditions: openConditions() });
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    expect(dewrap(written.join("\n"))).toContain("can open the window");
+    expect(asked.length).toBe(2);
+  });
+
+  it('"conditions" says plainly when this chair was given none', async () => {
+    const { mind, written } = seat(["conditions", "I test the bar."]);
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).toMatch(/no condition list/i);
+  });
+
+  it('"help" lists the command set, costs no turn, and is never forwarded', async () => {
+    const { mind, written, asked } = seat(["help", "I test the bar."]);
+    expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
+    const shown = written.join("\n");
+    for (const token of ["say", "plan", "raw", "holding", "look", "conditions", "help"]) expect(shown).toContain(token);
+    expect(asked.length).toBe(2);
+  });
+
+  it("the prompt's own hint mentions the commands without becoming a wall of text", async () => {
+    const { mind, asked } = seat(["I test the bar."]);
+    await mind.consider(CONTEXT);
+    expect(asked[0]).toMatch(/help/);
+    expect(asked[0].length).toBeLessThan(200);
+  });
+});
