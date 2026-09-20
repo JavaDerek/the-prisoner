@@ -1,0 +1,3361 @@
+{
+ "arm": "SELF",
+ "n": 5,
+ "model": "qwen3:14b",
+ "baseUrl": "http://doris:11434/v1",
+ "thinking": "off",
+ "started": "2026-09-20T00:35:09.072Z",
+ "results": [
+  {
+   "label": "S: pretend to have a heart attack",
+   "kind": "S",
+   "intent": "pretend to have a heart attack",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack"
+    ]
+   },
+   "effect": {
+    "key": "noise",
+    "agreement": 1,
+    "counts": {
+     "noise": 5
+    },
+    "cites": [
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack"
+    ]
+   },
+   "property": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack",
+     "pretend to have a heart attack"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "none",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "noise",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "none",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "pretend to have a heart attack",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "S: drop to the ground and clutch my chest",
+   "kind": "S",
+   "intent": "drop to the ground and clutch my chest",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest"
+    ]
+   },
+   "effect": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest"
+    ]
+   },
+   "property": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest",
+     "drop to the ground and clutch my chest"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "none",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "none",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "slight",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "silent",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "drop to the ground and clutch my chest",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "S: collapse on the floor and lie still",
+   "kind": "S",
+   "intent": "collapse on the floor and lie still",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still"
+    ]
+   },
+   "effect": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still"
+    ]
+   },
+   "property": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still",
+     "collapse on the floor and lie still"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "none",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "none",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "none",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "slight",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "silent",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "slight",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "perceptibility",
+      "key": "silent",
+      "fromDefault": true,
+      "rejected": 1
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "collapse on the floor and lie still",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "S: crouch down low",
+   "kind": "S",
+   "intent": "crouch down low",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "window",
+    "agreement": 1,
+    "counts": {
+     "window": 5
+    },
+    "cites": [
+     "crouch down low",
+     "crouch down low",
+     "crouch down low",
+     "crouch down low",
+     "crouch down low"
+    ]
+   },
+   "effect": {
+    "key": "open",
+    "agreement": 1,
+    "counts": {
+     "open": 5
+    },
+    "cites": [
+     "crouch down low",
+     "crouch down low",
+     "crouch down low",
+     "crouch down low",
+     "crouch down low"
+    ]
+   },
+   "property": {
+    "key": "passage",
+    "agreement": 1,
+    "counts": {
+     "passage": 5
+    },
+    "cites": [
+     "set high in",
+     "set high in",
+     "set high in",
+     "set high in",
+     "set high in"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "window",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "open",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "passage",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "window",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "set high in",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "window",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "set high in",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "window",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "set high in",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "window",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "set high in",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "window",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "set high in",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "crouch down low",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "O: push Croft to the floor",
+   "kind": "O",
+   "intent": "push Croft to the floor",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "warden",
+    "agreement": 1,
+    "counts": {
+     "warden": 5
+    },
+    "cites": [
+     "Croft",
+     "Croft",
+     "Croft",
+     "Croft",
+     "Croft"
+    ]
+   },
+   "effect": {
+    "key": "wear",
+    "agreement": 1,
+    "counts": {
+     "wear": 5
+    },
+    "cites": [
+     "push",
+     "push",
+     "push",
+     "push",
+     "push"
+    ]
+   },
+   "property": {
+    "key": "none",
+    "agreement": 0.8,
+    "counts": {
+     "posture": 1,
+     "none": 4
+    },
+    "cites": [
+     "She is on her feet.",
+     "Warden",
+     "Warden",
+     "Warden",
+     "Warden"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "warden",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "none",
+     "agreement": 0.8
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "warden",
+      "cite": "Croft",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "posture",
+      "cite": "She is on her feet.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "warden",
+      "cite": "Croft",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "Warden",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "warden",
+      "cite": "Croft",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "Warden",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "warden",
+      "cite": "Croft",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "Warden",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "warden",
+      "cite": "Croft",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "Warden",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 18
+  },
+  {
+   "label": "X: shout for help",
+   "kind": "X",
+   "intent": "shout for help",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "shout for help",
+     "shout for help",
+     "shout for help",
+     "shout for help",
+     "shout for help"
+    ]
+   },
+   "effect": {
+    "key": "noise",
+    "agreement": 1,
+    "counts": {
+     "noise": 5
+    },
+    "cites": [
+     "shout for help",
+     "shout for help",
+     "shout for help",
+     "shout for help",
+     "shout for help"
+    ]
+   },
+   "property": {
+    "key": "none",
+    "agreement": 1,
+    "counts": {
+     "none": 5
+    },
+    "cites": [
+     "shout for help",
+     "shout for help",
+     "shout for help",
+     "shout for help",
+     "shout for help"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "none",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "noise",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "none",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "noise",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "shout for help",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "T: Use the spoon to strike the lock repeatedly",
+   "kind": "T",
+   "intent": "Use the spoon to strike the lock repeatedly",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "lock",
+    "agreement": 1,
+    "counts": {
+     "lock": 5
+    },
+    "cites": [
+     "the",
+     "the",
+     "the",
+     "the",
+     "the"
+    ]
+   },
+   "effect": {
+    "key": "wear",
+    "agreement": 1,
+    "counts": {
+     "wear": 5
+    },
+    "cites": [
+     "strike the lock repeatedly",
+     "strike the lock repeatedly",
+     "strike the lock repeatedly",
+     "strike the lock repeatedly",
+     "strike the lock repeatedly"
+    ]
+   },
+   "property": {
+    "key": "integrity",
+    "agreement": 1,
+    "counts": {
+     "integrity": 5
+    },
+    "cites": [
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+     "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "lock",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "substantial",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "lock",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "substantial",
+      "cite": "repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "strike the lock repeatedly",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "T: Pry up the loose tile to see what's underneath",
+   "kind": "T",
+   "intent": "Pry up the loose tile to see what's underneath",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "loose_tile",
+    "agreement": 1,
+    "counts": {
+     "loose_tile": 5
+    },
+    "cites": [
+     "the loose tile",
+     "the loose tile",
+     "the loose tile",
+     "the loose tile",
+     "the loose tile"
+    ]
+   },
+   "effect": {
+    "key": "reveal",
+    "agreement": 1,
+    "counts": {
+     "reveal": 5
+    },
+    "cites": [
+     "to see what's underneath",
+     "to see what's underneath",
+     "to see what's underneath",
+     "to see what's underneath",
+     "to see what's underneath"
+    ]
+   },
+   "property": {
+    "key": "concealment",
+    "agreement": 1,
+    "counts": {
+     "concealment": 5
+    },
+    "cites": [
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is",
+     "beneath it is"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "loose_tile",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "reveal",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "concealment",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "visible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "none",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "the loose tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "the loose tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "the loose tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "the loose tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "loose_tile",
+      "cite": "the loose tile",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "reveal",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "to see what's underneath",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "concealment",
+      "cite": "beneath it is",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "visible",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "none",
+      "cite": "Pry up",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "T: Use the spoon to push the door's bolt back",
+   "kind": "T",
+   "intent": "Use the spoon to push the door's bolt back",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "door",
+    "agreement": 1,
+    "counts": {
+     "door": 5
+    },
+    "cites": [
+     "the",
+     "the",
+     "the",
+     "the",
+     "the"
+    ]
+   },
+   "effect": {
+    "key": "open",
+    "agreement": 1,
+    "counts": {
+     "open": 5
+    },
+    "cites": [
+     "Use the spoon to push the door's bolt back",
+     "Use the spoon to push the door's bolt back",
+     "Use the spoon to push the door's bolt back",
+     "Use the spoon to push the door's bolt back",
+     "Use the spoon to push the door's bolt back"
+    ]
+   },
+   "property": {
+    "key": "passage",
+    "agreement": 1,
+    "counts": {
+     "passage": 5
+    },
+    "cites": [
+     "the",
+     "the",
+     "the",
+     "the",
+     "the"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "door",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "open",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "passage",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "door",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "open",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use the spoon to push the door's bolt back",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "passage",
+      "cite": "the",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "push",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  },
+  {
+   "label": "T: Use the spoon and grit from the loose_tile to scrape the window bar's weld again",
+   "kind": "T",
+   "intent": "Use the spoon and grit from the loose_tile to scrape the window bar's weld again",
+   "source": "2026-09-19-elaboration/Dig/2026-09-19T18-04-52-181Z.referee.json",
+   "arm": "SELF",
+   "target": {
+    "key": "bar",
+    "agreement": 1,
+    "counts": {
+     "bar": 5
+    },
+    "cites": [
+     "window",
+     "window",
+     "window",
+     "window",
+     "window"
+    ]
+   },
+   "effect": {
+    "key": "wear",
+    "agreement": 1,
+    "counts": {
+     "wear": 5
+    },
+    "cites": [
+     "scrape",
+     "scrape",
+     "scrape",
+     "scrape",
+     "scrape"
+    ]
+   },
+   "property": {
+    "key": "integrity",
+    "agreement": 1,
+    "counts": {
+     "integrity": 5
+    },
+    "cites": [
+     "An iron bar",
+     "An iron bar",
+     "An iron bar",
+     "An iron bar",
+     "An iron bar"
+    ]
+   },
+   "perQuestion": {
+    "target": {
+     "key": "bar",
+     "agreement": 1
+    },
+    "effect": {
+     "key": "wear",
+     "agreement": 1
+    },
+    "product": {
+     "key": "none",
+     "agreement": 1
+    },
+    "property": {
+     "key": "integrity",
+     "agreement": 1
+    },
+    "magnitude": {
+     "key": "moderate",
+     "agreement": 1
+    },
+    "perceptibility": {
+     "key": "audible",
+     "agreement": 1
+    },
+    "instrument": {
+     "key": "spoon",
+     "agreement": 1
+    }
+   },
+   "replies": [
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": "window",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "An iron bar",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": "window",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "An iron bar",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": "window",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "An iron bar",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": "window",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "An iron bar",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ],
+    [
+     {
+      "q": "target",
+      "key": "bar",
+      "cite": "window",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "effect",
+      "key": "wear",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "product",
+      "key": "none",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "property",
+      "key": "integrity",
+      "cite": "An iron bar",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "magnitude",
+      "key": "moderate",
+      "cite": "Use",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "perceptibility",
+      "key": "audible",
+      "cite": "scrape",
+      "fromDefault": false,
+      "rejected": 0
+     },
+     {
+      "q": "instrument",
+      "key": "spoon",
+      "cite": "spoon",
+      "fromDefault": false,
+      "rejected": 0
+     }
+    ]
+   ],
+   "secs": 17
+  }
+ ]
+}
