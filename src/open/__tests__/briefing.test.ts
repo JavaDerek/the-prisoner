@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
-import { buildOpenWorld, resourceIdForProperty } from "../world.js";
+import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { planEffect } from "../effects.js";
 import { computePerceivedObjects, buildOpenBriefing, buildOpenContext, readPresenceMode, authoredDescription } from "../briefing.js";
@@ -149,9 +149,34 @@ describe("open-mode perception and briefing", () => {
       const prisoner = wardenView.find((o) => o.id === "prisoner");
       expect(warden?.description).toBeTruthy();
       expect(prisoner?.description).toBeTruthy();
-      // Never itself: a principal is not its own target.
-      expect(prisonerView.some((o) => o.id === "prisoner")).toBe(false);
-      expect(wardenView.some((o) => o.id === "warden")).toBe(false);
+      // Issue #22 gap 3: and HERSELF. A body is a thing that can be acted on,
+      // so the actor is among her own perceived objects, described the same way
+      // the other principal is -- the measurement in
+      // `checkpoints/2026-09-19-selftarget/` found her own `posture` declared
+      // (0-100, wear 10/50/100) and unreachable because she was not a target.
+      // `off` (the default) perceives neither, as the test above pins.
+      const self = prisonerView.find((o) => o.id === "prisoner");
+      const wardenSelf = wardenView.find((o) => o.id === "warden");
+      expect(self?.description).toBeTruthy();
+      expect(wardenSelf?.description).toBeTruthy();
+    });
+
+    it("modelled, in a world built with the presence arm on: a principal's own description carries her own posture, so an act on her body has words to be cited (issue #22 gap 3)", () => {
+      createTestDb();
+      // The arm as production builds it: `buildOpenWorld({ presence })` is what
+      // creates the `*_posture` resources at all, so this is the only shape in
+      // which a rendered posture band can exist to be cited.
+      const world = buildOpenWorld({ presence: "modelled" });
+      const t0 = world.base.clock.t0;
+      const prisonerView = computePerceivedObjects(world, "prisoner", t0, "modelled");
+      const self = prisonerView.find((o) => o.id === "prisoner");
+      const other = prisonerView.find((o) => o.id === "warden");
+      expect(self?.description).toContain("She is on her feet.");
+      expect(other?.description).toContain("She is on her feet.");
+      // And the property the referee would name for an act on that body is the
+      // one the world actually built, from the caller's own lookup.
+      expect(declaredPropertyKeys(world, "prisoner")).toEqual(["posture"]);
+      expect(declaredPropertyKeys(world, "warden")).toEqual(["posture"]);
     });
 
     it("modelled: once the warden leaves through the door, the prisoner no longer perceives her, or her key ring, which travels with her -- and she still perceives the (cell-fixed) bar", () => {

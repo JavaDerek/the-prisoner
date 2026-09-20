@@ -27,6 +27,28 @@ export const PERCEPTIBILITIES: readonly Perceptibility[] = ["silent", "audible",
 export const PROPERTY_KEYS: readonly OpenPropertyKey[] = ["integrity", "edge", "concealment", "passage"];
 export const PROPERTY_ANSWER_KEYS: readonly string[] = [...PROPERTY_KEYS, "none"];
 
+/** Issue #22 gap 3: the keys a PERSON declares and an object never does
+ *  (`scenarioObjects.ts`'s `posture`). Deliberately NOT in `PROPERTY_KEYS`,
+ *  which is the elaborable-object vocabulary: `elaborationBands.ts` iterates
+ *  that set to price every (object, need) pair and its own header states the
+ *  reason -- "a person is never elaborated (§2)". `PROPERTY_ANSWER_KEYS` stays
+ *  exactly the four-plus-none set `elaborationReferee.ts` documents itself as
+ *  reusing, so neither the pricing table nor the `need` question can silently
+ *  gain a person's key.
+ *
+ *  Only the RULING's own property question widens, and only when a person is
+ *  actually perceived (`referee.ts`): with the presence arm off no person is
+ *  ever in view, so the base request stays byte-identical to every recorded
+ *  batch -- which `referee.test.ts`'s fingerprint PIN proves mechanically. */
+export const PERSON_PROPERTY_KEYS: readonly OpenPropertyKey[] = ["posture"];
+
+/** The property answers a ruling may give for the objects actually in view:
+ *  the object vocabulary always, plus a person's own keys when one is there
+ *  to be acted on. */
+export function rulingPropertyAnswerKeys(personInView: boolean): readonly string[] {
+  return personInView ? [...PROPERTY_KEYS, ...PERSON_PROPERTY_KEYS, "none"] : [...PROPERTY_ANSWER_KEYS];
+}
+
 /** `noise` is the one effect kind that names no property at all
  *  (OPEN-VARIANT.md §4.2: "a perceptible event with no state change"). */
 export function effectRequiresProperty(effectKind: EffectKind): boolean {

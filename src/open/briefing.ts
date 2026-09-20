@@ -180,17 +180,29 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
     .map((object) => ({ id: object.id, description: object.description }));
 
   // OPEN-VARIANT.md §55, gap 2: the OTHER principal, perceivable exactly
-  // when presence says they are here -- never itself (a principal is not
-  // its own target).
+  // when presence says they are here -- and, issue #22 gap 3, the actor
+  // HERSELF, who needs no location test because she is always where she is.
+  //
+  // This used to read "never itself (a principal is not its own target)",
+  // against `docs/issues/SOCIAL-INTENTS.md`'s own explicit ask ("targeting the
+  // ACTOR's own newly-target-able self") and with no decision recorded for the
+  // divergence. `checkpoints/2026-09-19-selftarget/` measured what it cost: a
+  // human in the seat typed "pretend to have a heart attack" and was told it
+  // "matches none of what is here", because her own body -- whose `posture` is
+  // declared 0-100 with `wear` magnitudes -- was the one thing in the room she
+  // could not act on. A body is a thing that can be acted on; that is all this
+  // is.
   if (presenceMode === "modelled") {
     const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
-    if (principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t)) {
-      // Issue #22 gap 3: a person carries its own declared state, so the
-      // description the other principal perceives -- and the referee cites --
-      // reads it the same way an object's does ("She is lying on the floor").
-      const spec = OPEN_PERSONS.find((p) => p.id === other);
-      objects.push({ id: other, description: spec ? describedAsItStands(openWorld, spec, t) : PRINCIPAL_DESCRIPTION[other] });
-    }
+    // Issue #22 gap 3: a person carries its own declared state, so the
+    // description a principal perceives -- and the referee cites -- reads it
+    // the same way an object's does ("She is lying on the floor").
+    const perceive = (who: Principal): void => {
+      const spec = OPEN_PERSONS.find((p) => p.id === who);
+      objects.push({ id: who, description: spec ? describedAsItStands(openWorld, spec, t) : PRINCIPAL_DESCRIPTION[who] });
+    };
+    if (principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t)) perceive(other);
+    perceive(principal);
   }
   return objects;
 }

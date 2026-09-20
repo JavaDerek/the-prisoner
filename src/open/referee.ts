@@ -1,5 +1,5 @@
 import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type TransportAnswer } from "run-dmcp";
-import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PROPERTY_ANSWER_KEYS, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
+import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findObject, findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
 import type { RangedCitation } from "./refereeTransport.js";
@@ -228,6 +228,19 @@ function buildQuestions(
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
   const propertyList = perceivedObjects.map((o) => `${o.id}: ${propertiesOf(o.id).join(", ") || "none"}`).join("; ");
+  // Issue #22 gap 3. A person in view is an object that declares a key only a
+  // person has (`PERSON_PROPERTY_KEYS`), so this module needs no scenario
+  // import and no new parameter, and the clauses below appear exactly when
+  // there is a body to act on. With the presence arm off none is ever
+  // perceived and every question below is byte-identical to what every
+  // recorded batch was asked -- the fingerprint PIN in `referee.test.ts`.
+  const personsInView = perceivedObjects.filter((o) => propertiesOf(o.id).some((k) => (PERSON_PROPERTY_KEYS as readonly string[]).includes(k)));
+  const personInView = personsInView.length > 0;
+  const PERSON_TARGET_CLAUSE =
+    " A person here is a thing that can be acted on like any other: an act on someone else's body -- pushing them down, hauling them up -- names that person, and an act on the actor's OWN body -- collapsing, dropping to the floor, crouching, going limp -- names the actor herself.";
+  const PERSON_EFFECT_CLAUSE =
+    " An act that changes how a person's own body is held -- dropping to the floor, collapsing, crouching down, going limp -- is wear on that person; an act that gets a body back up off the floor is restore on that person. The body is the target, even when the act is a performance and nothing else in the room changes.";
+  const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), ";
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
   // in the effect question by example and offered as the product keys. A
@@ -262,6 +275,7 @@ function buildQuestions(
         // OPEN-VARIANT.md §30: §19's lesson a third time -- the effect question's own rule about ways
         // out never reached this question, and an intent that goes THROUGH something acts on nothing.
         "An intent that goes out through a way out acts on that way out: name it, never none. " +
+        (personInView ? PERSON_TARGET_CLAUSE : "") +
         "Cite the exact words in the actor's intent that name it.",
       answerKeys: targetKeys,
       safeDefault: "none",
@@ -286,6 +300,7 @@ function buildQuestions(
         `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
         "is to have the piece afterwards; wear is for damage that leaves nothing in hand. " +
         deriveClarification +
+        (personInView ? PERSON_EFFECT_CLAUSE : "") +
         "Cite the exact words in the actor's intent that describe the action.",
       answerKeys: [...EFFECT_KINDS],
       safeDefault: "none",
@@ -303,7 +318,9 @@ function buildQuestions(
       id: "property",
       prompt:
         "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
-        "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), or none " +
+        "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), " +
+        (personInView ? PERSON_PROPERTY_CLAUSE : "") +
+        "or none " +
         "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). " +
         "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
         "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. " +
@@ -315,7 +332,7 @@ function buildQuestions(
         "An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). " +
         "Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
-      answerKeys: [...PROPERTY_ANSWER_KEYS],
+      answerKeys: [...rulingPropertyAnswerKeys(personInView)],
       safeDefault: "none",
     },
     {

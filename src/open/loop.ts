@@ -154,8 +154,14 @@ export function describeUnseenAttempt(principal: Principal): string {
 
 /** OPEN-VARIANT.md §55 (issue #22): exported so the grounding rule's own
  *  regression test (referee.test.ts) can pin the asymmetry directly --
- *  `noise` (the only effect a principal-targeted act can ever produce,
- *  §55) is not in this set, and was not before this gap either. */
+ *  `noise` is not in this set, and was not before this gap either.
+ *
+ *  This used to add "(the only effect a principal-targeted act can ever
+ *  produce, §55)". That stopped being true when the referee learned to name a
+ *  person's `posture` (issue #22 gap 3): a principal-targeted act can now rule
+ *  `wear` or `restore` as well. The asymmetry the test pins is unaffected --
+ *  `suspicionEligibleFor` below exempts a person as the target whatever the
+ *  effect kind is, which is why widening the effect changed nothing here. */
 export function suspicionEligible(effectKind: EffectKind): boolean {
   return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave" || effectKind === "derive";
 }

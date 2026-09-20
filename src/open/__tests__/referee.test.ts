@@ -629,3 +629,128 @@ describe("THE GROUNDING RULE (OPEN-VARIANT.md §55, issue #22): a person-propert
     expect(fingerprint).toBe("6d0d6943dda923f349f4a91862e6105934c9948dd6bb821333f59c684214ebca");
   });
 });
+
+/**
+ * Issue #22 gap 3, and the measurement that motivated it
+ * (`checkpoints/2026-09-19-selftarget/RESULTS.md`): a person's `posture` is
+ * fully declared in `OPEN_PERSONS` (0-100, `wear` 10/50/100) and was
+ * unreachable by the referee from BOTH sides -- the property question had no
+ * `posture` answer key, and the acting principal was excluded from her own
+ * perceived objects. The probe measured `warden`/`wear`/`none` 5/5 on "push
+ * Croft to the floor" while the model cited exactly the right ground ("She is
+ * on her feet."), and 0/4 on self-directed acts with `prisoner` offered as a
+ * bare key and no prompt saying a body is a thing you can act on.
+ *
+ * Every addition here is conditional on a person actually being in view, so
+ * the PIN above (the base request's fingerprint, with only objects perceived)
+ * cannot move: with the presence arm off, no person is ever perceived, and the
+ * request is byte-identical to every recorded batch.
+ */
+describe("a person as a target: the other, and the actor's own body (issue #22 gap 3)", () => {
+  const MARA: ObjectPerception = {
+    id: "prisoner",
+    description: "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet.",
+  };
+  const CROFT: ObjectPerception = {
+    id: "warden",
+    description: "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet.",
+  };
+  /** What the real caller's `declaredPropertyKeys` returns under the presence
+   *  arm: a person declares `posture`, an object declares its own keys. */
+  const withPersons = (id: string): readonly string[] => (id === "prisoner" || id === "warden" ? ["posture"] : id === "bar" ? ["integrity"] : []);
+  const personDeclared = (objectId: string, key: string): boolean => (objectId === "prisoner" || objectId === "warden" ? key === "posture" : key === "integrity");
+
+  async function questionsFor(
+    perceived: readonly ObjectPerception[],
+    options: Parameters<typeof createReferee>[1] = {}
+  ): Promise<readonly { id: string; prompt: string; answerKeys: readonly string[] }[]> {
+    let questions: readonly { id: string; prompt: string; answerKeys: readonly string[] }[] = [];
+    await createReferee(
+      [
+        async (request) => {
+          questions = request.questions;
+          return [];
+        },
+      ],
+      options
+    ).rule("drop to the ground and clutch my chest", perceived);
+    return questions;
+  }
+
+  it("posture is a legal property answer exactly when a person is in view -- and the object-only key set is untouched otherwise", async () => {
+    const withPerson = await questionsFor([BAR, MARA], { propertiesOf: withPersons });
+    expect(withPerson.find((q) => q.id === "property")?.answerKeys).toContain("posture");
+
+    const objectsOnly = await questionsFor([BAR, LOCK]);
+    expect(objectsOnly.find((q) => q.id === "property")?.answerKeys).toEqual(["integrity", "edge", "concealment", "passage", "none"]);
+  });
+
+  it("the property, effect and target questions gain their person clauses only when a person is in view", async () => {
+    const q = await questionsFor([BAR, MARA, CROFT], { propertiesOf: withPersons });
+    expect(q.find((x) => x.id === "property")?.prompt).toContain("posture (a person's own bounded physical state");
+    expect(q.find((x) => x.id === "effect")?.prompt).toContain("is wear on that person");
+    expect(q.find((x) => x.id === "target")?.prompt).toContain("the actor's OWN body");
+
+    const objectsOnly = await questionsFor([BAR, LOCK]);
+    expect(objectsOnly.find((x) => x.id === "property")?.prompt).not.toContain("posture");
+    expect(objectsOnly.find((x) => x.id === "effect")?.prompt).not.toContain("that person");
+    expect(objectsOnly.find((x) => x.id === "target")?.prompt).not.toContain("OWN body");
+  });
+
+  it("a grounded wear ruling on the OTHER person's posture is applicable -- the probe's own 'push Croft to the floor', which read property=none 5/5 before this", async () => {
+    const ruling = await createReferee(
+      [
+        scriptedTransport({
+          target: { answerKey: "warden", citation: { sourceId: "intent", quote: "Croft" } },
+          effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "push Croft to the floor" } },
+          property: { answerKey: "posture", citation: { sourceId: "desc:warden", quote: "She is on her feet." } },
+          magnitude: { answerKey: "substantial", citation: { sourceId: "intent", quote: "push" } },
+          perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "push Croft to the floor" } },
+        }),
+      ],
+      { propertiesOf: withPersons, isDeclared: personDeclared }
+    ).rule("push Croft to the floor", [BAR, CROFT]);
+
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.targetObjectId).toBe("warden");
+    expect(ruling.effectKind).toBe("wear");
+    expect(ruling.property).toBe("posture");
+    expect(ruling.citations.property.verified).toBe(true);
+  });
+
+  it("a grounded wear ruling on the ACTOR'S OWN posture is applicable -- the owner's own faked heart attack, which had no target at all before this", async () => {
+    const ruling = await createReferee(
+      [
+        scriptedTransport({
+          target: { answerKey: "prisoner", citation: { sourceId: "intent", quote: "drop to the ground" } },
+          effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "drop to the ground" } },
+          property: { answerKey: "posture", citation: { sourceId: "desc:prisoner", quote: "She is on her feet." } },
+          magnitude: { answerKey: "substantial", citation: { sourceId: "intent", quote: "drop to the ground" } },
+          perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "clutch my chest" } },
+        }),
+      ],
+      { propertiesOf: withPersons, isDeclared: personDeclared }
+    ).rule("drop to the ground and clutch my chest", [BAR, MARA]);
+
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.targetObjectId).toBe("prisoner");
+    expect(ruling.property).toBe("posture");
+  });
+
+  it("PLANTED VIOLATION: posture claimed for an OBJECT is not declared, so the ruling is not applicable", async () => {
+    const ruling = await createReferee(
+      [
+        scriptedTransport({
+          target: { answerKey: "bar", citation: { sourceId: "intent", quote: "bar" } },
+          effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "push the bar over" } },
+          property: { answerKey: "posture", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+          magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "push" } },
+          perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "push the bar over" } },
+        }),
+      ],
+      { propertiesOf: withPersons, isDeclared: personDeclared }
+    ).rule("push the bar over", [BAR, MARA]);
+
+    expect(ruling.applicable).toBe(false);
+  });
+});
