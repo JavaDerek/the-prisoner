@@ -478,4 +478,53 @@ describe("the status line (§1.2): a stable band, built only from this principal
     await mind.consider(apart);
     expect(dewrap(written.join("\n"))).toContain("Warden Croft is not here");
   });
+
+  it("draws the status line as the very last thing before the prompt -- nothing else follows it (§1.3)", async () => {
+    const trace: string[] = [];
+    const { ask } = player("wait");
+    const mind = createHumanSeatMind({
+      selfName: PRISONER_NAME,
+      otherName: WARDEN_NAME,
+      write: (t) => trace.push(`WRITE:${t}`),
+      ask: async (p) => (trace.push(`ASK:${p}`), await ask(p)),
+    });
+    await mind.consider(CONTEXT);
+    const firstAsk = trace.findIndex((entry) => entry.startsWith("ASK:"));
+    const writesBeforeIt = trace.slice(0, firstAsk).filter((entry) => entry.startsWith("WRITE:"));
+    expect(writesBeforeIt.at(-1)).toContain(" | holding: ");
+  });
+});
+
+// docs/SEAT-UI-AND-CAPTURE-SWEEP.md §1.3: "the input area moves" -- the raw
+// view reprints all thirteen objects every turn by design, so the owner was
+// never told the delta view (`PRISONER_VIEW=prose`) exists and holds the
+// standing world back after the first read. Told once, in the opening
+// banner, never repeated -- and never told at all once she is already on a
+// view that already does it.
+describe("the opening banner (§1.3): PRISONER_VIEW=prose, mentioned once, on the first turn only", () => {
+  it("tells the player about PRISONER_VIEW=prose on the very first turn, under the default raw view", async () => {
+    const { mind, written } = seat(["wait", ""]);
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).toMatch(/PRISONER_VIEW=prose/);
+  });
+
+  it("never repeats the banner on a later turn", async () => {
+    const written: string[] = [];
+    const { ask } = player("wait", "wait");
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t) });
+    await mind.consider(CONTEXT);
+    written.length = 0;
+    await mind.consider(CONTEXT);
+    expect(written.join("\n")).not.toMatch(/PRISONER_VIEW=prose/);
+  });
+
+  it("says nothing about it once the player is already on the prose or narrated view -- she does not need telling twice", async () => {
+    const prose = seat(["wait", ""], { view: "prose" });
+    await prose.mind.consider(CONTEXT);
+    expect(prose.written.join("\n")).not.toMatch(/PRISONER_VIEW=prose/);
+
+    const narrated = seat(["wait", ""], { view: "narrated", narrator: scriptedNarrator("A hush sits over the cell.") });
+    await narrated.mind.consider(CONTEXT);
+    expect(narrated.written.join("\n")).not.toMatch(/PRISONER_VIEW=prose/);
+  });
 });

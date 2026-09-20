@@ -276,9 +276,28 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
     if (narration === null) return proseSituation(context);
     return [stateBlocks(context), narration].filter((part) => part.length > 0).join("\n\n");
   };
+  // §1.3: the raw view reprints the whole world every turn by design (the
+  // guard below pins that it never holds anything back), so the FIRST real
+  // human game under it read the same objects, rules and conditions again
+  // and again with no way to know there was an alternative -- "the owner
+  // was simply never told it was there". Told once, here, on the very first
+  // turn only, and left unsaid once the player is already on a view that
+  // holds the standing world back for her (`prose`/`narrated`): she does
+  // not need telling about a feature she is already using.
+  let firstTurn = true;
   return {
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
+      if (firstTurn) {
+        firstTurn = false;
+        if (view === "raw") {
+          write(
+            "(One-time tip: set PRISONER_VIEW=prose to hold the standing world back once you have read it, " +
+              "so a later turn shows only what changed instead of reprinting everything.)"
+          );
+          write("");
+        }
+      }
       const situation =
         view === "narrated" && narrator
           ? await narratedSituation(context)
