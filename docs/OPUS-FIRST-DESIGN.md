@@ -1,6 +1,10 @@
 # Opus first — finish the world under a mind that exercises it, then measure the gap, then build the helpers
 
-**Written 2026-09-21, a proposal for red team; its five decisions were taken the same day (§0).** It follows from the ambition comparison
+**Written 2026-09-21, a proposal for red team; its five decisions were taken the same day (§0). Revised
+twice the same day, after two red team passes: §10 and §11 are the ledgers, and the changes are marked
+inline where they land. Second-pass headlines: "finished world" is now "locked world" with a hard cap
+of six batches or five builds (§2); measures split into competence and reach, and a helper passes on
+reach only (§5.2, §6.1); refusal memory carries the rendered sentence, not a key tuple (§6.2).** It follows from the ambition comparison
 (`OPEN-VARIANT.md` §69, `checkpoints/2026-09-20-ambition/`) and from the owner's reading of it: the
 world's imperfections have confounded every `mother-of-invention` measurement so far, so finish the world
 first, under the mind that finds its gaps, and only then build deterministic helpers for the small mind
