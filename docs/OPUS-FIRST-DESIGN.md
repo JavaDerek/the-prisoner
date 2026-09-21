@@ -89,8 +89,21 @@ changed the room. Once it is a number, a helper has a pass condition that is not
 
 ## 2. Definitions the red team should attack first
 
-**Finished world.** A stopping rule, not a feeling. The world is finished for this program when, over
-two consecutive batches of N = 10 ten-round Opus games:
+**Locked world** (was "finished world"; renamed after the second red team pass, §11). The measurement
+needs a world that has **stopped moving**, not one that is complete; a mind like Opus makes "complete" a
+horizon that recedes with every build. The world is locked for this program at the **earlier** of:
+
+- two consecutive batches of N = 10 ten-round Opus games in which no **newly discovered** unbuilt class
+  appears (a class seen in an earlier batch and declined under D4 does not count as new), or
+- **six Phase 1 batches, or five builds, whichever comes first.** The cap is expected to be what fires.
+
+At lock, every remaining unbuilt class is **enumerated and frozen** in the world's own record: the room
+says no to it, consistently, to every mind. For the gap measurement that is what "genuine" has to mean.
+Whether the two minds hit that frozen residue at different rates is reported as a component of the gap
+(§5.2), never hidden. **False trigger:** if unbuilt refusals fall to zero in the same batch that Opus's
+distinct-target spread collapses, that is a behavioural loop, not completion, and the rule does not fire.
+
+The original rule, kept for the record, was "finished when, over two consecutive batches:" 
 
 1. every refusal is a **genuine impossibility** (an act on a property the object does not have, a
    passage below its threshold) and none is an **unbuilt mechanism** (an act the world has no key for);
@@ -252,8 +265,18 @@ prove it is not tuned to `qwen3:14b`.
 
 ### 5.2 Measures
 
-`count.mts`'s five, by chair: distinct targets, person targets, distinct effects, grounded vs refused,
-escapes. Plus:
+Split into two families after the second red team pass (§11), because the Opus/Qwen delta conflates a
+smaller model's competence with its reach, and a helper that closes one is not closing the other.
+
+**Competence** (structural, already in the transcript): plans kept vs replanned (§22); `target: none`
+on an intent that names a declared object (adherence); silences; a belief number the mind was told and
+then acted against; citation-verified rate on the mind's own chair. A helper that moves these and not
+the reach family is a **prosthesis**: worth having on a 4090, never counted as closing the ambition gap,
+and housed in this repository's mind scaffolding, not in `mother-of-invention` (§6.1).
+
+**Reach**: `count.mts`'s five, by chair: distinct targets, person targets, distinct effects, grounded vs
+refused, escapes. Plus **refusals on the frozen residue** (§2), per arm, so a mind that keeps pressing on
+the locked edge is visible as such. Plus:
 
 - **route finding**: intents on any way out the actor's own conditions do not state;
 - **first contact**: the round at which each object is first targeted, per chair (the elaboration
@@ -280,6 +303,9 @@ document says so now.
 
 ### 6.1 The contract every helper signs
 
+- **Initiative, not prosthesis.** A helper's pass is on the **reach** family of §5.2. One that moves
+  only the competence family is a prosthesis for a small model's memory or adherence; it may be kept,
+  in this repository, and it does not enter `mother-of-invention` or count against the gap.
 - **Deterministic.** No model call inside the helper. It reads the mind's context and the world's
   declared structure through `mind-seam`'s inert records and changes what the mind is asked.
 - **Game-agnostic.** Passes moi's vocabulary guard; is specified over "objects", "ways out",
@@ -314,10 +340,15 @@ document says so now.
    door" with a loop around it. The honest residue is a **world-side** question, not a helper: whether
    the actor's conditions should state every way out (the door is unstated by a recorded decision,
    §46/§50). That is Phase 1 authoring, decided by D4's two-source rule, and it is listed in §4.2 item 3.
-3. **Refusal memory.** After a refusal, the helper carries the ruling's keys (not its prose) into the
-   next turn's context as a closed fact: "wear on X: not possible." The mind is then reasoning over a
-   smaller space. Generic; it is precedent's ledger extended from "what I tried" to "what the world
-   said no to."
+3. **Refusal memory.** After a refusal, the helper carries it into the next turn's context. *Revised
+   after the second red team pass:* not as a key tuple. Neither mind ever sees the referee's prose; both
+   read the same code-rendered briefing (`describeAttempt`, "Your last attempt met the window shut"),
+   byte-identical in shape (§47). A tuple would give the small mind **less** than that sentence already
+   gives it. So the helper carries the **rendered sentence** forward, through the same renderer, for as
+   many turns as the fact stays true -- which is precedent's ledger extended from "what I tried" to
+   "what the world said no to", in the words the world already uses. It also means the renderer's own
+   gaps (§68.7, "Voss works at the prisoner") are load-bearing for this helper and must close in
+   Phase 1 first.
 4. **Candidate ruling in play** (the §5.2 instrument, turned on): the referee rules all candidates,
    and the mind chooses among the grounded ones. This is `pick` given the referee's verdict instead of
    its own. It costs referee calls per turn and is the one helper that is not free of model calls, so
@@ -416,3 +447,27 @@ passes all four controls and still reads as a macro to him is a macro.
 What was **not** changed: the premise that the world must stop moving before the gap can be measured
 (§1.1's list is the argument, and the report did not dispute it); the engine boundary (§4.3); the
 two-round batch as the instrument for §5.0, because it is the one that already exists.
+
+---
+
+## 11. The second red team pass, and what changed
+
+Received 2026-09-21, after §10. Three structural traps and a question. Ledger:
+
+| point | verdict | change |
+|---|---|---|
+| the fractal "finished world": every build enlarges the state space, so the §2 rule never fires, or fires because Opus is in a loop | **conceded; it changes what the rule is for** | "finished" becomes "**locked**": the measurement needs a world that has stopped moving, not one that is complete. Lock at the earlier of two batches with no *newly discovered* unbuilt class or a cap of six batches / five builds; the residue is enumerated and frozen; refusals on it are a reported gap component; a loop is detected by the target spread collapsing alongside (§2, §5.2) |
+| competence vs ambition: the 14b's memory, spatial reasoning and adherence are in the delta too; a helper that closes it may be a prosthesis, not a spark | **conceded** | measures split into a competence family and a reach family; a helper is passed on reach only; a prosthesis is kept in this repository's scaffolding and never enters `mother-of-invention` or counts against the gap (§5.2, §6.1) |
+| key-space reduction: Opus reasons over the referee's story, the small mind would get a database row | **partly a misread of the harness, the residue is right** | neither mind sees the referee's prose; both read the same code-rendered briefing (§47), so there is no asymmetry to strip. But a key tuple would give the small mind less than the briefing already does, so refusal memory now carries the rendered sentence, through the same renderer -- which puts §68.7's renderer gaps on Phase 1's critical path (§6.2 item 3) |
+
+**The question** -- *at what specific batch count will you declare the world "good enough" to lock the
+baseline?* -- **six Phase 1 batches or five builds, whichever first, unless two consecutive batches
+show no newly discovered unbuilt class before that.** Six because one batch a day with a build between
+each is about a month, custody alone is most of a week, and a program that cannot lock its instrument
+inside a month is not going to lock it in two. The residue at lock is written into the world's record
+as the room's frozen edge, and the first Phase 2 `PREDICTION.md` names how often each arm is expected
+to hit it.
+
+What was **not** changed: §8's pre-mortem stands as written, and the report did not dispute the
+premise that the gap is only measurable once the world stops moving; it argued, correctly, that
+"stops moving" and "complete" are different, and the design now says which one it means.
