@@ -68,7 +68,7 @@ import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
-import { readThinkingMode } from "./open/thinking.js";
+import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine } from "./open/thinking.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
 
@@ -154,12 +154,20 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
  *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
  *  asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const WINDOW = readWindowMode(process.env.PRISONER_WINDOW);
-/** Open variant only: `reasoning_effort` on the wits and referee calls
- *  (`src/open/thinking.ts`, OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md
- *  §4.8). On (unset) is every batch recorded before this arm existed. Read
- *  unconditionally, same reasoning as `VIEW` (below): a misconfigured value
- *  is caught even in a closed-variant run that never reads it. */
-const THINKING = readThinkingMode(process.env.PRISONER_THINKING);
+/** Open variant only: `reasoning_effort` on the referee and wits calls
+ *  (`src/open/thinking.ts`, OPEN-VARIANT.md §68.1, §64.7). TWO CALLERS, TWO
+ *  SWITCHES, OPPOSITE DEFAULTS (`thinking.ts`'s own header): §68.1 measured
+ *  that thinking changes the REFEREE's rulings a great deal (19/29
+ *  object-less intents wrongly ruled `open` at OFF, 1/29 at ON), so
+ *  `PRISONER_REFEREE_THINKING` defaults ON; §64.7 measured no difference to
+ *  the WITS decision at ~8x cost, so `PRISONER_WITS_THINKING` defaults OFF.
+ *  `PRISONER_THINKING` keeps working as a legacy override for both roles
+ *  (recorded batches, CLAUDE.md and transcript headers all document
+ *  `PRISONER_THINKING=off` invocations). Read unconditionally, same
+ *  reasoning as `VIEW` (below): a misconfigured value is caught even in a
+ *  closed-variant run that never reads it. */
+const REFEREE_THINKING = resolveRefereeThinking(process.env.PRISONER_REFEREE_THINKING, process.env.PRISONER_THINKING);
+const WITS_THINKING = resolveWitsThinking(process.env.PRISONER_WITS_THINKING, process.env.PRISONER_THINKING);
 /** Open variant only: the referee's seventh question, naming the instrument
  *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
  *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
@@ -785,7 +793,7 @@ async function mainOpen(): Promise<void> {
   const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW });
   const resolver = buildOpenResolver();
   const referee = createReferee(
-    [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: THINKING })],
+    [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })],
     // Objects derived in this game (OPEN-VARIANT.md §13) are targets too.
     {
       isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined,
@@ -803,7 +811,7 @@ async function mainOpen(): Promise<void> {
   // half-round, so sharing would cost nothing either way, but a second
   // instance keeps the two referees from any accidental coupling).
   const elaborationReferee =
-    ELABORATE === "off" ? undefined : createElaborationReferee([createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: THINKING })]);
+    ELABORATE === "off" ? undefined : createElaborationReferee([createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })]);
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
   // the-prisoner#20: this variant never passed `onVoiceSilence` at all, so a
@@ -819,7 +827,7 @@ async function mainOpen(): Promise<void> {
     voiceModel: VOICE_MODEL,
     timeoutMs: THINK_TIMEOUT_MS,
     ensureLoaded,
-    thinking: THINKING,
+    thinking: WITS_THINKING.mode,
     onSilence: (reason: string, _context: unknown, detail?: { text?: string; parsed?: unknown }) => {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
     },
@@ -1010,11 +1018,12 @@ async function mainOpen(): Promise<void> {
       ? "Window: WELDED (`PRISONER_WINDOW=welded`): the bar is flush and welded, immovable -- its integrity property, its belief line and its own condition are all gone; only the door is a working way out (§64.3)."
       : "Window: OPEN (the default): the bar wears down and gates the window's own passage, as every batch before this arm recorded (§64.3)."
   );
-  transcript.push(
-    THINKING === "off"
-      ? "Thinking: OFF (`PRISONER_THINKING=off`): the wits and referee calls carry `reasoning_effort: \"none\"` (§64.7)."
-      : "Thinking: ON (the default): `reasoning_effort` unset on every call, as every batch before this arm recorded (§64.7)."
-  );
+  // §68.1: the referee and wits calls now report SEPARATELY -- each with its
+  // own resolved mode and the variable that set it -- so a reader of an old
+  // one-line transcript and a new two-line one can both tell exactly what a
+  // batch ran.
+  transcript.push(thinkingHeaderLine("referee", REFEREE_THINKING));
+  transcript.push(thinkingHeaderLine("wits", WITS_THINKING));
   transcript.push(
     INSTRUMENT === "checked"
       ? "Instrument: CHECKED (`PRISONER_INSTRUMENT=checked`): a seventh referee question names the instrument an act uses, from the objects this principal perceives or holds, none, or absent (a tool named that is none of those); absent is ruled impossible (§51, the-prisoner#17)."

@@ -24,10 +24,103 @@
  */
 export type ThinkingMode = "on" | "off";
 
-export function readThinkingMode(raw: string | undefined): ThinkingMode {
-  if (raw === undefined || raw === "") return "on";
+/** Parses one raw env value for a named `PRISONER_*_THINKING` variable.
+ *  Unset/empty returns `undefined` -- "not specified" -- rather than
+ *  guessing a mode, which is what lets `resolveThinkingFor` below tell "not
+ *  set" apart from a value that happens to equal a role's own default; that
+ *  distinction is what the legacy fallback (below) depends on. Any other
+ *  value throws naming the OFFENDING variable, so a typo in either a
+ *  per-role variable or the legacy one is caught at the variable that
+ *  actually has it, never a generic message. */
+function parseThinkingMode(raw: string | undefined, varName: string): ThinkingMode | undefined {
+  if (raw === undefined || raw === "") return undefined;
   if (raw === "on" || raw === "off") return raw;
-  throw new Error(`PRISONER_THINKING: unrecognised value ${JSON.stringify(raw)} -- must be "off" or "on" (the default)`);
+  throw new Error(`${varName}: unrecognised value ${JSON.stringify(raw)} -- must be "off" or "on" (the default)`);
+}
+
+export function readThinkingMode(raw: string | undefined): ThinkingMode {
+  return parseThinkingMode(raw, "PRISONER_THINKING") ?? "on";
+}
+
+/**
+ * TWO ROLES, OPPOSITE DEFAULTS (OPEN-VARIANT.md §68.1, §68.5, §64.7):
+ * §68.1/§68.5 measured that `PRISONER_THINKING` changes the REFEREE's
+ * rulings a great deal -- at OFF the referee grabs at objects (19 of 29
+ * object-less intents ruled `open` on the escape route); at ON it correctly
+ * answers `none` (1 of 29). §64.7 separately measured that thinking makes
+ * no measurable difference to the WITS call's decision while costing ~8x
+ * per call. One shared switch could not hold both a "must stay on" role and
+ * a "should default off" role at once, so each gets its own variable and
+ * its own default: `PRISONER_REFEREE_THINKING` defaults `on`,
+ * `PRISONER_WITS_THINKING` defaults `off`.
+ *
+ * `PRISONER_THINKING` keeps working as a legacy override for BOTH roles --
+ * recorded batches, `CLAUDE.md` and transcript headers all document
+ * invocations like `PRISONER_THINKING=off`, and those must keep meaning
+ * exactly what they meant. Precedence, per role: the role-specific variable
+ * if set, else `PRISONER_THINKING` if set, else that role's own default.
+ */
+export type ThinkingRole = "referee" | "wits";
+
+const ROLE_VAR: Record<ThinkingRole, string> = {
+  referee: "PRISONER_REFEREE_THINKING",
+  wits: "PRISONER_WITS_THINKING",
+};
+
+const ROLE_DEFAULT: Record<ThinkingRole, ThinkingMode> = {
+  referee: "on",
+  wits: "off",
+};
+
+export type ThinkingSource = "role" | "legacy" | "default";
+
+/** What a role's thinking mode resolved to, AND which variable decided it
+ *  -- the second field exists only so `thinkingHeaderLine` below can name
+ *  it; nothing that wires a transport needs anything but `.mode`. */
+export interface ResolvedThinking {
+  readonly mode: ThinkingMode;
+  readonly source: ThinkingSource;
+}
+
+function resolveThinkingFor(role: ThinkingRole, roleRaw: string | undefined, legacyRaw: string | undefined): ResolvedThinking {
+  const roleValue = parseThinkingMode(roleRaw, ROLE_VAR[role]);
+  if (roleValue !== undefined) return { mode: roleValue, source: "role" };
+  const legacyValue = parseThinkingMode(legacyRaw, "PRISONER_THINKING");
+  if (legacyValue !== undefined) return { mode: legacyValue, source: "legacy" };
+  return { mode: ROLE_DEFAULT[role], source: "default" };
+}
+
+/** `PRISONER_REFEREE_THINKING`, default `on` (§68.1 above). */
+export function resolveRefereeThinking(refereeRaw: string | undefined, legacyRaw: string | undefined): ResolvedThinking {
+  return resolveThinkingFor("referee", refereeRaw, legacyRaw);
+}
+
+/** `PRISONER_WITS_THINKING`, default `off` (§64.7 above). */
+export function resolveWitsThinking(witsRaw: string | undefined, legacyRaw: string | undefined): ResolvedThinking {
+  return resolveThinkingFor("wits", witsRaw, legacyRaw);
+}
+
+const ROLE_LABEL: Record<ThinkingRole, string> = { referee: "referee", wits: "wits" };
+
+/** One transcript header line per role (`checkpoint.ts`), naming the
+ *  resolved mode AND which variable produced it, so a reader of an old
+ *  transcript (one line, `PRISONER_THINKING` only) and a new one (two
+ *  lines, either variable, or neither) can both tell exactly what a batch
+ *  ran. */
+export function thinkingHeaderLine(role: ThinkingRole, resolved: ResolvedThinking): string {
+  const label = ROLE_LABEL[role];
+  const effect =
+    resolved.mode === "off"
+      ? `the ${label} call carries \`reasoning_effort: "none"\``
+      : `\`reasoning_effort\` stays unset on the ${label} call`;
+  const setting = resolved.mode === "off" ? "OFF" : "ON";
+  const via =
+    resolved.source === "role"
+      ? `\`${ROLE_VAR[role]}=${resolved.mode}\``
+      : resolved.source === "legacy"
+        ? `legacy \`PRISONER_THINKING=${resolved.mode}\`, applies to both roles`
+        : "the default";
+  return `Thinking (${label}): ${setting} (${via}): ${effect} (OPEN-VARIANT.md §68.1, §64.7).`;
 }
 
 /**
