@@ -175,6 +175,30 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain("No offer from the referee for: perceptibility.");
   });
 
+  it("a referee reply the transport could not read is named in the ruling, not shown as a clean all-`none` table (OPUS-FIRST-DESIGN.md §3.1)", async () => {
+    // §3.1, RESULTS.md bug 1 of checkpoints/2026-09-20-ambition: the lost ruling rendered as six
+    // safe defaults and "No offer from the referee for: ..." -- the same line a referee that
+    // answered nothing would get -- with the only evidence in the sidecar's raw content.
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const transport = createRefereeTransport({
+      baseUrl: "http://x",
+      model: "m",
+      fetchFn: (async () => ({ ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '[{"questionId": "target", "answerKey": "bar",}]' } }] }) })) as unknown as typeof fetch,
+    });
+    const game = await runOpenGame({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee: createReferee([transport]),
+      wardenMind: scriptedMind<OpenPrincipalContext, OpenProposal>(null),
+      prisonerMind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I scrape the bar with my spoon." }),
+      rounds: 1,
+    });
+    const text = renderOpenHalfRound(find(game, 1, "prisoner")).join("\n");
+    expect(text).toMatch(/Referee call failed \(rung 0\): referee reply unparseable/);
+    expect(text).toContain("No offer from the referee for: target, effect, product, property, magnitude, perceptibility.");
+  });
+
   it("OPEN-VARIANT.md §51, the-prisoner#17: PRISONER_INSTRUMENT=checked shows the referee's seventh question, with its own citation and verified flag", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();

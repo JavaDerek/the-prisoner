@@ -137,17 +137,49 @@ function buildPrompt(request: ReadRequest): string {
 }
 
 /**
+ * OPUS-FIRST-DESIGN.md §3.1, RESULTS.md bug 1 of `checkpoints/2026-09-20-ambition`: behind §37's stray
+ * quote, the one reply that batch lost also closed itself `]}` where `}]` was meant -- the last
+ * entry's `}` and the array's `]` swapped -- so the quote repair alone still left it unparseable and
+ * a `door`/`leave` ruling fell to every safe default. When a closer does not match the bracket that is
+ * open, and nothing but closers and whitespace remains, the tail is rewritten to close what is
+ * actually open, innermost first. Nothing else is touched: a closer in the wrong place with more
+ * text after it, or a reply that simply stops short, is left as it came and stays unparseable.
+ * Strings are skipped so a bracket inside a quote counts for nothing. Syntax only, like the quote
+ * repair below: it rewrites brackets, never a key, a number, or a word.
+ */
+function rebalanceClosers(text: string): string {
+  const open: string[] = [];
+  let inString = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (ch === "\\") i++;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "[" || ch === "{") open.push(ch === "[" ? "]" : "}");
+    else if (ch === "]" || ch === "}") {
+      if (open[open.length - 1] === ch) open.pop();
+      else if (/^[\]}\s]*$/.test(text.slice(i))) return text.slice(0, i) + open.reverse().join("");
+      else return text;
+    }
+  }
+  return text;
+}
+
+/**
  * OPEN-VARIANT.md §37: a referee that judged correctly closed a citation `"to": 12"}`, and one stray
  * quote cost the whole ruling. Only when the text does not parse as it came, a quote directly after a
- * number that follows a key's colon, before `,` `}` or `]`, is dropped and the parse tried once more.
- * Syntax only, like §30's clamp and §33.16's id: it cannot touch a reply that already parses, and it
- * never reads what an answer says.
+ * number that follows a key's colon, before `,` `}` or `]`, is dropped, then (§3.1 above) a transposed
+ * closing tail is put in order, and the parse tried once more. Syntax only, like §30's clamp and
+ * §33.16's id: it cannot touch a reply that already parses, and it never reads what an answer says.
  */
 function parseJson(text: string): unknown {
   try {
     return JSON.parse(text);
   } catch (error) {
-    const repaired = text.replace(/(:\s*-?\d+)"(?=\s*[,}\]])/g, "$1");
+    const repaired = rebalanceClosers(text.replace(/(:\s*-?\d+)"(?=\s*[,}\]])/g, "$1"));
     if (repaired === text) throw error;
     return JSON.parse(repaired);
   }
@@ -287,9 +319,14 @@ export function createRefereeTransport(options: CreateRefereeTransportOptions): 
       const reply = body.choices?.[0]?.message?.content;
       if (typeof reply !== "string") return (keep("no message content"), []);
       content = reply;
-      keep();
 
       const parsed = firstJsonArray(reply);
+      // OPUS-FIRST-DESIGN.md §3.1: a reply nothing above could read used to be kept as a clean
+      // exchange -- status 200, content, no error -- and the ruling fell to every safe default
+      // looking exactly like a referee that had offered nothing. Still `[]` to the ladder (the
+      // header's contract), but the record says why, and `checkpointTranscript.ts` prints it.
+      if (parsed === null) return (keep("referee reply unparseable: no JSON array of answers could be read from the content kept beside this"), []);
+      keep();
       return coerceAnswers(parsed, request);
     } catch (error) {
       keep(error);
