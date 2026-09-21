@@ -6088,3 +6088,21 @@ test-first, merged in the order they finished with the suite green at every step
 Running as this was written: the §5.0 thinking probe (`checkpoints/2026-09-21-thinking/`, ten rounds,
 N = 5 per arm, prediction committed first) and Phase 1 batch 1 (`checkpoints/2026-09-21-phase1-b1/`,
 Opus 4.6 both chairs, ten rounds, voice on, N = 10). Their results are the next section's, not this one's.
+
+## 71. Thinking ON at ten rounds: the same route, played to the number (2026-09-21)
+
+`checkpoints/2026-09-21-thinking/`, OPUS-FIRST-DESIGN §5.0, one-sided by design: N = 5 per arm, ten
+rounds, `qwen3:14b` both chairs, wits thinking OFF (Q) against ON (Qt), the referee at thinking ON in both,
+prediction committed first. The positive result that would have shrunk Phase 3 -- Qt's prisoner reaching
+six targets or the door in three games -- did not happen: both prisoners reach exactly two targets, bar
+and window, in every game, and nobody names the door in 132 intents. Thinking ON changes precision, not
+route: Qt stops wearing the bar at 50 to the point (*"reduce its integrity to 50"*), escapes 5 of 5 at a
+median of round 6; Q over-wears to 25-47, escapes 4 of 5, and the one caught had taken the bar to 25.
+
+**The world finding:** the window opens at bar ≤ 50 and a catch needs the bar at ≤ 30 under suspicion ≥
+40. Every warden reached suspicion 66-100 and examined the bar nearly every round, and nine of ten could
+do nothing, because the prisoner opens and leaves inside the 31-50 band, and the warden has no preventive
+act -- no confiscation, no guard, no cot moved. At ten rounds the window is the Qwen mind's whole game the
+way the free door was Opus's at two (§69). Queued for Phase 1 as a world item beside the door.
+
+Qt stays Phase 2's standing arm under D5; this batch concludes nothing against it, as its prediction said.
