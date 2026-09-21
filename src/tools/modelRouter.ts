@@ -14,6 +14,15 @@
 //     three and a silent arm measures nothing;
 //   - everything else -> doris `/v1/chat/completions`, proxied unchanged.
 //
+// The doris path has a per-attempt timeout and one retry too, since 2026-09-21. That night's
+// phase1-b1 batch (`checkpoints/2026-09-21-phase1-b1/logs/router.log`) lost two half-rounds to
+// `"route":"error","error":"TypeError: fetch failed","ms":300927`: the upstream fetch hung and
+// failed only at undici's own 300s headers timeout, by which time the mind's 300s timeout had
+// already fired. Doris itself was never slow -- the other 99 calls all answered in under 53s,
+// median 11s -- so a hung attempt is the connection's failure, not the model's, and is abandoned
+// at `SHIM_DORIS_ATTEMPT_TIMEOUT_MS` and tried once more. An HTTP error status from doris is its
+// real answer and is never retried.
+//
 // It also serves the two Ollama-native calls `src/ollamaSwap.ts` makes, because the one-model
 // swapper runs on EVERY real run and would otherwise unload the resident referee to "make room"
 // for a model that is not on doris at all:
@@ -57,6 +66,9 @@ const DEFAULT_CLAUDE_TIMEOUT_MS = 280_000;
 /** D game 1 (19:35Z) lost a whole half-round to one DeepInfra retry whose connection hung for
  *  300s. A hung attempt is abandoned here and counted as retryable instead. */
 const DEFAULT_DEEPINFRA_ATTEMPT_TIMEOUT_MS = 120_000;
+/** Well above the slowest real doris call phase1-b1 saw (53s; median 11s) and well inside the
+ *  mind's 300s, so two attempts still fit and the mind hears a failure rather than silence. */
+const DEFAULT_DORIS_ATTEMPT_TIMEOUT_MS = 150_000;
 
 export interface RouterConfig {
   port: number;
@@ -68,6 +80,7 @@ export interface RouterConfig {
   claudeCwd: string;
   claudeTimeoutMs: number;
   deepInfraAttemptTimeoutMs: number;
+  dorisAttemptTimeoutMs: number;
   dumpDir: string;
 }
 
@@ -83,6 +96,7 @@ export function configFromEnv(env: NodeJS.ProcessEnv, cwd: string): RouterConfig
     claudeCwd: env.SHIM_CLAUDE_CWD ?? cwd,
     claudeTimeoutMs: Number(env.SHIM_CLAUDE_TIMEOUT_MS ?? DEFAULT_CLAUDE_TIMEOUT_MS),
     deepInfraAttemptTimeoutMs: Number(env.SHIM_DEEPINFRA_ATTEMPT_TIMEOUT_MS ?? DEFAULT_DEEPINFRA_ATTEMPT_TIMEOUT_MS),
+    dorisAttemptTimeoutMs: Number(env.SHIM_DORIS_ATTEMPT_TIMEOUT_MS ?? DEFAULT_DORIS_ATTEMPT_TIMEOUT_MS),
     dumpDir: env.SHIM_DUMP_DIR ?? "",
   };
 }
@@ -126,8 +140,8 @@ export interface RouterDeps {
   spawnFn: RouterSpawnFn;
   /** Backoff between DeepInfra attempts. Injectable so every test runs instantly. */
   delayFn: (ms: number) => Promise<void>;
-  /** The per-attempt signal handed to `fetchFn` on the DeepInfra path. The real one is
-   *  `AbortSignal.timeout`; a test injects one already aborted and fetch rejects at once. */
+  /** The per-attempt signal handed to `fetchFn` on the DeepInfra and doris paths. The real one
+   *  is `AbortSignal.timeout`; a test injects one already aborted and fetch rejects at once. */
   attemptSignalFn: (ms: number) => AbortSignal;
   /** Schedules `kill` after `ms` and returns the cancel; the real one is setTimeout/clearTimeout. */
   killTimerFn: (kill: () => void, ms: number) => () => void;
@@ -391,6 +405,30 @@ async function deepInfraCompletion(bodyBuf: Buffer, model: string, reqId: string
   }
 }
 
+/** A retry of one, and only for an attempt that never produced an answer: a hang abandoned at
+ *  the per-attempt timeout, or a connection that threw. Doris's own error status is its answer. */
+const DORIS_ATTEMPTS = 2;
+
+async function dorisCompletion(bodyBuf: Buffer, model: string, reqId: string, started: number, config: RouterConfig, deps: RouterDeps): Promise<ProxyResult> {
+  const url = `${config.dorisBaseUrl}/v1/chat/completions`;
+  let last: unknown;
+  for (let attempt = 1; attempt <= DORIS_ATTEMPTS; attempt++) {
+    let r: ProxyResult;
+    try {
+      r = await proxy(deps, url, "POST", { "content-type": "application/json" }, bodyBuf, deps.attemptSignalFn(config.dorisAttemptTimeoutMs));
+    } catch (e) {
+      // Logged with the same 599 the DeepInfra path uses for a failed attempt, so one log reader
+      // serves both; the mind gets a 502 (below) only if the second attempt fails too.
+      last = e;
+      deps.log({ reqId, route: "doris", model, attempt, status: 599, ms: deps.nowFn() - started, body: `shim: attempt failed: ${String(e)}` });
+      continue;
+    }
+    deps.log({ reqId, route: "doris", model, attempt, status: r.status, ms: deps.nowFn() - started, ...(r.status !== 200 ? { body: r.buf.toString().slice(0, 500) } : {}) });
+    return r;
+  }
+  throw new Error(`doris produced no reply in ${DORIS_ATTEMPTS} attempts of ${config.dorisAttemptTimeoutMs}ms each; last: ${String(last)}`);
+}
+
 // ---------------------------------------------------------------- /api/ps
 
 export interface FilteredLoadedModels {
@@ -467,8 +505,7 @@ async function chatCompletions(bodyBuf: Buffer, reqId: string, started: number, 
       return reply(r.status, r.buf, { "content-type": r.contentType });
     }
     case "doris": {
-      const r = await proxy(deps, `${config.dorisBaseUrl}/v1/chat/completions`, "POST", { "content-type": "application/json" }, bodyBuf);
-      deps.log({ reqId, route: "doris", model, status: r.status, ms: deps.nowFn() - started, ...(r.status !== 200 ? { body: r.buf.toString().slice(0, 500) } : {}) });
+      const r = await dorisCompletion(bodyBuf, model, reqId, started, config, deps);
       return reply(r.status, r.buf, { "content-type": r.contentType });
     }
   }

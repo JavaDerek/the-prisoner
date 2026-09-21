@@ -1,7 +1,8 @@
 // OPUS-FIRST-DESIGN.md D2: the routing shim, committed as this repository's own tool. The scratch
 // `shim.mjs` that ran the 2026-09-20 ambition batch (RESULTS.md, "The routing") is the spec these
 // tests pin -- route by model id, the Claude CLI translation, DeepInfra's retry-with-backoff and
-// per-attempt timeout, `/api/ps` with the resident hidden, `/api/generate` as a no-op. Every test
+// per-attempt timeout, the doris path's own per-attempt timeout with its one retry (2026-09-21),
+// `/api/ps` with the resident hidden, `/api/generate` as a no-op. Every test
 // runs against injected `fetchFn`/`spawnFn`/`delayFn`/`attemptSignalFn`/`killTimerFn` exactly as
 // `ollamaSwap.test.ts` injects its own: no network, no `claude` process, no real timer, ever.
 import { describe, it, expect } from "vitest";
@@ -34,6 +35,7 @@ const CONFIG: RouterConfig = {
   claudeCwd: "/tmp/claude-cwd",
   claudeTimeoutMs: 280_000,
   deepInfraAttemptTimeoutMs: 120_000,
+  dorisAttemptTimeoutMs: 150_000,
   dumpDir: "",
 };
 
@@ -231,6 +233,11 @@ describe("configFromEnv -- every knob is an env var, with the scratch shim's def
 
   it("SHIM_HIDE_MODELS= (empty) hides nothing, for a run whose every model really lives on doris", () => {
     expect(configFromEnv({ SHIM_HIDE_MODELS: "" }, "/cwd").hideModels.size).toBe(0);
+  });
+
+  it("reads SHIM_DORIS_ATTEMPT_TIMEOUT_MS, defaulting to 150s: above the slowest real doris call, inside the mind's 300s", () => {
+    expect(configFromEnv({}, "/cwd").dorisAttemptTimeoutMs).toBe(150_000);
+    expect(configFromEnv({ SHIM_DORIS_ATTEMPT_TIMEOUT_MS: "3000" }, "/cwd").dorisAttemptTimeoutMs).toBe(3000);
   });
 });
 
@@ -566,6 +573,95 @@ describe("POST /v1/chat/completions -> doris, unchanged", () => {
     const { deps: d } = deps();
     const res = await handleRouterRequest({ method: "POST", url: "/v1/chat/completions", headers: {}, body: Buffer.from("{nope") }, CONFIG, d);
     expect(res.status).toBe(400);
+  });
+
+  // The per-attempt timeout and its one retry (phase1-b1, 2026-09-21: two half-rounds lost to
+  // 300s hangs of the upstream fetch while doris itself never took more than 53s).
+  it("a normal 200 makes exactly one fetch, carrying the per-attempt signal, and logs attempt 1", async () => {
+    const signals: number[] = [];
+    const f = scriptedFetch([json(200, {})]);
+    const { deps: d, logs, delays } = deps({
+      fetchFn: f.fetchFn,
+      attemptSignalFn: (ms) => {
+        signals.push(ms);
+        return new AbortController().signal;
+      },
+    });
+    const res = await handleRouterRequest(post("/v1/chat/completions", chatBody("qwen3:14b")), CONFIG, d);
+    expect(res.status).toBe(200);
+    expect(f.calls).toHaveLength(1);
+    expect(f.calls[0].init?.signal).toBeInstanceOf(AbortSignal);
+    expect(signals).toEqual([150_000]);
+    expect(delays).toEqual([]);
+    expect(logs.filter((l) => l.route === "doris")).toEqual([expect.objectContaining({ model: "qwen3:14b", attempt: 1, status: 200 })]);
+  });
+
+  it("abandons a hung first attempt at SHIM_DORIS_ATTEMPT_TIMEOUT_MS, tries once more, and serves the second attempt's body", async () => {
+    // Injected already aborted for the first attempt only, so the scripted fetch does what undici
+    // does with an aborted signal -- reject -- instantly, and the second attempt is a real call.
+    const reply = { choices: [{ message: { content: "second" } }] };
+    const signals: number[] = [];
+    const f = scriptedFetch([
+      async (_url, init) => {
+        expect(init?.signal?.aborted).toBe(true);
+        throw new DOMException("The operation was aborted", "TimeoutError");
+      },
+      json(200, reply),
+    ]);
+    const { deps: d, logs } = deps({
+      fetchFn: f.fetchFn,
+      attemptSignalFn: (ms) => {
+        signals.push(ms);
+        return signals.length === 1 ? AbortSignal.abort() : new AbortController().signal;
+      },
+    });
+    const res = await handleRouterRequest(post("/v1/chat/completions", chatBody("qwen3:14b")), CONFIG, d);
+    expect(res.status).toBe(200);
+    expect(parsed(res)).toEqual(reply);
+    expect(f.calls).toHaveLength(2);
+    expect(signals).toEqual([150_000, 150_000]);
+    const attempts = logs.filter((l) => l.route === "doris");
+    expect(attempts).toHaveLength(2);
+    expect(attempts[0]).toMatchObject({ model: "qwen3:14b", attempt: 1, status: 599 });
+    expect(String(attempts[0].body)).toMatch(/shim: attempt failed: .*aborted/);
+    expect(attempts[1]).toMatchObject({ model: "qwen3:14b", attempt: 2, status: 200 });
+    expect(logs.find((l) => l.route === "error")).toBeUndefined();
+  });
+
+  it("answers 502 naming both attempts when the second hangs too, so the mind sees a failed call and not 300s of silence", async () => {
+    const f = scriptedFetch([
+      async () => {
+        throw new DOMException("The operation was aborted", "TimeoutError");
+      },
+      async () => {
+        throw new DOMException("The operation was aborted", "TimeoutError");
+      },
+    ]);
+    const { deps: d, logs } = deps({ fetchFn: f.fetchFn, attemptSignalFn: () => AbortSignal.abort() });
+    const res = await handleRouterRequest(post("/v1/chat/completions", chatBody("qwen3:14b")), CONFIG, d);
+    expect(res.status).toBe(502);
+    expect(f.calls).toHaveLength(2);
+    const message = (parsed(res) as { error: { message: string } }).error.message;
+    expect(message).toMatch(/doris/);
+    expect(message).toMatch(/2 attempts/);
+    expect(message).toMatch(/150000ms/);
+    expect(message).toMatch(/aborted/);
+    expect(logs.filter((l) => l.route === "doris").map((l) => [l.attempt, l.status])).toEqual([
+      [1, 599],
+      [2, 599],
+    ]);
+    expect(logs.find((l) => l.route === "error")).toMatchObject({ path: "/v1/chat/completions" });
+  });
+
+  it("never retries an HTTP error status from doris: that is doris's real answer, served as-is", async () => {
+    const f = scriptedFetch([json(500, { error: "model not found" })]);
+    const { deps: d, logs, delays } = deps({ fetchFn: f.fetchFn });
+    const res = await handleRouterRequest(post("/v1/chat/completions", chatBody("nope:1b")), CONFIG, d);
+    expect(res.status).toBe(500);
+    expect(parsed(res)).toEqual({ error: "model not found" });
+    expect(f.calls).toHaveLength(1);
+    expect(delays).toEqual([]);
+    expect(logs.filter((l) => l.route === "doris")).toEqual([expect.objectContaining({ attempt: 1, status: 500 })]);
   });
 
   it("dumps the raw request to SHIM_DUMP_DIR when configured, named by time, request id and model", async () => {
