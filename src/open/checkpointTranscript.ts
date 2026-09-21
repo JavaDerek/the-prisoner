@@ -68,7 +68,14 @@ function refereeTable(half: OpenHalfRoundResult): string[] {
   }
   // What the reader discarded, and what was never offered: the difference
   // between a referee that misquoted and one whose call returned nothing.
+  // OPUS-FIRST-DESIGN.md §3.1: and, first, a call that failed outright -- a
+  // reply the transport could not read, a timeout, a bad status -- which the
+  // §38 exchange records and this table used to leave in the sidecar alone,
+  // so a lost ruling read as a referee that had offered nothing.
   const offerLines: string[] = [];
+  (ruling.exchanges ?? []).forEach((exchange, rung) => {
+    if (exchange?.error !== undefined) offerLines.push(`Referee call failed (rung ${rung}): ${exchange.error}.`);
+  });
   const unoffered: string[] = [];
   for (const answer of ruling.raw.answers) {
     for (const r of answer.rejected) {

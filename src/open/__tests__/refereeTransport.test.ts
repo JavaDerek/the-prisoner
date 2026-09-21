@@ -80,6 +80,26 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
     await expect(transport(REQUEST)).resolves.toEqual([]);
   });
 
+  it("an unparseable reply is kept with an explicit reason, never silently as a clean exchange (OPUS-FIRST-DESIGN.md §3.1)", async () => {
+    // §3.1: a reply the parse could not recover fell to every question's safe default, and the
+    // sidecar's exchange looked like any other -- status 200, content present, no error -- so the
+    // transcript showed an all-`none` ruling with no sign the referee had answered otherwise.
+    const transport = createRefereeTransport({
+      baseUrl: "http://x",
+      model: "m",
+      fetchFn: (async () => ({ ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '[{"questionId": "target", "answerKey": "bar",}]' } }] }) })) as unknown as typeof fetch,
+    });
+    await expect(transport(REQUEST)).resolves.toEqual([]);
+    expect(transport.lastExchange()).toMatchObject({ status: 200, content: '[{"questionId": "target", "answerKey": "bar",}]' });
+    expect(transport.lastExchange()?.error).toMatch(/referee reply unparseable/);
+
+    // A reply that parses -- even to no answers at all -- carries no error: "nothing offered" and
+    // "could not be read" are different failures and the transcript must be able to tell them apart.
+    const empty = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content: "[]" } }] }) });
+    await expect(empty(REQUEST)).resolves.toEqual([]);
+    expect(empty.lastExchange()?.error).toBeUndefined();
+  });
+
   it("a rejected fetch returns an empty array, never throws", async () => {
     const fetchFn = vi.fn(async () => {
       throw new Error("ECONNREFUSED");
@@ -354,6 +374,134 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       expect(result.answers.map((a) => [a.answerKey, a.fromSafeDefault, a.citation?.quote])).toEqual([
         ["door", false, "push  the bolt\tback,"],
         ["passage", false, "the edge of the bolt shows in the gap."],
+      ]);
+    });
+  });
+
+  // OPUS-FIRST-DESIGN.md §3.1, `checkpoints/2026-09-20-ambition/RESULTS.md` bug 1: 8 of that batch's
+  // 123 referee replies fail a strict JSON parse, every one a stray quote after the last citation's
+  // `"to"` number (§37's defect, on long intents). Seven parsed once §37 dropped the quote; the eighth
+  // (game O/2026-09-21T20-19-28-723Z, round 2, the prisoner sprinting through the open door) had a
+  // second defect behind the first -- its closers come `]}` where `}]` was meant -- and fell to every
+  // question's safe default, ruled impossible on an act the referee had answered `door`/`leave`. The
+  // raw replies are copied here from the sidecars' `replies[].content`, byte for byte, never read
+  // from `checkpoints/` at test time.
+  describe("the eight malformed replies of checkpoints/2026-09-20-ambition (OPUS-FIRST-DESIGN.md §3.1)", () => {
+    const MALFORMED: { game: string; label: string; answers: Record<string, string>; content: string }[] = [
+      {
+        game: "2026-09-21T19-25-42-276Z",
+        label: "round 2, prisoner",
+        answers: { target: "bar", effect: "open", product: "none", property: "integrity", magnitude: "substantial", perceptibility: "visible" },
+        content:
+          '[{"questionId": "target", "answerKey": "bar", "citation": {"sourceId": "intent", "from": 53, "to": 54}}, {"questionId": "effect", "answerKey": "open", "citation": {"sourceId": "intent", "from": 51, "to": 57}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "intent", "from": 1, "to": 1}}, {"questionId": "property", "answerKey": "integrity", "citation": {"sourceId": "desc:bar", "from": 20, "to": 38}}, {"questionId": "magnitude", "answerKey": "substantial", "citation": {"sourceId": "intent", "from": 49, "to": 50}}, {"questionId": "perceptibility", "answerKey": "visible", "citation": {"sourceId": "intent", "from": 30, "to": 57"}}]',
+      },
+      {
+        game: "2026-09-21T19-54-33-376Z",
+        label: "round 2, prisoner",
+        answers: { target: "bar", effect: "open", product: "none", property: "integrity", magnitude: "substantial", perceptibility: "audible" },
+        content:
+          '[{"questionId": "target", "answerKey": "bar", "citation": {"sourceId": "intent", "from": 55, "to": 68}}, {"questionId": "effect", "answerKey": "open", "citation": {"sourceId": "intent", "from": 76, "to": 79}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "intent", "from": 1, "to": 1}}, {"questionId": "property", "answerKey": "integrity", "citation": {"sourceId": "desc:bar", "from": 20, "to": 38}}, {"questionId": "magnitude", "answerKey": "substantial", "citation": {"sourceId": "intent", "from": 70, "to": 72}}, {"questionId": "perceptibility", "answerKey": "audible", "citation": {"sourceId": "intent", "from": 54, "to": 57"}}]',
+      },
+      {
+        game: "2026-09-21T19-58-11-683Z",
+        label: "round 2, prisoner",
+        answers: { target: "key_ring", effect: "open", product: "none", property: "passage", magnitude: "substantial", perceptibility: "visible" },
+        content:
+          '[{"questionId": "target", "answerKey": "key_ring", "citation": {"sourceId": "intent", "from": 60, "to": 62}}, {"questionId": "effect", "answerKey": "open", "citation": {"sourceId": "intent", "from": 77, "to": 86}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "none", "quote": ""}}, {"questionId": "property", "answerKey": "passage", "citation": {"sourceId": "desc:door", "from": 19, "to": 29}}, {"questionId": "magnitude", "answerKey": "substantial", "citation": {"sourceId": "intent", "from": 77, "to": 86}}, {"questionId": "perceptibility", "answerKey": "visible", "citation": {"sourceId": "intent", "from": 39, "to": 46"}}]',
+      },
+      {
+        game: "2026-09-21T20-09-27-353Z",
+        label: "round 2, warden",
+        answers: { target: "spoon", effect: "reveal", product: "none", property: "edge", magnitude: "moderate", perceptibility: "visible" },
+        content:
+          '[{"questionId": "target", "answerKey": "spoon", "citation": {"sourceId": "intent", "from": 2, "to": 3}}, {"questionId": "effect", "answerKey": "reveal", "citation": {"sourceId": "intent", "from": 24, "to": 35}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "intent", "from": 24, "to": 35}}, {"questionId": "property", "answerKey": "edge", "citation": {"sourceId": "desc:spoon", "from": 17, "to": 21}}, {"questionId": "magnitude", "answerKey": "moderate", "citation": {"sourceId": "intent", "from": 16, "to": 16}}, {"questionId": "perceptibility", "answerKey": "visible", "citation": {"sourceId": "intent", "from": 14, "to": 16"}}]',
+      },
+      {
+        game: "2026-09-21T20-19-28-723Z",
+        label: "round 1, warden",
+        answers: { target: "none", effect: "noise", product: "none", property: "none", magnitude: "moderate", perceptibility: "audible" },
+        content:
+          '[{"questionId": "target", "answerKey": "none", "citation": {"sourceId": "intent", "from": 1, "to": 44}}, {"questionId": "effect", "answerKey": "noise", "citation": {"sourceId": "intent", "from": 31, "to": 44}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "intent", "from": 31, "to": 44}}, {"questionId": "property", "answerKey": "none", "citation": {"sourceId": "intent", "from": 31, "to": 44}}, {"questionId": "magnitude", "answerKey": "moderate", "citation": {"sourceId": "intent", "from": 3, "to": 4}}, {"questionId": "perceptibility", "answerKey": "audible", "citation": {"sourceId": "intent", "from": 32, "to": 44"}}]',
+      },
+      {
+        // The lost one: `22"}]}` -- a stray quote AND the closers transposed.
+        game: "2026-09-21T20-19-28-723Z",
+        label: "round 2, prisoner",
+        answers: { target: "door", effect: "leave", product: "none", property: "passage", magnitude: "substantial", perceptibility: "visible" },
+        content:
+          '[{"questionId": "target", "answerKey": "door", "citation": {"sourceId": "intent", "from": 24, "to": 27}}, {"questionId": "effect", "answerKey": "leave", "citation": {"sourceId": "intent", "from": 18, "to": 27}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "none", "quote": ""}}, {"questionId": "property", "answerKey": "passage", "citation": {"sourceId": "desc:door", "from": 30, "to": 33}}, {"questionId": "magnitude", "answerKey": "substantial", "citation": {"sourceId": "intent", "from": 18, "to": 22}}, {"questionId": "perceptibility", "answerKey": "visible", "citation": {"sourceId": "intent", "from": 18, "to": 22"}]}',
+      },
+      {
+        game: "2026-09-21T20-21-33-473Z",
+        label: "round 1, warden",
+        answers: { target: "bar", effect: "reveal", product: "none", property: "integrity", magnitude: "moderate", perceptibility: "audible" },
+        content:
+          '[{"questionId": "target", "answerKey": "bar", "citation": {"sourceId": "intent", "from": 10, "to": 11}}, {"questionId": "effect", "answerKey": "reveal", "citation": {"sourceId": "intent", "from": 22, "to": 28}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "intent", "from": 22, "to": 28}}, {"questionId": "property", "answerKey": "integrity", "citation": {"sourceId": "desc:bar", "from": 20, "to": 38}}, {"questionId": "magnitude", "answerKey": "moderate", "citation": {"sourceId": "intent", "from": 1, "to": 2}}, {"questionId": "perceptibility", "answerKey": "audible", "citation": {"sourceId": "intent", "from": 33, "to": 36"}}]',
+      },
+      {
+        game: "2026-09-21T20-21-33-473Z",
+        label: "round 1, prisoner",
+        answers: { target: "bar", effect: "open", product: "none", property: "integrity", magnitude: "moderate", perceptibility: "visible" },
+        content:
+          '[{"questionId": "target", "answerKey": "bar", "citation": {"sourceId": "intent", "from": 3, "to": 4}}, {"questionId": "effect", "answerKey": "open", "citation": {"sourceId": "intent", "from": 12, "to": 14}}, {"questionId": "product", "answerKey": "none", "citation": {"sourceId": "intent", "from": 12, "to": 14}}, {"questionId": "property", "answerKey": "integrity", "citation": {"sourceId": "desc:bar", "from": 20, "to": 23}}, {"questionId": "magnitude", "answerKey": "moderate", "citation": {"sourceId": "intent", "from": 11, "to": 12}}, {"questionId": "perceptibility", "answerKey": "visible", "citation": {"sourceId": "intent", "from": 37, "to": 41"}}]',
+      },
+    ];
+
+    /** Every fixture is a strict-parse failure as it came -- pinned, so a fixture that someone
+     *  "tidies" into valid JSON stops being the regression it was copied for. */
+    it("none of the eight parses as it came", () => {
+      for (const f of MALFORMED) expect(() => JSON.parse(f.content), `${f.game} ${f.label}`).toThrow();
+    });
+
+    // The transport rebuilds a ranged citation from the source's own words, so a source only needs
+    // enough words for the cited ranges (every range here lies inside its real source).
+    const words = (n: number) => Array.from({ length: n }, (_, i) => `w${i + 1}`).join(" ");
+    const SOURCES = [
+      { id: "intent", text: words(100) },
+      { id: "desc:bar", text: words(50) },
+      { id: "desc:door", text: words(50) },
+      { id: "desc:spoon", text: words(50) },
+    ];
+    const QUESTIONS = ["target", "effect", "product", "property", "magnitude", "perceptibility"].map((id) => ({ id, prompt: id, answerKeys: ["x", "none"], safeDefault: "none" }));
+
+    it("every question's answer is the referee's own, in all eight -- never the safe default", async () => {
+      for (const f of MALFORMED) {
+        const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content: f.content } }] }) });
+        const answers = await transport({ questions: QUESTIONS, sources: SOURCES });
+        const byQuestion = Object.fromEntries(answers.map((a) => [a.questionId, a.answerKey]));
+        // `product` cited `{"sourceId": "none", "quote": ""}` in two of the eight: the transport hands
+        // that on as it always has, and the engine rejects it (`empty-quote`) -- the test below shows it.
+        expect(byQuestion, `${f.game} ${f.label}`).toEqual(f.answers);
+        expect(transport.lastExchange()?.error, `${f.game} ${f.label}`).toBeUndefined();
+      }
+    });
+
+    it("the lost ruling, replayed against its recorded request through the engine's own reader, reads door/leave with nothing from a safe default but the uncited product", async () => {
+      const lost = MALFORMED.find((f) => f.game === "2026-09-21T20-19-28-723Z" && f.label === "round 2, prisoner");
+      if (!lost) throw new Error("the lost fixture is missing");
+      const request: ReadRequest = {
+        questions: [
+          { id: "target", prompt: "Which object?", answerKeys: ["window", "bar", "door", "lock", "spoon", "loose_tile", "cot", "blanket", "bucket", "meal_tray", "key_ring", "warden", "prisoner", "none"], safeDefault: "none" },
+          { id: "effect", prompt: "What effect?", answerKeys: ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "none"], safeDefault: "none" },
+          { id: "product", prompt: "What product?", answerKeys: ["wire", "strip", "grit", "none"], safeDefault: "none" },
+          { id: "property", prompt: "Which property?", answerKeys: ["integrity", "edge", "concealment", "passage", "posture", "none"], safeDefault: "none" },
+          { id: "magnitude", prompt: "How large?", answerKeys: ["slight", "moderate", "substantial"], safeDefault: "slight" },
+          { id: "perceptibility", prompt: "Noticed how?", answerKeys: ["silent", "audible", "visible"], safeDefault: "silent" },
+        ],
+        sources: [
+          { id: "intent", text: "Say \"Sure, it's yours\" to hold Croft's focus on the spoon for one more heartbeat, then immediately explode into a dead sprint through the open cell door, shoving past Croft if she stands in the path." },
+          { id: "desc:door", text: "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap. It stands open now." },
+        ],
+      };
+      const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content: lost.content } }] }) });
+      const result = await createTurnReader({ questions: request.questions, transports: [transport] }).read(request.sources);
+      expect(result.answers.map((a) => [a.questionId, a.answerKey, a.fromSafeDefault, a.citation?.quote])).toEqual([
+        ["target", "door", false, "the open cell door,"],
+        ["effect", "leave", false, "explode into a dead sprint through the open cell door,"],
+        ["product", "none", true, undefined],
+        ["property", "passage", false, "It stands open now."],
+        ["magnitude", "substantial", false, "explode into a dead sprint"],
+        ["perceptibility", "visible", false, "explode into a dead sprint"],
       ]);
     });
   });
