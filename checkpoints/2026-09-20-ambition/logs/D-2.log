@@ -1,0 +1,17 @@
+== D#2 model=Qwen/Qwen3-235B-A22B-Instruct-2507 start=2026-09-21T19:37:50Z doris_ps_before=[qwen3:14b]
+
+> the-prisoner@0.1.0 checkpoint
+> tsx src/checkpoint.ts
+
+[2026-09-21T19:37:50.848Z] INFO  [db] Using database path from DMCP_DB_PATH {"dbPath":"/tmp/ambition-D-2-76127.db"}
+[2026-09-21T19:37:50.852Z] INFO  [db] Database connection established {"path":"/tmp/ambition-D-2-76127.db"}
+round 1 warden: possible (67157ms)
+round 1 prisoner: impossible (83135ms)
+round 2 warden: possible (63270ms)
+round 2 prisoner: impossible (59080ms)
+Transcript written to /private/tmp/claude-501/-Users-derekferguson-rpg/31be6bee-2ee3-4745-98b2-e6fb91af20c9/scratchpad/wt-34b3eb9/checkpoints/2026-09-21T19-37-50-969Z.md
+Result: timeout at round 2
+Voice silences: 0
+== D#2 rc=0 end=2026-09-21T19:42:23Z doris_ps_after=[qwen3:14b]
+moved checkpoints/2026-09-21T19-37-50-969Z.md -> /Users/derekferguson/rpg/the-prisoner/checkpoints/2026-09-20-ambition/D/
+moved checkpoints/2026-09-21T19-37-50-969Z.referee.json -> /Users/derekferguson/rpg/the-prisoner/checkpoints/2026-09-20-ambition/D/
