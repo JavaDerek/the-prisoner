@@ -90,3 +90,16 @@ would -- the referee is held fixed precisely so that this is the same distortion
 **No number above is changed after seeing results.** Every transcript is committed unedited, and a game
 that ran through a broken shim or a failing network is quarantined in `discarded/` with a README, never
 counted and never deleted.
+
+## Addendum, 2026-09-21 14:30 CDT, still before the first counted game
+
+The proving run for arm O silenced on its first call: the `opus` alias now resolves to **Opus 5**, and
+Opus 5's safeguards refused the warden's round-1 wits prompt on 2 of 2 attempts and the prisoner's on
+1 of 1, each with zero output tokens ("Opus 5's safeguards flagged this message"). Replaying the same
+prompt and schema by hand: `sonnet` (Sonnet 5), `claude-opus-4-6` and `claude-opus-4-5` all answer it.
+The shim is not at fault; the model behind the alias is unavailable for this prompt.
+
+**Arm O therefore runs on `claude-opus-4-6`**, the newest Opus that answers, and every O transcript
+header names it. This is the one departure from the fixed design, made before any counted game, and
+the predictions above are unchanged by it. Whether the 2026-09-19 Opus game ran on Opus 5 or 4.6 is not
+recorded in its transcript, which names only the alias.
