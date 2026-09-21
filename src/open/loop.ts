@@ -406,6 +406,10 @@ export function describeAttempt(
       if (isPrincipalId(ruling.targetObjectId)) {
         return `${actor} calls out to ${actorName(ruling.targetObjectId)}.`;
       }
+      // OPUS-FIRST-DESIGN.md §3.2: a noise at nothing in particular is the
+      // actor's own sound -- "rings out from the none" is what the generic
+      // line below would say of it.
+      if (ruling.targetObjectId === "none") return `${actor} makes a sound.`;
       return `A sound rings out from the ${obj}.`;
     case "open":
       return `${actor} opens the ${obj}.`;

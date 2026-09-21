@@ -11,6 +11,7 @@ import { renderOwnOutcome, renderForOther } from "../perception.js";
 import { setBelief } from "../../ledger/beliefs.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
 import type { Principal } from "../../ledger/beliefs.js";
+import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 
 /** A scripted referee transport: every question gets the answer named in
  *  `answers`, cited against the intent or the target's own description. */
@@ -285,6 +286,86 @@ describe("a principal as a target (OPEN-VARIANT.md §55, issue #22 gap 2)", () =
     expect(forOther).toContain("Warden Croft");
     expect(forOther).not.toMatch(/\d/);
     expectPositive(forOther);
+  });
+});
+
+// OPUS-FIRST-DESIGN.md §3.2 (`checkpoints/2026-09-20-ambition/RESULTS.md`
+// bug 3): the three deliberate sounds of that batch, each a warden's
+// round-1/2 act under modelled presence, replayed as a full half-round through
+// the real referee with the recorded keys scripted -- the property row cited
+// from the INTENT, as every one of the three transcripts shows it. Each
+// resolves `OPEN_NOISE` (a perceptible event with no state change, OPEN-
+// VARIANT.md §4.2), touches no resource, and reaches the other chair through
+// the SAME `perceptionForOther` routing §55 already built -- a noise ruled at
+// a person reaches that person's next briefing by name, with nothing new
+// added for it here.
+describe("a noise needs no property, and its target may be none, an object, or a person (OPUS-FIRST-DESIGN.md §3.2)", () => {
+  afterEach(() => destroyTestDb());
+
+  /** The recorded ruling, keys as the transcript's referee table shows them:
+   *  every citation from the intent, the property row included. */
+  function recorded(keys: { target: string; effect: string; magnitude: string; perceptibility: string; quote: string }): ReaderTransport {
+    return async (request) =>
+      request.questions.map((q) => ({
+        questionId: q.id,
+        answerKey: ({ target: keys.target, effect: keys.effect, product: "none", property: "none", magnitude: keys.magnitude, perceptibility: keys.perceptibility } as Record<string, string>)[q.id] ?? q.safeDefault,
+        citation: { sourceId: "intent", quote: keys.quote },
+      }));
+  }
+
+  it("Q game: 'Speak to Voss to test her reactions' (prisoner/noise/none) resolves, and reaches Mara Voss's next briefing by name", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld({ presence: "modelled" });
+    const intent = "Speak to Voss to test her reactions";
+    const result = await halfWithPresence(openWorld, "warden", { intent }, [recorded({ target: "prisoner", effect: "noise", magnitude: "slight", perceptibility: "audible", quote: intent })]);
+
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.plan?.mechanic).toBe("OPEN_NOISE");
+    expect(result.outcome).toBeTruthy();
+    expect(result.resourceName).toBeNull();
+    expect(result.perceptionForOther).toContain(PRISONER_NAME);
+    expect(renderForOther(result).join("\n")).toContain(PRISONER_NAME);
+    const own = renderOwnOutcome(result) as string;
+    expect(own).toContain(PRISONER_NAME);
+    expectPositive(own);
+  });
+
+  it("D game: 'Rattle the key ring loudly ...' (key_ring/noise/none) resolves, and the prisoner perceives the sound from the key ring", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld({ presence: "modelled" });
+    const intent = "Rattle the key ring loudly while standing by the door, watching Voss’s eyes and hands for any flicker toward tools or exits.";
+    const result = await halfWithPresence(openWorld, "warden", { intent }, [recorded({ target: "key_ring", effect: "noise", magnitude: "moderate", perceptibility: "audible", quote: "Rattle the key ring loudly" })]);
+
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.plan?.mechanic).toBe("OPEN_NOISE");
+    expect(result.outcome).toBeTruthy();
+    expect(result.resourceName).toBeNull();
+    expect(result.perceptionForOther).toContain("key ring");
+    expectPositive(result.perceptionForOther as string);
+    expectPositive(renderOwnOutcome(result) as string);
+  });
+
+  it("O game: the slow circuit (none/noise/none) resolves as the warden's own sound -- no target, and nothing rendered as 'the none'", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld({ presence: "modelled" });
+    const intent =
+      "Walk a slow, deliberate circuit of the cell — pausing visibly at the window bars, the door, and the lock — while watching Voss's eyes to see what she tracks. Make pointed conversation to signal I'm paying close attention and to probe her composure.";
+    const result = await halfWithPresence(openWorld, "warden", { intent }, [
+      recorded({ target: "none", effect: "noise", magnitude: "moderate", perceptibility: "audible", quote: "Make pointed conversation to signal I'm paying close attention and to probe her composure." }),
+    ]);
+
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.plan?.mechanic).toBe("OPEN_NOISE");
+    expect(result.outcome).toBeTruthy();
+    expect(result.resourceName).toBeNull();
+    const forOther = result.perceptionForOther as string;
+    expect(forOther).toContain(WARDEN_NAME);
+    expect(forOther).not.toMatch(/\bnone\b/);
+    expectPositive(forOther);
+    const own = renderOwnOutcome(result) as string;
+    expect(own).not.toMatch(/\bnone\b/);
+    expect(own).not.toContain(intent); // never the intent's own words
+    expectPositive(own);
   });
 });
 

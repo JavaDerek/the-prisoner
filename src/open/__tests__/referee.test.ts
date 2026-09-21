@@ -137,18 +137,113 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     expect(ruling.effectKind).toBe("noise");
   });
 
-  it("PLANTED VIOLATION: noise with property='none' and NO citation at all (ungrounded) is not applicable", async () => {
-    const bucket: ObjectPerception = { id: "bucket", description: "A tin slop bucket... It rings sharply when anything strikes it." };
-    const transport = scriptedTransport({
-      target: { answerKey: "bucket", citation: { sourceId: "intent", quote: "kick the bucket" } },
-      effect: { answerKey: "noise", citation: { sourceId: "intent", quote: "kick the bucket" } },
-      // property omitted entirely -- falls to safeDefault "none" with no citation at all.
-      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "kick the bucket" } },
-      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "kick the bucket" } },
+  // OPUS-FIRST-DESIGN.md §3.2, from `checkpoints/2026-09-20-ambition/RESULTS.md`
+  // bug 3: every deliberate sound in that batch -- 3 of 3 -- was ruled
+  // impossible, because the property question's citation was held to the
+  // target's own `desc:` source for `noise` exactly as for `wear`, and a
+  // noise has no property whose description could ground it. Each of the
+  // three recorded rulings is rebuilt here by hand, keys and citations as
+  // the transcript's referee table shows them (the property row cited from
+  // the INTENT, verified `no`), with no model call. A noise needs no
+  // property: its grounding is the effect citation, from the intent.
+  describe("a noise needs no property (OPUS-FIRST-DESIGN.md §3.2)", () => {
+    const MARA: ObjectPerception = {
+      id: "prisoner",
+      description: "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet.",
+    };
+    const KEY_RING: ObjectPerception = {
+      id: "key_ring",
+      description: "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks.",
+    };
+
+    it("Q game, round 1 warden: 'Speak to Voss to test her reactions' -- prisoner/noise/none, property cited from the intent -- is applicable", async () => {
+      const intent = "Speak to Voss to test her reactions";
+      const transport = scriptedTransport({
+        target: { answerKey: "prisoner", citation: { sourceId: "intent", quote: "Voss" } },
+        effect: { answerKey: "noise", citation: { sourceId: "intent", quote: intent } },
+        product: { answerKey: "none", citation: { sourceId: "intent", quote: intent } },
+        property: { answerKey: "none", citation: { sourceId: "intent", quote: intent } },
+        magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: intent } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: intent } },
+      });
+      const ruling = await createReferee([transport], { propertiesOf: (id) => (id === "prisoner" ? ["posture"] : []) }).rule(intent, [BAR, MARA]);
+      expect(ruling.targetObjectId).toBe("prisoner");
+      expect(ruling.effectKind).toBe("noise");
+      expect(ruling.property).toBe("none");
+      expect(ruling.citations.property.verified).toBe(false); // exactly as recorded
+      expect(ruling.applicable).toBe(true);
     });
-    const referee = createReferee([transport]);
-    const ruling = await referee.rule("I kick the bucket over.", [bucket]);
-    expect(ruling.applicable).toBe(false);
+
+    it("D game, round 2 warden: 'Rattle the key ring loudly ...' -- key_ring/noise/none, property cited from the intent -- is applicable", async () => {
+      const intent = "Rattle the key ring loudly while standing by the door, watching Voss’s eyes and hands for any flicker toward tools or exits.";
+      const transport = scriptedTransport({
+        target: { answerKey: "key_ring", citation: { sourceId: "intent", quote: "Rattle the key" } },
+        effect: { answerKey: "noise", citation: { sourceId: "intent", quote: "Rattle the key ring loudly" } },
+        product: { answerKey: "none", citation: { sourceId: "intent", quote: "Rattle the key ring loudly" } },
+        property: { answerKey: "none", citation: { sourceId: "intent", quote: "Rattle the key ring loudly" } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "loudly" } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "loudly" } },
+      });
+      const ruling = await createReferee([transport]).rule(intent, [BAR, KEY_RING]);
+      expect(ruling.targetObjectId).toBe("key_ring");
+      expect(ruling.effectKind).toBe("noise");
+      expect(ruling.citations.property.verified).toBe(false);
+      expect(ruling.applicable).toBe(true);
+    });
+
+    it("O game, round 1 warden: the slow circuit -- none/noise/none, no target at all -- is applicable", async () => {
+      const intent =
+        "Walk a slow, deliberate circuit of the cell — pausing visibly at the window bars, the door, and the lock — while watching Voss's eyes to see what she tracks. Make pointed conversation to signal I'm paying close attention and to probe her composure.";
+      const conversation = "Make pointed conversation to signal I'm paying close attention and to probe her composure.";
+      const transport = scriptedTransport({
+        target: { answerKey: "none", citation: { sourceId: "intent", quote: intent } },
+        effect: { answerKey: "noise", citation: { sourceId: "intent", quote: conversation } },
+        product: { answerKey: "none", citation: { sourceId: "intent", quote: conversation } },
+        property: { answerKey: "none", citation: { sourceId: "intent", quote: conversation } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "slow, deliberate" } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: conversation } },
+      });
+      const ruling = await createReferee([transport]).rule(intent, [BAR, MARA]);
+      expect(ruling.targetObjectId).toBe("none");
+      expect(ruling.effectKind).toBe("noise");
+      expect(ruling.applicable).toBe(true);
+    });
+
+    it("a noise with no target whose target answer fell to the safe default is applicable too -- for a noise, the target contributes nothing to the effect either way", async () => {
+      const transport = scriptedTransport({
+        // target omitted -- falls to safeDefault "none" with no citation at all.
+        effect: { answerKey: "noise", citation: { sourceId: "intent", quote: "hum to myself" } },
+        magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "hum" } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "hum" } },
+      });
+      const ruling = await createReferee([transport]).rule("I hum to myself.", [BAR]);
+      expect(ruling.targetObjectId).toBe("none");
+      expect(ruling.applicable).toBe(true);
+    });
+
+    it("PLANTED VIOLATION: a noise whose EFFECT citation is missing is not applicable -- the effect citation from the intent is the whole of a noise's grounding", async () => {
+      const bucket: ObjectPerception = { id: "bucket", description: "A tin slop bucket... It rings sharply when anything strikes it." };
+      const transport = scriptedTransport({
+        target: { answerKey: "bucket", citation: { sourceId: "intent", quote: "kick the bucket" } },
+        // Wrong source for the effect: the description, not the intent.
+        effect: { answerKey: "noise", citation: { sourceId: "desc:bucket", quote: "It rings sharply when anything strikes it" } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "kick the bucket" } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "kick the bucket" } },
+      });
+      const ruling = await createReferee([transport]).rule("I kick the bucket over.", [bucket]);
+      expect(ruling.applicable).toBe(false);
+    });
+
+    it("PLANTED VIOLATION: a noise ruled at a NAMED target whose target citation did not verify is not applicable -- the waiver is for no target, never for a badly-cited one", async () => {
+      const transport = scriptedTransport({
+        target: { answerKey: "bar", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+        effect: { answerKey: "noise", citation: { sourceId: "intent", quote: "rap on the bar" } },
+        magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "rap" } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "rap" } },
+      });
+      const ruling = await createReferee([transport]).rule("I rap on the bar.", [BAR]);
+      expect(ruling.applicable).toBe(false);
+    });
   });
 
   it("wear/restore/reveal/conceal/expose with property='none' (even if cited) is never applicable -- those effects need a named, declared property", async () => {
