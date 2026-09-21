@@ -6003,3 +6003,49 @@ nothing left to mis-copy.
 Neither was found by a test. Both were found by the owner playing four rounds and pasting the transcript.
 That is the third time in two days a human at the terminal has beaten a batch, for the reason §64 gives:
 a mind proposes what the world affords, and a person does not.
+
+## 69. The ambition comparison: same room, same referee, three kinds of mind (2026-09-21)
+
+Checkpoints: `checkpoints/2026-09-20-ambition/` -- `PREDICTION.md` committed before the first counted
+game, `RESULTS.md`, `count.mts`, thirty transcripts under `Q/`, `O/`, `D/`, one quarantined under
+`discarded/`, every launch's record under `logs/`.
+
+**What was asked.** §64 says qwen3 minds only propose what the world affords; one Opus game
+(`checkpoints/2026-09-19T00-56-38-193Z.md`) lied about the spoon, hid it, muffled its work and stopped
+wearing the bar at 75. Model, or world? Controlled comparison: open variant, two rounds, presence
+modelled, `qwen3:14b` referee on doris at thinking ON in every arm, only the minds change. N = 10 per
+arm, interleaved. Arm Q `qwen3:14b`; arm O Opus; arm D, the owner's addition, `Qwen3-235B-A22B` on
+DeepInfra -- the same family as Q at sixteen times the parameters, so a Q/O gap could be read as scale
+or as something about Opus. Structural measures only, counted from ruling keys the code wrote.
+
+**What came back.** Zero silences in 120 counted half-rounds; every transcript at `34b3eb9`.
+
+| | Q | D | O |
+|---|---|---|---|
+| distinct targets per game (mean) | 1.80 | 2.10 | 2.50 |
+| the prisoner's distinct targets over 20 intents | **1** (bar, 20/20) | 3 | **7** |
+| intents on the door, unstated and free | 0 | 0 | 4 in 3 games |
+| escapes | 0 | 0 | 1 recorded, 2 as the referee answered |
+| rulings refused, of 40 | 4 | 7 | 12 |
+
+§64 reproduced exactly for Q: twenty prisoner intents, twenty on the bar. The Opus prisoner found the
+door in three games by shimming the visible bolt, walked through it once, and was refused most often --
+eight of its twelve refusals are acts on the tray, the spoon or the key ring that the world cannot
+represent (custody, unbuilt, CLAUDE.md). D moved nothing on the structural measures against Q: scale
+within the family is falsified by the prediction's own kill number. The person-target measure
+inverted -- Q's five "person-target games" are all the warden watching the prisoner -- and is why the
+results are split by chair.
+
+**Two things the batch changed on the way.** The `opus` alias now resolves to Opus 5, whose safeguards
+refuse this game's wits prompt (0 of 3 warden attempts, 1 of 3 prisoner); arm O ran on
+`claude-opus-4-6`, recorded in `PREDICTION.md`'s addendum before any counted game. And the referee's
+reply is malformed JSON on 8 of 123 rulings, all eight on Opus-length intents; the reader recovered
+seven and lost one, and the lost one was a `door`/`leave` that would have been the second escape
+(`RESULTS.md` bug 1). Three more observations are listed there, none fixed.
+
+**What it does and does not establish.** It establishes that the room is the limit for the two Qwen
+minds at both sizes, and that Opus 4.6 presses on the parts of the room that are not there: the free
+door, custody of objects, the other person's body. It does not establish "ambition" -- five verbatim
+quotes per arm sit side by side in `RESULTS.md` for the owner to read -- nor anything about ten
+rounds, nor anything about Opus 5, which would not answer. At two rounds no warden reached suspicion
+40, so this was a test of initiative and never of cat-and-mouse, as the design said in advance.
