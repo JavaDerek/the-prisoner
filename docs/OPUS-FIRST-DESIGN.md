@@ -1,6 +1,6 @@
 # Opus first — finish the world under a mind that exercises it, then measure the gap, then build the helpers
 
-**Written 2026-09-21, a proposal for red team, not a decision.** It follows from the ambition comparison
+**Written 2026-09-21, a proposal for red team; its five decisions were taken the same day (§0).** It follows from the ambition comparison
 (`OPEN-VARIANT.md` §69, `checkpoints/2026-09-20-ambition/`) and from the owner's reading of it: the
 world's imperfections have confounded every `mother-of-invention` measurement so far, so finish the world
 first, under the mind that finds its gaps, and only then build deterministic helpers for the small mind
@@ -17,7 +17,13 @@ admission test the helpers must pass. Each repository's own `CLAUDE.md` governs 
 
 ---
 
-## 0. The decisions this asks the owner for, up front
+## 0. The decisions, up front
+
+**All five decided by the owner on 2026-09-21, each as recommended**, before red team: D1 `claude-opus-4-6`
+pinned; D2 the shim committed with tests; D3 ten rounds; D4 Opus asks **and** a human has; D5 thinking ON
+as a standing arm. A sixth, raised in the same pass: **Sonnet 5 runs as the fourth Phase 2 arm**, not
+optionally (§5.1). The red team is reviewing the design under these decisions, and is free to argue any
+of them was wrong.
 
 | | decision | recommended | why |
 |---|---|---|---|
@@ -209,7 +215,7 @@ On the finished world, pinned, N = 10 ten-round games each, interleaved, two dri
 | Q | `qwen3:14b`, wits thinking OFF | the 4090 baseline every helper is for |
 | Qt | `qwen3:14b`, wits thinking ON | the free helper (D5); the bar every built helper must clear |
 | O | `claude-opus-4-6` | the oracle |
-| S | Sonnet 5, optional | a second Anthropic model, to separate "Opus" from "Anthropic" the way D separated "Qwen" from "small" |
+| S | Sonnet 5 | a second Anthropic model, to separate "Opus" from "Anthropic" the way D separated "Qwen" from "small" |
 
 D (Qwen3-235B) is dropped: §69 showed it moves nothing structural against the 14b, and it costs a
 provider that overloads one call in three. It returns only if a helper needs a second small-ish mind to
