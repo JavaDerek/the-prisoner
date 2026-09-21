@@ -273,3 +273,36 @@ describe("planEffect: a perceived principal as a target (OPEN-VARIANT.md §55, i
     expect(planEffect({ targetObjectId: "warden", effectKind: "leave", property: "none", magnitude: "slight", entityIdFor: withPrincipals, resourceIdFor, exits: {}, actorId: "e-prisoner", description: "x" })).toBeNull();
   });
 });
+
+// OPUS-FIRST-DESIGN.md §3.2: a noise's target may be `none` (the O game's
+// slow circuit, `checkpoints/2026-09-20-ambition/RESULTS.md` bug 3). With no
+// target there is no entity in `entityIdFor` to hang the event on, so the
+// sound is the actor's own: `OPEN_NOISE`'s `entityId` is the actor.
+describe("planEffect: a noise with no target (OPUS-FIRST-DESIGN.md §3.2)", () => {
+  it("builds OPEN_NOISE against the actor's own entity, with no resource", () => {
+    const plan = planEffect({
+      targetObjectId: "none",
+      effectKind: "noise",
+      property: "none",
+      magnitude: "moderate",
+      entityIdFor,
+      resourceIdFor,
+      actorId: "e-warden",
+      description: "makes a sound",
+    });
+    expect(plan?.mechanic).toBe("OPEN_NOISE");
+    expect(plan?.parameters.entityId).toBe("e-warden");
+    expect(plan?.resourceId).toBeNull();
+    expect(plan?.isWearType).toBe(false);
+  });
+
+  it("plans nothing when there is neither a target nor an actor to be the source of the sound", () => {
+    expect(planEffect({ targetObjectId: "none", effectKind: "noise", property: "none", magnitude: "slight", entityIdFor, resourceIdFor, description: "" })).toBeNull();
+  });
+
+  it("every other effect with target 'none' still plans nothing", () => {
+    for (const effectKind of ["wear", "restore", "reveal", "conceal", "expose", "open", "close", "leave", "derive"] as const) {
+      expect(planEffect({ targetObjectId: "none", effectKind, property: "none", magnitude: "slight", entityIdFor, resourceIdFor, actorId: "e-warden", description: "" })).toBeNull();
+    }
+  });
+});

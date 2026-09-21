@@ -43,12 +43,20 @@ import type { RangedCitation } from "./refereeTransport.js";
  * CITATION on that answer -- which must be a verbatim span of the TARGET
  * OBJECT'S OWN description -- is what actually carries §3.2's "grounding"
  * requirement, independent of which key was chosen. A `property` answer of
- * `"none"` therefore still needs a valid description citation to count as
- * "grounded but propertyless" (legal only for `noise`, which
- * `effectRequiresProperty` excludes); a `property` answer of `"none"` with
- * NO citation (the safe default, or an offer the ladder rejected) is
- * ungrounded, exactly as §3.2 describes, for every effect including
- * `noise`.
+ * `"none"` with NO citation (the safe default, or an offer the ladder
+ * rejected) is therefore ungrounded, exactly as §3.2 describes, for every
+ * effect that has a property to ground -- with ONE exception, decided by
+ * OPUS-FIRST-DESIGN.md §3.2 after `checkpoints/2026-09-20-ambition/` showed
+ * it ruling every deliberate sound impossible, 3 of 3: `noise` has no
+ * property at all (`effectRequiresProperty` excludes it), so its `property`
+ * answer of `"none"` needs no description citation, and its target may be
+ * `none`, an object, or a person. A noise is grounded by its EFFECT
+ * citation alone, from the actor's intent (`computeRuling`, below). This
+ * module's earlier position -- that a propertyless noise "still needs a
+ * verified description citation to count as grounded" (OPEN-VARIANT.md
+ * §9.2, §24.2) -- asked the target's description to say that the thing
+ * makes a sound, which no person's description and no key ring's ever
+ * grounded in play.
  */
 /** Declared as a `type`, never an `interface` -- `mind-seam`'s own
  *  discipline (DESIGN §3.1): an object type literal carries an implicit
@@ -459,8 +467,21 @@ export function computeRuling(
   // check, as every "declared in the scenario" check is.
   const productNamedWhenRequired = effectKind !== "derive" || (product !== "none" && productCitation.verified);
 
+  // OPUS-FIRST-DESIGN.md §3.2 (`checkpoints/2026-09-20-ambition/RESULTS.md`
+  // bug 3): a noise needs no property, so it needs no property CITATION
+  // either -- the referee answered `none` and cited the intent for it in all
+  // three recorded cases, and holding that answer to the target's `desc:`
+  // source (the line below, for every other effect) is exactly what ruled
+  // every deliberate sound in that batch impossible. Its target may be
+  // `none` too (the O game's slow circuit): a noise is a perceptible event
+  // with no state change (OPEN-VARIANT.md §4.2), so no target contributes
+  // anything to the effect, and a target answer that fell to its safe
+  // default means the same as a cited `none`. What still grounds a noise is
+  // its EFFECT citation, from the intent -- never waived -- and a target
+  // that IS named is still held to its own citation like any other.
+  const noise = effectKind === "noise";
   const applicable =
-    targetObjectId !== "none" &&
+    (targetObjectId !== "none" || noise) &&
     effectKind !== "none" &&
     // OPEN-VARIANT.md §51, the-prisoner#17: the same unconditional pattern
     // `effectKind !== "none"` already uses -- the closed key itself is
@@ -468,9 +489,9 @@ export function computeRuling(
     // the safe direction; `missingInstrument`, above, is the separate,
     // citation-gated record of WHY, for reporting).
     instrument !== "absent" &&
-    targetCitation.verified &&
+    (targetCitation.verified || (noise && targetObjectId === "none")) &&
     effectCitation.verified &&
-    propertyCitation.verified &&
+    (propertyCitation.verified || noise) &&
     propertyNamedWhenRequired &&
     productNamedWhenRequired;
 

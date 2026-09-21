@@ -111,6 +111,9 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       if (isPrincipalTarget(ruling.targetObjectId)) {
         return `Your last attempt called out to ${principalName(ruling.targetObjectId)}.`;
       }
+      // OPUS-FIRST-DESIGN.md §3.2: a noise may have no target at all; the
+      // sound is then the actor's own, mirroring `describeAttempt` again.
+      if (ruling.targetObjectId === "none") return "Your last attempt made a sound.";
       return `Your last attempt made the ${obj} ring out.`;
     }
     if (ruling.effectKind === "derive") {

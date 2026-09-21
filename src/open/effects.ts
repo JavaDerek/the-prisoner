@@ -167,12 +167,20 @@ export function planEffect(params: {
 }): EffectPlan | null {
   const { targetObjectId, effectKind, property, magnitude, entityIdFor, resourceIdFor, description } = params;
   const lookup = params.declaredProperty ?? findProperty;
+  if (effectKind === "noise") {
+    // OPUS-FIRST-DESIGN.md §3.2: a noise's target may be `none` -- the sound
+    // is then the actor's own (the O game's slow circuit, made of pointed
+    // conversation at nothing in particular), so the event hangs on the
+    // actor's entity. A named target that is not in the map is still "no
+    // invented world", exactly as below; with neither there is no source
+    // for the sound to be recorded against.
+    const source = targetObjectId === "none" ? params.actorId : entityIdFor[targetObjectId];
+    if (!source) return null;
+    return { mechanic: "OPEN_NOISE", parameters: { entityId: source, description }, resourceId: null, isWearType: false };
+  }
   const entityId = entityIdFor[targetObjectId];
   if (!entityId) return null;
 
-  if (effectKind === "noise") {
-    return { mechanic: "OPEN_NOISE", parameters: { entityId, description }, resourceId: null, isWearType: false };
-  }
   if (effectKind === "leave") {
     // Through a way out, and only a way out: an object that is not one -- a
     // lock or a bar, the part of one (§17.2) -- is not, whatever the referee
