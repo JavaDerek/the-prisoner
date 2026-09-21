@@ -50,6 +50,35 @@ overlap. `PRISONER_OLLAMA_RESIDENT_MODELS` lists models a run may unload and mus
 from Ollama's `expires_at`: some servers keep every model loaded indefinitely. Transcripts go to
 `checkpoints/`, committed unedited, including bad runs.
 
+## A model that is not on doris goes through the model router
+
+A Claude-minds or DeepInfra batch (OPUS-FIRST-DESIGN.md, D2) changes no code in the minds: it points
+`PRISONER_MODEL_URL` at `npm run model-router` (`src/tools/modelRouter.ts`, `localhost:8799`), which
+speaks OpenAI chat-completions and routes by `model` -- `opus`/`sonnet`/`haiku` or any `claude-*` id
+to the keyless `claude` CLI in print mode (subscription auth only: `ANTHROPIC_API_KEY` and
+`ANTHROPIC_AUTH_TOKEN` are deleted from the child's env, the same rule brink's `claudeCli/backend.ts`
+enforces for the same money-safety reason), any `org/model` id to DeepInfra with `DEEPINFRA_API_KEY`
+from env and retry-with-backoff on its one-in-three `engine_overloaded`, and everything else to doris
+unchanged. Start it in its own detached terminal first, then run the batch against it:
+
+```bash
+DEEPINFRA_API_KEY=... SHIM_CLAUDE_CWD=/tmp/empty npm run model-router   # one JSON line per request on stdout
+PRISONER_VARIANT=open PRISONER_MODEL_URL=http://localhost:8799/v1 \
+  PRISONER_WITS_MODEL=claude-opus-4-6 PRISONER_SKIP_VOICE=1 PRISONER_ROUNDS=10 \
+  PRISONER_OLLAMA_RESIDENT_MODELS= npm run checkpoint
+```
+
+**The resident referee is hidden from `/api/ps` on purpose** (`SHIM_HIDE_MODELS`, default `qwen3:14b`).
+The one-model swapper above runs on every real run, and before the wits call it would see `qwen3:14b`
+loaded, decide it was in the way of `claude-opus-4-6`, and unload it -- to make room on a GPU the
+Opus call never touches -- then the referee's own next call would reload it, once per half-round. So
+the router serves doris's real `/api/ps` with the residents removed and `/api/generate` as a no-op,
+and doris's pin is left exactly as found. Every OTHER loaded model still shows, so the foreign-model
+guard fires exactly as it would without the router. The cost is that such a transcript's header reads
+"(no models loaded)"; the real state is in the router's own log, which is why a batch keeps it under
+its checkpoint's `logs/`. Pin the oracle by id, never by alias (`opus` is whatever the CLI's alias
+resolves to that day), and read the `cliModel` field of each `route: "claude"` log line to check it.
+
 ## Test runs skip the voice model for reasoning-only work
 
 The voice role exists to write one line of in-character dialogue for a human reading the transcript
