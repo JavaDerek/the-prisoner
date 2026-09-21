@@ -5,7 +5,6 @@ import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, declaredPropertyKeys, type OpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { createReferee } from "../referee.js";
-import { PRISONER_NAME } from "../../scenario.js";
 import { runOpenHalfRound, type OpenHalfRoundResult } from "../loop.js";
 import { buildOpenContext } from "../briefing.js";
 import { renderOwnOutcome, renderForOther } from "../perception.js";
@@ -524,7 +523,12 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     expect(renderOwnOutcome(reveal)).toBe(`Your last attempt ("${sweep}") was refused as an attempt to look closely at something, its target left unread, and matches none of what is here: ${reachable(reveal)}.`);
     const circuit = "Walk a slow, deliberate circuit of the cell, making pointed conversation.";
     const noise = await half(openWorld, "warden", { intent: circuit }, [ruling({ target: "none", effect: "noise", property: "none", intentQuote: "pointed conversation", descQuote: "" })]);
-    expect(renderOwnOutcome(noise)).toBe(`Your last attempt ("${circuit}") was refused as an attempt to make a noise, its target left unread, and matches none of what is here: ${reachable(noise)}.`);
+    // Merged with §3.2 (phase0-noise) on 2026-09-21: a `none`-target noise is no longer a refusal at
+    // all -- it is ruled possible and resolves OPEN_NOISE against the actor -- so the refusal render
+    // never fires for this shape. The §3.4 sentence for it is kept reachable through `refusalWhy`'s
+    // closed set, but what a warden is actually told after a circuit of the cell is the resolved line.
+    expect(noise.ruling?.applicable).toBe(true);
+    expect(renderOwnOutcome(noise)).toBe("Your last attempt made a sound.");
     expectPositive(renderOwnOutcome(reveal) as string);
     expectPositive(renderOwnOutcome(noise) as string);
   });
