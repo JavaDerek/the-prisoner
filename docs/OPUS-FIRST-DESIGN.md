@@ -4,7 +4,10 @@
 twice the same day, after two red team passes: §10 and §11 are the ledgers, and the changes are marked
 inline where they land. Second-pass headlines: "finished world" is now "locked world" with a hard cap
 of six batches or five builds (§2); measures split into competence and reach, and a helper passes on
-reach only (§5.2, §6.1); refusal memory carries the rendered sentence, not a key tuple (§6.2).** It follows from the ambition comparison
+reach only (§5.2, §6.1); refusal memory carries the rendered sentence, not a key tuple (§6.2). Third pass (§12): Opus and Sonnet
+count as one source and the human source plays blind (D4); §5.0 is one-sided and runs at ten rounds; the
+shuffled control degrades content, never order (§6.1); refusal renders must state the why, a Phase 0
+item with fixtures, because today they do not (§3.4).** It follows from the ambition comparison
 (`OPEN-VARIANT.md` §69, `checkpoints/2026-09-20-ambition/`) and from the owner's reading of it: the
 world's imperfections have confounded every `mother-of-invention` measurement so far, so finish the world
 first, under the mind that finds its gaps, and only then build deterministic helpers for the small mind
@@ -43,7 +46,7 @@ of them was wrong.
 | **D1** | the oracle model | `claude-opus-4-6`, pinned by id, as a **phase-scoped instrument** | Opus 5's safeguards refuse the wits prompt with zero output tokens (§69). An oracle that answers 1 turn in 3 is not an oracle. *Revised after red team:* the framing probe for Opus 5 (§8.1) runs **before Phase 1**, not once per phase; every transcript names the oracle by id; and no single model's tolerances cap the world, because D4 now needs two sources. |
 | **D2** | the routing shim | commit it, as `tools/model-router.mts` in this repository, with tests | It has been rebuilt from scratch twice (2026-09-19, 2026-09-21). Every Opus batch's reproducibility depends on it. It is TypeScript, it touches no storage, and it is this game's own harness, not engine or seam. |
 | **D3** | game length for world completion | 10 rounds | Two rounds measured initiative and nothing else: no warden reached suspicion 40 (§69). Custody, catches and cat-and-mouse only exist past round 4. |
-| **D4** | what earns a mechanism a build | **two independent sources** reach for it: any two of Opus, Sonnet 5, a person at the terminal | *Revised after red team.* As decided it was "Opus asks and a human has", which makes the human a veto and caps the world at what Opus imagines. Human transcripts now go through the same refusal audit as model ones and are a **source**: a mechanism humans reach for and Opus ignores is built on the same terms (§4.4). |
+| **D4** | what earns a mechanism a build | **two independent sources** reach for it. *Third pass:* Opus 4.6 and Sonnet 5 share a lineage and count as **one** source between them, so the second is a person, who plays **blind** to the batch's refusal audit; a human game already on record counts as prior evidence, not a validation run | *Revised after red team.* As decided it was "Opus asks and a human has", which makes the human a veto and caps the world at what Opus imagines. Human transcripts now go through the same refusal audit as model ones and are a **source**: a mechanism humans reach for and Opus ignores is built on the same terms (§4.4). |
 | **D5** | thinking ON as a standing arm | yes, `PRISONER_WITS_THINKING=on` on `qwen3:14b` is the fourth arm of every gap baseline | It is the cheapest possible helper and costs no code. Any deterministic helper has to beat it, or it is not worth its maintenance. |
 
 ---
@@ -167,7 +170,16 @@ rule is wrong (legitimate one-word citations exist), but every Phase 1 batch rep
 rulings whose citation is a single function word, so the size of the hole is known before anything
 is built on top of it.
 
-Exit: the eight fixtures read correctly; the three noises resolve; `npm run typecheck`, `lint`,
+**3.4 A refusal render must state the why** (third red team pass, §12). Measured on §69's batch: every
+sentence a refused actor was given is one of two shapes -- *"Your last attempt met the meal tray as it
+is: <its authored description>"* (the target and its texture, never the effect that failed or why) or
+*"matches none of what is here: <every object>"*. The renderer is code and holds the ruling's keys, so
+this is not a crutch: for every refusal it renders target, the effect that was attempted, and the reason
+from the keys (no property of that name; threshold not met; no mechanism for that pair). The nine refusal
+shapes in `checkpoints/2026-09-20-ambition/` are the fixtures. Without this, §6.2's refusal-memory helper
+carries dead weight forward and is not worth building.
+
+Exit: the eight fixtures read correctly; the three noises resolve; the nine refusal renders name the why; `npm run typecheck`, `lint`,
 `vitest run` green; a pinned commit for Phase 1 to run from.
 
 ---
@@ -231,6 +243,14 @@ model's imagination. Human games therefore enter the same loop as model batches:
 audited and labelled the same way, and D4's two-source rule counts a person as a source. The owner plays
 at least one ten-round game per Phase 1 cycle for this reason, not only as a tie-break.
 
+*Third pass (§12):* the two models share Anthropic's lineage and their agreement is correlated, so they
+are one source. That makes the human the second source in practice, and a human sent to "check whether
+custody is real" is a rubber stamp. The rule is therefore **blind play**: the person plays before reading
+that batch's refusal audit, and their transcript goes through the same audit afterwards. Human games
+already recorded before a mechanism was queued (§48, §58: custody was reached for on the 17th and 18th,
+before any Opus game) are the strongest form of this evidence. Where the only available person is the
+owner, the design records that the signal is blind but not independent, and does not call it more.
+
 ### 4.5 The tension the red team should press on
 
 "Finished under Opus" could be unbounded: a mind that presses on edges will always find one more. The
@@ -244,13 +264,17 @@ world and should say so rather than build a fourth mechanism.
 
 ### 5.0 The cheap answer first (revised after red team)
 
-Before any Opus game counts, and independent of Phase 0: **Qt vs Q on the current world**, N = 10,
-two rounds, the same harness as §69, about an hour. Qt is `qwen3:14b` with `PRISONER_WITS_THINKING=on`.
+Before any Opus game counts, and independent of Phase 0: **Qt vs Q on the current world**. *Third pass
+(§12):* at **ten rounds, N = 5 per arm, overnight**, not two rounds -- D3's own finding is that two rounds
+measure initiative and nothing else, so a two-round probe could only ever rule thinking ON *in*. This
+probe is **one-sided by design**: a positive result (Qt's reach family matches §69's Opus arm by chair)
+shrinks Phase 3 now; a negative result changes nothing, because Qt remains the standing ten-round arm of
+Phase 2 under D5, on the locked world, where the question is actually decided. Qt is `qwen3:14b` with `PRISONER_WITS_THINKING=on`.
 If Qt's chair-level spread matches §69's Opus arm (prisoner distinct targets, door intents), then the
 gap on the 4090 is closable by paying thinking's 8x, Phase 3 shrinks to whatever Qt leaves open, and the
-program knows that before spending a week of Opus batches on it. If Qt matches Q, the deterministic
-route is the only one and Phase 3 is the whole point. Either way it is one prediction and one hour, and
-the red team was right that discovering it at the end of Phase 2 would have been the expensive way.
+program knows that before spending a week of Opus batches on it. If Qt matches Q here, nothing is
+concluded against it. Either way it is one prediction and one night, and the red team was right that
+discovering a positive at the end of Phase 2 would have been the expensive way.
 
 ### 5.1 Arms
 
@@ -323,9 +347,14 @@ document says so now.
   the chosen intent's target and effect, whether it was grounded, and whether it moved the world toward
   the actor's own stated goal (an escape, a threshold crossed, a suspicion held down). A helper that
   fills the candidate list and never changes the choice has moved nothing that counts.
-- **Two controls, always.** A **shuffled control arm**: the same helper with its structure randomised
-  (it forces candidates on objects already tried, or in a random order); if the measure moves the same
-  under the shuffle, the helper is a macro and dies. A **second game**: the helper must move the same
+- **Two controls, always.** A **degraded control arm** (was "shuffled"; third pass, §12): the same helper with its
+  **content** degraded, never its order -- it surfaces only what the actor has already tried, or a
+  random subset that excludes what the real helper would surface. If the reach measure moves the same
+  under the degraded control, the movement came from the forcing and not from what was surfaced: the
+  helper is a macro on reach and dies as one. A helper that surfaces a forgotten affordance does nothing
+  under this control and survives it; and if it moves only the competence family it is a prosthesis,
+  which the split above already gives a home. An order shuffle would kill exactly the helper this
+  control is meant to keep, and is not used. A **second game**: the helper must move the same
   measure in brink without knowing brink's nouns, or it is a room-specific macro.
 - **A number to hit and a number that kills it**, pre-committed per helper, on the finished world, N =
   10: the chosen-act measure moves at least halfway from Q toward O, **and** beats Qt, **and** beats its
@@ -352,7 +381,8 @@ document says so now.
    many turns as the fact stays true -- which is precedent's ledger extended from "what I tried" to
    "what the world said no to", in the words the world already uses. It also means the renderer's own
    gaps (§68.7, "Voss works at the prisoner") are load-bearing for this helper and must close in
-   Phase 1 first.
+   Phase 1 first -- and, after the third pass measured what a refused actor is told today (§3.4), that
+   the refusal render must state the why before this helper is worth building at all.
 4. **Candidate ruling in play** (the §5.2 instrument, turned on): the referee rules all candidates,
    and the mind chooses among the grounded ones. This is `pick` given the referee's verdict instead of
    its own. It costs referee calls per turn and is the one helper that is not free of model calls, so
@@ -475,3 +505,25 @@ to hit it.
 What was **not** changed: §8's pre-mortem stands as written, and the report did not dispute the
 premise that the gap is only measurable once the world stops moving; it argued, correctly, that
 "stops moving" and "complete" are different, and the design now says which one it means.
+
+---
+
+## 12. The third red team pass, and what changed
+
+Received 2026-09-21, after §11. Four friction points and a question. Ledger:
+
+| point | verdict | change |
+|---|---|---|
+| D4's Anthropic echo chamber: Opus 4.6 and Sonnet 5 share a lineage, so their agreement is one signal; and a human sent to validate an Opus find is a rubber stamp | **conceded on the pair; partly on the human** | the two models count as one source; the person is the second and plays **blind** to the batch's audit; prior human games count as evidence, not validation; where the only person is the owner, the signal is called blind but not independent (D4, §4.4) |
+| §5.0's horizon mismatch: a two-round probe on a moving world cannot rule thinking ON out for a ten-round locked world | **conceded** | §5.0 runs at ten rounds, N = 5, overnight, and is **one-sided**: a positive shrinks Phase 3 now, a negative concludes nothing, Qt stays the standing Phase 2 arm (§5.0) |
+| the shuffled control paradox: a helper that cures spatial amnesia moves the measure equally under a shuffle and is killed as a macro | **partly a misread the text invited** | "or in a random order" is removed. The control degrades **content** (surfaces only already-tried objects); a forgotten-affordance helper does nothing under it and survives; a forcing helper moves the count either way and dies. A helper that moves only competence is a prosthesis, which §5.2's split already houses (§6.1) |
+| refusal memory depends on the renderer being articulate, and a vague "you cannot do that" carried forward is dead weight | **conceded, and measured** | every refusal sentence in §69's batch is either the target's authored description repeated or a list of the whole room; none states the failed effect or the reason. New Phase 0 item §3.4: refusal renders state target, effect and reason from the ruling's keys, with the batch's nine refusal shapes as fixtures; the helper is not built before it (§3.4, §6.2) |
+
+**The question** -- *is the engine's renderer articulate enough to support refusal memory without the
+crutch of the underlying keys?* -- **No, not today, and it is the wrong dichotomy.** The renderer is
+code; it holds the ruling's keys and renders from them, which is how every briefing line already comes
+to exist. What it does not do yet is render the *reason* a refusal was a refusal. §3.4 makes it, with
+fixtures, before Phase 1, and the helper waits for it.
+
+What was **not** changed: the two-source rule itself (a single-source world is still the containment
+zone the first pass named), D5, and the lock cap of §2.
