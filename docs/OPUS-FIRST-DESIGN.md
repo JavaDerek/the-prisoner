@@ -44,7 +44,7 @@ of them was wrong.
 | | decision | recommended | why |
 |---|---|---|---|
 | **D1** | the oracle model | `claude-opus-4-6`, pinned by id, as a **phase-scoped instrument** | Opus 5's safeguards refuse the wits prompt with zero output tokens (§69). An oracle that answers 1 turn in 3 is not an oracle. *Revised after red team:* the framing probe for Opus 5 (§8.1) runs **before Phase 1**, not once per phase; every transcript names the oracle by id; and no single model's tolerances cap the world, because D4 now needs two sources. |
-| **D2** | the routing shim | commit it, as `tools/model-router.mts` in this repository, with tests | It has been rebuilt from scratch twice (2026-09-19, 2026-09-21). Every Opus batch's reproducibility depends on it. It is TypeScript, it touches no storage, and it is this game's own harness, not engine or seam. |
+| **D2** | the routing shim | commit it, with tests. *Landed 2026-09-21 as* `src/tools/modelRouter.ts` *+* `npm run model-router` (under `src/` so typecheck, lint and vitest reach it; the table first said `tools/model-router.mts`) | It has been rebuilt from scratch twice (2026-09-19, 2026-09-21). Every Opus batch's reproducibility depends on it. It is TypeScript, it touches no storage, and it is this game's own harness, not engine or seam. |
 | **D3** | game length for world completion | 10 rounds | Two rounds measured initiative and nothing else: no warden reached suspicion 40 (§69). Custody, catches and cat-and-mouse only exist past round 4. |
 | **D4** | what earns a mechanism a build | **two independent sources** reach for it. *Third pass:* Opus 4.6 and Sonnet 5 share a lineage and count as **one** source between them, so the second is a person, who plays **blind** to the batch's refusal audit; a human game already on record counts as prior evidence, not a validation run | *Revised after red team.* As decided it was "Opus asks and a human has", which makes the human a veto and caps the world at what Opus imagines. Human transcripts now go through the same refusal audit as model ones and are a **source**: a mechanism humans reach for and Opus ignores is built on the same terms (§4.4). |
 | **D5** | thinking ON as a standing arm | yes, `PRISONER_WITS_THINKING=on` on `qwen3:14b` is the fourth arm of every gap baseline | It is the cheapest possible helper and costs no code. Any deterministic helper has to beat it, or it is not worth its maintenance. |
@@ -152,13 +152,17 @@ failing test first.
 **3.1 The reader loses a ruling on malformed JSON.** 8 of 123 referee replies in §69's batch failed a
 strict parse, all on long intents; the reader recovered 7 and lost 1, and the lost one was
 `door`/`leave`. The eight raw replies are in `checkpoints/2026-09-20-ambition/O/*.referee.json` and are
-the regression fixture. The reader is `run-dmcp`'s `createTurnReader`, so this is an engine issue, filed
-in neutral words ("a reply that is a JSON array with a trailing stray quote is recoverable; the reader
-should recover it or reject the whole reply loudly, never fall silently to every safe default"). Land
-engine-side first (root `CLAUDE.md` rule 3), bump the pin. The-prisoner's own test: replay the eight,
-assert none reads as all-`none`.
+the regression fixture. *Corrected when it landed (2026-09-21, `phase0-reader`):* the parse is
+**game-side**, in `src/open/refereeTransport.ts`, not in `run-dmcp`'s turn reader as this section first
+claimed, so no engine issue and no pin bump were needed. Two further corrections from the fixtures: the
+stray-quote repair already existed (OPEN-VARIANT §37, 2026-09-17) and is what recovered the seven; the
+eighth had a second defect behind the quote, closers in the wrong order (`]}` for `}]`), and the new
+repair rebalances mismatched closers when only closers remain. A retry was considered and skipped: at
+temperature 0 the same request returns the same bytes (§37 measured 3 of 3). An unrecoverable reply is
+now recorded with its reason in the `.referee.json` sidecar and printed in the transcript's referee table
+as a failed call, so an all-`none` table can no longer pass for a referee that offered nothing.
 
-**3.2 `noise` with `property: none` is ruled impossible, 3 of 3.** *"Speak to Voss"*, *"Rattle the
+**3.2 `noise` with `property: none` is ruled impossible, 3 of 3.** *Landed 2026-09-21 (`phase0-noise`): the gate was `computeRuling` requiring a verified property citation for every effect; relaxed for `noise` only, a `none` target hangs the event on the actor, and OPEN-VARIANT §9.2/§24.2's older position is superseded.* *"Speak to Voss"*, *"Rattle the
 key ring loudly"*, the slow circuit — every deliberate sound in the batch reached nobody. `OPEN_NOISE`
 exists in `mechanics.ts`; whatever gates it wants a property a noise does not have. Decide the semantics
 (a noise needs no property; its target may be `none`, an object, or a person) and pin it with a test

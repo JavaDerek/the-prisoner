@@ -1410,7 +1410,9 @@ Every recorded intent from the three games (67) was re-ruled once with the new p
   where the property should be `none` (grit takes nothing from the tile), so the plan is still refused.
 - **The one that broke:** "Strike the bucket with the spoon" was `noise` with a (wrong) `integrity`;
   it is now `noise` with `none`, as the list says, and noise still requires a grounding citation on
-  that answer.
+  that answer. *(Superseded 2026-09-21, OPUS-FIRST-DESIGN §3.2: a noise needs no property citation; it
+  is grounded by its effect citation from the intent, and its target may be `none`, an object, or a
+  person. §69's batch had ruled every deliberate sound impossible on exactly this requirement.)*
 - **Changed meaning while still working, 4:** round 1's scrape "to loosen" is now `wear`, not `open`
   (correct); two "apply grit to the bar" became `reveal` of the bar instead of `wear` (wrong); one
   retargeted the bar work onto the tile's concealment.
