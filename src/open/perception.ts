@@ -2,7 +2,9 @@ import { ResolveProtocolError } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
 import { findKind } from "./derivedObjects.js";
 import { bandNumbersFor } from "./acquirableProperties.js";
-import type { OpenPropertyKey } from "./scenarioObjects.js";
+import { findObject, OPEN_PERSONS, type OpenPropertyKey } from "./scenarioObjects.js";
+import { effectRequiresProperty, type EffectKind } from "./effects.js";
+import type { RefereeRuling } from "./referee.js";
 import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
 
 /**
@@ -15,7 +17,9 @@ import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } fr
  *   so learns the exact number it moved or revealed (the closed variant's
  *   `ownMoveFeedback` rule), or, when its attempt was ruled impossible, the
  *   positive reason (§5.3 item 2): the authored description of the object it
- *   reached for, or the list of things it can reach.
+ *   reached for, or the list of things it can reach -- and, since
+ *   OPUS-FIRST-DESIGN.md §3.4, the effect the ruling read and the reason the
+ *   world said no, both from the ruling's keys (`refusalWhy` below).
  * - `renderForOther` -- the OTHER principal, who hears the spoken line and
  *   perceives a non-silent attempt as `describeAttempt`'s sentence (no
  *   number, no property, no intent text).
@@ -45,6 +49,94 @@ function principalName(id: string): string {
 
 function quoted(intent: string): string {
   return `"${intent}"`;
+}
+
+/** OPUS-FIRST-DESIGN.md §3.4: the effect the ruling read, phrased with the
+ *  verb the actor's own outcome already uses for that effect when it
+ *  resolves ("showed you the X closely", "made the X ring out", "opened",
+ *  "shut", "made a ... from") -- one phrase per closed key, never the key
+ *  itself. `what` is the target as this module already names it (a thing
+ *  with its article, a person by name), or `null` when the ruling read no
+ *  target at all. */
+function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
+  const it = what ?? "something";
+  switch (ruling.effectKind as EffectKind) {
+    case "wear":
+      return `wear at ${it}`;
+    case "restore":
+      return `restore ${it}`;
+    case "reveal":
+      return `look closely at ${it}`;
+    case "conceal":
+      return `hide ${it}`;
+    case "expose":
+      return `uncover ${it}`;
+    case "noise":
+      // The same person/thing split `describeAttempt` (loop.ts) and the
+      // resolved branch below already make for this one effect.
+      if (what === null) return "make a noise";
+      return isPrincipalTarget(ruling.targetObjectId) ? `call out to ${what}` : `make a noise with ${what}`;
+    case "open":
+      return `open ${it}`;
+    case "close":
+      return `shut ${it}`;
+    case "leave":
+      return what === null ? "leave" : `leave through ${what}`;
+    case "derive":
+      return `make something from ${it}`;
+    case "none":
+      return "";
+  }
+}
+
+/** The scenario's own static knowledge of an object -- the §4.1 table and
+ *  `OPEN_PERSONS` -- the same fallback `checkpointTranscript.ts` already
+ *  reads. An object made in THIS game (OPEN-VARIANT.md §13) or a property
+ *  acquired in it (WORLD-ELABORATION-DESIGN.md §4.4) is known only to the
+ *  world, which this module never sees: `refusalWhy` reads those from the
+ *  ruling's citations instead. */
+function scenarioSpec(objectId: string): { properties: readonly { key: string }[] } | undefined {
+  return findObject(objectId) ?? OPEN_PERSONS.find((p) => p.id === objectId);
+}
+
+/** OPUS-FIRST-DESIGN.md §3.4: why the world said no, as one of a small closed
+ *  set derived from the ruling's own keys -- never from its prose, and never
+ *  from a value (the bar's integrity stays exactly as hidden as it was). The
+ *  order follows the referee's own applicability gates (`computeRuling`,
+ *  referee.ts) and then `planEffect`'s (effects.ts), so the reason named is
+ *  the first gate this ruling actually failed. Every clause is worded for
+ *  §2 invariant 7 ("say what is, never what is absent") -- unread, lacks,
+ *  unverified, outside -- and the wording is the same for either chair:
+ *  this renders a ruling the actor already received, never a hint about
+ *  what to try next. */
+function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
+  if (ruling.targetObjectId === "none") return ruling.effectKind === "none" ? "both its target and its effect left unread" : "its target left unread";
+  if (ruling.effectKind === "none") return `its effect on ${who} left unread`;
+  // OPEN-VARIANT.md §51: the referee's own closed key for an intent that
+  // names a tool the actor does not have.
+  if (ruling.instrument === "absent") return "a tool it leans on being missing from here";
+  if (ruling.effectKind === "derive" && ruling.product === "none") return "what it would make left unread";
+  if (effectRequiresProperty(ruling.effectKind)) {
+    if (ruling.property === "none") return "which property it meant left unread";
+    // Undeclared on the target: certain for a §4.1 object or a person, whose
+    // declarations are static. For a target whose declarations this module
+    // cannot see, only a ruling whose every citation verified can have
+    // failed on the declaration gate alone -- otherwise the citation gate
+    // is the honest answer, below. (A §4.1 object with a property ACQUIRED
+    // this game and a miscited ruling on it reads as "lacks" here; that
+    // pair needs the elaboration arm on, and the world, to tell apart.)
+    const spec = scenarioSpec(ruling.targetObjectId);
+    const declared = spec ? spec.properties.some((p) => p.key === ruling.property) : undefined;
+    const allCited = ruling.citations.target.verified && ruling.citations.effect.verified && ruling.citations.property.verified;
+    if (!ruling.applicable && (declared === false || (declared === undefined && allCited))) return `${ruling.property} being a property ${who} lacks`;
+  }
+  if (!ruling.applicable) return `its grounds in your words and in ${whose} description left unverified`;
+  // Applicable, and still no plan: `planEffect` found no leg for this pair
+  // -- a conceal on a property other than concealment, an open on something
+  // with no way out behind it, a wear on a passage, a derive whose product
+  // comes from another parent. It returns a bare `null` for all of them
+  // (the-prisoner#8), so this claims only what that null establishes.
+  return "an act outside what this world models";
 }
 
 export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
@@ -144,6 +236,21 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   // -- the description this principal was itself shown, which for an object
   // derived in this game (OPEN-VARIANT.md §13) is its composed one.
   const target = ruling.targetObjectId !== "none" ? half.context.perceivedObjects.find((o) => o.id === ruling.targetObjectId) : undefined;
+  // OPUS-FIRST-DESIGN.md §3.4 (third red team pass, §12): measured on
+  // `checkpoints/2026-09-20-ambition/`, the standing description below was
+  // every refused actor's WHOLE sentence, and neither of its two shapes named
+  // the effect that failed or why. Both are in the ruling's keys, so the
+  // sentence now opens with the attempt (`attemptPhrase`) and the reason
+  // (`refusalWhy`), and the standing description follows unchanged and last
+  // -- still §5.3 item 2's positive information, verbatim, and still behind
+  // the exact frames earlier tests pin ("met the X as it is:", "matches none
+  // of what is here:"). Only rulings that resolved to nothing come through
+  // here; a resolved ruling's sentence above is byte-identical to before.
+  const person = isPrincipalTarget(ruling.targetObjectId);
+  const who = ruling.targetObjectId === "none" ? null : person ? principalName(ruling.targetObjectId) : `the ${obj}`;
+  const attempt = ruling.effectKind === "none" ? "" : ` as an attempt to ${attemptPhrase(ruling, who)}`;
+  const why = refusalWhy(ruling, who ?? "", who === null ? "" : `${who}'s`);
+  const refused = `Your last attempt (${quoted(proposal.intent)}) was refused${attempt}, ${why}, and`;
   if (target) {
     // A PERSON, not a thing (§55, issue #22 gap 2): "met the warden as it
     // is" was what a human game (2026-09-18) was told after bluffing Croft
@@ -152,10 +259,10 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
     // (the authored description this principal was itself shown, verbatim,
     // which is the positive reason §5.3 item 2 requires); only the frame
     // around it changes, from a thing examined to a person met.
-    if (isPrincipalTarget(ruling.targetObjectId)) {
-      return `Your last attempt (${quoted(proposal.intent)}) met ${principalName(ruling.targetObjectId)}: ${target.description}`;
+    if (person) {
+      return `${refused} met ${principalName(ruling.targetObjectId)}: ${target.description}`;
     }
-    return `Your last attempt (${quoted(proposal.intent)}) met the ${obj} as it is: ${target.description}`;
+    return `${refused} met the ${obj} as it is: ${target.description}`;
   }
   // issue #16: this used to say the attempt "reached past what is here" --
   // read, correctly, as "stand closer" -- for EVERY `target: "none"`
@@ -172,7 +279,7 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   // ruling actually supports: nothing here was matched, not why. Naming
   // what IS here stays, as positive, ruling-backed information.
   const reachable = half.context.perceivedObjects.map((o) => label(o.id)).join(", ");
-  return `Your last attempt (${quoted(proposal.intent)}) matches none of what is here: ${reachable}.`;
+  return `${refused} matches none of what is here: ${reachable}.`;
 }
 
 export function renderForOther(half: OpenHalfRoundResult): string[] {
