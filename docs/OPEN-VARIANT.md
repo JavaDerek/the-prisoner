@@ -6051,3 +6051,40 @@ door, custody of objects, the other person's body. It does not establish "ambiti
 quotes per arm sit side by side in `RESULTS.md` for the owner to read -- nor anything about ten
 rounds, nor anything about Opus 5, which would not answer. At two rounds no warden reached suspicion
 40, so this was a test of initiative and never of cat-and-mouse, as the design said in advance.
+
+## 70. Phase 0 of the Opus-first program landed in an afternoon (2026-09-21)
+
+`docs/OPUS-FIRST-DESIGN.md` §3, landed at `1a66459` by five parallel sessions on separate branches, each
+test-first, merged in the order they finished with the suite green at every step (949 → 1042 tests).
+
+- **§3.1, the reader.** The parse is game-side (`src/open/refereeTransport.ts`), not the engine's; the
+  design said otherwise and is corrected. §37's stray-quote repair already recovered seven of §69's eight
+  malformed replies; the eighth had mismatched closers (`]}` for `}]`) and a new `rebalanceClosers` step
+  recovers it. All eight are fixtures. An unrecoverable reply is now recorded with its reason in the
+  `.referee.json` sidecar and printed in the transcript as a failed referee call, so an all-`none` table
+  can no longer pass for a referee that offered nothing. No retry: at temperature 0 the same bytes come
+  back (§37, 3 of 3).
+- **§3.2, noise.** The gate was `computeRuling` requiring a verified property citation for every effect,
+  including `noise`, which §9.2/§24.2 had asked for deliberately and which no person's or key ring's
+  description ever grounded. Relaxed for `noise` only: grounded by its effect citation, target `none`,
+  an object or a person, resolving `OPEN_NOISE`; a `none` target hangs the event on the actor. Under
+  modelled presence a noise at a person reaches their briefing by name through §55's existing routing.
+  §68's "pretend to have a heart attack" as `none`/`noise`/`none` now rules possible rather than
+  impossible; that class moves.
+- **§3.4, the refusal render.** A refused actor was told only the target's description or a list of the
+  room. Now: *was refused as an attempt to <effect>, <reason>, and met the <target> as it is: …*, the
+  reason from a closed set derived in the referee's own gate order (target unread; effect unread; a
+  property the target lacks; grounds unverified; no leg for the pair; an act outside what this world
+  models), identical wording for both chairs, no hidden number ever revealed, every resolved ruling's
+  sentence byte-identical to before.
+- **D2, the router.** `src/tools/modelRouter.ts` + `npm run model-router`, 46 offline tests, every side
+  effect injectable; `CLAUDE.md` says how to run a Claude-minds or DeepInfra batch through it and why
+  the resident referee is hidden from `/api/ps`.
+- **§5.2, the measures.** `npm run measures -- <batch dir>`: reach and competence families by chair,
+  first contact, route finding, the §3.3 short-citation list, the refusal audit list with an empty
+  `label` column, and lost rulings computed from the sidecar against the transcript. On §69's batch it
+  reproduces `count.mts` exactly and flags exactly the one lost `door`/`leave`.
+
+Running as this was written: the §5.0 thinking probe (`checkpoints/2026-09-21-thinking/`, ten rounds,
+N = 5 per arm, prediction committed first) and Phase 1 batch 1 (`checkpoints/2026-09-21-phase1-b1/`,
+Opus 4.6 both chairs, ten rounds, voice on, N = 10). Their results are the next section's, not this one's.
