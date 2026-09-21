@@ -87,7 +87,13 @@ const MODEL_URL = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
  * `createWardenMind` collapse to their original single-call path whenever
  * the two resolved names are equal (`prisonerMind.ts`/`wardenMind.ts`).
  */
-const DEFAULT_MODEL = "qwen2.5:14b";
+// Standardized on qwen3 (the owner's decision): DEFAULT_REFEREE_MODEL in
+// modelRoles.ts already defaults to qwen3:14b, and this constant used to
+// lag it at qwen2.5:14b. An unflagged batch run from here on runs
+// different minds than every older unflagged batch, so they must not be
+// pooled -- transcripts print their model in the header (MODEL_LABEL,
+// below), so nothing becomes uninterpretable.
+const DEFAULT_MODEL = "qwen3:14b";
 const MODEL = process.env.PRISONER_MODEL;
 const WITS_MODEL = process.env.PRISONER_WITS_MODEL ?? MODEL ?? DEFAULT_MODEL;
 // `PRISONER_SKIP_VOICE` (`modelRoles.ts`, CLAUDE.md "Test runs skip the
