@@ -1,0 +1,45 @@
+arm BASE, N=3, referee qwen3:14b at http://doris:11434/v1, thinking on, 21 items, 2026-09-22T13:36:51.709Z
+CUSTODY expect prisoner/expose                got {"prisoner/expose/none":1,"prisoner/reveal/concealment":2}  40s
+CUSTODY expect spoon/give                     got {"spoon/reveal/integrity":1,"spoon/reveal/none":2}  39s
+CUSTODY expect wire_2/give                    got {"wire_2/derive/integrity":1,"wire_2/none/none":2}  35s
+CUSTODY expect wire/take                      got {"wire/derive/integrity":3}  26s
+CUSTODY expect wire/give                      got {"wire/expose/concealment":1,"wire/reveal/concealment":2}  44s
+CUSTODY expect meal_tray/take                 got {"meal_tray/none/none":3}  37s
+CUSTODY expect spoon/give                     got {"spoon/none/none":3}  32s
+CUSTODY expect prisoner/expose                got {"prisoner/reveal/none":3}  42s
+RECORD expect (record: confiscate or search) got {"prisoner/none/none":3}  55s
+RECORD expect (record: two acts)             got {"wire/conceal/concealment":3}  31s
+RECORD expect (record: search a tray)        got {"meal_tray/reveal/none":3}  38s
+RECORD expect (record: keep back from the tray) got {"none/none/none":1,"cot/none/none":2}  68s
+CUSTODY expect key_ring/take                  got {"key_ring/none/none":3}  59s
+CUSTODY expect key_ring/take                  got {"key_ring/none/none":1,"key_ring/noise/none":2}  55s
+CTRL  expect cot/derive                     got {"cot/derive/integrity":3}  48s
+CTRL  expect loose_tile/derive              got {"loose_tile/derive/concealment":3}  44s
+CTRL  expect spoon/reveal                   got {"spoon/reveal/edge":3}  25s
+CTRL  expect spoon/conceal                  got {"spoon/conceal/concealment":3}  47s
+CTRL  expect bar/wear                       got {"bar/wear/integrity":3}  22s
+CTRL  expect loose_tile/reveal              got {"loose_tile/reveal/concealment":3}  25s
+CTRL  expect warden/wear                    got {"warden/wear/posture":3}  25s
+arm VARIANT, N=3, referee qwen3:14b at http://doris:11434/v1, thinking on, 21 items, 2026-09-22T13:50:48.525Z
+CUSTODY expect prisoner/expose                got {"prisoner/expose/none":3}  32s
+CUSTODY expect spoon/give                     got {"spoon/give/none":3}  40s
+CUSTODY expect wire_2/give                    got {"wire_2/give/integrity":3}  20s
+CUSTODY expect wire/take                      got {"wire/take/integrity":3}  20s
+CUSTODY expect wire/give                      got {"wire/give/integrity":3}  25s
+CUSTODY expect meal_tray/take                 got {"meal_tray/take/none":3}  27s
+CUSTODY expect spoon/give                     got {"spoon/give/none":3}  27s
+CUSTODY expect prisoner/expose                got {"prisoner/expose/concealment":1,"prisoner/expose/none":2}  55s
+RECORD expect (record: confiscate or search) got {"prisoner/take/none":3}  38s
+RECORD expect (record: two acts)             got {"wire/give/integrity":3}  24s
+RECORD expect (record: search a tray)        got {"meal_tray/reveal/none":3}  52s
+RECORD expect (record: keep back from the tray) got {"spoon/none/none":1,"cot/none/none":2}  67s
+CUSTODY expect key_ring/take                  got {"key_ring/take/none":3}  38s
+CUSTODY expect key_ring/take                  got {"key_ring/take/none":1,"key_ring/take/integrity":2}  26s
+CTRL  expect cot/derive                     got {"cot/derive/integrity":3}  42s
+CTRL  expect loose_tile/derive              got {"loose_tile/derive/concealment":3}  24s
+CTRL  expect spoon/reveal                   got {"spoon/reveal/edge":3}  26s
+CTRL  expect spoon/conceal                  got {"spoon/conceal/concealment":3}  31s
+CTRL  expect bar/wear                       got {"bar/wear/integrity":3}  23s
+CTRL  expect loose_tile/reveal              got {"loose_tile/reveal/concealment":3}  26s
+CTRL  expect warden/wear                    got {"warden/wear/posture":3}  24s
+DONE

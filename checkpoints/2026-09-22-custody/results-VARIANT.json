@@ -1,0 +1,434 @@
+{
+ "arm": "VARIANT",
+ "n": 3,
+ "model": "qwen3:14b",
+ "thinking": "on",
+ "results": [
+  {
+   "kind": "CUSTODY",
+   "expect": "prisoner/expose",
+   "intent": "Tell Voss to face the wall and lift the back of her shirt so I can see the supposed rash, then conduct a thorough pat-down search of her entire person — clothing seams, waistband, hems, socks, hair — feeling for any concealed wire, metal strips, or improvised tools.",
+   "counts": {
+    "target": {
+     "prisoner": 3
+    },
+    "effect": {
+     "expose": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "prisoner/expose/none": 3
+   },
+   "secs": 32
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "spoon/give",
+   "intent": "Hand the spoon over to Croft willingly and without hesitation, sitting down on the cot as I do so. While she examines the spoon, I engage her in casual conversation about routines, using the moment to study the brass key on her belt and gauge her patrol patterns. I also subtly test the loose tile with my foot while her attention is on the spoon.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "give": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "spoon/give/none": 3
+   },
+   "secs": 40
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "wire_2/give",
+   "intent": "Pull wire_2 from my waistband and hand it to Croft with visible resignation. While doing so, keep my posture defeated and cooperative to lower her suspicion. Leave the spoon undisturbed on the meal tray — it's just a utensil. Mention the cot is a safety hazard to frame the wires as the cot's problem, not mine, and to prompt her to leave sooner.",
+   "counts": {
+    "target": {
+     "wire_2": 3
+    },
+    "effect": {
+     "give": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "wire_2/give/integrity": 3
+   },
+   "secs": 20
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "wire/take",
+   "intent": "Walk to the cot, pick up the loose wire, examine it briefly in my hand — noting the kink and wear — and pocket it on my belt, confiscating it. As I do this, watch Voss's face and hands for any reaction.",
+   "counts": {
+    "target": {
+     "wire": 3
+    },
+    "effect": {
+     "take": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "wire/take/integrity": 3
+   },
+   "secs": 20
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "wire/give",
+   "intent": "Step back from the cot and let Croft examine the springs freely. Point to the spring with the missing wire to show I'm cooperating. While standing near the loose tile, shift my weight so my foot nudges it, then glance down and pick up the wire from the gap as though I just noticed where it ended up. Say it must have slipped down there when I set it aside. Hand the wire over to Croft openly. Goal: appear fully cooperative, keep suspicion low, and satisfy her so she leaves the cell.",
+   "counts": {
+    "target": {
+     "wire": 3
+    },
+    "effect": {
+     "give": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "wire/give/integrity": 3
+   },
+   "secs": 25
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "meal_tray/take",
+   "intent": "Collect the meal tray from the slot at the bottom of the door — a routine duty — while asking Voss a pointed question about what habits she's developed in three years. I am picking up the tray and its contents (cup and bowl), not examining any object closely. I watch Voss's demeanor as she answers, but I am not inspecting the cell.",
+   "counts": {
+    "target": {
+     "meal_tray": 3
+    },
+    "effect": {
+     "take": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "meal_tray/take/none": 3
+   },
+   "secs": 27
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "spoon/give",
+   "intent": "Immediately and casually hand the spoon to Croft without hesitation, presenting it bowl-first as if it's nothing. While she looks at it, complain about the cot springs cutting into my back and ask her to file a maintenance request — reframing the cot damage as a legitimate grievance I'm reporting, not something I caused.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "give": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "spoon/give/none": 3
+   },
+   "secs": 27
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "prisoner/expose",
+   "intent": "Pat down Mara Voss thoroughly — search her clothing, pockets, waistband, sleeves, boots, and hair for the missing spoon or any other concealed tool or contraband.",
+   "counts": {
+    "target": {
+     "prisoner": 3
+    },
+    "effect": {
+     "expose": 3
+    },
+    "property": {
+     "concealment": 1,
+     "none": 2
+    }
+   },
+   "triples": {
+    "prisoner/expose/concealment": 1,
+    "prisoner/expose/none": 2
+   },
+   "secs": 55
+  },
+  {
+   "kind": "RECORD",
+   "expect": "(record: confiscate or search)",
+   "intent": "Confiscate the wire from Voss. Demand she hand it over, and if she doesn't produce it willingly, search her person and her immediate area for it.",
+   "counts": {
+    "target": {
+     "prisoner": 3
+    },
+    "effect": {
+     "take": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "prisoner/take/none": 3
+   },
+   "secs": 38
+  },
+  {
+   "kind": "RECORD",
+   "expect": "(record: two acts)",
+   "intent": "Walk to the cot, pull a small twist of wire from the springs in plain view of Croft, and hand it to her with a show of reluctant compliance. Say it came loose and I was fidgeting with it. Keep the actual working wire hidden under the loose tile. Goal is to satisfy her demand, appear cooperative, and get her to leave so I can start working on the bar.",
+   "counts": {
+    "target": {
+     "wire": 3
+    },
+    "effect": {
+     "give": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "wire/give/integrity": 3
+   },
+   "secs": 24
+  },
+  {
+   "kind": "RECORD",
+   "expect": "(record: search a tray)",
+   "intent": "Walk to the meal tray by the door slot, crouch down, and inspect it closely — check the tin cup, the bowl, and specifically look for the spoon. Note whether anything is missing or out of place on the tray.",
+   "counts": {
+    "target": {
+     "meal_tray": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "meal_tray/reveal/none": 3
+   },
+   "secs": 52
+  },
+  {
+   "kind": "RECORD",
+   "expect": "(record: keep back from the tray)",
+   "intent": "Sit on the cot eating slowly, holding the spoon. Make casual small talk with Croft about the maintenance. When I finish eating, set the spoon down on the blanket beside me — not on the tray — so it stays behind when the tray is collected. Act completely relaxed and cooperative.",
+   "counts": {
+    "target": {
+     "spoon": 1,
+     "cot": 2
+    },
+    "effect": {
+     "none": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "spoon/none/none": 1,
+    "cot/none/none": 2
+   },
+   "secs": 67
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "key_ring/take",
+   "intent": "steal the key ring",
+   "counts": {
+    "target": {
+     "key_ring": 3
+    },
+    "effect": {
+     "take": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "key_ring/take/none": 3
+   },
+   "secs": 38
+  },
+  {
+   "kind": "CUSTODY",
+   "expect": "key_ring/take",
+   "intent": "Pull the key ring off Croft's belt.",
+   "counts": {
+    "target": {
+     "key_ring": 3
+    },
+    "effect": {
+     "take": 3
+    },
+    "property": {
+     "none": 1,
+     "integrity": 2
+    }
+   },
+   "triples": {
+    "key_ring/take/none": 1,
+    "key_ring/take/integrity": 2
+   },
+   "secs": 26
+  },
+  {
+   "kind": "CTRL",
+   "expect": "cot/derive",
+   "intent": "take a wire out of the cot",
+   "counts": {
+    "target": {
+     "cot": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "cot/derive/integrity": 3
+   },
+   "secs": 42
+  },
+  {
+   "kind": "CTRL",
+   "expect": "loose_tile/derive",
+   "intent": "Scoop a handful of grit out of the hollow under the tile and keep it.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "loose_tile/derive/concealment": 3
+   },
+   "secs": 24
+  },
+  {
+   "kind": "CTRL",
+   "expect": "spoon/reveal",
+   "intent": "Pick up the spoon and closely examine its edge for signs of sharpening.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "edge": 3
+    }
+   },
+   "triples": {
+    "spoon/reveal/edge": 3
+   },
+   "secs": 26
+  },
+  {
+   "kind": "CTRL",
+   "expect": "spoon/conceal",
+   "intent": "Tuck the spoon under the loose tile beside the cot.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "spoon/conceal/concealment": 3
+   },
+   "secs": 31
+  },
+  {
+   "kind": "CTRL",
+   "expect": "bar/wear",
+   "intent": "Scrape at the cracked mortar around the base of the bar with the spoon.",
+   "counts": {
+    "target": {
+     "bar": 3
+    },
+    "effect": {
+     "wear": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "bar/wear/integrity": 3
+   },
+   "secs": 23
+  },
+  {
+   "kind": "CTRL",
+   "expect": "loose_tile/reveal",
+   "intent": "Kneel beside the loose tile, lift it out of its seat, and closely examine the hollow beneath for hidden tools or freshly disturbed grit.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "loose_tile/reveal/concealment": 3
+   },
+   "secs": 26
+  },
+  {
+   "kind": "CTRL",
+   "expect": "warden/wear",
+   "intent": "attack warden croft",
+   "counts": {
+    "target": {
+     "warden": 3
+    },
+    "effect": {
+     "wear": 3
+    },
+    "property": {
+     "posture": 3
+    }
+   },
+   "triples": {
+    "warden/wear/posture": 3
+   },
+   "secs": 24
+  }
+ ]
+}
