@@ -495,6 +495,22 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     );
   });
 
+  // OPEN-VARIANT.md §74.3 (the owner's decision), `checkpoints/2026-09-22-hide-target/`: an act of hiding
+  // targeted the place (the tile, the blanket, the cot) as often as the thing; with this clause 7 of 9 hides
+  // named the thing hidden and every control held.
+  it("the target question says an act of hiding names the thing hidden, not the place (OPEN-VARIANT.md §74.3)", async () => {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee([
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ]).rule("Tuck the spoon under the loose tile.", [BAR]);
+    expect(questions.find((q) => q.id === "target")?.prompt).toContain(
+      "An intent that goes out through a way out acts on that way out: name it, never none. An act of hiding names the thing hidden, never the place it is hidden in, under or behind. "
+    );
+  });
+
   it("the target and effect questions both say that going out through a way out is leave, and names it (OPEN-VARIANT.md §30)", async () => {
     let questions: readonly { id: string; prompt: string }[] = [];
     await createReferee([
@@ -828,7 +844,9 @@ describe("THE GROUNDING RULE (OPEN-VARIANT.md §55, issue #22): a person-propert
     // `take` and `give`, one generic clause each, and its answer keys gain both. Every batch recorded
     // before custody was asked the request whose hash was
     // 0350c5485c25649f3bf3927b8ecdb04f3381fdd38a99cafeebbb149cf9d723a0.
-    expect(fingerprint).toBe("b265402a71da04c5f19eb576f9f7a9b0b0d01d7bb103b08acbf4908cc4d8524b");
+    // And again 2026-09-22 (OPEN-VARIANT.md §74.3): the target question says an act of hiding names the thing
+    // hidden. Custody's request, before this clause, hashed b265402a71da04c5f19eb576f9f7a9b0b0d01d7bb103b08acbf4908cc4d8524b.
+    expect(fingerprint).toBe("486c801305674a9987d776eda61913796f3da2f944a656a9950a7f217d90aeef");
   });
 });
 

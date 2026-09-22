@@ -285,6 +285,8 @@ function buildQuestions(
         // OPEN-VARIANT.md §30: §19's lesson a third time -- the effect question's own rule about ways
         // out never reached this question, and an intent that goes THROUGH something acts on nothing.
         "An intent that goes out through a way out acts on that way out: name it, never none. " +
+        // OPEN-VARIANT.md §74.3, `checkpoints/2026-09-22-hide-target/`: hiding targeted the place as often as the thing.
+        "An act of hiding names the thing hidden, never the place it is hidden in, under or behind. " +
         (personInView ? PERSON_TARGET_CLAUSE : "") +
         "Cite the exact words in the actor's intent that name it.",
       answerKeys: targetKeys,
