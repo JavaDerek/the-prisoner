@@ -29,9 +29,8 @@ wording on the one-act reading moved it 7/10 at best on preparation; Sonnet is 1
 rather than local hardware. A ten-round game gains roughly 7 minutes.
 
 **The open question for the owner** (recorded, not decided here): Claude as the referee for measured batches; or keep
-`qwen3:14b` and count its misrulings as part of the measured gap; or two-tier -- rule locally and escalate to a stronger
-referee only when the cheap one is unstable (a re-ask that disagrees with itself). The last is generic enough to belong
-in the engine rather than this game, and connects to run-dmcp#43.
+`qwen3:14b` and count its misrulings as part of the measured gap; or two-tier -- rule locally and escalate on a signal.
+Which signal is measured below: NOT instability, as first supposed, but the local referee's own refusal.
 
 ## Can a cheap referee tell when it is wrong? (the two-tier question)
 
