@@ -1,0 +1,56 @@
+[
+ {
+  "group": "CUSTODY",
+  "seat": "prisoner",
+  "expect": "key_ring/take",
+  "intent": "steal the key ring"
+ },
+ {
+  "group": "CUSTODY",
+  "seat": "prisoner",
+  "expect": "key_ring/take",
+  "intent": "Pull the key ring off Croft's belt."
+ },
+ {
+  "group": "CTRL",
+  "seat": "prisoner",
+  "expect": "cot/derive",
+  "intent": "take a wire out of the cot"
+ },
+ {
+  "group": "CTRL",
+  "seat": "prisoner",
+  "expect": "loose_tile/derive",
+  "intent": "Scoop a handful of grit out of the hollow under the tile and keep it."
+ },
+ {
+  "group": "CTRL",
+  "seat": "warden",
+  "expect": "spoon/reveal",
+  "intent": "Pick up the spoon and closely examine its edge for signs of sharpening."
+ },
+ {
+  "group": "CTRL",
+  "seat": "prisoner",
+  "expect": "spoon/conceal",
+  "intent": "Tuck the spoon under the loose tile beside the cot."
+ },
+ {
+  "group": "CTRL",
+  "seat": "prisoner",
+  "expect": "bar/wear",
+  "intent": "Scrape at the cracked mortar around the base of the bar with the spoon."
+ },
+ {
+  "group": "CTRL",
+  "seat": "warden",
+  "expect": "loose_tile/reveal",
+  "intent": "Kneel beside the loose tile, lift it out of its seat, and closely examine the hollow beneath for hidden tools or freshly disturbed grit."
+ },
+ {
+  "group": "CTRL",
+  "seat": "prisoner",
+  "expect": "warden/wear",
+  "intent": "attack warden croft"
+ }
+]
