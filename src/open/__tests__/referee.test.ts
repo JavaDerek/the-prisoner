@@ -246,6 +246,104 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     });
   });
 
+  // Phase 1 batch 1 (`checkpoints/2026-09-21-phase1-b1/`, the owner's audit
+  // labels in `refusal-audit.csv`): 13 of the batch's close examinations were
+  // refused with target, effect and a DECLARED property all right, because
+  // the property citation quoted the examiner's own words ("baseline of 100
+  // integrity", "edge,") rather than the target's description. The owner
+  // labelled every one `misruled`. A reveal changes nothing in the world: the
+  // description grounds what an act can DO to an object, and reading a
+  // property the object declares needs no such grounding. So a reveal's
+  // property citation verifies against the intent as well as the target's
+  // own description (OPUS-FIRST-DESIGN.md §2, `misruled`). Each case below is
+  // a recorded ruling rebuilt by hand from its transcript's referee table.
+  describe("a reveal's property may be cited from the intent (Phase 1 batch 1, misruled)", () => {
+    const SPOON: ObjectPerception = {
+      id: "spoon",
+      description: "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor.",
+    };
+
+    it("row #6, 22-08-27 r3 warden: 'Closely examine the bar ... baseline of 100 integrity' -- bar/reveal/integrity, property cited from the intent -- is applicable", async () => {
+      const intent =
+        "Closely examine the bar in the window — run my hands along its full length, check the mortar at top and bottom, and look for any fresh scratches, filing marks, or weakening. I want to compare its current state against the round-0 baseline of 100 integrity.";
+      const transport = scriptedTransport({
+        target: { answerKey: "bar", citation: { sourceId: "intent", quote: "bar" } },
+        effect: { answerKey: "reveal", citation: { sourceId: "intent", quote: "check the mortar at top and bottom, and look for any fresh scratches, filing marks, or weakening." } },
+        property: { answerKey: "integrity", citation: { sourceId: "intent", quote: "100 integrity." } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "Closely examine" } },
+        perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "run my hands along its full length" } },
+      });
+      const ruling = await createReferee([transport]).rule(intent, [BAR]);
+      expect(ruling.effectKind).toBe("reveal");
+      expect(ruling.citations.property.verified).toBe(true);
+      expect(ruling.applicable).toBe(true);
+    });
+
+    it("row #21, 22-57-53 r9 warden: 'closely examine its entire edge' -- spoon/reveal/edge, property cited from the intent -- is applicable", async () => {
+      const intent =
+        "Pick up the spoon and closely examine its entire edge, the flat-worn side of the bowl, and the handle for any signs of deliberate sharpening, grinding, or filing — checking whether the edge value has changed from 0 since round 3.";
+      const transport = scriptedTransport({
+        target: { answerKey: "spoon", citation: { sourceId: "intent", quote: "spoon" } },
+        effect: { answerKey: "reveal", citation: { sourceId: "intent", quote: "checking whether the edge value has changed from" } },
+        property: { answerKey: "edge", citation: { sourceId: "intent", quote: "edge," } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "closely examine" } },
+        perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "Pick up the spoon" } },
+      });
+      const ruling = await createReferee([transport]).rule(intent, [SPOON]);
+      expect(ruling.property).toBe("edge");
+      expect(ruling.applicable).toBe(true);
+    });
+
+    it("a reveal whose property is cited from the target's own description still verifies, exactly as before", async () => {
+      const transport = scriptedTransport({
+        target: { answerKey: "bar", citation: { sourceId: "intent", quote: "the bar" } },
+        effect: { answerKey: "reveal", citation: { sourceId: "intent", quote: "examine" } },
+        property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "examine" } },
+        perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "examine" } },
+      });
+      const ruling = await createReferee([transport]).rule("I examine the bar.", [BAR]);
+      expect(ruling.applicable).toBe(true);
+    });
+
+    it("PLANTED VIOLATION: a reveal of a property the target does NOT declare is still not applicable, however it is cited -- the waiver is for the citation's source, never for the property check", async () => {
+      const transport = scriptedTransport({
+        target: { answerKey: "spoon", citation: { sourceId: "intent", quote: "the spoon" } },
+        effect: { answerKey: "reveal", citation: { sourceId: "intent", quote: "examine" } },
+        property: { answerKey: "integrity", citation: { sourceId: "intent", quote: "wear" } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "examine" } },
+        perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "examine" } },
+      });
+      const ruling = await createReferee([transport]).rule("I examine the spoon for wear.", [SPOON]);
+      expect(ruling.applicable).toBe(false);
+    });
+
+    it("PLANTED VIOLATION: a reveal whose property is cited from ANOTHER object's description is not applicable", async () => {
+      const transport = scriptedTransport({
+        target: { answerKey: "lock", citation: { sourceId: "intent", quote: "the lock" } },
+        effect: { answerKey: "reveal", citation: { sourceId: "intent", quote: "examine" } },
+        property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "examine" } },
+        perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "examine" } },
+      });
+      const ruling = await createReferee([transport]).rule("I examine the lock.", [BAR, LOCK]);
+      expect(ruling.citations.property.verified).toBe(false);
+      expect(ruling.applicable).toBe(false);
+    });
+
+    it("PLANTED VIOLATION: the waiver is for reveal only -- a CONCEAL whose property is cited from the intent is still not applicable", async () => {
+      const transport = scriptedTransport({
+        target: { answerKey: "spoon", citation: { sourceId: "intent", quote: "the spoon" } },
+        effect: { answerKey: "conceal", citation: { sourceId: "intent", quote: "tuck" } },
+        property: { answerKey: "concealment", citation: { sourceId: "intent", quote: "out of sight" } },
+        magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "tuck" } },
+        perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "tuck" } },
+      });
+      const ruling = await createReferee([transport]).rule("I tuck the spoon out of sight.", [SPOON]);
+      expect(ruling.applicable).toBe(false);
+    });
+  });
+
   it("wear/restore/reveal/conceal/expose with property='none' (even if cited) is never applicable -- those effects need a named, declared property", async () => {
     const transport = scriptedTransport({
       target: { answerKey: "bar", citation: { sourceId: "intent", quote: "file the bar" } },

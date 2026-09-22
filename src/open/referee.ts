@@ -449,7 +449,19 @@ export function computeRuling(
 
   const targetCitation = citationCheck(targetAnswer, INTENT_SOURCE_ID);
   const effectCitation = citationCheck(effectAnswer, INTENT_SOURCE_ID);
-  const propertyCitation = citationCheck(propertyAnswer, targetObjectId !== "none" ? descriptionSourceId(targetObjectId) : null);
+  // Phase 1 batch 1 (OPUS-FIRST-DESIGN.md §2, `misruled`): a reveal changes
+  // nothing, so what the description grounds -- what an act can DO to an
+  // object -- is not in question; that the property exists is
+  // `propertyNamedWhenRequired`'s declared-property check, below, never
+  // waived. 13 of that batch's close examinations were refused only because
+  // the property was quoted from the examiner's own words, so a reveal's
+  // property citation may name the intent as well as the target's own
+  // description. Every other effect is held to the description alone.
+  const propertySourceId = targetObjectId !== "none" ? descriptionSourceId(targetObjectId) : null;
+  const propertyCitation =
+    effectKind === "reveal" && targetObjectId !== "none" && propertyAnswer.citation?.sourceId === INTENT_SOURCE_ID
+      ? citationCheck(propertyAnswer, INTENT_SOURCE_ID)
+      : citationCheck(propertyAnswer, propertySourceId);
   const productCitation = citationCheck(productAnswer, INTENT_SOURCE_ID);
   const instrumentCitation = instrumentAnswer ? citationCheck(instrumentAnswer, INTENT_SOURCE_ID) : NO_INSTRUMENT_CITATION;
   // OPEN-VARIANT.md §51, the-prisoner#17: `absent` is a normal, LEGAL member
