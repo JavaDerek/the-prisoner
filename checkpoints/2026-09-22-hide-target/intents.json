@@ -1,0 +1,11 @@
+{"items":[
+ {"group":"HIDE","seat":"prisoner","expect":"spoon/conceal","intent":"Tuck the spoon under the loose tile beside the cot."},
+ {"group":"HIDE","seat":"prisoner","expect":"spoon/conceal","intent":"Hide the spoon in the folds of the blanket."},
+ {"group":"HIDE","seat":"prisoner","expect":"spoon/conceal","intent":"Slip the spoon into the hollow under the tile and press the tile flat over it."},
+ {"group":"CTRL","seat":"prisoner","expect":"loose_tile/expose","intent":"Lift the loose tile to uncover the hollow beneath it."},
+ {"group":"CTRL","seat":"warden","expect":"loose_tile/reveal","intent":"Kneel beside the loose tile, lift it out of its seat, and closely examine the hollow beneath for hidden tools or freshly disturbed grit."},
+ {"group":"CTRL","seat":"prisoner","expect":"loose_tile/derive","intent":"Scoop a handful of grit out of the hollow under the tile and keep it."},
+ {"group":"CTRL","seat":"prisoner","expect":"bar/wear","intent":"Scrape at the cracked mortar around the base of the bar with the spoon."},
+ {"group":"CTRL","seat":"warden","expect":"spoon/reveal","intent":"Pick up the spoon and closely examine its edge for signs of sharpening."},
+ {"group":"CTRL","seat":"prisoner","expect":"cot/derive","intent":"take a wire out of the cot"}
+]}
