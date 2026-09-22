@@ -98,71 +98,71 @@ Every refused ruling (ruled impossible, or target `none`), keys only. The `label
 
 | arm | transcript | round | chair | target | effect | property | magnitude | ruled | label |
 |---|---|---|---|---|---|---|---|---|---|
-| O | `O/2026-09-21T22-08-25-546Z.md` | 1 | warden | none | reveal | none | slight | impossible |  |
-| O | `O/2026-09-21T22-08-25-546Z.md` | 1 | prisoner | loose_tile | wear | none | slight | impossible |  |
-| O | `O/2026-09-21T22-08-25-546Z.md` | 4 | prisoner | cot | wear | posture | moderate | impossible |  |
-| O | `O/2026-09-21T22-08-25-546Z.md` | 7 | warden | spoon | reveal | concealment | moderate | impossible |  |
-| O | `O/2026-09-21T22-08-27-040Z.md` | 1 | warden | none | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T22-08-27-040Z.md` | 3 | warden | bar | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T22-08-27-040Z.md` | 4 | warden | lock | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T22-08-27-040Z.md` | 4 | prisoner | spoon | conceal | concealment | slight | impossible |  |
-| O | `O/2026-09-21T22-08-27-040Z.md` | 5 | prisoner | spoon | wear | none | moderate | impossible |  |
-| O | `O/2026-09-21T22-08-27-040Z.md` | 6 | warden | prisoner | reveal | concealment | substantial | impossible |  |
-| O | `O/2026-09-21T22-08-27-040Z.md` | 6 | prisoner | cot | conceal | concealment | moderate | impossible |  |
-| O | `O/2026-09-21T22-32-41-690Z.md` | 2 | prisoner | spoon | reveal | none | slight | impossible |  |
-| O | `O/2026-09-21T22-32-41-690Z.md` | 6 | prisoner | wire | derive | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T22-32-41-690Z.md` | 7 | warden | cot | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T22-32-41-690Z.md` | 9 | warden | spoon | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T22-32-41-690Z.md` | 10 | prisoner | blanket | open | passage | substantial | impossible |  |
-| O | `O/2026-09-21T22-57-53-068Z.md` | 1 | prisoner | cot | none | none | slight | impossible |  |
-| O | `O/2026-09-21T22-57-53-068Z.md` | 4 | prisoner | cot | none | none | moderate | impossible |  |
-| O | `O/2026-09-21T22-57-53-068Z.md` | 6 | warden | spoon | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T22-57-53-068Z.md` | 8 | prisoner | loose_tile | derive | concealment | moderate | impossible |  |
-| O | `O/2026-09-21T22-57-53-068Z.md` | 9 | warden | spoon | reveal | edge | moderate | impossible |  |
-| O | `O/2026-09-21T22-57-53-068Z.md` | 10 | warden | window | none | none | moderate | impossible |  |
-| O | `O/2026-09-21T23-13-31-489Z.md` | 2 | warden | spoon | reveal | edge | moderate | impossible |  |
-| O | `O/2026-09-21T23-13-31-489Z.md` | 3 | prisoner | spoon | conceal | concealment | slight | impossible |  |
-| O | `O/2026-09-21T23-13-31-489Z.md` | 6 | prisoner | spoon | conceal | concealment | moderate | impossible |  |
-| O | `O/2026-09-21T23-13-31-489Z.md` | 10 | warden | bar | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-13-31-489Z.md` | 10 | prisoner | key_ring | open | passage | substantial | impossible |  |
-| O | `O/2026-09-21T23-19-29-089Z.md` | 2 | prisoner | cot | none | none | moderate | impossible |  |
-| O | `O/2026-09-21T23-19-29-089Z.md` | 3 | warden | spoon | reveal | edge | moderate | impossible |  |
-| O | `O/2026-09-21T23-19-29-089Z.md` | 5 | prisoner | blanket | none | none | moderate | impossible |  |
-| O | `O/2026-09-21T23-19-29-089Z.md` | 8 | prisoner | wire_2 | none | none | moderate | impossible |  |
-| O | `O/2026-09-21T23-19-29-089Z.md` | 9 | warden | lock | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T23-19-29-089Z.md` | 9 | prisoner | meal_tray | leave | passage | substantial | impossible |  |
-| O | `O/2026-09-21T23-25-19-962Z.md` | 1 | prisoner | cot | derive | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T23-25-19-962Z.md` | 3 | warden | spoon | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T23-25-19-962Z.md` | 4 | warden | wire | derive | integrity | slight | impossible |  |
-| O | `O/2026-09-21T23-25-19-962Z.md` | 6 | warden | prisoner | none | none | moderate | impossible |  |
-| O | `O/2026-09-21T23-25-19-962Z.md` | 6 | prisoner | wire | derive | integrity | slight | impossible |  |
-| O | `O/2026-09-21T23-25-19-962Z.md` | 7 | prisoner | wire | derive | integrity | slight | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 1 | warden | none | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 2 | warden | meal_tray | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 2 | prisoner | cot | wear | edge | moderate | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 3 | warden | spoon | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 4 | prisoner | none | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 6 | warden | lock | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 7 | warden | spoon | reveal | edge | moderate | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 7 | prisoner | spoon | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-40-03-470Z.md` | 8 | prisoner | door | reveal | integrity | slight | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 1 | prisoner | spoon | none | edge | slight | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 2 | warden | lock | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 3 | warden | meal_tray | reveal | none | moderate | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 4 | prisoner | meal_tray | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 5 | prisoner | bar | none | integrity | slight | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 6 | warden | prisoner | reveal | concealment | moderate | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 6 | prisoner | cot | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 7 | prisoner | spoon | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 9 | prisoner | spoon | none | none | slight | impossible |  |
-| O | `O/2026-09-21T23-52-46-457Z.md` | 10 | warden | none | none | none | moderate | impossible |  |
-| O | `O/2026-09-22T00-03-38-018Z.md` | 2 | prisoner | warden | reveal | none | slight | impossible |  |
-| O | `O/2026-09-22T00-03-38-018Z.md` | 3 | warden | spoon | reveal | edge | moderate | impossible |  |
-| O | `O/2026-09-22T00-03-38-018Z.md` | 3 | prisoner | cot | none | none | slight | impossible |  |
-| O | `O/2026-09-22T00-03-38-018Z.md` | 5 | warden | lock | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-22T00-03-38-018Z.md` | 5 | prisoner | cot | none | none | moderate | impossible |  |
-| O | `O/2026-09-22T00-03-38-018Z.md` | 9 | prisoner | blanket | wear | integrity | substantial | impossible |  |
-| O | `O/2026-09-22T00-03-38-018Z.md` | 10 | warden | spoon | reveal | edge | moderate | impossible |  |
+| O | `O/2026-09-21T22-08-25-546Z.md` | 1 | warden | none | reveal | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T22-08-25-546Z.md` | 1 | prisoner | loose_tile | wear | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T22-08-25-546Z.md` | 4 | prisoner | cot | wear | posture | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T22-08-25-546Z.md` | 7 | warden | spoon | reveal | concealment | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-08-27-040Z.md` | 1 | warden | none | reveal | integrity | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T22-08-27-040Z.md` | 3 | warden | bar | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-08-27-040Z.md` | 4 | warden | lock | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-08-27-040Z.md` | 4 | prisoner | spoon | conceal | concealment | slight | impossible || misruled |
+| O | `O/2026-09-21T22-08-27-040Z.md` | 5 | prisoner | spoon | wear | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T22-08-27-040Z.md` | 6 | warden | prisoner | reveal | concealment | substantial | impossible || unbuilt |
+| O | `O/2026-09-21T22-08-27-040Z.md` | 6 | prisoner | cot | conceal | concealment | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-32-41-690Z.md` | 2 | prisoner | spoon | reveal | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T22-32-41-690Z.md` | 6 | prisoner | wire | derive | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-32-41-690Z.md` | 7 | warden | cot | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-32-41-690Z.md` | 9 | warden | spoon | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-32-41-690Z.md` | 10 | prisoner | blanket | open | passage | substantial | impossible || misruled |
+| O | `O/2026-09-21T22-57-53-068Z.md` | 1 | prisoner | cot | none | none | slight | impossible || misruled |
+| O | `O/2026-09-21T22-57-53-068Z.md` | 4 | prisoner | cot | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T22-57-53-068Z.md` | 6 | warden | spoon | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-57-53-068Z.md` | 8 | prisoner | loose_tile | derive | concealment | moderate | impossible || unclear |
+| O | `O/2026-09-21T22-57-53-068Z.md` | 9 | warden | spoon | reveal | edge | moderate | impossible || misruled |
+| O | `O/2026-09-21T22-57-53-068Z.md` | 10 | warden | window | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-13-31-489Z.md` | 2 | warden | spoon | reveal | edge | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-13-31-489Z.md` | 3 | prisoner | spoon | conceal | concealment | slight | impossible || misruled |
+| O | `O/2026-09-21T23-13-31-489Z.md` | 6 | prisoner | spoon | conceal | concealment | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-13-31-489Z.md` | 10 | warden | bar | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-13-31-489Z.md` | 10 | prisoner | key_ring | open | passage | substantial | impossible || misruled |
+| O | `O/2026-09-21T23-19-29-089Z.md` | 2 | prisoner | cot | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-19-29-089Z.md` | 3 | warden | spoon | reveal | edge | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-19-29-089Z.md` | 5 | prisoner | blanket | none | none | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-19-29-089Z.md` | 8 | prisoner | wire_2 | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-19-29-089Z.md` | 9 | warden | lock | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-19-29-089Z.md` | 9 | prisoner | meal_tray | leave | passage | substantial | impossible || misruled |
+| O | `O/2026-09-21T23-25-19-962Z.md` | 1 | prisoner | cot | derive | integrity | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-25-19-962Z.md` | 3 | warden | spoon | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-25-19-962Z.md` | 4 | warden | wire | derive | integrity | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-25-19-962Z.md` | 6 | warden | prisoner | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-25-19-962Z.md` | 6 | prisoner | wire | derive | integrity | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-25-19-962Z.md` | 7 | prisoner | wire | derive | integrity | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 1 | warden | none | reveal | integrity | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 2 | warden | meal_tray | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 2 | prisoner | cot | wear | edge | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 3 | warden | spoon | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 4 | prisoner | none | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 6 | warden | lock | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 7 | warden | spoon | reveal | edge | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 7 | prisoner | spoon | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-40-03-470Z.md` | 8 | prisoner | door | reveal | integrity | slight | impossible || misruled |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 1 | prisoner | spoon | none | edge | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 2 | warden | lock | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 3 | warden | meal_tray | reveal | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 4 | prisoner | meal_tray | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 5 | prisoner | bar | none | integrity | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 6 | warden | prisoner | reveal | concealment | moderate | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 6 | prisoner | cot | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 7 | prisoner | spoon | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 9 | prisoner | spoon | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-21T23-52-46-457Z.md` | 10 | warden | none | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-22T00-03-38-018Z.md` | 2 | prisoner | warden | reveal | none | slight | impossible || unbuilt |
+| O | `O/2026-09-22T00-03-38-018Z.md` | 3 | warden | spoon | reveal | edge | moderate | impossible || misruled |
+| O | `O/2026-09-22T00-03-38-018Z.md` | 3 | prisoner | cot | none | none | slight | impossible || unbuilt |
+| O | `O/2026-09-22T00-03-38-018Z.md` | 5 | warden | lock | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-22T00-03-38-018Z.md` | 5 | prisoner | cot | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-22T00-03-38-018Z.md` | 9 | prisoner | blanket | wear | integrity | substantial | impossible || misruled |
+| O | `O/2026-09-22T00-03-38-018Z.md` | 10 | warden | spoon | reveal | edge | moderate | impossible || misruled |
 
 ## Lost rulings
 
