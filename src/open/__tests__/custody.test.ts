@@ -1,6 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
-import { EFFECT_KINDS, effectRequiresProperty } from "../effects.js";
+import { createTestDb, destroyTestDb } from "../../world/testDb.js";
+import { currentT } from "../../world/clock.js";
+import { readFactValue, readNumericFact } from "../../world/facts.js";
+import { buildOpenWorld, type OpenWorld } from "../world.js";
+import { buildOpenResolver } from "../mechanics.js";
+import { computePerceivedObjects } from "../briefing.js";
+import { POSTURE_STANDING, POSTURE_CROUCHED, POSTURE_LYING } from "../scenarioObjects.js";
+import { EFFECT_KINDS, effectRequiresProperty, planEffect, type EffectPlan } from "../effects.js";
 import { createReferee, type ObjectPerception } from "../referee.js";
 import { describeAttempt } from "../loop.js";
 import { renderOwnOutcome } from "../perception.js";
@@ -222,5 +229,167 @@ describe("custody's sentences: what the other perceives, and the refused attempt
     expect(refused("take", "meal_tray")).toContain("its grounds in your words left unverified");
     expect(refused("expose", "warden")).toContain("its grounds in your words left unverified");
     expect(refused("expose", "warden")).not.toContain("which property");
+  });
+});
+
+/**
+ * The engine write: one `set` leg on the item's own `owner_id`/`owner_type`
+ * through `resolve()` -- the change kind `OPEN_LEAVE` already uses for a
+ * character's `location_id`. Every gate reads the world the mechanic is
+ * handed at t, never a map this repository keeps.
+ */
+describe("custody resolves through resolve(): one set of the item's owner (docs/CUSTODY-DESIGN.md)", () => {
+  afterEach(() => destroyTestDb());
+
+  function world(presence: "off" | "modelled" = "modelled"): OpenWorld {
+    createTestDb();
+    return buildOpenWorld({ presence });
+  }
+  const idOf = (w: OpenWorld, who: "prisoner" | "warden") => (who === "prisoner" ? w.base.prisonerId : w.base.wardenId);
+  const ownerOf = (w: OpenWorld, objectId: string) => {
+    const t = currentT(w.base.gameId);
+    const entityId = w.entityIdFor[objectId];
+    return { id: readFactValue({ gameId: w.base.gameId, t, entityId, key: "owner_id" }), type: readFactValue({ gameId: w.base.gameId, t, entityId, key: "owner_type" }) };
+  };
+  function planCustody(w: OpenWorld, effectKind: "take" | "give" | "expose", target: string, actor: "prisoner" | "warden", perceived?: readonly string[]) {
+    const other = actor === "prisoner" ? "warden" : "prisoner";
+    return planEffect({
+      targetObjectId: target,
+      effectKind,
+      property: "none",
+      magnitude: "slight",
+      entityIdFor: { ...w.entityIdFor, prisoner: w.base.prisonerId, warden: w.base.wardenId },
+      resourceIdFor: w.resourceIdFor,
+      exits: w.exits,
+      actorId: idOf(w, actor),
+      custody: {
+        otherId: idOf(w, other),
+        perceived: perceived ?? computePerceivedObjects(w, actor, currentT(w.base.gameId), "modelled").map((o) => o.id),
+        postureOf: Object.fromEntries((["prisoner", "warden"] as const).flatMap((p) => (w.resourceIdFor[`${p}.posture`] ? [[idOf(w, p), w.resourceIdFor[`${p}.posture`]]] : []))),
+      },
+      description: "x",
+    });
+  }
+  function resolvePlan(w: OpenWorld, plan: EffectPlan | null) {
+    if (!plan) throw new Error("no plan");
+    return buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: plan.mechanic, parameters: plan.parameters });
+  }
+  function setPosture(w: OpenWorld, who: "prisoner" | "warden", value: number) {
+    buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: w.resourceIdFor[`${who}.posture`], amount: POSTURE_STANDING - value, min: 0, max: 100, description: "down" } });
+  }
+
+  it("take of a thing lying in the room: its owner becomes the actor, by a set of owner_id and owner_type", () => {
+    const w = world();
+    expect(ownerOf(w, "meal_tray")).toEqual({ id: w.base.cellId, type: "location" });
+    const plan = planCustody(w, "take", "meal_tray", "prisoner");
+    expect(plan?.mechanic).toBe("OPEN_TAKE");
+    const outcome = resolvePlan(w, plan);
+    expect(outcome.result.taken).toBe(true);
+    expect(outcome.sets.map((s) => s.key).sort()).toEqual(["owner_id", "owner_type"]);
+    expect(ownerOf(w, "meal_tray")).toEqual({ id: w.base.prisonerId, type: "character" });
+  });
+
+  it("PLANTED VIOLATION (C1 = A): take of a thing another person holds while she is on her feet changes nothing", () => {
+    const w = world();
+    const outcome = resolvePlan(w, planCustody(w, "take", "key_ring", "prisoner"));
+    expect(outcome.result.taken).toBe(false);
+    expect(outcome.result.refused).toBe("holder-on-her-feet");
+    expect(outcome.sets).toEqual([]);
+    expect(ownerOf(w, "key_ring")).toEqual({ id: w.base.wardenId, type: "character" });
+  });
+
+  it("C1 = A: the same take succeeds once the holder is crouched, and once she is on the floor", () => {
+    const w = world();
+    setPosture(w, "warden", POSTURE_CROUCHED);
+    expect(resolvePlan(w, planCustody(w, "take", "key_ring", "prisoner")).result.taken).toBe(true);
+    expect(ownerOf(w, "key_ring")).toEqual({ id: w.base.prisonerId, type: "character" });
+
+    // And back: she takes it from a prisoner lying on the floor.
+    setPosture(w, "prisoner", POSTURE_LYING);
+    expect(resolvePlan(w, planCustody(w, "take", "key_ring", "warden")).result.taken).toBe(true);
+    expect(ownerOf(w, "key_ring")).toEqual({ id: w.base.wardenId, type: "character" });
+  });
+
+  it("C1 = A with presence off: no posture is modelled, so every holder counts as on her feet and keeps what she holds", () => {
+    const w = world("off");
+    const plan = planCustody(w, "take", "key_ring", "prisoner", computePerceivedObjects(w, "prisoner", currentT(w.base.gameId)).map((o) => o.id));
+    expect(resolvePlan(w, plan).result.taken).toBe(false);
+    expect(ownerOf(w, "key_ring").id).toBe(w.base.wardenId);
+  });
+
+  it("PLANTED VIOLATION: take of a thing the actor does not perceive plans nothing", () => {
+    const w = world();
+    // The banknotes lie in the hollow under the tile, which starts down: nobody perceives them.
+    expect(computePerceivedObjects(w, "prisoner", currentT(w.base.gameId), "modelled").map((o) => o.id)).not.toContain("banknotes");
+    expect(planCustody(w, "take", "banknotes", "prisoner")).toBeNull();
+    // The planted half: the same take, handed a perceived list that includes it, does plan.
+    expect(planCustody(w, "take", "banknotes", "prisoner", ["banknotes"])?.mechanic).toBe("OPEN_TAKE");
+  });
+
+  it("a person, a way out and a way out's part are never things that change hands", () => {
+    const w = world();
+    expect(planCustody(w, "take", "warden", "prisoner")).toBeNull();
+    expect(planCustody(w, "take", "door", "prisoner")).toBeNull();
+    expect(planCustody(w, "take", "lock", "prisoner")).toBeNull();
+    expect(planCustody(w, "give", "window", "prisoner")).toBeNull();
+  });
+
+  it("give: the thing's owner becomes the other principal, who is present", () => {
+    const w = world();
+    const plan = planCustody(w, "give", "spoon", "prisoner");
+    expect(plan?.mechanic).toBe("OPEN_GIVE");
+    const outcome = resolvePlan(w, plan);
+    expect(outcome.result.given).toBe(true);
+    expect(ownerOf(w, "spoon")).toEqual({ id: w.base.wardenId, type: "character" });
+  });
+
+  it("PLANTED VIOLATION: give with nobody present changes nothing", () => {
+    const w = world();
+    // The warden steps out through the door: a `set` of her location through the same protocol.
+    const door = w.exits.door;
+    buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_PASSAGE", parameters: { resourceId: door.passageResourceId, wayOut: "door", open: true, min: 0, max: 1, description: "open" } });
+    resolvePlan(w, planEffect({ targetObjectId: "door", effectKind: "leave", property: "none", magnitude: "slight", entityIdFor: w.entityIdFor, resourceIdFor: w.resourceIdFor, exits: w.exits, actorId: w.base.wardenId, description: "out" }));
+    const outcome = resolvePlan(w, planCustody(w, "give", "spoon", "prisoner"));
+    expect(outcome.result.given).toBe(false);
+    expect(outcome.result.refused).toBe("recipient-absent");
+    expect(ownerOf(w, "spoon").id).toBe(w.base.prisonerId);
+  });
+
+  it("PLANTED VIOLATION: give of a thing the actor does not hold changes nothing", () => {
+    const w = world();
+    const outcome = resolvePlan(w, planCustody(w, "give", "meal_tray", "prisoner"));
+    expect(outcome.result.given).toBe(false);
+    expect(outcome.result.refused).toBe("not-held");
+    expect(ownerOf(w, "meal_tray").id).toBe(w.base.cellId);
+  });
+
+  it("search (expose on a person): every thing she holds loses its concealment; a thing she does not hold keeps its own", () => {
+    const w = world();
+    const spoonConcealment = w.resourceIdFor["spoon.concealment"];
+    const tileConcealment = w.resourceIdFor["loose_tile.concealment"];
+    const value = (id: string) => readNumericFact({ gameId: w.base.gameId, t: currentT(w.base.gameId), entityId: id, key: "value" });
+    // She hides the spoon on herself.
+    buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_RESTORE", parameters: { resourceId: spoonConcealment, amount: 100, min: 0, max: 100, description: "hide" } });
+    expect(computePerceivedObjects(w, "warden", currentT(w.base.gameId), "modelled").map((o) => o.id)).not.toContain("spoon");
+    const tileBefore = value(tileConcealment);
+
+    const plan = planCustody(w, "expose", "prisoner", "warden");
+    expect(plan?.mechanic).toBe("OPEN_SEARCH");
+    const outcome = resolvePlan(w, plan);
+    expect(outcome.result.uncovered).toEqual(["spoon"]);
+    expect(value(spoonConcealment)).toBe(0);
+    expect(value(tileConcealment)).toBe(tileBefore);
+    expect(computePerceivedObjects(w, "warden", currentT(w.base.gameId), "modelled").map((o) => o.id)).toContain("spoon");
+  });
+
+  it("PLANTED VIOLATION: a search of a person the actor does not perceive plans nothing", () => {
+    const w = world();
+    expect(planCustody(w, "expose", "prisoner", "warden", ["bar"])).toBeNull();
+  });
+
+  it("an expose on an object is exactly what it was: a wear on its own concealment", () => {
+    const w = world();
+    const plan = planEffect({ targetObjectId: "loose_tile", effectKind: "expose", property: "concealment", magnitude: "substantial", entityIdFor: w.entityIdFor, resourceIdFor: w.resourceIdFor, exits: w.exits, actorId: w.base.prisonerId, description: "x" });
+    expect(plan?.mechanic).toBe("OPEN_WEAR");
   });
 });
