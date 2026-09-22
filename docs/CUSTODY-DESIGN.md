@@ -38,7 +38,7 @@ tray's collection isn't modelled at all today. Incapacitation is the next build.
 **C1. When can someone take a thing that another person is holding?** This decides whether the key ring is
 reachable, and so whether the door has a second way to open.
 
-- **A (recommended; the owner's choice, 2026-09-22): only when the holder is not on her feet** (posture below 100: crouched or down). A person
+- **A (recommended; the owner's choice, 2026-09-22): only when the holder is not on her feet** (her description no longer reads "She is on her feet": crouched or down, posture 75 or below -- corrected from "below 100" at build, which would have handed over the keys at a stumble). A person
   standing and alert keeps what she holds. The warden gets the prisoner's things by searching first (the thing is
   then perceived), and then taking when the prisoner is down. The prisoner gets the key ring only by putting Croft
   on the floor first. It uses posture, which already exists and which you used in round 1. It also makes
