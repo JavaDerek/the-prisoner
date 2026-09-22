@@ -5,7 +5,7 @@ router; games 1, 2, 3, 6, 7, 8 played. **The owner stopped the batch after four 
 killed, the two running games allowed to finish, 4/5/9/10 never started), once catches and warden custody were
 heading for failure and reading the transcripts would teach more than four more games. A six-game batch does not
 count toward OPUS-FIRST-DESIGN §2's lock rule (two consecutive batches of N = 10). Transcripts unedited in `O/`,
-driver and router logs in `logs/`, measures in `MEASURES.md`, the refusal audit pre-labelled in `refusal-audit.csv`.
+driver and router logs in `logs/`, measures in `MEASURES.md`, the refusal audit in `refusal-audit.csv` with the owner's labels.
 
 ## Scoreboard
 
@@ -17,7 +17,7 @@ driver and router logs in `logs/`, measures in `MEASURES.md`, the refusal audit 
 | warden custody in at least 5 games | 2 | 3.3 | **failed** |
 | escapes 0 to 2 | 2 | 3.3 | at the limit |
 | one-act flags at least 1 in 7 prisoner intents | 27 of 60 (0.45) | 0.45 | held -- heavily over-flagged |
-| newly discovered unbuilt classes at most 2 | 2 (put a thing somewhere; guard / block a way out) | -- | **held** |
+| newly discovered unbuilt classes at most 2 | 1 (put a thing somewhere; guard / block was already batch 1's) | -- | **held** |
 
 Results: four timeouts, two escapes (games 6 and 8, both at round 10, both through the door), no catches.
 
