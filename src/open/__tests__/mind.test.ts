@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createOpenMind, type OpenPrincipalContext } from "../mind.js";
+import { createOpenMind, ONE_ACT_RULE, type OpenPrincipalContext } from "../mind.js";
 import { PRISONER_MOVES, WARDEN_MOVES, WARDEN_PRESENCE_RULE } from "../../world/mechanics.js";
 
 const CONTEXT: OpenPrincipalContext = {
@@ -228,6 +228,25 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
     expect(prompts.length).toBe(6);
     for (const prompt of prompts) expect(closedMoveNamesIn(prompt)).toEqual([]);
     expect(prompts[0]).toContain("examines");
+  });
+
+  // OPEN-VARIANT.md §74.1: a turn does one thing, and an intent that attempts more is refused -- so every mind
+  // that writes an intent is told so up front, in both chairs, on both call paths. The voice call writes no intent.
+  it("every intent-writing prompt states the one-act rule, in both chairs and on both call paths (OPEN-VARIANT.md §74.1)", async () => {
+    const intentPrompts: string[] = [];
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse((init?.body as string) ?? "{}");
+      if (body.model !== "v") intentPrompts.push(body.messages[0].content as string);
+      const content = body.model === "v" ? JSON.stringify({ intent: "i", line: "" }) : JSON.stringify({ thoughts: "t", intent: "i", line: "", plan: "p", notes: "n" });
+      return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
+    }) as unknown as typeof fetch;
+    for (const options of [{ model: "m" }, { witsModel: "w", voiceModel: "v" }]) {
+      for (const [selfName, otherName] of [["Mara Voss", "Warden Croft"], ["Warden Croft", "Mara Voss"]]) {
+        await createOpenMind({ baseUrl: "http://x", selfName, otherName, fetchFn, ...options }).consider(CONTEXT);
+      }
+    }
+    expect(intentPrompts.length).toBe(4);
+    for (const prompt of intentPrompts) expect(prompt).toContain(ONE_ACT_RULE);
   });
 
   it("PLANTED VIOLATION: the move-name scan catches the closed variant's own presence rule", () => {

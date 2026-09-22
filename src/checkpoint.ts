@@ -50,7 +50,7 @@ import { getVariant } from "./variant.js";
 import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, readWindowMode, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
-import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
+import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
 import { readPresenceMode, authoredDescription, ownershipAt } from "./open/briefing.js";
@@ -179,6 +179,8 @@ const WITS_THINKING = resolveWitsThinking(process.env.PRISONER_WITS_THINKING, pr
  *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
  *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const INSTRUMENT = readInstrumentMode(process.env.PRISONER_INSTRUMENT);
+// OPEN-VARIANT.md §74.1 (the owner's option B): the separate one-act reading, on by default.
+const ONE_ACT = readOneActMode(process.env.PRISONER_ONE_ACT);
 /** Open variant only: the play-time elaboration request (§9 row P1b,
  *  `src/open/elaborationReferee.ts`, WORLD-ELABORATION-DESIGN.md §4.1/§4.2).
  *  Off unless asked -- the same D3 lesson every arm here follows. When
@@ -808,6 +810,7 @@ async function mainOpen(): Promise<void> {
       propertiesOf: (objectId) => declaredPropertyKeys(openWorld, objectId),
       instrumentMode: INSTRUMENT,
       deriveWording: DERIVE_WORDING,
+      oneAct: ONE_ACT,
     }
   );
   // WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b: a second, separate referee
@@ -1035,6 +1038,11 @@ async function mainOpen(): Promise<void> {
     INSTRUMENT === "checked"
       ? "Instrument: CHECKED (`PRISONER_INSTRUMENT=checked`): a seventh referee question names the instrument an act uses, from the objects this principal perceives or holds, none, or absent (a tool named that is none of those); absent is ruled impossible (§51, the-prisoner#17)."
       : "Instrument: UNASKED (the default): the referee is never asked what tool an act uses (§51, the-prisoner#17)."
+  );
+  transcript.push(
+    ONE_ACT === "checked"
+      ? "One act: CHECKED (the default): a separate referee call asks whether each intent attempts more than one act; a cited `several` flags the ruling and the actor is told a turn does one thing -- it never refuses (OPEN-VARIANT.md §74.1)."
+      : "One act: OFF (`PRISONER_ONE_ACT=off`): the one-call referee of every batch before 2026-09-22."
   );
   transcript.push(
     PRESENCE === "modelled"

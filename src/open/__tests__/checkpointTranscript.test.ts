@@ -374,6 +374,31 @@ describe("open checkpoint transcript", () => {
     expect(requests[1].request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
   });
 
+  // OPEN-VARIANT.md §74.1 (option B): the separate one-act call is its own request, so it is its own sidecar entry,
+  // labelled so `batchMeasures`' "round N, <chair>: " reader skips it, and printed in the half-round's transcript.
+  const ONE_ACT = {
+    answer: "several" as const,
+    flagged: true,
+    request: { questions: [{ id: "acts", prompt: "one or several?", answerKeys: ["one", "several"], safeDefault: "one" }], sources: [{ id: "intent", text: "x" }] },
+    exchanges: [],
+  };
+  it("one act: a separate sidecar entry per half-round, labelled distinctly (OPEN-VARIANT.md §74.1)", () => {
+    const base = halfWithRuling({ targetObjectId: "door", property: "passage", effectKind: "open", product: "none" });
+    const half: OpenHalfRoundResult = { ...base, ruling: { ...(base.ruling as NonNullable<OpenHalfRoundResult["ruling"]>), oneAct: ONE_ACT } };
+    const requests = refereeRequestsFor([half]);
+    expect(requests.map((r) => r.label)).toEqual(["round 1, prisoner: x", "round 1, prisoner, one act: x"]);
+    expect(requests[1].request.questions.map((q) => q.id)).toEqual(["acts"]);
+  });
+
+  it("one act: the transcript prints the reading and whether it flagged the ruling", () => {
+    const base = halfWithRuling({ targetObjectId: "door", property: "passage", effectKind: "open", product: "none" });
+    const ruled = base.ruling as NonNullable<OpenHalfRoundResult["ruling"]>;
+    const text = renderOpenHalfRound({ ...base, ruling: { ...ruled, oneAct: ONE_ACT } });
+    expect(text).toContain("**One act:** `several` -- flagged: the actor is told a turn does one thing (OPEN-VARIANT.md §74.1).");
+    const one = renderOpenHalfRound({ ...base, ruling: { ...ruled, oneAct: { ...ONE_ACT, answer: "one", flagged: false } } });
+    expect(one).toContain("**One act:** `one`.");
+  });
+
   it("elaboration: a SECOND sidecar entry per half-round it fired on, labelled distinctly, and `npm run referee-replay` reads it unchanged (WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b)", async () => {
     const elaboration: ElaborationRuling = {
       targetObjectId: "loose_tile",

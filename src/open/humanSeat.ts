@@ -1,4 +1,4 @@
-import { renderSeatSituation, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
+import { renderSeatSituation, ONE_ACT_RULE, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
 import { proseBlocks, type ProseBlockKind } from "./proseView.js";
 import { createDeltaView } from "./deltaView.js";
 import { findObject } from "./scenarioObjects.js";
@@ -361,6 +361,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
         "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
           "A referee decides what actually happens; you only decide what you TRY."
       );
+      write(ONE_ACT_RULE);
       write("");
 
       // §1.2/§1.3: a stable band, the LAST thing written before EVERY

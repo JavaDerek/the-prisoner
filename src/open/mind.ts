@@ -253,12 +253,22 @@ export function renderSeatSituation(selfName: string, otherName: string, context
   ].join("\n");
 }
 
+/** OPEN-VARIANT.md §74.1 (the owner's decision, option B): a turn does one thing; an intent that attempts more is
+ *  flagged and only one act is attempted. Said up front, in the same words, to every mind that writes an intent and
+ *  to a person in the seat (`humanSeat.ts`). Getting ready and speaking or watching alongside are named as part of
+ *  the act because under the rule they are -- even though the referee's one-act reading still counts a preparatory
+ *  step as a second act about one time in four (`checkpoints/2026-09-22-one-act-s2/`), which is why it flags. */
+export const ONE_ACT_RULE =
+  "Do ONE thing per turn: if an intent attempts more than one act -- two things worked on, or one thing and then " +
+  "another -- only one of them is attempted. Getting ready for the act, and speaking or watching alongside it, are part of it.";
+
 function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
   return [
     renderSeatSituation(selfName, otherName, context, conditions),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
+    ONE_ACT_RULE,
     'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "plan": string, "replanned": boolean, "replanBecause": string, "notes": string}.',
     '"thoughts" is REQUIRED -- your private reasoning. Nobody else ever sees this.',
     '"candidates" is REQUIRED -- 2 to 5 DIFFERENT concrete things you could try this turn, each grounded only in ' +
@@ -281,6 +291,7 @@ function buildOpenSingleCallPrompt(selfName: string, otherName: string, context:
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
+    ONE_ACT_RULE,
     'Answer with one JSON object: {"thoughts": string, "candidates": [{"text": string, "reason": string}], "intent": string, "line": string, "plan": string, "replanned": boolean, "replanBecause": string, "notes": string}.',
     '"thoughts" is REQUIRED -- your private reasoning. Nobody else ever sees this.',
     '"candidates" is REQUIRED -- 2 to 5 DIFFERENT concrete things you could try this turn, each grounded only in ' +

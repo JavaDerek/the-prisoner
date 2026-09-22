@@ -148,7 +148,17 @@ function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
   return "an act outside what this world models";
 }
 
+/** OPEN-VARIANT.md §74.1, the owner's option B: what an actor whose intent the one-act reading called `several`
+ *  is told, ahead of the ordinary outcome sentence. It never says which act was dropped: code cannot know, and the
+ *  sentence after it states exactly what was ruled. */
+export const ONE_ACT_FLAG = "A turn does one thing, and your intent tried more than one, so only one act was attempted. ";
+
 export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
+  const outcome = renderOwnOutcomeUnflagged(half);
+  return outcome !== null && half.ruling?.oneAct?.flagged ? ONE_ACT_FLAG + outcome : outcome;
+}
+
+function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   const { proposal, ruling, plan, outcome, refusalError } = half;
   if (proposal === null || ruling === null) return null;
   const obj = label(ruling.targetObjectId);

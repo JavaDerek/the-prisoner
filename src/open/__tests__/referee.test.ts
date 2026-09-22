@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createHash } from "node:crypto";
 import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
-import { createReferee, readInstrumentMode, readDeriveWordingMode, type ObjectPerception } from "../referee.js";
+import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, ONE_ACT_QUESTION, type ObjectPerception } from "../referee.js";
 import { suspicionEligible } from "../loop.js";
 
 const BAR: ObjectPerception = {
@@ -243,6 +243,86 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
       });
       const ruling = await createReferee([transport]).rule("I rap on the bar.", [BAR]);
       expect(ruling.applicable).toBe(false);
+    });
+  });
+
+  // OPEN-VARIANT.md §74.1, the owner's option B (2026-09-22): a turn does one thing. Whether an intent attempts
+  // more than one act is asked as its OWN small call, one question and one source -- the only form that caught every
+  // chain without moving any other ruling (`checkpoints/2026-09-22-one-act-s2/`, 16/16). It never changes whether
+  // the act applies; a cited `several` only flags the ruling, so the actor is told a turn does one thing.
+  describe("the one-act reading: a separate call that flags, never refuses (OPEN-VARIANT.md §74.1, option B)", () => {
+    const checked = { oneAct: "checked" as const };
+    it("the game's default is checked; `off` is the one-call referee of every earlier batch; anything else throws", () => {
+      expect(readOneActMode(undefined)).toBe("checked");
+      expect(readOneActMode("")).toBe("checked");
+      expect(readOneActMode("off")).toBe("off");
+      expect(() => readOneActMode("on")).toThrow(/PRISONER_ONE_ACT/);
+    });
+
+    it("a referee built with no option makes exactly one call, as before", async () => {
+      const { transport, requests } = withActs(null);
+      const ruling = await createReferee([transport]).rule(OPEN_AND_LEAVE, [DOOR]);
+      expect(requests.length).toBe(1);
+      expect(ruling.oneAct).toBeUndefined();
+    });
+
+    const OPEN_AND_LEAVE = "open the door and leave";
+    const DOOR: ObjectPerception = { id: "door", description: "A heavy door of iron-bound planks in a stone frame." };
+    function withActs(acts: { answerKey: string; citation: { sourceId: string; quote: string } } | null): { transport: ReaderTransport; requests: ReadRequest[] } {
+      const requests: ReadRequest[] = [];
+      const main = scriptedTransport({
+        target: { answerKey: "door", citation: { sourceId: "intent", quote: "door" } },
+        effect: { answerKey: "open", citation: { sourceId: "intent", quote: "open the door" } },
+        property: { answerKey: "passage", citation: { sourceId: "desc:door", quote: "A heavy door" } },
+        magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "open" } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "open" } },
+        ...(acts ? { acts } : {}),
+      });
+      return { transport: async (request) => (requests.push(request), main(request)), requests };
+    }
+
+    it("asks the one-act question as its own request: one question, the intent as its only source, after the main ruling", async () => {
+      const { transport, requests } = withActs(null);
+      await createReferee([transport], checked).rule(OPEN_AND_LEAVE, [DOOR]);
+      expect(requests.length).toBe(2);
+      expect(requests[0].questions.map((q) => q.id)).not.toContain("acts");
+      expect(requests[1].questions).toEqual([ONE_ACT_QUESTION]);
+      expect(requests[1].sources).toEqual([{ id: "intent", text: OPEN_AND_LEAVE }]);
+    });
+
+    it("the question's text is the probed one, word for word (checkpoints/2026-09-22-one-act-s2/build.mts)", () => {
+      expect(ONE_ACT_QUESTION.answerKeys).toEqual(["one", "several"]);
+      expect(ONE_ACT_QUESTION.safeDefault).toBe("one");
+      expect(ONE_ACT_QUESTION.prompt).toContain("But opening a way out is always an act of its own, never a way of getting ready.");
+      expect(ONE_ACT_QUESTION.prompt.startsWith("Does the intent attempt ONE act or SEVERAL?")).toBe(true);
+    });
+
+    it("a cited `several` flags the ruling and leaves it applicable exactly as it was", async () => {
+      const { transport } = withActs({ answerKey: "several", citation: { sourceId: "intent", quote: "and leave" } });
+      const ruling = await createReferee([transport], checked).rule(OPEN_AND_LEAVE, [DOOR]);
+      expect(ruling.applicable).toBe(true);
+      expect(ruling.oneAct?.answer).toBe("several");
+      expect(ruling.oneAct?.flagged).toBe(true);
+    });
+
+    it("`one` does not flag", async () => {
+      const { transport } = withActs({ answerKey: "one", citation: { sourceId: "intent", quote: "open the door" } });
+      const ruling = await createReferee([transport], checked).rule(OPEN_AND_LEAVE, [DOOR]);
+      expect(ruling.oneAct?.answer).toBe("one");
+      expect(ruling.oneAct?.flagged).toBe(false);
+    });
+
+    it("PLANTED VIOLATION: a `several` whose citation does not come from the intent does not flag", async () => {
+      const { transport } = withActs({ answerKey: "several", citation: { sourceId: "desc:door", quote: "A heavy door" } });
+      const ruling = await createReferee([transport], checked).rule(OPEN_AND_LEAVE, [DOOR]);
+      expect(ruling.oneAct?.flagged).toBe(false);
+    });
+
+    it("an unanswered one-act question falls to `one` and flags nothing", async () => {
+      const { transport } = withActs(null);
+      const ruling = await createReferee([transport], checked).rule(OPEN_AND_LEAVE, [DOOR]);
+      expect(ruling.oneAct?.answer).toBe("one");
+      expect(ruling.oneAct?.flagged).toBe(false);
     });
   });
 

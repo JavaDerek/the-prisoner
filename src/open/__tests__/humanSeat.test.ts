@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createOpenMind, renderSeatSituation, type OpenPrincipalContext } from "../mind.js";
+import { createOpenMind, renderSeatSituation, ONE_ACT_RULE, type OpenPrincipalContext } from "../mind.js";
 import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, wrapText, wrapWidth, type ViewMode } from "../humanSeat.js";
 import type { Narrator } from "../narrator.js";
 import { openConditions } from "../conditions.js";
@@ -234,6 +234,18 @@ describe("PRISONER_VIEW=narrated -- the narrator model, shown only once verified
 
   it("'narrated' with no narrator configured is a configuration error, caught at construction, never guessed past", () => {
     expect(() => seat(["I test the bar.", ""], { view: "narrated" })).toThrow(/narrator/i);
+  });
+});
+
+// OPEN-VARIANT.md §74.1: the player is told the one-act rule exactly as the model is.
+describe("the seat states the one-act rule (OPEN-VARIANT.md §74.1)", () => {
+  it("writes the model's own one-act sentence before asking, in every view", async () => {
+    for (const view of ["raw", "prose"] as const) {
+      const written: string[] = [];
+      const { ask } = player("wait");
+      await createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view }).consider(CONTEXT);
+      expect(dewrap(written.join("\n"))).toContain(ONE_ACT_RULE);
+    }
   });
 });
 

@@ -105,6 +105,10 @@ export interface RefereeRuling {
    *  trustworthy enough to report as a specific reason, which is what this
    *  field is for. Optional for the same reason `instrument` is. */
   missingInstrument?: { citation: RangedCitation } | null;
+  /** OPEN-VARIANT.md §74.1 (option B): the separate one-act reading. `flagged` only when the answer is `several`
+   *  AND its citation names the actor's intent; it never touches `applicable`. Absent on a ruling built by
+   *  `computeRuling` alone (tests), present on every ruling `createReferee` returns. */
+  oneAct?: { answer: "one" | "several"; flagged: boolean; request: { questions: readonly ReaderQuestion[]; sources: readonly ReaderSource[] }; exchanges: readonly (RefereeExchangeRecord | null)[] };
   /** Whether this ruling passed every citation and "declared in the
    *  scenario" check (this module's own check; `planEffect`, `effects.ts`,
    *  does the scenario-declaration half) -- when `false`, the intent does
@@ -146,6 +150,32 @@ export interface CitationCheck {
   requiredSourceId: string | null;
   verified: boolean;
 }
+
+/**
+ * OPEN-VARIANT.md §74.1, the owner's option B (2026-09-22): a turn does one thing. Whether an intent attempts more
+ * than one act is asked as its OWN call -- this one question, the intent as its only source -- after the main
+ * ruling. Asked inside the main request it moved unrelated rulings and traded catching chains against refusing
+ * single acts (`checkpoints/2026-09-22-one-act/`, `-v2/`); asked alone it caught 16 of 16 chains with no loop, and
+ * still counted a preparatory step as a second act about one time in four (`-s/`, `-s2/`). That is why a cited
+ * `several` only FLAGS the ruling -- the actor is told a turn does one thing -- and never refuses it. Text word for
+ * word as probed in `checkpoints/2026-09-22-one-act-s2/build.mts`.
+ */
+export const ONE_ACT_QUESTION: ReaderQuestion = {
+  id: "acts",
+  prompt:
+    "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, " +
+    "examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a " +
+    "person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone " +
+    "and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, " +
+    "however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the " +
+    "place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does " +
+    "not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the " +
+    "act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking " +
+    "it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. " +
+    "Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+  answerKeys: ["one", "several"],
+  safeDefault: "one",
+};
 
 /** Structural, so the referee needs no import of any one transport. */
 export type RefereeExchangeRecord = { readonly ms: number; readonly status?: number; readonly content?: string; readonly error?: string };
@@ -580,6 +610,32 @@ export interface Referee {
  *  every test in this module for a scripted one). Temperature 0 is the
  *  TRANSPORT's own concern (`refereeTransport.ts`), not this module's --
  *  this module never itself calls a model. */
+/** OPEN-VARIANT.md §74.1: whether the separate one-act reading runs. `checked` is the owner's decision and the
+ *  game's default; `off` restores the one-call referee every batch before 2026-09-22 was ruled by. */
+export type OneActMode = "checked" | "off";
+
+export function readOneActMode(raw: string | undefined): OneActMode {
+  if (raw === undefined || raw === "") return "checked";
+  if (raw === "checked" || raw === "off") return raw;
+  throw new Error(`PRISONER_ONE_ACT: unrecognised value ${JSON.stringify(raw)} -- must be "checked" (the default) or "off"`);
+}
+
+/** The one-act reading (OPEN-VARIANT.md §74.1): its own reader, one question, the intent as its only source. */
+async function readOneAct(intentText: string, transports: readonly ReaderTransport[]): Promise<NonNullable<RefereeRuling["oneAct"]>> {
+  const questions = [ONE_ACT_QUESTION];
+  const sources: ReaderSource[] = [{ id: INTENT_SOURCE_ID, text: intentText }];
+  const exchanges: (RefereeExchangeRecord | null)[] = transports.map(() => null);
+  const recording = transports.map((transport, rung): ReaderTransport => async (request) => {
+    const answers = await transport(request);
+    exchanges[rung] = (transport as ExchangeKeeping).lastExchange?.() ?? null;
+    return answers;
+  });
+  const result = await createTurnReader({ questions, transports: recording }).read(sources);
+  const answer = answerFor(result, "acts");
+  const several = answer.answerKey === "several";
+  return { answer: several ? "several" : "one", flagged: several && citationCheck(answer, INTENT_SOURCE_ID).verified, request: { questions, sources }, exchanges };
+}
+
 export function createReferee(
   transports: readonly ReaderTransport[],
   options: {
@@ -592,6 +648,10 @@ export function createReferee(
     /** OPEN-VARIANT.md §51, the-prisoner#18. Default `"baseline"`: the
      *  pre-existing effect-question wording, unchanged. */
     deriveWording?: DeriveWordingMode;
+    /** OPEN-VARIANT.md §74.1 (option B). The GAME's default is `"checked"` (`readOneActMode`, wired in
+     *  `checkpoint.ts`); this constructor's own default is `"off"`, so a referee built bare -- every unit test,
+     *  every replay of a recorded request -- makes exactly one call, as before. */
+    oneAct?: OneActMode;
   } = {}
 ): Referee {
   const isDeclared = options.isDeclared ?? declaredInScenario;
@@ -624,7 +684,8 @@ export function createReferee(
       });
       const reader = createTurnReader({ questions, transports: recording });
       const result = withRanges(await reader.read(sources), offered);
-      const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson), exchanges };
+      const oneAct = options.oneAct === "checked" ? await readOneAct(intentText, transports) : undefined;
+      const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson), exchanges, ...(oneAct ? { oneAct } : {}) };
       cache.set(key, ruling);
       return ruling;
     },

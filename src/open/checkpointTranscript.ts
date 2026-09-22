@@ -304,6 +304,9 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
     lines.push(...refereeTable(half));
     lines.push("");
     lines.push(`**Ruled:** ${half.ruling.applicable ? "possible" : "impossible"}`);
+    // OPEN-VARIANT.md §74.1 (option B): the separate one-act reading, when it ran.
+    const oneAct = half.ruling.oneAct;
+    if (oneAct) lines.push(oneAct.flagged ? "**One act:** `several` -- flagged: the actor is told a turn does one thing (OPEN-VARIANT.md §74.1)." : `**One act:** \`${oneAct.answer}\`.`);
     const outcome = outcomeLines(half);
     if (outcome.length > 0) {
       lines.push("```");
@@ -354,6 +357,8 @@ export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { la
   return halves.flatMap((h) => {
     const entries: { label: string; request: ReadRequest; replies: readonly (RefereeExchangeRecord | null)[] }[] = [];
     if (h.ruling && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}: ${h.proposal.intent}`, request: h.ruling.request as ReadRequest, replies: h.ruling.exchanges ?? [] });
+    // OPEN-VARIANT.md §74.1: the one-act reading is its own request, so its own replayable entry.
+    if (h.ruling?.oneAct && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}, one act: ${h.proposal.intent}`, request: h.ruling.oneAct.request as ReadRequest, replies: h.ruling.oneAct.exchanges });
     if (h.elaboration && h.proposal) {
       entries.push({
         label: `round ${h.roundN}, ${h.principal}, elaboration: ${h.proposal.intent}`,

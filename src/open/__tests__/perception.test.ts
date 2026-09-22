@@ -7,7 +7,7 @@ import { buildOpenResolver } from "../mechanics.js";
 import { createReferee } from "../referee.js";
 import { runOpenHalfRound, type OpenHalfRoundResult } from "../loop.js";
 import { buildOpenContext } from "../briefing.js";
-import { renderOwnOutcome, renderForOther } from "../perception.js";
+import { renderOwnOutcome, renderForOther, ONE_ACT_FLAG } from "../perception.js";
 import { setBelief } from "../../ledger/beliefs.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
 import type { Principal } from "../../ledger/beliefs.js";
@@ -70,6 +70,27 @@ function expectPositive(text: string): void {
 
 describe("renderOwnOutcome: what the actor learns from its own attempt, rendered by code", () => {
   afterEach(() => destroyTestDb());
+
+  // OPEN-VARIANT.md §74.1 (option B): a cited `several` never refuses; the actor is told, in code's words, that a
+  // turn does one thing and only what was ruled was attempted -- then the ordinary outcome sentence, unchanged.
+  it("a flagged one-act reading leads the outcome with the one-act sentence, and the outcome itself is unchanged", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const acts = (key: string): ReaderTransport => async (request) =>
+      request.questions[0]?.id === "acts" ? [{ questionId: "acts", answerKey: key, citation: { sourceId: "intent", quote: "and hide the spoon" } }] : ruling(BAR_WEAR)(request);
+    const run = async (key: string) => {
+      const t = openWorld.base.clock.prisonerT(1);
+      return runOpenHalfRound({
+        openWorld, resolver: buildOpenResolver(), referee: createReferee([acts(key)], { oneAct: "checked" }), principal: "prisoner", roundN: 1, t,
+        context: buildOpenContext(openWorld, "prisoner", t, 1),
+        mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I scrape the bar and hide the spoon." }),
+      });
+    };
+    const flagged = renderOwnOutcome(await run("several")) as string;
+    expect(flagged.startsWith(ONE_ACT_FLAG)).toBe(true);
+    expect(flagged).toContain("100");
+    expect(flagged).toContain("85");
+  });
 
   it("a resolved wear states the property's exact before and after", async () => {
     createTestDb();
