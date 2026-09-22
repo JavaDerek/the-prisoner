@@ -1,4 +1,4 @@
-import { readNumericFact, readFactValue } from "../world/facts.js";
+import { readNumericFact, readFactValue, factReaderAt } from "../world/facts.js";
 import { getBelief, renderBeliefLine } from "../ledger/beliefs.js";
 import { SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { getNotes } from "../ledger/notes.js";
@@ -28,13 +28,43 @@ import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRI
  * spoon-specific, matching the engine boundary's own "generic, with at
  * least one real caller" test.
  */
-// Exported (the-prisoner#11's terminal half, §1.2/§1.4): the seat's own
-// status line and `holding` command need this SAME declared ownership --
-// never a second, hand-copied map that could drift from this one. Only the
-// static §4.1 objects are here; an object DERIVED and picked up during play
-// carries its own `heldBy` on `openWorld.derived`, which is not reachable
-// from `OpenPrincipalContext` today (see humanSeat.ts's own note on this).
+// docs/CUSTODY-DESIGN.md: AUTHORING ONLY -- who holds what when the game
+// starts, as `world/setup.ts` and `world.ts` create it (a test pins the two
+// equal). Nothing reads it to decide who holds a thing during play: custody
+// changes an item's owner through `resolve()`, so every such read is
+// `holderAt`/`ownershipAt` below, from the engine at t.
 export const OWNER_OF: Partial<Record<string, Principal>> = { spoon: "prisoner", key_ring: "warden" };
+
+/** Who holds an object at t, and where it lies when nobody does. */
+export type Ownership = { readonly holder: Principal | null; readonly placeId: string | null };
+
+/**
+ * docs/CUSTODY-DESIGN.md: every read of who holds what, from the item's own
+ * `owner_id`/`owner_type` at t -- the engine's columns, read the way presence
+ * reads `location_id` (`principalLocation`), in ONE replay for however many
+ * objects the caller asks about. A §4.1 object and one derived in this game
+ * alike: both are items in `openWorld.entityIdFor`. An id with no item behind
+ * it (a person, `none`) is held by nobody and lies nowhere.
+ */
+export function ownershipAt(openWorld: OpenWorld, t: number): (objectId: string) => Ownership {
+  const fact = factReaderAt({ gameId: openWorld.base.gameId, t });
+  return (objectId) => {
+    const entityId = openWorld.entityIdFor[objectId];
+    if (!entityId || objectId === "prisoner" || objectId === "warden") return { holder: null, placeId: null };
+    const ownerId = fact(entityId, "owner_id");
+    const ownerType = fact(entityId, "owner_type");
+    if (ownerType === "character") {
+      const holder: Principal | null = ownerId === openWorld.base.prisonerId ? "prisoner" : ownerId === openWorld.base.wardenId ? "warden" : null;
+      return { holder, placeId: null };
+    }
+    return { holder: null, placeId: ownerType === "location" ? ownerId : null };
+  };
+}
+
+/** Who holds one object at t (`ownershipAt`), or `null` for nobody. */
+export function holderAt(openWorld: OpenWorld, objectId: string, t: number): Principal | null {
+  return ownershipAt(openWorld, t)(objectId).holder;
+}
 
 /** OPEN-VARIANT.md §15.1: the objects some other object is held in. */
 const CONTAINERS: ReadonlySet<string> = new Set(OPEN_OBJECTS.flatMap((spec) => (spec.heldIn ? [spec.heldIn] : [])));
@@ -157,10 +187,18 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
   // and lift (§15.2 grounds `expose` on the tile's own description), exactly
   // as the closed variant's loose tile "stays visible in either view
   // regardless of CONCEAL" (`src/view/viewFor.ts`).
+  //
+  // WHO HOLDS IT IS READ AT t (docs/CUSTODY-DESIGN.md): `take`/`give` change an
+  // item's owner through `resolve()`, so the holder -- and, for a thing nobody
+  // holds, where it lies -- comes from the engine (`ownershipAt`), never from
+  // `OWNER_OF` or a derived object's record of who made it. A container hides
+  // only what still lies in it: a thing someone has taken out is held, not
+  // contained, whatever `heldIn` its authoring names.
+  const ownership = ownershipAt(openWorld, t);
   const candidates = [
-    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: describedAsItStands(openWorld, spec, t), owner: OWNER_OF[spec.id], heldIn: spec.heldIn })),
-    ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, owner: d.heldBy as Principal | undefined, heldIn: undefined })),
-  ];
+    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: describedAsItStands(openWorld, spec, t), ...ownership(spec.id), heldIn: spec.heldIn })),
+    ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, ...ownership(d.id), heldIn: undefined })),
+  ].map(({ holder, ...rest }) => ({ ...rest, owner: holder ?? undefined, heldIn: holder === null ? rest.heldIn : undefined }));
   const objects = candidates
     .filter((object) => {
       if (object.heldIn !== undefined) {
@@ -168,15 +206,14 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
         if (container === undefined || container === null || container >= 50) return false;
       }
       if (object.owner === principal) return true;
-      // OPEN-VARIANT.md §55 (issue #22 gap 1): a cell-fixed object (no
-      // owner) is where the cell is; an object owned by a principal travels
-      // with them (`OWNER_OF`, `derived.heldBy` -- the same map gap 2's
-      // reported-speech routing and the belief store's own channel (a)
-      // already key on). The owner already returned above regardless of
+      // OPEN-VARIANT.md §55 (issue #22 gap 1): an object nobody holds is
+      // where it lies (the cell, for every object as authored); an object
+      // held by a principal travels with them -- its holder at t, read from
+      // the engine above. The owner already returned above regardless of
       // location ("the holder always perceives its own things"); this gate
       // is for the OTHER principal only.
       if (presenceMode === "modelled") {
-        const objectLocation = object.owner ? principalLocation(openWorld, object.owner, t) : openWorld.base.cellId;
+        const objectLocation = object.owner ? principalLocation(openWorld, object.owner, t) : (object.placeId ?? openWorld.base.cellId);
         if (principalLocation(openWorld, principal, t) !== objectLocation) return false;
       }
       if (CONTAINERS.has(object.id)) return true;
@@ -323,11 +360,16 @@ export function buildOpenContext(
   presenceMode: PresenceMode = "off"
 ): OpenPrincipalContext {
   const principalId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
+  const perceivedObjects = computePerceivedObjects(openWorld, principal, t, presenceMode);
+  // docs/CUSTODY-DESIGN.md: what she holds at t, from the engine, for the
+  // seat's `holding` line -- among what she perceives, which every holder does.
+  const ownership = ownershipAt(openWorld, t);
   return {
     principalId,
     identity: principal === "prisoner" ? PRISONER_IDENTITY : WARDEN_IDENTITY,
     motive: principal === "prisoner" ? PRISONER_MOTIVE : WARDEN_MOTIVE,
     briefing: buildOpenBriefing(openWorld, principal, t, roundN, totalRounds, news, presenceMode),
-    perceivedObjects: computePerceivedObjects(openWorld, principal, t, presenceMode),
+    perceivedObjects,
+    holding: perceivedObjects.filter((o) => ownership(o.id).holder === principal).map((o) => o.id),
   };
 }

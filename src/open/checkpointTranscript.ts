@@ -107,7 +107,38 @@ function refusalReason(ruling: NonNullable<OpenHalfRoundResult["ruling"]>): stri
       return `a \`${ruling.product}\` comes from the ${kind.parent.replace(/_/g, " ")}, not from the ${ruling.targetObjectId.replace(/_/g, " ")}`;
     }
   }
+  // docs/CUSTODY-DESIGN.md: `planEffect`'s custody refusals, all of them and
+  // nothing more -- the thing is not among what the actor perceives, or it is
+  // a person, or a way out or its part (`effects.ts`'s `planCustody`).
+  if (ruling.effectKind === "take" || ruling.effectKind === "give") {
+    return `the ${ruling.targetObjectId.replace(/_/g, " ")} is out of the actor's reach, a person, or fixed in place as a way out`;
+  }
   return `(${ruling.targetObjectId}, ${ruling.property}) grounded nothing this scenario declares`;
+}
+
+/** docs/CUSTODY-DESIGN.md: one closed line per result `OPEN_TAKE`,
+ *  `OPEN_GIVE` and `OPEN_SEARCH` report (mechanics.ts), or `null` for any
+ *  other mechanic. There are two people in this world, so a gift goes to the
+ *  other principal and a thing kept is kept by her. */
+function custodyLine(half: OpenHalfRoundResult): string | null {
+  const mechanic = half.plan?.mechanic;
+  const result = (half.outcome?.result ?? {}) as { taken?: boolean; given?: boolean; refused?: string; uncovered?: readonly string[] };
+  const obj = (half.ruling?.targetObjectId ?? "").replace(/_/g, " ");
+  const other: Principal = half.principal === "prisoner" ? "warden" : "prisoner";
+  if (mechanic === "OPEN_TAKE") {
+    if (result.taken === true) return `  - taken: the ${half.principal} holds the ${obj}`;
+    if (result.refused === "holder-on-her-feet") return `  - kept: the holder is on her feet (the ${other} still holds the ${obj})`;
+    return `  - not taken (${result.refused ?? "?"})`;
+  }
+  if (mechanic === "OPEN_GIVE") {
+    if (result.given === true) return `  - given: the ${other} holds the ${obj}`;
+    return result.refused === "recipient-absent" ? `  - not given: the ${other} is elsewhere` : `  - not given: the ${half.principal} does not hold the ${obj}`;
+  }
+  if (mechanic === "OPEN_SEARCH") {
+    const found = result.uncovered ?? [];
+    return `  - searched: ${found.length > 0 ? `uncovered ${found.join(", ")}` : "uncovered nothing"}`;
+  }
+  return null;
 }
 
 function outcomeLines(half: OpenHalfRoundResult): string[] {
@@ -142,7 +173,11 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
       const exit = ruling.targetObjectId.replace(/_/g, " ");
       lines.push(result.left ? `  - went out through the ${exit}` : `  - the ${exit} held shut`);
     }
-    if (outcome.transitions.length === 0 && outcome.sets.length === 0 && outcome.created.length === 0 && ruling.effectKind !== "reveal" && ruling.effectKind !== "leave" && ruling.effectKind !== "derive") {
+    // docs/CUSTODY-DESIGN.md: what the custody mechanic reported, in its own
+    // closed keys -- the `owner_id`/`owner_type` sets themselves print above.
+    const custody = custodyLine(half);
+    if (custody) lines.push(custody);
+    if (outcome.transitions.length === 0 && outcome.sets.length === 0 && outcome.created.length === 0 && ruling.effectKind !== "reveal" && ruling.effectKind !== "leave" && ruling.effectKind !== "derive" && !custody) {
       lines.push("  (no state changed)");
     }
   } else if (refusalError) {

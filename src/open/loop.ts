@@ -2,7 +2,7 @@ import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Out
 import { adoptDerivedObject, retireDerivedObject, nextDerivedId, adoptAcquiredProperty, declaredProperty, declaredPropertyKeys, resourceIdForProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
 import { findKind } from "./derivedObjects.js";
 import { bandNumbersFor } from "./acquirableProperties.js";
-import { computePerceivedObjects, principalLocation, type PresenceMode } from "./briefing.js";
+import { computePerceivedObjects, principalLocation, holderAt, type PresenceMode } from "./briefing.js";
 import type { Referee, RefereeRuling, ObjectPerception } from "./referee.js";
 import type { ElaborationReferee, ElaborationRuling } from "./elaborationReferee.js";
 import { ELABORATION_BANDS, type ElaborationBandRow, type DifficultyBand } from "./elaborationBands.js";
@@ -163,7 +163,10 @@ export function describeUnseenAttempt(principal: Principal): string {
  *  `suspicionEligibleFor` below exempts a person as the target whatever the
  *  effect kind is, which is why widening the effect changed nothing here. */
 export function suspicionEligible(effectKind: EffectKind): boolean {
-  return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave" || effectKind === "derive";
+  // docs/CUSTODY-DESIGN.md: a take or give is a visible act like any other --
+  // unchanged rules, so it bumps exactly when a wear would (non-silent, the
+  // warden present, the prisoner acting).
+  return effectKind === "wear" || effectKind === "restore" || effectKind === "expose" || effectKind === "open" || effectKind === "leave" || effectKind === "derive" || effectKind === "take" || effectKind === "give";
 }
 
 /**
@@ -393,6 +396,8 @@ export function describeAttempt(
     case "conceal":
       return `${actor} hides the ${obj} from view.`;
     case "expose":
+      // docs/CUSTODY-DESIGN.md: an expose on a PERSON is a search of her.
+      if (isPrincipalId(ruling.targetObjectId)) return `${actor} searches ${actorName(ruling.targetObjectId)}.`;
       return `${actor} brings the ${obj} into view.`;
     case "noise":
       // OPEN-VARIANT.md §55 (issue #22 gap 2): a principal is now a legal
@@ -425,6 +430,13 @@ export function describeAttempt(
       // The act on the parent, and nothing about the product (OPEN-VARIANT.md
       // §13.4): what was made, a bystander learns by perceiving it later.
       return `${actor} works a piece loose from the ${obj}.`;
+    case "take":
+      // docs/CUSTODY-DESIGN.md: the attempt, as `leave` tells one -- true
+      // whether or not the thing ends up in hand (C1: a holder on her feet
+      // keeps it), because what a bystander sees is the reach.
+      return `${actor} reaches for the ${obj}.`;
+    case "give":
+      return `${actor} holds out the ${obj}.`;
     case "none":
       // Dead in the real pipeline: `runOpenHalfRound` only calls this once
       // `ruling.applicable` is true, which requires `effectKind !== "none"`
@@ -635,11 +647,16 @@ export async function runOpenHalfRound(params: {
   const parentRecord = ruling.effectKind === "derive" ? openWorld.derived.find((d) => d.id === ruling.targetObjectId) : undefined;
   const reshapeOf = parentRecord && findKind(ruling.product)?.replacesParent ? findKind(parentRecord.kindId)?.label : undefined;
   const description = describeAttempt(principal, ruling, undefined, reshapeOf);
-  const parent: DerivedParent | undefined = parentRecord
+  // docs/CUSTODY-DESIGN.md: who holds the parent NOW, from the engine -- it
+  // may have changed hands since it was made, and the product goes to them.
+  // (Its maker is only a fallback for a made thing nobody holds, which no
+  // effect produces: take and give both leave it in a character's hands.)
+  const parentHolder = parentRecord ? (holderAt(openWorld, parentRecord.id, t) ?? parentRecord.heldBy) : undefined;
+  const parent: DerivedParent | undefined = parentRecord && parentHolder
     ? {
         kindId: parentRecord.kindId,
-        heldBy: parentRecord.heldBy,
-        holderId: parentRecord.heldBy === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId,
+        heldBy: parentHolder,
+        holderId: parentHolder === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId,
         entityId: parentRecord.entityId,
         resources: parentRecord.properties.map((p) => ({ key: p.key, resourceId: resourceIdForProperty(openWorld, parentRecord.id, p.key) as string })),
       }
@@ -675,6 +692,19 @@ export async function runOpenHalfRound(params: {
           },
         }
       : {}),
+    // docs/CUSTODY-DESIGN.md: take, give and a search reach only what the
+    // actor perceives now -- the same list the referee's target keys came from
+    // -- and C1 reads each holder's posture at t, where the world built one.
+    custody: {
+      otherId: principal === "prisoner" ? openWorld.base.wardenId : openWorld.base.prisonerId,
+      perceived: context.perceivedObjects.map((o) => o.id),
+      postureOf: Object.fromEntries(
+        (["prisoner", "warden"] as const).flatMap((p) => {
+          const resourceId = resourceIdForProperty(openWorld, p, "posture");
+          return resourceId ? [[p === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId, resourceId]] : [];
+        })
+      ),
+    },
     description,
   });
   if (plan === null) {

@@ -70,7 +70,8 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
     case "conceal":
       return `hide ${it}`;
     case "expose":
-      return `uncover ${it}`;
+      // docs/CUSTODY-DESIGN.md: an expose on a person is a search of her.
+      return isPrincipalTarget(ruling.targetObjectId) ? `search ${it}` : `uncover ${it}`;
     case "noise":
       // The same person/thing split `describeAttempt` (loop.ts) and the
       // resolved branch below already make for this one effect.
@@ -84,6 +85,10 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
       return what === null ? "leave" : `leave through ${what}`;
     case "derive":
       return `make something from ${it}`;
+    case "take":
+      return `take ${it}`;
+    case "give":
+      return `hand over ${it}`;
     case "none":
       return "";
   }
@@ -116,7 +121,11 @@ function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
   // names a tool the actor does not have.
   if (ruling.instrument === "absent") return "a tool it leans on being missing from here";
   if (ruling.effectKind === "derive" && ruling.product === "none") return "what it would make left unread";
-  if (effectRequiresProperty(ruling.effectKind)) {
+  // docs/CUSTODY-DESIGN.md: take, give and a search (expose on a person) are
+  // grounded by the actor's words alone, never by a property of the target.
+  const custody = ruling.effectKind === "take" || ruling.effectKind === "give" || (ruling.effectKind === "expose" && isPrincipalTarget(ruling.targetObjectId));
+  if (custody && !ruling.applicable) return "its grounds in your words left unverified";
+  if (effectRequiresProperty(ruling.effectKind) && !custody) {
     if (ruling.property === "none") return "which property it meant left unread";
     // Undeclared on the target: certain for a §4.1 object or a person, whose
     // declarations are static. For a target whose declarations this module
@@ -191,6 +200,27 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       }
       const verb = ruling.effectKind === "open" ? "opened" : "shut";
       return result.before === result.after ? `The ${wayOut} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${wayOut}.`;
+    }
+    // docs/CUSTODY-DESIGN.md: one closed sentence per outcome the custody
+    // mechanics report (`OPEN_TAKE`/`OPEN_GIVE`/`OPEN_SEARCH`, mechanics.ts),
+    // from their result keys alone. There are two people in this world, so a
+    // thing another person holds is the other principal's, and so is a gift.
+    const other = principalName(half.principal === "prisoner" ? "warden" : "prisoner");
+    if (plan.mechanic === "OPEN_TAKE") {
+      const taken = outcome.result as { taken?: boolean; refused?: string };
+      if (taken.taken === true) return `Your last attempt took the ${obj}: you hold it now.`;
+      if (taken.refused === "already-held") return `You already hold the ${obj}.`;
+      return `Your last attempt reached for the ${obj}, but ${other} is on her feet and keeps it.`;
+    }
+    if (plan.mechanic === "OPEN_GIVE") {
+      const given = outcome.result as { given?: boolean; refused?: string };
+      if (given.given === true) return `Your last attempt handed the ${obj} to ${other}: she holds it now.`;
+      if (given.refused === "recipient-absent") return `Your last attempt held out the ${obj} to an empty room: you still hold it.`;
+      return `Your last attempt held out empty hands: the ${obj} is elsewhere.`;
+    }
+    if (plan.mechanic === "OPEN_SEARCH") {
+      const found = ((outcome.result as { uncovered?: readonly string[] }).uncovered ?? []).map(label);
+      return `Your search of ${principalName(ruling.targetObjectId)} turned up: ${found.length > 0 ? found.join(", ") : "empty hands"}.`;
     }
     if (ruling.effectKind === "reveal" && typeof result.value === "number") {
       return `Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`;

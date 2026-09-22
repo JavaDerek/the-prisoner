@@ -185,6 +185,120 @@ export const OPEN_LEAVE: Mechanic = {
   },
 };
 
+export interface TakeParams {
+  itemId: string;
+  actorId: string;
+  /** Each person's posture resource by character id, where one exists. */
+  postureOf: Readonly<Record<string, string>>;
+  /** docs/CUSTODY-DESIGN.md, C1 = A: a holder whose posture stands at or
+   *  above this keeps what she holds. Handed in, never known here. */
+  keptAtOrAbove: number;
+  description: string;
+}
+
+export interface GiveParams {
+  itemId: string;
+  actorId: string;
+  recipientId: string;
+  description: string;
+}
+
+export interface SearchParams {
+  personId: string;
+  /** Every concealable object with an item behind it; only the ones the
+   *  person holds at t are uncovered. */
+  candidates: readonly { objectId: string; itemId: string; resourceId: string; min: number; max: number }[];
+  description: string;
+}
+
+/** A non-numeric fact's value (an owner, a location) from the facts a
+ *  mechanic is handed, or `null` when none holds. */
+function factFrom(input: AdjudicationInput, entityId: string, key: string): string | null {
+  return input.constraint.mustHonor.find((f) => f.entityId === entityId && f.key === key)?.value ?? null;
+}
+
+/** Who holds an item at t, read from its own `owner_id`/`owner_type` -- the
+ *  engine's columns, never a map kept here. `null` when either is missing. */
+function holderOf(input: AdjudicationInput, itemId: string): { id: string; type: string } | null {
+  const id = factFrom(input, itemId, "owner_id");
+  const type = factFrom(input, itemId, "owner_type");
+  return id !== null && type !== null ? { id, type } : null;
+}
+
+function setOwner(itemId: string, characterId: string): IntendedChange[] {
+  return [
+    { kind: "set", entityId: itemId, key: "owner_id", value: characterId },
+    { kind: "set", entityId: itemId, key: "owner_type", value: "character" },
+  ];
+}
+
+/**
+ * docs/CUSTODY-DESIGN.md: the actor comes to hold a thing -- one `set` of the
+ * item's owner, inside the resolution, the change kind `OPEN_LEAVE` uses for a
+ * character's place. C1 = A: a thing another PERSON holds moves only while her
+ * posture stands below `keptAtOrAbove`; a person with no posture modelled
+ * counts as on her feet (nothing says otherwise, and refusing is the safe
+ * direction). A thing that lies anywhere else moves -- whether the actor could
+ * perceive it was the plan's gate (`effects.ts`). Reads only the constraint it
+ * is handed; a refused take changes nothing and says why in `result`.
+ */
+export const OPEN_TAKE: Mechanic = {
+  name: "OPEN_TAKE",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as TakeParams;
+    const holder = holderOf(input, p.itemId);
+    const refuse = (refused: string, fromId?: string): Adjudication => ({ changes: [], result: { mechanic: "OPEN_TAKE", taken: false, refused, ...(fromId ? { fromId } : {}) }, description: p.description });
+    if (!holder) return refuse("no-holder");
+    if (holder.type === "character" && holder.id === p.actorId) return refuse("already-held");
+    if (holder.type === "character") {
+      const postureId = p.postureOf[holder.id];
+      const posture = postureId ? numericFactFrom(input.constraint.mustHonor, postureId, "value") : null;
+      if (posture === null || posture >= p.keptAtOrAbove) return refuse("holder-on-her-feet", holder.id);
+    }
+    return {
+      changes: setOwner(p.itemId, p.actorId),
+      result: { mechanic: "OPEN_TAKE", taken: true, ...(holder.type === "character" ? { fromId: holder.id } : {}) },
+      description: p.description,
+    };
+  },
+};
+
+/** docs/CUSTODY-DESIGN.md: the actor hands a thing she holds to the other
+ *  principal, who must be present -- the same place, read from each
+ *  character's own `location_id` at t, exactly as presence reads it. */
+export const OPEN_GIVE: Mechanic = {
+  name: "OPEN_GIVE",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as GiveParams;
+    const holder = holderOf(input, p.itemId);
+    const refuse = (refused: string): Adjudication => ({ changes: [], result: { mechanic: "OPEN_GIVE", given: false, refused }, description: p.description });
+    if (!holder || holder.type !== "character" || holder.id !== p.actorId) return refuse("not-held");
+    const here = factFrom(input, p.actorId, "location_id");
+    const there = factFrom(input, p.recipientId, "location_id");
+    if (here === null || there === null || here !== there) return refuse("recipient-absent");
+    return { changes: setOwner(p.itemId, p.recipientId), result: { mechanic: "OPEN_GIVE", given: true }, description: p.description };
+  },
+};
+
+/** docs/CUSTODY-DESIGN.md: a search -- every thing the person holds at t loses
+ *  its concealment, set to its floor in the same resolution, so it is
+ *  perceived. A thing she does not hold keeps its own; nothing changes hands. */
+export const OPEN_SEARCH: Mechanic = {
+  name: "OPEN_SEARCH",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as SearchParams;
+    const changes: IntendedChange[] = [];
+    const uncovered: string[] = [];
+    for (const c of p.candidates) {
+      const holder = holderOf(input, c.itemId);
+      if (!holder || holder.type !== "character" || holder.id !== p.personId) continue;
+      uncovered.push(c.objectId);
+      if (currentValue(input, c.resourceId) > c.min) changes.push(setResource(c.resourceId, c.min, c.min, c.max));
+    }
+    return { changes, result: { mechanic: "OPEN_SEARCH", personId: p.personId, uncovered }, description: p.description };
+  },
+};
+
 export interface AcquireParams {
   /** Carried straight into `result` -- the mechanic never interprets either;
    *  content-typed (`OpenPropertyKey`/`DifficultyBand`) at the caller
@@ -328,5 +442,5 @@ export const OPEN_DERIVE: Mechanic = {
 };
 
 export function buildOpenResolver(): Resolver {
-  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE] });
+  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH] });
 }

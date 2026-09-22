@@ -393,6 +393,9 @@ export const OPEN_OBJECT_IDS: readonly string[] = OPEN_OBJECTS.map((o) => o.id);
 export const POSTURE_STANDING = 100;
 export const POSTURE_CROUCHED = 50;
 export const POSTURE_LYING = 0;
+/** The top of the crouched band: above this a person reads "She is on her feet." Custody's C1 gate
+ *  (docs/CUSTODY-DESIGN.md) keys on the same boundary, so the rule and the words cannot drift apart. */
+export const POSTURE_ON_HER_FEET_ABOVE = 75;
 
 const posture = (who: string): OpenObjectProperty => ({
   key: "posture",
@@ -406,7 +409,7 @@ const posture = (who: string): OpenObjectProperty => ({
   restore: { slight: 10, moderate: 50, substantial: 100 },
   readRanges: [
     { atOrBelow: 25, text: "She is lying on the floor." },
-    { atOrBelow: 75, text: "She is crouched low." },
+    { atOrBelow: POSTURE_ON_HER_FEET_ABOVE, text: "She is crouched low." },
     { atOrBelow: 100, text: "She is on her feet." },
   ],
 });

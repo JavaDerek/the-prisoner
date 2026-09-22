@@ -459,15 +459,25 @@ describe("the status line (§1.2): a stable band, built only from this principal
     expect(dewrap(written.join("\n"))).toContain("Round 1 of 12 | the cell | holding: nothing | Warden Croft is here");
   });
 
-  it("names what she holds, from the SAME declared ownership the game itself uses (OWNER_OF), not a second guess at it", async () => {
-    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }] };
+  // docs/CUSTODY-DESIGN.md: custody moves who holds a thing, so the line reads
+  // the context's own `holding` -- the engine's owner at t, filled in by
+  // `buildOpenContext` -- and no longer the authored starting map (OWNER_OF).
+  it("names what she holds, from the context's own holding -- the engine's owner at t, not a second guess at it", async () => {
+    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }], holding: ["spoon"] };
     const { mind, written } = seat(["I test the bar.", ""]);
     await mind.consider(withSpoon);
     expect(dewrap(written.join("\n"))).toContain("holding: spoon");
   });
 
+  it("PLANTED VIOLATION: a thing she perceives but no longer holds -- the spoon, taken from her -- is not listed, whatever the starting map says", async () => {
+    const spoonTaken: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }], holding: [] };
+    const { mind, written } = seat(["I test the bar.", ""]);
+    await mind.consider(spoonTaken);
+    expect(dewrap(written.join("\n"))).toContain("holding: nothing");
+  });
+
   it("names the WARDEN's own held object when she is the one seated -- never the prisoner's", async () => {
-    const wardenSees: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "key_ring", description: "A heavy iron ring of keys." }] };
+    const wardenSees: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "key_ring", description: "A heavy iron ring of keys." }], holding: ["key_ring"] };
     const { mind, written } = seat(["I watch the door.", ""], { selfName: WARDEN_NAME, otherName: PRISONER_NAME });
     await mind.consider(wardenSees);
     expect(dewrap(written.join("\n"))).toContain("holding: key_ring");
@@ -521,7 +531,7 @@ describe("the status line (§1.2): a stable band, built only from this principal
   // later prompt in that same turn sat there with no band above it.
   it("redraws the status line immediately before EVERY prompt in the turn, not just the first (§1.2, re-draw)", async () => {
     const trace: string[] = [];
-    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }] };
+    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }], holding: ["spoon"] };
     const { ask } = player("holding", "desc bar", "I test the bar.");
     const mind = createHumanSeatMind({
       selfName: PRISONER_NAME,
@@ -581,7 +591,7 @@ describe("the opening banner (§1.3): PRISONER_VIEW=prose, mentioned once, on th
 // already has, never forwarded to the referee.
 describe("no-turn info commands (§1.4): holding, look, conditions, help", () => {
   it('"holding" answers from the same declared ownership the status line uses, costs no turn, and is never forwarded', async () => {
-    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }] };
+    const withSpoon: OpenPrincipalContext = { ...CONTEXT, perceivedObjects: [...CONTEXT.perceivedObjects, { id: "spoon", description: "A bent institutional spoon." }], holding: ["spoon"] };
     const { mind, written, asked } = seat(["holding", "I test the bar."]);
     expect(await mind.consider(withSpoon)).toEqual({ intent: "I test the bar." });
     expect(written.join("\n")).toContain("spoon: A bent institutional spoon.");

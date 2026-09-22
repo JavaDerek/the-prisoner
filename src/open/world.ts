@@ -83,6 +83,9 @@ export interface AcquiredPropertyRecord {
 export interface DerivedObjectRecord {
   id: string;
   kindId: string;
+  /** Who held it when it was made. docs/CUSTODY-DESIGN.md: it can change
+   *  hands afterwards, so who holds it NOW is the item's own owner, read from
+   *  the engine at t (`briefing.ts`'s `holderAt`), never this field. */
   heldBy: Principal;
   description: string;
   entityId: string;

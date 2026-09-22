@@ -824,7 +824,11 @@ describe("THE GROUNDING RULE (OPEN-VARIANT.md §55, issue #22): a person-propert
     // Changed ON PURPOSE 2026-09-22 (`checkpoints/2026-09-22-reveal-edge/`): the property question's
     // reveal sentence names edge. Every batch recorded before this -- Phase 1 batch 1 included -- was
     // asked the request whose hash was 6d0d6943dda923f349f4a91862e6105934c9948dd6bb821333f59c684214ebca.
-    expect(fingerprint).toBe("0350c5485c25649f3bf3927b8ecdb04f3381fdd38a99cafeebbb149cf9d723a0");
+    // Changed ON PURPOSE again 2026-09-22 (docs/CUSTODY-DESIGN.md, C1 = A): the effect question offers
+    // `take` and `give`, one generic clause each, and its answer keys gain both. Every batch recorded
+    // before custody was asked the request whose hash was
+    // 0350c5485c25649f3bf3927b8ecdb04f3381fdd38a99cafeebbb149cf9d723a0.
+    expect(fingerprint).toBe("b265402a71da04c5f19eb576f9f7a9b0b0d01d7bb103b08acbf4908cc4d8524b");
   });
 });
 

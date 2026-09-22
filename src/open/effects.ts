@@ -1,4 +1,4 @@
-import { findProperty, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
+import { findProperty, POSTURE_ON_HER_FEET_ABOVE, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
 import { findKind, composeDescription, parentLabel } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -11,8 +11,12 @@ import type { Principal } from "../ledger/beliefs.js";
  * non-empty `answerKeys` set; `none` is a member of it here, not an
  * absence).
  */
-export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "none";
-export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "none"];
+export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "take" | "give" | "none";
+/** docs/CUSTODY-DESIGN.md: `take` and `give` move who holds a thing -- the
+ *  target is the thing, never the place or the person -- through one `set`
+ *  of the item's own owner columns (`OPEN_TAKE`/`OPEN_GIVE`, mechanics.ts).
+ *  `none` stays last: it is the "nothing applies" key, not an effect. */
+export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "take", "give", "none"];
 
 export type Magnitude = "slight" | "moderate" | "substantial";
 export const MAGNITUDES: readonly Magnitude[] = ["slight", "moderate", "substantial"];
@@ -49,8 +53,10 @@ export function rulingPropertyAnswerKeys(personInView: boolean): readonly string
   return personInView ? [...PROPERTY_KEYS, ...PERSON_PROPERTY_KEYS, "none"] : [...PROPERTY_ANSWER_KEYS];
 }
 
-/** `noise` is the one effect kind that names no property at all
- *  (OPEN-VARIANT.md §4.2: "a perceptible event with no state change"). */
+/** `noise` names no property at all (OPEN-VARIANT.md §4.2: "a perceptible
+ *  event with no state change"), and neither do `take`/`give`
+ *  (docs/CUSTODY-DESIGN.md): what they change is who holds the thing, an
+ *  owner column on the item itself, never one of its bounded properties. */
 export function effectRequiresProperty(effectKind: EffectKind): boolean {
   return (
     effectKind === "wear" ||
@@ -63,7 +69,7 @@ export function effectRequiresProperty(effectKind: EffectKind): boolean {
   );
 }
 
-export type OpenMechanicName = "OPEN_WEAR" | "OPEN_RESTORE" | "OPEN_REVEAL" | "OPEN_NOISE" | "OPEN_PASSAGE" | "OPEN_LEAVE" | "OPEN_DERIVE";
+export type OpenMechanicName = "OPEN_WEAR" | "OPEN_RESTORE" | "OPEN_REVEAL" | "OPEN_NOISE" | "OPEN_PASSAGE" | "OPEN_LEAVE" | "OPEN_DERIVE" | "OPEN_TAKE" | "OPEN_GIVE" | "OPEN_SEARCH";
 
 /** What a `derive` plan will register in the world once its resolution has
  *  created the entities (OPEN-VARIANT.md §13.5) -- decided before the
@@ -163,6 +169,18 @@ export function planEffect(params: {
     /** Set when the target is an object derived in this game (§14.1). */
     parent?: DerivedParent;
   };
+  /** docs/CUSTODY-DESIGN.md: what `take`, `give` and a search (`expose` on a
+   *  person) need beyond `actorId` -- needed only by those three. */
+  custody?: {
+    /** The other principal's character id: a give's recipient. */
+    otherId: string;
+    /** The ids the actor perceives right now -- the same list the referee's
+     *  own target keys were built from (`loop.ts`'s `context.perceivedObjects`). */
+    perceived: readonly string[];
+    /** Each person's posture resource, keyed by character id, where the world
+     *  built one (the presence arm); C1's gate reads it at t. */
+    postureOf: Readonly<Record<string, string>>;
+  };
   description: string;
 }): EffectPlan | null {
   const { targetObjectId, effectKind, property, magnitude, entityIdFor, resourceIdFor, description } = params;
@@ -197,6 +215,10 @@ export function planEffect(params: {
   }
   if (effectKind === "derive") return planDerive(params);
   if (effectKind === "none") return null;
+  // docs/CUSTODY-DESIGN.md: an expose aimed at a PERSON is a search of her; an
+  // expose aimed at an object stays the wear on its concealment it always was.
+  const isPerson = params.custody !== undefined && (entityId === params.actorId || entityId === params.custody.otherId);
+  if (effectKind === "take" || effectKind === "give" || (effectKind === "expose" && isPerson)) return planCustody(params, entityId, isPerson);
 
   if (effectKind === "open" || effectKind === "close") {
     // OPEN-VARIANT.md §19: the referee's target may already be the way out,
@@ -284,6 +306,54 @@ export function planEffect(params: {
     };
   }
   return null;
+}
+
+/**
+ * docs/CUSTODY-DESIGN.md (C1 decided A): who holds a thing changes by one `set`
+ * of the item's own `owner_id`/`owner_type` inside `resolve()` (`OPEN_TAKE`,
+ * `OPEN_GIVE`), and a search lowers the concealment of every thing the person
+ * searched holds (`OPEN_SEARCH`). What can be decided before the resolution,
+ * from the ruling and the actor's own view, is decided here and refuses with
+ * `null` like every other incoherent ruling:
+ *
+ * - the target must be something the actor perceives right now -- "taking a
+ *   thing that lies in the room is always possible if it's perceived", and a
+ *   thing she cannot perceive she cannot reach for;
+ * - a take or give moves a THING (the design's D3 rule): a person is never
+ *   one, and neither is a way out or a way out's part, which `world.ts`'s own
+ *   exit table fixes in the room -- "no invented world";
+ * - a search targets the person, because it is done to her.
+ *
+ * Everything that depends on the world at t -- who holds the thing, whether
+ * the holder is on her feet, whether the recipient is present -- is read by
+ * the mechanic from the facts `resolve()` hands it, never decided here.
+ */
+function planCustody(params: Parameters<typeof planEffect>[0], entityId: string, isPerson: boolean): EffectPlan | null {
+  const { targetObjectId, effectKind, entityIdFor, resourceIdFor, description, actorId, custody } = params;
+  if (!custody || !actorId) return null;
+  if (!custody.perceived.includes(targetObjectId)) return null;
+  if (effectKind === "expose") {
+    // Every concealable object with an item behind it: the mechanic keeps
+    // only the ones this person holds at t, read from the item's own owner.
+    const lookup = params.declaredProperty ?? findProperty;
+    const suffix = ".concealment";
+    const candidates = Object.keys(resourceIdFor).flatMap((token) => {
+      if (!token.endsWith(suffix)) return [];
+      const objectId = token.slice(0, -suffix.length);
+      const itemId = entityIdFor[objectId];
+      const declared = lookup(objectId, "concealment");
+      if (!itemId || !declared || itemId === actorId || itemId === custody.otherId) return [];
+      return [{ objectId, itemId, resourceId: resourceIdFor[token], min: declared.min, max: declared.max }];
+    });
+    return { mechanic: "OPEN_SEARCH", parameters: { personId: entityId, candidates, description }, resourceId: null, isWearType: false };
+  }
+  if (isPerson || entityId === actorId || entityId === custody.otherId) return null;
+  const exits = params.exits ?? {};
+  if (exits[targetObjectId] || Object.values(exits).some((exit) => exit.part === targetObjectId)) return null;
+  if (effectKind === "take") {
+    return { mechanic: "OPEN_TAKE", parameters: { itemId: entityId, actorId, postureOf: custody.postureOf, keptAtOrAbove: POSTURE_ON_HER_FEET_ABOVE + 1, description }, resourceId: null, isWearType: false };
+  }
+  return { mechanic: "OPEN_GIVE", parameters: { itemId: entityId, actorId, recipientId: custody.otherId, description }, resourceId: null, isWearType: false };
 }
 
 /**
