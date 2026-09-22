@@ -488,8 +488,10 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
       "An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: examining a bar for signs of damage or wear is reveal, not wear."
     );
     // §18.4: a reveal of the bar was paired with concealment, which the bar does not declare.
+    // `checkpoints/2026-09-22-reveal-edge/`: naming integrity alone pulled examinations of the
+    // spoon's sharpening to integrity (batch 1 rows #15/#19/#35/#43, misruled); edge is named first.
     expect(property?.prompt).toContain(
-      "For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden."
+      "For reveal, name the property being learned: edge for how sharp a thing is or whether it has been sharpened; integrity for damage, wear, rust or tampering, even when the intent calls it hidden."
     );
   });
 
@@ -819,7 +821,10 @@ describe("THE GROUNDING RULE (OPEN-VARIANT.md §55, issue #22): a person-propert
     const ruling = await referee.rule("I file the bar with my spoon.", [BAR, LOCK]);
     expect(ruling.request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
     const fingerprint = createHash("sha256").update(JSON.stringify(ruling.request.questions), "utf8").digest("hex");
-    expect(fingerprint).toBe("6d0d6943dda923f349f4a91862e6105934c9948dd6bb821333f59c684214ebca");
+    // Changed ON PURPOSE 2026-09-22 (`checkpoints/2026-09-22-reveal-edge/`): the property question's
+    // reveal sentence names edge. Every batch recorded before this -- Phase 1 batch 1 included -- was
+    // asked the request whose hash was 6d0d6943dda923f349f4a91862e6105934c9948dd6bb821333f59c684214ebca.
+    expect(fingerprint).toBe("0350c5485c25649f3bf3927b8ecdb04f3381fdd38a99cafeebbb149cf9d723a0");
   });
 });
 

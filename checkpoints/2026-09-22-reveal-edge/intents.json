@@ -1,0 +1,12 @@
+{"items":[
+ {"group":"FIX","expect":"spoon/reveal/edge","intent":"Pick up the spoon and closely examine its edge, rim, and bowl for any signs of sharpening, filing, or deliberate wear — and check the area around where it was resting for metal dust or filings."},
+ {"group":"FIX","expect":"spoon/reveal/edge","intent":"Pick up the spoon and closely examine its edge, bowl, and handle for any signs of sharpening, new wear, metal filings, or modification since my last check in round 3."},
+ {"group":"FIX","expect":"spoon/reveal/edge","intent":"Walk to the meal tray, pick up the spoon, and examine it closely — specifically checking the worn-flat side of the bowl for any fresh scratching, sharpening, or new wear beyond the baseline. Also glance at Voss's cot area and the blanket as I pass it."},
+ {"group":"FIX","expect":"spoon/reveal/edge","intent":"Pick up the spoon from wherever it sits, examine it closely — turning it over, running my thumb along the worn-flat edge to feel for fresh sharpening or new wear — then confiscate it, telling Voss it'll be replaced with a new one at next meal per safety rotation."},
+ {"group":"CTRL","expect":"bar/reveal/integrity","intent":"Closely examine the bar in the window — run my hands along its full length, check the mortar at top and bottom, and look for any fresh scratches, filing marks, or weakening."},
+ {"group":"CTRL","expect":"bar/reveal/integrity","intent":"Get my hands on the window bar and inspect the rusted base where it meets the mortar for tool marks or any looseness."},
+ {"group":"CTRL","expect":"lock/reveal/integrity","intent":"Examine the lock closely — run my fingers along the bolt edge visible in the door gap, inspect the housing for fresh scratch marks, gouges, or metal filings."},
+ {"group":"CTRL","expect":"loose_tile/reveal/concealment","intent":"Kneel beside the loose tile, lift it out of its seat, and closely examine the hollow beneath for hidden tools or freshly disturbed grit."},
+ {"group":"CTRL","expect":"bar/wear/integrity","intent":"Scrape at the cracked mortar around the base of the bar with the spoon."},
+ {"group":"CTRL","expect":"(unbuilt: record only)","intent":"Drag the spoon's worn-flat edge back and forth along the rough iron crossbar of the cot to sharpen it."}
+]}

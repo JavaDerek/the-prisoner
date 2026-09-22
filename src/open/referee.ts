@@ -333,7 +333,8 @@ function buildQuestions(
         "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
         "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. " +
         // OPEN-VARIANT.md §18.5.
-        "For reveal, name the property being learned: integrity for damage, wear, rust or tampering, even when the intent calls it hidden. " +
+        // `checkpoints/2026-09-22-reveal-edge/`: integrity named alone pulled spoon-sharpening examinations to it.
+        "For reveal, name the property being learned: edge for how sharp a thing is or whether it has been sharpened; integrity for damage, wear, rust or tampering, even when the intent calls it hidden. " +
         // OPEN-VARIANT.md §24.
         "Or concealment for what may be hidden in, under or beneath it. " +
         `The properties each object has: ${propertyList}. Name only a property the target has; if it has none that fits, answer none. ` +

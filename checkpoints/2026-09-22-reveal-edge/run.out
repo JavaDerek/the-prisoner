@@ -1,0 +1,23 @@
+arm BASE, N=5, referee qwen3:14b at http://doris:11434/v1, thinking on, 10 items, 2026-09-22T03:12:35.542Z
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/integrity":1,"spoon/reveal/edge":4}  42s
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/integrity":1,"spoon/reveal/edge":4}  54s
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/integrity":1,"spoon/reveal/edge":4}  83s
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/edge":5}  43s
+CTRL  expect bar/reveal/integrity           got {"bar/reveal/integrity":5}  45s
+CTRL  expect bar/reveal/integrity           got {"bar/reveal/integrity":5}  41s
+CTRL  expect lock/reveal/integrity          got {"lock/reveal/integrity":5}  54s
+CTRL  expect loose_tile/reveal/concealment  got {"loose_tile/reveal/concealment":5}  40s
+CTRL  expect bar/wear/integrity             got {"bar/wear/integrity":5}  38s
+CTRL  expect (unbuilt: record only)         got {"cot/noise/integrity":1,"cot/wear/integrity":4}  85s
+arm VARIANT, N=5, referee qwen3:14b at http://doris:11434/v1, thinking on, 10 items, 2026-09-22T03:21:20.250Z
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/edge":5}  41s
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/edge":5}  152s
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/edge":5}  76s
+FIX   expect spoon/reveal/edge              got {"spoon/reveal/edge":5}  38s
+CTRL  expect bar/reveal/integrity           got {"bar/reveal/integrity":5}  42s
+CTRL  expect bar/reveal/integrity           got {"bar/reveal/integrity":5}  38s
+CTRL  expect lock/reveal/integrity          got {"lock/reveal/integrity":5}  39s
+CTRL  expect loose_tile/reveal/concealment  got {"loose_tile/reveal/concealment":5}  40s
+CTRL  expect bar/wear/integrity             got {"bar/wear/integrity":5}  56s
+CTRL  expect (unbuilt: record only)         got {"cot/none/none":1,"cot/wear/integrity":4}  133s
+DONE
