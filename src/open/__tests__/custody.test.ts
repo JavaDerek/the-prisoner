@@ -1,12 +1,19 @@
 import { describe, it, expect, afterEach } from "vitest";
-import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
+import { getResource, type ReadRequest, type TransportAnswer, type ReaderTransport } from "run-dmcp";
+import { scriptedMind } from "mind-seam";
+import { runOpenHalfRound } from "../loop.js";
+import { renderOpenHalfRound } from "../checkpointTranscript.js";
+import { declaredProperty, declaredPropertyKeys, derivedKindOf } from "../world.js";
+import type { PresenceMode } from "../briefing.js";
+import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
+import { scriptedReferee, RULINGS, CUT_WIRE, BEND_HOOK, type ScriptedRuling } from "./helpers/scriptedReferee.js";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { currentT } from "../../world/clock.js";
 import { readFactValue, readNumericFact } from "../../world/facts.js";
 import { buildOpenWorld, type OpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
-import { computePerceivedObjects } from "../briefing.js";
-import { POSTURE_STANDING, POSTURE_CROUCHED, POSTURE_LYING } from "../scenarioObjects.js";
+import { computePerceivedObjects, buildOpenContext, holderAt, OWNER_OF } from "../briefing.js";
+import { OPEN_OBJECTS, POSTURE_STANDING, POSTURE_CROUCHED, POSTURE_LYING } from "../scenarioObjects.js";
 import { EFFECT_KINDS, effectRequiresProperty, planEffect, type EffectPlan } from "../effects.js";
 import { createReferee, type ObjectPerception } from "../referee.js";
 import { describeAttempt } from "../loop.js";
@@ -391,5 +398,225 @@ describe("custody resolves through resolve(): one set of the item's owner (docs/
     const w = world();
     const plan = planEffect({ targetObjectId: "loose_tile", effectKind: "expose", property: "concealment", magnitude: "substantial", entityIdFor: w.entityIdFor, resourceIdFor: w.resourceIdFor, exits: w.exits, actorId: w.base.prisonerId, description: "x" });
     expect(plan?.mechanic).toBe("OPEN_WEAR");
+  });
+});
+
+/**
+ * Every read of who holds what comes from the engine at t -- the item's own
+ * owner columns, read the way presence reads `location_id` -- and `OWNER_OF`
+ * is only the authored starting state. Each test below would pass against the
+ * old static map only if custody never happened; each one makes it happen.
+ */
+describe("who holds what is read from the engine at t (docs/CUSTODY-DESIGN.md)", () => {
+  afterEach(() => destroyTestDb());
+
+  const resolver = () => buildOpenResolver();
+  const now = (w: OpenWorld) => currentT(w.base.gameId);
+  const seen = (w: OpenWorld, who: "prisoner" | "warden") => computePerceivedObjects(w, who, now(w), "modelled").map((o) => o.id);
+  /** Moves a thing to a character through the resolve protocol: given by the
+   *  one who holds it, or taken from where it lies (C1 has its own tests above). */
+  function handTo(w: OpenWorld, objectId: string, who: "prisoner" | "warden") {
+    const idOf = (p: "prisoner" | "warden") => (p === "prisoner" ? w.base.prisonerId : w.base.wardenId);
+    const holder = holderAt(w, objectId, now(w));
+    const itemId = w.entityIdFor[objectId];
+    const outcome = holder
+      ? resolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_GIVE", parameters: { itemId, actorId: idOf(holder), recipientId: idOf(who), description: "x" } })
+      : resolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_TAKE", parameters: { itemId, actorId: idOf(who), postureOf: {}, keptAtOrAbove: POSTURE_STANDING, description: "x" } });
+    expect(outcome.sets.length).toBe(2);
+  }
+  function setConcealment(w: OpenWorld, objectId: string, value: number) {
+    const resourceId = w.resourceIdFor[`${objectId}.concealment`];
+    const before = readNumericFact({ gameId: w.base.gameId, t: now(w), entityId: resourceId, key: "value" }) ?? 0;
+    resolver().resolve({ gameId: w.base.gameId, mechanic: value >= before ? "OPEN_RESTORE" : "OPEN_WEAR", parameters: { resourceId, amount: Math.abs(value - before), min: 0, max: 100, description: "x" } });
+  }
+
+  it("OWNER_OF is exactly the engine's own starting state, and nothing more", () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    for (const spec of OPEN_OBJECTS) expect(holderAt(w, spec.id, now(w)), spec.id).toBe(OWNER_OF[spec.id] ?? null);
+  });
+
+  it("a thing handed over is perceived by its new holder even while concealed, and no longer by the one who hid it", () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setConcealment(w, "spoon", 100);
+    expect(seen(w, "warden")).not.toContain("spoon");
+    handTo(w, "spoon", "warden");
+    expect(holderAt(w, "spoon", now(w))).toBe("warden");
+    expect(seen(w, "warden")).toContain("spoon");
+    expect(seen(w, "prisoner")).not.toContain("spoon");
+  });
+
+  it("a thing taken from the room travels with its holder: when she leaves, it leaves with her", () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    handTo(w, "meal_tray", "warden");
+    expect(seen(w, "prisoner")).toContain("meal_tray");
+    resolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_PASSAGE", parameters: { resourceId: w.exits.door.passageResourceId, wayOut: "door", open: true, min: 0, max: 1, description: "open" } });
+    resolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_LEAVE", parameters: { characterId: w.base.wardenId, passageResourceId: w.exits.door.passageResourceId, integrityResourceId: w.exits.door.integrityResourceId, destinationId: w.exits.door.destinationId, description: "out" } });
+    expect(seen(w, "prisoner")).not.toContain("meal_tray");
+    expect(seen(w, "warden")).toContain("meal_tray");
+  });
+
+  it("a thing taken out of its container is no longer hidden by that container", () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setConcealment(w, "loose_tile", 0);
+    expect(seen(w, "prisoner")).toContain("banknotes");
+    handTo(w, "banknotes", "prisoner");
+    setConcealment(w, "loose_tile", 100);
+    expect(seen(w, "prisoner")).toContain("banknotes");
+  });
+
+  it("the context carries what this principal holds at t, for the seat's holding line -- never shown to a model", () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    expect(buildOpenContext(w, "warden", now(w), 1).holding).toEqual(["key_ring"]);
+    expect(buildOpenContext(w, "prisoner", now(w), 1).holding).toEqual(["spoon"]);
+    handTo(w, "key_ring", "prisoner");
+    expect(buildOpenContext(w, "prisoner", now(w), 1, 12, {}, "modelled").holding).toEqual(["spoon", "key_ring"]);
+    expect(buildOpenContext(w, "warden", now(w), 1, 12, {}, "modelled").holding).toEqual([]);
+  });
+});
+
+/**
+ * Through a whole half-round: mind -> referee -> plan -> resolve() -> what
+ * each side learns. The referee is scripted (test content only; production
+ * code never keys on prose), exactly as every other loop test here.
+ */
+describe("custody through a half-round (docs/CUSTODY-DESIGN.md)", () => {
+  afterEach(() => destroyTestDb());
+
+  const TAKE_TRAY = "I pick up the tray.";
+  const TAKE_TRAY_QUIETLY = "I slide the tray toward me without a sound.";
+  const SNATCH_KEYS = "I snatch the key ring from Croft's belt.";
+  const GIVE_WIRE = "I hand the wire to Croft.";
+  const PAT_DOWN = "I pat Voss down.";
+  const custodyRulings: Record<string, ScriptedRuling> = {
+    ...RULINGS,
+    [TAKE_TRAY]: { target: "meal_tray", effect: "take", property: "none", magnitude: "moderate", perceptibility: "visible", intentQuote: "pick up the tray", descQuote: "A shallow steel tray" },
+    [TAKE_TRAY_QUIETLY]: { target: "meal_tray", effect: "take", property: "none", magnitude: "slight", perceptibility: "silent", intentQuote: "slide the tray toward me", descQuote: "A shallow steel tray" },
+    [SNATCH_KEYS]: { target: "key_ring", effect: "take", property: "none", magnitude: "moderate", perceptibility: "visible", intentQuote: "snatch the key ring", descQuote: "A heavy iron ring" },
+    [GIVE_WIRE]: { target: "wire", effect: "give", property: "none", magnitude: "slight", perceptibility: "visible", intentQuote: "hand the wire to Croft", descQuote: "A length of stiff iron wire" },
+    [PAT_DOWN]: { target: "prisoner", effect: "expose", property: "none", magnitude: "moderate", perceptibility: "visible", intentQuote: "pat Voss down", descQuote: "Mara Voss, the prisoner" },
+  };
+
+  function setup(presence: PresenceMode = "off") {
+    createTestDb();
+    const openWorld = buildOpenWorld({ presence });
+    const resolver = buildOpenResolver();
+    const referee = createReferee([scriptedReferee(custodyRulings)], {
+      isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined,
+      kindOf: (id) => derivedKindOf(openWorld, id),
+      propertiesOf: (id) => declaredPropertyKeys(openWorld, id),
+    });
+    return { w: openWorld, resolver, referee, presence };
+  }
+  async function half(s: ReturnType<typeof setup>, principal: "prisoner" | "warden", intent: string, roundN: number) {
+    const t = principal === "prisoner" ? s.w.base.clock.prisonerT(roundN) : s.w.base.clock.wardenT(roundN);
+    return runOpenHalfRound({
+      openWorld: s.w,
+      resolver: s.resolver,
+      referee: s.referee,
+      principal,
+      roundN,
+      t,
+      context: buildOpenContext(s.w, principal, t, roundN, 12, {}, s.presence),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent }),
+      presenceMode: s.presence,
+    });
+  }
+  const suspicion = (w: OpenWorld) => getResource(w.base.resources.wardenSuspicion)?.value;
+
+  it("a visible take by the prisoner: she holds the thing, the other perceives the reach, and suspicion rises by the ordinary magnitude bump", async () => {
+    const s = setup();
+    const result = await half(s, "prisoner", TAKE_TRAY, 1);
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.plan?.mechanic).toBe("OPEN_TAKE");
+    expect(holderAt(s.w, "meal_tray", currentT(s.w.base.gameId))).toBe("prisoner");
+    expect(result.perceptionForOther).toBe(`${PRISONER_NAME} reaches for the meal tray.`);
+    expect(suspicion(s.w)).toBe(10);
+    expect(renderOwnOutcome(result)).toBe("Your last attempt took the meal tray: you hold it now.");
+    const transcript = renderOpenHalfRound(result).join("\n");
+    expect(transcript).toContain("  - owner_id: ");
+    expect(transcript).toContain("  - taken: the prisoner holds the meal tray");
+    expect(transcript).not.toContain("(no state changed)");
+    // And her next context says so, for the seat's holding line.
+    const t = s.w.base.clock.prisonerT(2);
+    expect(buildOpenContext(s.w, "prisoner", t, 2).holding).toEqual(["spoon", "meal_tray"]);
+  });
+
+  it("a silent take bumps nothing, and a take by the warden bumps nothing -- unchanged suspicion rules", async () => {
+    const s = setup();
+    await half(s, "prisoner", TAKE_TRAY_QUIETLY, 1);
+    expect(holderAt(s.w, "meal_tray", currentT(s.w.base.gameId))).toBe("prisoner");
+    expect(suspicion(s.w)).toBe(0);
+
+    const t = setup();
+    await half(t, "warden", TAKE_TRAY, 1);
+    expect(holderAt(t.w, "meal_tray", currentT(t.w.base.gameId))).toBe("warden");
+    expect(suspicion(t.w)).toBe(0);
+  });
+
+  it("PLANTED VIOLATION (C1 = A): snatching the key ring off a standing warden changes nothing, and she is told the holder is on her feet and keeps it", async () => {
+    const s = setup("modelled");
+    const result = await half(s, "prisoner", SNATCH_KEYS, 1);
+    expect(result.plan?.mechanic).toBe("OPEN_TAKE");
+    expect(result.outcome?.result.taken).toBe(false);
+    expect(holderAt(s.w, "key_ring", currentT(s.w.base.gameId))).toBe("warden");
+    expect(renderOwnOutcome(result)).toBe(`Your last attempt reached for the key ring, but ${WARDEN_NAME} is on her feet and keeps it.`);
+    // The reach was still seen: an attempt, like a leave that meets a shut door.
+    expect(result.perceptionForOther).toBe(`${PRISONER_NAME} reaches for the key ring.`);
+    expect(renderOpenHalfRound(result).join("\n")).toContain("kept: the holder is on her feet");
+  });
+
+  it("PLANTED VIOLATION: a take ruled on a way out plans nothing, and the transcript says what that null establishes", async () => {
+    const TAKE_DOOR = "I lift the door off its hinges and carry it.";
+    const s = setup();
+    s.referee = createReferee([scriptedReferee({ ...custodyRulings, [TAKE_DOOR]: { target: "door", effect: "take", property: "none", magnitude: "substantial", perceptibility: "audible", intentQuote: "lift the door off its hinges", descQuote: "A heavy door" } })]);
+    const result = await half(s, "prisoner", TAKE_DOOR, 1);
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.plan).toBeNull();
+    expect(result.outcome).toBeNull();
+    expect(suspicion(s.w)).toBe(0);
+    expect(renderOpenHalfRound(result).join("\n")).toContain("Ruled applicable, but the door is out of the actor's reach, a person, or fixed in place as a way out -- did nothing.");
+  });
+
+  it("a give's transcript names the new holder", async () => {
+    const s = setup();
+    await half(s, "prisoner", CUT_WIRE, 1);
+    const given = await half(s, "prisoner", GIVE_WIRE, 2);
+    expect(renderOpenHalfRound(given).join("\n")).toContain("  - given: the warden holds the wire");
+  });
+
+  it("a thing made and handed over is held by the one it was handed to: a reshaping by her leaves the product in her hands, read from the engine", async () => {
+    const s = setup();
+    await half(s, "prisoner", CUT_WIRE, 1);
+    expect(holderAt(s.w, "wire", currentT(s.w.base.gameId))).toBe("prisoner");
+    const given = await half(s, "prisoner", GIVE_WIRE, 2);
+    expect(given.outcome?.result.given).toBe(true);
+    expect(renderOwnOutcome(given)).toBe(`Your last attempt handed the wire to ${WARDEN_NAME}: she holds it now.`);
+    expect(holderAt(s.w, "wire", currentT(s.w.base.gameId))).toBe("warden");
+
+    const bent = await half(s, "warden", BEND_HOOK, 3);
+    expect(bent.derived?.id).toBe("hook");
+    expect(bent.derived?.heldBy).toBe("warden");
+    expect(holderAt(s.w, "hook", currentT(s.w.base.gameId))).toBe("warden");
+  });
+
+  it("a search through the loop: the warden pats the prisoner down and perceives what she had hidden on her", async () => {
+    const s = setup("modelled");
+    await half(s, "prisoner", "I tuck the spoon into my sleeve.", 1); // unscripted: does nothing
+    buildOpenResolver().resolve({ gameId: s.w.base.gameId, mechanic: "OPEN_RESTORE", parameters: { resourceId: s.w.resourceIdFor["spoon.concealment"], amount: 100, min: 0, max: 100, description: "hide" } });
+    const before = buildOpenContext(s.w, "warden", s.w.base.clock.wardenT(2), 2, 12, {}, "modelled");
+    expect(before.perceivedObjects.map((o) => o.id)).not.toContain("spoon");
+
+    const searched = await half(s, "warden", PAT_DOWN, 2);
+    expect(searched.ruling?.applicable).toBe(true);
+    expect(searched.plan?.mechanic).toBe("OPEN_SEARCH");
+    expect(renderOwnOutcome(searched)).toBe(`Your search of ${PRISONER_NAME} turned up: spoon.`);
+    expect(searched.perceptionForOther).toBe(`${WARDEN_NAME} searches ${PRISONER_NAME}.`);
+    const after = buildOpenContext(s.w, "warden", s.w.base.clock.wardenT(3), 3, 12, {}, "modelled");
+    expect(after.perceivedObjects.map((o) => o.id)).toContain("spoon");
   });
 });

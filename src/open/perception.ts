@@ -201,6 +201,27 @@ export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
       const verb = ruling.effectKind === "open" ? "opened" : "shut";
       return result.before === result.after ? `The ${wayOut} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${wayOut}.`;
     }
+    // docs/CUSTODY-DESIGN.md: one closed sentence per outcome the custody
+    // mechanics report (`OPEN_TAKE`/`OPEN_GIVE`/`OPEN_SEARCH`, mechanics.ts),
+    // from their result keys alone. There are two people in this world, so a
+    // thing another person holds is the other principal's, and so is a gift.
+    const other = principalName(half.principal === "prisoner" ? "warden" : "prisoner");
+    if (plan.mechanic === "OPEN_TAKE") {
+      const taken = outcome.result as { taken?: boolean; refused?: string };
+      if (taken.taken === true) return `Your last attempt took the ${obj}: you hold it now.`;
+      if (taken.refused === "already-held") return `You already hold the ${obj}.`;
+      return `Your last attempt reached for the ${obj}, but ${other} is on her feet and keeps it.`;
+    }
+    if (plan.mechanic === "OPEN_GIVE") {
+      const given = outcome.result as { given?: boolean; refused?: string };
+      if (given.given === true) return `Your last attempt handed the ${obj} to ${other}: she holds it now.`;
+      if (given.refused === "recipient-absent") return `Your last attempt held out the ${obj} to an empty room: you still hold it.`;
+      return `Your last attempt held out empty hands: the ${obj} is elsewhere.`;
+    }
+    if (plan.mechanic === "OPEN_SEARCH") {
+      const found = ((outcome.result as { uncovered?: readonly string[] }).uncovered ?? []).map(label);
+      return `Your search of ${principalName(ruling.targetObjectId)} turned up: ${found.length > 0 ? found.join(", ") : "empty hands"}.`;
+    }
     if (ruling.effectKind === "reveal" && typeof result.value === "number") {
       return `Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`;
     }

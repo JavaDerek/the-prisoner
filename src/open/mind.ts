@@ -46,6 +46,12 @@ export type OpenPrincipalContext = {
    *  so a mind is never shown an object the referee itself could not
    *  target. */
   readonly perceivedObjects: readonly ObjectPerception[];
+  /** docs/CUSTODY-DESIGN.md: the ids among `perceivedObjects` this principal
+   *  holds at t, read from the engine (`briefing.ts`'s `ownershipAt`). For the
+   *  human seat's `holding` line only: no prompt renders it, so a model's
+   *  request is byte-identical with or without it. Optional so a context
+   *  built by hand (tests) needs no change; absent reads as holding nothing. */
+  readonly holding?: readonly string[];
 };
 
 /** One concrete, attemptable thing a mind said it could try, before

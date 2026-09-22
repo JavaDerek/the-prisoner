@@ -53,7 +53,8 @@ import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
-import { readPresenceMode, authoredDescription } from "./open/briefing.js";
+import { readPresenceMode, authoredDescription, ownershipAt } from "./open/briefing.js";
+import { currentT } from "./world/clock.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
 import { runOpenGame } from "./open/game.js";
@@ -1145,7 +1146,10 @@ async function mainOpen(): Promise<void> {
     transcript.push("### Derived objects (OPEN-VARIANT.md §13)");
     transcript.push("");
     transcript.push(`Made this game: ${openWorld.derived.length}.`);
-    for (const d of openWorld.derived) transcript.push(`- ${d.id} (${d.kindId}), held by the ${d.heldBy}: ${d.description}`);
+    // docs/CUSTODY-DESIGN.md: held by whoever holds it at the end, from the
+    // engine -- a made thing can change hands after it is made.
+    const holderAtEnd = ownershipAt(openWorld, currentT(openWorld.base.gameId));
+    for (const d of openWorld.derived) transcript.push(`- ${d.id} (${d.kindId}), held by the ${holderAtEnd(d.id).holder ?? "cell"}: ${d.description}`);
     // OPEN-VARIANT.md §14.2: reshaped into something else during the game.
     for (const d of openWorld.destroyed) transcript.push(`- ${d.id} (${d.kindId}), reshaped and gone: ${d.description}`);
     transcript.push("");

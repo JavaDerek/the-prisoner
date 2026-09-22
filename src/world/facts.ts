@@ -51,6 +51,15 @@ export function readFactValue(params: { gameId: string; t: number; entityId: str
   return entity?.facts[params.key]?.value ?? null;
 }
 
+/** Every fact's raw value at `t` from ONE replay, for a caller that reads
+ *  many (who holds each of a dozen objects) -- `readFactValue` replays the
+ *  whole timeline per call. `null` when no fact holds. */
+export function factReaderAt(params: { gameId: string; t: number }): (entityId: string, key: string) => string | null {
+  const snapshot = replay({ gameId: params.gameId, t: params.t });
+  const byId = new Map(snapshot.entities.map((e) => [e.id, e]));
+  return (entityId, key) => byId.get(entityId)?.facts[key]?.value ?? null;
+}
+
 /** The `description` a resolution's own `resolution.recorded` event was
  *  stamped with (`resolve.ts`'s `Adjudication.description`, via
  *  `mechanics.ts`'s `withNote`) -- read back by `eventId` because `Outcome`
