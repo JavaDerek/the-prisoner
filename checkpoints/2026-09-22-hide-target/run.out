@@ -1,0 +1,33 @@
+arm BASE, N=3, referee qwen3:14b at http://doris:11434/v1, thinking on, 15 items, 2026-09-22T11:26:58.081Z
+HIDE-REC expect wire/conceal                   got {"spoon/reveal/concealment":3}  19s
+HIDE-REC expect wire/conceal                   got {"cot/conceal/integrity":1,"cot/conceal/concealment":2}  41s
+HIDE-REC expect wire/conceal                   got {"wire/derive/integrity":3}  24s
+HIDE-REC expect spoon/conceal                  got {"meal_tray/none/none":1,"TIMEOUT/none":2}  255s
+HIDE-REC expect spoon/conceal                  got {"spoon/conceal/concealment":3}  48s
+HIDE-REC expect wire/conceal                   got {"blanket/derive/integrity":3}  71s
+HIDE  expect spoon/conceal                  got {"spoon/conceal/concealment":1,"loose_tile/conceal/concealment":2}  79s
+HIDE  expect spoon/conceal                  got {"spoon/conceal/concealment":1,"blanket/conceal/concealment":2}  42s
+HIDE  expect spoon/conceal                  got {"loose_tile/conceal/concealment":3}  50s
+CTRL  expect loose_tile/expose              got {"loose_tile/reveal/concealment":3}  21s
+CTRL  expect loose_tile/reveal              got {"loose_tile/reveal/concealment":3}  24s
+CTRL  expect loose_tile/derive              got {"loose_tile/derive/concealment":3}  28s
+CTRL  expect bar/wear                       got {"bar/wear/integrity":3}  62s
+CTRL  expect spoon/reveal                   got {"spoon/reveal/edge":3}  28s
+CTRL  expect cot/derive                     got {"cot/derive/integrity":3}  35s
+arm VARIANT, N=3, referee qwen3:14b at http://doris:11434/v1, thinking on, 15 items, 2026-09-22T11:40:46.002Z
+HIDE-REC expect wire/conceal                   got {"spoon/expose/concealment":1,"spoon/conceal/concealment":2}  73s
+HIDE-REC expect wire/conceal                   got {"wire/conceal/concealment":3}  79s
+HIDE-REC expect wire/conceal                   got {"wire/derive/integrity":3}  21s
+HIDE-REC expect spoon/conceal                  got {"spoon/conceal/concealment":3}  79s
+HIDE-REC expect spoon/conceal                  got {"spoon/conceal/concealment":3}  34s
+HIDE-REC expect wire/conceal                   got {"blanket/derive/integrity":1,"blanket/none/none":2}  56s
+HIDE  expect spoon/conceal                  got {"spoon/conceal/concealment":3}  45s
+HIDE  expect spoon/conceal                  got {"spoon/conceal/concealment":3}  28s
+HIDE  expect spoon/conceal                  got {"loose_tile/conceal/concealment":1,"spoon/conceal/concealment":2}  63s
+CTRL  expect loose_tile/expose              got {"loose_tile/reveal/concealment":3}  21s
+CTRL  expect loose_tile/reveal              got {"loose_tile/reveal/concealment":3}  26s
+CTRL  expect loose_tile/derive              got {"loose_tile/derive/concealment":3}  40s
+CTRL  expect bar/wear                       got {"bar/wear/integrity":3}  21s
+CTRL  expect spoon/reveal                   got {"spoon/reveal/edge":3}  48s
+CTRL  expect cot/derive                     got {"cot/derive/integrity":3}  45s
+DONE

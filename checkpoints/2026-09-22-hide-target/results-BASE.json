@@ -1,0 +1,316 @@
+{
+ "arm": "BASE",
+ "n": 3,
+ "model": "qwen3:14b",
+ "thinking": "on",
+ "results": [
+  {
+   "kind": "HIDE-REC",
+   "expect": "wire/conceal",
+   "intent": "Show Croft the spoon and claim that's what I was hiding behind my back — I was using it to scratch an itch on my back and felt stupid about it. While presenting the spoon with one hand, keep the wire tucked securely in my waistband with my other hand pressed casually against my hip. If she seems satisfied, invite her to check under the cot for the missing cot wire to reinforce that misdirection.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "spoon/reveal/concealment": 3
+   },
+   "secs": 19
+  },
+  {
+   "kind": "HIDE-REC",
+   "expect": "wire/conceal",
+   "intent": "As I push myself up from the cot to comply with Croft's order, I use the motion of bracing my hand on the iron cot frame to discreetly slip the wire out of my waistband and twist it loosely back around one of the spring attachment points on the underside of the cot frame, where it will look like any of the other wire twists already holding springs in place. Then I walk to the wall, face it, put my hands flat on the stone, and lift the back of my shirt — full compliance, nothing to find.",
+   "counts": {
+    "target": {
+     "cot": 3
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "integrity": 1,
+     "concealment": 2
+    }
+   },
+   "triples": {
+    "cot/conceal/integrity": 1,
+    "cot/conceal/concealment": 2
+   },
+   "secs": 41
+  },
+  {
+   "kind": "HIDE-REC",
+   "expect": "wire/conceal",
+   "intent": "While sitting on the cot with the blanket draped over my lap, engage Croft in conversation about the age of the building to hold her attention on my face. At the same time, use my hand under the blanket to quietly slide the wire down along my leg, then ease it through the crack in the loose tile beside the cot and into the hollow beneath, covering it with grit.",
+   "counts": {
+    "target": {
+     "wire": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "wire/derive/integrity": 3
+   },
+   "secs": 24
+  },
+  {
+   "kind": "HIDE-REC",
+   "expect": "spoon/conceal",
+   "intent": "Sit on the cot, pick up the meal tray, and eat from it with the spoon while making casual conversation with Croft. When I set the tray back down, I keep the spoon palmed and slip it under the blanket beside me on the cot.",
+   "counts": {
+    "target": {
+     "meal_tray": 1,
+     "none": 2
+    },
+    "effect": {
+     "none": 3
+    },
+    "property": {
+     "none": 3
+    }
+   },
+   "triples": {
+    "meal_tray/none/none": 1,
+    "TIMEOUT/none": 2
+   },
+   "secs": 255
+  },
+  {
+   "kind": "HIDE-REC",
+   "expect": "spoon/conceal",
+   "intent": "Sit on the cot, pull the meal tray onto my lap, and eat from the bowl using the spoon — behaving completely normally. When I'm done, casually set the spoon down tucked into the thick fold of the blanket beside me on the cot, as though I'm just putting it aside after eating. This should raise the spoon's concealment without any suspicious action.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "spoon/conceal/concealment": 3
+   },
+   "secs": 48
+  },
+  {
+   "kind": "HIDE-REC",
+   "expect": "wire/conceal",
+   "intent": "Grab the blanket off the cot in a natural, helpful gesture — bundling the loose wire into its folds — while directing Croft to look at the springs and frame underneath, keeping her focus on the cot's structural condition rather than what was lying on top of it.",
+   "counts": {
+    "target": {
+     "blanket": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "blanket/derive/integrity": 3
+   },
+   "secs": 71
+  },
+  {
+   "kind": "HIDE",
+   "expect": "spoon/conceal",
+   "intent": "Tuck the spoon under the loose tile beside the cot.",
+   "counts": {
+    "target": {
+     "spoon": 1,
+     "loose_tile": 2
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "spoon/conceal/concealment": 1,
+    "loose_tile/conceal/concealment": 2
+   },
+   "secs": 79
+  },
+  {
+   "kind": "HIDE",
+   "expect": "spoon/conceal",
+   "intent": "Hide the spoon in the folds of the blanket.",
+   "counts": {
+    "target": {
+     "spoon": 1,
+     "blanket": 2
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "spoon/conceal/concealment": 1,
+    "blanket/conceal/concealment": 2
+   },
+   "secs": 42
+  },
+  {
+   "kind": "HIDE",
+   "expect": "spoon/conceal",
+   "intent": "Slip the spoon into the hollow under the tile and press the tile flat over it.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "loose_tile/conceal/concealment": 3
+   },
+   "secs": 50
+  },
+  {
+   "kind": "CTRL",
+   "expect": "loose_tile/expose",
+   "intent": "Lift the loose tile to uncover the hollow beneath it.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "loose_tile/reveal/concealment": 3
+   },
+   "secs": 21
+  },
+  {
+   "kind": "CTRL",
+   "expect": "loose_tile/reveal",
+   "intent": "Kneel beside the loose tile, lift it out of its seat, and closely examine the hollow beneath for hidden tools or freshly disturbed grit.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "loose_tile/reveal/concealment": 3
+   },
+   "secs": 24
+  },
+  {
+   "kind": "CTRL",
+   "expect": "loose_tile/derive",
+   "intent": "Scoop a handful of grit out of the hollow under the tile and keep it.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "concealment": 3
+    }
+   },
+   "triples": {
+    "loose_tile/derive/concealment": 3
+   },
+   "secs": 28
+  },
+  {
+   "kind": "CTRL",
+   "expect": "bar/wear",
+   "intent": "Scrape at the cracked mortar around the base of the bar with the spoon.",
+   "counts": {
+    "target": {
+     "bar": 3
+    },
+    "effect": {
+     "wear": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "bar/wear/integrity": 3
+   },
+   "secs": 62
+  },
+  {
+   "kind": "CTRL",
+   "expect": "spoon/reveal",
+   "intent": "Pick up the spoon and closely examine its edge for signs of sharpening.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "edge": 3
+    }
+   },
+   "triples": {
+    "spoon/reveal/edge": 3
+   },
+   "secs": 28
+  },
+  {
+   "kind": "CTRL",
+   "expect": "cot/derive",
+   "intent": "take a wire out of the cot",
+   "counts": {
+    "target": {
+     "cot": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "integrity": 3
+    }
+   },
+   "triples": {
+    "cot/derive/integrity": 3
+   },
+   "secs": 35
+  }
+ ]
+}
