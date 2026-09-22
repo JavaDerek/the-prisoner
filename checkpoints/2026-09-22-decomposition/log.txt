@@ -1,0 +1,8 @@
+b1#13  wrong  wire/derive+  wire/derive+  wire/derive+  13,11,11s
+b1#16  wrong  blanket/open-  blanket/open-  blanket/open-  12,12,12s
+b1#25  wrong  spoon/conceal-  spoon/conceal-  spoon/conceal-  50,28,28s
+b1#34  RIGHT  spoon/restore(raise)+  spoon/restore(raise)+  spoon/restore(raise)+  20,16,16s
+b1#50  RIGHT  lock/reveal+  lock/reveal+  lock/reveal+  15,14,14s
+b2#5   wrong  spoon/restore(raise)-  spoon/restore(raise)-  spoon/restore(raise)-  22,16,16s
+
+decomposed: 2/6 right

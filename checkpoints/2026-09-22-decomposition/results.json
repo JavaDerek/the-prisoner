@@ -1,0 +1,206 @@
+{
+ "model": "qwen3:14b",
+ "n": 3,
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "right": false,
+   "tries": [
+    {
+     "keys": "wire/derive",
+     "property": "integrity",
+     "direction": "",
+     "applicable": true,
+     "right": false,
+     "secs": 13
+    },
+    {
+     "keys": "wire/derive",
+     "property": "integrity",
+     "direction": "",
+     "applicable": true,
+     "right": false,
+     "secs": 11
+    },
+    {
+     "keys": "wire/derive",
+     "property": "integrity",
+     "direction": "",
+     "applicable": true,
+     "right": false,
+     "secs": 11
+    }
+   ]
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "right": false,
+   "tries": [
+    {
+     "keys": "blanket/open",
+     "property": "passage",
+     "direction": "",
+     "applicable": false,
+     "right": false,
+     "secs": 12
+    },
+    {
+     "keys": "blanket/open",
+     "property": "passage",
+     "direction": "",
+     "applicable": false,
+     "right": false,
+     "secs": 12
+    },
+    {
+     "keys": "blanket/open",
+     "property": "passage",
+     "direction": "",
+     "applicable": false,
+     "right": false,
+     "secs": 12
+    }
+   ]
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "right": false,
+   "tries": [
+    {
+     "keys": "spoon/conceal",
+     "property": "none",
+     "direction": "",
+     "applicable": false,
+     "right": false,
+     "secs": 50
+    },
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "direction": "",
+     "applicable": false,
+     "right": false,
+     "secs": 28
+    },
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "direction": "",
+     "applicable": false,
+     "right": false,
+     "secs": 28
+    }
+   ]
+  },
+  {
+   "id": "b1#34",
+   "accept": [
+    "spoon/restore"
+   ],
+   "right": true,
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "direction": "raise",
+     "applicable": true,
+     "right": true,
+     "secs": 20
+    },
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "direction": "raise",
+     "applicable": true,
+     "right": true,
+     "secs": 16
+    },
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "direction": "raise",
+     "applicable": true,
+     "right": true,
+     "secs": 16
+    }
+   ]
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "right": true,
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "direction": "",
+     "applicable": true,
+     "right": true,
+     "secs": 15
+    },
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "direction": "",
+     "applicable": true,
+     "right": true,
+     "secs": 14
+    },
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "direction": "",
+     "applicable": true,
+     "right": true,
+     "secs": 14
+    }
+   ]
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "right": false,
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "direction": "raise",
+     "applicable": false,
+     "right": false,
+     "secs": 22
+    },
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "direction": "raise",
+     "applicable": false,
+     "right": false,
+     "secs": 16
+    },
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "direction": "raise",
+     "applicable": false,
+     "right": false,
+     "secs": 16
+    }
+   ]
+  }
+ ]
+}
