@@ -1,4 +1,4 @@
-import { findProperty, POSTURE_STANDING, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
+import { findProperty, POSTURE_ON_HER_FEET_ABOVE, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
 import { findKind, composeDescription, parentLabel } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -351,7 +351,7 @@ function planCustody(params: Parameters<typeof planEffect>[0], entityId: string,
   const exits = params.exits ?? {};
   if (exits[targetObjectId] || Object.values(exits).some((exit) => exit.part === targetObjectId)) return null;
   if (effectKind === "take") {
-    return { mechanic: "OPEN_TAKE", parameters: { itemId: entityId, actorId, postureOf: custody.postureOf, keptAtOrAbove: POSTURE_STANDING, description }, resourceId: null, isWearType: false };
+    return { mechanic: "OPEN_TAKE", parameters: { itemId: entityId, actorId, postureOf: custody.postureOf, keptAtOrAbove: POSTURE_ON_HER_FEET_ABOVE + 1, description }, resourceId: null, isWearType: false };
   }
   return { mechanic: "OPEN_GIVE", parameters: { itemId: entityId, actorId, recipientId: custody.otherId, description }, resourceId: null, isWearType: false };
 }

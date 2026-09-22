@@ -27,7 +27,8 @@ import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
  * present) -- each targeting the THING, never the place or the person; and a
  * search, which is the existing `expose` aimed at a PERSON: every thing she
  * holds loses its concealment. The one decision: a thing another person holds
- * can be taken only while that holder is not on her feet (posture below 100).
+ * can be taken only while that holder is not on her feet -- while her description no longer reads "She is on
+ * her feet." (posture 75 or below, the same band boundary the words use).
  */
 
 function scriptedTransport(answers: Record<string, { answerKey: string; citation: { sourceId: string; quote: string } }>): ReaderTransport {
@@ -315,6 +316,17 @@ describe("custody resolves through resolve(): one set of the item's owner (docs/
     setPosture(w, "prisoner", POSTURE_LYING);
     expect(resolvePlan(w, planCustody(w, "take", "key_ring", "warden")).result.taken).toBe(true);
     expect(ownerOf(w, "key_ring")).toEqual({ id: w.base.wardenId, type: "character" });
+  });
+
+  // C1 = A is "not on her feet", and the description is what says so: posture 76-99 still reads "She is on
+  // her feet." (the readRanges), so a stumble to 90 must not hand over the keys. The line is the same band
+  // boundary the words use, never a second number.
+  it("C1 = A: a holder whose description still says she is on her feet (a stumble, posture 90) keeps what she holds; at the crouched band's top (75) she does not", () => {
+    const w = world();
+    setPosture(w, "warden", 90);
+    expect(resolvePlan(w, planCustody(w, "take", "key_ring", "prisoner")).result.refused).toBe("holder-on-her-feet");
+    setPosture(w, "warden", 75);
+    expect(resolvePlan(w, planCustody(w, "take", "key_ring", "prisoner")).result.taken).toBe(true);
   });
 
   it("C1 = A with presence off: no posture is modelled, so every holder counts as on her feet and keeps what she holds", () => {
