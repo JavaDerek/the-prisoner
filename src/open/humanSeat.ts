@@ -1,6 +1,7 @@
 import { renderSeatSituation, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
 import { proseBlocks, type ProseBlockKind } from "./proseView.js";
 import { createDeltaView } from "./deltaView.js";
+import { findObject } from "./scenarioObjects.js";
 import type { Narrator } from "./narrator.js";
 import { renderConditionList, type Condition } from "./conditionList.js";
 import { OWNER_OF } from "./briefing.js";
@@ -317,7 +318,11 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   // and the news drowned in it. The RAW view never goes through this -- it is
   // byte-identical to the model's own prompt and stays that way, including
   // when the player asks for it on demand below.
-  const delta = createDeltaView();
+  // A way out is an object that declares `passage`; while it differs from how
+  // the player first saw it, it stays on screen (the owner's blind game, where
+  // a door stood open four rounds and was shown once). `deltaView.ts` compares
+  // strings it has already shown -- it never reads what they say.
+  const delta = createDeltaView({ keepShownWhileChanged: (key) => findObject(key)?.properties.some((p) => p.key === "passage") ?? false });
   const proseSituation = (context: OpenPrincipalContext): string => delta.render(proseBlocks(selfName, otherName, context, options.conditions));
   // OPEN-VARIANT.md §61: CODE RENDERS STATE, THE MODEL RENDERS THE ROOM.
   //

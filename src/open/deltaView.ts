@@ -64,9 +64,21 @@ function heldBackNotice(kinds: readonly ProseBlockKind[]): string {
   return `(${HELD_BACK_LEAD} ${kinds.map((k) => BLOCK_NAMES[k]).join(", ")}. Type "raw" at the prompt for the full view, which costs no turn.)`;
 }
 
-export function createDeltaView(): DeltaView {
+export interface DeltaViewOptions {
+  /** Keys that stay on screen every round their text differs from the FIRST
+   *  text this view showed for them, however unchanged since last round. The
+   *  owner's blind game (`checkpoints/2026-09-21-human-blind/`) lost sight of
+   *  a door standing open for four rounds: it was told once and then held
+   *  back with the rest of the cell. A string comparison against text already
+   *  shown, never a reading of what the words say. */
+  readonly keepShownWhileChanged?: (key: string) => boolean;
+}
+
+export function createDeltaView(options: DeltaViewOptions = {}): DeltaView {
   const lastText = new Map<ProseBlockKind, string>();
   const lastItems = new Map<ProseBlockKind, ReadonlyMap<string, string>>();
+  const firstItemText = new Map<string, string>();
+  const keep = options.keepShownWhileChanged ?? (() => false);
 
   return {
     render(blocks: readonly ProseBlock[]): string {
@@ -97,6 +109,7 @@ export function createDeltaView(): DeltaView {
 
         const previous = lastItems.get(block.kind);
         lastItems.set(block.kind, byKey(items));
+        for (const item of items) if (!firstItemText.has(`${block.kind}\u0000${item.key}`)) firstItemText.set(`${block.kind}\u0000${item.key}`, item.text);
         if (previous === undefined) {
           out.push(block.text);
           continue;
@@ -115,7 +128,9 @@ export function createDeltaView(): DeltaView {
           out.push(block.text);
           continue;
         }
-        const fresh = items.filter((item) => previous.get(item.key) !== item.text);
+        const fresh = items.filter(
+          (item) => previous.get(item.key) !== item.text || (keep(item.key) && firstItemText.get(`${block.kind}\u0000${item.key}`) !== item.text)
+        );
         if (fresh.length === 0) {
           heldBack.push(block.kind);
           continue;

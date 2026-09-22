@@ -126,3 +126,56 @@ describe("the delta view: the standing world once, the turn's news every turn", 
     }
   });
 });
+
+// The owner's blind game (`checkpoints/2026-09-21-human-blind/`): the player
+// picked the lock in round 6 and the door stood open through round 10, but the
+// screen said "It stands open now" once, in round 7, and then held the whole
+// cell back as unchanged -- the only trace left was "Your last word on the door
+// passage was 1". A way out that has changed since the player first saw it is
+// the one fact the condition list turns on ("Once a way out stands open ...
+// she has escaped"), so a caller can name the keys that stay on screen for as
+// long as their text differs from the first text shown for them. Structural,
+// never a reading of the words: the view compares strings it has already shown.
+describe("the delta view: a changed way out stays on screen", () => {
+  const DOOR_SHUT = { key: "door", text: "The door: A heavy door of iron-bound planks." };
+  const DOOR_OPEN = { key: "door", text: "The door: A heavy door of iron-bound planks. It stands open now." };
+  const isWayOut = (key: string): boolean => key === "door";
+
+  it("a way out that has changed since it was first shown is shown every round it stays changed, however unchanged since last round", () => {
+    const view = createDeltaView({ keepShownWhileChanged: isWayOut });
+    view.render(turn(1, "Rust has pitted it.", "50", [DOOR_SHUT]));
+    view.render(turn(2, "Rust has pitted it.", "50", [DOOR_OPEN]));
+    const third = view.render(turn(3, "Rust has pitted it.", "50", [DOOR_OPEN]));
+    const fourth = view.render(turn(4, "Rust has pitted it.", "50", [DOOR_OPEN]));
+    for (const shown of [third, fourth]) {
+      expect(shown).toContain("It stands open now.");
+      expect(shown).not.toContain("The spoon: A dented aluminium spoon.");
+    }
+  });
+
+  it("once it is back as first shown, it is told once as a change and then held back again", () => {
+    const view = createDeltaView({ keepShownWhileChanged: isWayOut });
+    view.render(turn(1, "Rust has pitted it.", "50", [DOOR_SHUT]));
+    view.render(turn(2, "Rust has pitted it.", "50", [DOOR_OPEN]));
+    const shutAgain = view.render(turn(3, "Rust has pitted it.", "50", [DOOR_SHUT]));
+    const after = view.render(turn(4, "Rust has pitted it.", "50", [DOOR_SHUT]));
+    expect(shutAgain).toContain("The door: A heavy door of iron-bound planks.");
+    expect(after).not.toContain("The door:");
+    expect(after).toContain("the cell");
+  });
+
+  it("a key the caller does not name is held back as before once its change has been told", () => {
+    const view = createDeltaView({ keepShownWhileChanged: isWayOut });
+    view.render(turn(1, "Rust has pitted it."));
+    view.render(turn(2, "Rust has pitted it. A bright scrape runs along it."));
+    const third = view.render(turn(3, "Rust has pitted it. A bright scrape runs along it."));
+    expect(third).not.toContain("A bright scrape");
+  });
+
+  it("with no keys named, an opened way out is held back exactly as before -- the default is unchanged", () => {
+    const view = createDeltaView();
+    view.render(turn(1, "Rust has pitted it.", "50", [DOOR_SHUT]));
+    view.render(turn(2, "Rust has pitted it.", "50", [DOOR_OPEN]));
+    expect(view.render(turn(3, "Rust has pitted it.", "50", [DOOR_OPEN]))).not.toContain("It stands open now.");
+  });
+});

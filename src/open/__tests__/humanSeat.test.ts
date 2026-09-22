@@ -282,6 +282,26 @@ describe("the prose view holds back the standing world once the player has read 
     expect(written.join("\n")).toContain("bright where it has been scraped");
   });
 
+  // The owner's blind game (`checkpoints/2026-09-21-human-blind/`): the door
+  // stood open rounds 7-10 and the screen showed it once. A way out -- an
+  // object that declares `passage` -- stays on screen while it differs from
+  // how the player first saw it.
+  it("keeps a way out on screen every round it stands changed, and holds an ordinary object back once told", async () => {
+    const written: string[] = [];
+    const { ask } = player("wait", "wait", "wait");
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t), view: "prose" });
+    const shut = { id: "door", description: "A heavy door of iron-bound planks." };
+    const open = { id: "door", description: "A heavy door of iron-bound planks. It stands open now." };
+    const bar = { id: "bar", description: "One of five vertical iron bars." };
+    await mind.consider({ ...CONTEXT, perceivedObjects: [bar, shut] });
+    await mind.consider({ ...laterContext, perceivedObjects: [bar, open] });
+    written.length = 0;
+    await mind.consider({ ...laterContext, perceivedObjects: [bar, open] });
+    const third = dewrap(written.join("\n"));
+    expect(third).toContain("It stands open now.");
+    expect(third).not.toContain("One of five vertical iron bars.");
+  });
+
   // The rule this whole module lives under (OPEN-VARIANT.md §47, CLAUDE.md's
   // "how, never what"): the raw view is the model's own prompt opening, byte
   // for byte, and nothing here may touch it -- neither as the default view
