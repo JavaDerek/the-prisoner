@@ -1,0 +1,29 @@
+arm S, N=3, referee qwen3:14b at http://doris:11434/v1, thinking on, 27 items, 2026-09-22T12:58:22.065Z
+MULTI expect several                        got {"several":3}  17s
+MULTI expect several                        got {"several":3}  27s
+MULTI expect several                        got {"several":3}  14s
+MULTI expect several                        got {"several":3}  12s
+MULTI expect several                        got {"several":3}  14s
+MULTI expect several                        got {"several":3}  10s
+MULTI expect several                        got {"several":3}  14s
+MULTI expect several                        got {"several":3}  20s
+ONE   expect one                            got {"several":3}  12s
+ONE   expect one                            got {"one":3}  11s
+ONE   expect one                            got {"one":3}  13s
+ONE   expect one                            got {"several":3}  65s
+ONE   expect one                            got {"one":3}  12s
+ONE   expect one                            got {"one":3}  9s
+ONE   expect one                            got {"one":3}  16s
+ONE   expect one                            got {"one":3}  12s
+HIDE  expect one                            got {"one":3}  23s
+ONE   expect one                            got {"several":3}  25s
+ONE   expect one                            got {"one":3}  12s
+ONE   expect one                            got {"one":3}  9s
+HIDE  expect one                            got {"one":3}  14s
+HIDE  expect one                            got {"several":3}  13s
+ONE   expect one                            got {"one":3}  14s
+ONE   expect one                            got {"one":3}  34s
+ONE   expect one                            got {"one":1,"several":2}  23s
+ONE   expect one                            got {"one":3}  24s
+ONE   expect one                            got {"one":3}  22s
+DONE
