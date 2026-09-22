@@ -83,19 +83,19 @@ Every refused ruling (ruled impossible, or target `none`), keys only. The `label
 
 | arm | transcript | round | chair | target | effect | property | magnitude | ruled | label |
 |---|---|---|---|---|---|---|---|---|---|
-| O | `O/2026-09-22T14-04-02-498Z.md` | 2 | prisoner | cot | none | none | moderate | impossible |  |
-| O | `O/2026-09-22T14-04-02-498Z.md` | 3 | warden | spoon | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-22T14-04-02-498Z.md` | 5 | prisoner | meal_tray | none | none | moderate | impossible |  |
-| O | `O/2026-09-22T14-04-04-789Z.md` | 6 | prisoner | spoon | none | none | moderate | impossible |  |
-| O | `O/2026-09-22T14-04-04-789Z.md` | 7 | prisoner | spoon | wear | edge | moderate | impossible |  |
-| O | `O/2026-09-22T14-30-07-627Z.md` | 2 | prisoner | spoon | none | edge | slight | impossible |  |
-| O | `O/2026-09-22T14-31-50-382Z.md` | 5 | warden | lock | reveal | none | moderate | impossible |  |
-| O | `O/2026-09-22T15-00-26-839Z.md` | 1 | warden | prisoner | reveal | posture | moderate | impossible |  |
-| O | `O/2026-09-22T15-00-26-839Z.md` | 5 | prisoner | spoon | wear | none | moderate | impossible |  |
-| O | `O/2026-09-22T15-00-26-839Z.md` | 9 | warden | spoon | reveal | integrity | moderate | impossible |  |
-| O | `O/2026-09-22T15-02-08-256Z.md` | 3 | prisoner | none | conceal | none | slight | impossible |  |
-| O | `O/2026-09-22T15-02-08-256Z.md` | 8 | prisoner | spoon | wear | posture | substantial | impossible |  |
-| O | `O/2026-09-22T15-02-08-256Z.md` | 10 | warden | none | none | none | slight | impossible |  |
+| O | `O/2026-09-22T14-04-02-498Z.md` | 2 | prisoner | cot | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-22T14-04-02-498Z.md` | 3 | warden | spoon | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-22T14-04-02-498Z.md` | 5 | prisoner | meal_tray | none | none | moderate | impossible || unbuilt |
+| O | `O/2026-09-22T14-04-04-789Z.md` | 6 | prisoner | spoon | none | none | moderate | impossible || misruled |
+| O | `O/2026-09-22T14-04-04-789Z.md` | 7 | prisoner | spoon | wear | edge | moderate | impossible || misruled |
+| O | `O/2026-09-22T14-30-07-627Z.md` | 2 | prisoner | spoon | none | edge | slight | impossible || misruled |
+| O | `O/2026-09-22T14-31-50-382Z.md` | 5 | warden | lock | reveal | none | moderate | impossible || misruled |
+| O | `O/2026-09-22T15-00-26-839Z.md` | 1 | warden | prisoner | reveal | posture | moderate | impossible || misruled |
+| O | `O/2026-09-22T15-00-26-839Z.md` | 5 | prisoner | spoon | wear | none | moderate | impossible || misruled |
+| O | `O/2026-09-22T15-00-26-839Z.md` | 9 | warden | spoon | reveal | integrity | moderate | impossible || misruled |
+| O | `O/2026-09-22T15-02-08-256Z.md` | 3 | prisoner | none | conceal | none | slight | impossible || unbuilt |
+| O | `O/2026-09-22T15-02-08-256Z.md` | 8 | prisoner | spoon | wear | posture | substantial | impossible || misruled |
+| O | `O/2026-09-22T15-02-08-256Z.md` | 10 | warden | none | none | none | slight | impossible || unbuilt |
 
 ## Lost rulings
 

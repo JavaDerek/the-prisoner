@@ -12,12 +12,12 @@ driver and router logs in `logs/`, measures in `MEASURES.md`, the refusal audit 
 | prediction | result (6 games) | projected at 10 | verdict |
 |---|---|---|---|
 | refusals at most 40 | 13 | 22 | held on pace |
-| misruled at most 12 (owner's labels) | 9 proposed of 13 | -- | held if the labels stand |
+| misruled at most 12 (owner's labels) | 9 of 13 | -- | **held** |
 | catches at least 3 | 0 | 0 | **failed** |
 | warden custody in at least 5 games | 2 | 3.3 | **failed** |
 | escapes 0 to 2 | 2 | 3.3 | at the limit |
 | one-act flags at least 1 in 7 prisoner intents | 27 of 60 (0.45) | 0.45 | held -- heavily over-flagged |
-| newly discovered unbuilt classes at most 2 | 1 proposed (put a thing somewhere) | -- | held if the labels stand |
+| newly discovered unbuilt classes at most 2 | 2 (put a thing somewhere; guard / block a way out) | -- | **held** |
 
 Results: four timeouts, two escapes (games 6 and 8, both at round 10, both through the door), no catches.
 
@@ -68,3 +68,12 @@ Batch 1's four `unbuilt: sharpen` rows (#2, #34, #42, #49) were my proposed labe
 edge has declared `restore` since before batch 1, so sharpening was built; those rows are `misruled` (direction). Batch 1's
 tally becomes 34 misruled, 30 unbuilt, 1 unclear. `refusal-audit.csv` in batch 1 is left as labelled; this note is the
 correction.
+
+## The owner's labels (2026-09-22)
+
+9 misruled, 4 unbuilt, 0 genuine, 0 unclear (`refusal-audit.csv`, `MEASURES.md`). The owner first marked rows 2 and 10
+(the spoon examined, keyed integrity) `genuine` and rows 4/5/6/9 (sharpening) `unbuilt`, following two examples of mine
+that were wrong; on the facts -- the warden asked about edge or wear and the referee swapped in integrity (the owner's own
+batch 1 ruling), and sharpening is built through `restore` on edge -- all six are `misruled`. Unbuilt: a no-change act
+(twice), putting a thing somewhere, and blocking a doorway. Guard/block was already a batch 1 class (#22, #26, #58), so the
+one newly discovered class is putting a thing somewhere.
