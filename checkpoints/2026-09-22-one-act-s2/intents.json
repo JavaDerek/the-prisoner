@@ -1,0 +1,298 @@
+{
+ "items": [
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Examine the bar in the window closely, then go and check the lock for scratches."
+  },
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Untwist a wire from the cot springs and use it to pick the lock."
+  },
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Knock Croft to the floor and take the key ring off her belt."
+  },
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Pick the lock with the wire and slip out into the corridor."
+  },
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Pat Voss down, then confiscate the spoon."
+  },
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Scrape at the mortar around the bar, then hide the spoon under the tile."
+  },
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Open the window and climb through it."
+  },
+  {
+   "group": "MULTI",
+   "set": "HOLDOUT",
+   "expect": "several",
+   "intent": "Shut the cell door and then examine the lock."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Walk over to the window, take hold of the bar and twist it in its mortar."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Kneel by the cot and untwist a length of wire from the springs."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Reach up to the window and run my fingers along the bar's base, feeling for looseness."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Pick up the bucket and bang it against the wall."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Crouch by the tile, lift it, and scrape out the grit beneath with my fingers."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Step over to Voss and pat her down for anything hidden."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Bend down over Croft where she lies and pull the key ring off her belt."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Walk to the door, bend to the gap, and push the bolt back with the spoon."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Sit on the cot and tuck the spoon into the blanket's hem."
+  },
+  {
+   "group": "PREP",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Pick up the spoon and hold it up to the window light to examine its edge."
+  },
+  {
+   "group": "ONE",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Examine the door's hinges."
+  },
+  {
+   "group": "ONE",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Scream for help at the top of my lungs."
+  },
+  {
+   "group": "ONE",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Close the window."
+  },
+  {
+   "group": "ONE",
+   "set": "HOLDOUT",
+   "expect": "one",
+   "intent": "Hand the spoon to Croft."
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "Closely examine the spoon edge by picking it up from the meal tray and inspecting it in the light from the window, then walk to the cot and closely examine the loose tile \u2014 lifting it to check the hollow beneath for any signs of disturbance, hidden items, or fresh scraping. While doing both, observe Voss's reaction."
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "Grab the heavy wool blanket off the cot in one motion and fling it wide at Croft's head and upper body to blind and tangle her, then in the same explosive movement charge past her to the cell door and wrench it open \u2014 betting everything that the bolt is still retracted from last round since she only pushed the door shut without re-keying the lock \u2014 and go through the door."
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "Step back toward the cot as Croft ordered, grab the heavy wool blanket off it in one fast motion, then lunge at Croft and throw the blanket over her head and face to blind and smother her vision. While she is disoriented and clawing at the blanket, grab the iron key ring from her belt, rip it free, find the long-shanked brass key, unlock the cell door, open it, and escape through it."
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "Pick up the meal tray from the floor at the base of the door \u2014 a normal, cooperative act \u2014 and stand holding it near the door, positioning myself within arm's reach of the doorway. Appear resigned and compliant about the transfer. The moment Croft unlocks and opens the door to leave after finishing her inspection, drop the tray and shove past her through the open doorway at full force."
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "Closely examine the lock on the cell door \u2014 test the bolt's seating, check for pick marks or scoring around the keyhole, and verify it's at full integrity. While doing so, visually sweep the cell to locate the spoon."
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "While Croft's attention is fixed on examining the window, grab the heavy wool blanket off the cot and throw it over her head, then immediately shove her down and wrap the blanket around her head and arms to blind and tangle her. Then retrieve the spoon from under the loose tile and attack the bar's cracked mortar base as hard and fast as I can."
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "open the door and leave"
+  },
+  {
+   "group": "MULTI",
+   "set": "EARLIER",
+   "expect": "several",
+   "intent": "hit the warden with the meal tray, steal the key ring, open the door and leave"
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Sit on the cot with the blanket draped over my lap. While talking to Croft about the transfer, quietly and slowly drag the spoon's worn-flat edge back and forth along the rough iron crossbar of the cot frame, hidden under the blanket."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Scrape at the cracked mortar around the base of the bar with the spoon."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Closely examine the bar in the window \u2014 run my hands along its full length, check the mortar at top and bottom, and look for any fresh scratches, filing marks, or weakening \u2014 while watching Voss's eyes to see how she reacts."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Walk to the door and work the bolt back through the gap with the spoon handle."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Climb out through the window."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "attack warden croft"
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "take a wire out of the cot"
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Grip the rusted bar with both hands, brace my feet against the wall, and wrench it out of its crumbling mortar."
+  },
+  {
+   "group": "HIDE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Tuck the spoon under the loose tile beside the cot."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Kneel beside the loose tile, lift it out of its seat, and closely examine the hollow beneath for hidden tools or freshly disturbed grit."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Kick the bucket over so it clatters across the floor."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Shut the cell door."
+  },
+  {
+   "group": "HIDE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Hide the spoon in the folds of the blanket."
+  },
+  {
+   "group": "HIDE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Slip the spoon into the hollow under the tile and press the tile flat over it."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Lift the loose tile to uncover the hollow beneath it."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Scoop a handful of grit out of the hollow under the tile and keep it."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Pick up the spoon and closely examine its edge for signs of sharpening."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Examine the lock closely for scratches or pick marks while keeping an eye on Voss."
+  },
+  {
+   "group": "ONE",
+   "set": "EARLIER",
+   "expect": "one",
+   "intent": "Walk to the window and closely examine the bar's base for fresh scraping, talking to Voss about the transfer as I do."
+  }
+ ]
+}
