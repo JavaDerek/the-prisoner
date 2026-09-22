@@ -6133,3 +6133,31 @@ ruling was lost to a new malformed shape, several arrays one per question, which
 not cover (1 of 198). Both are in `RESULTS.md`'s bug list, left alone.
 
 Next: the owner labels the audit list; a blind human game (§4.4); then D4 decides what batch 2 is built on.
+
+## 73. The blind game, the owner's labels, and Phase 0 reopened (2026-09-21/22)
+
+**The blind game** (`checkpoints/2026-09-21-human-blind/`, OPUS-FIRST-DESIGN §4.4): the owner as prisoner against
+the Opus 4.6 warden, ten rounds, played before reading batch 1's audit. Timeout. It escaped twice on paper and lost
+both: *"open the door and leave"* (r2) and *"hit the warden…, steal the key ring, open the door and leave"* (r10)
+were ruled on their first clause alone, **possible**, so neither appears on any refusal list. The door he picked
+open with the cot wire in r6 stood open through r10 unnoticed: the prose view told it once and then held the cell
+back as unchanged. He reached for attack, stab, a tunnel, the lock, and the key ring.
+
+**The labels** (`checkpoints/2026-09-21-phase1-b1/refusal-audit.csv`, MEASURES.md): the owner added a fourth label,
+`misruled` (the referee was wrong to refuse), recorded in OPUS-FIRST-DESIGN §2. Of 65: **30 misruled** (16 citation
+guard, 10 wrong key, 4 compound), **34 unbuilt**, 1 unclear, 0 genuine. D4's two-source classes: custody and
+incapacitation. A tunnel has one source, the owner.
+
+**Phase 0, reopened, overnight:**
+- `52ae7de`: a reveal's property citation may name the intent. A reveal changes nothing, so the description's
+  grounding (what an act can do to an object) is not in question; the declared-property check is kept.
+- `476180e`: a way out whose text has changed since it was first shown stays on the seat's screen.
+- `a108643`: the reveal sentence names edge (`checkpoints/2026-09-22-reveal-edge/`). Controls identical; spoon
+  integrity 3/20 → 0/20. The probe did not reproduce the batch's 4/4 on byte-identical requests, which is
+  unexplained. The request PIN changed.
+- Re-rule of the 30 (`RESULTS-RERULE.md`): **17 right**, 4 applicable with the wrong act, 9 refused. An applicable
+  rate is not a correctness rate, and re-rules are reported by hand from now on.
+
+What is left is for the owner (`docs/OVERNIGHT-2026-09-22.md`): what a two-act turn is (§39, now with 16 lost
+opens and 2 lost human escapes as evidence, entangled with the free door, §48); the target of an act of hiding;
+and whether custody is built first.
