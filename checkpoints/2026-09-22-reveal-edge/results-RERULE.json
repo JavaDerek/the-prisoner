@@ -1,0 +1,607 @@
+{
+ "n": 3,
+ "model": "qwen3:14b",
+ "thinking": "on",
+ "results": [
+  {
+   "row": 4,
+   "kind": "misruled: citation guard",
+   "intent": "Closely examine the spoon edge by picking it up from the meal tray and inspecting it in the light from the window, then walk to the cot and closely examine the loose tile — lifting it to check the hollow beneath for any signs of disturbance, hidden items, or fresh scraping. While doing both, observe Voss's reaction.",
+   "rulings": [
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 6,
+   "kind": "misruled: citation guard",
+   "intent": "Closely examine the bar in the window — run my hands along its full length, check the mortar at top and bottom, and look for any fresh scratches, filing marks, or weakening. I want to compare its current state against the round-0 baseline of 100 integrity.",
+   "rulings": [
+    {
+     "keys": "bar/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "bar/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "bar/reveal/integrity",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 7,
+   "kind": "misruled: citation guard",
+   "intent": "Closely examine the cell door lock — inspect the steel face, the keyhole gap from the interior side, and the bolt edge visible through the finger-width gap between door and frame — looking for any fresh scratches, tool marks, scoring, or signs of manipulation that would indicate someone has been working on it with a thin implement like a wire. I want to compare its current condition against its round-0 baseline integrity of 100.",
+   "rulings": [
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 8,
+   "kind": "misruled: wrong key",
+   "intent": "Show Croft the spoon and claim that's what I was hiding behind my back — I was using it to scratch an itch on my back and felt stupid about it. While presenting the spoon with one hand, keep the wire tucked securely in my waistband with my other hand pressed casually against my hip. If she seems satisfied, invite her to check under the cot for the missing cot wire to reinforce that misdirection.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/concealment",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/concealment",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/concealment",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 11,
+   "kind": "misruled: wrong key",
+   "intent": "As I push myself up from the cot to comply with Croft's order, I use the motion of bracing my hand on the iron cot frame to discreetly slip the wire out of my waistband and twist it loosely back around one of the spring attachment points on the underside of the cot frame, where it will look like any of the other wire twists already holding springs in place. Then I walk to the wall, face it, put my hands flat on the stone, and lift the back of my shirt — full compliance, nothing to find.",
+   "rulings": [
+    {
+     "keys": "cot/conceal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "cot/conceal/concealment",
+     "applicable": false
+    },
+    {
+     "keys": "cot/conceal/concealment",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 13,
+   "kind": "misruled: wrong key",
+   "intent": "While sitting on the cot with the blanket draped over my lap, engage Croft in conversation about the age of the building to hold her attention on my face. At the same time, use my hand under the blanket to quietly slide the wire down along my leg, then ease it through the crack in the loose tile beside the cot and into the hollow beneath, covering it with grit.",
+   "rulings": [
+    {
+     "keys": "wire/derive/integrity",
+     "applicable": false
+    },
+    {
+     "keys": "wire/derive/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "wire/derive/integrity",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 14,
+   "kind": "misruled: citation guard",
+   "intent": "Closely examine the cot wire — count the wire twists holding the springs to the frame, check each one for signs of unwinding, removal, reshaping, or recent bending. Compare the condition of the wire to what I'd expect from normal wear.",
+   "rulings": [
+    {
+     "keys": "cot/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "cot/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "cot/reveal/integrity",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 15,
+   "kind": "misruled: wrong key",
+   "intent": "Pick up the spoon and closely examine its edge, rim, and bowl for any signs of sharpening, filing, or deliberate wear — and check the area around where it was resting for metal dust or filings.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 16,
+   "kind": "misruled: compound intent",
+   "intent": "Grab the heavy wool blanket off the cot in one motion and fling it wide at Croft's head and upper body to blind and tangle her, then in the same explosive movement charge past her to the cell door and wrench it open — betting everything that the bolt is still retracted from last round since she only pushed the door shut without re-keying the lock — and go through the door.",
+   "rulings": [
+    {
+     "keys": "blanket/open/passage",
+     "applicable": false
+    },
+    {
+     "keys": "door/open/passage",
+     "applicable": true
+    },
+    {
+     "keys": "door/open/passage",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 17,
+   "kind": "misruled: wrong key",
+   "intent": "Sit on the cot, pick up the meal tray, and eat from it with the spoon while making casual conversation with Croft. When I set the tray back down, I keep the spoon palmed and slip it under the blanket beside me on the cot.",
+   "rulings": [
+    {
+     "keys": "meal_tray/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 19,
+   "kind": "misruled: wrong key",
+   "intent": "Pick up the spoon and closely examine its edge, bowl, and handle for any signs of sharpening, new wear, metal filings, or modification since my last check in round 3.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 21,
+   "kind": "misruled: citation guard",
+   "intent": "Pick up the spoon and closely examine its entire edge, the flat-worn side of the bowl, and the handle for any signs of deliberate sharpening, grinding, or filing — checking whether the edge value has changed from 0 since round 3.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 23,
+   "kind": "misruled: citation guard",
+   "intent": "Closely examine the spoon, specifically checking the worn flat edge for any new sharpening, scratches, or metal removal that would indicate it's being worked into a tool. I want to pick it up, run my thumb along the edge, and compare it to what I know from the round 0 baseline.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 24,
+   "kind": "misruled: citation guard",
+   "intent": "Sit on the cot, pull the meal tray onto my lap, and eat from the bowl using the spoon — behaving completely normally. When I'm done, casually set the spoon down tucked into the thick fold of the blanket beside me on the cot, as though I'm just putting it aside after eating. This should raise the spoon's concealment without any suspicious action.",
+   "rulings": [
+    {
+     "keys": "spoon/conceal/concealment",
+     "applicable": false
+    },
+    {
+     "keys": "spoon/conceal/concealment",
+     "applicable": false
+    },
+    {
+     "keys": "spoon/conceal/concealment",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 25,
+   "kind": "misruled: citation guard",
+   "intent": "Sit on the cot beside the loose tile. Engage Croft in conversation about the transfer to hold her attention on my face. While talking, pull the blanket around my shoulders as if cold (she mentioned the draught), and under cover of arranging the blanket and shifting my feet, use my foot to tilt the loose tile and sweep the spoon into the hollow beneath it, then press the tile flat again.",
+   "rulings": [
+    {
+     "keys": "loose_tile/conceal/concealment",
+     "applicable": true
+    },
+    {
+     "keys": "loose_tile/conceal/concealment",
+     "applicable": true
+    },
+    {
+     "keys": "loose_tile/conceal/concealment",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 27,
+   "kind": "misruled: compound intent",
+   "intent": "Step back toward the cot as Croft ordered, grab the heavy wool blanket off it in one fast motion, then lunge at Croft and throw the blanket over her head and face to blind and smother her vision. While she is disoriented and clawing at the blanket, grab the iron key ring from her belt, rip it free, find the long-shanked brass key, unlock the cell door, open it, and escape through it.",
+   "rulings": [
+    {
+     "keys": "key_ring/open/passage",
+     "applicable": false
+    },
+    {
+     "keys": "door/open/passage",
+     "applicable": true
+    },
+    {
+     "keys": "door/open/passage",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 29,
+   "kind": "misruled: citation guard",
+   "intent": "Pick up the spoon, hold it up to the corridor light, and closely examine the worn-flat edge and bowl for fresh scraping marks, embedded mortar dust, or iron filings. While doing so, observe Voss's reaction from the corner of my eye.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 30,
+   "kind": "misruled: wrong key",
+   "intent": "Grab the blanket off the cot in a natural, helpful gesture — bundling the loose wire into its folds — while directing Croft to look at the springs and frame underneath, keeping her focus on the cot's structural condition rather than what was lying on top of it.",
+   "rulings": [
+    {
+     "keys": "blanket/derive/integrity",
+     "applicable": false
+    },
+    {
+     "keys": "blanket/derive/integrity",
+     "applicable": false
+    },
+    {
+     "keys": "blanket/derive/integrity",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 32,
+   "kind": "misruled: citation guard",
+   "intent": "Closely examine the lock bolt through the gap between the door and its frame, looking for fresh scratches, pick marks, scoring, displaced metal, or any sign the bolt has been manipulated or partially withdrawn since it was last checked.",
+   "rulings": [
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 33,
+   "kind": "misruled: compound intent",
+   "intent": "Pick up the meal tray from the floor at the base of the door — a normal, cooperative act — and stand holding it near the door, positioning myself within arm's reach of the doorway. Appear resigned and compliant about the transfer. The moment Croft unlocks and opens the door to leave after finishing her inspection, drop the tray and shove past her through the open doorway at full force.",
+   "rulings": [
+    {
+     "keys": "meal_tray/leave/passage",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 35,
+   "kind": "misruled: wrong key",
+   "intent": "Walk to the meal tray, pick up the spoon, and examine it closely — specifically checking the worn-flat side of the bowl for any fresh scratching, sharpening, or new wear beyond the baseline. Also glance at Voss's cot area and the blanket as I pass it.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 43,
+   "kind": "misruled: wrong key",
+   "intent": "Pick up the spoon from wherever it sits, examine it closely — turning it over, running my thumb along the worn-flat edge to feel for fresh sharpening or new wear — then confiscate it, telling Voss it'll be replaced with a new one at next meal per safety rotation.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 45,
+   "kind": "misruled: citation guard",
+   "intent": "Examine the lock closely — run my fingers along the bolt edge visible in the door gap, inspect the housing and frame socket for fresh scratch marks, gouges, or metal filings that would indicate someone has been working on it with an improvised tool.",
+   "rulings": [
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 46,
+   "kind": "misruled: citation guard",
+   "intent": "Pick up the spoon and examine it closely — turn it over in the light, run my thumb along the worn-flat side of the bowl and around the rim, feeling for any edge that has been deliberately sharpened, filed, or scraped to a cutting or prying point beyond normal wear.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 48,
+   "kind": "misruled: wrong key",
+   "intent": "Walk to the door as ordered, stand with my back against the wall right beside the door frame. Tuck the spoon out of sight in my waistband under my shirt. While standing there with my hands behind my back or at my sides, subtly feel the door gap and the exposed bolt edge with my fingertips to assess whether the bolt has lateral play and could be pushed or levered back. Appear fully cooperative and bored. When she finds the cot wire damage, act unsurprised — I've been complaining about this.",
+   "rulings": [
+    {
+     "keys": "door/reveal/integrity",
+     "applicable": false
+    },
+    {
+     "keys": "door/reveal/integrity",
+     "applicable": false
+    },
+    {
+     "keys": "door/reveal/integrity",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 50,
+   "kind": "misruled: citation guard",
+   "intent": "Walk to the cell door and examine the lock closely — inspect the bolt where it shows in the gap, check for scratches, tool marks, or any signs of manipulation on the lock mechanism and surrounding frame. While doing this, engage Voss in conversation about the transfer to keep her talking and read her reactions.",
+   "rulings": [
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    },
+    {
+     "keys": "lock/reveal/integrity",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 60,
+   "kind": "misruled: citation guard",
+   "intent": "Pick up the spoon and examine its edge closely for any signs of sharpening or fresh scraping, then step to the loose tile beside the cot, lift it, and inspect the hollow beneath for hidden items or signs of recent disturbance.",
+   "rulings": [
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  },
+  {
+   "row": 62,
+   "kind": "misruled: citation guard",
+   "intent": "Closely examine the lock on the cell door — test the bolt's seating, check for pick marks or scoring around the keyhole, and verify it's at full integrity. While doing so, visually sweep the cell to locate the spoon.",
+   "rulings": [
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 64,
+   "kind": "misruled: compound intent",
+   "intent": "While Croft's attention is fixed on examining the window, grab the heavy wool blanket off the cot and throw it over her head, then immediately shove her down and wrap the blanket around her head and arms to blind and tangle her. Then retrieve the spoon from under the loose tile and attack the bar's cracked mortar base as hard and fast as I can.",
+   "rulings": [
+    {
+     "keys": "warden/wear/posture",
+     "applicable": true
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    },
+    {
+     "keys": "none/none/none",
+     "applicable": false
+    }
+   ],
+   "fixed": false
+  },
+  {
+   "row": 65,
+   "kind": "misruled: citation guard",
+   "intent": "Pick up the spoon, hold it in the light from the window while standing between Voss and the window, and closely examine the spoon's edge for any signs it has been scraped against iron — metal dust, filing marks, a sharpened or worn edge inconsistent with normal use.",
+   "rulings": [
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    },
+    {
+     "keys": "spoon/reveal/edge",
+     "applicable": true
+    }
+   ],
+   "fixed": true
+  }
+ ]
+}

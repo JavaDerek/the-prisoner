@@ -1,0 +1,37 @@
+rerule N=3, 30 rows, referee qwen3:14b, thinking on, 2026-09-22T03:44:53.897Z
+#4   misruled: citation guard    0/3 applicable  none/none/none-  none/none/none-  none/none/none-
+#6   misruled: citation guard    3/3 applicable  bar/reveal/integrity+  bar/reveal/integrity+  bar/reveal/integrity+
+#7   misruled: citation guard    3/3 applicable  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+
+#8   misruled: wrong key         3/3 applicable  spoon/reveal/concealment+  spoon/reveal/concealment+  spoon/reveal/concealment+
+#11  misruled: wrong key         1/3 applicable  cot/conceal/integrity+  cot/conceal/concealment-  cot/conceal/concealment-
+#13  misruled: wrong key         2/3 applicable  wire/derive/integrity-  wire/derive/integrity+  wire/derive/integrity+
+#14  misruled: citation guard    3/3 applicable  cot/reveal/integrity+  cot/reveal/integrity+  cot/reveal/integrity+
+#15  misruled: wrong key         3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#16  misruled: compound intent   2/3 applicable  blanket/open/passage-  door/open/passage+  door/open/passage+
+#17  misruled: wrong key         0/3 applicable  meal_tray/none/none-  none/none/none-  none/none/none-
+#19  misruled: wrong key         3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#21  misruled: citation guard    3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#23  misruled: citation guard    3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#24  misruled: citation guard    0/3 applicable  spoon/conceal/concealment-  spoon/conceal/concealment-  spoon/conceal/concealment-
+#25  misruled: citation guard    3/3 applicable  loose_tile/conceal/concealment+  loose_tile/conceal/concealment+  loose_tile/conceal/concealment+
+#27  misruled: compound intent   2/3 applicable  key_ring/open/passage-  door/open/passage+  door/open/passage+
+#29  misruled: citation guard    3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#30  misruled: wrong key         0/3 applicable  blanket/derive/integrity-  blanket/derive/integrity-  blanket/derive/integrity-
+#32  misruled: citation guard    3/3 applicable  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+
+#33  misruled: compound intent   0/3 applicable  meal_tray/leave/passage-  none/none/none-  none/none/none-
+#35  misruled: wrong key         3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#43  misruled: wrong key         3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#45  misruled: citation guard    3/3 applicable  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+
+#46  misruled: citation guard    3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+#48  misruled: wrong key         0/3 applicable  door/reveal/integrity-  door/reveal/integrity-  door/reveal/integrity-
+#50  misruled: citation guard    3/3 applicable  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+
+#60  misruled: citation guard    2/3 applicable  none/none/none-  spoon/reveal/edge+  spoon/reveal/edge+
+#62  misruled: citation guard    0/3 applicable  none/none/none-  none/none/none-  none/none/none-
+#64  misruled: compound intent   1/3 applicable  warden/wear/posture+  none/none/none-  none/none/none-
+#65  misruled: citation guard    3/3 applicable  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+
+
+FIXED 21 of 30
+  misruled: citation guard: 13 of 16
+  misruled: wrong key: 6 of 10
+  misruled: compound intent: 2 of 4
+DONE
