@@ -1,0 +1,530 @@
+[
+ {
+  "id": "act#1",
+  "expect": "several",
+  "intent": "Examine the bar in the window closely, then go and check the lock for scratches.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Examine the bar in the window closely, then go and check the lock for scratches."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#2",
+  "expect": "several",
+  "intent": "Untwist a wire from the cot springs and use it to pick the lock.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Untwist a wire from the cot springs and use it to pick the lock."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#3",
+  "expect": "several",
+  "intent": "Knock Croft to the floor and take the key ring off her belt.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Knock Croft to the floor and take the key ring off her belt."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#4",
+  "expect": "several",
+  "intent": "Pick the lock with the wire and slip out into the corridor.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Pick the lock with the wire and slip out into the corridor."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#5",
+  "expect": "several",
+  "intent": "Pat Voss down, then confiscate the spoon.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Pat Voss down, then confiscate the spoon."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#6",
+  "expect": "several",
+  "intent": "Scrape at the mortar around the bar, then hide the spoon under the tile.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Scrape at the mortar around the bar, then hide the spoon under the tile."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#7",
+  "expect": "several",
+  "intent": "Open the window and climb through it.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Open the window and climb through it."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#8",
+  "expect": "several",
+  "intent": "Shut the cell door and then examine the lock.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Shut the cell door and then examine the lock."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#9",
+  "expect": "one",
+  "intent": "Walk over to the window, take hold of the bar and twist it in its mortar.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Walk over to the window, take hold of the bar and twist it in its mortar."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#10",
+  "expect": "one",
+  "intent": "Kneel by the cot and untwist a length of wire from the springs.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Kneel by the cot and untwist a length of wire from the springs."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#11",
+  "expect": "one",
+  "intent": "Reach up to the window and run my fingers along the bar's base, feeling for looseness.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Reach up to the window and run my fingers along the bar's base, feeling for looseness."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#12",
+  "expect": "one",
+  "intent": "Pick up the bucket and bang it against the wall.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Pick up the bucket and bang it against the wall."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#13",
+  "expect": "one",
+  "intent": "Crouch by the tile, lift it, and scrape out the grit beneath with my fingers.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Crouch by the tile, lift it, and scrape out the grit beneath with my fingers."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#14",
+  "expect": "one",
+  "intent": "Step over to Voss and pat her down for anything hidden.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Step over to Voss and pat her down for anything hidden."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#15",
+  "expect": "one",
+  "intent": "Bend down over Croft where she lies and pull the key ring off her belt.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Bend down over Croft where she lies and pull the key ring off her belt."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#16",
+  "expect": "one",
+  "intent": "Walk to the door, bend to the gap, and push the bolt back with the spoon.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Walk to the door, bend to the gap, and push the bolt back with the spoon."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#17",
+  "expect": "one",
+  "intent": "Sit on the cot and tuck the spoon into the blanket's hem.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Sit on the cot and tuck the spoon into the blanket's hem."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#18",
+  "expect": "one",
+  "intent": "Pick up the spoon and hold it up to the window light to examine its edge.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Pick up the spoon and hold it up to the window light to examine its edge."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#19",
+  "expect": "one",
+  "intent": "Examine the door's hinges.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Examine the door's hinges."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#20",
+  "expect": "one",
+  "intent": "Scream for help at the top of my lungs.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Scream for help at the top of my lungs."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#21",
+  "expect": "one",
+  "intent": "Close the window.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Close the window."
+    }
+   ]
+  }
+ },
+ {
+  "id": "act#22",
+  "expect": "one",
+  "intent": "Hand the spoon to Croft.",
+  "request": {
+   "questions": [
+    {
+     "id": "acts",
+     "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+     "answerKeys": [
+      "one",
+      "several"
+     ],
+     "safeDefault": "one"
+    }
+   ],
+   "sources": [
+    {
+     "id": "intent",
+     "text": "Hand the spoon to Croft."
+    }
+   ]
+  }
+ }
+]

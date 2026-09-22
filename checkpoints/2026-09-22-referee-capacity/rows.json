@@ -1,0 +1,2760 @@
+[
+ {
+  "id": "b1#2",
+  "chair": "prisoner",
+  "intent": "Sit on the cot with the blanket draped over my lap. While talking to Croft in a calm, slightly weary tone, use my foot to rock the loose tile and subtly scrape the flat edge of the spoon against its rough underside beneath the blanket, sharpening the spoon's edge. Keep the motion small and hidden.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "unbuilt: sharpen",
+  "accept": [
+   "spoon/restore"
+  ]
+ },
+ {
+  "id": "b1#4",
+  "chair": "warden",
+  "intent": "Closely examine the spoon edge by picking it up from the meal tray and inspecting it in the light from the window, then walk to the cot and closely examine the loose tile \u2014 lifting it to check the hollow beneath for any signs of disturbance, hidden items, or fresh scraping. While doing both, observe Voss's reaction.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/reveal",
+   "loose_tile/reveal"
+  ]
+ },
+ {
+  "id": "b1#6",
+  "chair": "warden",
+  "intent": "Closely examine the bar in the window \u2014 run my hands along its full length, check the mortar at top and bottom, and look for any fresh scratches, filing marks, or weakening. I want to compare its current state against the round-0 baseline of 100 integrity.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"twists of wire.\"."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "bar/reveal"
+  ]
+ },
+ {
+  "id": "b1#7",
+  "chair": "warden",
+  "intent": "Closely examine the cell door lock \u2014 inspect the steel face, the keyhole gap from the interior side, and the bolt edge visible through the finger-width gap between door and frame \u2014 looking for any fresh scratches, tool marks, scoring, or signs of manipulation that would indicate someone has been working on it with a thin implement like a wire. I want to compare its current condition against its round-0 baseline integrity of 100.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "lock/reveal"
+  ]
+ },
+ {
+  "id": "b1#8",
+  "chair": "prisoner",
+  "intent": "Show Croft the spoon and claim that's what I was hiding behind my back \u2014 I was using it to scratch an itch on my back and felt stupid about it. While presenting the spoon with one hand, keep the wire tucked securely in my waistband with my other hand pressed casually against my hip. If she seems satisfied, invite her to check under the cot for the missing cot wire to reinforce that misdirection.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"twists of wire.\"."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "wire/conceal"
+  ]
+ },
+ {
+  "id": "b1#11",
+  "chair": "prisoner",
+  "intent": "As I push myself up from the cot to comply with Croft's order, I use the motion of bracing my hand on the iron cot frame to discreetly slip the wire out of my waistband and twist it loosely back around one of the spring attachment points on the underside of the cot frame, where it will look like any of the other wire twists already holding springs in place. Then I walk to the wall, face it, put my hands flat on the stone, and lift the back of my shirt \u2014 full compliance, nothing to find.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"twists of wire.\"."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "wire/conceal"
+  ]
+ },
+ {
+  "id": "b1#13",
+  "chair": "prisoner",
+  "intent": "While sitting on the cot with the blanket draped over my lap, engage Croft in conversation about the age of the building to hold her attention on my face. At the same time, use my hand under the blanket to quietly slide the wire down along my leg, then ease it through the crack in the loose tile beside the cot and into the hollow beneath, covering it with grit.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"twists of wire.\"."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "wire/conceal"
+  ]
+ },
+ {
+  "id": "b1#14",
+  "chair": "warden",
+  "intent": "Closely examine the cot wire \u2014 count the wire twists holding the springs to the frame, check each one for signs of unwinding, removal, reshaping, or recent bending. Compare the condition of the wire to what I'd expect from normal wear.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "cot/reveal"
+  ]
+ },
+ {
+  "id": "b1#15",
+  "chair": "warden",
+  "intent": "Pick up the spoon and closely examine its edge, rim, and bowl for any signs of sharpening, filing, or deliberate wear \u2014 and check the area around where it was resting for metal dust or filings.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b1#16",
+  "chair": "prisoner",
+  "intent": "Grab the heavy wool blanket off the cot in one motion and fling it wide at Croft's head and upper body to blind and tangle her, then in the same explosive movement charge past her to the cell door and wrench it open \u2014 betting everything that the bolt is still retracted from last round since she only pushed the door shut without re-keying the lock \u2014 and go through the door.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"twists of wire.\"."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: compound intent",
+  "accept": [
+   "door/open",
+   "door/leave",
+   "warden/wear"
+  ]
+ },
+ {
+  "id": "b1#17",
+  "chair": "prisoner",
+  "intent": "Sit on the cot, pick up the meal tray, and eat from it with the spoon while making casual conversation with Croft. When I set the tray back down, I keep the spoon palmed and slip it under the blanket beside me on the cot.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "spoon/conceal"
+  ]
+ },
+ {
+  "id": "b1#19",
+  "chair": "warden",
+  "intent": "Pick up the spoon and closely examine its edge, bowl, and handle for any signs of sharpening, new wear, metal filings, or modification since my last check in round 3.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b1#21",
+  "chair": "warden",
+  "intent": "Pick up the spoon and closely examine its entire edge, the flat-worn side of the bowl, and the handle for any signs of deliberate sharpening, grinding, or filing \u2014 checking whether the edge value has changed from 0 since round 3.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b1#23",
+  "chair": "warden",
+  "intent": "Closely examine the spoon, specifically checking the worn flat edge for any new sharpening, scratches, or metal removal that would indicate it's being worked into a tool. I want to pick it up, run my thumb along the edge, and compare it to what I know from the round 0 baseline.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b1#24",
+  "chair": "prisoner",
+  "intent": "Sit on the cot, pull the meal tray onto my lap, and eat from the bowl using the spoon \u2014 behaving completely normally. When I'm done, casually set the spoon down tucked into the thick fold of the blanket beside me on the cot, as though I'm just putting it aside after eating. This should raise the spoon's concealment without any suspicious action.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/conceal"
+  ]
+ },
+ {
+  "id": "b1#25",
+  "chair": "prisoner",
+  "intent": "Sit on the cot beside the loose tile. Engage Croft in conversation about the transfer to hold her attention on my face. While talking, pull the blanket around my shoulders as if cold (she mentioned the draught), and under cover of arranging the blanket and shifting my feet, use my foot to tilt the loose tile and sweep the spoon into the hollow beneath it, then press the tile flat again.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/conceal"
+  ]
+ },
+ {
+  "id": "b1#27",
+  "chair": "prisoner",
+  "intent": "Step back toward the cot as Croft ordered, grab the heavy wool blanket off it in one fast motion, then lunge at Croft and throw the blanket over her head and face to blind and smother her vision. While she is disoriented and clawing at the blanket, grab the iron key ring from her belt, rip it free, find the long-shanked brass key, unlock the cell door, open it, and escape through it.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: compound intent",
+  "accept": [
+   "key_ring/take",
+   "door/open",
+   "door/leave",
+   "warden/wear"
+  ]
+ },
+ {
+  "id": "b1#29",
+  "chair": "warden",
+  "intent": "Pick up the spoon, hold it up to the corridor light, and closely examine the worn-flat edge and bowl for fresh scraping marks, embedded mortar dust, or iron filings. While doing so, observe Voss's reaction from the corner of my eye.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b1#30",
+  "chair": "prisoner",
+  "intent": "Grab the blanket off the cot in a natural, helpful gesture \u2014 bundling the loose wire into its folds \u2014 while directing Croft to look at the springs and frame underneath, keeping her focus on the cot's structural condition rather than what was lying on top of it.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"by twists of wire.\"."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "wire/conceal"
+  ]
+ },
+ {
+  "id": "b1#32",
+  "chair": "warden",
+  "intent": "Closely examine the lock bolt through the gap between the door and its frame, looking for fresh scratches, pick marks, scoring, displaced metal, or any sign the bolt has been manipulated or partially withdrawn since it was last checked.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"by twists of wire.\"."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "lock/reveal"
+  ]
+ },
+ {
+  "id": "b1#33",
+  "chair": "prisoner",
+  "intent": "Pick up the meal tray from the floor at the base of the door \u2014 a normal, cooperative act \u2014 and stand holding it near the door, positioning myself within arm's reach of the doorway. Appear resigned and compliant about the transfer. The moment Croft unlocks and opens the door to leave after finishing her inspection, drop the tray and shove past her through the open doorway at full force.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "wire",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"by twists of wire.\"."
+   },
+   {
+    "id": "wire_2",
+    "description": "A length of stiff iron wire about a hand long, untwisted from a spring, with a kink at one end where it was worked back and forth. It came away from the cot, where \"twists of wire.\"."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: compound intent",
+  "accept": [
+   "door/leave",
+   "meal_tray/take"
+  ]
+ },
+ {
+  "id": "b1#34",
+  "chair": "prisoner",
+  "intent": "Sit on the cot with the blanket draped over my lap. While talking to Croft about the transfer, quietly and slowly drag the spoon's worn-flat edge back and forth along the rough iron crossbar of the cot frame, hidden under the blanket, to sharpen the spoon into a better scraping tool.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "unbuilt: sharpen",
+  "accept": [
+   "spoon/restore"
+  ]
+ },
+ {
+  "id": "b1#35",
+  "chair": "warden",
+  "intent": "Walk to the meal tray, pick up the spoon, and examine it closely \u2014 specifically checking the worn-flat side of the bowl for any fresh scratching, sharpening, or new wear beyond the baseline. Also glance at Voss's cot area and the blanket as I pass it.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b1#42",
+  "chair": "prisoner",
+  "intent": "Sit on the cot, pull the blanket over my lap as if cold, and covertly sharpen the spoon by scraping its flat edge along the rough crossbar beneath the blanket, using slow, quiet strokes timed to my speech, while keeping Croft engaged in easy conversation.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "unbuilt: sharpen",
+  "accept": [
+   "spoon/restore"
+  ]
+ },
+ {
+  "id": "b1#43",
+  "chair": "warden",
+  "intent": "Pick up the spoon from wherever it sits, examine it closely \u2014 turning it over, running my thumb along the worn-flat edge to feel for fresh sharpening or new wear \u2014 then confiscate it, telling Voss it'll be replaced with a new one at next meal per safety rotation.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "spoon/reveal",
+   "spoon/take"
+  ]
+ },
+ {
+  "id": "b1#45",
+  "chair": "warden",
+  "intent": "Examine the lock closely \u2014 run my fingers along the bolt edge visible in the door gap, inspect the housing and frame socket for fresh scratch marks, gouges, or metal filings that would indicate someone has been working on it with an improvised tool.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "lock/reveal"
+  ]
+ },
+ {
+  "id": "b1#46",
+  "chair": "warden",
+  "intent": "Pick up the spoon and examine it closely \u2014 turn it over in the light, run my thumb along the worn-flat side of the bowl and around the rim, feeling for any edge that has been deliberately sharpened, filed, or scraped to a cutting or prying point beyond normal wear.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b1#48",
+  "chair": "prisoner",
+  "intent": "Walk to the door as ordered, stand with my back against the wall right beside the door frame. Tuck the spoon out of sight in my waistband under my shirt. While standing there with my hands behind my back or at my sides, subtly feel the door gap and the exposed bolt edge with my fingertips to assess whether the bolt has lateral play and could be pushed or levered back. Appear fully cooperative and bored. When she finds the cot wire damage, act unsurprised \u2014 I've been complaining about this.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key",
+  "accept": [
+   "lock/reveal",
+   "spoon/conceal"
+  ]
+ },
+ {
+  "id": "b1#49",
+  "chair": "prisoner",
+  "intent": "Sit on the cot with the blanket over my lap. While answering Croft's question about the transfer, quietly palm the spoon from the meal tray and tuck it under the blanket on my lap. If she's focused on our conversation, subtly scrape the spoon's edge a few times against the rough iron crossbar of the cot frame beneath the blanket to sharpen it \u2014 all hidden under the wool.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "unbuilt: sharpen",
+  "accept": [
+   "spoon/restore",
+   "spoon/conceal"
+  ]
+ },
+ {
+  "id": "b1#50",
+  "chair": "warden",
+  "intent": "Walk to the cell door and examine the lock closely \u2014 inspect the bolt where it shows in the gap, check for scratches, tool marks, or any signs of manipulation on the lock mechanism and surrounding frame. While doing this, engage Voss in conversation about the transfer to keep her talking and read her reactions.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "lock/reveal"
+  ]
+ },
+ {
+  "id": "b1#60",
+  "chair": "warden",
+  "intent": "Pick up the spoon and examine its edge closely for any signs of sharpening or fresh scraping, then step to the loose tile beside the cot, lift it, and inspect the hollow beneath for hidden items or signs of recent disturbance.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/reveal",
+   "loose_tile/reveal"
+  ]
+ },
+ {
+  "id": "b1#62",
+  "chair": "warden",
+  "intent": "Closely examine the lock on the cell door \u2014 test the bolt's seating, check for pick marks or scoring around the keyhole, and verify it's at full integrity. While doing so, visually sweep the cell to locate the spoon.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "lock/reveal"
+  ]
+ },
+ {
+  "id": "b1#64",
+  "chair": "prisoner",
+  "intent": "While Croft's attention is fixed on examining the window, grab the heavy wool blanket off the cot and throw it over her head, then immediately shove her down and wrap the blanket around her head and arms to blind and tangle her. Then retrieve the spoon from under the loose tile and attack the bar's cracked mortar base as hard and fast as I can.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: compound intent",
+  "accept": [
+   "warden/wear",
+   "bar/wear"
+  ]
+ },
+ {
+  "id": "b1#65",
+  "chair": "warden",
+  "intent": "Pick up the spoon, hold it in the light from the window while standing between Voss and the window, and closely examine the spoon's edge for any signs it has been scraped against iron \u2014 metal dust, filing marks, a sharpened or worn edge inconsistent with normal use.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation guard",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b2#2",
+  "chair": "warden",
+  "intent": "Pick up the spoon from wherever it sits and examine it closely \u2014 checking the bowl edge, the handle, and any wear patterns \u2014 to establish a baseline on its condition.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key (spoon integrity)",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b2#4",
+  "chair": "prisoner",
+  "intent": "Sit down on the floor beside the cot, pull the blanket off the cot and over my lap as though I'm cold, then draw the spoon from my waistband and sharpen its edge against the cracked broken corner of the loose floor tile, working it in slow, quiet strokes hidden beneath the blanket.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: direction (sharpen = restore edge)",
+  "accept": [
+   "spoon/restore"
+  ]
+ },
+ {
+  "id": "b2#5",
+  "chair": "prisoner",
+  "intent": "Sharpen the spoon's edge against the cracked corner of the loose floor tile, working it in slow quiet strokes beneath the blanket draped over my lap as I sit on the floor beside the cot.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: direction (sharpen = restore edge)",
+  "accept": [
+   "spoon/restore"
+  ]
+ },
+ {
+  "id": "b2#6",
+  "chair": "prisoner",
+  "intent": "Sit on the cot to eat my meal. While eating, between bites, I subtly draw the worn-flat edge of the spoon along the rough, paint-flaked crossbar of the cot frame beneath me, using the abrasive surface to sharpen the spoon edge. My body sitting on the cot obscures the motion from Croft's view. I keep the strokes slow and light to avoid any sound.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: direction (sharpen = restore edge)",
+  "accept": [
+   "spoon/restore"
+  ]
+ },
+ {
+  "id": "b2#7",
+  "chair": "warden",
+  "intent": "Walk to the cell door and closely examine the lock \u2014 the bolt, the keyhole from this side, the mechanism, the steel around it \u2014 looking for any scratches, tool marks, wear, looseness, or signs of tampering since my last check at round 0.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key (lock property none)",
+  "accept": [
+   "lock/reveal"
+  ]
+ },
+ {
+  "id": "b2#8",
+  "chair": "warden",
+  "intent": "Watch Voss carefully \u2014 her eyes, her hands, her posture, what she glances at in the cell \u2014 to get an initial read on what part of the cell interests her most.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: citation (watch her posture)",
+  "accept": [
+   "prisoner/reveal"
+  ]
+ },
+ {
+  "id": "b2#9",
+  "chair": "prisoner",
+  "intent": "Sit down with the meal tray, eat from the bowl naturally, and between bites firmly scrape the thin rim of the spoon along the sharp steel edge of the tray to hone a cutting edge on the aluminum. Keep the motion casual \u2014 just a person eating, tapping and scraping their spoon on the tray the way anyone might.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: direction (hone = restore edge)",
+  "accept": [
+   "spoon/restore"
+  ]
+ },
+ {
+  "id": "b2#10",
+  "chair": "warden",
+  "intent": "Pick up the spoon and closely examine its edge, bowl, and handle for any sign of sharpening, filing, or deliberate modification.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   }
+  ],
+  "class": "misruled: wrong key (spoon integrity)",
+  "accept": [
+   "spoon/reveal"
+  ]
+ },
+ {
+  "id": "b2#12",
+  "chair": "prisoner",
+  "intent": "Accept the spoon back from Croft, then immediately fake a sudden seizure while lying on the floor \u2014 going rigid, convulsing, gasping, eyes rolling back \u2014 making it as convincing as possible to get Croft to leave the cell to summon medical help.",
+  "perceived": [
+   {
+    "id": "window",
+    "description": "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+   },
+   {
+    "id": "bar",
+    "description": "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+   },
+   {
+    "id": "door",
+    "description": "A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap."
+   },
+   {
+    "id": "lock",
+    "description": "A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame."
+   },
+   {
+    "id": "spoon",
+    "description": "A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor."
+   },
+   {
+    "id": "loose_tile",
+    "description": "A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand."
+   },
+   {
+    "id": "cot",
+    "description": "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire."
+   },
+   {
+    "id": "blanket",
+    "description": "A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge."
+   },
+   {
+    "id": "bucket",
+    "description": "A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it."
+   },
+   {
+    "id": "meal_tray",
+    "description": "A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round."
+   },
+   {
+    "id": "key_ring",
+    "description": "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks."
+   },
+   {
+    "id": "warden",
+    "description": "Warden Croft, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet."
+   },
+   {
+    "id": "prisoner",
+    "description": "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is lying on the floor."
+   }
+  ],
+  "class": "misruled: wrong target (feigned seizure is posture on herself)",
+  "accept": [
+   "prisoner/wear",
+   "spoon/take"
+  ]
+ }
+]
