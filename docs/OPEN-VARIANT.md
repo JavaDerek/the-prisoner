@@ -6106,3 +6106,30 @@ act -- no confiscation, no guard, no cot moved. At ten rounds the window is the 
 way the free door was Opus's at two (§69). Queued for Phase 1 as a world item beside the door.
 
 Qt stays Phase 2's standing arm under D5; this batch concludes nothing against it, as its prediction said.
+
+## 72. Phase 1, batch 1: ten rounds of Opus, and a warden who can only look (2026-09-21)
+
+`checkpoints/2026-09-21-phase1-b1/`, OPUS-FIRST-DESIGN §4.1: `claude-opus-4-6` both chairs, ten rounds,
+voice on, presence modelled, referee `qwen3:14b` thinking ON, N = 10 from `1a66459`, prediction first,
+one game quarantined for a hung connection to doris (the router's doris path now has a per-attempt
+timeout, `1021cdb`). 198 half-rounds, zero silences, 65 refusals -- twice the prediction -- and the
+sixty-five-row refusal audit list in `MEASURES.md` is the batch's product, awaiting the owner's labels.
+
+**What ten rounds showed that two could not.** The prisoner opens the free door in eight of ten games,
+always on round 9 or 10 after eight rounds of concealing, deriving wire and working the bar behind her
+body, and never walks through it: the last-turn compound act is ruled `open` alone, and the Opus warden,
+reading the catch rule, steps into the doorway and examines "a way out standing open" at suspicion 60.
+Both catches are that. At two rounds the same door was an escape (§69); at ten it is the warden's win.
+
+**The warden cannot act, only look.** Every preventive act was refused: standing in front of the window,
+standing against the door, a pat-down search, confiscating the wire, collecting the tray. Her grounded
+effects are `reveal`, two `close` and one `derive`. Idleness and compliance have no key either (`cot`/`none`
+six times), and sharpening the spoon on the cot has no effect that raises `edge`. My reading of the
+unbuilt classes, for the owner to confirm: custody and search; position as an act; idleness as an act;
+raising a tool's property. Four, where the prediction said two.
+
+**Two referee findings.** `reveal` on the spoon ruled impossible 12 of 19 times on the same act; and one
+ruling was lost to a new malformed shape, several arrays one per question, which §3.1's rebalancing does
+not cover (1 of 198). Both are in `RESULTS.md`'s bug list, left alone.
+
+Next: the owner labels the audit list; a blind human game (§4.4); then D4 decides what batch 2 is built on.
