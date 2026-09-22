@@ -1,0 +1,650 @@
+{
+ "arm": "VARIANT",
+ "n": 3,
+ "model": "qwen3:14b",
+ "thinking": "on",
+ "results": [
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "Closely examine the spoon edge by picking it up from the meal tray and inspecting it in the light from the window, then walk to the cot and closely examine the loose tile — lifting it to check the hollow beneath for any signs of disturbance, hidden items, or fresh scraping. While doing both, observe Voss's reaction.",
+   "counts": {
+    "target": {
+     "none": 3
+    },
+    "effect": {
+     "none": 3
+    },
+    "property": {
+     "none": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "TIMEOUT/none": 3
+   },
+   "secs": 360
+  },
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "Grab the heavy wool blanket off the cot in one motion and fling it wide at Croft's head and upper body to blind and tangle her, then in the same explosive movement charge past her to the cell door and wrench it open — betting everything that the bolt is still retracted from last round since she only pushed the door shut without re-keying the lock — and go through the door.",
+   "counts": {
+    "target": {
+     "blanket": 3
+    },
+    "effect": {
+     "open": 3
+    },
+    "property": {
+     "passage": 3
+    },
+    "acts": {
+     "several": 3
+    }
+   },
+   "triples": {
+    "blanket/open/passage/several": 3
+   },
+   "secs": 24
+  },
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "Step back toward the cot as Croft ordered, grab the heavy wool blanket off it in one fast motion, then lunge at Croft and throw the blanket over her head and face to blind and smother her vision. While she is disoriented and clawing at the blanket, grab the iron key ring from her belt, rip it free, find the long-shanked brass key, unlock the cell door, open it, and escape through it.",
+   "counts": {
+    "target": {
+     "door": 3
+    },
+    "effect": {
+     "open": 3
+    },
+    "property": {
+     "passage": 3
+    },
+    "acts": {
+     "several": 3
+    }
+   },
+   "triples": {
+    "door/open/passage/several": 3
+   },
+   "secs": 50
+  },
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "Pick up the meal tray from the floor at the base of the door — a normal, cooperative act — and stand holding it near the door, positioning myself within arm's reach of the doorway. Appear resigned and compliant about the transfer. The moment Croft unlocks and opens the door to leave after finishing her inspection, drop the tray and shove past her through the open doorway at full force.",
+   "counts": {
+    "target": {
+     "meal_tray": 3
+    },
+    "effect": {
+     "take": 1,
+     "leave": 2
+    },
+    "property": {
+     "none": 1,
+     "passage": 2
+    },
+    "acts": {
+     "several": 1,
+     "one": 2
+    }
+   },
+   "triples": {
+    "meal_tray/take/none/several": 1,
+    "meal_tray/leave/passage/one": 2
+   },
+   "secs": 52
+  },
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "Closely examine the lock on the cell door — test the bolt's seating, check for pick marks or scoring around the keyhole, and verify it's at full integrity. While doing so, visually sweep the cell to locate the spoon.",
+   "counts": {
+    "target": {
+     "lock": 1,
+     "spoon": 2
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "integrity": 1,
+     "concealment": 2
+    },
+    "acts": {
+     "several": 3
+    }
+   },
+   "triples": {
+    "lock/reveal/integrity/several": 1,
+    "spoon/reveal/concealment/several": 2
+   },
+   "secs": 81
+  },
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "While Croft's attention is fixed on examining the window, grab the heavy wool blanket off the cot and throw it over her head, then immediately shove her down and wrap the blanket around her head and arms to blind and tangle her. Then retrieve the spoon from under the loose tile and attack the bar's cracked mortar base as hard and fast as I can.",
+   "counts": {
+    "target": {
+     "warden": 1,
+     "none": 2
+    },
+    "effect": {
+     "conceal": 1,
+     "none": 2
+    },
+    "property": {
+     "concealment": 1,
+     "none": 2
+    },
+    "acts": {
+     "several": 1,
+     "one": 2
+    }
+   },
+   "triples": {
+    "warden/conceal/concealment/several": 1,
+    "TIMEOUT/none": 2
+   },
+   "secs": 274
+  },
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "open the door and leave",
+   "counts": {
+    "target": {
+     "door": 3
+    },
+    "effect": {
+     "open": 3
+    },
+    "property": {
+     "passage": 3
+    },
+    "acts": {
+     "several": 3
+    }
+   },
+   "triples": {
+    "door/open/passage/several": 3
+   },
+   "secs": 65
+  },
+  {
+   "kind": "MULTI",
+   "expect": "several",
+   "intent": "hit the warden with the meal tray, steal the key ring, open the door and leave",
+   "counts": {
+    "target": {
+     "warden": 1,
+     "none": 2
+    },
+    "effect": {
+     "take": 1,
+     "none": 2
+    },
+    "property": {
+     "none": 3
+    },
+    "acts": {
+     "several": 1,
+     "one": 2
+    }
+   },
+   "triples": {
+    "warden/take/none/several": 1,
+    "TIMEOUT/none": 2
+   },
+   "secs": 266
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Sit on the cot with the blanket draped over my lap. While talking to Croft about the transfer, quietly and slowly drag the spoon's worn-flat edge back and forth along the rough iron crossbar of the cot frame, hidden under the blanket.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "wear": 3
+    },
+    "property": {
+     "edge": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "spoon/wear/edge/one": 3
+   },
+   "secs": 29
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Scrape at the cracked mortar around the base of the bar with the spoon.",
+   "counts": {
+    "target": {
+     "bar": 3
+    },
+    "effect": {
+     "wear": 3
+    },
+    "property": {
+     "integrity": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "bar/wear/integrity/one": 3
+   },
+   "secs": 34
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Closely examine the bar in the window — run my hands along its full length, check the mortar at top and bottom, and look for any fresh scratches, filing marks, or weakening — while watching Voss's eyes to see how she reacts.",
+   "counts": {
+    "target": {
+     "bar": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "integrity": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "bar/reveal/integrity/one": 3
+   },
+   "secs": 31
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Walk to the door and work the bolt back through the gap with the spoon handle.",
+   "counts": {
+    "target": {
+     "door": 3
+    },
+    "effect": {
+     "open": 3
+    },
+    "property": {
+     "passage": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "door/open/passage/one": 3
+   },
+   "secs": 69
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Climb out through the window.",
+   "counts": {
+    "target": {
+     "window": 3
+    },
+    "effect": {
+     "leave": 3
+    },
+    "property": {
+     "passage": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "window/leave/passage/one": 3
+   },
+   "secs": 25
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "attack warden croft",
+   "counts": {
+    "target": {
+     "warden": 3
+    },
+    "effect": {
+     "wear": 3
+    },
+    "property": {
+     "posture": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "warden/wear/posture/one": 3
+   },
+   "secs": 27
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "take a wire out of the cot",
+   "counts": {
+    "target": {
+     "cot": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "integrity": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "cot/derive/integrity/one": 3
+   },
+   "secs": 30
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Grip the rusted bar with both hands, brace my feet against the wall, and wrench it out of its crumbling mortar.",
+   "counts": {
+    "target": {
+     "bar": 3
+    },
+    "effect": {
+     "open": 3
+    },
+    "property": {
+     "integrity": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "bar/open/integrity/one": 3
+   },
+   "secs": 28
+  },
+  {
+   "kind": "HIDE",
+   "expect": "one",
+   "intent": "Tuck the spoon under the loose tile beside the cot.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 1,
+     "none": 2
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "spoon/conceal/concealment/one": 1,
+    "spoon/conceal/none/one": 2
+   },
+   "secs": 68
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Kneel beside the loose tile, lift it out of its seat, and closely examine the hollow beneath for hidden tools or freshly disturbed grit.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "concealment": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "loose_tile/reveal/concealment/one": 3
+   },
+   "secs": 46
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Kick the bucket over so it clatters across the floor.",
+   "counts": {
+    "target": {
+     "bucket": 3
+    },
+    "effect": {
+     "noise": 3
+    },
+    "property": {
+     "none": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "bucket/noise/none/one": 3
+   },
+   "secs": 28
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Shut the cell door.",
+   "counts": {
+    "target": {
+     "door": 3
+    },
+    "effect": {
+     "close": 3
+    },
+    "property": {
+     "passage": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "door/close/passage/one": 3
+   },
+   "secs": 31
+  },
+  {
+   "kind": "HIDE",
+   "expect": "one",
+   "intent": "Hide the spoon in the folds of the blanket.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "spoon/conceal/concealment/one": 3
+   },
+   "secs": 52
+  },
+  {
+   "kind": "HIDE",
+   "expect": "one",
+   "intent": "Slip the spoon into the hollow under the tile and press the tile flat over it.",
+   "counts": {
+    "target": {
+     "spoon": 1,
+     "loose_tile": 2
+    },
+    "effect": {
+     "conceal": 3
+    },
+    "property": {
+     "concealment": 3
+    },
+    "acts": {
+     "several": 1,
+     "one": 2
+    }
+   },
+   "triples": {
+    "spoon/conceal/concealment/several": 1,
+    "loose_tile/conceal/concealment/one": 2
+   },
+   "secs": 85
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Lift the loose tile to uncover the hollow beneath it.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "concealment": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "loose_tile/reveal/concealment/one": 3
+   },
+   "secs": 28
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Scoop a handful of grit out of the hollow under the tile and keep it.",
+   "counts": {
+    "target": {
+     "loose_tile": 3
+    },
+    "effect": {
+     "derive": 3
+    },
+    "property": {
+     "concealment": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "loose_tile/derive/concealment/one": 3
+   },
+   "secs": 27
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Pick up the spoon and closely examine its edge for signs of sharpening.",
+   "counts": {
+    "target": {
+     "spoon": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "edge": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "spoon/reveal/edge/one": 3
+   },
+   "secs": 32
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Examine the lock closely for scratches or pick marks while keeping an eye on Voss.",
+   "counts": {
+    "target": {
+     "lock": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "integrity": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "lock/reveal/integrity/one": 3
+   },
+   "secs": 27
+  },
+  {
+   "kind": "ONE",
+   "expect": "one",
+   "intent": "Walk to the window and closely examine the bar's base for fresh scraping, talking to Voss about the transfer as I do.",
+   "counts": {
+    "target": {
+     "bar": 3
+    },
+    "effect": {
+     "reveal": 3
+    },
+    "property": {
+     "integrity": 3
+    },
+    "acts": {
+     "one": 3
+    }
+   },
+   "triples": {
+    "bar/reveal/integrity/one": 3
+   },
+   "secs": 28
+  }
+ ]
+}
