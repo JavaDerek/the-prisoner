@@ -6161,3 +6161,15 @@ incapacitation. A tunnel has one source, the owner.
 What is left is for the owner (`docs/OVERNIGHT-2026-09-22.md`): what a two-act turn is (§39, now with 16 lost
 opens and 2 lost human escapes as evidence, entangled with the free door, §48); the target of an act of hiding;
 and whether custody is built first.
+
+## 74. The owner's four decisions (2026-09-22, morning)
+
+On `docs/OVERNIGHT-2026-09-22.md`'s D1–D4, all as recommended:
+
+1. **A turn does one thing.** An intent that attempts more than one act is **refused**, with that as the reason
+   told back, and both minds' prompts and the seat say "one act per turn" up front. This closes §39's open question
+   with its option (b), plus the statement on the mind side. Code cannot tell one act from two (CLAUDE.md, never
+   pattern-match meaning), so the referee is asked, as a closed, cited question. Probed before it ships.
+2. **Custody is built next**, before incapacitation. A short design goes to the owner before any code.
+3. **An act of hiding targets the thing hidden**, not the place it goes.
+4. **Batch 2 waits** until 1–3 have landed.
