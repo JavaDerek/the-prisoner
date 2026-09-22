@@ -33,12 +33,12 @@ other visible act.
 **Out of scope:** the meal tray being collected each round, and so keeping the spoon back from it (2 rows). The
 tray's collection isn't modelled at all today. Incapacitation is the next build.
 
-## One decision for you
+## One decision for you -- DECIDED 2026-09-22: A
 
 **C1. When can someone take a thing that another person is holding?** This decides whether the key ring is
 reachable, and so whether the door has a second way to open.
 
-- **A (recommended): only when the holder is not on her feet** (posture below 100: crouched or down). A person
+- **A (recommended; the owner's choice, 2026-09-22): only when the holder is not on her feet** (posture below 100: crouched or down). A person
   standing and alert keeps what she holds. The warden gets the prisoner's things by searching first (the thing is
   then perceived), and then taking when the prisoner is down. The prisoner gets the key ring only by putting Croft
   on the floor first. It uses posture, which already exists and which you used in round 1. It also makes
