@@ -120,11 +120,28 @@ The original rule, kept for the record, was "finished when, over two consecutive
 The classification in (1) is **a labelled human audit, recorded per refusal**, and this design no longer
 calls it automated (red team, §10). Keys do most of the work: in §69's batch, 7 of Opus's 12 refusals
 are `effect: none` on a named target, which is mechanical, and the other 5 needed reading. So each
-batch's `RESULTS.md` lists every refusal with its keys and the owner's label -- `genuine`, `unbuilt`, or
-`unclear` -- written before the next batch is designed, exactly as the capture sweep labelled its
-intents before its first call. Rules (2) and (3) stay fully automated. If `unclear` exceeds a third of
-refusals over two batches, the stopping rule is a prose audit and is declared as one; the design does
-not pretend otherwise.
+batch's `RESULTS.md` lists every refusal with its keys and the owner's label -- `genuine`, `unbuilt`,
+`misruled`, or `unclear` -- written before the next batch is designed, exactly as the capture sweep
+labelled its intents before its first call. Rules (2) and (3) stay fully automated. If `unclear` exceeds
+a third of refusals over two batches, the stopping rule is a prose audit and is declared as one; the
+design does not pretend otherwise.
+
+*Fourth label, added by the owner 2026-09-21 while labelling Phase 1 batch 1:* the labels mean
+
+- `genuine` -- the referee was right to refuse: the act makes no sense here, or the world rightly rules
+  it out (a passage below its threshold);
+- `misruled` -- the referee was wrong to refuse: the world already supports the act and the ruling
+  broke it (a correct citation rejected, the wrong target or property keyed, a compound intent torn
+  apart). A misruled row is a **referee defect**, routed to Phase 0, never to a build, and never
+  counted toward "newly discovered unbuilt class";
+- `unbuilt` -- a valid act the world has no key for yet; the only label that feeds D4;
+- `unclear` -- the owner cannot tell which of the other three applies. It is about the labeller, not
+  the intent's phrasing: an intent too muddled for any referee is `genuine`.
+
+Batch 1 labelled 30 of 65 refusals `misruled`, which is why Phase 0 reopened after it (OPEN-VARIANT §73).
+A misruling the referee rules **possible** -- a compound intent whose `leave` clause is dropped while its
+first clause resolves -- appears on no refusal list at all; the owner's blind game lost two escapes that
+way. The audit cannot see it, so Phase 0's own tests must.
 
 **Sound referee.** Zero lost rulings, plus the two known holes closed (§4.1). "Correct" rulings are
 still a human audit of transcripts (CLAUDE.md "never pattern-match meaning"); soundness is only "the

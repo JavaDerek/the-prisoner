@@ -472,7 +472,7 @@ export interface RefusalRow {
   property: string;
   magnitude: string;
   ruled: string;
-  label: ""; // genuine / unbuilt / unclear, written by a person, never here
+  label: ""; // genuine / misruled / unbuilt / unclear (OPUS-FIRST-DESIGN §2), written by a person, never here
 }
 
 export function refusalAudit(games: readonly Game[]): RefusalRow[] {
@@ -618,7 +618,7 @@ export function renderBatchMeasures(games: readonly Game[], opts: { residue?: re
 
   out.push("## Refusal audit list (§2)");
   out.push("");
-  out.push("Every refused ruling (ruled impossible, or target `none`), keys only. The `label` column is for the owner: genuine, unbuilt or unclear.");
+  out.push("Every refused ruling (ruled impossible, or target `none`), keys only. The `label` column is for the owner: genuine, misruled, unbuilt or unclear (OPUS-FIRST-DESIGN §2).");
   out.push("");
   out.push("| arm | transcript | round | chair | target | effect | property | magnitude | ruled | label |");
   out.push("|---|---|---|---|---|---|---|---|---|---|");
