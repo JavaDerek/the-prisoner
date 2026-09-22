@@ -3,7 +3,7 @@
 // `npm run referee-replay` uses. Thinking comes from PRISONER_THINKING via
 // `readThinkingMode` -- unset is ON, the game's default and the batch's setting.
 // usage (repo root): PRISONER_MODEL_URL=http://doris:11434/v1 PRISONER_REFEREE_TIMEOUT_MS=300000 \
-//   PRISONER_OLLAMA_RESIDENT_MODELS= npx tsx checkpoints/2026-09-22-hide-target/replay.mts BASE|VARIANT [N]
+//   PRISONER_OLLAMA_RESIDENT_MODELS= npx tsx checkpoints/2026-09-22-custody/replay.mts BASE|VARIANT [N]
 import { readFileSync, writeFileSync } from "node:fs";
 import { replayRequestDetailed } from "../../src/open/replay.js";
 import { createRefereeTransport } from "../../src/open/refereeTransport.js";
