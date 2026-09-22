@@ -393,6 +393,8 @@ export function describeAttempt(
     case "conceal":
       return `${actor} hides the ${obj} from view.`;
     case "expose":
+      // docs/CUSTODY-DESIGN.md: an expose on a PERSON is a search of her.
+      if (isPrincipalId(ruling.targetObjectId)) return `${actor} searches ${actorName(ruling.targetObjectId)}.`;
       return `${actor} brings the ${obj} into view.`;
     case "noise":
       // OPEN-VARIANT.md §55 (issue #22 gap 2): a principal is now a legal
@@ -425,6 +427,13 @@ export function describeAttempt(
       // The act on the parent, and nothing about the product (OPEN-VARIANT.md
       // §13.4): what was made, a bystander learns by perceiving it later.
       return `${actor} works a piece loose from the ${obj}.`;
+    case "take":
+      // docs/CUSTODY-DESIGN.md: the attempt, as `leave` tells one -- true
+      // whether or not the thing ends up in hand (C1: a holder on her feet
+      // keeps it), because what a bystander sees is the reach.
+      return `${actor} reaches for the ${obj}.`;
+    case "give":
+      return `${actor} holds out the ${obj}.`;
     case "none":
       // Dead in the real pipeline: `runOpenHalfRound` only calls this once
       // `ruling.applicable` is true, which requires `effectKind !== "none"`

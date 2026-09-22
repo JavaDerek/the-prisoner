@@ -70,7 +70,8 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
     case "conceal":
       return `hide ${it}`;
     case "expose":
-      return `uncover ${it}`;
+      // docs/CUSTODY-DESIGN.md: an expose on a person is a search of her.
+      return isPrincipalTarget(ruling.targetObjectId) ? `search ${it}` : `uncover ${it}`;
     case "noise":
       // The same person/thing split `describeAttempt` (loop.ts) and the
       // resolved branch below already make for this one effect.
@@ -84,6 +85,10 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
       return what === null ? "leave" : `leave through ${what}`;
     case "derive":
       return `make something from ${it}`;
+    case "take":
+      return `take ${it}`;
+    case "give":
+      return `hand over ${it}`;
     case "none":
       return "";
   }
@@ -116,7 +121,11 @@ function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
   // names a tool the actor does not have.
   if (ruling.instrument === "absent") return "a tool it leans on being missing from here";
   if (ruling.effectKind === "derive" && ruling.product === "none") return "what it would make left unread";
-  if (effectRequiresProperty(ruling.effectKind)) {
+  // docs/CUSTODY-DESIGN.md: take, give and a search (expose on a person) are
+  // grounded by the actor's words alone, never by a property of the target.
+  const custody = ruling.effectKind === "take" || ruling.effectKind === "give" || (ruling.effectKind === "expose" && isPrincipalTarget(ruling.targetObjectId));
+  if (custody && !ruling.applicable) return "its grounds in your words left unverified";
+  if (effectRequiresProperty(ruling.effectKind) && !custody) {
     if (ruling.property === "none") return "which property it meant left unread";
     // Undeclared on the target: certain for a §4.1 object or a person, whose
     // declarations are static. For a target whose declarations this module

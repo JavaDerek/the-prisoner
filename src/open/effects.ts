@@ -11,8 +11,12 @@ import type { Principal } from "../ledger/beliefs.js";
  * non-empty `answerKeys` set; `none` is a member of it here, not an
  * absence).
  */
-export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "none";
-export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "none"];
+export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "take" | "give" | "none";
+/** docs/CUSTODY-DESIGN.md: `take` and `give` move who holds a thing -- the
+ *  target is the thing, never the place or the person -- through one `set`
+ *  of the item's own owner columns (`OPEN_TAKE`/`OPEN_GIVE`, mechanics.ts).
+ *  `none` stays last: it is the "nothing applies" key, not an effect. */
+export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "take", "give", "none"];
 
 export type Magnitude = "slight" | "moderate" | "substantial";
 export const MAGNITUDES: readonly Magnitude[] = ["slight", "moderate", "substantial"];
@@ -49,8 +53,10 @@ export function rulingPropertyAnswerKeys(personInView: boolean): readonly string
   return personInView ? [...PROPERTY_KEYS, ...PERSON_PROPERTY_KEYS, "none"] : [...PROPERTY_ANSWER_KEYS];
 }
 
-/** `noise` is the one effect kind that names no property at all
- *  (OPEN-VARIANT.md §4.2: "a perceptible event with no state change"). */
+/** `noise` names no property at all (OPEN-VARIANT.md §4.2: "a perceptible
+ *  event with no state change"), and neither do `take`/`give`
+ *  (docs/CUSTODY-DESIGN.md): what they change is who holds the thing, an
+ *  owner column on the item itself, never one of its bounded properties. */
 export function effectRequiresProperty(effectKind: EffectKind): boolean {
   return (
     effectKind === "wear" ||

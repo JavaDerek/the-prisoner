@@ -247,7 +247,9 @@ function buildQuestions(
   const PERSON_TARGET_CLAUSE =
     " A person here is a thing that can be acted on like any other: an act on someone else's body -- pushing them down, hauling them up -- names that person, and an act on the actor's OWN body -- collapsing, dropping to the floor, crouching, going limp -- names the actor herself.";
   const PERSON_EFFECT_CLAUSE =
-    " An act that changes how a person's own body is held -- dropping to the floor, collapsing, crouching down, going limp -- is wear on that person; an act that gets a body back up off the floor is restore on that person. The body is the target, even when the act is a performance and nothing else in the room changes.";
+    " An act that changes how a person's own body is held -- dropping to the floor, collapsing, crouching down, going limp -- is wear on that person; an act that gets a body back up off the floor is restore on that person. The body is the target, even when the act is a performance and nothing else in the room changes." +
+    // docs/CUSTODY-DESIGN.md: a search is the one custody act done TO a person, so it targets her.
+    " Searching a person -- patting them down, turning out what they carry -- is expose on that person.";
   const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), ";
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
@@ -294,7 +296,10 @@ function buildQuestions(
         "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise " +
         "or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose " +
         "(lower concealment), noise (a perceptible event with no state change), open (make a way out passable in " +
-        "one act -- a door, a window), close (shut a way out), leave (go out through a way out), or none. " +
+        "one act -- a door, a window), close (shut a way out), leave (go out through a way out), " +
+        // docs/CUSTODY-DESIGN.md: one clause each, generic -- the target is the thing that changes hands.
+        "take (come to hold a thing that lies here or that someone else holds; the target is the thing), " +
+        "give (hand a thing the actor holds to someone else who is present; the target is the thing), or none. " +
         "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
         "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
         "wear is for damage or dulling with no way out as its goal. " +
@@ -427,7 +432,10 @@ const declaredInScenario: DeclaredPropertyCheck = (objectId, property) => !!find
 export function computeRuling(
   result: ReaderResult,
   request: { questions: readonly ReaderQuestion[]; sources: readonly ReaderSource[] },
-  isDeclared: DeclaredPropertyCheck = declaredInScenario
+  isDeclared: DeclaredPropertyCheck = declaredInScenario,
+  /** docs/CUSTODY-DESIGN.md: whether a target is a PERSON -- a search is
+   *  `expose` on one. Nobody is, by default. */
+  isPerson: (objectId: string) => boolean = () => false
 ): RefereeRuling {
   const targetAnswer = answerFor(result, "target");
   const effectAnswer = answerFor(result, "effect");
@@ -474,7 +482,15 @@ export function computeRuling(
   // (fail-safe), it just is not reported as one.
   const missingInstrument = instrument === "absent" && instrumentCitation.verified && instrumentCitation.citation !== null ? { citation: instrumentCitation.citation } : null;
 
-  const propertyNamedWhenRequired = !effectRequiresProperty(effectKind) || (property !== "none" && isDeclared(targetObjectId, property));
+  // docs/CUSTODY-DESIGN.md: custody moves who holds a thing, which is no
+  // property of it -- `take`/`give` never name one -- and a search (`expose` on
+  // a PERSON) uncovers what she carries, not a concealment she declares (a
+  // person declares none). All three are grounded exactly as a noise is, by
+  // their EFFECT citation from the intent, plus -- unlike a noise -- a named
+  // target cited from the intent too: custody always acts on something named.
+  const search = effectKind === "expose" && targetObjectId !== "none" && isPerson(targetObjectId);
+  const custody = effectKind === "take" || effectKind === "give" || search;
+  const propertyNamedWhenRequired = custody || !effectRequiresProperty(effectKind) || (property !== "none" && isDeclared(targetObjectId, property));
   // OPEN-VARIANT.md §13.1: a derive names a declared product, cited from the
   // intent. Whether that product's parent is the target is `effects.ts`'s
   // check, as every "declared in the scenario" check is.
@@ -504,7 +520,7 @@ export function computeRuling(
     instrument !== "absent" &&
     (targetCitation.verified || (noise && targetObjectId === "none")) &&
     effectCitation.verified &&
-    (propertyCitation.verified || noise) &&
+    (propertyCitation.verified || noise || custody) &&
     propertyNamedWhenRequired &&
     productNamedWhenRequired;
 
@@ -581,6 +597,9 @@ export function createReferee(
   const propertiesOf = options.propertiesOf ?? scenarioProperties;
   const instrumentMode = options.instrumentMode ?? "off";
   const deriveWording = options.deriveWording ?? "baseline";
+  // docs/CUSTODY-DESIGN.md: a person is whatever declares a person's own key --
+  // the same test `buildQuestions` uses, so no scenario import is needed here.
+  const isPerson = (objectId: string): boolean => propertiesOf(objectId).some((k) => (PERSON_PROPERTY_KEYS as readonly string[]).includes(k));
   const cache = new Map<string, RefereeRuling>();
   return {
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
@@ -603,7 +622,7 @@ export function createReferee(
       });
       const reader = createTurnReader({ questions, transports: recording });
       const result = withRanges(await reader.read(sources), offered);
-      const ruling = { ...computeRuling(result, { questions, sources }, isDeclared), exchanges };
+      const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson), exchanges };
       cache.set(key, ruling);
       return ruling;
     },
