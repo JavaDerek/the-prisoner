@@ -384,10 +384,30 @@ async function proxy(deps: RouterDeps, url: string, method: string, headers: Rec
 
 /** DeepInfra's backoff: bounded well inside the mind's own 300s timeout even when every attempt
  *  is used (75s of waiting plus the attempts themselves). */
+/** Adds `DEEPINFRA_DEFAULT_MAX_TOKENS` when the body sets no budget of its own. An unparseable body is
+ *  forwarded untouched -- proxying is not this function's job, and the upstream error is the honest answer. */
+function withOutputBudget(bodyBuf: Buffer): Buffer {
+  try {
+    const body = JSON.parse(bodyBuf.toString()) as Record<string, unknown>;
+    if (body.max_tokens !== undefined) return bodyBuf;
+    return Buffer.from(JSON.stringify({ ...body, max_tokens: DEEPINFRA_DEFAULT_MAX_TOKENS }));
+  } catch {
+    return bodyBuf;
+  }
+}
+
+/** DeepInfra defaults `max_tokens` to the model's whole context when a request omits one, which a long
+ *  referee prompt then overflows -- "you requested 40960 output tokens and your prompt contains 12769
+ *  characters", every call refused in under a second (`checkpoints/2026-09-22-referee-capacity/`). A ruling is
+ *  a few hundred tokens of JSON, and a thinking model's reasoning fits well inside this. The caller's own
+ *  `max_tokens`, when it sets one, is never touched. */
+export const DEEPINFRA_DEFAULT_MAX_TOKENS = 8192;
+
 export const DEEPINFRA_BACKOFF_MS: readonly number[] = [3000, 6000, 12000, 24000, 30000];
 
 async function deepInfraCompletion(bodyBuf: Buffer, model: string, reqId: string, started: number, config: RouterConfig, deps: RouterDeps): Promise<ProxyResult> {
   const url = `${config.deepInfraBaseUrl}/chat/completions`;
+  bodyBuf = withOutputBudget(bodyBuf);
   const headers = { "content-type": "application/json", authorization: `Bearer ${config.deepInfraKey}` };
   let r: ProxyResult;
   for (let attempt = 1; ; attempt++) {

@@ -8,6 +8,7 @@
 import { describe, it, expect } from "vitest";
 import { EventEmitter } from "node:events";
 import {
+  DEEPINFRA_DEFAULT_MAX_TOKENS,
   selectRoute,
   configFromEnv,
   translateClaudeRequest,
@@ -461,10 +462,25 @@ describe("POST /v1/chat/completions -> DeepInfra", () => {
     expect(f.calls[0].url).toBe("https://api.deepinfra.com/v1/openai/chat/completions");
     expect(f.calls[0].init?.method).toBe("POST");
     expect(f.calls[0].init?.headers).toEqual({ "content-type": "application/json", authorization: "Bearer di-secret-key-never-logged" });
-    expect(Buffer.from(f.calls[0].init?.body as Buffer).equals(req.body)).toBe(true);
+    // The body is forwarded as sent, except for the output budget DeepInfra needs (below).
+    expect(JSON.parse(Buffer.from(f.calls[0].init?.body as Buffer).toString())).toEqual({ ...JSON.parse(req.body.toString()), max_tokens: DEEPINFRA_DEFAULT_MAX_TOKENS });
     expect(f.calls[0].init?.signal).toBeInstanceOf(AbortSignal);
     expect(delays).toEqual([]);
     expect(logs.find((l) => l.route === "deepinfra")).toMatchObject({ model: MODEL, attempt: 1, status: 200 });
+  });
+
+  // DeepInfra defaults `max_tokens` to the model's whole context when a request omits one, so a long
+  // referee prompt is rejected outright: "This model's maximum context length is 40960 tokens. However, you
+  // requested 40960 output tokens and your prompt contains 12769 characters" -- every call to
+  // Qwen/Qwen3-30B-A3B failed that way in under a second (`checkpoints/2026-09-22-referee-capacity/`).
+  it("supplies an output budget when the caller left one unset, and never overrides the caller's own", async () => {
+    const ok = { choices: [{ message: { content: "[]" } }] };
+    const f = scriptedFetch([json(200, ok), json(200, ok)]);
+    const { deps: d } = deps({ fetchFn: f.fetchFn });
+    await handleRouterRequest(post("/v1/chat/completions", chatBody(MODEL)), CONFIG, d);
+    await handleRouterRequest(post("/v1/chat/completions", chatBody(MODEL, { max_tokens: 64 })), CONFIG, d);
+    expect(JSON.parse(Buffer.from(f.calls[0].init?.body as Buffer).toString()).max_tokens).toBe(DEEPINFRA_DEFAULT_MAX_TOKENS);
+    expect(JSON.parse(Buffer.from(f.calls[1].init?.body as Buffer).toString()).max_tokens).toBe(64);
   });
 
   it("retries 429 engine_overloaded with the recorded backoff (3s, 6s, 12s, 24s, 30s) and serves the first success", async () => {
