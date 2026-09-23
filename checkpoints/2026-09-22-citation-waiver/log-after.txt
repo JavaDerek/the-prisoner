@@ -1,0 +1,67 @@
+b1#2    wrong  loose_tile/none/concealment-  loose_tile/wear/none-  loose_tile/wear/none-  24,24,24s
+b1#4    RIGHT  none/none/none-  spoon/reveal/edge+  spoon/reveal/edge+  300,28,27s
+b1#6    RIGHT  bar/reveal/integrity+  bar/reveal/integrity+  bar/reveal/integrity+  8,17,17s
+b1#7    RIGHT  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+  8,7,7s
+b1#8    wrong  spoon/conceal/concealment-  spoon/reveal/concealment+  spoon/reveal/concealment+  17,9,9s
+b1#11   RIGHT  wire/conceal/concealment+  wire/conceal/concealment+  wire/conceal/concealment+  9,8,8s
+b1#13   wrong  wire/derive/integrity+  wire/derive/integrity+  wire/derive/integrity+  7,7,7s
+b1#14   RIGHT  cot/reveal/integrity+  cot/reveal/integrity+  cot/reveal/integrity+  9,9,9s
+b1#15   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  13,11,11s
+b1#16   wrong  blanket/open/passage-  blanket/open/passage-  blanket/open/passage-  8,7,7s
+b1#17   RIGHT  meal_tray/take/none+  spoon/conceal/concealment+  spoon/conceal/concealment+  31,25,25s
+b1#19   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  10,9,9s
+b1#21   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  9,16,16s
+b1#23   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  9,8,8s
+b1#24   RIGHT  spoon/conceal/concealment+  spoon/conceal/concealment+  spoon/conceal/concealment+  16,7,7s
+b1#25   wrong  spoon/conceal/none-  loose_tile/conceal/concealment+  loose_tile/conceal/concealment+  47,11,11s
+b1#27   RIGHT  door/leave/passage+  door/open/passage+  door/open/passage+  22,14,14s
+b1#29   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  9,10,10s
+b1#30   wrong  blanket/take/integrity+  blanket/take/integrity+  blanket/take/integrity+  7,6,6s
+b1#32   RIGHT  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+  22,12,12s
+b1#33   wrong  meal_tray/take/integrity+  meal_tray/leave/passage-  meal_tray/leave/passage-  25,32,32s
+b1#34   wrong  spoon/wear/edge+  spoon/wear/edge+  spoon/wear/edge+  7,9,9s
+b1#35   wrong  spoon/reveal/integrity-  spoon/reveal/integrity-  spoon/reveal/integrity-  12,11,11s
+b1#42   wrong  spoon/wear/edge+  spoon/wear/edge+  spoon/wear/edge+  10,22,22s
+b1#43   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  8,8,8s
+b1#45   RIGHT  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+  10,7,7s
+b1#46   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  11,10,10s
+b1#48   wrong  door/reveal/integrity-  door/reveal/integrity-  door/reveal/integrity-  17,24,24s
+b1#49   wrong  spoon/wear/edge+  spoon/wear/edge+  spoon/wear/edge+  8,7,7s
+b1#50   RIGHT  lock/reveal/integrity+  lock/reveal/integrity+  lock/reveal/integrity+  7,8,8s
+b1#60   wrong  none/none/none-  none/none/none-  none/none/none-  300,300,300s
+b1#62   wrong  lock/reveal/integrity+  none/none/none-  none/none/none-  26,300,300s
+b1#64   wrong  blanket/conceal/none-  none/none/none-  none/none/none-  28,300,300s
+b1#65   RIGHT  spoon/reveal/edge+  spoon/reveal/edge+  spoon/reveal/edge+  8,7,7s
+b2#2    wrong  spoon/reveal/integrity-  spoon/reveal/integrity-  spoon/reveal/integrity-  12,8,8s
+b2#4    wrong  spoon/none/none-  spoon/none/edge-  spoon/none/edge-  19,21,21s
+b2#5    wrong  spoon/wear/edge+  spoon/wear/edge+  spoon/wear/edge+  20,9,9s
+b2#6    wrong  spoon/wear/edge+  spoon/wear/edge+  spoon/wear/edge+  21,22,22s
+b2#7    RIGHT  lock/reveal/none-  lock/reveal/integrity+  lock/reveal/integrity+  9,8,8s
+b2#8    wrong  prisoner/reveal/posture-  prisoner/reveal/posture-  prisoner/reveal/posture-  8,8,8s
+b2#9    wrong  spoon/wear/edge+  spoon/wear/edge+  spoon/wear/edge+  8,7,7s
+b2#10   RIGHT  spoon/reveal/integrity-  spoon/reveal/edge+  spoon/reveal/edge+  9,9,9s
+b2#12   wrong  spoon/wear/posture-  spoon/noise/none+  spoon/noise/none+  8,16,16s
+act#1   RIGHT  expect several  got several,several,several  Examine the bar in the window closely, then go and check the
+act#2   RIGHT  expect several  got several,several,several  Untwist a wire from the cot springs and use it to pick the l
+act#3   RIGHT  expect several  got several,several,several  Knock Croft to the floor and take the key ring off her belt.
+act#4   RIGHT  expect several  got several,several,several  Pick the lock with the wire and slip out into the corridor.
+act#5   RIGHT  expect several  got several,several,several  Pat Voss down, then confiscate the spoon.
+act#6   RIGHT  expect several  got several,several,several  Scrape at the mortar around the bar, then hide the spoon und
+act#7   RIGHT  expect several  got several,several,several  Open the window and climb through it.
+act#8   RIGHT  expect several  got several,several,several  Shut the cell door and then examine the lock.
+act#9   wrong  expect one  got several,several,several  Walk over to the window, take hold of the bar and twist it i
+act#10  RIGHT  expect one  got one,one,one  Kneel by the cot and untwist a length of wire from the sprin
+act#11  RIGHT  expect one  got one,one,one  Reach up to the window and run my fingers along the bar's ba
+act#12  wrong  expect one  got several,several,several  Pick up the bucket and bang it against the wall.
+act#13  RIGHT  expect one  got one,one,one  Crouch by the tile, lift it, and scrape out the grit beneath
+act#14  RIGHT  expect one  got one,one,one  Step over to Voss and pat her down for anything hidden.
+act#15  RIGHT  expect one  got one,one,one  Bend down over Croft where she lies and pull the key ring of
+act#16  RIGHT  expect one  got one,one,one  Walk to the door, bend to the gap, and push the bolt back wi
+act#17  wrong  expect one  got several,several,several  Sit on the cot and tuck the spoon into the blanket's hem.
+act#18  RIGHT  expect one  got one,one,one  Pick up the spoon and hold it up to the window light to exam
+act#19  RIGHT  expect one  got one,one,one  Examine the door's hinges.
+act#20  RIGHT  expect one  got one,one,one  Scream for help at the top of my lungs.
+act#21  RIGHT  expect one  got one,one,one  Close the window.
+act#22  RIGHT  expect one  got one,one,one  Hand the spoon to Croft.
+
+qwen3:14b: main 21/43 right; one-act 19/22
