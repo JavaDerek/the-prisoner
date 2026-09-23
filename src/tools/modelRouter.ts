@@ -405,6 +405,18 @@ export const DEEPINFRA_DEFAULT_MAX_TOKENS = 8192;
 
 export const DEEPINFRA_BACKOFF_MS: readonly number[] = [3000, 6000, 12000, 24000, 30000];
 
+/** `{ usage: { in, out } }` from a reply that carries token counts, or nothing at all. Never throws: a body that
+ *  does not parse is the upstream's business, and a log line is not worth failing a request over. */
+function usageOf(r: ProxyResult): { usage?: { in: number; out: number } } {
+  try {
+    const u = (JSON.parse(r.buf.toString()) as { usage?: { prompt_tokens?: number; completion_tokens?: number } }).usage;
+    if (typeof u?.prompt_tokens !== "number" || typeof u?.completion_tokens !== "number") return {};
+    return { usage: { in: u.prompt_tokens, out: u.completion_tokens } };
+  } catch {
+    return {};
+  }
+}
+
 async function deepInfraCompletion(bodyBuf: Buffer, model: string, reqId: string, started: number, config: RouterConfig, deps: RouterDeps): Promise<ProxyResult> {
   const url = `${config.deepInfraBaseUrl}/chat/completions`;
   bodyBuf = withOutputBudget(bodyBuf);
@@ -419,7 +431,9 @@ async function deepInfraCompletion(bodyBuf: Buffer, model: string, reqId: string
       r = { status: 599, contentType: "application/json", buf: Buffer.from(JSON.stringify({ error: { message: `shim: attempt failed: ${String(e)}` } })) };
     }
     const retryable = r.status === 429 || r.status >= 500;
-    deps.log({ reqId, route: "deepinfra", model, attempt, status: r.status, ms: deps.nowFn() - started, ...(r.status !== 200 ? { body: r.buf.toString().slice(0, 300) } : {}) });
+    // The token counts separate a model that WRITES a lot (its own behaviour, which follows it to any host) from
+    // one that WAITED (someone else's queue, which does not) -- the same `usage` shape the claude path logs.
+    deps.log({ reqId, route: "deepinfra", model, attempt, status: r.status, ms: deps.nowFn() - started, ...usageOf(r), ...(r.status !== 200 ? { body: r.buf.toString().slice(0, 300) } : {}) });
     if (!retryable || attempt > DEEPINFRA_BACKOFF_MS.length) return r;
     await deps.delayFn(DEEPINFRA_BACKOFF_MS[attempt - 1]);
   }

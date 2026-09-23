@@ -469,6 +469,16 @@ describe("POST /v1/chat/completions -> DeepInfra", () => {
     expect(logs.find((l) => l.route === "deepinfra")).toMatchObject({ model: MODEL, attempt: 1, status: 200 });
   });
 
+  // A slow ruling is either the model writing a lot (its own behaviour, which follows it to any host) or waiting
+  // in someone else's queue (which does not). DeepInfra returns token counts on every reply; logging them is what
+  // tells the two apart (`checkpoints/2026-09-22-referee-capacity/`).
+  it("logs the reply's token counts beside the latency", async () => {
+    const f = scriptedFetch([json(200, { choices: [{ message: { content: "[]" } }], usage: { prompt_tokens: 3210, completion_tokens: 1980 } })]);
+    const { deps: d, logs } = deps({ fetchFn: f.fetchFn });
+    await handleRouterRequest(post("/v1/chat/completions", chatBody(MODEL)), CONFIG, d);
+    expect(logs.find((l) => l.route === "deepinfra")).toMatchObject({ status: 200, usage: { in: 3210, out: 1980 } });
+  });
+
   // DeepInfra defaults `max_tokens` to the model's whole context when a request omits one, so a long
   // referee prompt is rejected outright: "This model's maximum context length is 40960 tokens. However, you
   // requested 40960 output tokens and your prompt contains 12769 characters" -- every call to
