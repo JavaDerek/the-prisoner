@@ -1,6 +1,38 @@
 import { execSync } from "node:child_process";
 
 /**
+ * The untracked paths a RUN creates by running, which therefore say nothing
+ * about the code it ran (`checkpoints/2026-09-23-phase1-b3/RESULTS.md`).
+ *
+ * Batch 3 was run from a worktree pinned at `3fd875e` with no tracked file
+ * differing from it, and every one of its ten transcripts still read PLUS
+ * UNCOMMITTED CHANGES. The cause is circular: `checkpoint.ts` WRITES ITS OWN
+ * TRANSCRIPT into `checkpoints/`, inside the tree this function inspects, so a
+ * real batch dirties itself at round one and the `(clean)` case -- the one
+ * case the line exists to report -- became unreachable. `node_modules` is the
+ * same shape: a pinned worktree is handed one (a symlink, or its own install)
+ * purely so it can run at all.
+ *
+ * ONLY untracked (`??`) entries are forgiven, and only under these paths. A
+ * TRACKED change to anything, `checkpoints/` included, is still reported: this
+ * repository commits its transcripts unedited, bad runs and all, so an edit to
+ * one is exactly the kind of thing a reader must be told about.
+ */
+const RUN_CREATED_PREFIXES = ["checkpoints/", "node_modules"];
+
+function dirtyLines(status: string): string[] {
+  return status
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .filter((line) => {
+      if (!line.startsWith("??")) return true;
+      const path = line.slice(2).trim().replace(/^"|"$/g, "");
+      return !RUN_CREATED_PREFIXES.some((prefix) => path === prefix || path.startsWith(prefix));
+    });
+}
+
+/**
  * The revision a run's transcript ran on, for the transcript's own header.
  *
  * Why this exists (root `CLAUDE.md` and this repository's own "run a batch from
@@ -18,6 +50,7 @@ import { execSync } from "node:child_process";
  * and any failure degrades to "unknown": bookkeeping must never bring down a
  * game that is already talking to a model.
  */
+
 export function describeRunRevision(
   head: () => string = () => execSync("git rev-parse --short HEAD", { encoding: "utf8" }),
   status: () => string = () => execSync("git status --porcelain", { encoding: "utf8" })
@@ -25,7 +58,7 @@ export function describeRunRevision(
   try {
     const sha = head().trim();
     if (sha.length === 0) return "unknown (no revision available)";
-    return status().trim().length > 0 ? `\`${sha}\` PLUS UNCOMMITTED CHANGES -- this run names no single revision` : `\`${sha}\` (clean)`;
+    return dirtyLines(status()).length > 0 ? `\`${sha}\` PLUS UNCOMMITTED CHANGES -- this run names no single revision` : `\`${sha}\` (clean)`;
   } catch {
     return "unknown (no revision available)";
   }
