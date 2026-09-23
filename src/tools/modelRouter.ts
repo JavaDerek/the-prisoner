@@ -12,7 +12,17 @@
 //   - a model containing `/` (an org/model id such as `Qwen/...`) -> DeepInfra's OpenAI-compatible
 //     endpoint, with retry-with-backoff, because it answers `engine_overloaded` about one call in
 //     three and a silent arm measures nothing;
+//   - a model named in `SHIM_LOCAL_MODELS` -> `SHIM_LOCAL_URL`, a second OpenAI-compatible runtime
+//     on the same machine as doris's Ollama (below);
 //   - everything else -> doris `/v1/chat/completions`, proxied unchanged.
+//
+// The local route exists because doris's Ollama cannot load every GGUF worth measuring: batch 3's
+// referee (`checkpoints/2026-09-23-phase1-b3/`) is `muse-glimmer`, an architecture that build
+// rejects outright, so it is served by a `llama-server` on another port of the same box and the
+// Ollama install is left untouched. Only the CHAT call moves. `/api/ps` still asks the real Ollama,
+// which is what keeps `assertNoForeignModel` honest about a card this run does not own alone, and
+// the model is named explicitly rather than sniffed from its id, because nothing in an id says
+// which runtime happens to hold it today.
 //
 // The doris path has a per-attempt timeout and one retry too, since 2026-09-21. That night's
 // phase1-b1 batch (`checkpoints/2026-09-21-phase1-b1/logs/router.log`) lost two half-rounds to
@@ -77,6 +87,10 @@ export interface RouterConfig {
   deepInfraBaseUrl: string;
   deepInfraKey: string;
   hideModels: ReadonlySet<string>;
+  /** `SHIM_LOCAL_URL`: an OpenAI-compatible runtime beside doris's Ollama, empty when unused. */
+  localBaseUrl: string;
+  /** `SHIM_LOCAL_MODELS`: exactly the model ids served there. */
+  localModels: ReadonlySet<string>;
   claudeCwd: string;
   claudeTimeoutMs: number;
   deepInfraAttemptTimeoutMs: number;
@@ -93,6 +107,8 @@ export function configFromEnv(env: NodeJS.ProcessEnv, cwd: string): RouterConfig
     deepInfraBaseUrl: DEFAULT_DEEPINFRA,
     deepInfraKey: env.DEEPINFRA_API_KEY ?? "",
     hideModels: new Set((env.SHIM_HIDE_MODELS ?? DEFAULT_HIDE_MODELS).split(",").filter(Boolean)),
+    localBaseUrl: (env.SHIM_LOCAL_URL ?? "").replace(/\/+$/, ""),
+    localModels: new Set((env.SHIM_LOCAL_MODELS ?? "").split(",").map((m) => m.trim()).filter(Boolean)),
     claudeCwd: env.SHIM_CLAUDE_CWD ?? cwd,
     claudeTimeoutMs: Number(env.SHIM_CLAUDE_TIMEOUT_MS ?? DEFAULT_CLAUDE_TIMEOUT_MS),
     deepInfraAttemptTimeoutMs: Number(env.SHIM_DEEPINFRA_ATTEMPT_TIMEOUT_MS ?? DEFAULT_DEEPINFRA_ATTEMPT_TIMEOUT_MS),
@@ -103,15 +119,18 @@ export function configFromEnv(env: NodeJS.ProcessEnv, cwd: string): RouterConfig
 
 // ---------------------------------------------------------------- route selection
 
-export type Route = "claude" | "deepinfra" | "doris";
+export type Route = "claude" | "deepinfra" | "doris" | "local";
 
 const CLAUDE_ALIASES: ReadonlySet<string> = new Set(["opus", "sonnet", "haiku"]);
 
 /** Exact aliases and the `claude-` prefix only: an Ollama tag that happens to be named after
- *  Claude (`claude:7b`) is a doris model like any other. */
-export function selectRoute(model: string): Route {
+ *  Claude (`claude:7b`) is a doris model like any other. `localModels` is consulted after both
+ *  of those, so a listed name can never capture an id that costs money or a subscription --
+ *  the list is a deployment detail (which runtime holds the weights), never a routing override. */
+export function selectRoute(model: string, localModels: ReadonlySet<string> = new Set()): Route {
   if (CLAUDE_ALIASES.has(model) || model.startsWith("claude-")) return "claude";
   if (model.includes("/")) return "deepinfra";
+  if (localModels.has(model)) return "local";
   return "doris";
 }
 
@@ -443,8 +462,17 @@ async function deepInfraCompletion(bodyBuf: Buffer, model: string, reqId: string
  *  the per-attempt timeout, or a connection that threw. Doris's own error status is its answer. */
 const DORIS_ATTEMPTS = 2;
 
-async function dorisCompletion(bodyBuf: Buffer, model: string, reqId: string, started: number, config: RouterConfig, deps: RouterDeps): Promise<ProxyResult> {
-  const url = `${config.dorisBaseUrl}/v1/chat/completions`;
+async function upstreamCompletion(
+  baseUrl: string,
+  route: "doris" | "local",
+  bodyBuf: Buffer,
+  model: string,
+  reqId: string,
+  started: number,
+  config: RouterConfig,
+  deps: RouterDeps
+): Promise<ProxyResult> {
+  const url = `${baseUrl}/v1/chat/completions`;
   let last: unknown;
   for (let attempt = 1; attempt <= DORIS_ATTEMPTS; attempt++) {
     let r: ProxyResult;
@@ -454,13 +482,13 @@ async function dorisCompletion(bodyBuf: Buffer, model: string, reqId: string, st
       // Logged with the same 599 the DeepInfra path uses for a failed attempt, so one log reader
       // serves both; the mind gets a 502 (below) only if the second attempt fails too.
       last = e;
-      deps.log({ reqId, route: "doris", model, attempt, status: 599, ms: deps.nowFn() - started, body: `shim: attempt failed: ${String(e)}` });
+      deps.log({ reqId, route, model, attempt, status: 599, ms: deps.nowFn() - started, body: `shim: attempt failed: ${String(e)}` });
       continue;
     }
-    deps.log({ reqId, route: "doris", model, attempt, status: r.status, ms: deps.nowFn() - started, ...(r.status !== 200 ? { body: r.buf.toString().slice(0, 500) } : {}) });
+    deps.log({ reqId, route, model, attempt, status: r.status, ms: deps.nowFn() - started, ...(r.status !== 200 ? { body: r.buf.toString().slice(0, 500) } : {}) });
     return r;
   }
-  throw new Error(`doris produced no reply in ${DORIS_ATTEMPTS} attempts of ${config.dorisAttemptTimeoutMs}ms each; last: ${String(last)}`);
+  throw new Error(`${route} produced no reply in ${DORIS_ATTEMPTS} attempts of ${config.dorisAttemptTimeoutMs}ms each; last: ${String(last)}`);
 }
 
 // ---------------------------------------------------------------- /api/ps
@@ -518,7 +546,7 @@ async function chatCompletions(bodyBuf: Buffer, reqId: string, started: number, 
   }
   const model = String(body.model ?? "");
   dumpRequest(config, deps, reqId, model, bodyBuf);
-  switch (selectRoute(model)) {
+  switch (selectRoute(model, config.localModels)) {
     case "claude": {
       const r = await claudeCompletion(body, reqId, config, deps);
       deps.log({
@@ -539,7 +567,11 @@ async function chatCompletions(bodyBuf: Buffer, reqId: string, started: number, 
       return reply(r.status, r.buf, { "content-type": r.contentType });
     }
     case "doris": {
-      const r = await dorisCompletion(bodyBuf, model, reqId, started, config, deps);
+      const r = await upstreamCompletion(config.dorisBaseUrl, "doris", bodyBuf, model, reqId, started, config, deps);
+      return reply(r.status, r.buf, { "content-type": r.contentType });
+    }
+    case "local": {
+      const r = await upstreamCompletion(config.localBaseUrl, "local", bodyBuf, model, reqId, started, config, deps);
       return reply(r.status, r.buf, { "content-type": r.contentType });
     }
   }

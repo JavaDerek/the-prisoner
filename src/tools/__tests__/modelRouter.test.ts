@@ -33,6 +33,8 @@ const CONFIG: RouterConfig = {
   deepInfraBaseUrl: "https://api.deepinfra.com/v1/openai",
   deepInfraKey: "di-secret-key-never-logged",
   hideModels: new Set(["qwen3:14b"]),
+  localBaseUrl: "",
+  localModels: new Set<string>(),
   claudeCwd: "/tmp/claude-cwd",
   claudeTimeoutMs: 280_000,
   deepInfraAttemptTimeoutMs: 120_000,
@@ -184,6 +186,23 @@ describe("selectRoute -- the one rule the whole shim turns on", () => {
     expect(selectRoute("")).toBe("doris");
   });
 
+  it("sends a model named in SHIM_LOCAL_MODELS to the local runtime, ahead of the doris default", () => {
+    // 2026-09-23: doris's Ollama cannot load every GGUF worth measuring -- `muse-glimmer` is an
+    // architecture its build does not know -- so such a model is served by a `llama-server` beside
+    // it on another port. Naming the model is what picks that route; nothing about the id says it.
+    const local = new Set(["muse-glimmer-30b"]);
+    expect(selectRoute("muse-glimmer-30b", local)).toBe("local");
+    expect(selectRoute("qwen3:14b", local)).toBe("doris");
+    expect(selectRoute("muse-glimmer-30b")).toBe("doris");
+  });
+
+  it("never lets a local name capture a Claude or DeepInfra id, whatever is listed", () => {
+    // The listed set is consulted only after the two routes that cost money or a subscription.
+    const local = new Set(["claude-opus-4-6", "Qwen/Qwen3-235B-A22B-Instruct-2507"]);
+    expect(selectRoute("claude-opus-4-6", local)).toBe("claude");
+    expect(selectRoute("Qwen/Qwen3-235B-A22B-Instruct-2507", local)).toBe("deepinfra");
+  });
+
   it("does not mistake a model merely named after Claude for a CLI route", () => {
     // Only the exact aliases and the `claude-` prefix: an Ollama tag like `claude:7b` stays on doris.
     expect(selectRoute("claude:7b")).toBe("doris");
@@ -204,6 +223,14 @@ describe("configFromEnv -- every knob is an env var, with the scratch shim's def
     expect(c.claudeCwd).toBe("/cwd");
     expect(c.deepInfraKey).toBe("");
     expect(c.dumpDir).toBe("");
+    expect(c.localBaseUrl).toBe("");
+    expect(c.localModels.size).toBe(0);
+  });
+
+  it("reads SHIM_LOCAL_URL and SHIM_LOCAL_MODELS, the second runtime beside doris's Ollama", () => {
+    const c = configFromEnv({ SHIM_LOCAL_URL: "http://doris:11435/", SHIM_LOCAL_MODELS: "muse-glimmer-30b,other:1b," }, "/cwd");
+    expect(c.localBaseUrl).toBe("http://doris:11435");
+    expect([...c.localModels]).toEqual(["muse-glimmer-30b", "other:1b"]);
   });
 
   it("reads every SHIM_* override and the DeepInfra key from env only", () => {
@@ -715,6 +742,58 @@ describe("POST /v1/chat/completions -> doris, unchanged", () => {
 });
 
 // ---------------------------------------------------------------- /api/ps and /api/generate
+
+describe("POST /v1/chat/completions -> a local runtime beside doris (SHIM_LOCAL_URL)", () => {
+  // Batch 3's referee is a GGUF doris's Ollama build cannot load at all ("unknown model
+  // architecture: 'muse-glimmer'"), served by `llama-server` on another port of the same machine.
+  // Only the chat call moves: `/api/ps` still asks the real Ollama, so the swapper's
+  // foreign-model guard still sees what it would have seen (`checkpoints/2026-09-23-phase1-b3/`).
+  const LOCAL: RouterConfig = { ...CONFIG, localBaseUrl: "http://doris:11435", localModels: new Set(["muse-glimmer-30b"]) };
+
+  it("proxies the body byte-for-byte to SHIM_LOCAL_URL/v1/chat/completions and logs it as its own route", async () => {
+    const reply = { choices: [{ message: { content: "[]" } }] };
+    const f = scriptedFetch([json(200, reply)]);
+    const { deps: d, logs } = deps({ fetchFn: f.fetchFn });
+    const req = post("/v1/chat/completions", chatBody("muse-glimmer-30b"));
+    const res = await handleRouterRequest(req, LOCAL, d);
+    expect(res.status).toBe(200);
+    expect(parsed(res)).toEqual(reply);
+    expect(f.calls[0].url).toBe("http://doris:11435/v1/chat/completions");
+    expect(Buffer.from(f.calls[0].init?.body as Buffer).equals(req.body)).toBe(true);
+    expect(logs.find((l) => l.route === "local")).toMatchObject({ model: "muse-glimmer-30b", status: 200, attempt: 1 });
+  });
+
+  it("gets the same one retry of a hung attempt the doris path has, for the same reason", async () => {
+    const f = scriptedFetch([
+      async (_url, init) => {
+        expect(init?.signal?.aborted).toBe(true);
+        throw new DOMException("The operation was aborted", "TimeoutError");
+      },
+      json(200, { ok: true }),
+    ]);
+    let first = true;
+    const { deps: d, logs } = deps({
+      fetchFn: f.fetchFn,
+      attemptSignalFn: () => {
+        if (!first) return new AbortController().signal;
+        first = false;
+        return AbortSignal.abort();
+      },
+    });
+    const res = await handleRouterRequest(post("/v1/chat/completions", chatBody("muse-glimmer-30b")), LOCAL, d);
+    expect(res.status).toBe(200);
+    expect(f.calls).toHaveLength(2);
+    expect(logs.filter((l) => l.route === "local").map((l) => l.attempt)).toEqual([1, 2]);
+  });
+
+  it("leaves /api/ps pointed at the real Ollama, so the foreign-model guard still fires", async () => {
+    const f = scriptedFetch([json(200, { models: [{ name: "somebody-elses:70b" }] })]);
+    const { deps: d } = deps({ fetchFn: f.fetchFn });
+    const res = await handleRouterRequest({ method: "GET", url: "/api/ps", headers: {}, body: Buffer.alloc(0) }, LOCAL, d);
+    expect(f.calls[0].url).toBe("http://doris:11434/api/ps");
+    expect(parsed(res)).toEqual({ models: [{ name: "somebody-elses:70b" }] });
+  });
+});
 
 describe("filterLoadedModels -- hide the resident, show everyone else", () => {
   const loaded = (name: string) => ({ name, size: 1, size_vram: 1, expires_at: "2300-01-01T00:00:00Z" });
