@@ -1,6 +1,6 @@
 import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type TransportAnswer } from "run-dmcp";
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
-import { findObject, findProperty, type OpenPropertyKey } from "./scenarioObjects.js";
+import { findObject, OPEN_PERSONS, type OpenObjectSpec, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
 import type { RangedCitation } from "./refereeTransport.js";
 
@@ -251,10 +251,26 @@ function cacheKeyFor(intentText: string, perceivedObjects: readonly ObjectPercep
 export type KindOf = (objectId: string) => string | undefined;
 const noKinds: KindOf = () => undefined;
 
-/** The property keys an object declares -- the §4.1 objects by default; a
- *  caller with a world hands in one that knows objects derived in this game. */
+/** The §4.1 objects AND the two principals, which are shaped exactly like
+ *  objects (`OPEN_PERSONS`) and have been targetable since §55.
+ *  `perception.ts` already falls back the same way, for the same reason.
+ *
+ *  `../../checkpoints/2026-09-22-citation-waiver/RESULTS.md` recorded the gap
+ *  this closes: the defaults below knew the objects and not the persons, so a
+ *  caller relying on them "cannot tell a person from a thing". Nothing in play
+ *  was affected -- the game always passes its own `propertiesOf` from the
+ *  world -- and that file named fixing this as the precondition for any change
+ *  that turns person-ness on in the default path, §55's grounding rule first
+ *  among them. */
+function scenarioSpec(objectId: string): OpenObjectSpec | undefined {
+  return findObject(objectId) ?? OPEN_PERSONS.find((p) => p.id === objectId);
+}
+
+/** The property keys an object declares -- the §4.1 objects and the two
+ *  principals by default; a caller with a world hands in one that knows
+ *  objects derived in this game. */
 export type PropertiesOf = (objectId: string) => readonly string[];
-const scenarioProperties: PropertiesOf = (objectId) => findObject(objectId)?.properties.map((p) => p.key) ?? [];
+const scenarioProperties: PropertiesOf = (objectId) => scenarioSpec(objectId)?.properties.map((p) => p.key) ?? [];
 
 function buildQuestions(
   perceivedObjects: readonly ObjectPerception[],
@@ -457,7 +473,7 @@ const NO_INSTRUMENT_CITATION: CitationCheck = { citation: null, requiredSourceId
  *  caller with a world hands in `declaredProperty` (`world.ts`) so objects
  *  derived in this game (OPEN-VARIANT.md §13.3) count too. */
 export type DeclaredPropertyCheck = (objectId: string, property: string) => boolean;
-const declaredInScenario: DeclaredPropertyCheck = (objectId, property) => !!findProperty(objectId, property as OpenPropertyKey);
+const declaredInScenario: DeclaredPropertyCheck = (objectId, property) => !!scenarioSpec(objectId)?.properties.some((p) => p.key === property);
 
 /** Builds the ruling from a completed read -- pure, so it is unit-testable
  *  against a hand-built `ReaderResult` without ever constructing a reader. */

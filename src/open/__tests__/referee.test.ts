@@ -847,6 +847,44 @@ describe("PRISONER_DERIVE_WORDING (OPEN-VARIANT.md §51, the-prisoner#18)", () =
 // against a PERCEIVED PRINCIPAL, so the discipline is pinned before gap 3
 // (a person's own bounded numeric property) ever gives it something real to
 // protect.
+describe("the default lookups know the two principals, not only the objects", () => {
+  // `../../checkpoints/2026-09-22-citation-waiver/RESULTS.md` found this and named it as a
+  // precondition: `referee.ts`'s defaults knew the §4.1 objects and not `OPEN_PERSONS`, so a
+  // caller relying on them "cannot tell a person from a thing". Harmless while nothing on the
+  // default path asked -- the game always passes its own `propertiesOf` from the world -- and not
+  // harmless for any future change that turns person-ness on there, §55's grounding rule first
+  // among them. `perception.ts` already falls back the same way.
+  const PRISONER_PERCEPTION: ObjectPerception = {
+    id: "prisoner",
+    description: "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet.",
+  };
+
+  it("a person's own declared property is offered, and grounds a ruling, with no options passed", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "prisoner", citation: { sourceId: "intent", quote: "Voss" } },
+      effect: { answerKey: "reveal", citation: { sourceId: "intent", quote: "study" } },
+      property: { answerKey: "posture", citation: { sourceId: "desc:prisoner", quote: "She is on her feet." } },
+      magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "study" } },
+      perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "study" } },
+    });
+    const ruling = await createReferee([transport]).rule("I study Voss and how she stands.", [PRISONER_PERCEPTION]);
+    expect(ruling.property).toBe("posture");
+    expect(ruling.applicable).toBe(true);
+  });
+
+  it("PLANTED VIOLATION: a property the person does NOT declare is still refused on the default path", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "prisoner", citation: { sourceId: "intent", quote: "Voss" } },
+      effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "strike" } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:prisoner", quote: "She is on her feet." } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "strike" } },
+      perceptibility: { answerKey: "visible", citation: { sourceId: "intent", quote: "strike" } },
+    });
+    const ruling = await createReferee([transport]).rule("I strike Voss.", [PRISONER_PERCEPTION]);
+    expect(ruling.applicable).toBe(false);
+  });
+});
+
 describe("THE GROUNDING RULE (OPEN-VARIANT.md §55, issue #22): a person-property change must cite the target's own description, never the spoken words", () => {
   const PRISONER: ObjectPerception = { id: "prisoner", description: "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her." };
 
