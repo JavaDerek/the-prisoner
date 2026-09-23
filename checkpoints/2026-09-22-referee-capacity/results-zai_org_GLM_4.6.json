@@ -1,0 +1,90 @@
+{
+ "model": "zai-org/GLM-4.6",
+ "n": 1,
+ "started": "2026-09-23T01:55:08.529Z",
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "none/none",
+     "property": "none",
+     "applicable": false,
+     "right": false,
+     "secs": 300
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "door/open",
+     "property": "passage",
+     "applicable": true,
+     "right": true,
+     "secs": 112
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "none/none",
+     "property": "none",
+     "applicable": false,
+     "right": false,
+     "secs": 300
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 113
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 111
+    }
+   ],
+   "right": true
+  }
+ ],
+ "oneAct": []
+}

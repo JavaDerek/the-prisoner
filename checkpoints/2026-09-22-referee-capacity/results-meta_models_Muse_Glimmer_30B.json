@@ -1,0 +1,886 @@
+{
+ "model": "meta-models/Muse-Glimmer-30B",
+ "n": 1,
+ "started": "2026-09-23T12:50:27.533Z",
+ "rows": [
+  {
+   "id": "b1#2",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#4",
+   "accept": [
+    "spoon/reveal",
+    "loose_tile/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#6",
+   "accept": [
+    "bar/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "bar/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 4
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#7",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 3
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#8",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "wire/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": true,
+     "secs": 7
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#11",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "wire/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "wire/conceal",
+     "property": "none",
+     "applicable": false,
+     "right": false,
+     "secs": 6
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#14",
+   "accept": [
+    "cot/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "cot/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 4
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#15",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "door/leave",
+     "property": "passage",
+     "applicable": true,
+     "right": true,
+     "secs": 8
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#17",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#19",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 4
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#21",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#23",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 3
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#24",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": true,
+     "secs": 7
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#27",
+   "accept": [
+    "key_ring/take",
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "door/leave",
+     "property": "passage",
+     "applicable": true,
+     "right": true,
+     "secs": 7
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#29",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#30",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "blanket/take",
+     "property": "none",
+     "applicable": true,
+     "right": false,
+     "secs": 6
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#32",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 4
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#33",
+   "accept": [
+    "door/leave",
+    "meal_tray/take"
+   ],
+   "tries": [
+    {
+     "keys": "door/leave",
+     "property": "passage",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#34",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 7
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#35",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#42",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/wear",
+     "property": "edge",
+     "applicable": true,
+     "right": false,
+     "secs": 8
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#43",
+   "accept": [
+    "spoon/reveal",
+    "spoon/take"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/take",
+     "property": "none",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#45",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#46",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#48",
+   "accept": [
+    "lock/reveal",
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "door/reveal",
+     "property": "passage",
+     "applicable": true,
+     "right": false,
+     "secs": 9
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#49",
+   "accept": [
+    "spoon/restore",
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "cot/wear",
+     "property": "integrity",
+     "applicable": true,
+     "right": false,
+     "secs": 11
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#60",
+   "accept": [
+    "spoon/reveal",
+    "loose_tile/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#62",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#64",
+   "accept": [
+    "warden/wear",
+    "bar/wear"
+   ],
+   "tries": [
+    {
+     "keys": "bar/open",
+     "property": "integrity",
+     "applicable": true,
+     "right": false,
+     "secs": 8
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#65",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 4
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#2",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 4
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#4",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "prisoner/wear",
+     "property": "posture",
+     "applicable": true,
+     "right": false,
+     "secs": 9
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 7
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#6",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#7",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 4
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#8",
+   "accept": [
+    "prisoner/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "prisoner/reveal",
+     "property": "posture",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#9",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/restore",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 8
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#10",
+   "accept": [
+    "spoon/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/reveal",
+     "property": "edge",
+     "applicable": true,
+     "right": true,
+     "secs": 5
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#12",
+   "accept": [
+    "prisoner/wear",
+    "spoon/take"
+   ],
+   "tries": [
+    {
+     "keys": "prisoner/wear",
+     "property": "posture",
+     "applicable": true,
+     "right": true,
+     "secs": 6
+    }
+   ],
+   "right": true
+  }
+ ],
+ "oneAct": [
+  {
+   "id": "act#1",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#2",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#3",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#4",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#5",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#6",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#7",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#8",
+   "expect": "several",
+   "answers": [
+    "several"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#9",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#10",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#11",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#12",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#13",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#14",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#15",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#16",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#17",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#18",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#19",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#20",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#21",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  },
+  {
+   "id": "act#22",
+   "expect": "one",
+   "answers": [
+    "one"
+   ],
+   "right": true
+  }
+ ]
+}

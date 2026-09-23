@@ -1,0 +1,90 @@
+{
+ "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+ "n": 1,
+ "started": "2026-09-23T02:49:22.005Z",
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "bar/open",
+     "property": "integrity",
+     "applicable": true,
+     "right": false,
+     "secs": 17
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "door/none",
+     "property": "passage",
+     "applicable": false,
+     "right": false,
+     "secs": 8
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "loose_tile/open",
+     "property": "concealment",
+     "applicable": true,
+     "right": false,
+     "secs": 7
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 7
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/wear",
+     "property": "edge",
+     "applicable": false,
+     "right": false,
+     "secs": 6
+    }
+   ],
+   "right": false
+  }
+ ],
+ "oneAct": []
+}

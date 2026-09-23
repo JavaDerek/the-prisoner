@@ -1,0 +1,7 @@
+b1#13   wrong  none/none/none-  300s
+b1#16   RIGHT  door/open/passage+  112s
+b1#25   wrong  none/none/none-  300s
+b1#50   RIGHT  lock/reveal/integrity+  113s
+b2#5    RIGHT  spoon/restore/edge+  111s
+
+zai-org/GLM-4.6: main 3/5 right; one-act 0/0

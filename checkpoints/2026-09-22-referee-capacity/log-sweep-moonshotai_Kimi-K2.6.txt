@@ -1,0 +1,7 @@
+b1#13   wrong  none/none/none-  103s
+b1#16   wrong  none/none/none-  0s
+b1#25   wrong  none/none/none-  0s
+b1#50   wrong  none/none/none-  0s
+b2#5    wrong  none/none/none-  0s
+
+moonshotai/Kimi-K2.6: main 0/5 right; one-act 0/0

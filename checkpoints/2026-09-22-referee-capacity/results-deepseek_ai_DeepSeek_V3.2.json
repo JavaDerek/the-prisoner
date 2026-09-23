@@ -1,0 +1,90 @@
+{
+ "model": "deepseek-ai/DeepSeek-V3.2",
+ "n": 1,
+ "started": "2026-09-23T01:53:33.935Z",
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "wire/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": true,
+     "secs": 19
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "blanket/take",
+     "property": "none",
+     "applicable": true,
+     "right": false,
+     "secs": 25
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "applicable": false,
+     "right": false,
+     "secs": 18
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "door/reveal",
+     "property": "integrity",
+     "applicable": false,
+     "right": false,
+     "secs": 11
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/wear",
+     "property": "edge",
+     "applicable": true,
+     "right": false,
+     "secs": 21
+    }
+   ],
+   "right": false
+  }
+ ],
+ "oneAct": []
+}

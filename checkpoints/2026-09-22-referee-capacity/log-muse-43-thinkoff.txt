@@ -1,0 +1,67 @@
+b1#2    RIGHT  spoon/restore/edge+  6s
+b1#4    RIGHT  spoon/reveal/edge+  6s
+b1#6    RIGHT  bar/reveal/integrity+  4s
+b1#7    RIGHT  lock/reveal/integrity+  3s
+b1#8    RIGHT  wire/conceal/concealment+  7s
+b1#11   RIGHT  wire/conceal/concealment+  6s
+b1#13   wrong  wire/conceal/none-  6s
+b1#14   RIGHT  cot/reveal/integrity+  4s
+b1#15   RIGHT  spoon/reveal/edge+  5s
+b1#16   RIGHT  door/leave/passage+  8s
+b1#17   RIGHT  spoon/conceal/concealment+  5s
+b1#19   RIGHT  spoon/reveal/edge+  4s
+b1#21   RIGHT  spoon/reveal/edge+  5s
+b1#23   RIGHT  spoon/reveal/edge+  3s
+b1#24   RIGHT  spoon/conceal/concealment+  5s
+b1#25   RIGHT  spoon/conceal/concealment+  7s
+b1#27   RIGHT  door/leave/passage+  7s
+b1#29   RIGHT  spoon/reveal/edge+  5s
+b1#30   wrong  blanket/take/none+  6s
+b1#32   RIGHT  lock/reveal/integrity+  4s
+b1#33   RIGHT  door/leave/passage+  6s
+b1#34   RIGHT  spoon/restore/edge+  7s
+b1#35   RIGHT  spoon/reveal/edge+  5s
+b1#42   wrong  spoon/wear/edge+  8s
+b1#43   RIGHT  spoon/take/none+  6s
+b1#45   RIGHT  lock/reveal/integrity+  5s
+b1#46   RIGHT  spoon/reveal/edge+  5s
+b1#48   wrong  door/reveal/passage+  9s
+b1#49   wrong  cot/wear/integrity+  11s
+b1#50   RIGHT  lock/reveal/integrity+  5s
+b1#60   RIGHT  spoon/reveal/edge+  6s
+b1#62   RIGHT  lock/reveal/integrity+  6s
+b1#64   wrong  bar/open/integrity+  8s
+b1#65   RIGHT  spoon/reveal/edge+  4s
+b2#2    RIGHT  spoon/reveal/edge+  4s
+b2#4    wrong  prisoner/wear/posture+  9s
+b2#5    RIGHT  spoon/restore/edge+  7s
+b2#6    RIGHT  spoon/restore/edge+  5s
+b2#7    RIGHT  lock/reveal/integrity+  4s
+b2#8    RIGHT  prisoner/reveal/posture+  5s
+b2#9    RIGHT  spoon/restore/edge+  8s
+b2#10   RIGHT  spoon/reveal/edge+  5s
+b2#12   RIGHT  prisoner/wear/posture+  6s
+act#1   RIGHT  expect several  got several  Examine the bar in the window closely, then go and check the
+act#2   RIGHT  expect several  got several  Untwist a wire from the cot springs and use it to pick the l
+act#3   RIGHT  expect several  got several  Knock Croft to the floor and take the key ring off her belt.
+act#4   RIGHT  expect several  got several  Pick the lock with the wire and slip out into the corridor.
+act#5   RIGHT  expect several  got several  Pat Voss down, then confiscate the spoon.
+act#6   RIGHT  expect several  got several  Scrape at the mortar around the bar, then hide the spoon und
+act#7   RIGHT  expect several  got several  Open the window and climb through it.
+act#8   RIGHT  expect several  got several  Shut the cell door and then examine the lock.
+act#9   RIGHT  expect one  got one  Walk over to the window, take hold of the bar and twist it i
+act#10  RIGHT  expect one  got one  Kneel by the cot and untwist a length of wire from the sprin
+act#11  RIGHT  expect one  got one  Reach up to the window and run my fingers along the bar's ba
+act#12  RIGHT  expect one  got one  Pick up the bucket and bang it against the wall.
+act#13  RIGHT  expect one  got one  Crouch by the tile, lift it, and scrape out the grit beneath
+act#14  RIGHT  expect one  got one  Step over to Voss and pat her down for anything hidden.
+act#15  RIGHT  expect one  got one  Bend down over Croft where she lies and pull the key ring of
+act#16  RIGHT  expect one  got one  Walk to the door, bend to the gap, and push the bolt back wi
+act#17  RIGHT  expect one  got one  Sit on the cot and tuck the spoon into the blanket's hem.
+act#18  RIGHT  expect one  got one  Pick up the spoon and hold it up to the window light to exam
+act#19  RIGHT  expect one  got one  Examine the door's hinges.
+act#20  RIGHT  expect one  got one  Scream for help at the top of my lungs.
+act#21  RIGHT  expect one  got one  Close the window.
+act#22  RIGHT  expect one  got one  Hand the spoon to Croft.
+
+meta-models/Muse-Glimmer-30B: main 36/43 right; one-act 22/22

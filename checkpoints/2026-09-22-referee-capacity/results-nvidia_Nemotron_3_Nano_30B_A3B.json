@@ -1,0 +1,90 @@
+{
+ "model": "nvidia/Nemotron-3-Nano-30B-A3B",
+ "n": 1,
+ "started": "2026-09-23T02:27:47.308Z",
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "none/none",
+     "property": "none",
+     "applicable": false,
+     "right": false,
+     "secs": 61
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "none/none",
+     "property": "none",
+     "applicable": false,
+     "right": false,
+     "secs": 25
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "none/none",
+     "property": "none",
+     "applicable": false,
+     "right": false,
+     "secs": 43
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 38
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/none",
+     "property": "edge",
+     "applicable": false,
+     "right": false,
+     "secs": 59
+    }
+   ],
+   "right": false
+  }
+ ],
+ "oneAct": []
+}

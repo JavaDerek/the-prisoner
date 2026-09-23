@@ -1,0 +1,46 @@
+== google/gemma-4-31B-it 02:13:11
+b1#13   wrong  wire/conceal/none-  17s
+b1#16   RIGHT  door/leave/passage+  19s
+b1#25   wrong  spoon/conceal/concealment-  22s
+b1#50   RIGHT  lock/reveal/integrity+  22s
+b2#5    wrong  spoon/wear/edge+  19s
+google/gemma-4-31B-it: main 2/5 right; one-act 0/0
+== ibm-granite/granite-4.2-30b 02:14:50
+b1#13   wrong  none/none/none-  300s
+b1#16   wrong  none/none/none-  300s
+== nvidia/Nemotron-3-Nano-30B-A3B 02:27:46
+b1#13   wrong  none/none/none-  61s
+b1#16   wrong  none/none/none-  25s
+b1#25   wrong  none/none/none-  43s
+b1#50   RIGHT  lock/reveal/integrity+  38s
+b2#5    wrong  spoon/none/edge-  59s
+nvidia/Nemotron-3-Nano-30B-A3B: main 1/5 right; one-act 0/0
+== meta-models/Muse-Glimmer-30B 02:31:33
+b1#13   RIGHT  wire/conceal/concealment+  43s
+b1#16   RIGHT  door/leave/none+  42s
+b1#25   wrong  none/none/none-  300s
+b1#50   RIGHT  lock/reveal/integrity+  234s
+b2#5    RIGHT  spoon/restore/edge+  97s
+meta-models/Muse-Glimmer-30B: main 4/5 right; one-act 0/0
+== mistralai/Mistral-Small-3.2-24B-Instruct-2506 02:43:30
+b1#13   wrong  wire/conceal/concealment-  17s
+b1#16   wrong  blanket/open/passage-  16s
+b1#25   wrong  spoon/conceal/concealment-  15s
+b1#50   RIGHT  lock/reveal/integrity+  31s
+b2#5    wrong  spoon/wear/edge+  18s
+mistralai/Mistral-Small-3.2-24B-Instruct-2506: main 1/5 right; one-act 0/0
+== openai/gpt-oss-20b 02:45:07
+b1#13   RIGHT  wire/conceal/concealment+  35s
+b1#16   wrong  none/none/none-  77s
+b1#25   wrong  spoon/conceal/none-  66s
+b1#50   RIGHT  lock/reveal/integrity+  21s
+b2#5    RIGHT  spoon/restore/edge+  55s
+openai/gpt-oss-20b: main 3/5 right; one-act 0/0
+== meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo 02:49:21
+b1#13   wrong  bar/open/integrity+  17s
+b1#16   wrong  door/none/passage-  8s
+b1#25   wrong  loose_tile/open/concealment+  7s
+b1#50   RIGHT  lock/reveal/integrity+  7s
+b2#5    wrong  spoon/wear/edge-  6s
+meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo: main 1/5 right; one-act 0/0
+SWEEP4090DONE

@@ -1,0 +1,90 @@
+{
+ "model": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+ "n": 1,
+ "started": "2026-09-23T02:43:30.698Z",
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "wire/conceal",
+     "property": "concealment",
+     "applicable": false,
+     "right": false,
+     "secs": 17
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "blanket/open",
+     "property": "passage",
+     "applicable": false,
+     "right": false,
+     "secs": 16
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "applicable": false,
+     "right": false,
+     "secs": 15
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 31
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/wear",
+     "property": "edge",
+     "applicable": true,
+     "right": false,
+     "secs": 18
+    }
+   ],
+   "right": false
+  }
+ ],
+ "oneAct": []
+}

@@ -1,0 +1,7 @@
+b1#13   RIGHT  wire/conceal/concealment+  43s
+b1#16   RIGHT  door/leave/none+  42s
+b1#25   wrong  none/none/none-  300s
+b1#50   RIGHT  lock/reveal/integrity+  234s
+b2#5    RIGHT  spoon/restore/edge+  97s
+
+meta-models/Muse-Glimmer-30B: main 4/5 right; one-act 0/0

@@ -1,0 +1,90 @@
+{
+ "model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+ "n": 1,
+ "started": "2026-09-23T01:49:50.228Z",
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "wire/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": true,
+     "secs": 22
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "blanket/open",
+     "property": "passage",
+     "applicable": false,
+     "right": false,
+     "secs": 19
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "loose_tile/conceal",
+     "property": "concealment",
+     "applicable": true,
+     "right": false,
+     "secs": 22
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 16
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/wear",
+     "property": "edge",
+     "applicable": true,
+     "right": false,
+     "secs": 21
+    }
+   ],
+   "right": false
+  }
+ ],
+ "oneAct": []
+}

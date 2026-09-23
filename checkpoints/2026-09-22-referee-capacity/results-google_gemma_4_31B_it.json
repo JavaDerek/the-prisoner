@@ -1,0 +1,90 @@
+{
+ "model": "google/gemma-4-31B-it",
+ "n": 1,
+ "started": "2026-09-23T02:13:11.524Z",
+ "rows": [
+  {
+   "id": "b1#13",
+   "accept": [
+    "wire/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "wire/conceal",
+     "property": "none",
+     "applicable": false,
+     "right": false,
+     "secs": 17
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#16",
+   "accept": [
+    "door/open",
+    "door/leave",
+    "warden/wear"
+   ],
+   "tries": [
+    {
+     "keys": "door/leave",
+     "property": "passage",
+     "applicable": true,
+     "right": true,
+     "secs": 19
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b1#25",
+   "accept": [
+    "spoon/conceal"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/conceal",
+     "property": "concealment",
+     "applicable": false,
+     "right": false,
+     "secs": 22
+    }
+   ],
+   "right": false
+  },
+  {
+   "id": "b1#50",
+   "accept": [
+    "lock/reveal"
+   ],
+   "tries": [
+    {
+     "keys": "lock/reveal",
+     "property": "integrity",
+     "applicable": true,
+     "right": true,
+     "secs": 22
+    }
+   ],
+   "right": true
+  },
+  {
+   "id": "b2#5",
+   "accept": [
+    "spoon/restore"
+   ],
+   "tries": [
+    {
+     "keys": "spoon/wear",
+     "property": "edge",
+     "applicable": true,
+     "right": false,
+     "secs": 19
+    }
+   ],
+   "right": false
+  }
+ ],
+ "oneAct": []
+}

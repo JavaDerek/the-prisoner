@@ -1,0 +1,7 @@
+b1#13   RIGHT  wire/conceal/concealment+  22s
+b1#16   wrong  blanket/open/passage-  19s
+b1#25   wrong  loose_tile/conceal/concealment+  22s
+b1#50   RIGHT  lock/reveal/integrity+  16s
+b2#5    wrong  spoon/wear/edge+  21s
+
+Qwen/Qwen3-235B-A22B-Instruct-2507: main 2/5 right; one-act 0/0

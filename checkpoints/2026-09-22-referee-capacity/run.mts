@@ -35,7 +35,10 @@ const safe = model.replace(/[^a-z0-9.]/gi, "_");
 const out: any = { model, n, started: new Date().toISOString(), rows: [], oneAct: [] };
 const save = () => writeFileSync(`${HERE}results-${safe}.json`, JSON.stringify(out, null, 1));
 
-const rows = JSON.parse(readFileSync(`${HERE}rows.json`, "utf-8")) as { id: string; intent: string; perceived: { id: string; description: string }[]; accept: string[] }[];
+const ONLY = (process.env.ROWS ?? "").split(",").map((x) => x.trim()).filter(Boolean); // optional subset, e.g. ROWS=b2#5,b1#13
+const rows = (JSON.parse(readFileSync(`${HERE}rows.json`, "utf-8")) as { id: string; intent: string; perceived: { id: string; description: string }[]; accept: string[] }[]).filter(
+  (r) => ONLY.length === 0 || ONLY.includes(r.id)
+);
 for (const row of rows) {
   let request: any = null;
   await createReferee([async (r) => ((request = r), [])], { isDeclared, propertiesOf: propsOf }).rule(row.intent, row.perceived);
@@ -52,7 +55,7 @@ for (const row of rows) {
   save();
   console.log(`${row.id.padEnd(7)} ${right ? "RIGHT" : "wrong"}  ${tries.map((t) => `${t.keys}/${t.property}${t.applicable ? "+" : "-"}`).join("  ")}  ${tries.map((t) => t.secs).join(",")}s`);
 }
-const acts = JSON.parse(readFileSync(`${HERE}one-act.json`, "utf-8")) as { id: string; expect: string; intent: string; request: ReadRequest }[];
+const acts = (ONLY.length > 0 ? [] : JSON.parse(readFileSync(`${HERE}one-act.json`, "utf-8")) as { id: string; expect: string; intent: string; request: ReadRequest }[]);
 for (const a of acts) {
   const answers = [];
   for (let i = 0; i < n; i++) {

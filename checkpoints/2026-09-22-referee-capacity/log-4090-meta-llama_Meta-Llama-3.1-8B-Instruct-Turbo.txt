@@ -1,0 +1,7 @@
+b1#13   wrong  bar/open/integrity+  17s
+b1#16   wrong  door/none/passage-  8s
+b1#25   wrong  loose_tile/open/concealment+  7s
+b1#50   RIGHT  lock/reveal/integrity+  7s
+b2#5    wrong  spoon/wear/edge-  6s
+
+meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo: main 1/5 right; one-act 0/0

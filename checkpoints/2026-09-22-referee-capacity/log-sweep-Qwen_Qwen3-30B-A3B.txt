@@ -1,0 +1,7 @@
+b1#13   wrong  none/none/none-  1s
+b1#16   wrong  none/none/none-  2s
+b1#25   wrong  none/none/none-  1s
+b1#50   wrong  none/none/none-  0s
+b2#5    wrong  none/none/none-  0s
+
+Qwen/Qwen3-30B-A3B: main 0/5 right; one-act 0/0
