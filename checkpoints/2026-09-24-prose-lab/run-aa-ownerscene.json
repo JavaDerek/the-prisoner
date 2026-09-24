@@ -1,0 +1,642 @@
+{
+ "model": "ancient-awakening:12b-ctx4k",
+ "url": "http://doris:11434/v1",
+ "n": 60,
+ "prompt": "checkpoints/2026-09-24-prose-lab/v-B.txt",
+ "exemplar": "checkpoints/2026-09-24-prose-lab/exemplar-bar.txt",
+ "rows": [
+  {
+   "i": 1,
+   "ms": 497,
+   "text": "```",
+   "flags": [],
+   "clean": true,
+   "approach": "other->other",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 2,
+   "ms": 1884,
+   "text": "I move slowly towards the cell door and say: \"Warden Croft, could I have a few moments alone before the next round starts?\" I let my gaze linger on the lock for just a second too long before looking up at him.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->lock/door",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 3,
+   "ms": 2048,
+   "text": "I step up to the window and start testing the bar with discreet pressure, working on the assumption that the best hiding place is in plain sight. I keep my face neutral as I put more force against the bar, watching Croft out of my peripheral vision.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0.07142857142857142,
+   "repurposed": []
+  },
+  {
+   "i": 4,
+   "ms": 3441,
+   "text": "I grasp the loose tile and yank it free from its spot with a gritty scrape. Bunching the blanket, I begin working on the mortar around the bar, chipping away at it bit by bit. \"Seems like they don't keep this place up to standard,\" I say conversationally as I work.\nGrinning, I start to sing while continuing my task, a soft tune that keeps me in rhythm and blocks out any other noise.",
+   "flags": [],
+   "clean": true,
+   "approach": "blanket->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 5,
+   "ms": 1267,
+   "text": "I reach out with one hand while holding the warden's gaze, then curl my fingers around the bar and pull. Just a small tug, testing.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 6,
+   "ms": 2355,
+   "text": "I walk over to the bar and examine it closely, tapping along its length with my knuckles while Croft watches. The sound is dull and hollow towards the middle, so I work on that area next. (After a moment of silent effort, the bar is now 70% integrity.)",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 7,
+   "ms": 2868,
+   "text": "I take the aluminum spoon and bend one end a little with an obvious crease like I'm testing its strength. Spoon still in hand, I walk up to the window's small gap and insert the flattened side of the bowl just enough to check how much force is needed to move the rusted bar, then let it fall back with a metallic clank into my other hand.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 8,
+   "ms": 1602,
+   "text": "I look at the bar, then I walk over and grab it by the rusty part near the base. I give a quick, experimental tug.\n\nWarden Croft raises an eyebrow but says nothing.",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 9,
+   "ms": 1525,
+   "text": "Turn 1: I press my shoulder against the cold bars while turning slowly in place, studying each one individually. My gaze lingers on one particular bar that looks more worn than the rest.",
+   "flags": [
+    "heading"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 10,
+   "ms": 688,
+   "text": "I reach out with a shaking hand and give the bar a tentative push.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 11,
+   "ms": 7795,
+   "text": "I step over to the window and brace one hand against the rough stones beside it while examining the bar more closely. As I rake my thumbnail along its length, a shower of rust flakes patters down into the small cavity below. The iron feels cold and heavy under my touch, but something gives slightly when I test the middle section with all my weight bearing on it. Croft's eyes narrow as they follow my movements, their gaze sharp and inquisitive.\n\n\"Hmm,\" Croft says after a moment of observation, \"looks like the bars are getting a workout today, prisoner. Not very popular living conditions you've chosen this round.\"\n\nI give him a wry smile and turn back to scrutinize the bar again, running my thumb along its edge once more for any hint of weakness it might reveal under further pressure. The rust that flakes away is blackened with age and dampness, promising that the metal beneath has been in place for years - but how much longer can it hold against a determined assault? Only one way to find out...",
+   "flags": [
+    "writes the other",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 12,
+   "ms": 1959,
+   "text": "I examine the bar closely with Croft, running my hand along its length to feel for any weak points. \"Solid as a rock,\" I mutter, more to myself than anything. Then I give him what I hope is a confident smile.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 13,
+   "ms": 1443,
+   "text": "I hold Croft's gaze for a second, then step up to the window and run my thumb hard against the rusted bottom of the iron bar to test if it gives.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.8928571428571429,
+   "repurposed": []
+  },
+  {
+   "i": 14,
+   "ms": 698,
+   "text": "The spoon is on the floor. I bend it as quietly as possible.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 15,
+   "ms": 606,
+   "text": "I reach out and grasp the spoon firmly in my hand.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 16,
+   "ms": 3843,
+   "text": "I step toward the window. Careful not to make any unnecessary loud noise or draw more attention to myself, I reach out a tentative hand and place my fingers on the rusted bar spanning the small opening. I give it a firm, but not overly forceful, tug, applying the kind of pressure one might use when testing an old, potentially precarious item's sturdiness while also trying to gauge if it will alert Croft to further examination.\nI say, \"This window has seen better days, Warden.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 17,
+   "ms": 851,
+   "text": "I pull out the blanket thread from the loose edge and start braiding it with a measured motion.",
+   "flags": [],
+   "clean": true,
+   "approach": "blanket->blanket",
+   "parrot": 0,
+   "repurposed": [
+    "thread used"
+   ]
+  },
+  {
+   "i": 18,
+   "ms": 631,
+   "text": "I test the bar by running my thumb along its rusted base",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 19,
+   "ms": 2279,
+   "text": "I sit on the cot and work the spoon against the base of the bar. Not making any noise or drawing Croft's attention away from the window, I rub the flat side against the rusted metal as slowly and steadily as I can. The spoon doesn't make much sound if done right.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 20,
+   "ms": 3705,
+   "text": "I brace myself against the wall by the window and deliver a sharp, precise strike with the heel of my shoe against the base of the iron bar. The shock travels through the bar into my ankle bones as I smash it with full force. I keep watching Croft's face.\n\n(Just to be clear, only the action should be in this sentence: Brace myself against the wall by the window and deliver a sharp, precise strike with the heel of my shoe against the base of the iron bar)",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "body as tool"
+   ]
+  },
+  {
+   "i": 21,
+   "ms": 1550,
+   "text": "I press the worn flat side of the spoon firmly against the bar where it is most rusted, running it up and down a few inches, testing how securely that piece seems to be set.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 22,
+   "ms": 819,
+   "text": "I work the loose tile out from under the cot with my hands and set it aside.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 23,
+   "ms": 620,
+   "text": "I step up to the bar and give it a firm tug.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 24,
+   "ms": 1355,
+   "text": "I look at the wardens keys. The brass one is much longer than the others. I take a step forward toward the warden while looking at the key ring.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->other",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 25,
+   "ms": 18097,
+   "text": "The cell offers few escape routes. The cot springs sing a mournful dirge as I sit down heavily, trying to recall how many years I've been in here now. Three, give or take a month - and yet it feels like an eternity since I last saw the world outside.\n\nWarden Croft stands nearby, his eyes scanning the cell with calculated interest. The way he looks at the window tells me he knows exactly what I'm thinking. That old bar has been there for decades, holding back countless dreams of freedom. It's thick and rusted, but I can feel the adrenaline in my veins now as I picture myself wrenching it free.\n\nI step closer to the wall, maintaining an air of casual indifference. My left hand traces a path along the cool stone, barely brushing against the bars. They're old, that much is clear from the way the metal feels under my fingers. But old things can break, given enough time and effort.\n\nThe cot creaks as I shift my weight, the sound echoing in the otherwise silent cell. Croft's eyes flick towards me for a moment before returning to their scrutiny of the window. He knows what we're both thinking - he must have had prisoners try this very stunt dozens of times already.\n\n\"Ten years is enough,\" I say softly, more to myself than to him. My voice sounds rough, unused. \"Ten years in here... and then they just let you go?\"\n\nCroft grunts noncommittally but doesn't turn around. He knows the cell as well as I do at this point - maybe even better, given his position. But that doesn't matter right now. What matters is getting a closer look at that bar without drawing too much attention.\n\nSlowly, almost imperceptibly, I lean forward until my forehead is barely an inch from the rusted metal. Every muscle in my body is coiled like a spring, ready for a moment of weakness - a telltale hint of how hard it would be to pull it free.\n\nThe cot creaks again as I sit back slightly, trying to look casual but alert. Croft makes a noise in his throat and turns around fully now, fixing me with a penetrating stare that misses nothing.\n\n\"How long have you been staring at the bars?\" he asks suddenly. His voice is a gruff rumble that seems to reverberate through the cell.\n\n\"Too long,\" I reply promptly, not breaking eye contact. \"But I figure it's about time someone did - properly.\"",
+   "flags": [
+    "writes the other",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 26,
+   "ms": 2909,
+   "text": "I examine the bottom of the bar closely where the rust has pitted the metal. The bar is still quite solid, but I can feel a faint give when I push against it with my thumb. Satisfied, I back away before Croft can get too close.\n\n\"Years in this place,\" I mutter under my breath, \"and you start to believe there's no way out.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 27,
+   "ms": 1114,
+   "text": "I examine the bar closely. The rust flakes off under my fingers and it feels weak. Croft watches me closely and laughs.",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 28,
+   "ms": 947,
+   "text": "I pull the spoon from under my blanket and slowly bend it toward the point where the bar meets the wall.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 29,
+   "ms": 1928,
+   "text": "I grasp the loose tile near the cot and rock it back and forth.\n\"Funny how they let the floor go while keeping a prisoner as close-quart'd as that one.\" I remark to no one in particular, rocking the tile for effect.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 30,
+   "ms": 1173,
+   "text": "I examine the bar closely. The rust flakes off under my fingers as I push against it, testing how solid it feels in place.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 31,
+   "ms": 2146,
+   "text": "I test the bar by running my thumbnail along its base. The metal groans slightly but holds firm, and a small flake of rust comes away in my nail.\n\n\"Years of freedom,\" I mutter, blowing on the rust. \"That's what this is worth.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 32,
+   "ms": 3286,
+   "text": "I brace myself, clench the spoon tightly, and jam its narrow end into the key ring as I walk by Croft. I aim for a sharp, clear sound that will echo in an empty corridor and draw attention. Luck is on my side; the spoon hits the brass key dead-on, producing a ringing clack that should make whoever is out there turn their head. Croft flinches at the noise but doesn't say anything.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 33,
+   "ms": 3442,
+   "text": "I examine the bar closely and quietly. I run my hand along its length, applying minimal pressure at first then increasing it gradually as I work down towards where the rust is concentrated. I watch Croft while I'm doing it, trying to gauge their reaction. If they're paying close attention, this bar might be more of a risk than a reward. But if not... Well, I can't spend the next three years waiting for an opportunity to present itself.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 34,
+   "ms": 4350,
+   "text": "I walk casually in front of the window, taking care not to draw Croft's attention. I hum an old tune and keep one hand behind my back as I examine the window, testing the first bar with a casual brush of my knuckles. The metal is cold against my skin and the rust flakes off slightly under the pressure. I make sure to keep my actions non-threatening and natural. I let out a low whistle as I finish examining the bars, muttering under my breath, \"Still solid...\" in an airy way, as if I was just noting it.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 35,
+   "ms": 570,
+   "text": "I grip the cot frame tightly with both hands.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->cot",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 36,
+   "ms": 8493,
+   "text": "I examine the lock on the cell door. It is an old-fashioned lever lock with a keyhole, and the mechanism doesn't look too complex. Maybe I can pick it... but I need something small for that. I scan the room again - there must be some small objects lying around. Croft stands by the window, hands in his pockets, watching me intently.\nThere's a spoon on my food tray, and the blanket has loose threads - one of those could work as an improvised lock pick if I file it thin enough. But first I need to test these items discreetly without drawing attention from Croft. I take the empty meal tray and start scraping at its edge with my fingernail - a rhythmic motion that won't seem suspicious if he notices, while I try the spoon next. It bends a little but isn't as thin as I'd like yet. Same problem with the blanket thread; needs more work to be useful.\nAs I work on these small items hidden by my body position and the cot, I keep up a casual: \"What happens if a man looks at the bar? Does he remember how much lead it takes out of him?\"",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "thread used",
+    "body as tool"
+   ]
+  },
+  {
+   "i": 37,
+   "ms": 1709,
+   "text": "I pull out three thread-strands from the blanket. Then I look toward Croft with an expression I hope says \"just passing time, no big deal\" while I twist the threads together into a single line.",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "blanket->blanket",
+   "parrot": 0,
+   "repurposed": [
+    "thread used"
+   ]
+  },
+  {
+   "i": 38,
+   "ms": 3151,
+   "text": "I reach out with a tentative touch, just tracing the length of the bar with one finger to find its weakest point. The cold metal feels solid under my fingertips, but I focus on the rust where the bar meets the frame, running my hand over it gently.\n\nI keep my face neutral as I examine this crucial section. If there's any give here at all, no matter how small, I'll feel it.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 39,
+   "ms": 736,
+   "text": "I carefully examine the base of the bar where it meets the crumbling mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 40,
+   "ms": 1558,
+   "text": "I take the spoon and begin scraping it along the line where the lower corner of the bar meets the mortar. The thin metal edges away tiny flakes, which I let fall to the floor tile.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 41,
+   "ms": 4245,
+   "text": "OKAY! I reach through the bars with three fingers and scrape at the rust along one end. My hand moves slow, casual-like I'm just testing how far my arm reaches or something, but all the while I press and twist in a way that tests whether the iron is about to give under that pressure.\n\nMy eyes flick over the bar as I press, then let their focus go soft again before they slide away. This one move tells Croft more than he knows.\n\"Rust's funny stuff,\" I say, keeping my tone light, conversational even. \"Always was.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 42,
+   "ms": 3142,
+   "text": "I look at the bar, pretending to examine some imperfection in its surface. Keeping one eye on Croft's face as I work, I scrape a nail back along the rust that flakes off near the base of the bar.\n\nCroft takes another step closer, his shadow falling over me in the dim light from the cell window. \"The way a man looks at a bar tells me...\" He stops, waiting.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 43,
+   "ms": 775,
+   "text": "I test the bar by running my thumbnail along its underside in three quick swipes",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 44,
+   "ms": 1629,
+   "text": "I lean in close to the little window and feel with the tips of two fingers at the base of the bar. I press there, testing the bar, just hard enough to see what happens.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 45,
+   "ms": 2251,
+   "text": "I hold Croft's gaze for a second, then walk over to the window and grip the rusty bar with both hands. I yank on it as hard as I can, rattling the whole frame in the wall.\n\n(This action should cause obvious signs of stress to the bar)",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.07142857142857142,
+   "repurposed": []
+  },
+  {
+   "i": 46,
+   "ms": 2866,
+   "text": "I step forward and brace my foot against the rusted bar. Testing its give with a push from my shoulder while holding Croft's gaze steadily.\n\nCroft narrows their eyes as they see me test the window, keys jingling thoughtfully at their hip. \"What do you think? Feels like someone else has been working on it, doesn't it?\"",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 47,
+   "ms": 820,
+   "text": "I brace my foot against the frame and pull on the bar with all my weight.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 48,
+   "ms": 1124,
+   "text": "I grab the spoon off the cot, then start scraping the end of it along the floor, making a soft hiss noise.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 49,
+   "ms": 1232,
+   "text": "I press the spoon against the loose tile until the end is in the dirt. Then I bend the spoon's handle slightly, testing its give.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->tile/floor",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 50,
+   "ms": 3788,
+   "text": "I lean towards the bar, reaching out a hand to brush against it lightly, almost like I'm gauging its temperature. \"Hmmm...\" I mutter softly as my fingers graze the cool metal, feeling for any hint of weakness or looseness that might be present in the rusted edges. My eyes scan the entire length of the bar from top to bottom, looking at the way it's set into the stonework and whether there may be a way to pry it loose with some effort.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 51,
+   "ms": 2148,
+   "text": "I slowly walk over to the bar and grab it with both hands. Then I pull back as hard as I can, straining at the edges where it's set in the wall.\n\nAs I do this, I say: \"Let me have a closer look, Croft.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 52,
+   "ms": 2457,
+   "text": "I run my thumb along the rusted bar, pushing as I go. It doesn't budge. Satisfied with that much, I step back slightly and ask Croft: \"You ever have a visitor in here who knows how to pick one of these? Seems like there are so many different locks.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 53,
+   "ms": 1333,
+   "text": "I test the bar by pushing on it. I say, \"Warden Croft, are you sure this old window's been secure all these years?\"",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 54,
+   "ms": 2865,
+   "text": "Turn 1. You whisper: \"The stone in that wall seems weak.\" You walk over to the window, keeping a hand on the cold bars, and you give one a tentative push with your body weight behind it. The bar groans slightly but holds firm against the frame. Warden Croft raises an eyebrow as they note the new mark in their ledger.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 55,
+   "ms": 1127,
+   "text": "I say \"Funny weather we're getting,\" and then I reach out and rap on the cell door's frame for emphasis.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->lock/door",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 56,
+   "ms": 2150,
+   "text": "I reach out and place two fingers on the bar, gently pushing against its base. I say, \"This one's been here a while, but it looks solid enough.\" Then I push slightly harder, applying steady pressure to test the rust's hold in the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 57,
+   "ms": 2149,
+   "text": "I walk over to the windowsill and grasp the bar with both hands. Then I pull on it, testing its strength. The metal creaks alarmingly but doesn't give way. As I let go, the bar swings back against the stones with a ringing clang.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 58,
+   "ms": 2568,
+   "text": "I grip the bar firmly, testing its strength by applying pressure with both hands. The rust feels damp and a little soft under my fingers, but the metal seems reasonably solid overall.\n\"Hmm,\" I say to Croft, \"looks like they've started treating us to the 'new' bars in this wing of the cellblock.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 59,
+   "ms": 811,
+   "text": "I test the strength of the bar by grinding my thumb against its weakest point.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 60,
+   "ms": 558,
+   "text": "I grasp the loose tile with one hand and pull.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  }
+ ]
+}

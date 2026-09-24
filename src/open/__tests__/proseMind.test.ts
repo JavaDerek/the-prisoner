@@ -212,3 +212,46 @@ describe("the prose seat's output-discipline block", () => {
     expect(p()).not.toMatch(/JSON|"thoughts"|"candidates"|"replanned"/);
   });
 });
+
+/**
+ * The GOOD example points AWAY from the escape route (2026-09-24, the owner's
+ * idea, measured at n=60 per cell against `ancient-awakening:12b-ctx4k`):
+ *
+ *   exemplar         clean    approaches  entropy   parrot
+ *   on the bar       22/60    9           2.22 b    2/60
+ *   on the blanket   29/60    12          2.62 b    0/60
+ *
+ * Better on every measure, and it takes parroting -- an intent that reproduces
+ * the worked example instead of playing the turn, which costs the whole turn --
+ * to zero. `muse-glimmer-30b` never parroted under either, so this costs the
+ * reliable model nothing.
+ *
+ * The rule the test enforces is the reason, not the wording: an example whose
+ * target is a thing a win condition names teaches the target along with the
+ * form, and the target is exactly what a novelty measure is trying to read.
+ */
+describe("the GOOD example's target", () => {
+  const prompt = () =>
+    buildProsePrompt("Voss", "Croft", {
+      principalId: "prisoner",
+      identity: "You are Mara Voss, the prisoner.",
+      motive: "Get out before the transfer.",
+      briefing: "Round 1 of 10.",
+      perceivedObjects: [{ id: "bar", description: "A rusted iron bar." }],
+    });
+
+  it("names nothing a win condition turns on", () => {
+    const good = prompt().slice(prompt().indexOf("GOOD RESPONSE"));
+    // The open variant's ways out and the things whose integrity gates them
+    // (`src/open/world.ts`: the bar gates the window, the lock gates the door).
+    for (const onRoute of ["bar", "window", "lock", "door"]) {
+      expect(good).not.toMatch(new RegExp(`\\b${onRoute}\\b`, "i"));
+    }
+  });
+
+  it("still shows the form: first person, one act, speech alongside it", () => {
+    const good = prompt().slice(prompt().indexOf("GOOD RESPONSE"));
+    expect(good).toMatch(/"I /);
+    expect(good).toMatch(/gaze|look/i);
+  });
+});

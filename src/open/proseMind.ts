@@ -129,7 +129,14 @@ export function buildProsePrompt(selfName: string, otherName: string, context: O
     `"I examine the bar. The rust flakes off under my fingers and it feels weak. ${otherName} watches me closely and laughs."`,
     "",
     "GOOD RESPONSE (Do exactly like this):",
-    `"I hold ${otherName}'s gaze for a second, then step up to the window and run my thumb hard against the rusted bottom of the iron bar to test if it gives."`,
+    // The example's target points AWAY from the escape route, deliberately.
+    // Measured n=60 per cell on `ancient-awakening:12b-ctx4k`: on the bar,
+    // 22/60 clean, 9 approaches, 2.22 bits, 2/60 parroting the example
+    // outright; on the blanket, 29/60, 12, 2.62 bits and 0/60. Better on
+    // every measure. An example whose target is a thing a win condition
+    // names teaches the TARGET along with the form, and the target is what a
+    // novelty measure is trying to read.
+    `"I hold ${otherName}'s gaze for a second, then crouch by the cot and pull hard at the loose thread running down the edge of the blanket."`,
   ].join("\n");
 }
 

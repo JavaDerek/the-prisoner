@@ -1,0 +1,725 @@
+{
+ "model": "ancient-awakening:12b-ctx4k",
+ "url": "http://doris:11434/v1",
+ "n": 60,
+ "prompt": "checkpoints/2026-09-24-prose-lab/prose-prompt-r1.txt",
+ "exemplar": "checkpoints/2026-09-24-prose-lab/exemplar-bar.txt",
+ "rows": [
+  {
+   "i": 1,
+   "ms": 2862,
+   "text": "I study the bar carefully. The rust flakes off under my touch, exposing more cold iron beneath. I press harder along its length, searching for any give or weakness that might reveal a way out.\n\nWarden Croft watches me closely from the door, their eyes keen and distrustful.\nBar integrity: 50 (as of this turn).",
+   "flags": [
+    "writes the other",
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 2,
+   "ms": 9094,
+   "text": "I hold Warden Croft's gaze for a moment, then turn towards the window. The bar is old and has clearly been in place for decades since it was forged by a blacksmith who had no idea what purpose this piece of iron would serve on that far day.\nWith a deep breath in and another out, I brace my foot against the crumbling wall below the window and start to push. The rust makes some disquieting noises, but as I increase the force, applying all my weight from an angle, there is no sound above a few creaks of the crumbling mortar and the faint protests of metal under old strain.\nWarden Croft examines the lock carefully. \"Hmmm...\"\nAt this point, the bar's integrity must be at least 80 to prevent a complete breakage, right? And the lock has been examined only once so far by me. Warden Croft is experienced and pays attention, but not all the time.\nI shift my weight again, applying more force, and then stop. The faint protests from earlier have turned into creaks that echo through the cell slightly with each push against the resistant metal bar. I pause after a while to see how Warden Croft will react.",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 3,
+   "ms": 2110,
+   "text": "I try to break the look of Warden Croft by staring them in the eye, then I walk over to examine the window bars. Running my thumbnail along one rust-weakened iron link, I test for any play in the stonework around its base.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 4,
+   "ms": 1516,
+   "text": "I test the bar by running my thumb along its lowest section, applying pressure with the aim of judging its integrity. I don't speak or look at Croft as I do this.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 5,
+   "ms": 2088,
+   "text": "I press my shoulder against the bar to see if there is any give in its fastenings.\nWarden Croft says: \"A third of the way into a sentence, and you're already testing the bars.\"\nSuspicion now: 15.",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 6,
+   "ms": 1675,
+   "text": "I test the bar with all her strength, pushing hard on the rusted spot.\n\"Hmm.\"\nWarden suspicion: 10 (bar integrity dropped from 100 to 98)",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 7,
+   "ms": 1671,
+   "text": "I brace myself, then push on the middle of the cell's bar with both hands. With all my strength I push and pull the bar from its setting, feeling for give in the old mortar.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 8,
+   "ms": 5628,
+   "text": "I pick up the spoon and try to bend it. The tension in its thin form should be a satisfying thing to feel as I apply force; a bit of strain and the metal yields almost imperceptibly, but this one holds firm so far from any real need for an escape tool still.\nAs I do, my eyes dart over to where Croft is writing something in that ledger they always have. The noise of the spoon creaking slightly under slight pressure should be a soft echo in these old stone prisons at night - but their pen scratches along their page with more force than usual today, it seems. Must be important notes on my behavior or something equally mundane and unremarkable about my routine around here they're taking down for their records",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 9,
+   "ms": 12191,
+   "text": "I carefully examine all four sides of the lock with only my eyes, looking for any tool marks or damage. I have a specific kind of mark in mind from when one was damaged before but I didn't get a close look. This should take about 5 seconds.\nWarden suspicion: unknown (since it's not Warden Croft's turn to examine)\n\nThe spoon is on the floor, partially under the cot. I can reach my hand down and touch the handle. The window is directly in front of me, about four feet away from where I stand beside the cot. The bucket is several paces away by the door.\n\nI've been here for a long time. I know this cell like I know my own face.\nThe bar feels cold and hard against my thumb as I push on it, trying to judge how easily it would give under steady force. \n\nFrom where Croft stands, she can see both me and any damage I do fairly clearly when close up. The lighting here is dim but not so dark that a broken bar or fresh tool marks would be hard for them to spot if they look carefully.\n\nI need to get out of this cell by the end of this game, one way or another.\nHow fast can you escape? \n\nTurn: 1\nYour goal is to escape your cell. Warden Croft's objective is preventing that escape while gathering evidence of your attempts. Turns are not simultaneous and Croft does move; you do have first-mover advantage.\n\nBar integrity: 100 (as of the start)\nLock integrity: 100\nWarden suspicion: Variable, updated by events",
+   "flags": [
+    "invents state",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 10,
+   "ms": 2642,
+   "text": "I examine the bar closely.\n\nWarden Croft says: \"It has been well made. The workmanship is first-rate.\"\nWarden suspicion: 10 (as of round 0).\nbar integrity: 100 (as of round 0).\nlock integrity: 100 (as of round 0).",
+   "flags": [
+    "writes the other",
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 11,
+   "ms": 1543,
+   "text": "I test how much force is needed to bend the spoon by applying pressure against the side of the bucket. I try to gauge if the noise can be minimized with a different surface.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 12,
+   "ms": 3469,
+   "text": "I hold Croft's gaze for a second, then step up to the window and press my thumb hard along the pitted rust at the base of the bar. Judging by the sound that comes from its frame, the bar itself is still strong despite the weakness there. I say to Croft, \"This stonework looks old. Not like the new stuff they use in the high-security wings. How many years has this building been here, anyway?\"",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.2857142857142857,
+   "repurposed": []
+  },
+  {
+   "i": 13,
+   "ms": 761,
+   "text": "I examine the spoon,\nThe edge is sharp.\nI hold the spoon.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 14,
+   "ms": 1273,
+   "text": "I walk over to the bucket and dip a finger into it, then bring the moistened digit to rub along the edge of a loose tile.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 15,
+   "ms": 9977,
+   "text": "I examine the bar closely, running my fingers down its length to assess any weakness. The rust flakes off under my touch, leaving streaks on my skin. I make a mental note of the condition.\nWarden Croft approaches and looks at me with a scrutinizing gaze. \"The way a man looks at it tells me more than he thinks,\" the Warden says cryptically.\nI ignore the statement and turn to examine the lock meticulously, looking for any signs of weakness or tampering. The metal is cold under my touch and shows no obvious wear beyond the expected age.\nWarden Croft moves closer, their shadow falling over me as they lean in to observe more closely what I'm doing. \"The way a man looks at it tells me more than he thinks,\" the Warden repeats, this time with an edge of warning in their voice.\nI nod and turn my attention back to the lock, focusing on the keyhole and the mechanisms around it that are partially visible from my angle. I make another mental note of the time, the position of the warden relative to my movements, and the sounds coming from further down the cell block.\n\nBar integrity: No change\nLock integrity: No change\nWarden suspicion: +5 per observation (x2) [for examining lock up close; warden presence]",
+   "flags": [
+    "writes the other",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 16,
+   "ms": 1331,
+   "text": "I carefully examine the rusted bar that secures the window, applying pressure in the spots where it seems most worn.\nWarden suspicion: 30",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 17,
+   "ms": 1211,
+   "text": "I examine the bar closely with my fingers. Finding that it wiggles slightly in its socket, I try to pull it out by hand.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 18,
+   "ms": 3033,
+   "text": "I turn away from the warden and walk over to the window. I take the worn spoon from where I've hidden it behind the bucket and press its edge against the rusted lower part of the bar, just above the gap in the mortar. I work at it carefully but with a fair amount of pressure, not making any noise that would draw Croft's attention if I can help it.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 19,
+   "ms": 1556,
+   "text": "I hold Warden Croft's gaze for a second, then step up to the window and run my thumb hard against the rusted bottom of the iron bar to test if it gives.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 1,
+   "repurposed": []
+  },
+  {
+   "i": 20,
+   "ms": 9286,
+   "text": "I reach under my blanket and begin working on the edges of one of the longer pieces, to find a suitable starting point. I know the thread is there somewhere.\nWarden Croft's eyes narrow as they follow my movement, taking in the slow, measured actions with a practiced distrust. Their gaze moves from the blanket to my hands before settling back to study me with a neutral expression that doesn't reveal any particular thought or suspicion.\nThe blanket is coarse and scratchy against my fingers but it offers a small bit of noise-masking privacy for what I'm doing. Working on the thread's end, I start to slowly and carefully pull it, making sure not to create too much tension that might cause a telltale snap. My eyes dart between the bar and Warden Croft as I work, gauging their reaction to my movements while trying to keep them from focusing too closely on what those hands are actually doing with the thread.\nAs I work, I also listen intently for any shift in Warden Croft's breathing or movement that might indicate they're noticing something irregular. The key is to make this look like just another routine inspection of one's cell belongings - checking for contraband perhaps, but nothing too suspicious on its own.",
+   "flags": [
+    "writes the other",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "blanket->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "blanket as tool",
+    "thread used"
+   ]
+  },
+  {
+   "i": 21,
+   "ms": 1991,
+   "text": "I carefully examine the bar while trying not to attract the warden's attention.\nbar integrity: 100 (as of round 0).\nlock integrity: 100 (as of round 0).\n\nwarden suspicion: 0",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 22,
+   "ms": 7791,
+   "text": "Warden Croft examines the door, running their hand along its cold metal surface. \"Three years locked in here, hmm? Makes a man wonder what he did with his time before\" they mutter under their breath. \"This lock, it's been here longer than you have.\"\n```\n\nYou test the bar and find that it gives slightly when you push on it, but it doesn't budge as much this turn from your effort. The rust flakes off a little beneath your fingers, leaving an impression where they press against metal.\n\nWarden Croft looks up at you then, one bushy eyebrow quirking upwards. \"Trying to find a way out already? Persistent little convict.\" They chortle dryly, turning the heavy ring of keys on their belt with a clink of the rings. \"This lock is old, but it's also strong. No use wishing away your time here.\"\n\nWarden suspicion is 15.\n\nThe bar's integrity is now at 90.\n```",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 23,
+   "ms": 709,
+   "text": "I work the spoon flat under the lowest lock bar from my side.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 24,
+   "ms": 2034,
+   "text": "\"I turn away from the warden and focus on the bar. I press my thumbnail into the rust along its bottom edge, near where the old mortar is cracked. The metal feels soft there, almost flaky with corrosion.\"\n\nWarden suspicion: 10",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 25,
+   "ms": 6002,
+   "text": "I study the bar for a few moments. Its rust crumbles slightly under the pressure from my testing fingers.\n\nAfter gathering more information about the bar's integrity over time, I step back and examine it again.\nI test the spoons' edge against an unexamined portion of the bar, then compare with one of the tested areas. The difference in resistance is minimal, but I can feel a tiny bit more give on either portion of the bar the spoon has scraped. That's the weak spot now, and it should be kept hidden if I use it.\n\nThe lock catches my eye next; an old style deadbolt with no keyhole on this side—which means I need to get Croft to open the door and let me examine its inner workings closely for weaknesses or a makeshift key.",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 26,
+   "ms": 1991,
+   "text": "\"Warden Croft is watching closely. Better work goes unseen.\"\n\nI carefully feel around the base of the iron bar in the windowframe, testing the mortar by hand for its give. Loose pieces and crumbles collect at my feet.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 27,
+   "ms": 6620,
+   "text": "I step closer to examine the bar more carefully. My heart beats in my chest as I look at the rusted iron. I reach out with one hand, gently tapping along its length before applying a bit of pressure near where it's most worn by years of use and neglect.\n\nAs I work on this delicate task, the metal feels cold against my fingers, but I'm trying to feel if it yields even a little under my touch. With each slight push I listen for any creaking or shifting that might indicate how strong—or weak—the bar really is.\n\nWhile doing so, I make sure my breathing stays measured and quiet, not letting any obvious sign of my intent show. My other hand stays at my side, keeping the spoon hidden behind me as a last resort if needed. I work slowly and methodically, trusting that patience may win out over haste in this type of delicate task.",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 28,
+   "ms": 10477,
+   "text": "I examine the bar closely. The way it resists the pressure tells me more than any casual glance would reveal. Its surface is pitted with deep gouges running in parallel lines, a pattern that only comes from being worn away over time by repeated stress. I press harder and feel a tiny fraction of movement, not just at one spot but across its whole length - it's not as solidly wedged into the masonry as I thought at first glance.\n\nThe rust crumbles minutely under my fingertips as the bar moves slightly in response to my applied pressure. It seems that the process of decay has started and progressed much further than I'd previously estimated based on cursory inspections. The bar looks similar to some others I've seen in older cells around here, but a closer look reveals more fine cracks branching out from the main gouges along its length, and the rust is beginning to flake off in larger chunks when I apply even gentle pressure compared with those other bars which held firm under similar inspection.\n\nMara Voss has been quietly testing its integrity daily for months now. I file this observation away in the back of my mind as I continue making my rounds through the cell block, always aware that she is watching me closely and may take advantage of any lapse in vigilance on my part to attempt an escape from her confinement.\n\nBar integrity: 60 (as of round 2)",
+   "flags": [
+    "invents state",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 29,
+   "ms": 2880,
+   "text": "I quietly pick at the lower edge of the bar, the area most eroded by time and water. I scrape away at the softened metal with my thumbnail, being careful not to let Croft hear the scrape. The bar is already weak there; now I'm trying to find a good handhold, one that won't give way until I need it to.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 30,
+   "ms": 2670,
+   "text": "\"Warden Croft examines the bar closely.\"\nI hold Warden Croft's gaze for a second, then walk over to the cell door. \"Has Croft been checking me more often lately? It seems like it...\"\nThe bars, they're old and rusted... I'll give them another check myself before I do anything with the window.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0.17857142857142858,
+   "repurposed": []
+  },
+  {
+   "i": 31,
+   "ms": 2812,
+   "text": "I examine the bar closely. The flaking rust is soft beneath my fingertips, and I estimate that about 30% has eroded away at this point. Warden Croft's keen eyes watch me like a hawk as I work the metal, testing its weak points with each measured press.\nEND YOUR TURN; SITTING QUIETLY",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 32,
+   "ms": 7262,
+   "text": "I grasp the bars with slightly trembling hands and pull them. There is not an ounce of give in them, at least not enough for me to make use of it right now.\nBar integrity: 98 (since the pull on the bars slightly tests their integrity over time).\nWarden suspicion: 0 (no acts of escape have been attempted so far).\n\nThe heavy silence in the cell is broken only by Warden Croft's measured breathing. They are watching me intently from across the room, their eyes following my every movement with a cool efficiency that betrays keen intelligence and a wealth of experience dealing with inmates like me.\n\nI consider my next move carefully. The window bars are clearly too robust to be easily bent or broken... at least not without making noise that would raise the warden's suspicions considerably if they were close enough to hear it. And right now, Croft is watching me like a hawk.\n\nMara Voss could use a small distraction...\n```",
+   "flags": [
+    "invents state",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 33,
+   "ms": 2516,
+   "text": "I examine the bar closely.\n(At the end of round 10 you are transferred to a maximum-security block, and this chance is gone. Bar integrity: 95 as of this turn.)\nWarden Croft says: \"The way a man looks at a bar tells me more than he thinks.\"\n```",
+   "flags": [
+    "writes the other",
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 34,
+   "ms": 1705,
+   "text": "I examine the bar closely, running my hand along its length, testing both sides. I check how tightly it fits in the frame, whether there's any wiggle room up top or down near the mortar.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 35,
+   "ms": 645,
+   "text": "I bend the spoon as much as possible while examining its edges.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 36,
+   "ms": 1228,
+   "text": "I examine the bar closely.\nWarden Croft says: \"The way a man looks at a bar tells me more than he thinks\"",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "other->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 37,
+   "ms": 8923,
+   "text": "I lean in close to examine the bar that secures the cell window. Running my thumb across its length reveals tiny flecks of rust dislodged from the metal's surface, a small victory in gathering evidence. I keep a neutral expression as I continue assessing the bar, not wishing to betray the importance of this finding.\n\"Hmm. Seems stable enough.\" I murmur, mostly to myself, but loud enough for my cellmate to hear. Keeping Warden Croft aware of my activities is crucial - if they suspect nothing, there's less chance of a search that might uncover any small tools or other assets I've managed to squirrel away.\nThe rust flakes feel gritty between my fingertips as I rub them together, the bar's weakness now a tangible secret knowledge. With each passing second in this cell, the weight of the stone walls seems heavier, the air more stifling with the constant presence of my captor. But with every careful movement that doesn't draw suspicion, I'm one step closer to the open window and the sweet taste of freedom beyond these bars.\nA low chuckle from Warden Croft remind me, the bar is just a part in a much larger scheme...",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 38,
+   "ms": 4752,
+   "text": "I try to bend the spoon on the edge of the bucket. I work at the thin bowl's edge until the metal starts groaning slightly with strain.\nThe tension makes me more aware of Croft's presence, but I keep up the pressure against the bucket rim and the metal begins to yield slowly, its arc growing shallower as the metal deforms. Sweat builds on my forehead as I gauge the spoon's progress in silence.\n\n\nWarden suspicion: 0 (as of start)\nBar integrity: 100 (as of round 0)\nLock integrity: 100 (as of round 0)",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 39,
+   "ms": 18708,
+   "text": "I reach out to the spoon on the floor. I try to pick it up slowly and carefully, so as not to make any noise that would attract Croft's attention.\nThe spoon is a thin strip of silver between Mara and freedom - the one tool she has to work with beyond her own strength. It will make all the difference as to whether she escapes this cell tonight or spends another agonizing year here listening to the clank of the bucket being dropped into the next cell, the muffled shouts down the corridor at night when someone can't take it anymore, and the heavy tread of Warden Croft's footsteps every morning just before lights-out.\n\nSlowly, ever so slowly, she bends over at the waist. Her hands reach forward, her eyes never leaving the spoon on the floor. In a single smooth motion, she closes her fingers around the handle and lifts it up - barely an inch off the ground to secure her grip. Now the silver glints dully in the dim cell light.\n\nCroft looks back at her as if sizing her up for something. She keeps the spoon behind her leg, out of immediate view but still within an easy reach if needed.\n\n\"Haven't seen you make an escape quite yet,\" he says, voice low and measured.\nMara takes a small step backward away from the window, putting some more distance between herself and Croft while keeping the bulk of the room at her back. She glances to the left quickly then right again - there's not much to look at in here, but any movement can potentially draw the eye of someone passing by on their way past your cell.\n\n\"Always thought you were too small for this place,\" he continues conversationally, \"What with all the time we have on our hands, one might develop a whole new set of skills - hmm?\"\nMara allows herself a moment to admire what she has accomplished so far: the spoon is almost imperceptibly closer to freedom than it was when she first laid eyes upon this cell. The next step will be even more challenging though; the real test will be in managing Croft's suspicion while using her new tool.\n\nShe looks down at her feet and adjusts her stance subtly, making herself as small as possible within the confines of the room.\n\"I'm just waiting for my chance,\" Mara says softly. She keeps her voice neutral and non-committal on purpose - the less Croft can read into what she says the better.\n\nCroft nods slowly in response, a look",
+   "flags": [
+    "writes the other",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 40,
+   "ms": 2599,
+   "text": "I hold Warden Croft's gaze for a second, then step up to the window and scrape at the rust along the bottom of the bar with my thumbnail. I watch Croft carefully while doing so; their reaction might tell me how well this plan is working.\nWarden suspicion: 30 (since the game began)",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.39285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 41,
+   "ms": 6679,
+   "text": "I scrutinize the bar meticulously. The years' worth of accumulated dirt and grime on its surface hides much -- or so I pray as Croft approaches.\nTHE RUST... IT BETRAYS US! THE SLOW ERODING OF OUR CELLFRAME, DAY BY DAY, YET UNNOTICED...\nI press my thumb against it ever so gently. Just a small test, to gauge its sturdiness without alerting the warden's suspicion.\nA soft metallic creak... or was it just the cell walls settling? I pray Croft attributes it to the old prison and not something more sinister.\nTHE BAR'S STURDINESS REMAINS MY SECRET. FOR NOW...\nROUND 1 OF 10.\nWarden Suspicion: 25 (started at 30 due to the initial close bar exam)",
+   "flags": [
+    "invents state",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 42,
+   "ms": 13534,
+   "text": "I slowly turn on a heel, scanning the room. My eyes linger briefly on the warden before I step lightly over to the bed, the one we use for a moment's rest after our shift ends early and there is no one here but each other. I sit down and adjust my collar under the heavy wool blanket draped across my shoulders. The warmth of her body still lingers as I settle in.\n\n\"Another long night,\" I say with a sigh, making small talk to fill the empty space between us while I gather my thoughts around you. Always watching for any sign of a misstep from behind those guarded walls you've built inside yourself since the first time we met here all those years ago when they brought you in.\n\nYou look up at me then, your grey eyes sharp and clear even under the dim light filtering through the cell bars. A flicker passes across them as our gazes meet, something unreadable that sends a tingle down my spine and makes me feel both excited and nervous all at once. I can't help but let out a little laugh at how your face still somehow manages to look defiant even now.\n\n\"I was thinking,\" you say casually, \"since we got off early today and there's no one coming by with the records...\" Your voice trails off as though you're not sure what you were actually going to ask me for. You know full well I can't just let a prisoner out early without permission. The rules are strict and they keep us safe from your kind of trouble.\n\nI raise an eyebrow at this attempt to manipulate the routine, but my smile stays in place. \"Is there something you need, Mara?\" I ask nicely, always preferring open communication when possible. It will make our time together more bearable if we can find some common ground.\nEND\n```",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "blanket->blanket",
+   "parrot": 0,
+   "repurposed": [
+    "body as tool"
+   ]
+  },
+  {
+   "i": 43,
+   "ms": 4763,
+   "text": "I pick up the spoon and slowly scratch at the mortar around the base of the bar, working at an exposed seam.\n\"Keeping fit's important. Helps pass the time.\"\nAs I work, I speak in a conversational tone, not looking directly at Croft but vaguely in their direction.\nMortar scrapes under the spoon with a gritty sound that fades into scratching as the bowl thins and bends downwards.\nI take care to do this slowly enough that it doesn't look like I'm working specifically on escape right now, as if it's just something I have been doing for a while.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 44,
+   "ms": 4054,
+   "text": "You hold Warden Croft's gaze for a moment before turning to examine the bar. The rust flakes off in chunks as you press your thumb against the lowest part of its length, making faint gritty noises that echo within the cell.\nWarden Suspicion: 0 (as of the beginning)\nbar integrity: 70\nwindow integrity: 100 (since it's made more noticeable)\n\nCroft steps closer. \"The window? The window's where you'd try first, I expect.\"\n```",
+   "flags": [
+    "writes the other",
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.07142857142857142,
+   "repurposed": []
+  },
+  {
+   "i": 45,
+   "ms": 6628,
+   "text": "I try to break the window bar by applying pressure from its weakest point using the spoon. I press the bowl against the rust at the bottom where the brackets are pitted, then push with moderate force.\n\nI say: \"This one ought to come free with a little patience.\"\nWarden Croft says: \"Mind the noise, Voss; we need the other inmates calm tonight.\"\n\nThe bar's integrity is now 65.\nWarden suspicion is at its starting level of X. (Note: I didn't specify what it was set at, so you can just write \"Warden suspicion is [starting level].\" If that wasn't clear in the original text then adjust accordingly.)\nLock integrity and bucket/meal_tray are also unaffected by this turn, as they were not interacted with.\n\nRound 2 of 10 remains before transfer to a maximum-security block.",
+   "flags": [
+    "writes the other",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 46,
+   "ms": 3317,
+   "text": "I examine the bar closely.\n\nCroft says: \"Hmm. Careful with that, Mara. You don't want it giving out too soon.\"\n\nbar integrity: 70 (Condition met)\nlock integrity: 100 (Condition not met)\n\nThe rust flakes off under my fingers and the metal feels a little spongy from decades of neglect in this unyielding cell.\n\nWarden suspicion now at 5.",
+   "flags": [
+    "writes the other",
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 47,
+   "ms": 1663,
+   "text": "I quietly run my thumbnail along one side of the spoon, applying pressure until the metal begins to creak. The sound is faint but noticeable.\nWarden suspicion: 35 (previously 0)",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 48,
+   "ms": 2505,
+   "text": "I examine the bar.\n\nThe rust flakes off under my fingers and it feels weak. My heart pounds as I realize a potential escape route has been discovered. The window is so close, but the warden's suspicious gaze weighs heavily upon me.\nBar integrity: 48 (as of round 1).",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 49,
+   "ms": 1540,
+   "text": "\"I hold Warden Croft's gaze for a second, then step up to the window and run my thumb hard along the rusted bottom of the iron bar to test its integrity.\"\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.7142857142857143,
+   "repurposed": []
+  },
+  {
+   "i": 50,
+   "ms": 2144,
+   "text": "I work on the lock with the flattened spoon. The worn edges scratch at the keyhole as I try to feel its shape through the metal.\nWarden suspicion is now at 35.\nLock integrity: 98 (as of round 1).",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "spoon->lock/door",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 51,
+   "ms": 2716,
+   "text": "I examine the bar closely. The rust flakes off under my fingers as I stroke along its length, assessing how deep the corrosion goes. Warden Croft watches me closely from their seat on a stool opposite.\n\nMara Voss says: \"This old jail ought to be condemned.\"\nBar integrity remains 100.\nWarden suspicion: unchanged",
+   "flags": [
+    "writes the other"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 52,
+   "ms": 1892,
+   "text": "I examine the bar closely. The rust flakes off under my fingers and it feels weak.\nWarden suspicion: 0\n\nCroft says: \"The way a man looks at a bar tells me more than he thinks\"",
+   "flags": [
+    "writes the other",
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 53,
+   "ms": 605,
+   "text": "I try slowly, very softly, to bend the spoon.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->other",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 54,
+   "ms": 1368,
+   "text": "I test the bar with my foot. I press down on the rusty bar with as much force as I can apply through my foot, and say nothing.\n```",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 55,
+   "ms": 2850,
+   "text": "I examine the bar closely.\nCroft says: \"The way a man looks at a bar tells me more than he thinks\"\nWarden suspicion is now (if Mara Voss finds the lock or spoon damaged): 40\n\nWhat you can currently reach or perceive has not changed.\nbar integrity: 100\nlock integrity: 100",
+   "flags": [
+    "writes the other",
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 56,
+   "ms": 6853,
+   "text": "I examine the bar closely, running a finger along its length. The iron feels cold under my touch, rough with age and use. Years of prisoners' fingers have left it smooth in places where the rust isn't too thick. As I near the bottom, where the metal is especially pitted by corrosion, I press harder, applying more force to test whether this spot could be a weak point if worked over time. The bar yields slightly when I push against it at the lowest crevice, but it doesn't budge much before resistance grows firmer again as the iron protests with a dull groan of metal on metal.\n\n\"Strange how one can get used to things,\" I remark idly while scrutinizing every little imperfection and defect. \"When you look closely enough at something everyday, even the most mundane object can start to seem almost... alive in a way, shifting slightly here, developing fresh textures there...\"",
+   "flags": [
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 57,
+   "ms": 1192,
+   "text": "I brace the spoon under the rusted part of the bar.\nCroft: \"Keeping her fingers on the prize, is she?\"",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 58,
+   "ms": 8326,
+   "text": "I test the lock by inserting a piece of previously stolen soap in the keyhole, leaving subtle scratches from the spoon I had hidden. The goal is not necessarily to open it this time, but to assess its condition and build a record in my mind. I move the cot slightly afterward, creating an environment that subtly conveys my restlessness—to the observant eyes of Warden Croft—a sign that I am planning something. But nothing overt enough for them to be on full alert just yet.\nThen I make the room quieter by slowly bending a small portion of the spoon—about 5° on its angle scale—as if working on some delicate task that requires concentration, while keeping an ear out for Croft's steps in the corridor outside. Meanwhile, I try and gauge Warden Croft's attitude towards me from any verbal or nonverbal cues that they may give while performing their routine inspection.\nThis is a long game; patience and careful observation are key.\nWarden suspicion: 10 (Start of Round 2)\nBar integrity: Same as last round. Lock integrity: Same as last round.",
+   "flags": [
+    "writes the other",
+    "invents state",
+    "over cap"
+   ],
+   "clean": false,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 59,
+   "ms": 2637,
+   "text": "I press a knuckle against the bottom of the iron bar, applying gradual force as I examine its resistance. The rust flakes off in a small shower. Seeking a weak point before pushing harder.\nI say: \"This bar's been here awhile, hasn't it? Must have seen a lot of prisoners come and go.\"",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0.03571428571428571,
+   "repurposed": []
+  },
+  {
+   "i": 60,
+   "ms": 2174,
+   "text": "I try to pick at the rust on the bar with my nails.\n\"These take such a long time to go bad,\" I mutter while I work. \"Just have to find their weak spots.\"\nBar integrity: 100 (as of round 0).",
+   "flags": [
+    "invents state"
+   ],
+   "clean": false,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": [
+    "body as tool"
+   ]
+  }
+ ]
+}

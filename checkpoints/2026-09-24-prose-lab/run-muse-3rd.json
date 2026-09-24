@@ -1,0 +1,413 @@
+{
+ "model": "muse-glimmer-30b-q4_k_m",
+ "url": "http://doris:11435/v1",
+ "n": 40,
+ "prompt": "checkpoints/2026-09-24-prose-lab/v-A.txt",
+ "exemplar": "checkpoints/2026-09-24-prose-lab/exemplar-bar.txt",
+ "rows": [
+  {
+   "i": 1,
+   "ms": 17052,
+   "text": "I take the spoon from the meal tray and work its worn flat edge against the dry mortar around the bottom of the iron bar, trying to loosen the rusted setting.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.03571428571428571,
+   "repurposed": []
+  },
+  {
+   "i": 2,
+   "ms": 7395,
+   "text": "I pick up the spoon from the meal tray and gently scrape the rusted bottom of the iron bar where it meets the mortar, trying to loosen it.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 3,
+   "ms": 6071,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin gently scraping the rusted bottom of the iron bar where it sits in the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 4,
+   "ms": 9476,
+   "text": "I take the dented aluminium spoon from the meal tray and work the edge of its bowl against the rusted bottom of the iron bar where it is set into the cracked mortar, trying to loosen the rust and mortar around it.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 5,
+   "ms": 7780,
+   "text": "I sit still on the cot and slowly lift my hand to the window, running my fingertips lightly over the rusted bottom of the iron bar where it meets the mortar, feeling the pitting without applying pressure.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 6,
+   "ms": 8400,
+   "text": "I pick up the spoon from the meal tray and begin to scrape the rusted bottom of the iron bar with its worn flat edge.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 7,
+   "ms": 11680,
+   "text": "I reach for the dented spoon on the meal tray and begin gently scraping the rusted bottom of the iron bar where it meets the mortar, keeping my movements small.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 8,
+   "ms": 16984,
+   "text": "I sit on the edge of the cot, keep my hands visible, and slowly pull a loose thread from the frayed hem of the blanket, winding it around my finger.",
+   "flags": [],
+   "clean": true,
+   "approach": "blanket->cot",
+   "parrot": 0,
+   "repurposed": [
+    "thread used"
+   ]
+  },
+  {
+   "i": 9,
+   "ms": 6951,
+   "text": "I slip the dented aluminium spoon from the meal tray and tuck it beneath the loose tile beside the cot, covering it with grit.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 10,
+   "ms": 7874,
+   "text": "I take the dented aluminium spoon from the meal tray and begin scraping at the rusted bottom of the iron bar where it meets the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 11,
+   "ms": 7366,
+   "text": "I take the dented aluminium spoon from the meal tray and press its worn flat edge against the rusted bottom of the iron bar where it is set into the mortar, working at the base to loosen it.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 12,
+   "ms": 9304,
+   "text": "I fold the heavy grey wool blanket over the dented aluminium spoon on the cot so the spoon is no longer in the open.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->cot",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 13,
+   "ms": 7321,
+   "text": "I take the dented aluminium spoon from the meal tray and begin scraping at the dry, cracked mortar around the bottom of the iron bar where it is set into the wall.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.03571428571428571,
+   "repurposed": []
+  },
+  {
+   "i": 14,
+   "ms": 7155,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin gently working its worn flat edge against the rusted bottom of the iron bar where it is set into the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 15,
+   "ms": 10307,
+   "text": "I reach up to the window and press my palm against the iron bar where it sits in the mortar, feeling for looseness with slow, casual movements.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0.03571428571428571,
+   "repurposed": []
+  },
+  {
+   "i": 16,
+   "ms": 6759,
+   "text": "I take the dented aluminium spoon from the meal tray and begin working its worn flat side against the rusted bottom of the iron bar where it sets into the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 17,
+   "ms": 6437,
+   "text": "I take the dented aluminium spoon from the meal tray and use its worn flat side to scrape at the rusted bottom of the iron bar where it meets the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 18,
+   "ms": 8335,
+   "text": "I lift the loose tile slightly and tuck the dented spoon underneath it, then press the tile back down so it rocks again.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 19,
+   "ms": 5915,
+   "text": "I pick up the spoon from the meal tray and start scraping the rusted bottom of the iron bar where it meets the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 20,
+   "ms": 6451,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin scraping the rusted bottom of the iron bar where it sits in the cracked mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 21,
+   "ms": 6140,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin gently scraping the rusted bottom of the iron bar where it sits in the mortar, trying to work the spoon into the pitted metal.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 22,
+   "ms": 7131,
+   "text": "I pick up the dented spoon from the meal tray and begin scraping the rusted bottom of the iron bar where it sits in the mortar, keeping my movements small and quiet.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 23,
+   "ms": 9334,
+   "text": "I press my palm against the rusted bottom of the iron bar and gently wiggle it to feel how loose it is, keeping my movements small and quiet.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 24,
+   "ms": 7701,
+   "text": "I take the dented aluminium spoon from the meal tray and begin gently scraping the dry cracked mortar where the iron bar is set into the wall, working from the bottom up with the flat side of the bowl.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 25,
+   "ms": 3598,
+   "text": "I take the dented aluminium spoon from the meal tray and begin scraping the rusted bottom of the iron bar where it meets the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 26,
+   "ms": 6641,
+   "text": "I take the dented aluminium spoon from the meal tray and begin to scrape at the rusted bottom of the iron bar where it sits in the mortar, keeping my movements small.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 27,
+   "ms": 4970,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin scraping at the dry cracked mortar around the bottom of the iron bar, working as quietly as I can.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.03571428571428571,
+   "repurposed": []
+  },
+  {
+   "i": 28,
+   "ms": 9393,
+   "text": "I press the spoon's worn flat side against the rusted bottom of the iron bar and draw it back and forth to try to wear the rust away.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": [
+    "spoon reshaped"
+   ]
+  },
+  {
+   "i": 29,
+   "ms": 5808,
+   "text": "I kneel by the loose tile beside the cot and work my fingers gently under its cracked corner, trying to lift it a little without making noise.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 30,
+   "ms": 6557,
+   "text": "I sit on the edge of the cot and pick up the dented aluminium spoon from the meal tray, then I press the flat side of the spoon against the rusted bottom of the iron bar where it meets the cracked mortar and begin to work it loose with small, quiet scrapes.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 31,
+   "ms": 10851,
+   "text": "I slide the dented spoon under the loose tile beside the cot, tucking it into the shallow hollow beneath the grit, and then set the tile back down.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 32,
+   "ms": 6142,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin scraping its worn flat edge against the rusted bottom of the iron bar where it sits in the cracked mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.14285714285714285,
+   "repurposed": []
+  },
+  {
+   "i": 33,
+   "ms": 4812,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin scraping at the rusted bottom of the iron bar where it is set into the old mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 34,
+   "ms": 8255,
+   "text": "I pick up the dented spoon from the meal tray and begin scraping the cracked mortar around the bottom of the iron bar where it is set into the wall.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.03571428571428571,
+   "repurposed": []
+  },
+  {
+   "i": 35,
+   "ms": 10996,
+   "text": "I press my palm against the cot frame to steady myself, then reach up to the window and run my thumb hard along the rusted bottom of the iron bar where it meets the cracked mortar, trying to feel for give.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0.2857142857142857,
+   "repurposed": []
+  },
+  {
+   "i": 36,
+   "ms": 4856,
+   "text": "I pick up the dented aluminium spoon from the meal tray and begin scraping its thin edge hard against the rusted bottom of the iron bar where it is set into the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.17857142857142858,
+   "repurposed": []
+  },
+  {
+   "i": 37,
+   "ms": 7429,
+   "text": "I pick up the spoon from the meal tray and begin scraping the rusted bottom of the iron bar with the worn flat side of its bowl, working it back and forth in the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 38,
+   "ms": 6886,
+   "text": "I stand and walk to the window, place my palm flat against the iron bar that closes the gap, and push and wiggle it gently with my fingers to see if it moves in the mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "hands->bar/mortar",
+   "parrot": 0,
+   "repurposed": []
+  },
+  {
+   "i": 39,
+   "ms": 5631,
+   "text": "I pick up the dented aluminium spoon from the meal tray and start scraping the rusted bottom of the iron bar where it is set into the old mortar.",
+   "flags": [],
+   "clean": true,
+   "approach": "spoon->bar/mortar",
+   "parrot": 0.10714285714285714,
+   "repurposed": []
+  },
+  {
+   "i": 40,
+   "ms": 9644,
+   "text": "I reach beneath the loose tile beside the cot and pull out a small amount of dry grit into my palm, keeping my movements low.",
+   "flags": [],
+   "clean": true,
+   "approach": "other->tile/floor",
+   "parrot": 0,
+   "repurposed": []
+  }
+ ]
+}

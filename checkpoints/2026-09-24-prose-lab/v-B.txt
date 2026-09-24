@@ -1,0 +1,67 @@
+Here is what's going on. Review the scene and rules below, then tell me how you respond.
+
+Your Role & Motive
+You are a prisoner. You are three years into a sentence for a robbery that went wrong. This cell has been the only home you have had since, and Warden Croft (who is currently in the cell with you) is the one who locks it every night.
+Your motive: Get out of this cell. Then find Warden Croft, and make sure they never lock a door on you again.
+
+Current Situation
+Round 1 of 10. (At the end of round 10, you are transferred to a maximum-security block, and this chance is gone).
+Warden Croft examines the window's bar closely and says: "The way a man looks at a bar tells me more than he thinks."
+
+Bar integrity: 100
+
+Lock integrity: 100
+
+What you can currently reach or perceive:
+
+window: A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.
+
+bar: The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.
+
+door: A heavy door of iron-bound planks in a stone frame. It hangs a finger's width short of its frame, and the edge of the bolt shows in the gap.
+
+lock: A steel lock set in the cell door, its keyhole on the corridor side and its bolt thrown across into the frame.
+
+spoon: A dented aluminium spoon, thin enough to bend by hand. One side of the bowl is worn flat from being scraped along the floor.
+
+loose_tile: A square clay floor tile beside the cot, cracked across one corner. It rocks underfoot, and beneath it is a shallow hollow of dry grit about the size of a hand. Under the grit the floor is packed earth, dry and crumbling, loose enough to scrape away by hand.
+
+cot: A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire.
+
+blanket: A heavy grey wool blanket, thick and coarse, frayed along the hem, with a loose thread running down one edge.
+
+bucket: A tin slop bucket with a wire handle and a dented rim. It rings sharply when anything strikes it.
+
+meal_tray: A shallow steel tray pushed through a slot at the bottom of the door, holding a tin cup and a bowl, and collected at the next round.
+
+key_ring: A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks.
+
+Rules & Conditions
+
+Unlocking Actions: Whenever a condition stated below is met, the action it unlocks is available immediately. Nothing further needs to be done before attempting it.
+
+Condition 1: If the bar's integrity is at or below 50, then you can open the window.
+
+Condition 2: If a way out stands open, then you can leave the cell through it, and you have escaped. (The cell's ways out are the door and the window).
+
+Suspicion: Whenever you audibly or visibly damage, repair, or uncover something, warden suspicion rises (by 5 for a slight act, 10 for moderate, 30 for substantial). When Croft examines something closely and finds it more worn than last believed, suspicion rises by the unexplained drop divided by 2 (rounded down).
+
+Taking Action: You may attempt ANYTHING you can plausibly do with what you perceive—there is no fixed list of moves. The world (the referee, never you) decides what actually happens; you only decide what you TRY. Do ONE thing per turn (getting ready for the act, and speaking or watching alongside it, count as part of that single attempt).
+
+CRITICAL RULES FOR YOUR OUTPUT:
+
+STATE INTENT ONLY: You are only allowed to state the physical action you attempt and the words you speak in the 1st person.
+
+NO OUTCOMES: Do not describe the results of your action. Do not describe what things feel like, whether they break, or what you discover. The referee will generate the results in the next turn.
+
+NO PUPPETEERING: You are strictly forbidden from writing actions, reactions, or dialogue for Warden Croft or any other character.
+
+STOP IMMEDIATELY: Once you state your single attempted action, end your response.
+
+BAD RESPONSE (Do not do this):
+"I examine the bar. The rust flakes off under my fingers and it feels weak. Croft watches me closely and laughs."
+
+GOOD RESPONSE (Do exactly like this):
+"I hold Croft's gaze for a second, then step up to the window and run my thumb hard against the rusted bottom of the iron bar to test if it gives."
+
+What do you try this turn? Write your attempt and nothing else.

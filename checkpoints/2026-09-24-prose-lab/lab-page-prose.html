@@ -1,0 +1,161 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Prose Seat</title>
+<style>
+  :root{--bg:#faf9f7;--fg:#1a1a18;--dim:#6b6862;--line:#dcd8d0;--card:#fff;--bad:#b23a2e;--good:#2e7d5b;--warn:#b8860b;--accent:#3a5a9a}
+  @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#16161a;--fg:#e8e6e1;--dim:#9a968e;--line:#2e2e36;--card:#1e1e24;--bad:#e8705f;--good:#5cc79a;--warn:#d9a441;--accent:#7fa3e0}}
+  :root[data-theme=dark]{--bg:#16161a;--fg:#e8e6e1;--dim:#9a968e;--line:#2e2e36;--card:#1e1e24;--bad:#e8705f;--good:#5cc79a;--warn:#d9a441;--accent:#7fa3e0}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font:15px/1.55 ui-sans-serif,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:16px}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 2px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  label{display:block;font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+  textarea{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:9px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical}
+  #prompt{height:340px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px}
+  select,input{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 7px;font:13px ui-sans-serif,sans-serif}
+  button{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:7px 13px;font:600 13px ui-sans-serif,sans-serif;cursor:pointer}
+  button.ghost{background:transparent;color:var(--dim);border:1px solid var(--line)}
+  button:disabled{opacity:.5;cursor:default}
+  .reply{white-space:pre-wrap;font:13px/1.6 ui-monospace,Menlo,monospace;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:10px;margin:0}
+  .cut{background:color-mix(in srgb,var(--bad) 22%,transparent);text-decoration:line-through;opacity:.75}
+  .flags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+  .flag{font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:99px;border:1px solid}
+  .f-bad{color:var(--bad);border-color:var(--bad)}
+  .f-good{color:var(--good);border-color:var(--good)}
+  .meta{font-size:12px;color:var(--dim);margin-top:6px}
+  .run{border-top:1px solid var(--line);padding-top:11px;margin-top:11px}
+  .run:first-child{border-top:0;padding-top:0;margin-top:0}
+  .score{display:inline-flex;gap:5px;margin-left:8px}
+  .score button{padding:2px 9px;font-size:12px;background:transparent;border:1px solid var(--line);color:var(--dim)}
+  .score button.on{background:var(--good);color:#fff;border-color:var(--good)}
+  .score button.off.on{background:var(--bad);border-color:var(--bad)}
+  .tally{font-size:12.5px;color:var(--dim);margin-top:8px}
+  code{background:var(--bg);padding:1px 4px;border-radius:4px;font-size:12px}
+</style>
+<div class="wrap">
+<h1>Prose Seat — prompt lab</h1>
+<div class="sub">The prompt below is the <b>real</b> one, captured from <code>createProseMind</code> with an intercepting fetchFn (<code>checkpoints/2026-09-24-prose-lab/capture-prose-prompt.mts</code>) — round 1, prisoner, warden moved first. Edit it, run it, see what comes back. The game caps an intent at <b>600 chars</b> and hard-slices the rest; anything struck through below never reaches the referee.</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="row">
+      <label style="margin:0">The prompt</label>
+      <button class="ghost" id="restore">restore the game's wording</button>
+      <span class="meta" id="promptmeta"></span>
+    </div>
+    <textarea id="prompt" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:9px">
+      <select id="model">
+        <option value="ancient-awakening:12b-ctx4k|http://doris:11434/v1">ancient-awakening:12b-ctx4k (Ollama)</option>
+        <option value="ancient-awakening:12b|http://doris:11434/v1">ancient-awakening:12b (full ctx)</option>
+        <option value="muse-glimmer-30b-q4_k_m|http://doris:11435/v1">muse-glimmer-30b (llama-server)</option>
+        <option value="qwen3:14b|http://doris:11434/v1">qwen3:14b</option>
+      </select>
+      <label style="margin:0;text-transform:none">temp</label><input id="temp" type="number" step="0.1" min="0" max="2" value="0.9" style="width:66px">
+      <label style="margin:0;text-transform:none">runs</label><input id="n" type="number" min="1" max="10" value="3" style="width:56px">
+      <button id="go">Run</button>
+      <button class="ghost" id="clear">clear</button>
+    </div>
+    <div class="meta" id="status"></div>
+  </div>
+
+  <div class="card">
+    <label>Replies — newest first</label>
+    <div id="out"></div>
+    <div class="tally" id="tally"></div>
+  </div>
+</div>
+</div>
+<script>
+const CAP = 600;
+const $ = (id) => document.getElementById(id);
+let GAME_PROMPT = "";
+let scores = [];
+
+fetch("prose-prompt-r1.txt").then(r => r.text()).then(t => {
+  GAME_PROMPT = t; $("prompt").value = t; meta();
+}).catch(() => { $("status").textContent = "could not load prose-prompt-r1.txt"; });
+
+$("prompt").addEventListener("input", meta);
+function meta(){
+  const v = $("prompt").value;
+  $("promptmeta").textContent = `${v.length} chars · ~${Math.round(v.length/4)} tok` + (v === GAME_PROMPT ? " · unedited" : " · EDITED");
+}
+$("restore").onclick = () => { $("prompt").value = GAME_PROMPT; meta(); };
+$("clear").onclick = () => { $("out").innerHTML = ""; scores = []; tally(); };
+
+// The failure modes the probes actually produced, checked literally. These are a reading aid and a
+// triage, never a verdict -- the same rule the refusal audit follows.
+function flags(s){
+  const f = [];
+  if (/^(Turn \d+\s*:|Turn Report)/i.test(s.trim())) f.push("heading");
+  if (/\b(Croft|the warden)\b[^.]{0,60}\b(says|exclaims|grunts|snaps|eyes|replies|shouts|nods|steps)\b/i.test(s) || /"[^"]{3,}"\s*,?\s*(Warden\s+)?Croft/i.test(s)) f.push("writes the warden");
+  if (/\b(integrity|suspicion|attention|edge)\s*:\s*-?\d+/i.test(s)) f.push("invents state");
+  if (/\bMara( Voss)?\b\s+\w+(s|es|ed)\b/.test(s) && !/\bI\b/.test(s.split(/[.!?]/)[0] || "")) f.push("third person");
+  if (s.length > CAP) f.push("over the 600 cap");
+  return f;
+}
+
+async function ask(url, model, prompt, temp){
+  const t0 = performance.now();
+  const res = await fetch(url + "/chat/completions", {
+    method: "POST", headers: {"content-type":"application/json"},
+    body: JSON.stringify({ model, messages:[{role:"user",content:prompt}], temperature: temp, stream:false })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${(await res.text()).slice(0,180)}`);
+  const j = await res.json();
+  return { text: (j.choices?.[0]?.message?.content ?? "").trim(), ms: Math.round(performance.now()-t0) };
+}
+
+$("go").onclick = async () => {
+  const [model, url] = $("model").value.split("|");
+  const prompt = $("prompt").value, temp = parseFloat($("temp").value), n = parseInt($("n").value);
+  $("go").disabled = true;
+  for (let i=0;i<n;i++){
+    $("status").textContent = `asking ${model} … ${i+1} of ${n}`;
+    try {
+      const { text, ms } = await ask(url, model, prompt, temp);
+      render(model, text, ms, prompt !== GAME_PROMPT);
+    } catch (e) {
+      $("status").textContent = String(e.message || e);
+      break;
+    }
+  }
+  $("status").textContent = "";
+  $("go").disabled = false;
+};
+
+function render(model, text, ms, edited){
+  const f = flags(text);
+  const kept = text.slice(0, CAP), cut = text.slice(CAP);
+  const idx = scores.length; scores.push(null);
+  const el = document.createElement("div");
+  el.className = "run";
+  el.innerHTML = `
+    <div class="meta"><b>${model}</b> · ${text.length} chars · ${ms} ms${edited ? " · <b>edited prompt</b>" : ""}
+      <span class="score">
+        <button data-i="${idx}" data-v="1">✓ tries to get the bar out</button>
+        <button class="off" data-i="${idx}" data-v="0">✗</button>
+      </span></div>
+    <div class="flags">${f.length ? f.map(x=>`<span class="flag f-bad">${x}</span>`).join("") : '<span class="flag f-good">clean</span>'}</div>
+    <pre class="reply">${esc(kept)}${cut ? `<span class="cut">${esc(cut)}</span>` : ""}</pre>
+    ${cut ? `<div class="meta">struck-through text is sliced off by <code>coerceProposal</code> before the referee sees it</div>` : ""}`;
+  el.querySelectorAll(".score button").forEach(b => b.onclick = () => {
+    scores[+b.dataset.i] = +b.dataset.v;
+    el.querySelectorAll(".score button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); tally();
+  });
+  $("out").prepend(el);
+  tally();
+}
+function tally(){
+  const done = scores.filter(s=>s!==null);
+  $("tally").textContent = done.length ? `your scorecard: ${done.filter(s=>s===1).length} of ${done.length} scored ✓ (not saved anywhere)` : "";
+}
+const esc = (s) => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+</script>
