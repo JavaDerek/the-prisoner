@@ -7,6 +7,7 @@ import {
   seatModelNames,
   openModelHeaderLines,
   closedModelHeaderLines,
+  readProseSeat,
 } from "../modelRoles.js";
 
 /**
@@ -179,5 +180,27 @@ describe("the closed variant's model header", () => {
       "Warden's chair -- wits model: `muse-glimmer-30b-q4_k_m`. Voice model: `muse-glimmer-30b-q4_k_m`.",
       "At `http://doris:11434/v1`. Think timeout: 60000.",
     ]);
+  });
+});
+
+/**
+ * The prose seat switch (2026-09-24). Which chair, if any, is asked ONE
+ * question instead of an eight-field JSON object (`src/open/proseMind.ts`).
+ * Unset is every game ever recorded.
+ */
+describe("PRISONER_PROSE_SEAT", () => {
+  it("defaults to off when unset or empty -- every recorded game is unchanged", () => {
+    expect(readProseSeat(undefined)).toBe("off");
+    expect(readProseSeat("")).toBe("off");
+  });
+
+  it("names a chair", () => {
+    expect(readProseSeat("prisoner")).toBe("prisoner");
+    expect(readProseSeat("warden")).toBe("warden");
+  });
+
+  it("throws on anything else -- never guessed past (root CLAUDE.md hard rule 3)", () => {
+    expect(() => readProseSeat("both")).toThrow(/PRISONER_PROSE_SEAT/);
+    expect(() => readProseSeat("1")).toThrow(/PRISONER_PROSE_SEAT/);
   });
 });

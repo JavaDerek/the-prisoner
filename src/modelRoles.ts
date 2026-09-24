@@ -157,3 +157,17 @@ export function closedModelHeaderLines(args: { prisoner: SeatModels; warden: Sea
   }
   return [...chairLines(prisoner, warden), `At \`${modelUrl}\`. Think timeout: ${thinkTimeout}.`];
 }
+
+/** Which chair, if any, is a PROSE seat (`src/open/proseMind.ts`): asked one
+ *  question and taken at its word, instead of asked for one JSON object with
+ *  eight fields. `humanSeat.ts` already made this change for a person and
+ *  recorded why -- a fixed field order "forced the player to pre-classify
+ *  their own action before the referee ever saw any of it" -- and the model
+ *  chair never got it. Unset is every game ever recorded; anything
+ *  unrecognised throws rather than being guessed past. */
+export type ProseSeat = "off" | "prisoner" | "warden";
+export function readProseSeat(raw: string | undefined): ProseSeat {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "prisoner" || raw === "warden") return raw;
+  throw new Error(`PRISONER_PROSE_SEAT: unrecognised value ${JSON.stringify(raw)} -- must be "prisoner", "warden" or unset`);
+}

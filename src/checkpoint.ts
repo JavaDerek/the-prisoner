@@ -41,6 +41,7 @@ import {
   resolveNarratorModel,
   resolveSeatModels,
   seatModelNames,
+  readProseSeat,
   openModelHeaderLines,
   closedModelHeaderLines,
 } from "./modelRoles.js";
@@ -66,6 +67,7 @@ import { readPresenceMode, authoredDescription, ownershipAt } from "./open/brief
 import { currentT } from "./world/clock.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
+import { createProseMind } from "./open/proseMind.js";
 import { runOpenGame } from "./open/game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, type SilenceNote } from "./open/checkpointTranscript.js";
 import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
@@ -126,6 +128,10 @@ const MODEL_LABEL = WITS_MODEL === VOICE_MODEL ? WITS_MODEL : `${WITS_MODEL} (wi
  */
 const PRISONER_SEAT = resolveSeatModels(process.env.PRISONER_PRISONER_MODEL, { wits: WITS_MODEL, voice: VOICE_MODEL });
 const WARDEN_SEAT = resolveSeatModels(process.env.PRISONER_WARDEN_MODEL, { wits: WITS_MODEL, voice: VOICE_MODEL });
+/** `PRISONER_PROSE_SEAT` (`src/open/proseMind.ts`): which chair is asked ONE
+ *  question instead of an eight-field JSON object. Open variant only -- the
+ *  closed variant picks a move from an enum and has no free text to ask for. */
+const PROSE_SEAT = readProseSeat(process.env.PRISONER_PROSE_SEAT);
 const THINK_TIMEOUT_MS = process.env.PRISONER_THINK_TIMEOUT_MS
   ? Number(process.env.PRISONER_THINK_TIMEOUT_MS)
   : undefined;
@@ -966,13 +972,36 @@ async function mainOpen(): Promise<void> {
       ...(narrator ? { narrator } : {}),
     });
 
+  // The prose seat (`src/open/proseMind.ts`): same situation rendered, one
+  // question asked. It takes that chair's own model (`PRISONER_*_MODEL`) and
+  // the same `ensureLoaded`, so the swapper still owns the card.
+  const proseMindFor = (principal: OpenPrincipal, conditions?: ReturnType<typeof openConditions>) =>
+    createProseMind({
+      baseUrl: MODEL_URL,
+      model: principal === "warden" ? WARDEN_SEAT.wits : PRISONER_SEAT.wits,
+      selfName: principal === "warden" ? WARDEN_NAME : PRISONER_NAME,
+      otherName: principal === "warden" ? PRISONER_NAME : WARDEN_NAME,
+      timeoutMs: THINK_TIMEOUT_MS,
+      ensureLoaded,
+      ...(conditions ? { conditions } : {}),
+      onSilence: (reason: string, _c: unknown, detail?: { text?: string; parsed?: unknown }) => {
+        lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
+      },
+    });
+
   const modelWarden = () =>
-    WARDEN_MODE === "passive" ? passiveWardenMind() : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) } : {}) });
+    WARDEN_MODE === "passive"
+      ? passiveWardenMind()
+      : PROSE_SEAT === "warden"
+        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) : undefined)
+        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) } : {}) });
   const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) : undefined) : modelWarden();
   const prisonerMind =
     SEAT === "prisoner"
       ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }))
-      : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) }) });
+      : PROSE_SEAT === "prisoner"
+        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }))
+        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -1093,6 +1122,14 @@ async function mainOpen(): Promise<void> {
   // "the built table," which needs no line of its own (every per-half-round
   // acquisition line already names its own built band, `checkpointTranscript.ts`).
   if (ELABORATE_BAND) transcript.push(`Elaboration band override: forced \`${ELABORATE_BAND}\` for every acquisition this game (\`PRISONER_ELABORATE_BAND=${ELABORATE_BAND}\`).`);
+  if (PROSE_SEAT !== "off") {
+    transcript.push(
+      `PROSE SEAT (\`PRISONER_PROSE_SEAT=${PROSE_SEAT}\`): the ${PROSE_SEAT}'s mind was asked ONE question -- "What do you try this turn?" -- ` +
+        "and its whole answer was taken as the intent, verbatim, with no plan, no notes and no spoken line " +
+        "(`src/open/proseMind.ts`). Every other chair is asked for one JSON object with eight fields. NOT comparable " +
+        "to a schema batch on plan or notes measures, which this seat does not produce."
+    );
+  }
   transcript.push(
     SEAT === "off"
       ? "Seats: both minds are models, as every recorded batch is."
