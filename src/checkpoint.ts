@@ -34,7 +34,16 @@ import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
 import { pinnedDependencyVersion } from "./packageInfo.js";
 import { describeRunRevision } from "./runRevision.js";
-import { readSkipVoice, resolveVoiceModel, resolveRefereeModel, resolveNarratorModel } from "./modelRoles.js";
+import {
+  readSkipVoice,
+  resolveVoiceModel,
+  resolveRefereeModel,
+  resolveNarratorModel,
+  resolveSeatModels,
+  seatModelNames,
+  openModelHeaderLines,
+  closedModelHeaderLines,
+} from "./modelRoles.js";
 import { summarizeLoadedModels, type OllamaPsResponse } from "./ollamaStatus.js";
 import { OllamaModelSwapper, nativeBaseUrl, assertNoForeignModel } from "./ollamaSwap.js";
 import {
@@ -87,6 +96,10 @@ const MODEL_URL = process.env.PRISONER_MODEL_URL ?? "http://localhost:11434/v1";
  * value, is exactly today's behaviour -- `createPrisonerMind`/
  * `createWardenMind` collapse to their original single-call path whenever
  * the two resolved names are equal (`prisonerMind.ts`/`wardenMind.ts`).
+ *
+ * These are the RUN's pair. `PRISONER_PRISONER_MODEL` /
+ * `PRISONER_WARDEN_MODEL` below override one CHAIR's, and fall back to
+ * exactly this chain when unset.
  */
 // Standardized on qwen3 (the owner's decision): DEFAULT_REFEREE_MODEL in
 // modelRoles.ts already defaults to qwen3:14b, and this constant used to
@@ -102,6 +115,17 @@ const WITS_MODEL = process.env.PRISONER_WITS_MODEL ?? MODEL ?? DEFAULT_MODEL;
 // model for a run that doesn't need a readable transcript.
 const VOICE_MODEL = resolveVoiceModel(WITS_MODEL, process.env.PRISONER_VOICE_MODEL ?? MODEL ?? DEFAULT_MODEL, readSkipVoice(process.env.PRISONER_SKIP_VOICE));
 const MODEL_LABEL = WITS_MODEL === VOICE_MODEL ? WITS_MODEL : `${WITS_MODEL} (wits) / ${VOICE_MODEL} (voice)`;
+/**
+ * Per-seat mind models (`modelRoles.ts`, phase 1 batch 4): which model sits
+ * in WHICH chair. Unset -- every recorded batch to date -- both chairs are
+ * the configured pair above and nothing downstream can tell this exists:
+ * the same minds are built, the same roster reaches the swapper, and the
+ * header prints the same bytes. Set, one chair's whole mind (wits AND
+ * voice) moves to the named model, which is the only way to run a 30B
+ * warden against an Opus prisoner with one variable moved.
+ */
+const PRISONER_SEAT = resolveSeatModels(process.env.PRISONER_PRISONER_MODEL, { wits: WITS_MODEL, voice: VOICE_MODEL });
+const WARDEN_SEAT = resolveSeatModels(process.env.PRISONER_WARDEN_MODEL, { wits: WITS_MODEL, voice: VOICE_MODEL });
 const THINK_TIMEOUT_MS = process.env.PRISONER_THINK_TIMEOUT_MS
   ? Number(process.env.PRISONER_THINK_TIMEOUT_MS)
   : undefined;
@@ -235,8 +259,11 @@ const NARRATION_AUDIT_ON = NARRATOR_IN_USE && process.env.PRISONER_NARRATION_AUD
 const NARRATION_AUDIT_MODEL = process.env.PRISONER_NARRATION_AUDIT_MODEL || REFEREE_MODEL;
 const CONFIGURED_MODELS = [
   ...new Set([
-    WITS_MODEL,
-    VOICE_MODEL,
+    // Both chairs (`seatModelNames`): with the seats unset this is exactly
+    // `[WITS_MODEL, VOICE_MODEL]`, so the roster and its order are what
+    // they were; with a second model in one chair, that model joins, or the
+    // foreign-model guard would read a chair's own mind as somebody else's.
+    ...seatModelNames(PRISONER_SEAT, WARDEN_SEAT),
     ...(VARIANT === "open" ? [REFEREE_MODEL] : []),
     ...(NARRATOR_IN_USE ? [NARRATOR_MODEL] : []),
     ...(NARRATION_AUDIT_ON ? [NARRATION_AUDIT_MODEL] : []),
@@ -514,16 +541,16 @@ async function main(): Promise<void> {
   // makes, not just one principal's.
   const wardenMind = createWardenMind({
     baseUrl: MODEL_URL,
-    witsModel: WITS_MODEL,
-    voiceModel: VOICE_MODEL,
+    witsModel: WARDEN_SEAT.wits,
+    voiceModel: WARDEN_SEAT.voice,
     timeoutMs: THINK_TIMEOUT_MS,
     ensureLoaded,
     onSilence: (reason, _context, detail) => noteSilenceReason(wardenTracker, reason, detail),
   });
   const prisonerMind = createPrisonerMind({
     baseUrl: MODEL_URL,
-    witsModel: WITS_MODEL,
-    voiceModel: VOICE_MODEL,
+    witsModel: PRISONER_SEAT.wits,
+    voiceModel: PRISONER_SEAT.voice,
     timeoutMs: THINK_TIMEOUT_MS,
     ensureLoaded,
     onSilence: (reason, _context, detail) => noteSilenceReason(prisonerTracker, reason, detail),
@@ -561,16 +588,14 @@ async function main(): Promise<void> {
       "prisoner wins by escaping. Both minds may revise their own plan as the game unfolds."
   );
   transcript.push("");
-  if (WITS_MODEL === VOICE_MODEL) {
-    transcript.push(`Model: \`${MODEL_LABEL}\` at \`${MODEL_URL}\`. Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}.`);
-  } else {
-    // Configurable model roles (this task's brief, item 1): two models,
-    // named separately -- never rendered as a single "Model:" line, so a
-    // reader can never mistake this for the single-call default.
-    transcript.push(`Wits model: \`${WITS_MODEL}\` at \`${MODEL_URL}\`.`);
-    transcript.push(`Voice model: \`${VOICE_MODEL}\` at \`${MODEL_URL}\`.`);
-    transcript.push(`Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}.`);
-  }
+  // Configurable model roles (this task's brief, item 1), now per chair
+  // (`closedModelHeaderLines`, pinned byte for byte by
+  // `__tests__/modelRoles.test.ts`): one `Model:` line on the single-call
+  // path, the two-role form when wits and voice differ -- never rendered as
+  // a single "Model:" line then, so a reader can never mistake it for the
+  // single-call default -- and both chairs named when they hold different
+  // minds.
+  transcript.push(...closedModelHeaderLines({ prisoner: PRISONER_SEAT, warden: WARDEN_SEAT, modelUrl: MODEL_URL, thinkTimeout: String(THINK_TIMEOUT_MS ?? "package default (12000ms)") }));
   transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
   transcript.push(`Code revision: ${describeRunRevision()}`);
@@ -831,10 +856,14 @@ async function mainOpen(): Promise<void> {
   // produce. Recorded per principal, rendered on the half-round that acted.
   const lastVoiceSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
   let voiceSilenceCount = 0;
+  // Per-seat mind models (`modelRoles.ts`): the chair decides the pair, not
+  // the run. This is the variant batch 4 runs, so this -- not the closed
+  // variant's two `createXMind` calls -- is where a 30B warden actually
+  // takes its seat opposite an Opus prisoner.
   const mindOptions = (principal: OpenPrincipal) => ({
     baseUrl: MODEL_URL,
-    witsModel: WITS_MODEL,
-    voiceModel: VOICE_MODEL,
+    witsModel: principal === "warden" ? WARDEN_SEAT.wits : PRISONER_SEAT.wits,
+    voiceModel: principal === "warden" ? WARDEN_SEAT.voice : PRISONER_SEAT.voice,
     timeoutMs: THINK_TIMEOUT_MS,
     ensureLoaded,
     thinking: WITS_THINKING.mode,
@@ -970,7 +999,7 @@ async function mainOpen(): Promise<void> {
       "effect resolves through its resolve protocol (docs/OPEN-VARIANT.md). Warden presence is not modelled in O1 (§9.3)."
   );
   transcript.push("");
-  transcript.push(`Wits model: \`${WITS_MODEL}\`. Voice model: \`${VOICE_MODEL}\`. Referee model: \`${REFEREE_MODEL}\`. At \`${MODEL_URL}\`.`);
+  transcript.push(...openModelHeaderLines({ prisoner: PRISONER_SEAT, warden: WARDEN_SEAT, refereeModel: REFEREE_MODEL, modelUrl: MODEL_URL }));
   transcript.push(`Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}. Referee timeout: ${REFEREE_TIMEOUT_MS ?? "default (12000ms)"}.`);
   transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);

@@ -43,7 +43,18 @@ way; if the two variants diverge anywhere else, a comparison between them stops 
 ## Real games use one model at a time
 
 Model roles are configured by `PRISONER_WITS_MODEL`, `PRISONER_VOICE_MODEL` and (open variant)
-`PRISONER_REFEREE_MODEL`, against `PRISONER_MODEL_URL`. On a single consumer GPU only one model fits,
+`PRISONER_REFEREE_MODEL`, against `PRISONER_MODEL_URL`. Those are the *run's* pair;
+`PRISONER_PRISONER_MODEL` and `PRISONER_WARDEN_MODEL` (`src/modelRoles.ts`) override one *chair's*,
+falling back to that pair when unset, so every batch recorded before they existed is byte-identical.
+A chair's model takes the whole chair, wits and voice both — a warden thinking on the local card and
+speaking through a paid oracle is not "one model in that seat", and the voice line never reaches the
+referee anyway. **The transcript header names both chairs whenever they differ** and prints the old
+single `Wits model:` line whenever they do not; that byte-identity is pinned by
+`src/__tests__/modelRoles.test.ts` against recorded headers, because a header that drifts silently
+makes every earlier batch un-poolable for a reason nobody can see. Two chairs on two models still go
+through the one swapper, so pointed straight at doris this would cost a swap per half-round; through
+the model router it costs nothing, because `/api/generate` there is a no-op and only the chair whose
+model is local ever occupies the card. On a single consumer GPU only one model fits,
 so every call goes through `src/ollamaSwap.ts`, which unloads before loading and never lets two calls
 overlap. `PRISONER_OLLAMA_RESIDENT_MODELS` lists models a run may unload and must restore afterwards;
 **any other model found loaded stops the run** (it belongs to someone else). Do not infer "pinned"

@@ -50,3 +50,110 @@ export function resolveRefereeModel(raw: string | undefined): string {
 export function resolveNarratorModel(voiceModel: string, raw: string | undefined): string {
   return raw === undefined || raw === "" ? voiceModel : raw;
 }
+
+/** The pair of models one chair's mind calls: the wits call that decides
+ *  (its `intent` is the only thing that ever reaches the referee) and the
+ *  voice call that speaks a line for a reader. `createOpenMind` and the
+ *  closed minds already collapse to their single-call path when the two are
+ *  equal, so this type never needs a "one model" case of its own. */
+export interface SeatModels {
+  readonly wits: string;
+  readonly voice: string;
+}
+
+/**
+ * `PRISONER_PRISONER_MODEL` / `PRISONER_WARDEN_MODEL` (2026-09-24, phase 1
+ * batch 4): which model sits in ONE chair. Until this existed a game had a
+ * single `PRISONER_WITS_MODEL`/`PRISONER_VOICE_MODEL` pair for both
+ * principals, so the batch that puts a local 30B in the warden's chair
+ * against an Opus prisoner -- one variable moved, everything else batch 3's
+ * -- could not be expressed at all.
+ *
+ * `fallback` is the pair the run already resolved from
+ * `PRISONER_WITS_MODEL` / `PRISONER_MODEL` / the default, so an unset chair
+ * is that chain unchanged, which is how every game before this flag existed
+ * stays byte-identical. Empty is unset, as `resolveRefereeModel` already
+ * treats it -- a driver that passes `PRISONER_WARDEN_MODEL="$WARDEN"` with
+ * `WARDEN` empty means "the default chair," never a model named "".
+ *
+ * A named model takes the WHOLE chair, voice included. A warden thinking on
+ * the 4090 but speaking through Opus would spend the arm's money on a line
+ * of dialogue that by construction never reaches the referee, and the arm
+ * would stop being "one model, two roles" (`docs/OPEN-VARIANT.md`).
+ */
+export function resolveSeatModels(raw: string | undefined, fallback: SeatModels): SeatModels {
+  if (raw === undefined || raw === "") return fallback;
+  return { wits: raw, voice: raw };
+}
+
+/** Every distinct model name the two chairs will call, in the order the
+ *  prisoner's chair then the warden's names them. This is what joins the
+ *  swapper's `allowedModels` and the foreign-model guard's roster: a model
+ *  a chair is going to call but nothing listed would be read as "that model
+ *  belongs to someone else" and stop the run. Two chairs on the same pair
+ *  collapse to exactly the one-chair roster, so an unset run's guard is
+ *  unchanged. */
+export function seatModelNames(prisoner: SeatModels, warden: SeatModels): string[] {
+  return [...new Set([prisoner.wits, prisoner.voice, warden.wits, warden.voice])];
+}
+
+/** Whether both chairs are on the same models -- every recorded batch
+ *  before batch 4, and the condition under which the header below must not
+ *  move by a single byte. */
+function chairsAgree(prisoner: SeatModels, warden: SeatModels): boolean {
+  return prisoner.wits === warden.wits && prisoner.voice === warden.voice;
+}
+
+/** The two chairs, each on its own line, for a header that can no longer
+ *  honestly say "the model". */
+function chairLines(prisoner: SeatModels, warden: SeatModels): string[] {
+  return [
+    `Prisoner's chair -- wits model: \`${prisoner.wits}\`. Voice model: \`${prisoner.voice}\`.`,
+    `Warden's chair -- wits model: \`${warden.wits}\`. Voice model: \`${warden.voice}\`.`,
+  ];
+}
+
+/**
+ * The open variant's transcript header lines for the model roles. Factored
+ * out of `checkpoint.ts` for the reason `elaborationHeaderLine` was: that
+ * module runs its game at load and cannot be imported by a test, and this
+ * header is the only place a reader learns which model sat in which chair.
+ *
+ * With both chairs on the same pair this is ONE line and it is batch 3's
+ * own, byte for byte -- pinned in `__tests__/modelRoles.test.ts` against the
+ * recorded text, because a header that drifts silently makes every earlier
+ * batch un-poolable for a reason nobody can see. When the chairs differ the
+ * single `Wits model:` line is gone entirely rather than shown alongside:
+ * a line naming one wits model in a two-model game is a claim a reader
+ * would act on.
+ */
+export function openModelHeaderLines(args: { prisoner: SeatModels; warden: SeatModels; refereeModel: string; modelUrl: string }): string[] {
+  const { prisoner, warden, refereeModel, modelUrl } = args;
+  if (chairsAgree(prisoner, warden)) {
+    return [`Wits model: \`${prisoner.wits}\`. Voice model: \`${prisoner.voice}\`. Referee model: \`${refereeModel}\`. At \`${modelUrl}\`.`];
+  }
+  return [...chairLines(prisoner, warden), `Referee model: \`${refereeModel}\`. At \`${modelUrl}\`.`];
+}
+
+/**
+ * The closed variant's header lines, on the same rule: byte-identical to
+ * what it printed before per-seat models existed whenever the chairs agree
+ * -- one `Model:` line on the single-call path, the recorded three-line
+ * wits/voice form otherwise -- and both chairs named when they differ.
+ * `thinkTimeout` arrives already rendered (a number, or the package's own
+ * default spelled out), so this stays a pure string function.
+ */
+export function closedModelHeaderLines(args: { prisoner: SeatModels; warden: SeatModels; modelUrl: string; thinkTimeout: string }): string[] {
+  const { prisoner, warden, modelUrl, thinkTimeout } = args;
+  if (chairsAgree(prisoner, warden)) {
+    if (prisoner.wits === prisoner.voice) {
+      return [`Model: \`${prisoner.wits}\` at \`${modelUrl}\`. Think timeout: ${thinkTimeout}.`];
+    }
+    return [
+      `Wits model: \`${prisoner.wits}\` at \`${modelUrl}\`.`,
+      `Voice model: \`${prisoner.voice}\` at \`${modelUrl}\`.`,
+      `Think timeout: ${thinkTimeout}.`,
+    ];
+  }
+  return [...chairLines(prisoner, warden), `At \`${modelUrl}\`. Think timeout: ${thinkTimeout}.`];
+}
