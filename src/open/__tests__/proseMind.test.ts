@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createProseMind } from "../proseMind.js";
+import { createProseMind, buildProsePrompt } from "../proseMind.js";
 import type { OpenPrincipalContext } from "../mind.js";
 
 /**
@@ -112,5 +112,44 @@ describe("the prose seat", () => {
     const mind = createProseMind({ baseUrl: "http://nowhere/v1", model: "m", selfName: "V", otherName: "C", fetchFn: reply('{"intent": "Scrape the bar."}') });
     const p = await mind.consider(context());
     expect(p?.intent).toBe('{"intent": "Scrape the bar."}');
+  });
+});
+
+/**
+ * The rules that are NOT about the schema (2026-09-24, the owner's catch).
+ * Dropping the eight-field JSON object is the point of this seat; dropping
+ * the rules that have nothing to do with field structure was a mistake, and
+ * a measured one. `ancient-awakening:12b`'s first prose probe wrote about
+ * itself in the third person ("Mara Voss reaches out with her hand"),
+ * narrated the outcome it does not control ("the old rust flakes and
+ * crumbles"), and invented a briefing block ("bar integrity: 98") -- the
+ * exact failures the two rules below exist to stop, both of which the schema
+ * seat states and the first draft of this one did not.
+ *
+ * Pre-classification and voice are different constraints. Only the first is
+ * what this seat exists to remove.
+ */
+describe("the prose seat's non-schema rules", () => {
+  const prompt = () =>
+    buildProsePrompt("Voss", "Croft", {
+      principalId: "prisoner",
+      identity: "You are Mara Voss, the prisoner.",
+      motive: "Get out before the transfer.",
+      briefing: "Round 1 of 10.",
+      perceivedObjects: [{ id: "bar", description: "A rusted iron bar." }],
+    });
+
+  it("forbids narrating the outcome, as a standalone rule and not a subordinate clause", () => {
+    expect(prompt()).toContain("You never decide what happens next -- only the world decides that.");
+  });
+
+  it("forbids speaking as anyone but yourself -- the rule a fabulist needs most", () => {
+    expect(prompt()).toContain("Speak only as yourself. Never write the other person's words, thoughts, or actions.");
+  });
+
+  it("still asks ONE question and still never asks for a JSON object", () => {
+    const p = prompt();
+    expect(p).toContain("What do you try");
+    expect(p).not.toMatch(/JSON|"thoughts"|"candidates"|"notes"|"replanned"/);
   });
 });

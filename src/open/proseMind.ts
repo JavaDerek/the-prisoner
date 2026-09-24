@@ -90,6 +90,18 @@ export function buildProsePrompt(selfName: string, otherName: string, context: O
     "",
     "What do you try this turn? Answer in your own words, as yourself, concrete enough for a referee to judge. " +
       "Write the attempt and nothing else -- no headings, no options, no explanation of your reasoning.",
+    // The two rules below are the schema seat's own closing lines, kept
+    // VERBATIM. Dropping the eight-field object is this seat's purpose;
+    // dropping these was a mistake, and a measured one -- the first
+    // `ancient-awakening:12b` probe wrote about itself in the third person,
+    // narrated an outcome it does not control, and invented a briefing block
+    // with a fabricated `bar integrity: 98` in it. Pre-classification and
+    // VOICE are different constraints, and only the first is what this seat
+    // exists to remove. They are stated last, and as standalone imperatives
+    // rather than as a clause inside the paragraph above, because that is
+    // where and how the schema seat states them.
+    "You never decide what happens next -- only the world decides that.",
+    "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
   ].join("\n");
 }
 
