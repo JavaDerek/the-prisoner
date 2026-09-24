@@ -125,6 +125,27 @@ function retries(g: Game) {
   return n;
 }
 
+/** REPORTED, NOT PRE-COMMITTED. The owner's hypothesis has two halves --
+ *  "repeating herself, re-trying what already failed" -- and `retries` above
+ *  only measures the second. P game 1 showed why that is not enough: the
+ *  prose seat worked the same bar with the same effect on rounds 3, 4, 5, 6
+ *  and 7, which is repetition by any reading, and scored a re-try rate of 0.0%
+ *  because every one of those turns was ruled possible and moved the bar. A
+ *  productive repeat and a stuck one are different findings and the scoreboard
+ *  should not collapse them, so both are printed. No band was pre-committed on
+ *  this one and none is invented now; it is evidence for the memory question
+ *  in RESULTS.md, not a prediction being scored. */
+function repeats(g: Game) {
+  const seen = new Set<string>();
+  let n = 0;
+  for (const t of prisoner(g).sort((a, b) => a.round - b.round)) {
+    const key = `${t.target}.${t.effect}`;
+    if (seen.has(key)) n += 1;
+    seen.add(key);
+  }
+  return n;
+}
+
 function distinct<T>(xs: T[]) { return new Set(xs).size; }
 
 /** TWO DIFFERENT NUMBERS, and PREDICTION.md 6a means the second.
@@ -212,6 +233,8 @@ L.push(`| distinct effect kinds (pooled) | ${distinct(P.flatMap((g) => prisoner(
 L.push(`| distinct targets / game (mean) | ${mean(P, (g) => distinct(prisoner(g).map((t) => t.target)))} | ${mean(S, (g) => distinct(prisoner(g).map((t) => t.target)))} |`);
 L.push(`| **final barIntegrity (mean)** | ${mean(P, (g) => g.barIntegrity)} | ${mean(S, (g) => g.barIntegrity)} |`);
 L.push(`| **games with bar damaged (<100)** | ${P.filter((g) => g.barIntegrity < 100).length} | ${S.filter((g) => g.barIntegrity < 100).length} |`);
+L.push(`| repeat rate (any re-use of a pair) | ${P.length ? (sum(P, repeats) / Math.max(1, sum(P, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} | ${S.length ? (sum(S, repeats) / Math.max(1, sum(S, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} |`);
+L.push(`| distinct targets rounds 1-5 vs 6-10 (7b) | ${P.length ? distinct(P.flatMap(g=>prisoner(g).filter(t=>t.round<=5).map(t=>t.target))) + " vs " + distinct(P.flatMap(g=>prisoner(g).filter(t=>t.round>5).map(t=>t.target))) : "--"} | ${S.length ? distinct(S.flatMap(g=>prisoner(g).filter(t=>t.round<=5).map(t=>t.target))) + " vs " + distinct(S.flatMap(g=>prisoner(g).filter(t=>t.round>5).map(t=>t.target))) : "--"} |`);
 L.push(`| re-try rate | ${P.length ? (sum(P, retries) / Math.max(1, sum(P, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} | ${S.length ? (sum(S, retries) / Math.max(1, sum(S, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} |`);
 L.push(`| median game minutes | ${P.length ? [...P.map((g) => g.minutes)].sort((a, b) => a - b)[Math.floor(P.length / 2)] : "--"} | ${S.length ? [...S.map((g) => g.minutes)].sort((a, b) => a - b)[Math.floor(S.length / 2)] : "--"} |`);
 L.push("");
