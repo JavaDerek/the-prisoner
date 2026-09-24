@@ -1,0 +1,1256 @@
+{
+ "seed": 20260923,
+ "n": 20,
+ "tries": 2,
+ "question": "List every effect this person attempts, one per line, in the form \"<effect> -> <object>\". The effects are: wear, restore, reveal, conceal, expose, noise, open, close, leave, take, give, move-person, and reposition-self (the actor moving her own body within the room: standing, stepping, crouching, lying down, crawling, leaning, turning, or going over to something). Name every one you see, INCLUDING reposition-self, and name the object each acts on. Looking for several details on one thing is ONE reveal of it. Speaking, watching and waiting are not effects and are not listed. Answer with the lines and nothing else.",
+ "rows": [
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Stand at the window as if gazing out, lean my forearms on the stone sill, and use my fingernails to quietly pick and scrape at the dry, cracked mortar around the base of the rusted bar, crumbling loose material away while I talk to Croft.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 36
+   },
+   "ruling": "bar/wear/integrity",
+   "runs": [
+    {
+     "raw": "reposition-self -> window\nreposition-self -> stone sill\nreveal -> mortar\nnoise -> mortar",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "stone sill"
+      },
+      {
+       "effect": "reveal",
+       "object": "mortar"
+      },
+      {
+       "effect": "noise",
+       "object": "mortar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 2,
+     "listed": 4
+    },
+    {
+     "raw": "reposition-self -> window\nreposition-self -> stone sill\nreveal -> mortar\nnoise -> mortar",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "stone sill"
+      },
+      {
+       "effect": "reveal",
+       "object": "mortar"
+      },
+      {
+       "effect": "noise",
+       "object": "mortar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 2,
+     "listed": 4
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "As I obey Croft and step back from the window, I pass the cot and quietly retrieve the sharpened spoon from under the loose tile. At the door, I slide the spoon's flat, worn edge into the finger-width gap where the bolt edge is visible and push hard to lever the bolt back out of the stone frame, trying to open the door.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 30,
+    "to": 63
+   },
+   "ruling": "door/open/passage",
+   "runs": [
+    {
+     "raw": "reposition-self -> window\nreposition-self -> cot\ntake -> spoon\nreveal -> spoon\nreposition-self -> door\nreveal -> bolt\nopen -> door",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "take",
+       "object": "spoon"
+      },
+      {
+       "effect": "reveal",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "door"
+      },
+      {
+       "effect": "reveal",
+       "object": "bolt"
+      },
+      {
+       "effect": "open",
+       "object": "door"
+      }
+     ],
+     "kept": 3,
+     "dropped": 4,
+     "listed": 7
+    },
+    {
+     "raw": "reposition-self -> window\nreposition-self -> cot\ntake -> spoon\nreposition-self -> door\nreveal -> bolt\nopen -> door",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "take",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "door"
+      },
+      {
+       "effect": "reveal",
+       "object": "bolt"
+      },
+      {
+       "effect": "open",
+       "object": "door"
+      }
+     ],
+     "kept": 3,
+     "dropped": 3,
+     "listed": 6
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit on the cot with the blanket draped over my lap. Under the blanket, scrape the flat side of the spoon back and forth along the broken corner edge of the loose tile to sharpen the spoon further. Keep the motion slow and steady to minimize sound, and talk to Croft to cover any faint noise.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 38
+   },
+   "ruling": "spoon/restore/edge",
+   "runs": [
+    {
+     "raw": "reposition-self -> cot\nreposition-self -> blanket\nconceal -> spoon\nrestore -> spoon",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "blanket"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "restore",
+       "object": "spoon"
+      }
+     ],
+     "kept": 2,
+     "dropped": 2,
+     "listed": 4
+    },
+    {
+     "raw": "reposition-self -> cot\nwear -> blanket\nconceal -> spoon\nrestore -> spoon\nnoise -> spoon",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "wear",
+       "object": "blanket"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "restore",
+       "object": "spoon"
+      },
+      {
+       "effect": "noise",
+       "object": "spoon"
+      }
+     ],
+     "kept": 4,
+     "dropped": 1,
+     "listed": 5
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Point at the steel meal tray on the floor and calmly explain that I use the spoon to scrape dried-on food off the steel tray - steel is harder than aluminium, which would cause exactly the one-sided flat wear she's noticed. Stay seated, relaxed, hands visible, and don't touch the spoon or anything else.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 9
+   },
+   "ruling": "meal_tray/noise/none",
+   "runs": [
+    {
+     "raw": "reveal -> steel meal tray\nreposition-self -> steel meal tray\nexpose -> hands",
+     "entries": [
+      {
+       "effect": "reveal",
+       "object": "steel meal tray"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "steel meal tray"
+      },
+      {
+       "effect": "expose",
+       "object": "hands"
+      }
+     ],
+     "kept": 2,
+     "dropped": 1,
+     "listed": 3
+    },
+    {
+     "raw": "reveal -> steel meal tray\nexpose -> hands",
+     "entries": [
+      {
+       "effect": "reveal",
+       "object": "steel meal tray"
+      },
+      {
+       "effect": "expose",
+       "object": "hands"
+      }
+     ],
+     "kept": 2,
+     "dropped": 0,
+     "listed": 2
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit on the cot with the blanket draped casually over my lap. Underneath the blanket, slowly and quietly draw the flat edge of the spoon back and forth along the rough, paint-flaking crossbar of the cot frame to sharpen it further. Keep the motion small and steady, hidden by the blanket. Talk to Croft to hold her attention on my face.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 19,
+    "to": 41
+   },
+   "ruling": "spoon/restore/edge",
+   "runs": [
+    {
+     "raw": "reposition-self -> cot\nwear -> blanket\nconceal -> spoon\nrestore -> spoon",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "wear",
+       "object": "blanket"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "restore",
+       "object": "spoon"
+      }
+     ],
+     "kept": 3,
+     "dropped": 1,
+     "listed": 4
+    },
+    {
+     "raw": "reposition-self -> cot\nwear -> blanket\nconceal -> spoon\nrestore -> spoon",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "wear",
+       "object": "blanket"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "restore",
+       "object": "spoon"
+      }
+     ],
+     "kept": 3,
+     "dropped": 1,
+     "listed": 4
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Crouch by the cell door and closely examine the lock mechanism and the visible bolt edge in the gap between door and frame, looking for fresh scratches, pick marks, metal filings, or any sign the bolt or keyhole has been tampered with since my last check.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 16
+   },
+   "ruling": "lock/reveal/integrity",
+   "runs": [
+    {
+     "raw": "reposition-self -> cell door\nreveal -> lock mechanism\nreveal -> bolt edge",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cell door"
+      },
+      {
+       "effect": "reveal",
+       "object": "lock mechanism"
+      },
+      {
+       "effect": "reveal",
+       "object": "bolt edge"
+      }
+     ],
+     "kept": 2,
+     "dropped": 1,
+     "listed": 3
+    },
+    {
+     "raw": "reposition-self -> cell door\nreveal -> lock mechanism\nreveal -> bolt edge\nreveal -> keyhole",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cell door"
+      },
+      {
+       "effect": "reveal",
+       "object": "lock mechanism"
+      },
+      {
+       "effect": "reveal",
+       "object": "bolt edge"
+      },
+      {
+       "effect": "reveal",
+       "object": "keyhole"
+      }
+     ],
+     "kept": 3,
+     "dropped": 1,
+     "listed": 4
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "While crouched low over the bowl, scrape the last of the food out with the spoon, then in one hunched motion set the empty bowl back on the tray while palming the spoon flat against the inside of my wrist, keeping it hidden against my forearm under my sleeve. Stay curled up and small throughout.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 29
+   },
+   "ruling": "spoon/conceal/concealment",
+   "runs": [
+    {
+     "raw": "reposition-self -> bowl\ntake -> food\nconceal -> spoon\nreposition-self -> self",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "bowl"
+      },
+      {
+       "effect": "take",
+       "object": "food"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "self"
+      }
+     ],
+     "kept": 2,
+     "dropped": 2,
+     "listed": 4
+    },
+    {
+     "raw": "reposition-self -> bowl\ntake -> food\nleave -> bowl\nconceal -> spoon\nreposition-self -> self",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "bowl"
+      },
+      {
+       "effect": "take",
+       "object": "food"
+      },
+      {
+       "effect": "leave",
+       "object": "bowl"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "self"
+      }
+     ],
+     "kept": 3,
+     "dropped": 2,
+     "listed": 5
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot beside the loose tile, and while leaning forward engaging Croft in conversation about books, use my near hand low by my side to quietly lift the cracked corner of the loose tile, slide the spoon into the hollow beneath it, and settle the tile back flat — all while maintaining eye contact and talking naturally.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 30,
+    "to": 52
+   },
+   "ruling": "spoon/conceal/none",
+   "runs": [
+    {
+     "raw": "reposition-self -> cot\nreposition-self -> Croft\nexpose -> loose tile\nreveal -> loose tile\nconceal -> loose tile",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "croft"
+      },
+      {
+       "effect": "expose",
+       "object": "loose tile"
+      },
+      {
+       "effect": "reveal",
+       "object": "loose tile"
+      },
+      {
+       "effect": "conceal",
+       "object": "loose tile"
+      }
+     ],
+     "kept": 3,
+     "dropped": 2,
+     "listed": 5
+    },
+    {
+     "raw": "reposition-self -> cot\nreposition-self -> Croft\nexpose -> loose tile\nconceal -> loose tile",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "croft"
+      },
+      {
+       "effect": "expose",
+       "object": "loose tile"
+      },
+      {
+       "effect": "conceal",
+       "object": "loose tile"
+      }
+     ],
+     "kept": 2,
+     "dropped": 2,
+     "listed": 4
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "Throw the heavy wool blanket over Croft's head to blind and tangle her, then immediately jam the flat worn edge of the spoon into the finger-width gap in the door frame where the bolt edge is visible, and lever the bolt back to open the door.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 46
+   },
+   "ruling": "door/open/passage",
+   "runs": [
+    {
+     "raw": "take -> blanket\nreposition-self -> Croft\nconceal -> Croft\ntake -> spoon\nreposition-self -> door\nopen -> door",
+     "entries": [
+      {
+       "effect": "take",
+       "object": "blanket"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "croft"
+      },
+      {
+       "effect": "conceal",
+       "object": "croft"
+      },
+      {
+       "effect": "take",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "door"
+      },
+      {
+       "effect": "open",
+       "object": "door"
+      }
+     ],
+     "kept": 4,
+     "dropped": 2,
+     "listed": 6
+    },
+    {
+     "raw": "conceal -> Croft\nreposition-self -> Croft\nreposition-self -> door\nreveal -> door frame\nopen -> door",
+     "entries": [
+      {
+       "effect": "conceal",
+       "object": "croft"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "croft"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "door"
+      },
+      {
+       "effect": "reveal",
+       "object": "door frame"
+      },
+      {
+       "effect": "open",
+       "object": "door"
+      }
+     ],
+     "kept": 3,
+     "dropped": 2,
+     "listed": 5
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Step back from the cot as Croft ordered, lower myself to the floor near the meal tray beside the door, and covertly sharpen the spoon by drawing its flat edge along the steel rim of the tray in slow, controlled strokes — disguising the motion and sound as scraping the last of the food from the bowl with the spoon.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 22,
+    "to": 37
+   },
+   "ruling": "spoon/restore/edge",
+   "runs": [
+    {
+     "raw": "reposition-self -> cot\nreposition-self -> floor\nreposition-self -> meal tray\nreposition-self -> door\nconceal -> spoon",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "floor"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "meal tray"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "door"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      }
+     ],
+     "kept": 1,
+     "dropped": 4,
+     "listed": 5
+    },
+    {
+     "raw": "reposition-self -> cot\nreposition-self -> floor\nreposition-self -> meal tray\nconceal -> spoon",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "cot"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "floor"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "meal tray"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      }
+     ],
+     "kept": 1,
+     "dropped": 3,
+     "listed": 4
+    }
+   ],
+   "verdict": "one",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "While gasping and crawling toward the window as though desperate for air, grab the loose tile from the floor beside the cot and use its sharp cracked edge as a chisel to aggressively gouge and chip away the dry, cracked mortar surrounding the rusted base of the bar — driving the hard ceramic edge into every crack, fracture line, and gap where the mortar has already separated from the iron and stone.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 24,
+    "to": 48
+   },
+   "ruling": "window/open/passage",
+   "runs": [
+    {
+     "raw": "reposition-self -> window\ntake -> tile\nreposition-self -> bar\nexpose -> mortar",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "take",
+       "object": "tile"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "bar"
+      },
+      {
+       "effect": "expose",
+       "object": "mortar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 2,
+     "listed": 4
+    },
+    {
+     "raw": "reposition-self -> window\ntake -> tile\nreposition-self -> tile\nreposition-self -> bar\nexpose -> mortar",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "take",
+       "object": "tile"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "tile"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "bar"
+      },
+      {
+       "effect": "expose",
+       "object": "mortar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 3,
+     "listed": 5
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 10,
+   "chair": "warden",
+   "intent": "I step to the window but instead of looking through it, I examine the bar closely — gripping it, twisting it, testing how it sits in the mortar, checking every inch for fresh scoring, looseness, or signs that it's been worked on.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 16
+   },
+   "ruling": "bar/reveal/integrity",
+   "runs": [
+    {
+     "raw": "reposition-self -> window\nreveal -> bar\nreveal -> mortar",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "reveal",
+       "object": "bar"
+      },
+      {
+       "effect": "reveal",
+       "object": "mortar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 1,
+     "listed": 3
+    },
+    {
+     "raw": "reposition-self -> window\ntake -> bar\nreveal -> bar",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "take",
+       "object": "bar"
+      },
+      {
+       "effect": "reveal",
+       "object": "bar"
+      }
+     ],
+     "kept": 1,
+     "dropped": 2,
+     "listed": 3
+    }
+   ],
+   "verdict": "UNSTABLE",
+   "stable": false
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "While Warden Croft is turned toward the window examining the bar, I silently pick up the tin bucket by its wire handle, rise from my crouch, and swing it with all my strength at the back of her head.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 28,
+    "to": 39
+   },
+   "ruling": "warden/wear/posture",
+   "runs": [
+    {
+     "raw": "take -> tin bucket\nreposition-self -> self",
+     "entries": [
+      {
+       "effect": "take",
+       "object": "tin bucket"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "self"
+      }
+     ],
+     "kept": 1,
+     "dropped": 1,
+     "listed": 2
+    },
+    {
+     "raw": "take -> tin bucket\nreposition-self -> self\nmove-person -> Warden Croft",
+     "entries": [
+      {
+       "effect": "take",
+       "object": "tin bucket"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "self"
+      },
+      {
+       "effect": "move-person",
+       "object": "warden croft"
+      }
+     ],
+     "kept": 2,
+     "dropped": 1,
+     "listed": 3
+    }
+   ],
+   "verdict": "UNSTABLE",
+   "stable": false
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Hand the meal tray to Warden Croft with the bowl and cup on it, keeping the spoon palmed flat against the inside of my forearm, hidden under my sleeve. I move smoothly and without hesitation, presenting the tray at a natural angle with both hands — one hand underneath, the spoon-hand on the edge — so the motion looks cooperative and unremarkable.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 29
+   },
+   "ruling": "meal_tray/give/none",
+   "runs": [
+    {
+     "raw": "give -> meal tray\nconceal -> spoon\nreposition-self -> self",
+     "entries": [
+      {
+       "effect": "give",
+       "object": "meal tray"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "self"
+      }
+     ],
+     "kept": 2,
+     "dropped": 1,
+     "listed": 3
+    },
+    {
+     "raw": "give -> meal tray\nconceal -> spoon\nreposition-self -> Warden Croft",
+     "entries": [
+      {
+       "effect": "give",
+       "object": "meal tray"
+      },
+      {
+       "effect": "conceal",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "warden croft"
+      }
+     ],
+     "kept": 2,
+     "dropped": 1,
+     "listed": 3
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "I immediately open my hands and let the spoon fall from my grip, raising both palms up where Croft can see them. I let it drop naturally — not tossing it away, not reaching toward Croft — just releasing it so it clatters to the stone floor near my feet beside the cot. I stand still, hands visible, and speak in a quiet, defeated tone to de-escalate.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 13
+   },
+   "ruling": "spoon/noise/none",
+   "runs": [
+    {
+     "raw": "open -> hands\nreposition-self -> self\nreveal -> hands\nleave -> spoon\nnoise -> spoon\nexpose -> hands",
+     "entries": [
+      {
+       "effect": "open",
+       "object": "hands"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "self"
+      },
+      {
+       "effect": "reveal",
+       "object": "hands"
+      },
+      {
+       "effect": "leave",
+       "object": "spoon"
+      },
+      {
+       "effect": "noise",
+       "object": "spoon"
+      },
+      {
+       "effect": "expose",
+       "object": "hands"
+      }
+     ],
+     "kept": 5,
+     "dropped": 1,
+     "listed": 6
+    },
+    {
+     "raw": "open -> hands\nleave -> spoon\nreveal -> hands\nnoise -> spoon\nreposition-self -> self",
+     "entries": [
+      {
+       "effect": "open",
+       "object": "hands"
+      },
+      {
+       "effect": "leave",
+       "object": "spoon"
+      },
+      {
+       "effect": "reveal",
+       "object": "hands"
+      },
+      {
+       "effect": "noise",
+       "object": "spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "self"
+      }
+     ],
+     "kept": 4,
+     "dropped": 1,
+     "listed": 5
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Pick up Voss's spoon and closely examine its edges and the flat-worn side of the bowl, feeling with my thumb for any sharpening, scoring, or filing that goes beyond normal wear from eating. I'm looking for a deliberate edge.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 9
+   },
+   "ruling": "spoon/reveal/edge",
+   "runs": [
+    {
+     "raw": "take -> Voss's spoon\nreveal -> Voss's spoon",
+     "entries": [
+      {
+       "effect": "take",
+       "object": "voss's spoon"
+      },
+      {
+       "effect": "reveal",
+       "object": "voss's spoon"
+      }
+     ],
+     "kept": 1,
+     "dropped": 1,
+     "listed": 2
+    },
+    {
+     "raw": "take -> Voss's spoon\nreposition-self -> Voss's spoon\nreveal -> Voss's spoon",
+     "entries": [
+      {
+       "effect": "take",
+       "object": "voss's spoon"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "voss's spoon"
+      },
+      {
+       "effect": "reveal",
+       "object": "voss's spoon"
+      }
+     ],
+     "kept": 1,
+     "dropped": 2,
+     "listed": 3
+    }
+   ],
+   "verdict": "one",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 2,
+   "chair": "warden",
+   "intent": "I pick up the spoon from the meal tray and examine it closely — turning it in my fingers, checking the edge, the bowl, the handle — while responding casually to Voss's comment about the food. I want to set a clear baseline on the spoon's condition.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 2,
+    "to": 13
+   },
+   "ruling": "spoon/reveal/edge",
+   "runs": [
+    {
+     "raw": "take -> spoon\nreveal -> spoon",
+     "entries": [
+      {
+       "effect": "take",
+       "object": "spoon"
+      },
+      {
+       "effect": "reveal",
+       "object": "spoon"
+      }
+     ],
+     "kept": 1,
+     "dropped": 1,
+     "listed": 2
+    },
+    {
+     "raw": "take -> spoon\nreveal -> spoon",
+     "entries": [
+      {
+       "effect": "take",
+       "object": "spoon"
+      },
+      {
+       "effect": "reveal",
+       "object": "spoon"
+      }
+     ],
+     "kept": 1,
+     "dropped": 1,
+     "listed": 2
+    }
+   ],
+   "verdict": "one",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Ask Croft to hand back the spoon so I can eat from the meal tray, keeping my tone casual and cooperative. While she's focused on the bar, I'll watch her inspection closely to note which parts of the bar and mortar she pays attention to and which she overlooks.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 7
+   },
+   "ruling": "bar/reveal/integrity",
+   "runs": [
+    {
+     "raw": "reveal -> bar\nreveal -> mortar",
+     "entries": [
+      {
+       "effect": "reveal",
+       "object": "bar"
+      },
+      {
+       "effect": "reveal",
+       "object": "mortar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 0,
+     "listed": 2
+    },
+    {
+     "raw": "reveal -> bar\nreveal -> mortar",
+     "entries": [
+      {
+       "effect": "reveal",
+       "object": "bar"
+      },
+      {
+       "effect": "reveal",
+       "object": "mortar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 0,
+     "listed": 2
+    }
+   ],
+   "verdict": "several",
+   "stable": true
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 8,
+   "chair": "warden",
+   "intent": "I move to the window and closely examine the bar — running my hands along its full length, testing where it seats into the mortar at top and bottom, checking for any scoring, thinning, or loosening that wasn't there before. I'm positioning my body squarely in front of the window as I do this.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity",
+   "runs": [
+    {
+     "raw": "reposition-self -> window\nreveal -> bar",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "reveal",
+       "object": "bar"
+      }
+     ],
+     "kept": 1,
+     "dropped": 1,
+     "listed": 2
+    },
+    {
+     "raw": "move-person -> window\nreposition-self -> window\nreveal -> bar",
+     "entries": [
+      {
+       "effect": "move-person",
+       "object": "window"
+      },
+      {
+       "effect": "reposition-self",
+       "object": "window"
+      },
+      {
+       "effect": "reveal",
+       "object": "bar"
+      }
+     ],
+     "kept": 2,
+     "dropped": 1,
+     "listed": 3
+    }
+   ],
+   "verdict": "UNSTABLE",
+   "stable": false
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "While Croft is at the window examining the bar with her attention focused away from the door, I walk steadily toward the open door and step through it to escape the cell.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 19,
+    "to": 28
+   },
+   "ruling": "door/leave/passage",
+   "runs": [
+    {
+     "raw": "reposition-self -> open door\nleave -> cell",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "open door"
+      },
+      {
+       "effect": "leave",
+       "object": "cell"
+      }
+     ],
+     "kept": 1,
+     "dropped": 1,
+     "listed": 2
+    },
+    {
+     "raw": "reposition-self -> open door\nleave -> cell",
+     "entries": [
+      {
+       "effect": "reposition-self",
+       "object": "open door"
+      },
+      {
+       "effect": "leave",
+       "object": "cell"
+      }
+     ],
+     "kept": 1,
+     "dropped": 1,
+     "listed": 2
+    }
+   ],
+   "verdict": "one",
+   "stable": true
+  }
+ ]
+}

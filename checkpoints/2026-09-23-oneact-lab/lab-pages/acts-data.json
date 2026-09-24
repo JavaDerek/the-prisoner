@@ -1,0 +1,41 @@
+{
+ "gamePrompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+ "cases": [
+  {
+   "id": "bar",
+   "label": "warden examines the bar",
+   "expect": "single",
+   "why": "One act: examining the bar. The clauses are things she looks FOR, not things she does.",
+   "intent": "Walk to the window and run my fingers along the iron bar, paying close attention to the rusted section near the bottom and the mortar around it. I want to fix its current condition in my memory \u2014 how deep the rust pitting is, how firm the mortar feels, whether the bar shifts at all when I press it. I do this openly, letting Voss see me inspect it.",
+   "recorded": "one",
+   "ruled": "bar/reveal/integrity (applied)"
+  },
+  {
+   "id": "spoon",
+   "label": "warden examines the spoon",
+   "expect": "single",
+   "why": "One act: examining the spoon. The hard one -- a naive count scores it 5.",
+   "intent": "Pick up the spoon and closely examine its edge and overall condition \u2014 feel the worn-flat side of the bowl, check for any sharpening or filing, and note where it was positioned before I touched it.",
+   "recorded": "one",
+   "ruled": "spoon/reveal/edge (applied)"
+  },
+  {
+   "id": "sharpen",
+   "label": "prisoner sharpens under the blanket",
+   "expect": "multi",
+   "why": "The one to catch: sharpening the spoon AND establishing cover with the blanket. Recorded as 'one'.",
+   "intent": "Sit on the cot, pull the heavy blanket across my lap as though settling in against the cold, and underneath it, work the flat edge of the spoon back and forth along the rough, paint-flaked crossbar to sharpen it further \u2014 slow, steady strokes timed to the rhythm of conversation so any faint scraping is masked by my voice and the blanket's muffling.",
+   "recorded": "one",
+   "ruled": "spoon/none/edge (REFUSED)"
+  },
+  {
+   "id": "blockbar",
+   "label": "warden inspects the bar while standing at the window",
+   "expect": "single",
+   "why": "She is already on her feet, so standing at the window changes no posture, and the room records no position -- one reveal of the bar. Expected 'several' until 2026-09-23, on the view that blocking is a second act; the owner's posture rule (a CHANGE of posture is an effect, being somewhere is not) says otherwise. It flips back the day interpose becomes a real effect.",
+   "intent": "Closely inspect the bar in the window \u2014 running my fingers along its full length, testing where it meets the mortar at both top and bottom, checking for any looseness, scoring, or weakening \u2014 while standing directly at the window to block it as an exit.",
+   "recorded": "several",
+   "ruled": "bar/reveal/integrity (the block has no key)"
+  }
+ ]
+}

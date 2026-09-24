@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One act or several?</title>
+<style>
+  :root {
+    --bg: #faf9f7; --panel: #fff; --ink: #1b1a18; --dim: #6b6862; --line: #e3e0da;
+    --one: #2f6f4e; --one-bg: #e8f3ec; --several: #8a4b1d; --several-bg: #fbeee3;
+    --miss: #a01b2b; --miss-bg: #fdeaec; --accent: #2b4c7e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px 60px; background: var(--bg); color: var(--ink);
+         font: 15px/1.55 ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 21px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 13px; margin-bottom: 18px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; }
+  label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin-bottom: 6px; }
+  textarea, input, select { width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+            border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; background: #fff; color: var(--ink); }
+  textarea { min-height: 190px; resize: vertical; line-height: 1.5; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .row > div { flex: 1 1 200px; }
+  button { font: inherit; font-size: 14px; border: 1px solid var(--accent); background: var(--accent); color: #fff;
+           border-radius: 6px; padding: 8px 15px; cursor: pointer; }
+  button.ghost { background: #fff; color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); font-weight: 600;
+       position: sticky; top: 0; background: var(--panel); }
+  td.intent { font-size: 13px; line-height: 1.45; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .pill.one { background: var(--one-bg); color: var(--one); }
+  .pill.several { background: var(--several-bg); color: var(--several); }
+  .pill.miss { background: var(--miss-bg); color: var(--miss); }
+  .pill.pend { background: #eee; color: var(--dim); }
+  .expect button { padding: 2px 8px; font-size: 12px; margin-right: 4px; border-color: var(--line); background: #fff; color: var(--dim); }
+  .expect button.on.one { background: var(--one-bg); color: var(--one); border-color: var(--one); }
+  .expect button.on.several { background: var(--several-bg); color: var(--several); border-color: var(--several); }
+  .tally { display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+  .tally b { font-size: 19px; display: block; }
+  .cite { color: var(--dim); font-size: 12px; font-style: italic; margin-top: 3px; }
+  .muted { color: var(--dim); font-size: 12px; }
+  .scroll { max-height: 70vh; overflow: auto; }
+  code { background: #f2f0ec; padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>One act or several?</h1>
+<p class="sub">
+  The game's real one-act call (OPEN-VARIANT §74.1), its prompt editable, run against all 187 intents
+  Phase 1 batch 3 actually produced. Every intent and every recorded answer is verbatim from
+  <code>checkpoints/2026-09-23-phase1-b3/O/*.referee.json</code>. Temperature 0, one user message, no schema —
+  the same settings <code>refereeTransport.ts</code> uses.
+</p>
+
+<div class="panel">
+  <label for="ep">Endpoint and model</label>
+  <div class="row">
+    <div><input id="ep" value="http://doris:11434/v1/chat/completions"></div>
+    <div><input id="model" value="qwen3:14b"></div>
+    <div style="flex:0 0 auto">
+      <button class="ghost" id="preset-muse">Muse-Glimmer preset</button>
+    </div>
+  </div>
+  <p class="muted" style="margin:8px 0 0">
+    Muse-Glimmer is the referee batch 3 ran on, but it is <b>not</b> loaded right now — the 4090 holds your
+    <code>qwen3:14b</code> pin. To use it, on doris:
+    <code>cd ~/llamacpp/llama-b11130 &amp;&amp; ./llama-server -m ~/models/Muse-Glimmer-30B-Q4_K_M.gguf --host 0.0.0.0 --port 11435 -c 16384 -ngl 999 --flash-attn on --jinja --chat-template-kwargs '{"reasoning_strength":"none"}'</code>
+    — it needs the whole card, so unload qwen3 first and reload it after.
+  </p>
+</div>
+
+<div class="panel">
+  <label for="prompt">The question, exactly as the game asks it</label>
+  <textarea id="prompt"></textarea>
+  <div class="row" style="margin-top:10px">
+    <div style="flex:0 0 auto"><button id="run">Run all 187</button></div>
+    <div style="flex:0 0 auto"><button class="ghost" id="run-sel">Run the filtered set</button></div>
+    <div style="flex:0 0 auto"><button class="ghost" id="restore">Restore the game's wording</button></div>
+    <div style="flex:0 0 auto"><button class="ghost" id="stop" disabled>Stop</button></div>
+    <div style="flex:0 0 auto"><button class="ghost" id="save">Save my expectations</button></div>
+    <div style="flex:1 1 auto; text-align:right" class="muted" id="edited"></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="tally" id="tally"></div>
+  <p class="muted" id="progress" style="margin:10px 0 0"></p>
+</div>
+
+<div class="panel">
+  <div class="row" style="margin-bottom:10px">
+    <div>
+      <label for="filter">Show</label>
+      <select id="filter">
+        <option value="all">every intent (187)</option>
+        <option value="several">recorded 'several' (42)</option>
+        <option value="one">recorded 'one' (145)</option>
+        <option value="expected">ones I have marked</option>
+        <option value="disagree">where the run disagrees with my mark</option>
+        <option value="changed">where the run disagrees with what was recorded</option>
+      </select>
+    </div>
+    <div>
+      <label for="search">containing</label>
+      <input id="search" placeholder="e.g. sharpen">
+    </div>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr>
+        <th style="width:52px">game</th><th style="width:34px">r</th><th style="width:58px">chair</th>
+        <th>intent</th>
+        <th style="width:76px">recorded</th><th style="width:76px">this run</th><th style="width:132px">I say</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<script>
+const KEY = "oneact-expectations-v1";
+let DATA = null, EXPECT = {}, RESULTS = {}, running = false, abort = false;
+
+try { EXPECT = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { EXPECT = {}; }
+
+const idOf = (r) => `${r.game}|${r.round}|${r.chair}`;
+const el = (id) => document.getElementById(id);
+
+fetch("oneact-data.json").then((r) => r.json()).then((d) => {
+  DATA = d;
+  el("prompt").value = d.prompt;
+  render();
+});
+
+el("restore").onclick = () => { el("prompt").value = DATA.prompt; markEdited(); };
+el("prompt").oninput = markEdited;
+function markEdited() {
+  const same = DATA && el("prompt").value === DATA.prompt;
+  el("edited").textContent = same ? "the game's own wording, unedited" : "EDITED — not the wording batch 3 ran on";
+  el("edited").style.color = same ? "" : "#a01b2b";
+}
+
+el("preset-muse").onclick = () => {
+  el("ep").value = "http://doris:11435/v1/chat/completions";
+  el("model").value = "muse-glimmer-30b-q4_k_m";
+};
+
+el("save").onclick = () => {
+  localStorage.setItem(KEY, JSON.stringify(EXPECT));
+  el("progress").textContent = `saved ${Object.keys(EXPECT).length} expectations to this browser`;
+};
+
+el("stop").onclick = () => { abort = true; };
+el("run").onclick = () => run(DATA.rows);
+el("run-sel").onclick = () => run(filtered());
+
+function filtered() {
+  const f = el("filter").value, q = el("search").value.trim().toLowerCase();
+  return DATA.rows.filter((r) => {
+    const id = idOf(r);
+    if (q && !r.intent.toLowerCase().includes(q)) return false;
+    if (f === "several" || f === "one") return r.recorded === f;
+    if (f === "expected") return !!EXPECT[id];
+    if (f === "disagree") return EXPECT[id] && RESULTS[id] && EXPECT[id] !== RESULTS[id].answer;
+    if (f === "changed") return RESULTS[id] && RESULTS[id].answer !== r.recorded;
+    return true;
+  });
+}
+
+async function ask(intent) {
+  const words = intent.split(/\s+/).filter(Boolean);
+  const numbered = words.map((w, i) => `${i + 1}. ${w}`).join("\n");
+  const body = {
+    model: el("model").value,
+    temperature: 0,
+    stream: false,
+    tools: [],
+    messages: [{ role: "user", content:
+      `Answer the question below about the actor's intent.\n\nThe actor's intent (source id "intent"), word by word:\n${numbered}\n\n` +
+      `Question (id "acts"): ${el("prompt").value}\n\n` +
+      `Answer with a JSON array of one object: [{"questionId": "acts", "answerKey": "one" | "several", ` +
+      `"citation": {"sourceId": "intent", "from": <first word number>, "to": <last word number>}}]. ` +
+      `Answer with the JSON array and nothing else.` }],
+  };
+  const res = await fetch(el("ep").value, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+  });
+  const json = await res.json();
+  const text = json.choices?.[0]?.message?.content ?? "";
+  const m = text.match(/\[[\s\S]*\]/);
+  let answer = "?", cite = null;
+  if (m) {
+    try {
+      const parsed = JSON.parse(m[0]);
+      answer = parsed[0]?.answerKey ?? "?";
+      cite = parsed[0]?.citation ?? null;
+    } catch (e) { /* leave as ? */ }
+  }
+  return { answer, cite, words };
+}
+
+async function run(rows) {
+  if (running) return;
+  running = true; abort = false;
+  el("run").disabled = el("run-sel").disabled = true; el("stop").disabled = false;
+  let n = 0;
+  for (const r of rows) {
+    if (abort) break;
+    const id = idOf(r);
+    RESULTS[id] = { answer: "…" };
+    render();
+    try {
+      RESULTS[id] = await ask(r.intent);
+    } catch (e) {
+      RESULTS[id] = { answer: "ERR", err: String(e) };
+    }
+    n++;
+    el("progress").textContent = `${n} of ${rows.length}${abort ? " (stopped)" : ""}`;
+    render();
+  }
+  running = false;
+  el("run").disabled = el("run-sel").disabled = false; el("stop").disabled = true;
+}
+
+function quoteOf(r, res) {
+  if (!res || !res.cite || !res.words) return "";
+  const { from, to } = res.cite;
+  if (!from || !to) return "";
+  return res.words.slice(from - 1, to).join(" ");
+}
+
+function render() {
+  if (!DATA) return;
+  const rows = filtered();
+  const tb = el("tbody");
+  tb.innerHTML = "";
+  for (const r of rows) {
+    const id = idOf(r);
+    const res = RESULTS[id];
+    const mine = EXPECT[id];
+    const tr = document.createElement("tr");
+
+    const runPill = !res ? '<span class="pill pend">—</span>'
+      : res.answer === "…" ? '<span class="pill pend">…</span>'
+      : `<span class="pill ${res.answer === "one" ? "one" : res.answer === "several" ? "several" : "miss"}">${res.answer}</span>`;
+    const disagree = mine && res && res.answer !== "…" && res.answer !== mine;
+
+    tr.innerHTML = `
+      <td class="muted">${r.game.slice(11)}</td>
+      <td class="muted">${r.round}</td>
+      <td class="muted">${r.chair}</td>
+      <td class="intent">${escapeHtml(r.intent)}
+        ${r.ruling ? `<div class="cite">ruled ${escapeHtml(r.ruling)}</div>` : ""}
+        ${res && res.cite ? `<div class="cite">cited: “${escapeHtml(quoteOf(r, res))}”</div>` : ""}
+        ${res && res.err ? `<div class="cite" style="color:#a01b2b">${escapeHtml(res.err)}</div>` : ""}
+      </td>
+      <td><span class="pill ${r.recorded}">${r.recorded}</span></td>
+      <td>${runPill}${disagree ? ' <span class="pill miss">≠</span>' : ""}</td>
+      <td class="expect">
+        <button class="${mine === "one" ? "on one" : ""}" data-id="${id}" data-v="one">one</button>
+        <button class="${mine === "several" ? "on several" : ""}" data-id="${id}" data-v="several">several</button>
+      </td>`;
+    tb.appendChild(tr);
+  }
+  tb.querySelectorAll("button[data-id]").forEach((b) => {
+    b.onclick = () => {
+      const id = b.dataset.id;
+      EXPECT[id] = EXPECT[id] === b.dataset.v ? undefined : b.dataset.v;
+      if (!EXPECT[id]) delete EXPECT[id];
+      render();
+    };
+  });
+  renderTally();
+}
+
+function renderTally() {
+  const marked = DATA.rows.filter((r) => EXPECT[idOf(r)]);
+  const ran = DATA.rows.filter((r) => RESULTS[idOf(r)] && !["…", "ERR"].includes(RESULTS[idOf(r)].answer));
+  const agreeRec = ran.filter((r) => RESULTS[idOf(r)].answer === r.recorded).length;
+  const bothMarkedAndRan = marked.filter((r) => RESULTS[idOf(r)] && !["…", "ERR"].includes(RESULTS[idOf(r)].answer));
+  const agreeMine = bothMarkedAndRan.filter((r) => RESULTS[idOf(r)].answer === EXPECT[idOf(r)]).length;
+  const several = ran.filter((r) => RESULTS[idOf(r)].answer === "several").length;
+  el("tally").innerHTML = `
+    <div><b>${ran.length}</b><span class="muted">run</span></div>
+    <div><b>${ran.length ? Math.round((several / ran.length) * 100) : 0}%</b><span class="muted">this run says 'several' (batch 3: 22%)</span></div>
+    <div><b>${ran.length ? agreeRec + "/" + ran.length : "—"}</b><span class="muted">agrees with what batch 3 recorded</span></div>
+    <div><b>${bothMarkedAndRan.length ? agreeMine + "/" + bothMarkedAndRan.length : "—"}</b><span class="muted">agrees with me</span></div>
+    <div><b>${marked.length}</b><span class="muted">I have marked</span></div>`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+el("filter").onchange = render;
+el("search").oninput = render;
+</script>
+</body>
+</html>

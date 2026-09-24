@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One act or several — the bench</title>
+<style>
+  :root { --bg:#faf9f7; --panel:#fff; --ink:#1b1a18; --dim:#6b6862; --line:#e3e0da;
+          --one:#2f6f4e; --one-bg:#e8f3ec; --sev:#8a4b1d; --sev-bg:#fbeee3;
+          --pass:#2f6f4e; --fail:#a01b2b; --fail-bg:#fdeaec; --accent:#2b4c7e; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:18px 14px 70px; background:var(--bg); color:var(--ink);
+         font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif; }
+  .wrap { max-width:1240px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 3px; }
+  .sub { color:var(--dim); font-size:13px; margin-bottom:14px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:12px; }
+  .sticky { position:sticky; top:0; z-index:5; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); margin-bottom:5px; }
+  textarea, input, select { width:100%; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px;
+    border:1px solid var(--line); border-radius:6px; padding:8px 9px; background:#fff; color:var(--ink); }
+  textarea { min-height:120px; resize:vertical; line-height:1.5; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .row > div { flex:1 1 140px; } .row > div.narrow { flex:0 0 auto; }
+  button { font:inherit; font-size:13px; border:1px solid var(--accent); background:var(--accent); color:#fff;
+           border-radius:6px; padding:7px 13px; cursor:pointer; }
+  button.ghost { background:#fff; color:var(--accent); }
+  button.tiny { padding:2px 7px; font-size:11px; border-color:var(--line); color:var(--dim); background:#fff; }
+  button.tiny.on.one { background:var(--one-bg); color:var(--one); border-color:var(--one); }
+  button.tiny.on.several { background:var(--sev-bg); color:var(--sev); border-color:var(--sev); }
+  button:disabled { opacity:.5; cursor:default; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { text-align:left; padding:6px 7px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--dim); font-weight:600; }
+  tr.checked { background:#fcfbf9; }
+  tr.wrong td { background:var(--fail-bg); }
+  .pill { display:inline-block; padding:1px 6px; border-radius:9px; font-size:10px; font-weight:600; white-space:nowrap; }
+  .pill.one { background:var(--one-bg); color:var(--one); }
+  .pill.several { background:var(--sev-bg); color:var(--sev); }
+  .pill.pend { background:#eee; color:var(--dim); }
+  .pill.unstable { background:var(--fail-bg); color:var(--fail); }
+  .pill.star { background:#eef2f8; color:var(--accent); }
+  .tally { display:flex; gap:22px; flex-wrap:wrap; align-items:baseline; }
+  .tally b { font-size:20px; display:block; }
+  .tally span.lbl { font-size:11px; color:var(--dim); }
+  .muted { color:var(--dim); font-size:11px; }
+  .scroll { max-height:64vh; overflow:auto; }
+  code { background:#f2f0ec; padding:1px 4px; border-radius:3px; font-size:12px; }
+  .bar { height:7px; background:#eee; border-radius:4px; overflow:hidden; margin-top:5px; width:190px; }
+  .bar i { display:block; height:100%; background:var(--sev); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>One act or several — the bench</h1>
+<p class="sub">
+  All 187 intents batch 3 produced. Tick the ones to run, write a question with <code>{{INTENT}}</code>,
+  and build up. Scored against <b>your</b> marks, not the recorded answers — several of those were audited
+  and found wrong. <span id="status"></span>
+</p>
+
+<div class="panel sticky">
+  <label for="prompt">Your question</label>
+  <textarea id="prompt"></textarea>
+  <div class="row" style="margin-top:9px">
+    <div class="narrow"><button id="run">Run ticked</button></div>
+    <div class="narrow"><button class="ghost" id="stop" disabled>Stop</button></div>
+    <div>
+      <label for="preset">Preset</label>
+      <select id="preset">
+        <option value="">—</option>
+        <option value="game">the game's own question (22% — the superseded rule)</option>
+        <option value="number">effects as a number (55% on a sample of 20)</option>
+        <option value="posture">the POSTURE rule (6/6 on marked rows; implies ~44%)</option>
+        <option value="list">effects as a list (65%, 3 of 20 unstable)</option>
+      </select>
+    </div>
+    <div>
+      <label for="think">Reasoning</label>
+      <select id="think"><option value="none">none</option><option value="low">low</option><option value="medium">medium</option><option value="high">high</option></select>
+    </div>
+    <div class="narrow" style="flex:0 0 78px"><label for="tries">Tries</label><input id="tries" type="number" min="1" max="5" value="2"></div>
+    <div class="narrow" style="flex:0 0 300px"><label for="ep">Endpoint</label><input id="ep" value="http://doris:11435/v1/chat/completions"></div>
+    <div class="narrow" style="flex:0 0 190px"><label for="model">Model</label><input id="model" value="muse-glimmer-30b-q4_k_m"></div>
+  </div>
+  <p class="muted" id="progress" style="margin:8px 0 0"></p>
+</div>
+
+<div class="panel">
+  <div class="tally" id="tally"></div>
+</div>
+
+<div class="panel">
+  <div class="row" style="margin-bottom:9px; align-items:center">
+    <div class="narrow"><button class="ghost tiny" data-sel="starter">the starter set (18 — for iterating, not for rates)</button></div>
+    <div class="narrow"><button class="ghost tiny" data-sel="marked">everything I have marked</button></div>
+    <div class="narrow"><button class="ghost tiny" data-sel="r20">a random 20</button></div>
+    <div class="narrow"><button class="ghost tiny" data-sel="r50">a random 50</button></div>
+    <div class="narrow"><button class="ghost tiny" data-sel="all">all 187</button></div>
+    <div class="narrow"><button class="ghost tiny" data-sel="none">none</button></div>
+    <div class="narrow"><button class="ghost tiny" data-sel="wrong">the ones it just got wrong</button></div>
+    <div style="flex:1 1 130px"><input id="search" placeholder="text, or row numbers: 12  3,7,12  1-20"></div>
+    <div class="narrow"><button class="ghost tiny" id="savemarks">save now</button></div>
+    <div class="narrow"><button class="ghost tiny" id="clearres">clear results</button></div>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr>
+        <th style="width:26px"><input type="checkbox" id="ckall" style="width:auto"></th>
+        <th style="width:34px">#</th><th style="width:60px">game·rnd</th><th style="width:52px">chair</th>
+        <th>intent</th>
+        <th style="width:60px">recorded</th><th style="width:86px">prior runs</th>
+        <th style="width:74px">this run</th><th style="width:116px">I say</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<script>
+const MARKS_KEY = "lab-marks-v1", TICK_KEY = "lab-ticks-v1", RES_KEY = "lab-results-v1";
+let DATA = null, MARKS = {}, TICKS = {}, RESULTS = {}, RESULTS_PROMPT = "", running = false, abort = false;
+const el = (id) => document.getElementById(id);
+try { MARKS = JSON.parse(localStorage.getItem(MARKS_KEY) || "{}"); } catch (e) {}
+try { TICKS = JSON.parse(localStorage.getItem(TICK_KEY) || "{}"); } catch (e) {}
+// Results survive a reload too. A run is minutes of GPU; losing it to a refresh is not acceptable,
+// and the results are only meaningful beside the prompt that produced them, so that is stored with
+// them and the page says so when the box no longer matches.
+try {
+  const saved = JSON.parse(localStorage.getItem(RES_KEY) || "null");
+  if (saved && saved.results) { RESULTS = saved.results; RESULTS_PROMPT = saved.prompt || ""; }
+} catch (e) {}
+
+/** Everything the page would hate to lose, written after every row and every click. */
+function persist() {
+  try {
+    localStorage.setItem(MARKS_KEY, JSON.stringify(MARKS));
+    localStorage.setItem(TICK_KEY, JSON.stringify(TICKS));
+    localStorage.setItem(RES_KEY, JSON.stringify({ prompt: RESULTS_PROMPT, results: RESULTS }));
+  } catch (e) {
+    el("progress").textContent = "could not save to this browser: " + String(e);
+  }
+}
+
+const PRESETS = {
+  number:
+    "How many separate EFFECTS does this person attempt? An effect is one of: wearing a thing down, " +
+    "restoring or sharpening it, revealing what is true of it by examining it, concealing something, " +
+    "exposing something hidden, making a noise, opening or closing a way out, going out through one, " +
+    "taking or handing over a thing, or moving a person. Examining counts as ONE effect (revealing), " +
+    "even though it changes nothing. Looking for several details on one thing is still one. Going over " +
+    "to a thing, bending, sitting or picking it up is getting ready, not an effect of its own; speaking, " +
+    'watching and waiting are not effects. Answer with a single number and nothing else.\n\nIntent: "{{INTENT}}"',
+  posture:
+    "How many separate EFFECTS does this person attempt? An effect is one of: wearing a thing down, restoring or sharpening it, revealing what is true of it by examining it, concealing something, exposing something hidden, making a noise, opening or closing a way out, going out through one, taking or handing over a thing, or moving a person. Moving her own body from one part of the room to another is NOT an effect: the room is one place and nothing records where in it she stands, so walking over to a thing, stepping back, turning, or standing somewhere is never counted. But CHANGING HER POSTURE is an effect on her own posture, like any other: going from on her feet to seated, kneeling, crouching or lying on the floor, or rising from one of those to her feet. Standing or leaning while already on her feet changes nothing and is not counted. Examining counts as ONE effect (revealing), even though it changes nothing; looking for several details on one thing is still one; picking a thing up in order to act on that same thing is part of that act. Speaking, watching and waiting are not effects. Answer with a single number and nothing else.\n\nIntent: \"{{INTENT}}\"",
+  list:
+    'List every effect this person attempts, one per line, in the form "<effect> -> <object>". The effects are: ' +
+    "wear, restore, reveal, conceal, expose, noise, open, close, leave, take, give, move-person, and reposition-self " +
+    "(the actor moving her own body within the room). Name every one you see, INCLUDING reposition-self. " +
+    "Looking for several details on one thing is ONE reveal of it. Speaking, watching and waiting are not effects. " +
+    'Answer with the lines and nothing else.\n\nIntent: "{{INTENT}}"',
+};
+
+fetch("lab-data.json").then((r) => r.json()).then((d) => {
+  DATA = d;
+  PRESETS.game = d.gamePrompt + '\n\nIntent: "{{INTENT}}"';
+  el("prompt").value = PRESETS.number;
+  if (Object.keys(TICKS).length === 0) d.rows.forEach((r) => { if (r.starter) TICKS[r.id] = true; });
+  render();
+});
+fetch("http://doris:11435/v1/models", { cache: "no-store" })
+  .then((r) => { if (!r.ok) el("status").textContent = "— server answered " + r.status; })
+  .catch(() => { el("status").innerHTML = '— <b style="color:#a01b2b">Muse not reachable</b>'; });
+
+el("preset").onchange = () => { const v = el("preset").value; if (PRESETS[v]) el("prompt").value = PRESETS[v]; };
+el("savemarks").onclick = () => {
+  persist();
+  el("progress").textContent = `saved: ${Object.keys(MARKS).length} marks, ${ticked().length} ticks, ${Object.keys(RESULTS).length} rows of results`;
+};
+el("clearres").onclick = () => {
+  if (!confirm("Throw away the stored run results? Marks and ticks are kept.")) return;
+  RESULTS = {}; RESULTS_PROMPT = ""; persist(); render();
+};
+el("stop").onclick = () => { abort = true; };
+el("run").onclick = runTicked;
+el("search").oninput = render;
+el("prompt").oninput = () => tally();
+el("ckall").onchange = (e) => { visible().forEach((r) => { TICKS[r.id] = e.target.checked; }); render(); };
+
+document.querySelectorAll("button[data-sel]").forEach((b) => {
+  b.onclick = () => {
+    const how = b.dataset.sel, rows = DATA.rows;
+    if (how === "none") TICKS = {};
+    else if (how === "all") rows.forEach((r) => (TICKS[r.id] = true));
+    else if (how === "starter") { TICKS = {}; rows.forEach((r) => { if (r.starter) TICKS[r.id] = true; }); }
+    else if (how === "marked") { TICKS = {}; rows.forEach((r) => { if (MARKS[r.id]) TICKS[r.id] = true; }); }
+    else if (how === "wrong") { TICKS = {}; rows.forEach((r) => { const v = verdict(r.id); if (v && MARKS[r.id] && v !== MARKS[r.id]) TICKS[r.id] = true; }); }
+    else if (how.startsWith("r")) {
+      const n = Number(how.slice(1)); TICKS = {};
+      const pool = [...rows];
+      for (let i = pool.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pool[i], pool[j]] = [pool[j], pool[i]]; }
+      pool.slice(0, n).forEach((r) => (TICKS[r.id] = true));
+    }
+    render();
+  };
+});
+
+const ticked = () => (DATA ? DATA.rows.filter((r) => TICKS[r.id]) : []);
+/** The search box takes text, or row numbers: "12", "3,7,12", "1-20", or any mix of those. Numbers
+ *  are how you refer to a row when working through them by hand, so they have to be selectable. */
+function visible() {
+  const q = el("search").value.trim().toLowerCase();
+  if (!q) return DATA.rows;
+  if (/^[\d\s,\-]+$/.test(q)) {
+    const want = new Set();
+    for (const part of q.split(",").map((x) => x.trim()).filter(Boolean)) {
+      const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) for (let i = Number(m[1]); i <= Number(m[2]); i++) want.add(i);
+      else if (/^\d+$/.test(part)) want.add(Number(part));
+    }
+    return DATA.rows.filter((r) => want.has(r.n));
+  }
+  return DATA.rows.filter((r) => r.intent.toLowerCase().includes(q));
+}
+
+/** Read one/several out of whatever came back: a trailing bare number, `<effect> -> <object>` lines,
+ *  or the words themselves. 0 counts as ONE act -- a question phrased in changes answers 0 for a
+ *  pure examination, which is still a turn doing one thing. */
+function readOne(text) {
+  const t = String(text || "").trim();
+  if (!t) return null;
+  const lines = t.split("\n").map((l) => l.trim()).filter(Boolean);
+  const arrows = lines.filter((l) => l.includes("->"));
+  if (arrows.length) {
+    const kept = arrows.filter((l) => !/repositionself|reposition-self|reposition/i.test(l.split("->")[0]));
+    return kept.length > 1 ? "several" : "one";
+  }
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const m = lines[i].match(/^\**\s*(\d+)\s*\**\.?$/);
+    if (m) return Number(m[1]) > 1 ? "several" : "one";
+  }
+  const w = t.toLowerCase();
+  if (/\b(several|multiple|more than one)\b/.test(w)) return "several";
+  if (/\b(one act|single act|just one|only one)\b/.test(w)) return "one";
+  const m2 = t.match(/\b(\d+)\b/);
+  if (m2) return Number(m2[1]) > 1 ? "several" : "one";
+  if (/\bone\b/.test(w)) return "one";
+  return null;
+}
+
+function verdict(id) {
+  const r = RESULTS[id];
+  if (!r || r.pending || !r.runs?.length) return null;
+  const vs = r.runs.map((x) => x.v);
+  if (new Set(vs).size > 1) return "UNSTABLE";
+  return vs[0];
+}
+
+async function ask(intent) {
+  const res = await fetch(el("ep").value, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      model: el("model").value, temperature: 0, max_tokens: 1800, stream: false,
+      chat_template_kwargs: { reasoning_strength: el("think").value },
+      messages: [{ role: "user", content: el("prompt").value.replaceAll("{{INTENT}}", intent) }],
+    }),
+  });
+  const j = await res.json();
+  const text = j.choices?.[0]?.message?.content ?? "";
+  return { text, v: readOne(text) };
+}
+
+async function runTicked() {
+  if (running) return;
+  const rows = ticked();
+  if (!rows.length) { el("progress").textContent = "nothing ticked"; return; }
+  running = true; abort = false;
+  el("run").disabled = true; el("stop").disabled = false;
+  const tries = Math.max(1, Math.min(5, Number(el("tries").value) || 2));
+  let n = 0;
+  const t0 = Date.now();
+  for (const row of rows) {
+    if (abort) break;
+    RESULTS[row.id] = { pending: true }; render();
+    const runs = [];
+    for (let i = 0; i < tries; i++) {
+      if (abort) break;
+      try { runs.push(await ask(row.intent)); } catch (e) { runs.push({ text: String(e), v: null }); }
+    }
+    RESULTS[row.id] = { runs };
+    RESULTS_PROMPT = el("prompt").value;
+    persist();
+    n++;
+    const per = (Date.now() - t0) / n / 1000;
+    el("progress").textContent = `${n} of ${rows.length} · ${per.toFixed(1)}s each · about ${Math.round((per * (rows.length - n)) / 60)} min left${abort ? " (stopped)" : ""}`;
+    render();
+  }
+  running = false; el("run").disabled = false; el("stop").disabled = true;
+}
+
+function render() {
+  if (!DATA) return;
+  const tb = el("tbody"); tb.innerHTML = "";
+  for (const r of visible()) {
+    const v = verdict(r.id), mine = MARKS[r.id];
+    const wrong = v && mine && v !== mine;
+    const tr = document.createElement("tr");
+    if (TICKS[r.id]) tr.className = "checked";
+    if (wrong) tr.className += " wrong";
+    const prior = Object.entries(r.prior || {}).map(([k, val]) => `${k[0]}:${val === "several" ? "S" : val === "one" ? "1" : "?"}`).join(" ");
+    tr.innerHTML = `
+      <td><input type="checkbox" data-tick="${r.id}" ${TICKS[r.id] ? "checked" : ""} style="width:auto"></td>
+      <td><b>${r.n}</b></td><td class="muted">g${r.game}·r${r.round}</td><td class="muted">${r.chair}</td>
+      <td>${esc(r.intent)} ${r.starter ? '<span class="pill star">starter</span>' : ""}
+          ${r.ruling ? `<div class="muted">ruled ${esc(r.ruling)}</div>` : ""}
+          ${v && RESULTS[r.id]?.runs ? `<div class="muted">${esc((RESULTS[r.id].runs[0].text || "").replace(/\s+/g, " ").slice(0, 120))}</div>` : ""}</td>
+      <td><span class="pill ${r.recorded}">${r.recorded}</span></td>
+      <td class="muted">${prior || "—"}</td>
+      <td>${!RESULTS[r.id] ? '<span class="pill pend">—</span>'
+            : RESULTS[r.id].pending ? '<span class="pill pend">…</span>'
+            : `<span class="pill ${v === "UNSTABLE" ? "unstable" : v}">${v}</span>`}</td>
+      <td><button class="tiny ${mine === "one" ? "on one" : ""}" data-mark="${r.id}" data-v="one">one</button>
+          <button class="tiny ${mine === "several" ? "on several" : ""}" data-mark="${r.id}" data-v="several">several</button></td>`;
+    tb.appendChild(tr);
+  }
+  tb.querySelectorAll("input[data-tick]").forEach((c) => { c.onchange = () => { TICKS[c.dataset.tick] = c.checked; persist(); render(); }; });
+  tb.querySelectorAll("button[data-mark]").forEach((b) => {
+    b.onclick = () => {
+      const id = b.dataset.mark;
+      MARKS[id] = MARKS[id] === b.dataset.v ? undefined : b.dataset.v;
+      if (!MARKS[id]) delete MARKS[id];
+      persist(); render();
+    };
+  });
+  tally();
+}
+
+function tally() {
+  const ran = DATA.rows.filter((r) => verdict(r.id) && verdict(r.id) !== "UNSTABLE");
+  const uns = DATA.rows.filter((r) => verdict(r.id) === "UNSTABLE").length;
+  const sev = ran.filter((r) => verdict(r.id) === "several").length;
+  const judged = ran.filter((r) => MARKS[r.id]);
+  const right = judged.filter((r) => verdict(r.id) === MARKS[r.id]).length;
+  const rate = ran.length ? Math.round((sev / ran.length) * 100) : 0;
+  // The starter rows were CHOSEN because today's formulations flagged them where the recording did
+  // not. A flag rate over a set selected on that behaviour is circular -- it measures the selection.
+  // Only a random draw (or all 187) gives a number the 22% baseline can be read against.
+  const starters = ran.filter((r) => r.starter).length;
+  const biased = ran.length > 0 && starters / ran.length > 0.5;
+  // 2026-09-23, the owner's call: a CHANGE of posture costs a turn, as it did in Infocom. 29% of the
+  // batch's intents contain one, so ~44% flagged is the rate that rule IMPLIES -- it is the target,
+  // not the noise floor. 22% is what the old rule produced and is kept only as history.
+  const rateLabel = biased
+    ? "flagged on these rows — NOT comparable to any baseline, this set was picked for disagreeing"
+    : ran.length < 20
+      ? "flagged — too few rows to compare against anything"
+      : "flagged several — the posture rule implies about 44%; the old rule gave 22%";
+  const stale = RESULTS_PROMPT && RESULTS_PROMPT !== el("prompt").value;
+  el("tally").innerHTML = `
+    ${stale ? '<div style="flex:1 1 100%; color:#a01b2b; font-size:12px">These results were produced by a DIFFERENT question than the one in the box above.</div>' : ""}
+    <div><b>${ticked().length}</b><span class="lbl">ticked to run</span></div>
+    <div><b>${ran.length}</b><span class="lbl">run cleanly</span></div>
+    <div><b>${rate}%</b><span class="lbl">${rateLabel}</span>
+         <div class="bar"><i style="width:${Math.min(100, rate)}%; background:${biased ? "#b9b4aa" : "var(--sev)"}"></i></div></div>
+    <div><b>${uns}</b><span class="lbl">unstable across tries</span></div>
+    <div><b>${judged.length ? right + "/" + judged.length : "—"}</b><span class="lbl">agrees with my marks</span></div>
+    <div><b>${Object.keys(MARKS).length}</b><span class="lbl">rows I have marked</span></div>`;
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+</script>
+</body>
+</html>

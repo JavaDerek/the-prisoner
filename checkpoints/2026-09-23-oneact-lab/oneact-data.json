@@ -1,0 +1,2436 @@
+{
+ "prompt": "Does the intent attempt ONE act or SEVERAL? An act is one thing done to or with one thing in the room: working on it, examining it, hiding it, taking or handing it over, opening or closing it, going out through it, or striking or moving a person. Answer several when the intent does one such thing and then another -- examining two objects, blinding someone and then opening a door, opening a way out and then going through it. Answer one when it does a single such thing, however it is described: a tool used on something is one act; hiding a thing somewhere is one act on the thing, and the place is only where it goes; and speaking, watching someone, waiting, or moving within the room alongside the act does not count as another -- examining something while watching someone or talking to them is one act. Getting ready for the act is part of it, not another act: going over to the thing, sitting, kneeling or bending down, reaching for it, picking it up, or lifting what covers it. But opening a way out is always an act of its own, never a way of getting ready. Cite the exact words in the actor's intent that show the second act, or, for one, the words that describe the act.",
+ "rows": [
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Walk to the window and run my fingers along the iron bar, paying close attention to the rusted section near the bottom and the mortar around it. I want to fix its current condition in my memory \u2014 how deep the rust pitting is, how firm the mortar feels, whether the bar shifts at all when I press it. I do this openly, letting Voss see me inspect it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 12
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit on the edge of the cot, pull the blanket partly over my lap against the cold, and while making idle conversation with Croft, quietly drag the flat edge of the spoon back and forth against the rough underside of the iron cot crossbar to hone it sharper. Keep the motion small and hidden beneath the blanket and my thigh.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 25,
+    "to": 48
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Pick up the spoon and closely examine its edge and overall condition \u2014 feel the worn-flat side of the bowl, check for any sharpening or filing, and note where it was positioned before I touched it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 9
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit on the cot with the blanket draped casually over my lap. Underneath the blanket, slowly and quietly draw the flat edge of the spoon back and forth along the rough, paint-flaking crossbar of the cot frame to sharpen it further. Keep the motion small and steady, hidden by the blanket. Talk to Croft to hold her attention on my face.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 19,
+    "to": 41
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Kneel beside the cot, pry up the loose tile, and carefully examine the hollow beneath \u2014 sifting through the dry grit with my fingers to feel for any hidden objects, and checking if the packed earth shows signs of recent scraping or digging. While I'm down there, I note whether Voss shifts position or watches me with particular intensity.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 11,
+    "to": 15
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Sit on the cot, pull the heavy blanket across my lap as though settling in against the cold, and underneath it, work the flat edge of the spoon back and forth along the rough, paint-flaked crossbar to sharpen it further \u2014 slow, steady strokes timed to the rhythm of conversation so any faint scraping is masked by my voice and the blanket's muffling.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 22,
+    "to": 40
+   },
+   "ruling": "spoon/none/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Closely examine the iron bar in the window - grip it, test for any give or looseness, inspect the rust pitting and the mortar where it's set, looking for any signs of tampering or deterioration since I last checked it in round 1.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "Sit down cross-legged on the stone floor beside the meal tray, pull the bowl into my lap, and eat from it slowly. With each deliberate scoop, draw the worn flat edge of the spoon firmly along the rough stone floor beneath me in a smooth scooping arc \u2014 the motion identical to scraping up the last of a meal. Use the clatter of the tin cup and bowl and the rhythm of eating to mask the sharpening strokes. Keep my eyes on Croft or the bowl, not on the floor.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 27,
+    "to": 42
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Closely examine the lock on the cell door: inspect the bolt where it shows in the gap, check for scratch marks or filing around the bolt and frame, test the bolt's firmness and seating, and look for any metal filings or debris near the base of the door.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Stand at the window as if gazing out with longing, positioning my body to block Croft's line of sight to my hands. With the sharpened spoon edge concealed in my right hand, quietly scrape and dig at the dry, cracked mortar at the base of the rusted bar, working where the rust has already pitted the iron. Keep movements small and controlled to minimize sound, and use conversation to hold Croft's attention.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 33,
+    "to": 48
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Closely examine the spoon \u2014 pick it up, run my thumb along both edges of the bowl, check for fresh scratching, sharpening marks, or any change from the worn-flat state I noted before.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 4
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Stand at the window as if gazing out, lean my forearms on the stone sill, and use my fingernails to quietly pick and scrape at the dry, cracked mortar around the base of the rusted bar, crumbling loose material away while I talk to Croft.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 36
+   },
+   "ruling": "bar/wear/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Closely examine the iron bar in the window, running my fingers along its full length and testing its seating in the mortar, checking for fresh scratches, loosened grit, or any reduction in integrity since I last inspected it at round 4.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Retrieve the spoon from under the loose tile, move to the window as if looking out thoughtfully, and use the spoon to scrape and lever the weakened, rust-pitted mortar at the base of the bar. Angle my body between the window and Croft to block her view of what my hands are doing. Work the spoon's worn flat edge into the crumbling mortar joint and pry at the bar's seating.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 20,
+    "to": 35
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 8,
+   "chair": "warden",
+   "intent": "I see Voss actively working on the bar. I step forward, seize her wrist to stop what she's doing, and closely examine the spoon she's holding \u2014 inspecting its edge for signs it's been sharpened into a tool.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 21,
+    "to": 26
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "I immediately open my hands and let the spoon fall from my grip, raising both palms up where Croft can see them. I let it drop naturally \u2014 not tossing it away, not reaching toward Croft \u2014 just releasing it so it clatters to the stone floor near my feet beside the cot. I stand still, hands visible, and speak in a quiet, defeated tone to de-escalate.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 13
+   },
+   "ruling": "spoon/noise/none"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar, checking its full length, the mortar at its base, and any signs of wear or tampering, while keeping Voss in my peripheral vision.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "Appear to comply with Croft by saying \"Alright, I'm putting it down\" and stepping toward the cot as if to set the spoon down. Then, in one sudden explosive motion, drop the spoon, seize the iron foot-end of the cot with both hands, and heave it upward with all my strength and body weight, driving the iron crossbar into the window bar right where the rust pitting meets the cracked mortar base\u2014the bar's weakest point.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 34,
+    "to": 54
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-27",
+   "round": 10,
+   "chair": "warden",
+   "intent": "Closely examine the spoon that Voss has just put down, while it is out in the open, inspecting the worn-flat edge of its bowl for evidence of use as a tool.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 4
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Stand casually but deliberately study Voss \u2014 where she's positioned in the cell, where her eyes keep drifting, what her hands are doing, whether she's been near the window or the door \u2014 while making conversation to gauge her state of mind.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 4,
+    "to": 6
+   },
+   "ruling": "prisoner/reveal/posture"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the blanket across my lap as if settling in for the night, and while making conversation with Croft, use the spoon under the blanket to quietly scrape its edge back and forth against the rough surface of the loose floor tile, sharpening it into a better scraping tool.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 25,
+    "to": 54
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar \u2014 specifically the rust pitting near the bottom and the mortar where it's set into the frame \u2014 to establish a baseline reading of its current condition.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit on the cot with the blanket draped over my lap. Under the blanket, scrape the flat side of the spoon back and forth along the broken corner edge of the loose tile to sharpen the spoon further. Keep the motion slow and steady to minimize sound, and talk to Croft to cover any faint noise.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 38
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Collect the meal tray from the floor and, as I pick it up, closely examine the spoon \u2014 checking the edge of the bowl, looking for any grinding, flattening, or sharpening along its rim, and noting whether it matches the wear I'd expect from normal use.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 14,
+    "to": 17
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Sharpen the spoon against the rough cracked edge of the loose tile while bending down to pick up the meal tray from the floor slot. I palm the spoon in my right hand, kneel near the tile, and as I reach for the tray with my left hand I press the spoon's flat edge firmly along the tile crack with two quick scrapes, using the scrape and clatter of sliding the steel tray across the stone floor to cover the sound.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 21
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Collect the meal tray from the floor by the door slot, ensuring the spoon is on it, and remove it from the cell entirely.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 19,
+    "to": 24
+   },
+   "ruling": "meal_tray/take/none"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "As Croft orders hands up and bends to collect the meal tray from the door slot, I step back toward the cot with my hands raised and visible, and in that motion I use my foot to nudge the spoon off the floor and under the loose tile beside the cot, settling the tile flat over it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 33,
+    "to": 57
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Demand that Voss hand over the spoon immediately. If she does not produce it, physically search her person \u2014 pockets, waistband, sleeves \u2014 to confiscate it.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 18
+   },
+   "ruling": "prisoner/expose/posture"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Look genuinely puzzled, tell Croft I already set the spoon back on the tray, and stand with my arms out inviting her to search me. The spoon is hidden under the loose tile \u2014 she won't find it on my person.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 4,
+    "to": 14
+   },
+   "ruling": "prisoner/expose/posture"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Get down beside the cell door and examine the lock closely \u2014 the bolt, the keyhole edges, the steel face around it \u2014 looking for fresh scratches, tool marks, or any sign the mechanism has been tampered with since I last checked it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 8,
+    "to": 11
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the meal tray toward me, and use the spoon to eat from the bowl \u2014 calmly showing Croft exactly why the spoon was on me and not on the tray. I act unhurried and unbothered.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 11
+   },
+   "ruling": "cot/none/none"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Confiscate the spoon from the cell entirely. I pick it up, check that it's the same dented aluminium spoon, and take it with me \u2014 it does not stay in this cell. If Voss objects or resists, I hold firm: meal time is over, the tray is being collected, and the spoon goes with it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 7
+   },
+   "ruling": "spoon/take/none"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Place the spoon on the meal tray without protest. Comply fully \u2014 set the spoon down on the tray, step back, and let Croft take the tray out. Act like a tired prisoner who doesn't care enough to argue over a spoon.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 7
+   },
+   "ruling": "spoon/none/none"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 8,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar \u2014 grip it, test whether it shifts or wobbles, inspect the rusted section near the bottom and the mortar around its base for fresh scrape marks, metal dust, or any sign it has been worked on since I last checked it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "The moment Croft turns to leave or steps through the door, move to the window and use the sharpened edge of the spoon to scrape and dig out the dry, cracked mortar at the rusted base of the bar \u2014 working as fast and as hard as I can while keeping noise below what would carry down the corridor.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 39
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 9,
+   "chair": "warden",
+   "intent": "I step toward the window and examine it closely \u2014 specifically checking whether the bar has been removed and whether the window is open or passable as a way out.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 9
+   },
+   "ruling": "window/reveal/passage"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "While Croft is near the window with her attention on it, grab the heavy wool blanket from the cot, throw it over her head to blind and tangle her, and in the same motion seize the key ring from her belt.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 35,
+    "to": 41
+   },
+   "ruling": "warden/conceal/none"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 10,
+   "chair": "warden",
+   "intent": "I step to the window but instead of looking through it, I examine the bar closely \u2014 gripping it, twisting it, testing how it sits in the mortar, checking every inch for fresh scoring, looseness, or signs that it's been worked on.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 16
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T13-51-30",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "While Croft is at the window with her back to the door examining the bars, take the spoon and carefully insert its flat, worn edge into the finger-width gap between the door and its frame where the bolt edge is visible, then use it to push and slide the bolt back out of the stone frame \u2014 quietly, steadily, working it millimeter by millimeter.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 43,
+    "to": 56
+   },
+   "ruling": "door/open/passage"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Stand near the door with my back to it and carefully observe Mara Voss \u2014 watch what her eyes linger on, where she positions herself in the cell, what her hands are doing, whether she's closer to the window or the cot or the loose tile. Read her body language for any tells about what she's planning.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 11,
+    "to": 14
+   },
+   "ruling": "prisoner/reveal/posture"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the blanket across my lap as though settling in for the night, and while my hands are covered, quietly tuck the spoon into my waistband so it's concealed on my person.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 25,
+    "to": 37
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Pick up the spoon from wherever it currently sits, hold it up to the light, and closely examine every edge \u2014 especially the worn flat side of the bowl. Run my thumb along the edges feeling for any sharpness or deliberate grinding. Watch Voss's face as I handle it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 9
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot beside the loose tile, pull the blanket across my lap as though settling in, and while my hand is near the floor adjusting my position, quietly slide the spoon under the loose tile into the hollow beneath it \u2014 all in one unhurried, natural motion of someone getting comfortable for the night.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 31,
+    "to": 43
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the rusted bar \u2014 run my fingers along the rust pitting near the bottom, press and test the mortar where the bar is set, and look for any fresh marks or signs of tampering. While doing this, I watch Voss's reaction from my peripheral vision.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot beside the loose tile, and while leaning forward engaging Croft in conversation about books, use my near hand low by my side to quietly lift the cracked corner of the loose tile, slide the spoon into the hollow beneath it, and settle the tile back flat \u2014 all while maintaining eye contact and talking naturally.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 30,
+    "to": 52
+   },
+   "ruling": "spoon/conceal/none"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Kneel beside the cot and lift the loose tile. Sift through the dry grit in the hollow with my fingers, feeling for any hidden objects \u2014 a sharpened piece, scraped mortar dust, anything that shouldn't be there. Check whether the hollow has been deepened or the earth freshly disturbed compared to its natural state.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 10,
+    "to": 26
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "While Croft is focused on examining the loose tile on the floor, sit down on the cot \u2014 positioning myself so my body blocks her sightline to my hands \u2014 and use my near hand to slide the thin spoon handle into one of the wire twists that hold the cot springs to the iron frame, tucking it flat along the underside where the rough, paint-flaked metal will camouflage the dull aluminum.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 32,
+    "to": 56
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Pick up the spoon from the meal tray and closely examine its edge, tip, and handle for any signs of sharpening, grinding, or deliberate modification since I last checked it three rounds ago.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 10,
+    "to": 16
+   },
+   "ruling": "none/reveal/none"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, lean back against the wall looking tired and defeated, and respond to Croft's comment with a resigned admission that I've been counting ceiling stains and tracing cracks in the wall to pass time \u2014 giving her an innocent explanation for any \"busy\" behavior she may have noticed. Stay near the hidden spoon naturally without drawing attention to the cot frame.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 53,
+    "to": 65
+   },
+   "ruling": "cot/none/none"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Walk to the cell door and closely examine the lock \u2014 its steel housing, the visible edge of the bolt in the gap, and the area around the keyhole \u2014 looking for any fresh scratches, tool marks, metal filings, or signs of tampering that weren't present at my last inspection.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 10
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Stay on my feet but lean back against the stone wall looking drained and unwell, one hand on my stomach. Respond to Croft's comment with a tone of weary resignation \u2014 acknowledge her observation, then ask her for some water because my stomach is off. The goal is to seem broken and harmless while giving her a practical reason to step out of the cell.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 11
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar \u2014 grip it firmly, try to twist and pull it, inspect the mortar at its base for any fresh scratching, loosening, or tool marks, and check the rust pitting for signs it's been deliberately widened.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 21,
+    "to": 26
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Fake a sudden, dramatic collapse: I stagger, clutch my stomach with both hands, drop to my knees, then slump sideways onto the stone floor. My breathing goes shallow and ragged, my eyes half-close, and I let my body go limp. I am trying to convince Croft that I am having a genuine medical emergency so she will leave the cell to summon help.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 5
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 8,
+   "chair": "warden",
+   "intent": "Closely examine the meal tray near the door \u2014 the tray, tin cup, bowl, and any utensil \u2014 checking the spoon edge for sharpening, scratches, or metal wear, while staying well clear of where Voss is lying on the floor.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 17
+   },
+   "ruling": "meal_tray/reveal/none"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "Feign delirium from the collapse \u2014 drag myself across the floor toward the window, gasping and reaching for air, and when I reach the wall beneath the window, dig desperately at the dry cracked mortar around the rusted bar's base with my fingers, clawing and scraping it away while appearing to be in confused panic grasping at the bars for support. The delirium performance covers the deliberate work on the mortar.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 29,
+    "to": 43
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Closely examine the iron bar in the window, checking its base where rust has pitted it and where it meets the old mortar, feeling for any new looseness, wobble, scoring, or signs that it has been worked on, while keeping Voss in my peripheral vision.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 5
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "While gasping and crawling toward the window as though desperate for air, grab the loose tile from the floor beside the cot and use its sharp cracked edge as a chisel to aggressively gouge and chip away the dry, cracked mortar surrounding the rusted base of the bar \u2014 driving the hard ceramic edge into every crack, fracture line, and gap where the mortar has already separated from the iron and stone.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 24,
+    "to": 48
+   },
+   "ruling": "window/open/passage"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 10,
+   "chair": "warden",
+   "intent": "Stand firm by the door with my hand resting on my key ring, keeping maximum distance from Voss on the floor, and simply wait out this final round. I do not approach her, I do not open the door, I do not move from my position guarding the exit.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 23,
+    "to": 28
+   },
+   "ruling": "none/none/none"
+  },
+  {
+   "game": "2026-09-23T14-29-15",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "While speaking to draw Croft's attention toward the window, I suddenly explode upward from the floor and grab the iron key ring on her belt with both hands, yanking it downward and away with all my strength to tear it free.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 18,
+    "to": 41
+   },
+   "ruling": "key_ring/take/none"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar \u2014 grip it, test whether it shifts in its seating, inspect the rust pitting near the bottom and the condition of the mortar around it \u2014 while watching Voss's reaction from the corner of my eye.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Engage the warden in casual conversation while sitting down on the cot near the meal tray, asking about the daily routine \u2014 when rounds happen, when she locks up for the night, when meals come. I want to seem cooperative and resigned, not scheming. I'll pick up the meal tray as if to eat while we talk.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 46,
+    "to": 51
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Pick up the spoon and examine it closely \u2014 checking the edges, the worn-flat side of the bowl, and whether there's any sign it's been sharpened, filed, or used as a tool against metal or mortar.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 8
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit on the cot, pull the meal tray close, and eat with the spoon in a resigned, cooperative manner while asking the warden a casual question about the nightly routine \u2014 specifically trying to learn when she finishes her rounds on this block.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 11,
+    "to": 19
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Kneel beside the cot and lift the loose tile to inspect the hollow underneath \u2014 check the grit and packed earth for any hidden objects, fresh scraping marks, or signs that someone has been digging or storing something in the hollow.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 14
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Sit on the cot eating from the tray slowly and mechanically, shoulders hunched, responding to Croft's comment with flat, beaten-down resignation \u2014 deepening my compliant posture so she sees a prisoner who has stopped fighting.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 5,
+    "to": 8
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar, running my fingers along the rusted section near the bottom and testing the mortar around it, checking for any new wear, looseness, scratching, or thinning compared to what I observed in Round 1.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "While crouched low over the bowl, scrape the last of the food out with the spoon, then in one hunched motion set the empty bowl back on the tray while palming the spoon flat against the inside of my wrist, keeping it hidden against my forearm under my sleeve. Stay curled up and small throughout.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 29
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Crouch at the cell door and closely examine the lock \u2014 specifically the bolt visible in the gap between door and frame, looking for any scratches, scoring, or signs that something has been inserted or worked against the mechanism.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 10
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "While crouched low beside the cot, use my body to shield the motion and slip the spoon from my person into the hollow under the loose tile. Rock the tile with my knee as if shifting uncomfortably, slide the spoon in with the hand closest to the floor, then settle the tile back and brush loose grit over it with my fingers.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 27
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Order Voss to hand over the spoon immediately, then examine its edge closely for any sharpening, filing, or wear that wasn't there when I last checked it in Round 2.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 9,
+    "to": 13
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "While crouched low beside the cot, deny having the spoon and gesture vaguely toward the meal tray. At the same time, subtly use my knee and foot to scrape loose grit and dust over the cracked tile where the spoon is hidden, pressing it flat and blending it with the surrounding floor.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 22,
+    "to": 52
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Kneel down beside the cot and closely examine the loose tile \u2014 lift it, check the hollow beneath for any signs of fresh scraping, hidden objects, or disturbance in the grit and packed earth since my last inspection.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 11
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Pick up the spoon from where Croft uncovered it, sit back on the cot as if resigned, and while leaning forward to talk to her, repeatedly draw the flat worn edge of the spoon along the rough iron crossbar beneath the cot, keeping the motion screened behind my legs and body so she cannot see it. The goal is to grind a sharper edge onto the spoon using the rough, paint-flaked crossbar as an abrasive.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 26,
+    "to": 42
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 8,
+   "chair": "warden",
+   "intent": "Cross to the window and closely examine the iron bar \u2014 grip it, test whether it shifts in the mortar, and look along its length for any fresh scratches, filing marks, or widened rust pits, especially near the bottom where it seats into the cracked mortar.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "While staying crouched by the cot as Croft ordered, I draw the spoon's worn-flat edge steadily along the rough crossbar under the cot frame, keeping the motion hidden beneath my body and the cot. I use slow, firm strokes, timing them to my breathing. I look up at Croft and talk about the mud to keep her eyes on my face and away from my hands.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 11,
+    "to": 24
+   },
+   "ruling": "cot/wear/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Closely inspect the lock on the cell door \u2014 examine the bolt, the keyhole gap, and the frame seating for any signs of tampering, scoring, or loosening since I last checked it in round 5.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "While Croft is crouched at the door examining the lock, I position myself at the window with my back to her, shielding the work with my body. I jam the spoon into the cracks in the dry mortar at the base of the rusted bar and pry and dig aggressively, levering chunks of crumbling mortar loose and working the corroded base of the bar free from its seating. I speak to Croft to hold her attention on the door.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 29,
+    "to": 50
+   },
+   "ruling": "window/open/passage"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 10,
+   "chair": "warden",
+   "intent": "Closely inspect the bar in the window \u2014 running my fingers along its full length, testing where it meets the mortar at both top and bottom, checking for any looseness, scoring, or weakening \u2014 while standing directly at the window to block it as an exit.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 36,
+    "to": 46
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T14-29-33",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "While Warden Croft is turned toward the window examining the bar, I silently pick up the tin bucket by its wire handle, rise from my crouch, and swing it with all my strength at the back of her head.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 28,
+    "to": 39
+   },
+   "ruling": "warden/wear/posture"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Stand in the cell and closely watch Mara Voss \u2014 where she's positioned, where her eyes track, what her hands are doing, whether she flinches or shifts when I glance toward the window, the door, or the loose tile. I'm reading her, not inspecting objects.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 9
+   },
+   "ruling": "prisoner/reveal/posture"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit on the cot with the meal tray in my lap. While eating, I scrape the spoon's flat edge back and forth along the rough floor just beside the cot leg, keeping the motion hidden behind my foot and the edge of the blanket that hangs down. I talk to Croft to keep her eyes on my face, not my hands.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 26
+   },
+   "ruling": "spoon/wear/edge"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 2,
+   "chair": "warden",
+   "intent": "I pick up the spoon from the meal tray and examine it closely \u2014 turning it in my fingers, checking the edge, the bowl, the handle \u2014 while responding casually to Voss's comment about the food. I want to set a clear baseline on the spoon's condition.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 2,
+    "to": 13
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "While eating from the meal tray, I angle the worn-flat edge of the spoon sharply against the steel tray and scrape it firmly with each scooping motion, working to grind an edge onto the aluminium. I keep the rhythm and sound consistent with normal eating \u2014 scoop, scrape, lift \u2014 and hold conversation with Croft to keep her attention on talk rather than my hands.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 8,
+    "to": 23
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Walk to the window and closely inspect the iron bar \u2014 running my thumb along its length, checking the rust pitting near the bottom, and feeling the mortar where it's set \u2014 while appearing to look outside as if checking the weather or the yard.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Continue sharpening the spoon's worn-flat edge against the steel meal tray by scraping porridge remnants from the bowl onto the tray and dragging the spoon back and forth across the tray in a natural eating motion, while engaging Croft in casual conversation about the food to keep her attention on my face.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 2,
+    "to": 11
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Walk to the cell door and closely inspect the lock \u2014 the bolt visible in the gap, the mechanism, and the surrounding frame \u2014 checking for any signs of tampering, scratching, or wear since my last check.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 10
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "While sitting on the cot with the meal tray on my lap, I scrape the flat-worn side of the spoon's bowl back and forth along the steel rim of the tray in slow, idle strokes \u2014 as though absently cleaning the last film of food from the bowl \u2014 to sharpen the spoon edge further. I keep my eyes on Croft and talk casually about the C-block prisoner to hold her attention on the conversation rather than my hands.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 14,
+    "to": 29
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Kneel beside the cot and lift the loose tile. Carefully sift through the grit in the shallow hollow beneath it, looking for anything that shouldn't be there \u2014 iron filings, mortar dust, metal shavings, or scraping marks in the packed earth underneath.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 10,
+    "to": 27
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "While Croft is bent over examining the loose tile on the floor, I drift to the window as if looking out idly. I palm the spoon in my right hand, position my body to screen the bar from Croft's view, and use the sharpened edge of the spoon to quietly scrape and dig at the dry, cracked mortar around the base of the rusted bar where it is set into the sill. I talk to her about Vasquez to cover any faint sound and keep her attention on the conversation.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 42,
+    "to": 72
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Closely inspect the iron bar in the window, focusing on the base where it sits in the cracked mortar. I run my fingers along the bar and the mortar joint, checking for fresh scratches, scoring marks, metal dust, looseness, or any sign that someone has been working on it. I also look at the mortar itself for fresh crumbling or debris.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 51,
+    "to": 57
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot near the loose tile, engage Croft in casual conversation about her comment on smart prisoners, and while she's focused on the bar and talking, discreetly sharpen the spoon's worn edge against the rough broken corner of the loose floor tile, keeping my hand low beside the cot where my body blocks her line of sight.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 31,
+    "to": 45
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Pick up the spoon and closely examine its edge and bowl for fresh wear \u2014 scraping marks, metal dust, a sharpened edge, or any sign it has been used as a tool since I last checked it at round 2.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 11
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Lean my back and shoulder against the wall right beside the window, casually, as if settling in for conversation. With my hand nearest the window hidden from Croft's line of sight by my body, use the sharpened spoon to quietly scrape and dig at the dry, cracked mortar around the rusted base of the bar \u2014 working the weakest point where rust has pitted the iron and the mortar is already crumbling.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 35,
+    "to": 55
+   },
+   "ruling": "window/open/passage"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 8,
+   "chair": "warden",
+   "intent": "I move to the window and closely examine the bar \u2014 running my hands along its full length, testing where it seats into the mortar at top and bottom, checking for any scoring, thinning, or loosening that wasn't there before. I'm positioning my body squarely in front of the window as I do this.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "Grab the bar with both hands and wrench it forcefully back and forth in its mortar seat, twisting and pulling, while acting as though I'm merely demonstrating to Croft that it's still firmly in place \u2014 putting maximum physical force into loosening it from the crumbling, dry mortar at its base.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 20
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Closely examine the window \u2014 the way out \u2014 to determine whether it is standing open. My suspicion is 60, well above 40. If the window is open, this catches Voss and ends the game in my favor.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 4
+   },
+   "ruling": "window/reveal/passage"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "As I appear to obey Croft's order and step back from the window, I grab the tin slop bucket by its wire handle and swing it hard at the side of Croft's head.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 33
+   },
+   "ruling": "warden/wear/none"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 10,
+   "chair": "warden",
+   "intent": "Stride directly to the window, put myself between Voss and it, and closely examine the iron bar \u2014 gripping it, testing for looseness, checking the mortar at the base \u2014 to determine its true condition.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 13,
+    "to": 17
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-06-38",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "As I obey Croft and step back from the window, I pass the cot and quietly retrieve the sharpened spoon from under the loose tile. At the door, I slide the spoon's flat, worn edge into the finger-width gap where the bolt edge is visible and push hard to lever the bolt back out of the stone frame, trying to open the door.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 30,
+    "to": 63
+   },
+   "ruling": "door/open/passage"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Watch Voss closely while pacing the cell \u2014 study where her eyes track, what her hands are doing, her posture and bearing \u2014 to read whether she's fixated on the window, the door, or something else. Pace slowly enough that my keys clink on my belt, a reminder of who holds them.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 7
+   },
+   "ruling": "prisoner/reveal/none"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit on the cot with my back toward the window. While answering Croft's question \u2014 looking her in the eye, keeping her attention on my face \u2014 use my fingers behind me to quietly pick and crumble the dry, cracked mortar at the base of the rusted bar. My body blocks her sightline to my hand.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 28,
+    "to": 48
+   },
+   "ruling": "window/open/passage"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Walk to the window while Voss is talking about it, and closely examine the iron bar \u2014 grip it firmly, test it for any lateral give or looseness, and inspect the mortar at the bottom where rust has pitted it, feeling with my fingers for cracks, scraping, or fresh grit that shouldn't be there.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 16
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Lean against the wall beside the window with my back to it, positioning my body to block Croft's view of the bar's base. While engaging her in conversation about the transfer, I use my fingertips to quietly pick and scrape at the dry, cracked mortar around the rusted bar's base, behind my back and out of her sightline.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 33,
+    "to": 50
+   },
+   "ruling": "window/open/passage"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Pick up Voss's spoon from the meal tray or wherever it sits and closely examine its worn edge, feeling the flatness and checking for signs it has been deliberately ground or sharpened beyond normal use.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 14,
+    "to": 18
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "While telling Croft I'm not done with the tray, I drift over to the window and lean on the sill as if looking out at the sky. With my hands resting below the sill, out of her direct view, I use my fingernails to quietly pick and scrape at the dry, cracked mortar at the base of the rusted bar. The mortar is already crumbling \u2014 I work it loose grain by grain, letting the grit fall silently onto the sill or brush it away with my palm.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 41,
+    "to": 60
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Kneel beside the cot and lift the loose tile, carefully examining the hollow beneath it for any metal shavings, iron filings, dust, scratches, or hidden objects - anything that shouldn't be there.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 10,
+    "to": 15
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "While turning to face Croft and responding to her statement, I smoothly slip the spoon off the meal tray and tuck it into my waistband at the small of my back, under my shirt. I use my body as a screen \u2014 stepping slightly toward her so the tray is behind me during the motion. My eyes stay on hers the whole time.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 34
+   },
+   "ruling": "spoon/conceal/none"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Crouch by the cell door and closely examine the lock mechanism and the visible bolt edge in the gap between door and frame, looking for fresh scratches, pick marks, metal filings, or any sign the bolt or keyhole has been tampered with since my last check.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 16
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "I pick up the spoon from the meal tray, walk to the window as though looking outside, and \u2014 with my back and body between Croft and the window \u2014 use the spoon's worn flat edge to scrape and gouge at the dry, cracked mortar at the base of the rusted bar, working to loosen it from its setting. I keep my elbow movements small and use conversation to cover any faint scraping sound.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 31,
+    "to": 59
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Closely examine the bar at the window, running my fingers along its full length and testing the mortar at both ends, feeling for any new scoring, filing marks, looseness, or thinning since I last checked it in Round 2.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 7
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Pick up the spoon from wherever it currently sits, hold it up to the light from the window, and closely examine both edges of the bowl \u2014 especially the side that was already worn flat \u2014 looking for any new grinding, sharpening, or thinning that wasn't there when I last checked it in round 3.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 20,
+    "to": 26
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Pick up the meal tray to hand it to Croft in a show of cooperation, but in the motion of lifting and turning, smoothly slide the spoon off the tray and tuck it into my waistband at the small of my back, so only the cup and bowl remain on the tray when she takes it.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 24,
+    "to": 36
+   },
+   "ruling": "meal_tray/give/none"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 8,
+   "chair": "warden",
+   "intent": "Decline the tray from Voss, step past her toward the cot, and closely inspect the loose tile \u2014 lift it, examine the hollow beneath for signs of fresh scraping, deepening, hidden objects, or any change from its last inspection.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 13,
+    "to": 17
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "While Croft is still standing near the loose tile away from the door, I turn toward the door, position my body to block her line of sight to the gap, and discreetly slide the flat worn edge of the spoon into the finger-width gap between the door and its frame where the bolt edge shows. I push and lever against the bolt, trying to work it back out of the frame.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 33,
+    "to": 55
+   },
+   "ruling": "door/open/passage"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Closely inspect the rusted bar in the window \u2014 grip it, test if it shifts in the mortar, check the pitting for fresh scratches or deepened rust channels, and examine the mortar seating at top and bottom for signs of loosening or scraping.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-07-15",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "While Croft is at the window examining the bar with her attention focused away from the door, I walk steadily toward the open door and step through it to escape the cell.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 19,
+    "to": 28
+   },
+   "ruling": "door/leave/passage"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 1,
+   "chair": "warden",
+   "intent": "I stand in the cell and study Mara Voss carefully \u2014 where she's positioned, what she's standing near, where her eyes drift, what her hands are doing, her overall demeanor. I'm reading her the way eleven years has taught me to read inmates.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 10
+   },
+   "ruling": "prisoner/reveal/posture"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit on the cot, pull the blanket across my lap with the spoon hidden underneath, and slowly, quietly scrape the spoon's edge back and forth against the rough iron crossbar of the cot frame while talking to Croft in a calm, weary tone \u2014 trying to sharpen the spoon without her noticing.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 19,
+    "to": 34
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Closely examine the iron bar at the window, running my fingers along its length and checking the rust pattern, mortar at its base, and surface for any fresh scratches, scoring, or metal dust that would indicate someone has been working on it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the blanket across my lap as if settling in, and underneath it slowly and quietly drag the spoon's worn-flat edge back and forth along the rough iron crossbar of the cot frame to sharpen it further \u2014 while keeping eye contact with Croft and talking to her in a relaxed tone to hold her attention on my face.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 22,
+    "to": 42
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Pick up Voss's spoon and closely examine its edges and the flat-worn side of the bowl, feeling with my thumb for any sharpening, scoring, or filing that goes beyond normal wear from eating. I'm looking for a deliberate edge.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 9
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Hand the spoon to Croft casually, bowl-first, while explaining the wear as a habit of scratching shapes on the floor to pass the hours. Act completely unbothered.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 5
+   },
+   "ruling": "spoon/give/none"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Kneel down beside the cot, pry up the loose tile, and carefully examine the hollow beneath it \u2014 checking for any hidden objects, fresh scrape marks in the packed earth, or signs that the hollow has been deepened or widened since its last inspection.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 17
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "Casually ask Croft to return the spoon, gesturing at the meal tray as natural justification \u2014 I need it to eat. Keep tone light and unbothered, matching her amused energy about the shapes comment.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 2,
+    "to": 7
+   },
+   "ruling": "spoon/take/none"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar \u2014 running my fingers along its full length, testing the mortar at both ends, and checking the rust pitting near the bottom for any new loosening or wear since I last checked it in round 2.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Hold out my open hand toward Croft and nod at the meal tray on the floor, asking her plainly to give the spoon back so I can eat my dinner like she just told me to.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 24
+   },
+   "ruling": "warden/noise/none"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Examine the lock closely \u2014 the bolt, the keyhole edges, any scratches or tool marks, the steel around the mechanism \u2014 to check whether its integrity has changed since round 0.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 4
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Pick up the spoon from the floor, sit down on the cot with the meal tray, and eat \u2014 but with every scrape of the spoon against the tray, deliberately drag the worn-flat edge of the spoon bowl hard along the steel rim of the tray, angling it to grind and sharpen that edge, repeating the motion with each bite. To Croft it should look like I'm just eating messily from the tray as she told me to.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 8,
+    "to": 12
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T15-43-25",
+   "round": 7,
+   "chair": "warden",
+   "intent": "I step over to Voss while she's eating and closely examine the spoon in her hand, inspecting the edge of the bowl for signs of deliberate sharpening or filing.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 10,
+    "to": 16
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Study Voss carefully \u2014 her posture, exactly where she's standing relative to the window and door and cot, what her hands are doing, and where her eyes drift when she thinks I'm not looking. I'm reading her, not the room.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 3
+   },
+   "ruling": "prisoner/reveal/posture"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit down slowly on the cot, pick up the meal tray from the floor, and slide it toward the door slot as if I'm done with it \u2014 a routine, cooperative gesture. While doing so, speak to Croft in a calm, slightly tired tone to seem unremarkable and encourage her to finish up and leave.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 21
+   },
+   "ruling": "meal_tray/take/none"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Step forward and pick up the spoon from the meal tray before Voss can take it, then closely examine it \u2014 running my thumb along the worn edge of the bowl, checking both sides, feeling for any new sharpening or additional wear beyond what I'd expect from normal use. After inspecting it, hand it back to her.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 20
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Hand the spoon over to Croft willingly and without hesitation, acting casual and cooperative. While she inspects it, mention I haven't eaten yet and ask about getting an extra blanket for the cold \u2014 shifting the topic and giving her a reason to move on or leave.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 14
+   },
+   "ruling": "spoon/give/none"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Accept the spoon from Voss casually, set it on the tray, then walk to the window and closely examine the bar \u2014 grip it, twist it, test whether the mortar at its base has loosened or been scraped at, and check for any tool marks or fresh rust flakes on the sill beneath it.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 21
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Ask Croft to hand back the spoon so I can eat from the meal tray, keeping my tone casual and cooperative. While she's focused on the bar, I'll watch her inspection closely to note which parts of the bar and mortar she pays attention to and which she overlooks.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 7
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Kneel beside the cot and lift the cracked loose tile. Examine the shallow hollow beneath it carefully \u2014 look for any hidden objects, fresh scrape marks, or signs that the dry earth has been recently disturbed or dug into.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 11,
+    "to": 17
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "Sit down cross-legged beside the meal tray, pick up the bowl, and start trying to eat the food with my fingers \u2014 making it plain and a little pathetic that I need the spoon \u2014 then ask Croft casually to hand it back so I can finish my meal.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 37,
+    "to": 43
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Hand the spoon to Voss and remain standing within arm's reach, watching closely how she handles it \u2014 whether she scrapes it against the bowl rim, the tray edge, or the floor, and whether her eyes drift toward the window or the loose tile while she eats. Collect the spoon the moment she sets it down or finishes.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 48,
+    "to": 58
+   },
+   "ruling": "spoon/give/none"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Take the spoon from Croft and eat the meal very slowly, savoring each bite and not finishing. I keep the spoon in my hand throughout, eating at a deliberately unhurried pace so that by the end of this turn I still have food in the bowl and the spoon naturally remains with me.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 11
+   },
+   "ruling": "spoon/take/none"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 6,
+   "chair": "warden",
+   "intent": "While Voss is occupied eating, I pick up the blanket from the cot and inspect it closely - checking the hem for fresh fraying or pulled threads, feeling through the folds for anything hidden inside, and looking for any signs it's been modified or used as material for cordage.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 17
+   },
+   "ruling": "blanket/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Finish eating the last of the bowl compliantly, place the empty bowl back on the meal tray, and in that same natural motion palm the spoon and tuck it into my waistband under my shirt, angling my body so my hands are shielded from Croft's direct line of sight.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 9,
+    "to": 17
+   },
+   "ruling": "spoon/conceal/concealment"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Collect the meal tray from the floor and, as I pick up the spoon, closely examine its edge \u2014 specifically the side that's been worn flat \u2014 feeling it with my thumb for any sharpness or fresh grinding marks.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 18
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Hand the meal tray to Warden Croft with the bowl and cup on it, keeping the spoon palmed flat against the inside of my forearm, hidden under my sleeve. I move smoothly and without hesitation, presenting the tray at a natural angle with both hands \u2014 one hand underneath, the spoon-hand on the edge \u2014 so the motion looks cooperative and unremarkable.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 29
+   },
+   "ruling": "meal_tray/give/none"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 8,
+   "chair": "warden",
+   "intent": "Accept the tray from Voss, set it aside, then go to the window and closely examine the iron bar \u2014 gripping it, testing for any wobble or give, and inspecting the base where it meets the mortar for fresh scrape marks, dust, or loosening.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 9,
+    "to": 19
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "Walk to the window and lean on the sill as if gazing out at the night, positioning my body to block Croft's view of the rusted bar's base. While standing there, use the spoon palmed in my sleeve to quietly scrape and dig at the dry, cracked mortar where the rusted bar is set into the wall at the bottom, working carefully to avoid audible scraping.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 32,
+    "to": 60
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Closely examine the lock on the cell door \u2014 inspecting the bolt, the keyhole edge, the mechanism, and the surrounding frame for any signs of tampering, scratching, or wear that shouldn't be there.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "While standing at the window as if gazing out at the sky one last time before transfer, I lean my forearm on the ledge so my torso and shoulder block Croft's view of my hands. Behind my body, I jam the spoon's flat-worn edge deep into the widest crack in the dry mortar at the rusted bar's base and lever hard \u2014 wrenching outward and downward to split and dislodge chunks of mortar. I work the crack aggressively, prying and digging, exploiting every fracture the old mortar offers. Once I've cleared as much mortar as I can, I grip the bar at the rusted pitted section and push it firmly to test how",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 99,
+    "to": 113
+   },
+   "ruling": "bar/open/integrity"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 10,
+   "chair": "warden",
+   "intent": "I step forward sharply toward the window and closely examine it \u2014 the bar has been opened and it stands as an accessible way out. My suspicion is well above threshold. I am catching Voss in an escape attempt.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 9,
+    "to": 11
+   },
+   "ruling": "window/reveal/passage"
+  },
+  {
+   "game": "2026-09-23T15-43-51",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "In one explosive motion, I jam the flat-worn edge of the spoon into the finger-width gap between the door and the frame where the bolt edge is exposed, and lever the bolt back out of the frame with everything I have \u2014 using the spoon as a wedge and prying tool against the bolt itself.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 38
+   },
+   "ruling": "door/open/passage"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar \u2014 run my thumb along the rust pitting near the bottom and press the mortar at its base \u2014 to establish a clear baseline of its current condition, while speaking to Voss.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit on the edge of the cot with the heavy blanket draped loosely over my lap and legs. While speaking to Croft and keeping my eyes on her face, I use small, controlled motions beneath the blanket to scrape the flat worn edge of the spoon back and forth against the rough broken edge of the cracked loose tile, sharpening the spoon further. I keep the strokes short and slow to minimize sound.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 31,
+    "to": 63
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Pick up Voss's spoon and examine its edge closely, turning it in the light, checking whether the bowl rim or handle has been filed, sharpened, or scraped to a point \u2014 noting any wear that doesn't match normal use.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 9
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Pick up the spoon casually, scrape it once along the meal tray as if showing Croft how it got worn, then set it back down on the tray \u2014 demonstrating that three years of eating off steel is what dulled it. Redirect the conversation to the transfer.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 28
+   },
+   "ruling": "spoon/wear/edge"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Walk to the cell door and examine the lock closely \u2014 inspect the bolt, the keyhole gap, and the frame for any scratches, tool marks, or signs that someone has been working at the mechanism.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 12,
+    "to": 14
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the meal tray onto my lap, and eat the porridge with the spoon \u2014 slowly and boredly, scraping the bowl clean like any prisoner finishing a meal. While eating, casually ask Croft about the transfer to redirect the conversation.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 14,
+    "to": 19
+   },
+   "ruling": "warden/noise/none"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar \u2014 running my fingers along it, testing the mortar at the base, checking for any new scratches, looseness, or signs of tampering since I last looked at it in round 1.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "Sit on the cot, pull the meal tray onto my lap, and eat from the bowl with the spoon in plain, unhurried view of Croft \u2014 just a prisoner eating her meal. Look resigned and compliant. Speak to Croft in a tone of weary acceptance about the transfer.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 5,
+    "to": 19
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Pick up the spoon and examine its edge closely \u2014 run my thumb along the worn flat side to feel how sharp it's getting, check for fresh scrape marks or metal filings, and assess whether it's been deliberately sharpened since I last checked it in round 2.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 9
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Sit on the cot and pull the blanket over my lap as if settling in for the evening. Underneath the blanket, slowly and quietly scrape the spoon's edge back and forth against the rough, paint-flaking crossbar of the cot frame to sharpen it. Keep talking to Croft in a casual, slightly resigned tone to hold her attention on my face and cover any faint sound.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 22,
+    "to": 43
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Kneel beside the cot and lift the loose tile. Examine the hollow beneath it closely \u2014 looking for hidden items, scratches or scrape marks from the spoon, signs the earth has been freshly disturbed, or anything stashed under the grit.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 10,
+    "to": 15
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Sit on the cot, pull the heavy blanket across my lap and over my hands, and covertly scrape the spoon's worn-flat edge back and forth against the rough, paint-flaking crossbar beneath the blanket, using slow deliberate strokes timed to my speech to mask any faint sound.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 33
+   },
+   "ruling": "cot/wear/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar, running my fingers along its length and checking the mortar at its base for fresh scraping, grinding marks, or any weakening since I last inspected it in round 4.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 18,
+    "to": 23
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Step back from the cot as Croft ordered, lower myself to the floor near the meal tray beside the door, and covertly sharpen the spoon by drawing its flat edge along the steel rim of the tray in slow, controlled strokes \u2014 disguising the motion and sound as scraping the last of the food from the bowl with the spoon.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 22,
+    "to": 37
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 8,
+   "chair": "warden",
+   "intent": "Crouch by the cell door and examine the lock closely \u2014 specifically the bolt visible in the gap between door and frame \u2014 looking for scratch marks, metal shavings, or any sign the bolt has been worked on since I last checked it.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 10
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 8,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot and pull the blanket across my lap as though settling in for warmth. While Croft is absorbed in examining the door lock across the cell, quietly twist and work one of the spring-attachment wires under the blanket, trying to fatigue and loosen it from the cot frame \u2014 keeping my upper body still and my face toward Croft as though just watching her.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 31,
+    "to": 52
+   },
+   "ruling": "cot/wear/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Pick up the spoon from where Voss has it or where it rests on the tray, and closely examine its edge \u2014 specifically the worn-flat side \u2014 feeling for sharpness, looking for deliberate grinding marks that go beyond normal porridge-scraping wear. I'm checking whether the edge has been worked into something that could be used as a tool.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 18,
+    "to": 21
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the blanket casually over my lap as if cold, and use small, silent twisting motions to work one of the spring wires loose from the cot frame beneath the blanket, while Croft's attention is occupied with the spoon examination.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 17,
+    "to": 36
+   },
+   "ruling": "cot/derive/integrity"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 10,
+   "chair": "warden",
+   "intent": "I position myself between Voss and the window, with the locked door behind me in clear view. I stand at easy arm's reach of her, watching her hands, her eyes, every shift of weight \u2014 blocking any path to the window and ready to intercept any move toward the door. I am running out the clock.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "none/none/none"
+  },
+  {
+   "game": "2026-09-23T16-01-54",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "Pick up the meal tray with the wire palmed flat against its underside, carry it to the door, and crouch down as though pushing it back through the slot. While my hands are at the base of the door, slide the kinked end of the wire into the finger-width gap between door and frame, find the edge of the bolt, and push it steadily back out of the frame to free the door.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 40,
+    "to": 73
+   },
+   "ruling": "door/open/passage"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Stand by the door with my back to it, arms folded, and study Voss \u2014 her posture, where she's standing relative to the window and cot, what her hands are doing, where her eyes drift \u2014 while making casual conversation about the transfer to gauge her reaction.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 13,
+    "to": 14
+   },
+   "ruling": "prisoner/reveal/posture"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Talk to Croft in a resigned, cooperative tone about the transfer, and try to learn when she'll next be away from this part of the block \u2014 all while appearing to have accepted my fate.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 3
+   },
+   "ruling": "warden/reveal/none"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 2,
+   "chair": "warden",
+   "intent": "Walk casually toward the window as if taking in the air, and while standing there, closely examine the iron bar and the mortar it's set into \u2014 checking for any fresh scraping, looseness, or wear beyond the existing rust pitting.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 19,
+    "to": 24
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the meal tray onto my lap, and eat slowly from the bowl \u2014 but with each scrape of the spoon, press the worn-flat edge firmly against the bottom and rim of the steel bowl and tray, grinding it to sharpen the edge further. This looks like nothing more than a prisoner eating her meal.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 43,
+    "to": 49
+   },
+   "ruling": "spoon/restore/edge"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 3,
+   "chair": "warden",
+   "intent": "Pick up the spoon from wherever Voss has left it, hold it up in the light from the window, and run my thumb carefully along the worn edge of the bowl, feeling for any sharpening or fresh wear compared to a normal dull spoon.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 11,
+    "to": 44
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 3,
+   "chair": "prisoner",
+   "intent": "Comply with Croft's order: set the spoon down on the meal tray naturally, then walk to the cot and sit down. Act calm and mildly irritated, like this is just another petty shakedown \u2014 nothing to hide.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 14,
+    "to": 21
+   },
+   "ruling": "prisoner/wear/posture"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 4,
+   "chair": "warden",
+   "intent": "Kneel down beside the cot and pry up the loose cracked tile to inspect the shallow hollow underneath for any hidden items, fresh scraping marks, or signs of recent disturbance in the grit and packed earth.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 7,
+    "to": 18
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "Sitting calmly on the cot with hands visible, I explain to Croft in a tired, matter-of-fact tone that the spoon edge is worn flat from scraping porridge out of the bowl - the aluminium is soft and the steel tray grinds it down. I gesture toward the tray and bowl as evidence. I stay relaxed and compliant, not defensive.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 45,
+    "to": 52
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Closely examine the lock bolt through the gap between the door and its frame, looking for scratches, filing marks, bent metal, or any sign the mechanism has been tampered with since my baseline reading of 100 at round 0.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 5
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Point at the steel meal tray on the floor and calmly explain that I use the spoon to scrape dried-on food off the steel tray - steel is harder than aluminium, which would cause exactly the one-sided flat wear she's noticed. Stay seated, relaxed, hands visible, and don't touch the spoon or anything else.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 9
+   },
+   "ruling": "meal_tray/noise/none"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 6,
+   "chair": "warden",
+   "intent": "Closely examine the window bar from top to bottom, running my fingers along its full length, testing the mortar at both anchor points, and checking for any fresh scratches, grooves, thinning, or looseness that wasn't there when I last checked it at round 2.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 5
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the blanket partway over my legs, and lean back against the wall as if I'm done for the evening and ready to sleep. Leave the spoon on the tray for now \u2014 don't touch anything. Project total boredom and compliance so Croft finishes up and moves on.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 12
+   },
+   "ruling": "cot/wear/posture"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 7,
+   "chair": "warden",
+   "intent": "Pick up the spoon and examine its edge closely, turning it in the light, checking whether the worn-flat side has become sharper or more filed-down compared to my last inspection at round 3.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 9
+   },
+   "ruling": "spoon/reveal/edge"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Pick up the tin cup from the meal tray and take a drink from it \u2014 a completely mundane, innocent action \u2014 while responding to Croft's comment about the spoon to explain away the wear and project boredom.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 15
+   },
+   "ruling": "meal_tray/take/none"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 8,
+   "chair": "warden",
+   "intent": "While Voss reaches for the meal tray, I step over to the cot and crouch down to closely examine the loose floor tile \u2014 pressing it, lifting it, and inspecting the hollow beneath for any signs it has been recently disturbed, scraped deeper, or used to conceal anything.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 18,
+    "to": 23
+   },
+   "ruling": "loose_tile/reveal/concealment"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 9,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar, running my hands along its full length, testing its firmness in the mortar at both ends, and checking for any scraping marks, fresh scratches, or loosening where it meets the stone.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 6,
+    "to": 10
+   },
+   "ruling": "bar/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 10,
+   "chair": "warden",
+   "intent": "Closely examine the lock on the cell door - inspecting the keyhole for scratch marks or tool impressions, testing whether the bolt has been loosened or can be slid from inside, and checking the steel around the mechanism for any signs of tampering or wear that wasn't there at round 5.",
+   "recorded": "one",
+   "citation": {
+    "sourceId": "intent",
+    "from": 1,
+    "to": 8
+   },
+   "ruling": "lock/reveal/integrity"
+  },
+  {
+   "game": "2026-09-23T16-20-51",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "Throw the heavy wool blanket over Croft's head to blind and tangle her, then immediately jam the flat worn edge of the spoon into the finger-width gap in the door frame where the bolt edge is visible, and lever the bolt back to open the door.",
+   "recorded": "several",
+   "citation": {
+    "sourceId": "intent",
+    "from": 15,
+    "to": 46
+   },
+   "ruling": "door/open/passage"
+  }
+ ]
+}

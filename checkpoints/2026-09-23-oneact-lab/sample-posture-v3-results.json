@@ -1,0 +1,274 @@
+{
+ "seed": 50505050,
+ "n": 50,
+ "tries": 2,
+ "prompt": "How many separate EFFECTS does this person attempt? An effect is one of: wearing a thing down, restoring or sharpening it, revealing what is true of it by examining it, concealing something, exposing something hidden, making a noise, opening or closing a way out, going out through one, taking or handing over a thing, or moving a person. Moving her own body from one part of the room to another is NOT an effect: the room is one place and nothing records where in it she stands, so walking over to a thing, stepping back, turning, or standing somewhere is never counted. But CHANGING HER POSTURE is an effect on her own posture, like any other: going from on her feet to seated, kneeling, crouching or lying on the floor, or rising from one of those to her feet. Standing or leaning while already on her feet changes nothing and is not counted. A clause that says HOW an act is done is not a separate effect: \"with my hand hidden by my body\", \"keeping the motion small\", \"while talking to her\". A clause with its own ACTIVE VERB is: \"use my body to shield the motion\", \"rock the tile with my knee\". Examining counts as ONE effect (revealing), even though it changes nothing; looking for several details on one thing is still one; picking a thing up in order to act on that same thing is part of that act. Speaking, watching and waiting are not effects. Answer with a single number and nothing else.\n\nIntent: \"{{INTENT}}\"",
+ "rows": [
+  {
+   "id": "2026-09-23T13-51-30|8|warden",
+   "round": 8,
+   "chair": "warden",
+   "intent": "Walk to the window and closely examine the iron bar — grip it, test whether it shifts or wobbles, inspect the rusted section near the bottom and the mortar around its base for fresh scrape marks, metal dust, or any sign it has been worked on since I last checked it.",
+   "recorded": "one",
+   "ruling": "bar/reveal/integrity",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 34,
+   "game": 2,
+   "nums": [
+    1,
+    1
+   ],
+   "verdict": "one",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T14-29-33|10|prisoner",
+   "round": 10,
+   "chair": "prisoner",
+   "intent": "While Warden Croft is turned toward the window examining the bar, I silently pick up the tin bucket by its wire handle, rise from my crouch, and swing it with all my strength at the back of her head.",
+   "recorded": "one",
+   "ruling": "warden/wear/posture",
+   "prior": {
+    "number": "one",
+    "list": "UNSTABLE"
+   },
+   "curated": false,
+   "starter": true,
+   "n": 79,
+   "game": 4,
+   "nums": [
+    3,
+    2
+   ],
+   "verdict": "several",
+   "stable": true,
+   "posture": true
+  },
+  {
+   "id": "2026-09-23T16-20-51|2|prisoner",
+   "round": 2,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the meal tray onto my lap, and eat slowly from the bowl — but with each scrape of the spoon, press the worn-flat edge firmly against the bottom and rim of the steel bowl and tray, grinding it to sharpen the edge further. This looks like nothing more than a prisoner eating her meal.",
+   "recorded": "several",
+   "ruling": "spoon/restore/edge",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 173,
+   "game": 10,
+   "nums": [
+    3,
+    3
+   ],
+   "verdict": "several",
+   "stable": true,
+   "posture": true
+  },
+  {
+   "id": "2026-09-23T16-20-51|5|prisoner",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "Point at the steel meal tray on the floor and calmly explain that I use the spoon to scrape dried-on food off the steel tray - steel is harder than aluminium, which would cause exactly the one-sided flat wear she's noticed. Stay seated, relaxed, hands visible, and don't touch the spoon or anything else.",
+   "recorded": "one",
+   "ruling": "meal_tray/noise/none",
+   "prior": {
+    "number": "one",
+    "list": "several"
+   },
+   "curated": false,
+   "starter": true,
+   "n": 179,
+   "game": 10,
+   "nums": [
+    0,
+    0
+   ],
+   "verdict": "one",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T15-43-51|1|warden",
+   "round": 1,
+   "chair": "warden",
+   "intent": "Study Voss carefully — her posture, exactly where she's standing relative to the window and door and cot, what her hands are doing, and where her eyes drift when she thinks I'm not looking. I'm reading her, not the room.",
+   "recorded": "one",
+   "ruling": "prisoner/reveal/posture",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 130,
+   "game": 8,
+   "nums": [
+    1,
+    1
+   ],
+   "verdict": "one",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T16-01-54|9|prisoner",
+   "round": 9,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the blanket casually over my lap as if cold, and use small, silent twisting motions to work one of the spring wires loose from the cot frame beneath the blanket, while Croft's attention is occupied with the spoon examination.",
+   "recorded": "one",
+   "ruling": "cot/derive/integrity",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 167,
+   "game": 9,
+   "nums": [
+    3,
+    3
+   ],
+   "verdict": "several",
+   "stable": true,
+   "posture": true
+  },
+  {
+   "id": "2026-09-23T13-51-30|4|prisoner",
+   "round": 4,
+   "chair": "prisoner",
+   "intent": "As Croft orders hands up and bends to collect the meal tray from the door slot, I step back toward the cot with my hands raised and visible, and in that motion I use my foot to nudge the spoon off the floor and under the loose tile beside the cot, settling the tile flat over it.",
+   "recorded": "one",
+   "ruling": "spoon/conceal/concealment",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 27,
+   "game": 2,
+   "nums": [
+    1,
+    1
+   ],
+   "verdict": "one",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T16-20-51|5|warden",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Closely examine the lock bolt through the gap between the door and its frame, looking for scratches, filing marks, bent metal, or any sign the mechanism has been tampered with since my baseline reading of 100 at round 0.",
+   "recorded": "one",
+   "ruling": "lock/reveal/integrity",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 178,
+   "game": 10,
+   "nums": [
+    1,
+    1
+   ],
+   "verdict": "one",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T15-06-38|5|prisoner",
+   "round": 5,
+   "chair": "prisoner",
+   "intent": "While Croft is bent over examining the loose tile on the floor, I drift to the window as if looking out idly. I palm the spoon in my right hand, position my body to screen the bar from Croft's view, and use the sharpened edge of the spoon to quietly scrape and dig at the dry, cracked mortar around the base of the rusted bar where it is set into the sill. I talk to her about Vasquez to cover any faint sound and keep her attention on the conversation.",
+   "recorded": "one",
+   "ruling": "bar/open/integrity",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 89,
+   "game": 5,
+   "nums": [
+    3,
+    3
+   ],
+   "verdict": "several",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T15-06-38|7|prisoner",
+   "round": 7,
+   "chair": "prisoner",
+   "intent": "Lean my back and shoulder against the wall right beside the window, casually, as if settling in for conversation. With my hand nearest the window hidden from Croft's line of sight by my body, use the sharpened spoon to quietly scrape and dig at the dry, cracked mortar around the rusted base of the bar — working the weakest point where rust has pitted the iron and the mortar is already crumbling.",
+   "recorded": "one",
+   "ruling": "window/open/passage",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 93,
+   "game": 5,
+   "nums": [
+    1,
+    1
+   ],
+   "verdict": "one",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T14-29-15|5|warden",
+   "round": 5,
+   "chair": "warden",
+   "intent": "Pick up the spoon from the meal tray and closely examine its edge, tip, and handle for any signs of sharpening, grinding, or deliberate modification since I last checked it three rounds ago.",
+   "recorded": "one",
+   "ruling": "none/reveal/none",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 48,
+   "game": 3,
+   "nums": [
+    1,
+    1
+   ],
+   "verdict": "one",
+   "stable": true,
+   "posture": false
+  },
+  {
+   "id": "2026-09-23T15-07-15|1|prisoner",
+   "round": 1,
+   "chair": "prisoner",
+   "intent": "Sit on the cot with my back toward the window. While answering Croft's question — looking her in the eye, keeping her attention on my face — use my fingers behind me to quietly pick and crumble the dry, cracked mortar at the base of the rusted bar. My body blocks her sightline to my hand.",
+   "recorded": "one",
+   "ruling": "window/open/passage",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 101,
+   "game": 6,
+   "nums": [
+    3,
+    3
+   ],
+   "verdict": "several",
+   "stable": true,
+   "posture": true
+  },
+  {
+   "id": "2026-09-23T16-20-51|6|prisoner",
+   "round": 6,
+   "chair": "prisoner",
+   "intent": "Sit down on the cot, pull the blanket partway over my legs, and lean back against the wall as if I'm done for the evening and ready to sleep. Leave the spoon on the tray for now — don't touch anything. Project total boredom and compliance so Croft finishes up and moves on.",
+   "recorded": "several",
+   "ruling": "cot/wear/posture",
+   "prior": {},
+   "curated": false,
+   "starter": false,
+   "n": 181,
+   "game": 10,
+   "nums": [
+    2,
+    2
+   ],
+   "verdict": "several",
+   "stable": true,
+   "posture": true
+  }
+ ]
+}
