@@ -187,23 +187,32 @@ the strongest argument for running this batch and the reason the bands below are
 ### 6. Novel (object, effect) pairs — the measure, pre-committed
 
 Entropy counts distinct tool→target pairs and is diversification, not innovation (the owner,
-2026-09-24). The measure is **(object, effect) pairs with no closed-variant equivalent**. The
-closed-variant set is fixed **here, before the games**, from `PRISONER_MOVES` / `WARDEN_MOVES`
-(`src/world/mechanics.ts`) so it cannot be drawn around whatever the games happen to produce:
+2026-09-24). The measure is **(object, effect) pairs with no closed-variant equivalent**, and it is
+**`CLOSED_EQUIVALENTS` in `src/open/transcript.ts`** — OPEN-VARIANT.md §5.2's authored table, which
+every transcript already computes and prints (`Novel (object, effect) pairs...`, and a `**(novel)**`
+tag per ruling):
 
-| closed move | its pair(s) — NOT novel |
+| pair — NOT novel | closed move |
 |---|---|
-| `FILE` | (`bar`, `wear`) |
-| `HONE` | (`spoon`, `wear`), (`spoon`, `restore`) |
-| `SHIM` | (`lock`, `wear`), (`lock`, `restore`) |
-| `CONCEAL` | (any object, `conceal`) |
-| `INSPECT` | (any object, `reveal`) |
-| `ESCAPE` | (`door`, `leave`), (`window`, `leave`) |
-| `WAIT` | (`none`, `none`) |
+| (`bar`, `wear`) / (`bar`, `restore`) / (`bar`, `reveal`) | `FILE` / `REPLACE_BAR` / `OBSERVE` |
+| (`lock`, `wear`) / (`lock`, `restore`) / (`lock`, `reveal`) | `SHIM` / `SERVICE_LOCK` / `CHECK_LOCK` |
+| (`spoon`, `restore`) / (`spoon`, `reveal`) / (`spoon`, `conceal`) | `HONE` / `OBSERVE` / `CONCEAL` |
 
-**Every other (object, effect) pair the prisoner produces is novel.** Batch 4's Opus prisoner produced
-`derive`, `take`, `noise`, `open` and person targets, so the measure is known to be non-empty for a
-capable seat.
+**Every other (object, effect) pair the prisoner produces is novel.** Note what that table does NOT
+contain: no `leave` row and no `passage` row, so **an escape through the door or the window counts as
+novel** (§17 moved `passage` to the ways out and no closed move ever set one). Batch 4's Opus prisoner
+scored 6 novel pairs in a single game, so the measure is known to be non-empty for a capable seat.
+
+> **Correction, written 2026-09-24 23:38Z, three minutes into the batch and with ZERO games
+> completed, zero transcripts written and nothing readable either way.** This section originally
+> pre-committed a table drawn by hand here from `PRISONER_MOVES`/`WARDEN_MOVES`, which was broader
+> than the authored one — it forgave (any object, `conceal`), (any object, `reveal`) and
+> (`door`/`window`, `leave`). Using it would have made batch 6's novel-pair count **incomparable to
+> every batch before it** while appearing to be the same measure, which is worse than the error it
+> was trying to avoid. The authored table is the measure. The bands in 6a were set against a
+> hand-drawn table that forgave *more* pairs than the real one, so if anything they are now
+> conservative; they are left exactly as written rather than re-tuned to the new table, because
+> re-tuning a band after seeing which table applies is the move pre-commitment exists to prevent.
 
 - **6a. P produces at least 6 distinct novel pairs pooled; S produces at most 5.** And **P ≥ S**.
 - **6b. The teaching check, and it can kill 6a.** The GOOD exemplar names the blanket's loose thread
