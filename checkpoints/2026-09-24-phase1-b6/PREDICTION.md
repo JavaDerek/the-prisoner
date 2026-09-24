@@ -1,8 +1,15 @@
 # Pre-committed before Phase 1 batch 6 ran — the SEAT comparison
 
-Written 2026-09-24 (18:28 CDT / 23:28Z), **before the first game**, against `ebe9711` — the commit the
-pinned worktree runs from. Designed from `../2026-09-24-phase1-b5/HANDOFF.md`, which supersedes
-`../2026-09-24-phase1-b5/PREDICTION.md`; that file's arms are wrong and **it was not run**.
+Written 2026-09-24 (18:28 CDT / 23:28Z), **before the first game**, against `ebe9711` — the code this
+batch runs, none of which this batch changed. Designed from `../2026-09-24-phase1-b5/HANDOFF.md`,
+which supersedes `../2026-09-24-phase1-b5/PREDICTION.md`; that file's arms are wrong and **it was not
+run**.
+
+**The pinned worktree runs the commit that adds this file** — `ebe9711` plus this `PREDICTION.md` and
+this batch's own `run-batch.sh`, and nothing else: no `src/` change, no test change, so the engine
+under both arms is `ebe9711`'s. That sha cannot be written here without being its own hash; it is in
+every transcript's `Code revision:` line and in each driver log's header, which is where a reader
+should check it rather than taking this sentence's word for it.
 
 Batch 4 put a 30B in the **warden's** chair and could not be told from Opus. This batch takes Opus out
 of the game entirely and moves the **prisoner's seat shape**: the same local Muse-Glimmer plays
@@ -20,8 +27,13 @@ sentence of prose.
 
 Everything else is batch 4's: ten rounds, voice ON, `PRISONER_PRESENCE=modelled`, condition list on,
 one-act CHECKED, custody on, the door free and unstated, timeouts 300000 ms, N = 10 per arm, two
-drivers, `run-batch.sh` unchanged, from a worktree pinned at `ebe9711`. **No Opus anywhere, in either
-chair, in either arm.** Temperature is 0.9 in both seats (`mind-seam`'s `DEFAULT_TEMPERATURE`, and
+drivers, from the pinned worktree. **No Opus anywhere, in either chair, in either arm.**
+
+`run-batch.sh` beside this file is batch 3's driver with **one** addition: it passes and logs
+`PRISONER_PROSE_SEAT`, which batch 3's has no variable for. Bare environment inheritance would have
+worked and was rejected — it would leave the arm recorded nowhere the driver writes, and batch 3's own
+draft already made the mirror-image mistake by passing a variable nothing reads. The driver names the
+arm, per game, in the log. Temperature is 0.9 in both seats (`mind-seam`'s `DEFAULT_TEMPERATURE`, and
 `proseMind.ts`'s explicit default) — checked, not assumed.
 
 **The one-act change is NOT landed** and `renderSeatSituation` is **NOT changed** on the third-person
