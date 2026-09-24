@@ -18,7 +18,7 @@ any recorded batch, and a prisoner escaped through a door she had worked open.
 |---|---|---|---|
 | 0 | Q4 scores 33-39 main, 20-22 one-act on the benchmark | **39/43 and 22/22** | **held** |
 | 1 | refusals at most 18 of ~200 | **15 of 187** (8.0%) | **held** |
-| 2 | misruled at most 1 refusal in 3 (owner's labels) | **awaits the audit** | open |
+| 2 | misruled at most 1 refusal in 3 (owner's labels) | **6 of 15 = 0.40** | **FAILED** |
 | 3 | sharpening ruled `restore`/`edge`; edge > 0 in at least 4 of 10 games | **18** rulings; **7 of 10** games | **held** |
 | 4 | catches at least 1 of 10 | **2** (rounds 7 and 10) | **held** |
 | 5 | escapes 1 to 5 | **1** (round 9) | **held** |
@@ -132,6 +132,36 @@ benchmark's 39 vs 21 on identical rows makes the model much the likelier cause, 
 separate the two. A handful of rows under thinking ON would, and is cheap.
 
 Also asymmetric: batch 2 is **6 games**, this is 10. Rates compare; totals do not.
+
+## Prediction 2, the owner's chosen bar: failed, and by how much
+
+He labelled all fifteen refusals: **6 misruled, 8 unbuilt, 1 genuine**. That is 0.40 against a
+pre-committed ceiling of one in three, so **the prediction fails** on the measure he named as his bar
+(the misruled SHARE, not the refusal rate -- his call, asked during the batch).
+
+It is a large movement all the same, and the two ways of reading it point opposite ways:
+
+| | batch 2 (`qwen3:14b`) | batch 3 (Muse-Glimmer) |
+|---|---|---|
+| misruled SHARE of refusals | 9 of 13 = **0.69** | 6 of 15 = **0.40** |
+| misruled PER RULING | 9 of 120 = **7.5%** | 6 of 187 = **3.2%** |
+
+Misreadings per ruling more than halved; the share fell by less because the refusal rate barely moved.
+A referee that refuses about as often as its predecessor, but refuses the right things more of the
+time, is exactly the outcome the four buckets exist to detect -- and on the owner's bar it is still
+short.
+
+**Five of the six misruled are one failure: an effect named and its property dropped or wrong**
+(`spoon/conceal/none` twice, `prisoner/reveal/none`, `cot/wear/posture`, `meal_tray/reveal/none`).
+Not the direction error batch 2 died of -- that one is gone -- but a property-selection error on the
+rulings that survive. That is a far narrower target than "the referee is too small", and a plausible
+objective for a LoRA or a prompt in a way the direction error never was.
+
+**The audit's proposed labels were right 9 times in 10** where they were confident (10 confident
+proposals, 9 correct on the misruled/not call). The miss was `meal_tray/reveal/none`, proposed
+`authoring` on the grounds that the tray declares no property: in fact the spoon was not perceivable
+at all that turn, so the referee targeted the only thing available. The five `needs reading` rows
+split 3 unbuilt / 2 misruled, which is the argument for having refused to guess on them.
 
 ## What this batch does not settle
 
