@@ -448,3 +448,35 @@ describe("reproduces count.mts on checkpoints/2026-09-20-ambition", () => {
     ]);
   });
 });
+
+/**
+ * Two chairs, two models (phase 1 batch 4, `src/modelRoles.ts`): a game whose
+ * principals run different minds prints a line per chair instead of the single
+ * `Wits model:` line every earlier batch printed (`openModelHeaderLines`). The
+ * measures table's "wits model" column read only that one line, so a mixed
+ * batch measured as `?` -- the column that exists to say which model produced
+ * the rows, silent on the only batch where it is not obvious.
+ */
+describe("the wits model of a two-chair transcript", () => {
+  const mixed = [
+    "# The Prisoner -- checkpoint transcript (open variant)",
+    "",
+    "Prisoner's chair -- wits model: `claude-opus-4-6`. Voice model: `claude-opus-4-6`.",
+    "Warden's chair -- wits model: `muse-glimmer-30b-q4_k_m`. Voice model: `muse-glimmer-30b-q4_k_m`.",
+    "Referee model: `muse-glimmer-30b-q4_k_m`. At `http://localhost:8799/v1`.",
+    "",
+  ].join("\n");
+
+  it("names both chairs, prisoner first, so the column can never say `?` on a mixed batch", () => {
+    expect(parseTranscript(mixed).wits).toBe("claude-opus-4-6 (prisoner) / muse-glimmer-30b-q4_k_m (warden)");
+  });
+
+  it("still reads the single-line header every earlier batch printed", () => {
+    const single = "Wits model: `claude-opus-4-6`. Voice model: `claude-opus-4-6`. Referee model: `muse-glimmer-30b-q4_k_m`. At `http://localhost:8799/v1`.";
+    expect(parseTranscript(single).wits).toBe("claude-opus-4-6");
+  });
+
+  it("reads the referee model from a two-chair header too", () => {
+    expect(parseTranscript(mixed).referee).toBe("muse-glimmer-30b-q4_k_m");
+  });
+});

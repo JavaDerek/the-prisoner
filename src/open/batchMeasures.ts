@@ -100,7 +100,20 @@ const HEADING = /^### Round (\d+) \(t=\d+\) -- the (warden|prisoner)$/m;
 /** One transcript's structural content. `file` is only carried into the
  *  report rows; nothing here reads the file system. */
 export function parseTranscript(text: string, file = "?"): Transcript {
-  const wits = /^Wits model: `([^`]+)`/m.exec(text)?.[1] ?? "?";
+  // Two chairs, two models (phase 1 batch 4): a mixed game prints a line per
+  // chair and NO single `Wits model:` line, by design -- one wits model named
+  // in a two-model game is a claim a reader would act on
+  // (`openModelHeaderLines`, `src/modelRoles.ts`). Read both and name both,
+  // prisoner first, so this column says which model produced the rows on the
+  // one kind of batch where it is not obvious. The single-line form every
+  // earlier batch printed is read exactly as before.
+  const chair = (who: string): string | undefined => new RegExp(`^${who}'s chair -- wits model: \`([^\`]+)\``, "m").exec(text)?.[1];
+  const prisonerChair = chair("Prisoner");
+  const wardenChair = chair("Warden");
+  const wits =
+    prisonerChair !== undefined && wardenChair !== undefined
+      ? `${prisonerChair} (prisoner) / ${wardenChair} (warden)`
+      : (/^Wits model: `([^`]+)`/m.exec(text)?.[1] ?? "?");
   const referee = /Referee model: `([^`]+)`/m.exec(text)?.[1] ?? "?";
   const escaped = /^\*\*The prisoner escaped, at round \d+\.\*\*/m.test(text);
   const plansM = /^Prisoner plans \(§22\): replanned (\d+) of (\d+) turns that had a plan, kept (\d+)\./m.exec(text);
