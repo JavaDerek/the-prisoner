@@ -153,3 +153,62 @@ describe("the prose seat's non-schema rules", () => {
     expect(p).not.toMatch(/JSON|"thoughts"|"candidates"|"notes"|"replanned"/);
   });
 });
+
+/**
+ * The output-discipline block (2026-09-24, the owner's prompt, measured).
+ * Named rules plus a matched BAD/GOOD exemplar pair took
+ * `ancient-awakening:12b` from 45% to 80% usable intents over 20 asks of the
+ * identical round-1 scene, and from ~1 in 20 reaching for the escape route to
+ * 9 in 20. Abstract prohibitions alone (the previous wording) did neither.
+ * The exemplars are the part that SHOWS rather than tells, and the bad one
+ * carries both observed failures -- a narrated outcome and a puppeteered
+ * warden -- in one sentence.
+ */
+describe("the prose seat's output-discipline block", () => {
+  const p = () =>
+    buildProsePrompt("Voss", "Croft", {
+      principalId: "prisoner",
+      identity: "You are Mara Voss, the prisoner.",
+      motive: "Get out before the transfer.",
+      briefing: "Round 1 of 10.",
+      perceivedObjects: [{ id: "bar", description: "A rusted iron bar." }],
+    });
+
+  it("names each rule, so none is a trailing sentence a model can skim", () => {
+    for (const rule of ["STATE INTENT ONLY", "NO OUTCOMES", "NO PUPPETEERING", "STOP IMMEDIATELY"]) {
+      expect(p()).toContain(rule);
+    }
+  });
+
+  it("shows a BAD example carrying BOTH observed failures at once", () => {
+    const bad = /BAD RESPONSE[\s\S]{0,400}/.exec(p())?.[0] ?? "";
+    expect(bad).toMatch(/flakes|feels|discover/i); // a narrated outcome
+    expect(bad).toMatch(/Croft/); // a puppeteered other principal
+  });
+
+  it("shows a GOOD example in the first person", () => {
+    const good = /GOOD RESPONSE[\s\S]{0,400}/.exec(p())?.[0] ?? "";
+    expect(good).toMatch(/^[\s\S]*"I /);
+  });
+
+  it("names the OTHER principal from configuration in its own examples, never a hard-coded name", () => {
+    // Scoped to the exemplars this block owns: `renderSeatSituation`'s rule
+    // lines legitimately name the scenario's own warden, and this test is
+    // about the two sentences added here, not about the game's rule text.
+    const other = buildProsePrompt("Voss", "Hallam", {
+      principalId: "prisoner",
+      identity: "x",
+      motive: "y",
+      briefing: "z",
+      perceivedObjects: [{ id: "bar", description: "d" }],
+    });
+    const examples = other.slice(other.indexOf("NO PUPPETEERING"));
+    expect(examples).toContain("Hallam");
+    expect(examples).not.toContain("Croft");
+  });
+
+  it("still asks ONE question and still never asks for a JSON object", () => {
+    expect(p()).toContain("What do you try");
+    expect(p()).not.toMatch(/JSON|"thoughts"|"candidates"|"replanned"/);
+  });
+});

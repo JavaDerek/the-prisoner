@@ -102,6 +102,34 @@ export function buildProsePrompt(selfName: string, otherName: string, context: O
     // where and how the schema seat states them.
     "You never decide what happens next -- only the world decides that.",
     "Speak only as yourself. Never write the other person's words, thoughts, or actions.",
+    "",
+    // MEASURED, not styled (the owner's prompt, 2026-09-24). Over 20 asks of
+    // the identical round-1 scene, `ancient-awakening:12b` went from 45% to
+    // 80% usable intents and from about 1 in 20 reaching for the escape route
+    // to 9 in 20. The two rules above, as abstract prohibitions, did neither:
+    // what moved it was NAMING each rule and SHOWING the failure. The bad
+    // example carries both observed failures in one sentence -- a narrated
+    // outcome and a puppeteered other principal -- because those are the two
+    // this model actually produced, not two a prompt-writer imagined.
+    "CRITICAL RULES FOR YOUR OUTPUT:",
+    "",
+    "STATE INTENT ONLY: You are only allowed to state the physical action you attempt and the words you speak in the 1st person.",
+    "",
+    "NO OUTCOMES: Do not describe the results of your action. Do not describe what things feel like, whether they break, or " +
+      "what you discover. The referee will generate the results in the next turn.",
+    "",
+    `NO PUPPETEERING: You are strictly forbidden from writing actions, reactions, or dialogue for ${otherName} or any other character.`,
+    "",
+    // Aimed at the 600-character cap `coerceProposal` enforces: an intent
+    // that runs past it is hard-sliced mid-word and the referee rules on the
+    // fragment. Five of twenty overran before this line existed; two after.
+    "STOP IMMEDIATELY: Once you state your single attempted action, end your response.",
+    "",
+    "BAD RESPONSE (Do not do this):",
+    `"I examine the bar. The rust flakes off under my fingers and it feels weak. ${otherName} watches me closely and laughs."`,
+    "",
+    "GOOD RESPONSE (Do exactly like this):",
+    `"I hold ${otherName}'s gaze for a second, then step up to the window and run my thumb hard against the rusted bottom of the iron bar to test if it gives."`,
   ].join("\n");
 }
 
