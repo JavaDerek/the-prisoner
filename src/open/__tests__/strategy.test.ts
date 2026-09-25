@@ -232,6 +232,9 @@ describe("chooseStrategy", () => {
 import { buildOpenBriefing } from "../briefing.js";
 import { buildOpenWorld } from "../world.js";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
+import { currentT } from "../../world/clock.js";
+import { buildOpenContext } from "../briefing.js";
+import { renderSeatSituation } from "../mind.js";
 import { seedInitialBeliefs } from "../../ledger/beliefs.js";
 import { adherenceByGame, parseTranscript } from "../batchMeasures.js";
 
@@ -333,5 +336,46 @@ describe("the revision trigger, logged even when off (§3.5, red team point 3)",
   it("prints a line either way, so every game in the arm says something", () => {
     expect(revisionHeaderLine(4)).toBe("Revision would have fired: round 4");
     expect(revisionHeaderLine("never")).toBe("Revision would have fired: never");
+  });
+});
+
+describe("the clock trap the strategy step fell into (batch 7 game 1, 05:24Z)", () => {
+  afterEach(() => destroyTestDb());
+
+  it("wardenT and prisonerT MOVE the clock; t0 does not -- which is why the step reads t0", () => {
+    // Batch 7's first game died before round 1: the strategy step called `prisonerT(1)` to get a time for
+    // `buildOpenContext`, which moved the story clock to t0+3, and `runOpenGame`'s own first call (the
+    // warden at t0+2) then hit run-dmcp's "t never runs backwards" rule. These accessors read like getters
+    // and are not, so the property is pinned here rather than left to a comment.
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    seedInitialBeliefs(w.base);
+    const { clock, gameId } = { clock: w.base.clock, gameId: w.base.gameId };
+    const t0 = clock.t0;
+    expect(currentT(gameId)).toBe(t0);
+    // Reading t0 as many times as you like moves nothing.
+    expect(clock.t0).toBe(t0);
+    expect(currentT(gameId)).toBe(t0);
+    // Asking for a half-round's time moves the clock there, as a side effect of the read.
+    expect(clock.prisonerT(1)).toBe(t0 + 3);
+    expect(currentT(gameId)).toBe(t0 + 3);
+    // And that is exactly what made the warden's own first half-round impossible afterwards.
+    expect(() => clock.wardenT(1)).toThrow(/never runs backwards/);
+  });
+
+  it("the pre-episode situation is the same at t0 as at the prisoner's round-1 t, on a fresh world", () => {
+    // Why the fix does not change what the model reads, which is what §5.1's cross-batch claim needs:
+    // nothing has happened on a fresh world, so the two renderings are byte-identical. The probe rendered
+    // at prisonerT(1); the batch renders at t0; they agree.
+    createTestDb();
+    const a = buildOpenWorld({ presence: "modelled" });
+    seedInitialBeliefs(a.base);
+    const atT0 = renderSeatSituation("Voss", "Croft", buildOpenContext(a, "prisoner", a.base.clock.t0, 1, 10, {}, "modelled"));
+    destroyTestDb();
+    createTestDb();
+    const b = buildOpenWorld({ presence: "modelled" });
+    seedInitialBeliefs(b.base);
+    const atRound1 = renderSeatSituation("Voss", "Croft", buildOpenContext(b, "prisoner", b.base.clock.prisonerT(1), 1, 10, {}, "modelled"));
+    expect(atT0).toBe(atRound1);
   });
 });

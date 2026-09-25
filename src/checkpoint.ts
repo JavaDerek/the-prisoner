@@ -1199,7 +1199,19 @@ async function mainOpen(): Promise<void> {
   }
   let strategy: Strategy | null = null;
   if (STRATEGY !== "off") {
-    const t1 = openWorld.base.clock.prisonerT(1);
+    // `clock.t0`, NOT `clock.prisonerT(1)`. Those accessors are not getters: each one calls `setStoryTime`
+    // and MOVES the story clock (`src/world/clock.ts`). Reading the prisoner's round-1 time here advanced
+    // t to t0+3 before the loop began, and `runOpenGame`'s own first call -- the warden at t0+2 -- then hit
+    // the engine's "t never runs backwards" rule and killed the game before round 1. Batch 7 game 1 died
+    // exactly that way at 05:24Z.
+    //
+    // `t0` is also the semantically right instant, not merely the safe one: this is a PRE-EPISODE
+    // commitment (§3.2, "before the loop's first half-round"), so it sees the cell as authored, before
+    // anyone has acted. Nothing has happened at t0+3 either on a fresh world, so this is byte-identical to
+    // what step 1's probe rendered -- the batch and the probe read the same situation, which is what
+    // §5.1's cross-batch claim depends on. "Byte-identical to what the turn sees" in §3.2 is about the
+    // rendering function being shared, never about the timepoint.
+    const t1 = openWorld.base.clock.t0;
     const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE);
     const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }));
     strategy = await chooseStrategy({
