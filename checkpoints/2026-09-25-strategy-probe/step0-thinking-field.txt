@@ -1,0 +1,5 @@
+ctk none -> (33, "'yes'", 90, 0.8)
+ctk high -> (109, "'yes'", 432, 2.2)
+reasoning_effort high -> (33, "'yes'", 90, 0.7)
+ctk medium -> (60, "'yes'", 220, 1.2)
+ctk low -> (51, "'yes'", 183, 1.1)
