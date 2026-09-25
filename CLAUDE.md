@@ -188,6 +188,54 @@ Match the surrounding style by hand instead: wide lines, comments that say *why*
 `docs/DESIGN.md` or `docs/OPEN-VARIANT.md`. `npm run lint` and `npm run typecheck` are the checks that
 mean something here, plus `npx vitest run`.
 
+## One driver at a time, or the referee is not deterministic
+
+**A batch runs ONE game driver against the server, never two** (OPEN-VARIANT.md §75, decided
+2026-09-25). This is measured, not caution: two processes replaying the *same* recorded request
+simultaneously returned **different rulings on 2 of 4 rows, flipping the verdict both times**, while
+the identical request run alone is bit-reproducible across repeats. §3.5's "the referee runs at
+temperature 0" is stated for its consistency property, and that property does not survive a shared
+server.
+
+Batch 6 ran two drivers (`launcher-a.sh`/`launcher-b.sh`, interleaving arms on purpose) and **six of
+its 22 refusals are that artifact** -- they resolve correctly on a serial replay, and they are the
+whole `reveal`-property cluster. Read b6's refusal numbers through §75.3, not through its own
+RESULTS. Batch 7 ran a single sequential `run-batch.sh` and is unaffected.
+
+The cost is wall clock and nothing else. Do not "recover" it by interleaving: a batch whose rulings
+are draws cannot support a pre-registered band, which is what every PREDICTION.md here is made of.
+The same applies to a probe running beside a batch -- `checkpoints/2026-09-22-reveal-edge/` hit this
+first and recorded it as unexplained.
+
+## Local play is all-Muse, and thinking is OFF everywhere
+
+**Owner's decision, 2026-09-25: playing locally uses `muse-glimmer-30b-q4_k_m` in all three chairs** --
+prisoner, warden and referee. Not a per-run choice to relitigate.
+
+Why the alternatives lost. The **referee** is measured good serially (OPEN-VARIANT §75.4: 97%
+sensitivity, 89% specificity, 1 of 29 escape-route captures, 0 harmful false positives); a hosted
+referee buys ~6 points (36/43 vs Sonnet's 42/43) and is not worth the dependency. The **warden** was
+measured indistinguishable from Opus in batch 4. The **prisoner** is where it costs: b6's **14
+all-Muse games were 14 timeouts, 0 escapes**, deepest bar 59 against a window gated at 50, where batch
+4's Opus prisoner escaped 3 of 10. **So outcome measures -- escape, ambition, the door probes -- have
+no variance locally.** Use process measures (grounding, adherence, rulings, refusals, warden
+behaviour) for all-Muse runs, and put a hosted model in the PRISONER's chair when an outcome is the
+dependent variable. That chair costs no VRAM, which is why it is the exception worth making.
+
+**Thinking is OFF for both roles and both defaults now say so.** For the referee this is not "no
+benefit" but *harm*: serially over 22 rows, `none` gave 6 correct resolutions and 0 false ones while
+`high` gave 3 correct and 1 false, and broke 4 of the 6 rows `none` gets right, at 3-5x the cost
+(§75.5). §68.1/§68.5's "referee thinking must stay ON" was measured on `qwen3:14b` and **does not
+transfer**. For the wits it is the weaker claim -- no measured difference on two separate calls,
+never shown harmful.
+
+**The switch used to be a no-op and now is not** (P8, §75.6). `withThinking` sent `reasoning_effort`,
+which this llama-server ignores; what actually held reasoning off was the server's start flag. It now
+sends `chat_template_kwargs: { reasoning_strength: "none" }`, which **overrides** that flag, and the
+transcript header names the field and value actually sent. `ON` sends no field at all, so the served
+model's configuration decides -- the header says exactly that, and a transcript reading `ON` is
+therefore not evidence that anything reasoned.
+
 ## Run a batch from a pinned commit, not from live `main`
 
 A batch means identical conditions (§31), and `npm run checkpoint` executes whatever the working tree

@@ -6173,3 +6173,169 @@ On `docs/OVERNIGHT-2026-09-22.md`'s D1–D4, all as recommended:
 2. **Custody is built next**, before incapacitation. A short design goes to the owner before any code.
 3. **An act of hiding targets the thing hidden**, not the place it goes.
 4. **Batch 2 waits** until 1–3 have landed.
+
+## 75. The referee is not deterministic under concurrent load, and four decisions that follow (2026-09-25)
+
+Everything here is in `checkpoints/2026-09-25-referee-thinking/` -- `PREDICTION.md` through
+`PREDICTION-4.md`, `RESULTS.md` and `RESULTS-3-4.md`, each committed before the calls it scores.
+
+### 75.1 What was being asked, and the instrument check that killed it
+
+Batch 6's refusal audit escalated all 22 refusals to Opus and overturned **14**, in two shapes: `reveal`
+with the property dropped, and the effect dropped on a bodily or object-less intent. §68.1's finding --
+that thinking OFF makes the referee grab at objects -- was the obvious candidate fix, since b6 ran its
+referee at OFF.
+
+`PREDICTION.md`'s band 1 required the baseline to reproduce b6 on 3 of 4 rows before any arm ran. **It
+managed 2 of 4**, so the arm was never run. Replaying batch 6's own recorded requests, byte-identically,
+at the same strength it ran at, gave *different* rulings -- row #4 resolving where b6 refused.
+
+**This was the second occurrence.** `checkpoints/2026-09-22-reveal-edge/RESULTS.md` hit the identical
+failure and left it open: *"The instrument did not reproduce the batch's own rate, and I could not explain
+why."*
+
+### 75.2 The cause: two drivers, one server
+
+Eliminated one variable at a time, same four rows each time:
+
+| condition | reproduces b6? |
+|---|---|
+| direct, repeated twice | **perfectly deterministic**, and not b6 |
+| card freed (`qwen3:14b` unloaded) | one row's keys moved; still not b6 |
+| server start flag only, no per-request field -- b6's exact wire | identical to direct |
+| through the router on 8799 -- b6's path | identical, if anything further from b6 |
+| **two processes at once, same requests -- b6's two drivers** | **the two processes DISAGREE** |
+
+Two probe processes replaying the SAME four recorded requests simultaneously returned **different rulings
+on 2 of 4**, and on both the verdict flipped: one process ruled the act possible, the other refused it.
+Solo, the identical request is bit-reproducible.
+
+**§3.5's premise -- "The referee runs at temperature 0", stated for its consistency property -- does not
+hold when two drivers share a server.** Batch 6 ran two (`launcher-a.sh`, `launcher-b.sh`, interleaving
+arms deliberately). Its rulings are draws from a distribution, and its refusal audit sampled that
+distribution once. Batch 7 ran a single `run-batch.sh` looping games sequentially, ~18 minutes apart, so
+**the strategy step's refutation stands**; only b6 is contaminated.
+
+Not everything moves. Two of the four rows were stable in both processes. What moves is the borderline
+rulings -- which is exactly what lands in a refusal audit.
+
+### 75.3 What serialising is worth, measured
+
+Replaying all 22 refusals serially (`serial-none.jsonl`): **6 of 22 resolve** -- and all six were rows Opus
+had labelled wrong refusals, so serialising removed only errors and cost no correct refusal. The six are
+**the entire `reveal`-property cluster**. The clause at `referee.ts`'s property question was never being
+ignored; one driver at a time and the referee gets every one of them right.
+
+| | b6 (concurrent) | serial |
+|---|---|---|
+| refusals | 22 of 277 (7.9%) | **16 of 277 (5.8%)** |
+| wrong refusals | 14 (5.1% of rulings) | **8 (2.9%)** |
+| of refusals, wrong | 64% | 50% |
+
+The **8 survivors are all the prisoner's**, and 7 of 8 are one behaviour: visibly complying, sitting down,
+hiding the spoon. The warden's wrong refusals were entirely the artifact. The tile-examination cluster --
+the one whose Opus labels were a coin flip on byte-identical text -- is gone from the count entirely, so
+what remains is the stable half.
+
+Replaying the other **255 grounded rulings** serially (`PREDICTION-3.md`): keys agree **86.3%**, and only
+**2.4% become refusals**. b6's *events* are real; 97.6% of what moved the world would move it again. Band
+3 failed -- the disagreement is not confined to borderline shapes -- but post-hoc, 12 of the 35
+disagreements are `bar`<->`window` with `open` on both sides, which `effects.ts:233` normalises to the same
+mechanic, resource and gate by design. The rate that changes the world is **23/255 = 9.0%**.
+
+### 75.4 The bottom row of the matrix, measured for the first time
+
+Every audit before this started from the refusals, so the false-positive cell had no data. `PREDICTION-4.md`
+re-ran `checkpoints/2026-09-20-capture/`'s 33 pre-labelled intents, rebuilt against today's world, serially
+on Muse-Glimmer. All four bands held.
+
+**§68.5's alarming number does not transfer**: `qwen3:14b` at thinking off captured **19 of 29**;
+Muse-Glimmer serial captures **1 of 29** -- and that one is *"is the door locked?"* read
+`door/reveal/passage`, where §68.5's game-ending case was the same intent read `door/`**`open`**`/passage`.
+A reveal looks; an open ends the game.
+
+Against the true invalids (`QUESTION`/`WAIT`/`META`/`STAGE` -- `BODY` and `SPEECH` are labelled to expect a
+real target and are not invalid): **16 of 18 correctly refused, 0 fabricating a world-changing act**.
+`META` 0/4, `STAGE` 0/5.
+
+**The matrix, at a 50/50 mix:** sensitivity 255/263 = **97.0%**, specificity 16/18 = **88.9%**.
+
+| | resolves | refuses |
+|---|---|---|
+| valid (50) | TP 48 | FN 2 |
+| invalid (50) | FP 6 | TN 44 |
+
+Precision **90%**; counting only harmful false positives, **0 of 18** and precision approaches 100%.
+
+**Its limits, stated here so they are not lost:** sensitivity is partly circular (the 255 were called valid
+because b6 resolved them; nothing independently checked whether some should have been refused). Specificity
+rests on 18 rows of ONE kind of invalid -- an intent naming an instrument that does not exist
+(the-prisoner#17) or an effect an object does not declare is still **unmeasured**. And every call here
+replayed a frozen request; no serial live game has been run.
+
+### 75.5 Thinking: the alternative that was tried and failed
+
+`PREDICTION-2.md` ran the arm properly once a serial baseline existed -- serial `none` against serial
+`high`, all 22 rows, b6 no longer the reference. **Band 2 (primary) DEAD at 2 of 8 against a bar of 4.**
+
+| | correct resolutions | false resolutions |
+|---|---|---|
+| serial `none` | **6** | **0** |
+| serial `high` | 3 | **1** |
+
+`high` also **broke 4 of the 6 rows `none` gets right**, and its one false resolution was a deliberate
+do-nothing turn ruled `bar/reveal/integrity` -- §68.5's object-grabbing appearing at HIGH reasoning, the
+opposite direction from the theory. Cost 3-5x. The two genuine wins are real and worth noting: **#16
+returned exactly `prisoner/wear/posture`**, Opus's own answer, which is the one demonstration that the
+posture failure is recoverable.
+
+**So reasoning is not neutral-but-slow on this referee; it is worse in both directions.** §68.1/§68.5 were
+measured on `qwen3:14b` and do not transfer. `thinking.ts`'s `ROLE_DEFAULT.referee` is flipped to `off`
+accordingly, with the numbers in its own comment.
+
+### 75.6 P8 fixed: the switch sent a field the server ignores
+
+`withThinking` sent `reasoning_effort`, a **no-op** on the llama-server serving Muse-Glimmer. What held
+reasoning off across batches 3-7 was the server's start flag,
+`--chat-template-kwargs '{"reasoning_strength":"none"}'`. A server restarted without it would have printed
+an identical `Thinking: OFF` header while the models reasoned freely -- and §75.5 now says that would make
+the referee measurably worse.
+
+Fixed: `withThinking` and `refereeTransport` both send `chat_template_kwargs: { reasoning_strength: "none" }`
+(merged into any the caller already set), and `thinkingHeaderLine` names the field and value actually sent.
+**A per-request value overrides the start flag** (measured: none 44 tokens / low 48 / medium 60 / high 87 on
+one trivial prompt), so no change to how the machine is run was needed.
+
+`ON` is now honest rather than fixed: it sends no reasoning field, so the served model's own configuration
+decides, and the header says so. Verified live after the change -- `off` 44 tokens, `on` 44 tokens (the flag
+still deciding), explicit `high` 79.
+
+**Not done, deliberately:** P8's fix 3, a startup assertion probing the server with `none` and `high`. The
+issue calls it "the cheap version of 1", and 1 is now done properly. It would still catch a *different*
+server that ignores `chat_template_kwargs` too, so it stays open rather than closed.
+
+### 75.7 The four decisions
+
+1. **Batches run ONE driver at a time.** The determinism every pre-registered band is scored against is
+   worth the wall clock. A batch that keeps two drivers must stop treating a single ruling as a reading.
+2. **Local play is all-Muse** -- prisoner, warden and referee (owner's decision, 2026-09-25). The referee is
+   measured good (§75.4) and batch 4 found the warden indistinguishable from Opus. The cost is the prisoner's
+   chair: **b6's 14 all-Muse games were 14 timeouts, 0 escapes, deepest bar 59 against a window gated at
+   50**, where batch 4's Opus prisoner escaped 3 of 10. **Outcome-dependent measures have no variance
+   locally**; process measures are fine. (Not a clean single-variable read -- b6 also moved the seat and ran
+   concurrently -- but it is the signal.)
+3. **Thinking OFF for every role**, per §75.5 for the referee and §64.7 plus batch 7's commit call for the
+   wits (indistinguishable from uniform, chi-sq p=0.19 identity / p=0.12 position, 9.7x tokens).
+4. **b6's refusal audit is re-read against §75.3**, not its own RESULTS. "14 of 22" is 8 of 16 serially.
+
+### 75.8 What is still open
+
+- **The effect question on bodily and compliance turns** -- the 8 surviving wrong refusals, all one shape.
+  Serial `none` gets 0 of them; `high` gets 2. Reasoning is not the lever. A clause was tried for this in
+  §68.2 and scored **0 of 4, worse than silence**, so prose is not obviously the lever either.
+- **`conceal`/`expose`/`open`/`close` have exactly one legal property** by the effect question's own
+  definitions, so asking a model for it is a chance to be wrong at no informational gain. Worth 1 of 14
+  in b6 and 0 after serialising, but it removes a class permanently. Cheap; not built.
+- **Stage 2 of the bottom row**: invalid intents that NAME a real-looking instrument or effect
+  (the-prisoner#17). ~75 minutes with paired valid twins, labels definitional rather than judged.
+- **A serial LIVE game.** Everything in §75 replayed frozen requests.
