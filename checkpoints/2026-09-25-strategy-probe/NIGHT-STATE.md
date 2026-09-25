@@ -102,3 +102,21 @@ scratch itself and initialises the schema. Goes in `RESULTS.md`.
   `SHIM_LOCAL_URL=http://doris:11435` and `SHIM_LOCAL_MODELS=muse-glimmer-30b-q4_k_m` (its only two set
   vars); (3) launch batch 7 from the worktree. **Running an hour ahead of §6's clock**, so the 08:40Z
   last-game line has room.
+
+- **05:22Z grounded escalation DONE**: **26 of 30 AGREE**, 4 different keys (seed 20260925). All four
+  differences are the SAME recurring ambiguity — scraping the mortar at the bar's base, keyed
+  `bar/…/integrity` locally and `window/open/passage` by Opus — which `escalate-grounded.mts`'s own header
+  predicted as the defensible-either-way case. It is consistent, so b6's P-vs-S comparison stands.
+  **The referee fails asymmetrically**: 87% agreement when it RULES, 64% wrong when it REFUSES.
+- **05:23Z router RESTARTED** with `SHIM_DORIS_ATTEMPT_TIMEOUT_MS=400000` (plus its original
+  `SHIM_LOCAL_URL` and `SHIM_LOCAL_MODELS`; those were its only two set vars). Verified: `/api/ps` `[]`,
+  and a trivial local call returns 33 tokens with reasoning off. Log at
+  `checkpoints/2026-09-25-phase1-b7/router.log`. **The morning report must say the router was restarted.**
+- **05:23Z BATCH 7 LAUNCHED** from `/tmp/b7-worktree` at `b4ee598`, 7 games, arm T only, driver log
+  `/tmp/b7-driver.log`, game logs in the worktree's `checkpoints/2026-09-25-phase1-b7/logs/`.
+  Header confirms `strategy=[fixed] strength=[high] ollama_ps_before=[none]`. The OPTIONS call fired at
+  12.1 s, matching the probe. **Transcripts land in `/tmp/b7-worktree/checkpoints/*.md`** (checkpoint.ts
+  writes to `cwd/checkpoints`) and must be moved into `T/` under the batch dir afterwards.
+- **THE GATE is read from game 1's transcript, which is only written when that game ENDS** (~05:46Z):
+  the header must print `Strategy: ON` with a valid id. Null → read the raw replies FIRST (they are in the
+  header), then technical failure = 15-minute repair budget and one restart; substantive = stop, pilot.
