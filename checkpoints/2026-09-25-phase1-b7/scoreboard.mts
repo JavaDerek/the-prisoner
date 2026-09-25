@@ -290,7 +290,16 @@ L.push(
 
 // Band 2: distinct targets per game, the SCOREBOARD's pooled definition (PREDICTION.md says so explicitly).
 const dtPerGame = T.length === 0 ? 0 : T.reduce((s, g) => s + distinct(prisoner(g).filter((t) => t.keysKnown).map((t) => t.target)), 0) / T.length;
-L.push(`| **2** distinct targets/game in 2.0-3.5 | **${dtPerGame.toFixed(2)}** | ${dtPerGame.toFixed(2)} | ${T.length === N ? (dtPerGame >= 2 && dtPerGame <= 3.5 ? "held" : "**failed**") : "open"} |`);
+// DEAD ARITHMETIC FOR A PER-GAME MEAN. The floor a remaining game can contribute is ONE distinct target
+// (a game that keyed nothing at all contributes zero turns, not zero targets, and is discarded anyway), so
+// the smallest mean still reachable is (total + remaining) / N. If that already exceeds the ceiling, no
+// remaining game can save the band and it is dead NOW -- which is the whole point of the column.
+const dtTotal = T.reduce((s2, g) => s2 + distinct(prisoner(g).filter((t) => t.keysKnown).map((t) => t.target)), 0);
+const dtFloor = (dtTotal + (N - T.length)) / N;
+L.push(
+  `| **2** distinct targets/game in 2.0-3.5 | **${dtPerGame.toFixed(2)}** (${dtTotal} distinct over ${T.length}) | ${dtPerGame.toFixed(2)} | ` +
+    `${dtFloor > 3.5 ? `**DEAD** (floor at 7 is ${dtFloor.toFixed(2)})` : T.length === N ? (dtPerGame >= 2 && dtPerGame <= 3.5 ? "held" : "**failed**") : "open"} |`
+);
 
 // Band 3: depth, ONLY over games whose strategy named the bar. Denominator reported, never pooled.
 const barGames = T.filter((g) => (g.strategyTargets ?? []).includes("bar"));
@@ -313,7 +322,24 @@ function repeatRate(gs: Game[]) {
   return ts.length === 0 ? 0 : (repeats / ts.length) * 100;
 }
 const rr = repeatRate(T);
-L.push(`| **6** repeat rate < 41.4%, band <= 30% | **${rr.toFixed(1)}%** | ${rr.toFixed(1)}% | ${T.length === N ? (rr <= 30 ? "held" : "**failed**") : "open"} |`);
+// Band 6 carries TWO thresholds and they can die separately, so they are reported separately rather than
+// collapsed into one verdict. The best a remaining game can do is add ten turns and no repeat at all.
+const rrCounts = (() => {
+  const ts = T.flatMap((g) => prisoner(g).filter((t) => t.keysKnown).map((t) => `${g.file}|${t.target}.${t.effect}`));
+  const seen = new Set<string>();
+  let repeats = 0;
+  for (const k of ts) { if (seen.has(k)) repeats++; else seen.add(k); }
+  return { repeats, total: ts.length };
+})();
+const rrFloor = (rrCounts.repeats / (rrCounts.total + (N - T.length) * 10)) * 100;
+L.push(
+  `| **6a** repeat rate <= 30% | **${rr.toFixed(1)}%** (${rrCounts.repeats} of ${rrCounts.total}) | ${rr.toFixed(1)}% | ` +
+    `${rrFloor > 30 ? `**DEAD** (floor at 7 is ${rrFloor.toFixed(1)}%)` : T.length === N ? (rr <= 30 ? "held" : "**failed**") : "open"} |`
+);
+L.push(
+  `| **6b** repeat rate < P's 41.4% | ${rr.toFixed(1)}% | ${rr.toFixed(1)}% | ` +
+    `${rrFloor >= 41.4 ? "**DEAD**" : T.length === N ? (rr < 41.4 ? "held" : "**failed**") : `open (floor at 7 is ${rrFloor.toFixed(1)}%)`} |`
+);
 
 // Band 7: novel pairs, reported, no band.
 L.push(`| 7 distinct novel (object, effect) pairs | ${distinctNovelPairs(T)} | -- | reported, no band |`);

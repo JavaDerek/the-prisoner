@@ -278,3 +278,39 @@ against the threshold too, because hiding it behind a retirement I argued badly 
 error. **This is arm T's sharpest negative result: the strategy step does not merely fail to deepen play,
 it steers games AWAY from the objects the condition list prices** — 4 of 5 strategies named the blanket or
 the key ring, and 3 of 5 games never moved a priced object's property at all.
+
+- **07:16Z game 6 of 7, rc=0.** Declared target **blanket**, derived an object, adherence **80.0%** — the
+  highest of the batch.
+
+### POLL 6
+
+**Band 6a is DEAD, announced here.** Repeat rate 44.6% (25 of 56 keyed turns); a remaining game with zero
+repeats still leaves a floor of **37.9%**, against a band of ≤ 30%. **Band 6b** (< P's 41.4%) remains open,
+same floor. The scoreboard now computes both floors itself rather than leaving the arithmetic to a poll,
+and it also now prints band 2's death (floor at 7 is 3.86 against a 3.5 ceiling) rather than reporting it
+"open" while a poll said otherwise.
+
+**A correction to poll 4.** That poll reported a "20-point gap, four for four" between strategies naming
+condition-listed objects and strategies that do not. Two games later it is weaker:
+
+| strategy named | games | adherence |
+|---|---|---|
+| condition-listed (door+lock, bar+spoon) | 3, 4 | 60%, 70% — mean **65%** |
+| not condition-listed (blanket ×3, blanket+key_ring) | 1, 2, 5, 6 | 50%, 40%, 50%, **80%** — mean **55%** |
+
+Game 6 scored the batch's best adherence on a blanket strategy, which is the group I had called the weak
+one. The gap is 10 points on n=2 versus n=4, not 20 on four-for-four. It was a real pattern in the first
+four games and I stated it more firmly than four games can carry. The results file reports the per-game
+table and lets the split stand or fall on seven.
+
+| band | so far (6 games, 60 turns) | projected at 7 | verdict |
+|---|---|---|---|
+| **1 (primary)** adherence ≥ 60.7% | **58.3%** (35 of 60) | 58.3% | open — needs 8 of the last 10 turns |
+| 2 distinct targets 2.0–3.5 | 4.33 | 4.33 | **DEAD** |
+| 3 depth, bar-strategy games | 0 of 1 | — | open, denominator 1 |
+| 4 wasted games (retired) | **4 of 6** | ~4.7 of 7 | would fail its original ceiling of 1 |
+| 5 refusals ≤ 8% | 4 of 60 (6.7%) | 4.7 of 70 | open, one from dead |
+| **6a** repeat rate ≤ 30% | 44.6% | 44.6% | **DEAD** |
+| 6b repeat rate < 41.4% | 44.6% | 44.6% | open, floor 37.9% |
+| 8 calls ≥ 6 of 7 | 6 of 6 | 7.0 | open |
+| 9 median < 45 min | 19, max 20 | — | open |
