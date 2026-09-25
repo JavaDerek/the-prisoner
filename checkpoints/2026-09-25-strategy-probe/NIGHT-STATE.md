@@ -245,3 +245,36 @@ Against band 1's threshold of 60.7%, **the condition-listed games pass and the o
 to seven games it is the batch's real result, and it is a sharper one than the band was designed to give:
 the strategy step's value is not in *whether* a mind commits, it is in *what there is to commit to*. The
 probe's P0.e (10 of 20) predicted the frequency; these four games price it.
+
+- **06:58Z game 5 of 7, rc=0.** Declared target **blanket** again (4th of 5 games to name it), derived an
+  object, adherence 50.0%. `checkpoints/2026-09-25-phase1-b7/scoreboard.mts` now exists and is **batch 6's
+  parser copied byte for byte** above the output section, because band 5's baseline is b6's own
+  "turns with no keys" population and re-deriving it here would have been a second opinion about the
+  baseline in a cross-batch comparison.
+
+### THREE THINGS AT THIS POLL
+
+**1. Band 2 is DEAD, announced here per the stopping rule.** Distinct targets per game is **4.60** over
+five games (23 distinct, band 2.0–3.5). Even if both remaining games produced the theoretical floor of one
+distinct target each, 25/7 = 3.57 > 3.5. No remaining game can save it.
+
+**2. Band 5's earlier polls used the WRONG definition and my numbers were wrong.** Polls 2–4 counted
+refusals as "target `none` or ruled impossible" — the adherence measure's population. Band 5 is
+pre-registered on b6's scoreboard definition, **turns with no keys**, which is strictly narrower (a refusal
+that still named keys is keyed). Correct count: **4 of 50 (8.0%)**, ceiling 5 of 70, one left. Poll 4's
+"5 of 40, exactly at the ceiling" was wrong; the conclusion was not.
+
+**3. RETIRING BAND 4 WAS A MISTAKE, and the number now shows it.** Step 4 argued that a ceiling of
+"≤ 1 wasted game of 7" against a b6 baseline of 0 of 7 "cannot fail informatively." **That is backwards.**
+A ceiling fails when the ARM IS WORSE than the baseline, which is exactly the failure the band existed to
+detect — §5.1 called it "the arbitrary-fixation failure is the one this step exists to remove." Arm T is at
+**3 wasted games of 5**, against b6 P's **0 of 7** and b6 S's **0 of 7**. Projected ~4 of 7: the original
+band would have failed decisively.
+
+So the results file reports band 4 **both ways** — as the count it was retired to, and against its original
+ceiling — and says plainly that the retirement rationale was wrong. The retirement itself was made before
+any game ran and is left standing as the procedural record; what changes is that the number is reported
+against the threshold too, because hiding it behind a retirement I argued badly for would be the worse
+error. **This is arm T's sharpest negative result: the strategy step does not merely fail to deepen play,
+it steers games AWAY from the objects the condition list prices** — 4 of 5 strategies named the blanket or
+the key ring, and 3 of 5 games never moved a priced object's property at all.
