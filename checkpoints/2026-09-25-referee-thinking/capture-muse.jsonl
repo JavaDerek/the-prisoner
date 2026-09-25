@@ -1,0 +1,39 @@
+{"pass":1,"kind":"BODY","intent":"crouch down low","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":25.1}
+{"pass":1,"kind":"BODY","intent":"stand up straight","keys":"prisoner/none/posture","applicable":false,"tier1":false,"tier2":false,"seconds":42.3}
+{"pass":1,"kind":"BODY","intent":"go limp","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":27}
+{"pass":1,"kind":"BODY","intent":"hold my breath","keys":"prisoner/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":40.5}
+{"pass":1,"kind":"BODY","intent":"turn my back","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":32.6}
+{"pass":1,"kind":"BODY","intent":"sit down","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":36.3}
+{"pass":1,"kind":"SPEECH","intent":"shout for help","keys":"none/noise/none","applicable":true,"tier1":true,"tier2":false,"seconds":21.7}
+{"pass":1,"kind":"SPEECH","intent":"scream as loudly as I can","keys":"none/noise/none","applicable":true,"tier1":true,"tier2":false,"seconds":20.2}
+{"pass":1,"kind":"SPEECH","intent":"whisper that I know what she did","keys":"none/noise/none","applicable":true,"tier1":true,"tier2":false,"seconds":43}
+{"pass":1,"kind":"SPEECH","intent":"beg to be let out","keys":"none/noise/none","applicable":true,"tier1":true,"tier2":false,"seconds":34.9}
+{"pass":1,"kind":"SPEECH","intent":"tell her the door is already open","keys":"warden/noise/none","applicable":true,"tier1":true,"tier2":false,"seconds":32.2}
+{"pass":1,"kind":"QUESTION","intent":"what am I holding now?","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":27.2}
+{"pass":1,"kind":"QUESTION","intent":"what time is it?","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":23.7}
+{"pass":1,"kind":"QUESTION","intent":"how many rounds do I have left?","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":21.9}
+{"pass":1,"kind":"QUESTION","intent":"is the door locked?","keys":"door/reveal/passage","applicable":true,"tier1":true,"tier2":true,"seconds":27.3}
+{"pass":1,"kind":"QUESTION","intent":"where am I?","keys":"none/reveal/none","applicable":false,"tier1":false,"tier2":false,"seconds":22.8}
+{"pass":1,"kind":"WAIT","intent":"wait","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":19}
+{"pass":1,"kind":"WAIT","intent":"do nothing and listen","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":20.9}
+{"pass":1,"kind":"WAIT","intent":"wait until she leaves","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":34.7}
+{"pass":1,"kind":"WAIT","intent":"count to one hundred","keys":"none/noise/none","applicable":true,"tier1":true,"tier2":false,"seconds":31.6}
+{"pass":1,"kind":"META","intent":"save my game","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":17.9}
+{"pass":1,"kind":"META","intent":"start over","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":27.5}
+{"pass":1,"kind":"META","intent":"show me my inventory","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":21.2}
+{"pass":1,"kind":"META","intent":"help","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":17}
+{"pass":1,"kind":"STAGE","intent":"think about the robbery","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":26.2}
+{"pass":1,"kind":"STAGE","intent":"remember the night they brought me in","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":26.7}
+{"pass":1,"kind":"STAGE","intent":"gather my courage","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":23.1}
+{"pass":1,"kind":"STAGE","intent":"look around the cell","keys":"none/reveal/none","applicable":false,"tier1":false,"tier2":false,"seconds":23.5}
+{"pass":1,"kind":"STAGE","intent":"pray","keys":"none/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":23}
+{"pass":1,"kind":"OBJECT","intent":"Use the spoon to strike the lock repeatedly","keys":"lock/wear/integrity","applicable":true,"tier1":false,"tier2":false,"seconds":33.1}
+{"pass":1,"kind":"OBJECT","intent":"Pry up the loose tile to see what's underneath","keys":"loose_tile/reveal/concealment","applicable":true,"tier1":false,"tier2":false,"seconds":23.1}
+{"pass":1,"kind":"OBJECT","intent":"Use the spoon to push the door's bolt back","keys":"door/open/passage","applicable":true,"tier1":false,"tier2":false,"seconds":37.3}
+{"pass":1,"kind":"OBJECT","intent":"Climb through the window","keys":"window/leave/passage","applicable":true,"tier1":false,"tier2":false,"seconds":20.9}
+{"pass":2,"kind":"BODY","intent":"crouch down low","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":25}
+{"pass":2,"kind":"BODY","intent":"stand up straight","keys":"prisoner/none/posture","applicable":false,"tier1":false,"tier2":false,"seconds":42.3}
+{"pass":2,"kind":"BODY","intent":"go limp","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":27}
+{"pass":2,"kind":"BODY","intent":"hold my breath","keys":"prisoner/none/none","applicable":false,"tier1":false,"tier2":false,"seconds":40.5}
+{"pass":2,"kind":"BODY","intent":"turn my back","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":32.6}
+{"pass":2,"kind":"BODY","intent":"sit down","keys":"prisoner/wear/posture","applicable":true,"tier1":true,"tier2":false,"seconds":36.4}
