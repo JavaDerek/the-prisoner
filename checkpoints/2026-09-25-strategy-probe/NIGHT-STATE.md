@@ -90,3 +90,15 @@ scratch itself and initialises the schema. Goes in `RESULTS.md`.
   revision trigger logged under `fixed`. `PRISONER_STRATEGY=revise` throws rather than running `fixed`.
 - **05:04Z NEXT: step 4**, pre-register batch 7, with the three baseline corrections above AND band 3
   expected to fail on P0.e. Then restart the router at 400 s and launch.
+
+- **05:08Z step 4 DONE** (`b4ee598`): `checkpoints/2026-09-25-phase1-b7/PREDICTION.md` + driver committed
+  BEFORE any game. Baselines computed from b6 P: **modal-target share 45.7%** (so band 1 binds at 60.7%
+  and D6's escape does NOT fire; S's is 64.4%), **wasted games 0 of 7 on BOTH arms** → **band 4 retired to
+  a reported count**, because a ceiling of 1 against a baseline of 0 cannot fail informatively. Band 6
+  re-based onto the repeat rate (41.4%), band 3 pre-registered EXPECTING to fail on P0.e.
+- **05:08Z worktree** at `/tmp/b7-worktree`, pinned to `b4ee598`, `node_modules` symlinked, typecheck clean.
+- **NEXT, in this order**: (1) wait for the grounded escalation to finish — it is using the router;
+  (2) **restart the router with `SHIM_DORIS_ATTEMPT_TIMEOUT_MS=400000`**, preserving
+  `SHIM_LOCAL_URL=http://doris:11435` and `SHIM_LOCAL_MODELS=muse-glimmer-30b-q4_k_m` (its only two set
+  vars); (3) launch batch 7 from the worktree. **Running an hour ahead of §6's clock**, so the 08:40Z
+  last-game line has room.
