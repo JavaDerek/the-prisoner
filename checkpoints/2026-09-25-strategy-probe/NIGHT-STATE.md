@@ -76,3 +76,17 @@ scratch itself and initialises the schema. Goes in `RESULTS.md`.
     must restart the router with `SHIM_DORIS_ATTEMPT_TIMEOUT_MS=400000` before game 1**, after the
     escalation finishes, and the morning report must say the router was restarted and why.
 - **04:20Z step 1 RELAUNCHED** direct, same options, log `/tmp/probe-main.log`. Lands ~04:56Z.
+
+- **05:04Z step 1 DONE and written up** (`RESULTS.md`). **P0.a 20/20, P0.b 0** — the build gate passed with
+  no fallback to `medium`. **P0.c: neither pre-named reading applies** — identity χ²=8.70 (p=0.19) and
+  position χ²=10.10 (p=0.12) over 7 options, i.e. **uniform**; the choice is indistinguishable from chance
+  at N=20. **P0.d**: uniform at `none` too, and `high` costs 9.7× the tokens (6043 vs 626) and 9.8× the wall
+  clock (125 s vs 12.8 s). **P0.e FAILED, 10 of 20** (band ≥12) → build anyway, batch 7 expects adherence
+  **without** depth. **P0.f SKIPPED** — the bar took 2 of 20 by identity, so no trope to discriminate.
+  Its modal pick is the **blanket**, which b6's fourteen games targeted **zero** times.
+- **04:58Z step 3 BUILD GREEN and committed** (`9535d50`): 1190 tests / 74 files, typecheck clean, lint 0
+  errors. `strategy.ts`, `withReasoningStrength` beside `withThinking`, `OpenNews.strategy` + one briefing
+  line, `checkpoint.ts` wiring with the header block and both raw replies, `adherenceByGame`, and the
+  revision trigger logged under `fixed`. `PRISONER_STRATEGY=revise` throws rather than running `fixed`.
+- **05:04Z NEXT: step 4**, pre-register batch 7, with the three baseline corrections above AND band 3
+  expected to fail on P0.e. Then restart the router at 400 s and launch.
