@@ -131,8 +131,8 @@ exactly the failure it then hit (§62). Leave the referee unset and let `modelRo
 default -- that constant carries the evidence for its own value, and an example that overrides it
 silently un-fixes a fixed bug.
 
-`PRISONER_VIEW=raw|prose|narrated` (the-prisoner#21) chooses *how* the seat's own situation is shown,
-never *what*: `raw` (unset, the default) is the labelled-block view the model itself reads,
+`PRISONER_VIEW=raw|prose|narrated|play` (the-prisoner#21) chooses *how* the seat's own situation is
+shown, never *what*: `raw` (unset, the default) is the labelled-block view the model itself reads,
 byte-identical to its prompt; `prose` is deterministic prose composed by code from the identical
 context (`src/open/proseView.ts`) -- no model call, and pinned by a completeness test so a future
 edit cannot quietly drop a belief's stamp or an object's description while the prose still reads
@@ -159,6 +159,24 @@ through that same delta -- the narration replaces the SCENE block alone. That is
 `narrates-outcome`) and merely counts the `dropped-*` ones: a narrator is never asked to carry a
 number, so it is never discarded for failing to recite one. **Read §61 before moving a kind between
 those two sets** -- the split is two different claims about a narration, not a strictness dial.
+
+**`play` is the view to hand a person (2026-09-25).** The other three are answers to "what does this
+chair know?"; `play` is the answer to "what just happened?". It takes the same blocks `prose`
+composes, through the same delta, and puts them in Infocom's order -- the news, notes and plan, the
+beliefs with their stamps, then the room -- holding three of them behind no-turn commands that
+print the identical text on demand: the condition list (`conditions`), the standing rules (`rules`,
+new) and identity/motive (`me`, new). The how-to-play instructions are said on the first turn only.
+
+The reason it is a fourth view rather than a fix to `prose`: the owner's first live game under
+`prose` opened with ~70 lines in which the one thing that had happened sat fourth of eight blocks,
+under the warden's own win conditions stated as thresholds. `prose` was behaving exactly as #21
+specifies -- the ORDER was the failure -- and `prose` is also what a rejected `narrated` turn falls
+back to, so its completeness test stays the guard it was. **Nothing is withheld from the player**,
+which is the half of #21's constraint that still binds: `PLAY_BLOCK_POLICY` (`humanSeat.ts`) is a
+`Record` over every `ProseBlockKind`, with no "dropped" value to give one, so a block kind added
+later cannot reach this view without a decision about whether a player sees it. A `play` transcript
+is a person's game and is not byte-comparable to a model's prompt the way `raw` is; the header says
+so itself.
 
 **`PRISONER_NARRATOR_MODEL` wants the most obedient model available, not the best writer available**
 (§61.1). This is measured, not taste: with completeness no longer holding a narration to the
