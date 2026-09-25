@@ -223,3 +223,25 @@ it — in adherence (the new id scores off-strategy) and, in game 2, in refusals
 effects on a thing the game just made). **P0.e failed at 10 of 20 in the probe, and this is what that
 failure costs a game.** It is not a defect of the strategy step: the step faithfully committed to what it
 chose. It is that what it chooses is often not something the world is built to price.
+
+- **06:41Z game 4 of 7, rc=0, 18.9 min.** Chosen targets **bar + spoon**, both condition-listed, no derived
+  object. Adherence **70.0%** (7 on / 2 off / 1 refused). `Revision would have fired: never`.
+
+| band | so far (4 games, 40 turns) | projected at 7 | verdict |
+|---|---|---|---|
+| **1 (primary)** adherence ≥ 60.7% | **55.0%** (22 of 40) | 55.0% | **open** — needs 21 of the remaining 30 turns (70%) |
+| **5** refusals ≤ 8% (≤ 5 of 70) | **5 of 40** — **exactly at the ceiling** | 8.75 of 70 | **open by nothing. ANY refusal in the remaining 30 turns kills it** |
+| 8 strategy calls succeed ≥ 6 of 7 | 4 of 4 | 7 of 7 | open |
+| 9 median game < 45 min | 18.5, 19.5, 17.7, 18.9 | — | open |
+
+**The split is now four for four, and it is a 20-point gap:**
+
+| strategy named | games | adherence | refusals |
+|---|---|---|---|
+| **condition-listed objects** (door+lock, bar+spoon) | 3, 4 | **60%, 70% — mean 65%** | 0, 1 |
+| **objects the condition list does not price** (blanket, blanket+key_ring) | 1, 2 | **50%, 40% — mean 45%** | 0, 4 |
+
+Against band 1's threshold of 60.7%, **the condition-listed games pass and the others fail.** If that holds
+to seven games it is the batch's real result, and it is a sharper one than the band was designed to give:
+the strategy step's value is not in *whether* a mind commits, it is in *what there is to commit to*. The
+probe's P0.e (10 of 20) predicted the frequency; these four games price it.
