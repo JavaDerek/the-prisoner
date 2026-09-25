@@ -253,7 +253,7 @@ L.push(`| games | ${P.length} | ${S.length} |`);
 L.push(`| prisoner intents (incl. refused) | ${sum(P, (g) => prisoner(g).length)} | ${sum(S, (g) => prisoner(g).length)} |`);
 L.push(`| prisoner silences | ${sum(P, (g) => g.silences)} | ${sum(S, (g) => g.silences)} |`);
 L.push(`| grounded (pooled) | ${sum(P, (g) => g.grounded)} | ${sum(S, (g) => g.grounded)} |`);
-L.push(`| refusals (ruled impossible) | ${sum(P, (g) => g.refusals)} | ${sum(S, (g) => g.refusals)} |`);
+L.push(`| refusals, BOTH chairs (ruled impossible) | ${sum(P, (g) => g.refusals)} | ${sum(S, (g) => g.refusals)} |`);
 L.push(`| novel RULINGS (the transcript's own line) | ${sum(P, (g) => g.novelPairs)} | ${sum(S, (g) => g.novelPairs)} |`);
 L.push(`| **distinct novel PAIRS (pooled) -- 6a** | ${distinctNovelPairs(P)} | ${distinctNovelPairs(S)} |`);
 L.push(`| **distinct novel pairs, blanket dropped -- 6b** | ${distinctNovelPairs(P, true)} | ${distinctNovelPairs(S, true)} |`);
@@ -264,7 +264,14 @@ L.push(`| distinct effect kinds (pooled) | ${distinct(P.flatMap((g) => prisoner(
 L.push(`| distinct targets / game (mean) | ${mean(P, (g) => distinct(prisoner(g).map((t) => t.target)))} | ${mean(S, (g) => distinct(prisoner(g).map((t) => t.target)))} |`);
 L.push(`| **final barIntegrity (mean)** | ${mean(P, (g) => g.barIntegrity)} | ${mean(S, (g) => g.barIntegrity)} |`);
 L.push(`| **games with bar damaged (<100)** | ${P.filter((g) => g.barIntegrity < 100).length} | ${S.filter((g) => g.barIntegrity < 100).length} |`);
-L.push(`| prisoner turns with NO keys in transcript | ${unkeyed(P)} | ${unkeyed(S)} |`);
+// PRISONER refusals specifically. A refused turn is exactly a turn with no
+// keys in the transcript, so this is the same population as the row above and
+// is the ONLY refusal number that may be divided by a prisoner intent count.
+// The `refusals (ruled impossible)` row is BOTH chairs, and dividing it by
+// prisoner intents -- which I did once in a live check-in -- overstates the
+// prisoner's refusal rate by however much the warden contributed.
+L.push(`| **prisoner refusals** (= turns with no keys) | ${unkeyed(P)} of ${P.flatMap(prisoner).length} (${P.length?(unkeyed(P)/Math.max(1,P.flatMap(prisoner).length)*100).toFixed(1):"--"}%) | ${unkeyed(S)} of ${S.flatMap(prisoner).length} (${S.length?(unkeyed(S)/Math.max(1,S.flatMap(prisoner).length)*100).toFixed(1):"--"}%) |`);
+L.push(`| warden refusals (remainder) | ${sum(P,(g)=>g.refusals)-unkeyed(P)} | ${sum(S,(g)=>g.refusals)-unkeyed(S)} |`);
 L.push(`| repeat rate (any re-use of a pair) | ${P.length ? (sum(P, repeats) / Math.max(1, sum(P, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} | ${S.length ? (sum(S, repeats) / Math.max(1, sum(S, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} |`);
 L.push(`| distinct targets rounds 1-5 vs 6-10 (7b) | ${P.length ? distinct(P.flatMap(g=>prisoner(g).filter(t=>t.round<=5).map(t=>t.target))) + " vs " + distinct(P.flatMap(g=>prisoner(g).filter(t=>t.round>5).map(t=>t.target))) : "--"} | ${S.length ? distinct(S.flatMap(g=>prisoner(g).filter(t=>t.round<=5).map(t=>t.target))) + " vs " + distinct(S.flatMap(g=>prisoner(g).filter(t=>t.round>5).map(t=>t.target))) : "--"} |`);
 L.push(`| re-try rate | ${P.length ? (sum(P, retries) / Math.max(1, sum(P, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} | ${S.length ? (sum(S, retries) / Math.max(1, sum(S, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} |`);
