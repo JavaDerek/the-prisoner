@@ -120,3 +120,23 @@ scratch itself and initialises the schema. Goes in `RESULTS.md`.
 - **THE GATE is read from game 1's transcript, which is only written when that game ENDS** (~05:46Z):
   the header must print `Strategy: ON` with a valid id. Null → read the raw replies FIRST (they are in the
   header), then technical failure = 15-minute repair budget and one restart; substantive = stop, pilot.
+
+- **05:23Z GATE: the strategy block PASSED, the game did not.** Game 1's header printed `Strategy: ON`,
+  `Chosen: 5`, `Declared targets: blanket`, the sentence, the wire field and strength, and both raw replies
+  in full — which is the only reason the failure was diagnosable. **Then the game died with rc=1 before
+  round 1**, zero rounds: `timeline: cannot set story time to 3 ... its current t is 4`.
+  **A TECHNICAL failure, so §6 step 5's 15-minute repair budget applied, and one restart.**
+  - **Cause, and it is my bug**: `clock.prisonerT(1)` and `wardenT(n)` are **not getters** — each calls
+    `setStoryTime` (`src/world/clock.ts`). The strategy step read the prisoner's round-1 time to build a
+    context and thereby moved the clock to t0+3 before the loop started; `runOpenGame`'s own first call,
+    the warden at t0+2, then hit run-dmcp's "t never runs backwards" rule.
+  - **Fix** (`bf606c8`): read `clock.t0`, which moves nothing and is the right instant anyway — a
+    pre-episode commitment sees the cell as authored. A test pins that the two renderings are
+    **byte-identical on a fresh world**, so the batch reads the same situation the probe did and §5.1's
+    cross-batch claim survives. A second test pins the trap itself. 1192 tests green, lint 0 errors.
+  - Dead game and its log kept in `checkpoints/2026-09-25-phase1-b7/abandoned/`, not counted.
+- **05:26Z BATCH 7 RELAUNCHED**, worktree re-pinned to `bf606c8`, 7 games. Repair took ~2 min of the 15.
+  **The one restart the gate allows is now SPENT**: a second substantive failure stops the batch and it is
+  reported as a pilot.
+- Its modal choice was the **blanket** again — the same object the probe favoured and b6's fourteen games
+  targeted zero times.
