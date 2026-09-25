@@ -427,15 +427,17 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
       return JSON.parse(capturedInit?.body as string);
     }
 
-    it("single-call path, off: sends reasoning_effort: 'none'", async () => {
+    it("single-call path, off: sends chat_template_kwargs.reasoning_strength 'none' (P8)", async () => {
       const body = await capturedBody("off");
-      expect(body.reasoning_effort).toBe("none");
+      expect(body.chat_template_kwargs).toEqual({ reasoning_strength: "none" });
+      expect(body).not.toHaveProperty("reasoning_effort");
     });
 
-    it("single-call path, on and unset: byte-identical -- no reasoning_effort key at all", async () => {
+    it("single-call path, on and unset: byte-identical -- no reasoning field at all", async () => {
       const withoutOption = await capturedBody(undefined);
       const explicitOn = await capturedBody("on");
       expect(withoutOption).not.toHaveProperty("reasoning_effort");
+      expect(withoutOption).not.toHaveProperty("chat_template_kwargs");
       expect(explicitOn).toEqual(withoutOption);
     });
 
@@ -452,8 +454,8 @@ describe("createOpenMind (this task's brief: 'Open-mode minds')", () => {
       }) as unknown as typeof fetch;
       await createOpenMind({ baseUrl: "http://x", selfName: "Mara Voss", otherName: "Warden Croft", witsModel: "w", voiceModel: "v", fetchFn, thinking: "off" }).consider(CONTEXT);
       expect(bodies).toHaveLength(2);
-      expect(bodies[0].reasoning_effort).toBe("none"); // wits
-      expect(bodies[1]).not.toHaveProperty("reasoning_effort"); // voice
+      expect(bodies[0].chat_template_kwargs).toEqual({ reasoning_strength: "none" }); // wits
+      expect(bodies[1]).not.toHaveProperty("chat_template_kwargs"); // voice, never wrapped
     });
   });
 });

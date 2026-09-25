@@ -211,15 +211,17 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       return JSON.parse(capturedInit?.body as string);
     }
 
-    it("off: sends reasoning_effort: 'none'", async () => {
+    it("off: sends chat_template_kwargs.reasoning_strength 'none' (P8 -- reasoning_effort is a no-op here)", async () => {
       const body = await capturedBody("off");
-      expect(body.reasoning_effort).toBe("none");
+      expect(body.chat_template_kwargs).toEqual({ reasoning_strength: "none" });
+      expect(body).not.toHaveProperty("reasoning_effort");
     });
 
-    it("on, and unset: the request body is byte-identical -- no reasoning_effort key at all", async () => {
+    it("on, and unset: the request body is byte-identical -- no reasoning field at all", async () => {
       const withoutOption = await capturedBody(undefined);
       const explicitOn = await capturedBody("on");
       expect(withoutOption).not.toHaveProperty("reasoning_effort");
+      expect(withoutOption).not.toHaveProperty("chat_template_kwargs");
       expect(explicitOn).toEqual(withoutOption);
     });
   });

@@ -46,10 +46,13 @@ export interface CreateRefereeTransportOptions {
    *  only one loaded at a time. Absent in every test in this repository
    *  except a real checkpoint run. */
   ensureLoaded?: (model: string) => Promise<void>;
-  /** OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md §4.8, `thinking.ts`.
-   *  Default `"on"`: `reasoning_effort` stays unset, byte-identical to every
-   *  batch recorded before this arm existed. `"off"` sends `reasoning_effort:
-   *  "none"`. */
+  /** OPEN-VARIANT.md §64.7/§68.1, WORLD-ELABORATION-DESIGN.md §4.8, `thinking.ts`.
+   *  `"off"` sends `chat_template_kwargs: { reasoning_strength: "none" }` --
+   *  the field this llama-server actually honours. It used to send
+   *  `reasoning_effort`, which it ignores (P8); see `thinking.ts`'s header for
+   *  the measurement. `"on"` sends no reasoning field at all, leaving the
+   *  served model's own configuration (including a server start flag) to
+   *  decide, which is why a transcript's `ON` is not evidence of reasoning. */
   thinking?: ThinkingMode;
 }
 
@@ -308,7 +311,8 @@ export function createRefereeTransport(options: CreateRefereeTransportOptions): 
           // §64.7: "off" only -- "on" (the default) never adds this key at
           // all, so the request stays byte-identical to every batch
           // recorded before this arm existed.
-          ...(options.thinking === "off" ? { reasoning_effort: "none" } : {}),
+          // P8: `reasoning_effort` is a no-op on this server. `thinking.ts`.
+          ...(options.thinking === "off" ? { chat_template_kwargs: { reasoning_strength: "none" } } : {}),
         }),
         signal: AbortSignal.timeout(timeoutMs),
       });

@@ -34,7 +34,7 @@ describe("withThinking", () => {
     expect(withThinking(undefined, "on")).toBeUndefined();
   });
 
-  it("off: adds reasoning_effort: 'none' to the outgoing JSON body, preserving every other field", async () => {
+  it("off: adds chat_template_kwargs.reasoning_strength 'none' to the body, preserving every other field", async () => {
     let capturedInit: RequestInit | undefined;
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
       capturedInit = init;
@@ -49,12 +49,33 @@ describe("withThinking", () => {
     });
 
     const body = JSON.parse(capturedInit?.body as string);
-    expect(body.reasoning_effort).toBe("none");
+    // P8: `reasoning_effort` is a NO-OP on the llama-server serving Muse-Glimmer
+    // (measured 2026-09-25: `high` returns the same 33 tokens as `none`). The field
+    // this server honours is `chat_template_kwargs.reasoning_strength`.
+    expect(body.chat_template_kwargs).toEqual({ reasoning_strength: "none" });
+    expect(body.reasoning_effort).toBeUndefined();
     expect(body.model).toBe("m");
     expect(body.temperature).toBe(0);
     expect(body.stream).toBe(false);
     expect(body.tools).toEqual([]);
     expect(body.messages).toEqual([{ role: "user", content: "hi" }]);
+  });
+
+  it("off: MERGES into an existing chat_template_kwargs rather than replacing it", async () => {
+    let capturedInit: RequestInit | undefined;
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      capturedInit = init;
+      return { ok: true, json: async () => ({}) };
+    }) as unknown as typeof fetch;
+
+    const wrapped = withThinking(fetchFn, "off") as typeof fetch;
+    await wrapped("http://x/chat/completions", {
+      method: "POST",
+      body: JSON.stringify({ model: "m", chat_template_kwargs: { enable_thinking: true } }),
+    });
+
+    const body = JSON.parse(capturedInit?.body as string);
+    expect(body.chat_template_kwargs).toEqual({ enable_thinking: true, reasoning_strength: "none" });
   });
 
   it("off: falls back to global fetch when no fetchFn is given (never throws building the wrapper)", () => {
@@ -87,9 +108,14 @@ describe("withThinking", () => {
 // transcript headers all document `PRISONER_THINKING=off` invocations, and
 // those must keep meaning exactly what they meant.
 describe("resolveRefereeThinking: PRISONER_REFEREE_THINKING (§68.1)", () => {
-  it("defaults to on when nothing is set", () => {
-    expect(resolveRefereeThinking(undefined, undefined)).toEqual({ mode: "on", source: "default" });
-    expect(resolveRefereeThinking("", "")).toEqual({ mode: "on", source: "default" });
+  // 2026-09-25, `checkpoints/2026-09-25-referee-thinking/RESULTS-3-4.md`: SS68.1/SS68.5
+  // were measured on `qwen3:14b` and DO NOT TRANSFER to Muse-Glimmer, the model every
+  // local chair now runs. Serially, over 22 rows, `none` produced 6 correct resolutions
+  // and 0 false ones; `high` produced 3 correct and 1 false, and broke 4 of the 6 rows
+  // `none` gets right, at 3-5x the cost. The default flips with the evidence.
+  it("defaults to OFF when nothing is set -- SS68.1's 'on' did not transfer to Muse-Glimmer", () => {
+    expect(resolveRefereeThinking(undefined, undefined)).toEqual({ mode: "off", source: "default" });
+    expect(resolveRefereeThinking("", "")).toEqual({ mode: "off", source: "default" });
   });
 
   it("the role-specific variable sets it", () => {
@@ -146,7 +172,10 @@ describe("thinkingHeaderLine: per-role transcript reporting (§68.1)", () => {
     const line = thinkingHeaderLine("referee", { mode: "off", source: "role" });
     expect(line).toContain("Thinking (referee): OFF");
     expect(line).toContain("PRISONER_REFEREE_THINKING=off");
-    expect(line).toContain('reasoning_effort: "none"');
+    // P8 fix 1: the header names the FIELD AND VALUE actually sent, never a word
+    // standing for them -- a header that says OFF must be checkable against the wire.
+    expect(line).toContain('chat_template_kwargs.reasoning_strength: "none"');
+    expect(line).not.toContain("reasoning_effort");
   });
 
   it("names the legacy variable, and says it applies to both roles, when that is what set it", () => {
@@ -154,6 +183,16 @@ describe("thinkingHeaderLine: per-role transcript reporting (§68.1)", () => {
     expect(line).toContain("Thinking (wits): ON");
     expect(line).toContain("PRISONER_THINKING=on");
     expect(line).toContain("both roles");
+  });
+
+  it("ON says the request constrains NOTHING, so the served model's own configuration decides", () => {
+    // P8's live hazard stated in the header itself: with no field on the request, a
+    // server started with `--chat-template-kwargs '{"reasoning_strength":"none"}'`
+    // reasons not at all while the transcript says ON.
+    const line = thinkingHeaderLine("referee", { mode: "on", source: "role" });
+    expect(line).toContain("Thinking (referee): ON");
+    expect(line).toContain("no reasoning field is sent");
+    expect(line).toContain("served model's own configuration");
   });
 
   it("says 'the default' when neither variable was set", () => {

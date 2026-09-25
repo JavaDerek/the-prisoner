@@ -206,12 +206,14 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
  *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
  *  asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const WINDOW = readWindowMode(process.env.PRISONER_WINDOW);
-/** Open variant only: `reasoning_effort` on the referee and wits calls
- *  (`src/open/thinking.ts`, OPEN-VARIANT.md §68.1, §64.7). TWO CALLERS, TWO
- *  SWITCHES, OPPOSITE DEFAULTS (`thinking.ts`'s own header): §68.1 measured
- *  that thinking changes the REFEREE's rulings a great deal (19/29
- *  object-less intents wrongly ruled `open` at OFF, 1/29 at ON), so
- *  `PRISONER_REFEREE_THINKING` defaults ON; §64.7 measured no difference to
+/** Open variant only: `chat_template_kwargs.reasoning_strength` on the referee
+ *  and wits calls (`src/open/thinking.ts`, OPEN-VARIANT.md §68.1, §64.7, §70).
+ *  TWO CALLERS, TWO SWITCHES, BOTH NOW DEFAULTING OFF. §68.1 measured on
+ *  `qwen3:14b` that thinking changes the REFEREE's rulings a great deal (19/29
+ *  object-less intents wrongly ruled `open` at OFF, 1/29 at ON) and
+ *  `PRISONER_REFEREE_THINKING` used to default ON for it; 2026-09-25 measured
+ *  that this does NOT transfer to Muse-Glimmer, where reasoning is worse in
+ *  both directions, so it now defaults OFF. §64.7 measured no difference to
  *  the WITS decision at ~8x cost, so `PRISONER_WITS_THINKING` defaults OFF.
  *  `PRISONER_THINKING` keeps working as a legacy override for both roles
  *  (recorded batches, CLAUDE.md and transcript headers all document
