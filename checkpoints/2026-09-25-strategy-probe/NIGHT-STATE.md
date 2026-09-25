@@ -140,3 +140,25 @@ scratch itself and initialises the schema. Goes in `RESULTS.md`.
   reported as a pilot.
 - Its modal choice was the **blanket** again — the same object the probe favoured and b6's fourteen games
   targeted zero times.
+
+## Batch 7 poll log (§6 step 5: so far / projected at 7 / dead-or-open, every poll)
+
+- **05:45Z game 1 of 7 complete, rc=0, 18.5 min.** 20 half-rounds, the strategy line in all 10 prisoner
+  briefings, `Revision would have fired: never`. Chosen 3, declared target **blanket** (the third time that
+  object has come up: the probe's modal pick, the crashed game, and this one).
+
+| band | so far | projected at 7 | verdict |
+|---|---|---|---|
+| **1 (primary)** adherence ≥ 60.7% | **50.0%** (5 on / 5 off / 0 refused of 10) | 50.0% | **open** — needs 38 of the remaining 60 turns (63.3%) |
+| 5 refusals ≤ 8% | 0 of 10 | 0% | open |
+| 8 both calls succeed ≥ 6 of 7 | 1 of 1 | 7 of 7 | open |
+| 9 median game < 45 min | 18.5 min | — | open |
+
+**A DEFINITION PROBLEM, found in game 1 and NOT fixed mid-batch** (the band is pre-registered and moving it
+now would be the exact thing pre-commitment prevents): the prisoner's targets were `blanket` 5, `bar` 5,
+`lock` 4, **`strip` 2**, `spoon` 1. **`strip` is a DERIVED object** — the cordage it made by unravelling the
+blanket, i.e. the strategy *working*. It has its own id, so §3.4's strict keying counts those two turns as
+**off-strategy**. A strategy that succeeds by creating something scores as abandoning itself, and band 1 is
+therefore biased DOWNWARD against exactly the strategies that work. Report it in the results file, propose
+the fix (a derived object inherits its parent's id for adherence, via `openWorld.derived`'s own parent
+link), and do not apply it to this batch's numbers.
