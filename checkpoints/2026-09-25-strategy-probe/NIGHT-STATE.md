@@ -314,3 +314,13 @@ table and lets the split stand or fall on seven.
 | 6b repeat rate < 41.4% | 44.6% | 44.6% | open, floor 37.9% |
 | 8 calls ≥ 6 of 7 | 6 of 6 | 7.0 | open |
 | 9 median < 45 min | 19, max 20 | — | open |
+
+- **07:35Z BATCH 7 COMPLETE, 7 of 7, all rc=0.** Band 1 (primary) **DEAD at 51.4%**; bands 2, 5, 6a, 6b
+  also dead; band 3 unfalsifiable (denominator 1); bands 8 and 9 held. Written up in
+  `checkpoints/2026-09-25-phase1-b7/RESULTS.md`.
+- **07:40Z step 6 DONE**: `docs/OVERNIGHT-2026-09-25.md`, decisions first.
+- **07:40Z step 7 DONE and VERIFIED**: qwen3:14b restored with `keep_alive: -1` (expires 2319),
+  `comfyui.service` active, llama-server untouched (same pid 2213812 since 09:39 the previous morning).
+  The router remains restarted at a 400 s cap — the one machine change, recorded in the morning report.
+  Nothing deleted in `/tmp`.
+- **ALL SEVEN STEPS OF §6 ARE DONE.** 20 commits on `main`, unpushed.
