@@ -41,7 +41,7 @@ and this step just failed its primary band. **Recommend: hold it until a strateg
 | | |
 |---|---|
 | **run-dmcp** | untouched |
-| **the-prisoner** | 20 commits, all on `main`, **unpushed** |
+| **the-prisoner** | 23 commits tonight, all on `main`; 36 unpushed in total (13 predate this session) |
 | **mother-of-invention** | untouched (A1 written, not filed) |
 
 - **Batch 6 is fully written up and committed** — it was owed from before this session and is done:
@@ -113,7 +113,7 @@ That is `world-elaboration-vision`'s thesis arriving from a new direction.
 | `comfyui.service` | restarted — see verification below |
 | `/tmp` | nothing deleted. `/tmp/b7-worktree` still pinned at `bf606c8`; `/tmp/b6-worktree` untouched |
 
-**20 commits are unpushed on `main`.**
+**36 commits are unpushed on `main`** — 23 from tonight, 13 from before it.
 
 ### Restore verified at 02:40 CDT (07:40Z)
 

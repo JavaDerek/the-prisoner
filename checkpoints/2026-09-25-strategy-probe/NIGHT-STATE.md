@@ -323,4 +323,4 @@ table and lets the split stand or fall on seven.
   `comfyui.service` active, llama-server untouched (same pid 2213812 since 09:39 the previous morning).
   The router remains restarted at a 400 s cap — the one machine change, recorded in the morning report.
   Nothing deleted in `/tmp`.
-- **ALL SEVEN STEPS OF §6 ARE DONE.** 20 commits on `main`, unpushed.
+- **ALL SEVEN STEPS OF §6 ARE DONE.** 23 commits tonight; 36 unpushed on `main` in total.
