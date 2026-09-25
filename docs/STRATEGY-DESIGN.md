@@ -6,8 +6,10 @@ Everything claimed about the tree was checked against `main` at `977dbb5` and th
 `/tmp/b6-worktree` (`dd5d635`, with `P/` and `S/` still untracked there — 7 games each, the last local
 call at 02:10Z). No implementation code is written here.
 
-Two things were **measured tonight, before designing**, and each one moves a decision (§1). Read that
-section first if nothing else.
+Three things were **measured tonight, before designing**, and each one moves a decision (§1). Read that
+section first if nothing else. **Revised 23:20 CDT after the owner's red team** (three points: the JSON
+chatter trap, the positional-bias illusion, adherence versus progress); each revision is marked where it
+lands and the probe that answered the first two is §1.3.
 
 ---
 
@@ -17,11 +19,11 @@ section first if nothing else.
 |---|---|---|---|
 | **D1** | where it lives | **`the-prisoner`, `src/open/strategy.ts`**, generic by intent (no game words in the module), with the moi shape named but not shipped | moi's admission test is "generic with one real caller", and tonight it would have zero *measured* callers. §20 and §40.3 are the precedent: drive it here, move it once it changes a free turn. |
 | **D2** | what a strategy is | **three things at once**: a declared index into a *fixed* option list, one sentence in the mind's own words (≤200 chars), and 1–2 object ids drawn from the perceived-object list | The index makes selection countable as *given*; the ids make adherence checkable by the referee's own keys with no meaning judged by code; the sentence is the only part the mind ever reads back. |
-| **D3** | when chosen, and revision | **once, before round 1**, in a separate two-call step (options at thinking OFF, commit at thinking ON). Revision **designed** (§3.5, one data trigger, at most once) and **switched off tonight** | Commitment amplifies in both directions (the brief's own reading). Tonight measures whether a deliberate commitment beats an arbitrary one; a revision arm on top would be a second moved variable. |
+| **D3** | when chosen, and revision | **once, before round 1**, in a separate two-call step (options at thinking OFF, commit at thinking ON). Revision **designed** (§3.5, one data trigger, at most once), **switched off tonight, and its trigger LOGGED in every game** as the round it would have fired | Commitment amplifies in both directions (the brief's own reading). Tonight measures whether a deliberate commitment beats an arbitrary one; a revision arm on top would be a second moved variable — but the batch must still say how often revision would have been reached for (red team, point 3). |
 | **D4** | cross-game history | **not tonight**, and when it comes, a **frozen snapshot per batch**, never a ledger that grows mid-batch | Growing mid-batch turns ten samples into a sequence (§4). "How they fared" is not recordable at all today: moi's `Account` has no outcome, and adding one is moi's change with its own admission test (§3.6). |
 | **D5** | how it reaches the turn | **one line the mind reads**, `Your strategy for this game: …`, in the briefing where the plan line already goes. The turn call produces **no new field** | The prose-seat result: fields the model must *fill* flatten it; a line it *reads* is the cheap direction. Run on the **prose seat**, whose only cross-turn memory this line will be. |
 | **D6** | primary endpoint | **Adherence**: share of graded prisoner turns whose ruling `target` is one of the strategy's declared ids. Baseline computed from b6's P games before predicting. 91% first-listed is the right **falsifier** for the probe, not the batch endpoint | It is the owner's standing lesson made countable: *build it, measure whether anything reaches for it*. Distinct targets, depth, wasted games, refusals, re-try rate are secondaries with bands (§5). |
-| **D7** | cheapest falsifier | **20 asks of the commit call at thinking `high` against a fixed option list** from the round-1 situation. If the chosen index is #1 in ≥17 of 20, thinking does not buy choice and nothing is built tonight | About 20 GPU-minutes, no game code. The design's whole premise is that a separate, thinking-ON call *selects*; if it takes the top of the list like the turn call does, the premise is dead before a line is written. |
+| **D7** | cheapest falsifier | **20 asks of the commit call at `high` against one fixed option list shown in shuffled orders**, tallied by option *identity*, plus 10 at `none` as a control. **The only kill is validity** (P0.a/b). Position-following is reported with two pre-named readings, never a kill (red team, point 2) | About 20 GPU-minutes, no game code. §1.3 already shows the instrument works and that choice follows content, not position, on a toy prompt; the real probe asks the same of the real situation. A #1 retention at `high` is not "thinking does not select" — it may be conviction, which is what the batch measures. |
 
 **What I am choosing:** a narrow thing measured once. One seat (prose), one arm (strategy ON, fixed, no
 ledger), N≈7, against b6's own P games as the baseline. Revision, history, the schema-seat arm and the
@@ -79,6 +81,38 @@ obtained and put the 18% beside it as the code-checkable floor.
 The design answers this by never asking code to match a text to a text (§3.4): selection is *declared*
 (an index, counted as given, the way `replanned` is), and adherence is *keyed* (the referee's `target`,
 which every ruling already carries).
+
+### 1.3 The commit call, probed on a toy prompt: grammar survives reasoning, the content is naked JSON, and the choice follows content rather than position
+
+The red team's first two points were testable in twelve calls, so they were tested (23:05 CDT,
+`checkpoints/2026-09-24-strategy-commit-probe/`, **a toy stand-in for the situation, not a
+`buildOpenWorld` request** — it says what the *instrument* does, nothing about what the real seat would
+choose). Five fixed options, each carrying its own number, shown in three orders; `high` and `none`; with
+and without `response_format: json_schema`; temperature 0.9.
+
+| | asks | naked JSON in `content` | position-1 picks | reasoning chars | seconds per call |
+|---|---|---|---|---|---|
+| `high`, no grammar | 3 | 3 | 0 | 6.9k–10.0k | 33–47 |
+| `high`, `json_schema` | 3 | 3 | 1 | 7.4k–11.5k | 36–54 |
+| `none`, no grammar | 3 | 3 | 0 | 0.7k–0.9k | 5–6 |
+| `none`, `json_schema` | 3 | 3 | 2 | 0.4k–1.5k | 3–8 |
+
+- **The chatter trap does not fire on this server.** llama-server's reasoning parser puts the thinking in
+  `reasoning_content` and `content` came back as a bare object in **12 of 12**, with or without a grammar.
+  A grammar and `high` reasoning **coexist**: the grammar-enforced calls at `high` still produced 7–11k
+  characters of reasoning. The step therefore reuses the seam's own wire discipline (§3.2): the same
+  `response_format: json_schema` the schema seat has sent in every batch, and `firstJsonObject`'s
+  balanced-brace fallback for a reply that wraps the object anyway. Neither is new code.
+- **Choice follows content, not position.** Position 1 was picked in **3 of 12**; by identity the picks
+  were water-and-key-ring 4, loose tile 4, door 3, bar 1, thread 0 — the same three favourites at `none`
+  as at `high`. So on this prompt the model *selects* with no reasoning at all, and reasoning changes the
+  cost (about 8× the tokens, 40 s against 5 s) more than the choice. That is the red team's point made
+  measurable: **a #1 retention would be positional bias, and a change of choice under thinking was never
+  the right kill** — the real probe (§5.0) shuffles, tallies by identity, and runs a `none` control.
+- **Context headroom is better than the brief implied.** The largest `high` reply was 2662 completion
+  tokens; the real situation is ~8.5 kB (~2.5k tokens) and the commit prompt is shorter than a turn's, so
+  a `high` commit call sits near 5–6k of the 16384 context. `medium` stays the pre-registered fallback,
+  but overrun is no longer the expected failure.
 
 ---
 
@@ -153,8 +187,16 @@ router as every wits call; the second sends the reasoning field explicitly.
    remind you what you are trying to do; "targets" names 1 or 2 of the object ids above that this strategy
    works on."*
 
-Cost per game: two calls, one of them at `high` — a few minutes against a 20-minute game. The turn call is
-**untouched** in shape, schema, temperature and reasoning.
+Both calls go over the seam's own wire discipline, not a new one: `response_format: json_schema` with the
+call's schema (`coerceCandidates`'s array shape for OPTIONS; `{chosen, strategy, targets}` for COMMIT), and
+`firstJsonObject` on the reply so a wrapped object is still found. §1.3 measured that a grammar and `high`
+reasoning coexist on this server and that the content comes back naked either way. **The raw text of both
+replies — `content` and `reasoning_content` — is written to the transcript** under the strategy block, so
+a gate failure can be read as what it was (§6, step 5's negative path).
+
+Cost per game: two calls, one of them at `high` — under a minute each on the toy prompt, budget five
+minutes on the real one — against a 20-minute game. The turn call is **untouched** in shape, schema,
+temperature and reasoning.
 
 ### 3.3 How it reaches the turn (D5)
 
@@ -198,6 +240,12 @@ the per-turn `plan` that §33 showed does nothing:
 - **Cap**: once per game. The second strategy replaces the line; the transcript records both, with the
   round.
 - **Switch**: `PRISONER_STRATEGY=revise`, default off. Tonight runs `fixed`.
+- **Logged even when off** (red team, point 3): under `fixed`, the trigger is still evaluated every
+  prisoner turn and the transcript's summary prints `Revision would have fired: round N` (or `never`).
+  `batchMeasures.ts` reports it per game. So batch 7 says, at no cost to the isolation, how often a
+  committed strategy stalls and when — which is the number a decision to build revision needs. Adherence
+  and progress are in tension by design under `fixed`; band 4 is that tension pre-registered, and band 1
+  passing while band 4 fails is the case *for* revision, not a contradiction in the endpoint.
 
 What separates this from the schema seat's `plan`: it is produced in a *separate* call the turn cannot
 rewrite, at a reasoning strength the turn does not have, on a trigger code can see, at most twice a game.
@@ -265,16 +313,19 @@ so the numbers below are the *shape* of the prediction; the agent fills the base
 
 ### 5.0 The probe (step 1), pre-committed
 
-20 commit-call asks at `high`, one fixed option list from one OPTIONS call, round-1 prisoner situation,
-temperature 0.9, requests built from `buildOpenWorld` (never a recorded request —
-`prisoner-measurement-fidelity`).
+One OPTIONS call fixes the list; each option carries its **own** number for the whole probe. Then **20
+COMMIT asks at `high`**, the list shown in a **different random order each ask** (seeded, recorded), and
+**10 at `none`** as the control, all at temperature 0.9, requests built from `buildOpenWorld` (never a
+recorded request — `prisoner-measurement-fidelity`). Every ask records the order shown, the option
+*identity* chosen, and its *position*.
 
 | | band | if it fails |
 |---|---|---|
-| P0.a valid JSON with an in-range `chosen` and ≥1 valid id | ≥ 16 of 20 | rerun once at `medium`; still < 16 → **stop, do not build** |
-| P0.b empty or context-overrun replies | ≤ 2 of 20 | same fallback to `medium`; still > 2 → **stop** |
-| **P0.c chosen index is #1** | **≤ 16 of 20** (i.e. selection departs from the top in ≥ 4) | ≥ 17 of 20 → §2's claim confirmed, **do not build**; write it up as the night's result |
-| P0.d chosen ids are condition-listed objects (`bar`, `lock`, `spoon`, `door`, `window` — the objects whose thresholds `conditions.ts` states, all present as ids in the perceived list) | ≥ 12 of 20 | fewer → the step selects but not toward the game; **build anyway**, and say the batch will likely show adherence without depth |
+| **P0.a** valid JSON with an in-range `chosen` and ≥1 valid id | ≥ 16 of 20 at `high` | rerun once at `medium`; still < 16 → **stop, do not build** (the one substantive kill) |
+| **P0.b** empty or context-overrun replies | ≤ 2 of 20 | same fallback to `medium`; still > 2 → **stop** |
+| **P0.c** position-1 share at `high` | reported, with **two readings pre-named**: **(i)** identity-concentrated *and* position-spread (one or two options take most picks whatever their position) = the call selects on content; **(ii)** position-1 ≥ 14 of 20 with identity following the shuffle = positional bias, no selection | **neither reading kills the build.** Under (ii) the strategy is "the list's top item carried as a line" and batch 7 becomes the *conviction* test — the results file leads with that, and band 3/4 are read as adherence-only |
+| **P0.d** `high` vs `none`, by identity | reported: same favourites at both = thinking buys cost, not choice (§1.3's toy result); different favourites = thinking changes the choice | no kill either way; it decides whether `PRISONER_STRATEGY` gets a strength sub-arm later, and the header records the strength regardless |
+| **P0.e** chosen ids are condition-listed objects (`bar`, `lock`, `spoon`, `door`, `window` — the objects whose thresholds `conditions.ts` states, all present as ids in the perceived list) | ≥ 12 of 20 | fewer → the step selects but not toward the game; **build anyway**, and say the batch will likely show adherence without depth |
 
 ### 5.1 The batch (step 5): arm T = prose seat + `PRISONER_STRATEGY=fixed`, N up to 7
 
@@ -315,11 +366,11 @@ negative path. Steps 1 and 2 run **concurrently** (one on the GPU, one not).
 | step | window | depends on | do | if negative |
 |---|---|---|---|---|
 | **0. Instrument check** | T+0 → T+0:10 | — | Verify the live llama-server flag on doris (`ps`), `/api/ps` empty through the router, and re-run §1.1's five-row probe; write `checkpoints/2026-09-25-strategy-probe/SETUP.md` with the rows. | Server down or a foreign model loaded: **do not restart anything**; skip to step 2 alone, and end at step 7. `chat_template_kwargs` no longer moves tokens: same. |
-| **1. The falsifier probe** (GPU, ~20 min) | T+0:10 → T+0:40 | 0 | Commit `PREDICTION.md` with §5.0's four bands *first*. One OPTIONS call, then 20 COMMIT calls at `high` against that fixed list, built from `buildOpenWorld`. Tally by declared index. Commit the raw replies and `RESULTS.md`. | P0.a/b fail at `high` → once at `medium` (10 min). P0.c fails (≥17 of 20 take #1) → **no build**: write it up as the finding (§2's claim confirmed), then use the GPU for **fallback F** below. P0.d fails → build, note it. |
+| **1. The falsifier probe** (GPU, ~20 min) | T+0:10 → T+0:40 | 0 | Commit `PREDICTION.md` with §5.0's five rows *first*. One OPTIONS call; 20 COMMIT calls at `high` in shuffled orders (seeded); 10 at `none`; all from `buildOpenWorld`. Tally by identity and by position. Commit the raw replies (content and reasoning) and `RESULTS.md`. | P0.a/b fail at `high` → once at `medium` (10 min); still failing → **no build**, write it up, GPU to **fallback F**. **A parse failure with a visible object in the raw text is a bug in the coercion, not a probe result**: fix it within 15 minutes and re-tally the same replies; do not re-ask the model. P0.c/d/e never stop the build; they change what §6 step 4 pre-registers. |
 | **2. The owed batch-6 write-up** (no GPU) | T+0:10 → T+1:30 | — | Copy `P/`, `S/`, `logs/` from `/tmp/b6-worktree` into `main`'s `checkpoints/2026-09-24-phase1-b6/` unedited; `npm run measures`; `scoreboard.mts` (announce every DEAD, the batch stopped at 7 not 10 and says so); `../2026-09-23-phase1-b3/audit.mts` refusal audit; `../2026-09-24-phase1-b4/escalate.mts` on every refusal **plus** `escalate-grounded.mts` on 30 grounded rulings with a recorded seed, Opus via the router (no GPU); `RESULTS.md` including §1.2 (how the 91% was read; 18% byte floor) and §1.1 (the wits thinking switch is a no-op on this server — file it as an issue in `docs/issues/`, and file moi's "outcome on an Account" issue from §3.6). Commit. | Claude CLI auth fails for escalation: record the failure, skip that section, continue. Measures CLI chokes on a transcript: quarantine that file, say which, continue. **This step is never skipped.** |
-| **3. Build, TDD, time-boxed 80 min** | T+0:40 → T+2:00 | 1 passed | In order, each red-then-green: (a) byte-identity guard for both prompts and the OFF header line; (b) `strategy.ts` coercion (index range, sentence cap, id membership, null on zero ids); (c) the reasoning wrapper sending `chat_template_kwargs`; (d) `chooseStrategy` with a scripted `ask`; (e) `OpenNews.strategy` + the briefing line; (f) checkpoint wiring, switch parsing, header block; (g) `adherenceByGame` in `batchMeasures.ts`. `npm run typecheck`, `npm run lint`, `npx vitest run` green. **Never `npm run format`.** Commit on `main`. | Not green by **T+2:00**: stop building, commit the work-in-progress on a branch `strategy-wip` with a note, and switch the GPU to **fallback F**. Do not run a batch on red. |
+| **3. Build, TDD, time-boxed 80 min** | T+0:40 → T+2:00 | 1 passed | In order, each red-then-green: (a) byte-identity guard for both prompts and the OFF header line; (b) `strategy.ts` coercion (index range, sentence cap, id membership, null on zero ids); (c) the reasoning wrapper sending `chat_template_kwargs`; (d) `chooseStrategy` with a scripted `ask`; (e) `OpenNews.strategy` + the briefing line; (f) checkpoint wiring, switch parsing, header block **with both raw replies**; (g) `adherenceByGame` and the would-have-fired revision round in `batchMeasures.ts`; (h) a coercion test fed the twelve recorded replies from `checkpoints/2026-09-24-strategy-commit-probe/replies.jsonl` *and* three wrapped variants (prose preamble, a fenced block, trailing chatter), so the chatter trap is a test that passes before game 1, not a discovery in it. `npm run typecheck`, `npm run lint`, `npx vitest run` green. **Never `npm run format`.** Commit on `main`. | Not green by **T+2:00**: stop building, commit the work-in-progress on a branch `strategy-wip` with a note, and switch the GPU to **fallback F**. Do not run a batch on red. |
 | **4. Pre-register batch 7** | T+2:00 → T+2:15 | 3 | Compute the *compute* baselines from b6 P (modal-target share, wasted games). Write `checkpoints/2026-09-25-phase1-b7/PREDICTION.md` with §5.1's bands, the gate and stopping rules, the reasoning field and strength, and the pin. Driver = b6's `run-batch.sh` plus `PRISONER_STRATEGY` passed **and logged per game** (the driver names the arm). New worktree at that commit. Commit before game 1. | Baselines make a band impossible as written (e.g. P's modal share already ≥ 45%): keep the margin, move the number, say so in the file *before* the first game. |
-| **5. Batch 7** (GPU, ~2.5 h) | T+2:15 → T+5:00 | 4 | One driver, sequential games, arm T only, up to 7 games. Poll every 20 min: scoreboard with so-far / projected-at-7 / dead-or-open; announce DEAD at the poll. **No game starts after T+4:40** (~03:25 CDT). If time remains after 7, one `PRISONER_STRATEGY` unset game as a live canary of the OFF path. | Gate fails on game 1 (null strategy): stop, report as pilot, **fallback F** with what is left. Context-exceeded: stop, check the server line, do not restart it. A prediction dies: keep running (the batch is for all nine rows), announce it. Fewer than 4 games by T+4:40: report as a pilot, not a batch. |
+| **5. Batch 7** (GPU, ~2.5 h) | T+2:15 → T+5:00 | 4 | One driver, sequential games, arm T only, up to 7 games. Poll every 20 min: scoreboard with so-far / projected-at-7 / dead-or-open; announce DEAD at the poll. **No game starts after T+4:40** (~03:25 CDT). If time remains after 7, one `PRISONER_STRATEGY` unset game as a live canary of the OFF path. | **Gate fails on game 1: read the raw replies in the transcript before doing anything else.** A *technical* failure (an object is there and the coercion missed it; a wrong field name; an id with different casing) gets a **15-minute repair budget** — fix, test, re-pin, restart game 1, once. Only a *substantive* failure (no strategy in the raw text, an overrun, a timeout) stops the batch, reports it as a pilot, and hands the GPU to **fallback F**. Context-exceeded: stop, check the server line, do not restart it. A prediction dies: keep running (the batch is for all nine rows), announce it. Fewer than 4 games by T+4:40: report as a pilot, not a batch. |
 | **6. Write up batch 7 + morning report** | T+5:00 → T+5:40 | 5 (or its fallback) | `npm run measures`, scoreboard, `RESULTS.md`; then `docs/OVERNIGHT-2026-09-25.md` in the house shape: decisions first (build revision? run the S-seat arm? file the moi shape?), then what landed, then what went wrong or could not be explained. Report times in Chicago; keep UTC where quoting logs. Commit. | Nothing here is negative-path; a batch that died still gets its results file, and a probe that killed the build gets §2's write-up as the report's headline. |
 | **7. Restore the machine** | T+5:40 → T+6:00 | — (always) | Reload the owner's `qwen3:14b` pin into Ollama (`keep_alive: -1`, as found before b6); `systemctl start comfyui.service` on doris; verify both (`/api/ps`, `is-active`); leave llama-server exactly as found (it was running before this session and is not the agent's to stop). Record the final state in the morning report. Delete nothing in `/tmp`. | ComfyUI fails to start for VRAM (Muse holds 16.6 GB): **do not stop Muse**; say so in the report's first lines. Ollama load fails: same. |
 
@@ -368,4 +419,7 @@ router log and one `/tmp`. Six hours buys one clean measurement, not two.
   a game.
 - **D7 → moot**: if step 0 finds `chat_template_kwargs` no longer moves tokens, thinking is not a lever
   tonight and the probe should run at `none` to ask the weaker question: does a *separate* commit call select
-  at all?
+  at all? §1.3 suggests the answer is already yes on a toy prompt.
+- **The strength itself**: if P0.d shows the same favourites at `none` and `high` on the *real* situation
+  (as the toy did), `high` is buying conviction at 8× the tokens and the honest next arm is a strength
+  comparison, not more strategy — pre-registered then, not run tonight.
