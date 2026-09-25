@@ -1150,8 +1150,11 @@ async function mainOpen(): Promise<void> {
   transcript.push(
     SEAT === "off"
       ? "Seats: both minds are models, as every recorded batch is."
-      : `HUMAN SEAT (\`PRISONER_HUMAN=${SEAT}\`): ${SEAT === "prisoner" ? PRISONER_NAME : WARDEN_NAME} was played by a person at a terminal, shown exactly ` +
-        "what the model in that chair would have been shown (`src/open/humanSeat.ts`). NOT a model-vs-model game: never pool it with one as evidence."
+      : `HUMAN SEAT (\`PRISONER_HUMAN=${SEAT}\`): ${SEAT === "prisoner" ? PRISONER_NAME : WARDEN_NAME} was played by a person at a terminal, shown ` +
+        (VIEW === "play"
+          ? "the same information the model in that chair would have been shown, though not all of it at once -- see the View line below"
+          : "exactly what the model in that chair would have been shown") +
+        " (`src/open/humanSeat.ts`). NOT a model-vs-model game: never pool it with one as evidence."
   );
   if (SEAT !== "off") {
     transcript.push(
@@ -1159,7 +1162,9 @@ async function mainOpen(): Promise<void> {
         ? `View: NARRATED (\`PRISONER_VIEW=narrated\`, D3): the human seat's own situation was shown as prose from a narrator model (\`${NARRATOR_MODEL}\`, \`src/open/narrator.ts\`) over the SAME data \`prose\` composes from, but ONLY once \`verifyNarration\` found nothing wrong with it -- a rejected or silent narration fell back to the deterministic prose view instead (\`src/open/proseView.ts\`), never shown to the player as an error. The player could type "raw" at any intent prompt to see the raw view on demand.`
         : VIEW === "prose"
           ? "View: PROSE (`PRISONER_VIEW=prose`): the human seat's own situation was shown as deterministic prose composed by code (`src/open/proseView.ts`, the-prisoner#21), never a different information set than the raw view below -- the player could type \"raw\" at any intent prompt to see it on demand."
-          : "View: RAW (the default): the human seat's own situation was shown exactly as the model's own prompt opens, unchanged since before the-prisoner#21."
+          : VIEW === "play"
+            ? "View: PLAY (`PRISONER_VIEW=play`): the same blocks `prose` composes, ordered for a person -- the turn's news first, then the room -- with three of them (the condition list, the standing rules, and identity/motive) held behind the no-turn commands `conditions`, `rules` and `me` rather than reprinted every turn, and the how-to-play instructions said once. Nothing was withheld from the player: every block was reachable at any prompt, `raw` included, at no cost in turns. This is a READING ORDER, not a smaller information set -- but it is not byte-comparable to a model's prompt the way `raw` is, so treat a `play` transcript as a person's game and nothing else."
+            : "View: RAW (the default): the human seat's own situation was shown exactly as the model's own prompt opens, unchanged since before the-prisoner#21."
     );
     if (VIEW === "narrated") {
       transcript.push(

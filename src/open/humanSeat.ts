@@ -1,5 +1,5 @@
 import { renderSeatSituation, ONE_ACT_RULE, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
-import { proseBlocks, type ProseBlockKind } from "./proseView.js";
+import { proseBlocks, type ProseBlock, type ProseBlockKind } from "./proseView.js";
 import { createDeltaView } from "./deltaView.js";
 import { findObject } from "./scenarioObjects.js";
 import type { Narrator } from "./narrator.js";
@@ -45,14 +45,42 @@ export type SeatMode = "off" | "prisoner" | "warden";
  *  that check is discarded and this falls back to `prose`, silently to the
  *  player (the failure is still counted, by `checkpoint.ts`, where a
  *  transcript will show it). */
-export type ViewMode = "raw" | "prose" | "narrated";
+export type ViewMode = "raw" | "prose" | "narrated" | "play";
+
+/**
+ * `play` (2026-09-25): the same blocks `prose` composes, laid out for a
+ * PERSON rather than for completeness.
+ *
+ * The owner played a real game under `prose` and the first turn was ~70
+ * lines in which the only thing that had HAPPENED -- the warden examining
+ * the bar and speaking -- sat fourth of eight blocks, beneath the full
+ * condition list (the warden's own four win conditions among them, stated
+ * as thresholds), the whole object catalogue and the mechanics paragraph.
+ * `prose` was behaving exactly as the-prisoner#21 specifies; the ORDER is
+ * what failed, and Infocom's is the other way round: what just happened,
+ * then the room, and the standing rules only when asked for.
+ *
+ * WHY THIS IS A FOURTH VIEW AND NOT A FIX TO `prose`. #21's hard
+ * constraint -- a view, never a different information set -- exists so a
+ * human transcript stays comparable to a model one. CLAUDE.md already
+ * forbids pooling a human transcript with a model batch ("a batch means
+ * identical conditions"), so that comparability does not exist for a human
+ * game in the first place; but `prose` is also what `narrated` falls back
+ * to, and its completeness test is a real guard. So `prose` is left exactly
+ * as it was and this view sits beside it.
+ *
+ * WHAT IT DOES NOT DO: remove anything from the player's reach. Every block
+ * is either on screen or one no-turn command away -- `PLAY_BLOCK_POLICY`
+ * below says which, for every block kind there is, and its test fails if a
+ * future block kind is added without a decision being made about it.
+ */
 
 /** `PRISONER_VIEW=raw|prose|narrated` chooses HOW the human seat is shown,
  *  never WHAT it is shown. Anything else stops the run rather than guessing. */
 export function readViewMode(raw: string | undefined): ViewMode {
   if (raw === undefined || raw === "") return "raw";
-  if (raw === "raw" || raw === "prose" || raw === "narrated") return raw;
-  throw new Error(`PRISONER_VIEW: unrecognised value ${JSON.stringify(raw)} -- must be "raw", "prose", "narrated" or unset`);
+  if (raw === "raw" || raw === "prose" || raw === "narrated" || raw === "play") return raw;
+  throw new Error(`PRISONER_VIEW: unrecognised value ${JSON.stringify(raw)} -- must be "raw", "prose", "narrated", "play" or unset`);
 }
 
 /** `PRISONER_HUMAN=prisoner|warden` seats a person in that chair; unset (the default) is
@@ -264,6 +292,8 @@ function conditionsAnswer(selfName: string, conditions: readonly Condition[] | u
 
 /** §1.4's `help`: the command set itself, in the same voice as the prompt's
  *  own hint below -- computed once, since it depends on nothing per-turn. */
+export const SEAT_COMMANDS = ["raw", "say", "plan", "holding", "desc", "conditions", "rules", "me", "help"] as const;
+
 const HELP_TEXT = [
   "Commands (each costs no turn, and none of them reach the referee):",
   '  say <words>     speak the words aloud',
@@ -272,9 +302,50 @@ const HELP_TEXT = [
   "  holding         what you are carrying",
   "  desc <id>       the description of one thing you perceive (free -- not the same as examining it)",
   "  conditions      reprint this chair's condition list",
+  "  rules           the standing rules of this cell (how suspicion moves, what counts as escape)",
+  "  me              who you are, and what you want",
   "  help            this list",
   "Anything else you type is your intent for this turn.",
 ].join("\n");
+
+/**
+ * Which blocks the `play` view puts ON SCREEN every turn, and which are one
+ * no-turn command away. Exhaustive over `ProseBlockKind` by its type, so a
+ * new block kind cannot be added to `proseView.ts` without someone deciding
+ * here whether a player sees it -- the honest analogue, for this view, of
+ * the completeness test that guards `prose`. Nothing maps to "dropped", and
+ * there is deliberately no such value: a block a player cannot reach at all
+ * would be the information-set change #21 forbids.
+ *
+ * The three that are NOT shown are the three that never change from turn to
+ * turn and are long: the condition list (six conditions, four of them the
+ * warden's own win conditions in thresholds), the mechanics paragraph, and
+ * who you are. A model is given all three every turn because it has no
+ * memory between turns; a person has one.
+ */
+export const PLAY_BLOCK_POLICY: Record<ProseBlockKind, "shown" | "conditions" | "rules" | "me"> = {
+  news: "shown",
+  notesAndPlan: "shown",
+  knowledge: "shown",
+  scene: "shown",
+  conditions: "conditions",
+  rules: "rules",
+  identity: "me",
+};
+
+/** Reading order for the blocks `PLAY_BLOCK_POLICY` shows: what happened,
+ *  what you had planned, what you know, then the room. Infocom's order, and
+ *  the reverse of the one that buried the news. */
+const PLAY_ORDER: readonly ProseBlockKind[] = ["news", "notesAndPlan", "knowledge", "scene"];
+
+/** The play view's blocks, in `PLAY_ORDER` -- a stable sort over the kinds
+ *  that are shown, so a block kind absent this turn simply does not appear
+ *  and nothing has to know which ones are optional. */
+export function orderForPlay(blocks: readonly ProseBlock[]): ProseBlock[] {
+  return blocks
+    .filter((block) => PLAY_BLOCK_POLICY[block.kind] === "shown")
+    .sort((a, b) => PLAY_ORDER.indexOf(a.kind) - PLAY_ORDER.indexOf(b.kind));
+}
 
 export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   const { selfName, otherName, ask, write: rawWrite } = options;
@@ -303,6 +374,17 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   // strings it has already shown -- it never reads what they say.
   const delta = createDeltaView({ keepShownWhileChanged: (key) => findObject(key)?.properties.some((p) => p.key === "passage") ?? false });
   const proseSituation = (context: OpenPrincipalContext): string => delta.render(proseBlocks(selfName, otherName, context, options.conditions));
+  // The play view (2026-09-25): the SAME blocks, through the SAME delta, in
+  // `PLAY_ORDER` and without the three `PLAY_BLOCK_POLICY` puts behind a
+  // command. Composed here rather than in `proseView.ts` because it is a
+  // seat decision about a reader, not a change to what the prose says.
+  const playSituation = (context: OpenPrincipalContext): string =>
+    delta.render(orderForPlay(proseBlocks(selfName, otherName, context, options.conditions)));
+  // One block of the prose view by kind, for the commands that print a block
+  // `play` holds back -- read from the same composer the view itself uses, so
+  // `rules` and `me` can never drift into being a second rendering.
+  const blockText = (context: OpenPrincipalContext, kind: ProseBlockKind): string =>
+    proseBlocks(selfName, otherName, context, options.conditions).find((block) => block.kind === kind)?.text ?? "";
   // OPEN-VARIANT.md §61: CODE RENDERS STATE, THE MODEL RENDERS THE ROOM.
   //
   // Everything except the scene -- the conditions, the identity, the clock and
@@ -337,6 +419,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   return {
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
+      const isFirstTurn = firstTurn;
       if (firstTurn) {
         firstTurn = false;
         if (view === "raw") {
@@ -352,17 +435,33 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
           ? await narratedSituation(context)
           : view === "prose"
             ? proseSituation(context)
-            : renderSeatSituation(selfName, otherName, context, options.conditions);
+            : view === "play"
+              ? playSituation(context)
+              : renderSeatSituation(selfName, otherName, context, options.conditions);
       write(situation);
       write("");
       // The one line of the model's prompt that is about the game rather than about
       // answering in JSON, and the only thing a player needs told: there is no move list.
-      write(
-        "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
-          "A referee decides what actually happens; you only decide what you TRY."
-      );
-      write(ONE_ACT_RULE);
-      write("");
+      //
+      // Under `play` it is said on the FIRST turn only. It is an instruction to a
+      // MIND about how to behave, repeated every turn because a model has no memory
+      // between turns; a person read it once and then read it twenty-nine more times.
+      // It stays reachable for the whole game under `help`, which lists both rules.
+      if (view !== "play" || isFirstTurn) {
+        write(
+          "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
+            "A referee decides what actually happens; you only decide what you TRY."
+        );
+        write(ONE_ACT_RULE);
+        write("");
+      }
+      if (view === "play" && isFirstTurn) {
+        write(
+          'This view shows what has changed. The rest is a keystroke away and costs no turn: "me", "conditions", ' +
+            '"rules", "desc <id>", "holding", "raw" for the full model view, or "help".'
+        );
+        write("");
+      }
 
       // §1.2/§1.3: a stable band, the LAST thing written before EVERY
       // prompt this turn -- not only the first. A no-turn command
@@ -417,10 +516,9 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
       // near-useless `noise`) and `raw` is not an action verb at all --
       // `desc` was chosen exactly because it cannot collide with anything a
       // player would type as an action.
-      const COMMANDS = ["raw", "say", "plan", "holding", "desc", "conditions", "help"] as const;
-      const commandIn = (answer: string): { command: (typeof COMMANDS)[number]; rest: string } | null => {
+      const commandIn = (answer: string): { command: (typeof SEAT_COMMANDS)[number]; rest: string } | null => {
         const lowered = answer.toLowerCase();
-        for (const command of COMMANDS) {
+        for (const command of SEAT_COMMANDS) {
           if (lowered === command) return { command, rest: "" };
           if (lowered.startsWith(`${command} `)) return { command, rest: answer.slice(command.length + 1) };
         }
@@ -453,6 +551,18 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
         }
         if (command.command === "conditions") {
           write(conditionsAnswer(selfName, options.conditions));
+          continue;
+        }
+        if (command.command === "rules") {
+          // The prose view's own rules paragraph, which `play` holds back --
+          // `blockText` reads it from `proseBlocks`, never a second rendering.
+          const rules = blockText(context, "rules");
+          write(rules.length > 0 ? rules : "This cell has no standing rules beyond what you can see.");
+          continue;
+        }
+        if (command.command === "me") {
+          const identity = blockText(context, "identity");
+          write(identity.length > 0 ? identity : `You are ${selfName}.`);
           continue;
         }
         if (command.command === "help") {

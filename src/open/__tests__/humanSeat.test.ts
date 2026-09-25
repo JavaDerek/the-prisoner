@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { createOpenMind, renderSeatSituation, ONE_ACT_RULE, type OpenPrincipalContext } from "../mind.js";
-import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, wrapText, wrapWidth, type ViewMode } from "../humanSeat.js";
+import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, wrapText, wrapWidth, PLAY_BLOCK_POLICY, SEAT_COMMANDS, type ViewMode } from "../humanSeat.js";
+import { proseBlocks, RULES_PARAGRAPH_LEAD } from "../proseView.js";
+import { CONDITION_LIST_OPENING } from "../conditionList.js";
 import type { Narrator } from "../narrator.js";
 import { openConditions } from "../conditions.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
@@ -681,5 +683,96 @@ describe("no-turn info commands (§1.4): holding, look, conditions, help", () =>
     await mind.consider(CONTEXT);
     expect(asked[0]).toMatch(/help/);
     expect(asked[0].length).toBeLessThan(200);
+  });
+});
+
+/**
+ * `PRISONER_VIEW=play`: the same data as `prose`, laid out for a PERSON.
+ *
+ * The owner played a real game under `prose` (2026-09-25) and the first turn
+ * was ~70 lines in which the one thing that had happened -- the warden
+ * examining the bar and speaking -- sat fourth of eight blocks, under the
+ * full condition list (including the warden's own four win conditions,
+ * stated in thresholds), the whole object catalogue, and the mechanics
+ * paragraph. `prose` is behaving exactly as the-prisoner#21 specifies: a
+ * re-presentation that drops nothing. This view keeps that promise by a
+ * different route -- NOTHING is removed from the player's reach, it is moved
+ * one keystroke away -- and is therefore a fourth view rather than a change
+ * to `prose`, whose completeness test still pins the old behaviour.
+ */
+describe("the play view", () => {
+  const PLAY_CONTEXT: OpenPrincipalContext = {
+    principalId: "p1",
+    identity: "You are Mara Voss, three years into a sentence.",
+    motive: "Get out of this cell.",
+    briefing: "Round 1 of 12.\nbar integrity: 100 (as of round 0).\nWarden Croft examines the bar closely.",
+    perceivedObjects: [{ id: "bar", description: "One of five vertical iron bars." }],
+  };
+  const LATER_CONTEXT: OpenPrincipalContext = { ...PLAY_CONTEXT, briefing: "Round 2 of 12.\nbar integrity: 90 (as of round 2).\nCroft steps out into the corridor." };
+
+  it("PRISONER_VIEW=play is a fourth view, and anything else still stops the run", () => {
+    expect(readViewMode("play")).toBe("play");
+    expect(() => readViewMode("playing")).toThrow(/PRISONER_VIEW/);
+  });
+
+  it("puts the turn's news ABOVE the standing scene -- the inversion that made prose unreadable", async () => {
+    const { mind, written } = seat(["I test the bar."], { view: "play", conditions: openConditions() });
+    await mind.consider(PLAY_CONTEXT);
+    const shown = dewrap(written.join("\n"));
+    expect(shown).toContain("This is round 1 of 12.");
+    expect(shown.indexOf("This is round 1 of 12.")).toBeLessThan(shown.indexOf("In the cell around you:"));
+  });
+
+  it("never prints the condition list or the mechanics paragraph on a turn", async () => {
+    const { mind, written } = seat(["I test the bar."], { view: "play", conditions: openConditions() });
+    await mind.consider(PLAY_CONTEXT);
+    const shown = dewrap(written.join("\n"));
+    expect(shown).not.toContain(CONDITION_LIST_OPENING);
+    expect(shown).not.toContain(RULES_PARAGRAPH_LEAD);
+  });
+
+  it('"rules" prints the mechanics paragraph on demand, and costs no turn', async () => {
+    const { mind, written, asked } = seat(["rules", "I test the bar."], { view: "play", conditions: openConditions() });
+    expect(await mind.consider(PLAY_CONTEXT)).toEqual({ intent: "I test the bar." });
+    expect(dewrap(written.join("\n"))).toContain(RULES_PARAGRAPH_LEAD);
+    expect(asked.length).toBe(2);
+  });
+
+  it('"me" prints who you are and what you want, and costs no turn', async () => {
+    const { mind, written, asked } = seat(["me", "I test the bar."], { view: "play", conditions: openConditions() });
+    expect(await mind.consider(PLAY_CONTEXT)).toEqual({ intent: "I test the bar." });
+    const shown = dewrap(written.join("\n"));
+    expect(shown).toContain("You are Mara Voss, three years into a sentence.");
+    expect(shown).toContain("Get out of this cell.");
+    expect(asked.length).toBe(2);
+  });
+
+  it("classifies EVERY block the prose view can compose: shown, or behind a command that exists", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, PLAY_CONTEXT, openConditions());
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) expect(PLAY_BLOCK_POLICY[block.kind]).toBeDefined();
+    for (const target of Object.values(PLAY_BLOCK_POLICY)) {
+      if (target !== "shown") expect(SEAT_COMMANDS).toContain(target);
+    }
+  });
+
+  it("says how the game works ONCE, not every turn", async () => {
+    const { mind, written } = seat(["I test the bar.", "I test it again."], { view: "play", conditions: openConditions() });
+    await mind.consider(PLAY_CONTEXT);
+    const firstTurn = dewrap(written.join("\n"));
+    written.length = 0;
+    await mind.consider(LATER_CONTEXT);
+    const secondTurn = dewrap(written.join("\n"));
+    expect(firstTurn).toContain("there is no fixed list of moves");
+    expect(secondTurn).not.toContain("there is no fixed list of moves");
+    expect(secondTurn).toContain("This is round 2 of 12.");
+  });
+
+  it("leaves `prose` untouched: it still carries the conditions and the rules, as #21 requires", async () => {
+    const { mind, written } = seat(["I test the bar."], { view: "prose", conditions: openConditions() });
+    await mind.consider(PLAY_CONTEXT);
+    const shown = dewrap(written.join("\n"));
+    expect(shown).toContain(CONDITION_LIST_OPENING);
+    expect(shown).toContain(RULES_PARAGRAPH_LEAD);
   });
 });
