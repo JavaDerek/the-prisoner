@@ -196,3 +196,30 @@ re-run over these same committed transcripts afterwards — the measure is compu
 
 Also of note: game 2 round 6 was `key_ring/take`, ruled possible — the prisoner **took the key ring**.
 Check escapes and catches at the end (reported, weightless, per the brief).
+
+- **06:22Z game 3 of 7, rc=0, 17.7 min.** Chosen 6, declared targets **door + lock** — both
+  condition-listed, and no derived object anywhere in the game. Adherence **60.0%** (6 on / 4 off / **0
+  refused**). `Revision would have fired: never`.
+
+| band | so far (3 games, 30 turns) | projected at 7 | verdict |
+|---|---|---|---|
+| **1 (primary)** adherence ≥ 60.7% | **50.0%** (15 of 30) | 50.0% | **open** — needs 28 of the remaining 40 turns (70%) |
+| **5** refusals ≤ 8% (≤ 5 of 70) | **4 of 30 = 13.3%** | 9 of 70 | **open, still one refusal from dead** |
+| 8 strategy calls succeed ≥ 6 of 7 | 3 of 3 | 7 of 7 | open |
+| 9 median game < 45 min | 18.5, 19.5, 17.7 | — | open |
+
+**Three games, and the split is already legible — it is P0.e arriving in play exactly as §5.0 said it
+would:**
+
+| game | declared targets | condition-listed? | derived an object? | adherence | refusals |
+|---|---|---|---|---|---|
+| 1 | blanket | no | **yes** (`strip`) | 50% | 0 |
+| 2 | blanket, key_ring | no | **yes** (`strip`) | 40% | **4** |
+| 3 | door, lock | **yes** | no | **60%** | **0** |
+
+The one game whose strategy named objects the condition list actually prices is the one that adhered best
+and refused nothing. The two that named the blanket both had to *make* something first, and both paid for
+it — in adherence (the new id scores off-strategy) and, in game 2, in refusals (the referee cannot key
+effects on a thing the game just made). **P0.e failed at 10 of 20 in the probe, and this is what that
+failure costs a game.** It is not a defect of the strategy step: the step faithfully committed to what it
+chose. It is that what it chooses is often not something the world is built to price.
