@@ -22,7 +22,7 @@
 // is opened lazily, on the first `buildWorld`, so setting it here is enough; the runner passes it too.
 process.env.DMCP_DB_PATH ??= `/tmp/strategy-probe-${process.pid}.db`;
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { firstJsonObject } from "mind-seam";
@@ -183,7 +183,20 @@ async function main() {
   writeFileSync(join(HERE, `options-prompt-${tag}.txt`), `${optionsPrompt}\n`);
   let options: Option[] = [];
   let optionsReply: Ask | null = null;
-  for (let attempt = 1; attempt <= 3 && options.length === 0; attempt++) {
+  // `--reuse-options` reads back the list a previous invocation already fixed, so the ONE options call
+  // 5.0 allows stays one call across a restart of the asks. The restart this exists for: the first run
+  // went through the router on 8799, whose per-attempt cap is 150 s
+  // (`SHIM_DORIS_ATTEMPT_TIMEOUT_MS`, `modelRouter.ts`), and a `high` commit call on the real seat runs
+  // 92-111 s -- close enough that the router aborted one. That is the INSTRUMENT's ceiling, not the
+  // model's answer, so the asks were re-run against doris directly and the list was kept rather than
+  // re-drawn, which would have been a second moved variable.
+  const reuse = process.argv.find((a) => a.startsWith("--reuse-options="))?.split("=")[1];
+  if (reuse) {
+    const prior = JSON.parse(readFileSync(reuse, "utf8")) as { options: Option[] };
+    options = prior.options;
+    console.log(`[${tag}] reusing ${options.length} options fixed by ${reuse}`);
+  }
+  for (let attempt = 1; attempt <= 3 && options.length === 0 && !reuse; attempt++) {
     optionsReply = await ask(optionsPrompt, "none", null);
     const arr = ((): unknown[] => {
       const t = optionsReply.content.trim();
@@ -212,7 +225,7 @@ async function main() {
     writeFileSync(join(HERE, `options-raw-${tag}.json`), JSON.stringify(optionsReply, null, 2));
     throw new Error("OPTIONS call produced no usable list in three attempts -- see options-raw-*.json");
   }
-  writeFileSync(join(HERE, `options-${tag}.json`), JSON.stringify({ reply: optionsReply, options }, null, 2));
+  if (!reuse) writeFileSync(join(HERE, `options-${tag}.json`), JSON.stringify({ reply: optionsReply, options }, null, 2));
   for (const o of options) console.log(`  ${o.n}. ${o.text}`);
 
   const next = rng(SEED + (welded ? 1000 : 0));

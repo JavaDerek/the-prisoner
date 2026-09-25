@@ -58,3 +58,21 @@ The probe's first run created an empty `the-prisoner/data/games.db`: importing t
 not get `checkpoint.ts`'s `DMCP_DB_PATH`, and run-dmcp's own default is under the repo. The directory did not
 exist before and the run died on a missing table, so nothing real was touched. `probe.mts` now names a `/tmp`
 scratch itself and initialises the schema. Goes in `RESULTS.md`.
+
+- **04:18Z the router's own cap, found the hard way and it is a DESIGN finding, not just a harness one.**
+  The probe's third `high` ask came back empty at exactly 300.023 s with a 502: `local produced no reply in
+  2 attempts of 150000ms each`. That is `modelRouter.ts`'s `DEFAULT_DORIS_ATTEMPT_TIMEOUT_MS` (150 s,
+  overridable by `SHIM_DORIS_ATTEMPT_TIMEOUT_MS`, unset on the router Derek started at 18:25 CDT). A `high`
+  COMMIT call on the **real** seat runs 92–111 s, so it sits just under a ceiling it will sometimes cross.
+  - **For the probe**: an instrument ceiling must not be tallied as P0.b ("empty or context-overrun
+    replies"). The asks were re-run **direct against doris:11435**, bypassing the router, which §1.1
+    already established forwards the body verbatim on the local route — so this is the same request to the
+    same server with the retry wrapper removed. The **same seven options were reused** (`--reuse-options`),
+    not re-drawn, so §5.0's one-options-call rule holds and the restart moved nothing but the transport.
+    The three router-era asks are kept as `replies-router-attempt.jsonl` and are **not** part of the tally.
+  - **For batch 7**: the games go through the router (`run-batch.sh` sets
+    `PRISONER_MODEL_URL=http://localhost:8799/v1`), so the cap would bite in play. §5.1's own band 8
+    budgets **five minutes** for this call, so the cap, not the band, is the thing out of step. **Step 5
+    must restart the router with `SHIM_DORIS_ATTEMPT_TIMEOUT_MS=400000` before game 1**, after the
+    escalation finishes, and the morning report must say the router was restarted and why.
+- **04:20Z step 1 RELAUNCHED** direct, same options, log `/tmp/probe-main.log`. Lands ~04:56Z.
