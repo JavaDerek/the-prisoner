@@ -162,3 +162,37 @@ blanket, i.e. the strategy *working*. It has its own id, so §3.4's strict keyin
 therefore biased DOWNWARD against exactly the strategies that work. Report it in the results file, propose
 the fix (a derived object inherits its parent's id for adherence, via `openWorld.derived`'s own parent
 link), and do not apply it to this batch's numbers.
+
+- **06:04Z game 2 of 7, rc=0, 19.5 min.** Chosen 4, declared targets **blanket + key_ring**. Strategy:
+  "Quietly use blanket thread to snag Croft's key ring for a silent chance at the door."
+  Adherence **40.0%** (4 on / 2 off / **4 refused** of 10). `Revision would have fired: never`.
+
+| band | so far (2 games, 20 turns) | projected at 7 | verdict |
+|---|---|---|---|
+| **1 (primary)** adherence ≥ 60.7% | **45.0%** (9 of 20) | 45.0% | **open** — needs 34 of the remaining 50 turns (68%) |
+| **5** refusals ≤ 8% (≤ 5 of 70) | **4 of 20 = 20%** | 14 of 70 | **open, ONE refusal from dead** |
+| 8 strategy calls succeed ≥ 6 of 7 | 2 of 2 | 7 of 7 | open |
+| 9 median game < 45 min | 18.5, 19.5 min | — | open |
+
+**Both of this batch's headline numbers are being distorted by the same thing, in opposite directions, and
+the cause is one mechanism: THIS STRATEGY CREATES AN OBJECT.** Game 2 round 1 was `blanket/derive` — the
+mind made a `strip` of cordage, which is the strategy *succeeding*. After that:
+
+- **Adherence is understated.** Four of ten turns targeted `strip`. §3.4 keys on the declared ids
+  (`blanket`, `key_ring`), and a derived object has its own new id, so all four scored **off-strategy**.
+  Counting the strip as its parent would put game 2 at **60%** rather than 40% — a twenty-point artefact in
+  a band whose threshold is 60.7%.
+- **Refusals are overstated as a cost of the LINE.** Three of the four refusals are `effect=none` on
+  `strip` or `blanket` — the referee failing to key an effect at all, which is exactly the weakness b6
+  measured (Opus resolved 14 of 22 refusals, and "the effect dropped on a bodily or object-less intent" was
+  one of the two repeating shapes). §5.1 reads band 5 failing as "the line costs compliance and D5 was
+  wrong". **That reading would be wrong here**: the line is not a fill cost, the referee cannot key acts on
+  a thing the game just made. The results file must separate the two before anyone concludes D5.
+
+**Neither band moves this batch.** Both are pre-registered, and re-keying adherence after seeing two games
+is precisely what pre-commitment prevents. The fix is proposed in the results file and, if taken, is
+re-run over these same committed transcripts afterwards — the measure is computable from transcripts alone
+(§3.4), so a re-key costs no GPU and changes no game.
+
+Also of note: game 2 round 6 was `key_ring/take`, ruled possible — the prisoner **took the key ring**.
+Check escapes and catches at the end (reported, weightless, per the brief).
