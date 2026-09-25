@@ -34,6 +34,11 @@ interface Turn {
   property: string;
   novel: boolean;
   possible: boolean;
+  /** A REFUSED turn prints no `-> effect target.property` suffix, so its keys
+   *  are not in the transcript at all. It is still an intent the prisoner
+   *  made, and prediction 7 is defined ON failed turns, so it must be counted
+   *  -- but it cannot be matched by pair. See `keysKnown`. */
+  keysKnown: boolean;
 }
 
 interface Game {
@@ -54,6 +59,14 @@ interface Game {
 
 // `- round 3, prisoner: <intent> -> restore spoon.edge (slight, audible) **(novel)**; grounding ...`
 const RULED = /^- round (\d+), (warden|prisoner): (.*?) -> (\S+) (\S+?)\.(\S+) \(([^)]*)\)( \*\*\(novel\)\*\*)?(;|$)/;
+// A REFUSED turn, which prints the intent and NOTHING ELSE -- no effect, no
+// target, no property. Checked across all ten of batch 4's transcripts: not one
+// refused line carries a key. Matching only `RULED` silently dropped every
+// refusal from the population, which understated prisoner intents by exactly
+// the refusal count (batch 4 read 92 where the measures table says 95) and,
+// worse, made prediction 7 unmeasurable -- the re-try rate is DEFINED on turns
+// that failed, and the failed turns were the ones being discarded.
+const REFUSED = /^- round (\d+), (warden|prisoner): (.*)$/;
 
 function parseGame(file: string, text: string): Game {
   const arm: "P" | "S" = text.includes("PROSE SEAT (`PRISONER_PROSE_SEAT=prisoner`)") ? "P" : "S";
@@ -65,16 +78,32 @@ function parseGame(file: string, text: string): Game {
     if (line.startsWith("### Refusals") || line.startsWith("## ")) { section = null; continue; }
     if (section === null) continue;
     const m = RULED.exec(line);
-    if (!m) continue;
+    if (m) {
+      turns.push({
+        round: Number(m[1]),
+        chair: m[2] as "warden" | "prisoner",
+        intent: m[3],
+        effect: m[4],
+        target: m[5],
+        property: m[6],
+        novel: Boolean(m[8]),
+        possible: section === "possible",
+        keysKnown: true,
+      });
+      continue;
+    }
+    const r = section === "impossible" ? REFUSED.exec(line) : null;
+    if (!r) continue;
     turns.push({
-      round: Number(m[1]),
-      chair: m[2] as "warden" | "prisoner",
-      intent: m[3],
-      effect: m[4],
-      target: m[5],
-      property: m[6],
-      novel: Boolean(m[8]),
-      possible: section === "possible",
+      round: Number(r[1]),
+      chair: r[2] as "warden" | "prisoner",
+      intent: r[3],
+      effect: "?",
+      target: "?",
+      property: "?",
+      novel: false,
+      possible: false,
+      keysKnown: false,
     });
   }
   const num = (re: RegExp, d = 0) => { const m = re.exec(text); return m ? Number(m[1]) : d; };
@@ -117,7 +146,7 @@ function blanketTurns(g: Game) { return prisoner(g).filter((t) => t.target === "
 function retries(g: Game) {
   const seen = new Map<string, boolean>(); // pair -> did it ever work
   let n = 0;
-  for (const t of prisoner(g).sort((a, b) => a.round - b.round)) {
+  for (const t of prisoner(g).filter((x) => x.keysKnown).sort((a, b) => a.round - b.round)) {
     const key = `${t.target}.${t.effect}`;
     if (seen.has(key) && seen.get(key) === false) n += 1;
     if (!seen.has(key) || seen.get(key) === false) seen.set(key, t.possible && t.property !== "none");
@@ -138,7 +167,7 @@ function retries(g: Game) {
 function repeats(g: Game) {
   const seen = new Set<string>();
   let n = 0;
-  for (const t of prisoner(g).sort((a, b) => a.round - b.round)) {
+  for (const t of prisoner(g).filter((x) => x.keysKnown).sort((a, b) => a.round - b.round)) {
     const key = `${t.target}.${t.effect}`;
     if (seen.has(key)) n += 1;
     seen.add(key);
@@ -159,6 +188,8 @@ function distinct<T>(xs: T[]) { return new Set(xs).size; }
  *  one as the other would inflate every arm by roughly an order of magnitude.
  *  Both are printed; 6a is scored on `distinctNovelPairs`. */
 function novelRulings(gs: Game[]) { return gs.flatMap(prisoner).filter((t) => t.novel); }
+function keyed(gs: Game[]) { return gs.flatMap(prisoner).filter((t) => t.keysKnown).length; }
+function unkeyed(gs: Game[]) { return gs.flatMap(prisoner).filter((t) => !t.keysKnown).length; }
 function distinctNovelPairs(gs: Game[], dropBlanket = false) {
   return distinct(novelRulings(gs).filter((t) => !dropBlanket || t.target !== "blanket").map((t) => `${t.target}.${t.effect}`));
 }
@@ -219,7 +250,7 @@ const pair = (f: (a: Game[]) => string) => `| ${f(P)} | ${f(S)} |`;
 const mean = (a: Game[], f: (g: Game) => number) => (a.length === 0 ? "--" : (a.reduce((s, g) => s + f(g), 0) / a.length).toFixed(2));
 const sum = (a: Game[], f: (g: Game) => number) => a.reduce((s, g) => s + f(g), 0);
 L.push(`| games | ${P.length} | ${S.length} |`);
-L.push(`| prisoner intents | ${sum(P, (g) => prisoner(g).length)} | ${sum(S, (g) => prisoner(g).length)} |`);
+L.push(`| prisoner intents (incl. refused) | ${sum(P, (g) => prisoner(g).length)} | ${sum(S, (g) => prisoner(g).length)} |`);
 L.push(`| prisoner silences | ${sum(P, (g) => g.silences)} | ${sum(S, (g) => g.silences)} |`);
 L.push(`| grounded (pooled) | ${sum(P, (g) => g.grounded)} | ${sum(S, (g) => g.grounded)} |`);
 L.push(`| refusals (ruled impossible) | ${sum(P, (g) => g.refusals)} | ${sum(S, (g) => g.refusals)} |`);
@@ -233,6 +264,7 @@ L.push(`| distinct effect kinds (pooled) | ${distinct(P.flatMap((g) => prisoner(
 L.push(`| distinct targets / game (mean) | ${mean(P, (g) => distinct(prisoner(g).map((t) => t.target)))} | ${mean(S, (g) => distinct(prisoner(g).map((t) => t.target)))} |`);
 L.push(`| **final barIntegrity (mean)** | ${mean(P, (g) => g.barIntegrity)} | ${mean(S, (g) => g.barIntegrity)} |`);
 L.push(`| **games with bar damaged (<100)** | ${P.filter((g) => g.barIntegrity < 100).length} | ${S.filter((g) => g.barIntegrity < 100).length} |`);
+L.push(`| prisoner turns with NO keys in transcript | ${unkeyed(P)} | ${unkeyed(S)} |`);
 L.push(`| repeat rate (any re-use of a pair) | ${P.length ? (sum(P, repeats) / Math.max(1, sum(P, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} | ${S.length ? (sum(S, repeats) / Math.max(1, sum(S, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} |`);
 L.push(`| distinct targets rounds 1-5 vs 6-10 (7b) | ${P.length ? distinct(P.flatMap(g=>prisoner(g).filter(t=>t.round<=5).map(t=>t.target))) + " vs " + distinct(P.flatMap(g=>prisoner(g).filter(t=>t.round>5).map(t=>t.target))) : "--"} | ${S.length ? distinct(S.flatMap(g=>prisoner(g).filter(t=>t.round<=5).map(t=>t.target))) + " vs " + distinct(S.flatMap(g=>prisoner(g).filter(t=>t.round>5).map(t=>t.target))) : "--"} |`);
 L.push(`| re-try rate | ${P.length ? (sum(P, retries) / Math.max(1, sum(P, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} | ${S.length ? (sum(S, retries) / Math.max(1, sum(S, (g) => prisoner(g).length)) * 100).toFixed(1) + "%" : "--"} |`);
