@@ -73,6 +73,13 @@ export interface Transcript {
   halves: HalfRound[];
   /** The §22 line as printed, so the marker count below can be checked against it. */
   printedPlans: { replanned: number; withPlan: number; kept: number } | null;
+  /** docs/STRATEGY-DESIGN.md §3.4: the ids the strategy block declared, read from the header the game
+   *  printed -- `null` when the game printed no block at all, which is an OFF game and must not be
+   *  scored as 0% adherence. */
+  strategyTargets: string[] | null;
+  /** §3.5: the round the revision trigger WOULD have fired, logged even under `fixed`, so batch 7 can
+   *  say how often a committed strategy stalls without a second variable moving. */
+  revisionWouldHaveFired: number | "never" | null;
 }
 
 export interface RepliedRuling {
@@ -118,6 +125,10 @@ export function parseTranscript(text: string, file = "?"): Transcript {
   const escaped = /^\*\*The prisoner escaped, at round \d+\.\*\*/m.test(text);
   const plansM = /^Prisoner plans \(§22\): replanned (\d+) of (\d+) turns that had a plan, kept (\d+)\./m.exec(text);
   const printedPlans = plansM ? { replanned: Number(plansM[1]), withPlan: Number(plansM[2]), kept: Number(plansM[3]) } : null;
+  const targetsM = /^Chosen: \d+\. Declared targets: (.+)\.$/m.exec(text);
+  const strategyTargets = targetsM ? targetsM[1]!.split(",").map((s) => s.trim()).filter((s) => s.length > 0) : null;
+  const revM = /^Revision would have fired: (round (\d+)|never)$/m.exec(text);
+  const revisionWouldHaveFired = revM ? (revM[2] ? Number(revM[2]) : ("never" as const)) : null;
 
   const halves: HalfRound[] = [];
   const sections = text.split(new RegExp(HEADING.source, "gm"));
@@ -138,7 +149,7 @@ export function parseTranscript(text: string, file = "?"): Transcript {
       ruling: parseRuling(body),
     });
   }
-  return { file, wits, referee, escaped, halves, printedPlans };
+  return { file, wits, referee, escaped, halves, printedPlans, strategyTargets, revisionWouldHaveFired };
 }
 
 const ROW = /^\| (\w+) \| `([^`]*)` \| (.*) \| (yes|no|n\/a) \|$/gm;
@@ -668,4 +679,57 @@ export function renderBatchMeasures(games: readonly Game[], opts: { residue?: re
   }
   out.push("");
   return out.join("\n");
+}
+
+
+/**
+ * docs/STRATEGY-DESIGN.md §3.4, the primary endpoint of batch 7: per game, how many graded prisoner turns
+ * the referee keyed to an id the strategy block declared.
+ *
+ * NO TEXT IS COMPARED TO ANY TEXT, which is the whole reason the endpoint is shaped this way. Selection is
+ * DECLARED (the block prints the ids it chose) and adherence is KEYED (every ruling already carries a
+ * `target`), so this function judges no meaning and makes no extra referee call -- it is computable from
+ * committed transcripts alone. Refused turns are in the DENOMINATOR and reported separately, exactly as
+ * b6's prediction 7 treats them: a strategy followed into a refusal was still followed.
+ *
+ * `targets: null` -- a game whose header printed no strategy block -- yields `share: null`, never 0. An OFF
+ * baseline game scored as 0% adherence would be a number about nothing.
+ */
+export interface Adherence {
+  arm: string;
+  file: string;
+  targets: string[] | null;
+  onStrategy: number;
+  offStrategy: number;
+  refused: number;
+  graded: number;
+  share: number | null;
+  revisionWouldHaveFired: number | "never" | null;
+}
+
+export function adherenceByGame(games: readonly Game[]): Adherence[] {
+  return games.map(({ arm, transcript }) => {
+    const targets = transcript.strategyTargets;
+    const prisoner = transcript.halves.filter((h) => h.principal === "prisoner" && !h.silence && h.ruling !== null);
+    let onStrategy = 0;
+    let offStrategy = 0;
+    let refusedCount = 0;
+    for (const h of prisoner) {
+      if (refused(h)) refusedCount++;
+      else if (targets !== null && targets.includes(h.ruling!.target)) onStrategy++;
+      else offStrategy++;
+    }
+    const graded = prisoner.length;
+    return {
+      arm,
+      file: transcript.file,
+      targets,
+      onStrategy,
+      offStrategy,
+      refused: refusedCount,
+      graded,
+      share: targets === null || graded === 0 ? null : onStrategy / graded,
+      revisionWouldHaveFired: transcript.revisionWouldHaveFired,
+    };
+  });
 }

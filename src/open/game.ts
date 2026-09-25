@@ -58,6 +58,11 @@ export async function runOpenGame(params: {
    *  `PRISONER_ELABORATE=off` (the default) -- passed through to every
    *  half-round unchanged, never rebuilt per round. */
   elaborationReferee?: ElaborationReferee;
+  /** docs/STRATEGY-DESIGN.md D5: the ONE line a chosen strategy reaches the turn through, shown in the
+   *  PRISONER's briefing every round, unchanged for the whole game. Absent = the baseline, and absent is
+   *  byte-identical to every batch recorded before this parameter existed. The turn call gains no field:
+   *  read cost, never fill cost. */
+  strategy?: string;
   /** WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: the build-time band table
    *  a fired elaboration is priced against, and Appendix C's forced-band
    *  override -- both passed through to every half-round unchanged. */
@@ -85,7 +90,12 @@ export async function runOpenGame(params: {
       const other: Principal = principal === "warden" ? "prisoner" : "warden";
       const t = principal === "warden" ? clock.wardenT(n) : clock.prisonerT(n);
 
-      const news: OpenNews = { ...inbox[principal], standing: params.precedent?.[principal], ...(plans[principal] ? { plan: plans[principal] } : {}) };
+      const news: OpenNews = {
+        ...inbox[principal],
+        standing: params.precedent?.[principal],
+        ...(plans[principal] ? { plan: plans[principal] } : {}),
+        ...(principal === "prisoner" && params.strategy ? { strategy: params.strategy } : {}),
+      };
       inbox[principal] = { fromOther: [] };
       const context = buildOpenContext(openWorld, principal, t, n, rounds, news, presenceMode);
 

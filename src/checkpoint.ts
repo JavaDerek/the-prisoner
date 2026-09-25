@@ -63,10 +63,10 @@ import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
-import { readPresenceMode, authoredDescription, ownershipAt } from "./open/briefing.js";
+import { readPresenceMode, authoredDescription, ownershipAt, buildOpenContext } from "./open/briefing.js";
 import { currentT } from "./world/clock.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
-import { createOpenPrisonerMind, createOpenWardenMind } from "./open/mind.js";
+import { createOpenPrisonerMind, createOpenWardenMind, renderSeatSituation } from "./open/mind.js";
 import { createProseMind } from "./open/proseMind.js";
 import { runOpenGame } from "./open/game.js";
 import { renderOpenHalfRound, renderOpenSummary, refereeRequestsFor, type SilenceNote } from "./open/checkpointTranscript.js";
@@ -80,7 +80,8 @@ import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
-import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine } from "./open/thinking.js";
+import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_STRENGTH_FIELD } from "./open/thinking.js";
+import { readStrategyMode, chooseStrategy, strategyHeaderBlock, revisionWouldFireAt, revisionHeaderLine, type ReasoningStrength, type Strategy } from "./open/strategy.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
 
@@ -132,6 +133,20 @@ const WARDEN_SEAT = resolveSeatModels(process.env.PRISONER_WARDEN_MODEL, { wits:
  *  question instead of an eight-field JSON object. Open variant only -- the
  *  closed variant picks a move from an enum and has no free text to ask for. */
 const PROSE_SEAT = readProseSeat(process.env.PRISONER_PROSE_SEAT);
+
+/** `PRISONER_STRATEGY` (`src/open/strategy.ts`, docs/STRATEGY-DESIGN.md D3): `fixed` chooses one approach
+ *  before round 1 and never revises; `revise` is DESIGNED and not built, and is refused below rather than
+ *  half-run. Unset is off, and off is byte-identical to every batch recorded before this arm. */
+const STRATEGY = readStrategyMode(process.env.PRISONER_STRATEGY);
+/** The commit call's reasoning strength (§3.2, and §1.1's `low`/`medium` rungs as the stated fallback).
+ *  `high` is the arm batch 7 runs; the header prints the value AND the wire field, because §1.1 caught a
+ *  switch whose header named a field this server ignores. */
+const STRATEGY_STRENGTH = ((): ReasoningStrength => {
+  const raw = process.env.PRISONER_STRATEGY_STRENGTH;
+  if (raw === undefined || raw === "") return "high";
+  if (raw === "none" || raw === "low" || raw === "medium" || raw === "high") return raw;
+  throw new Error(`PRISONER_STRATEGY_STRENGTH: unrecognised value ${JSON.stringify(raw)} -- must be "none", "low", "medium" or "high" (the default)`);
+})();
 const THINK_TIMEOUT_MS = process.env.PRISONER_THINK_TIMEOUT_MS
   ? Number(process.env.PRISONER_THINK_TIMEOUT_MS)
   : undefined;
@@ -1172,6 +1187,67 @@ async function mainOpen(): Promise<void> {
   const dir = join(process.cwd(), "checkpoints");
   const file = join(dir, `${stamp}.md`);
   let written = false;
+  // docs/STRATEGY-DESIGN.md §3.2: two calls before round 1, in the place the precedent block is already
+  // computed. The situation is the PRISONER's own round-1 seat, rendered by the same `renderSeatSituation`
+  // the turn uses, so the step is never answering a question the game does not ask.
+  //
+  // `revise` throws rather than degrading to `fixed`: §3.5 designs revision and deliberately does not build
+  // it, and a switch that silently ran the other arm would put an unbuilt mechanism's name in a transcript
+  // header. The `readPickCondition` pattern applies to the VALUE too, not only to a typo.
+  if (STRATEGY === "revise") {
+    throw new Error("PRISONER_STRATEGY=revise is designed (docs/STRATEGY-DESIGN.md §3.5) and NOT built: its trigger is logged under `fixed`, and running it would name an unbuilt arm in a header. Use `fixed`.");
+  }
+  let strategy: Strategy | null = null;
+  if (STRATEGY !== "off") {
+    const t1 = openWorld.base.clock.prisonerT(1);
+    const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE);
+    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }));
+    strategy = await chooseStrategy({
+      context: { situation, objectIds: c1.perceivedObjects.map((o) => o.id) },
+      reasoningStrength: STRATEGY_STRENGTH,
+      ask: async (prompt, { reasoning }) => {
+        // The same swapper every other call goes through: the card is still the swapper's to own.
+        await ensureLoaded(PRISONER_SEAT.wits);
+        const post = withReasoningStrength(undefined, reasoning)!;
+        const res = await post(`${MODEL_URL}/chat/completions`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ model: PRISONER_SEAT.wits, messages: [{ role: "user", content: prompt }], temperature: 0.9 }),
+          // §5.1 band 8 budgets five minutes for this call, and the batch sets the variable to exactly
+          // that; the literal is only the fallback for a run that sets nothing.
+          signal: AbortSignal.timeout(THINK_TIMEOUT_MS ?? 300_000),
+        });
+        const text = await res.text();
+        if (!res.ok) return { content: "", reasoning: `HTTP ${res.status}: ${text.slice(0, 500)}`, tokens: 0 };
+        const d = JSON.parse(text) as { choices?: { message?: { content?: string; reasoning_content?: string; reasoning?: string } }[]; usage?: { completion_tokens?: number } };
+        const m = d.choices?.[0]?.message ?? {};
+        return { content: m.content ?? "", reasoning: m.reasoning_content ?? m.reasoning ?? "", tokens: d.usage?.completion_tokens ?? 0 };
+      },
+    });
+    transcript.push(
+      strategyHeaderBlock(STRATEGY, strategy === null ? null : {
+        options: strategy.options,
+        chosen: strategy.chosen,
+        sentence: strategy.sentence,
+        targets: strategy.targets,
+        reasoningField: REASONING_STRENGTH_FIELD,
+        reasoningStrength: STRATEGY_STRENGTH,
+        optionsTokens: strategy.rawOptions.tokens,
+        commitTokens: strategy.rawCommit.tokens,
+        rawOptions: strategy.rawOptions,
+        rawCommit: strategy.rawCommit,
+      }),
+      ""
+    );
+    if (strategy === null) {
+      // §5.1's gate: a null in game 1 is a pilot, not a batch. The raw replies are already in the header
+      // above, which is the whole point -- the failure is readable as what it was.
+      transcript.push("**The strategy step returned null.** Both raw replies are printed above; §5.1's gate says to read them before doing anything else.", "");
+    }
+  } else {
+    transcript.push(strategyHeaderBlock("off", null), "");
+  }
+
   try {
     const game = await runOpenGame({
       openWorld,
@@ -1181,6 +1257,7 @@ async function mainOpen(): Promise<void> {
       prisonerMind,
       rounds: ROUNDS,
       presenceMode: PRESENCE,
+      ...(strategy ? { strategy: strategy.sentence } : {}),
       ...(elaborationReferee ? { elaborationReferee } : {}),
       ...(ELABORATE_BAND ? { forcedElaborationBand: ELABORATE_BAND } : {}),
       ...(precedent ? { precedent } : {}),
@@ -1210,6 +1287,20 @@ async function mainOpen(): Promise<void> {
 
     const { summary: loadedAtEnd } = await safePsSummary();
     transcript.push(...renderOpenSummary(game, ROUNDS));
+    // docs/STRATEGY-DESIGN.md §3.5, the red team's third point: the revision trigger is evaluated on every
+    // prisoner turn even though revision is NOT built, and the round it WOULD have fired is printed. That
+    // costs the arm's isolation nothing and is the number a decision to build revision needs. "Stalled" is
+    // b6 prediction 7's own definition -- refused, or no property changed -- reused rather than re-invented.
+    if (STRATEGY !== "off") {
+      const stalls = game.halves
+        .filter((h) => h.principal === "prisoner")
+        // `outcome === null` is exactly "refused, or nothing changed": the half-round carries an outcome
+        // only where the resolver actually moved something, so one field covers both halves of the
+        // definition without this file forming a second opinion about what a refusal is.
+        .map((h) => ({ stalled: h.ruling === null || h.outcome === null }));
+      transcript.push(revisionHeaderLine(revisionWouldFireAt(stalls)));
+      transcript.push("");
+    }
     transcript.push("## Final state");
     transcript.push("");
     transcript.push(`Models loaded at end (/api/ps): ${loadedAtEnd}`);

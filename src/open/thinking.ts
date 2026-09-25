@@ -150,3 +150,36 @@ export function withThinking(fetchFn: typeof fetch | undefined, mode: ThinkingMo
   };
   return wrapped;
 }
+
+/**
+ * The field this server actually honours, measured 2026-09-25 03:22Z and again at 04:00Z on the identical
+ * trivial prompt: `chat_template_kwargs: {"reasoning_strength": …}` moves completion tokens 33 / 51 / 60 /
+ * 109 across `none` / `low` / `medium` / `high`, while `reasoning_effort: "high"` gives 33 -- the same as
+ * `none`, i.e. nothing. See `docs/issues/prisoner-P8-thinking-switch-is-a-no-op.md`.
+ *
+ * DELIBERATELY BESIDE `withThinking` AND NOT INSIDE IT. That function's semantics are pinned by the header
+ * lines of every recorded batch: `Thinking (wits): OFF` means "the request carried `reasoning_effort:
+ * "none"`", and rewriting it to send a different field would make those recorded headers describe a wire
+ * fact that never happened. So the bug is filed against `withThinking` and fixed for its own callers
+ * there; this is a new wrapper for a new caller that needs a STRENGTH rather than a boolean, and it names
+ * the field it sends so a transcript can print it.
+ */
+export function withReasoningStrength(fetchFn: typeof fetch | undefined, strength: "none" | "low" | "medium" | "high"): typeof fetch | undefined {
+  const base = fetchFn ?? fetch;
+  const wrapped: typeof fetch = async (input, init) => {
+    if (typeof init?.body !== "string") return base(input, init);
+    let body: unknown;
+    try {
+      body = JSON.parse(init.body);
+    } catch {
+      return base(input, init);
+    }
+    if (typeof body !== "object" || body === null || Array.isArray(body)) return base(input, init);
+    return base(input, { ...init, body: JSON.stringify({ ...body, chat_template_kwargs: { reasoning_strength: strength } }) });
+  };
+  return wrapped;
+}
+
+/** The wire field `withReasoningStrength` sends, for a transcript header that must name it rather than
+ *  describe it (§1.1's lesson). */
+export const REASONING_STRENGTH_FIELD = "chat_template_kwargs.reasoning_strength";
