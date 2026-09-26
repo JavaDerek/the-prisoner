@@ -6518,3 +6518,60 @@ contamination (six of its 22 refusals are that artifact, all in the `reveal`-pro
 this one) does not touch this count either, since it is read from the actor's own outcome text, not from a
 resolved-versus-replayed verdict. This is the price every one of those 55 turns now pays differently: a
 pry that used to teach nothing and cost a turn now progresses the bar exactly as a deliberate scrape would.
+
+## 77. The arms: D6's elision clause lands, D9's container clause does not (2026-09-26)
+
+Checkpoint: `checkpoints/2026-09-26-arms/` (`PREDICTION.md` committed before the first call,
+`RESULTS.md`, `probe.mts`, `results.jsonl`, `logs/run.log`, all unedited). `HUMAN-INTENTS-DESIGN.md`
+§9 step 5: D6 (§5) and D9 (§6.2), landing-order item 5, each behind its own switch
+(`PRISONER_ELISION`, `PRISONER_CONTAINER_CLAUSE`, `referee.ts`), probed together in three arms (OFF,
+D6, D6+D9) because §6.2 says the two clauses fire on the same intents. 39 calls, one process,
+sequential, against Muse (`muse-glimmer-30b-q4_k_m` on doris:11435, thinking off, N=1), every request
+built fresh from `buildOpenWorld` + `computePerceivedObjects`, never a recorded request.
+
+**D6 lands.** The elision clause -- *"An act of hiding, sheltering or covering that names no thing
+hidden names the actor herself"* -- read 4 of 4 bare self-hiding intents ("hide", "hide myself",
+"cover myself up", "try to conceal myself") as `target: prisoner`, against a pre-registered 3-of-4 bar
+(the same shape `checkpoints/2026-09-19-selftarget` used), and neither trap row ("hide the spoon under
+the tile", "crouch by the window") moved from its own baseline answer. `PRISONER_ELISION`'s own
+default is now `on` (`readElisionMode`, `referee.ts`), following `PRISONER_ONE_ACT`'s own split
+between the env reader's default and `createReferee`'s bare constructor default, so every test and
+replay of a recorded request that does not opt in stays byte-identical.
+
+**D9 does not land, and the reason is worth reading carefully, because it is not "the clause is
+wrong."** The pre-registered kill number bundled two things into one pass/fail per item: the referee's
+`target`/`effect`/`property` answers, and whether the SAME ruling's `magnitude` was large enough to
+actually mark the actor contained once resolved (`CONTAINMENT_HIDDEN_AT_OR_ABOVE = 50`, and `slight`
+only raises a container's concealment by 20 -- `scenarioObjects.ts`'s own wear/restore table). On the
+first half, D9's two clauses (the target question's *"an act of getting under or beneath a thing names
+that thing"* and the effect question's conceal-on-container reading) went **3 for 3**: "hide under the
+blanket," "get under the blanket" and "crawl under the cot to hide" all read `target: <container>` /
+`effect: conceal` / `property: concealment`, where OFF got 0 of 3 fully grounded (one found no target
+at all, one found the container but no effect, one found the actor instead of the container). On the
+second half, the referee answered `magnitude: slight` on every one of the three, all seven times it
+was asked across the whole run's container-conceal readings, so `resolver.resolve()`'s own real
+mechanic (`OPEN_CONCEAL_CONTAINER`) never set the actor's containment resource at all -- confirmed by
+actually running each ruling through `planEffect` + `resolve()` and reading
+`world.personHeldIn.prisoner` back, not assumed from the magnitude answer alone. **0 of 3 against a
+2-of-3 bar: dead**, by the pre-registered number, even though the half of the clause pair that does
+the redirecting is proven and clean. The negative control held too (N1, "hide the spoon under the
+blanket," stayed `target: spoon` in every arm, including D6+D9), so the clause is not indiscriminate
+-- it simply is not, by itself, sufficient to make a single "hide under the blanket" turn actually hide
+anyone, because nothing about either clause touches the magnitude question at all.
+
+**The standing lesson, stated once so the next probe does not re-learn it:** a target/effect clause
+and a magnitude judgment are two different questions this referee asks, and a fix to one does not
+reach the other. §68.2 already warned that a clause can be worse than silence; this is the adjacent
+case, a clause that does exactly its own job and is still not enough, because the mechanic it feeds
+gates on a DIFFERENT answer the clause was never written to move. A follow-up here is a
+magnitude-wording addition -- something closer to D7b's own "judge by the intent's aim" reasoning,
+applied to the magnitude question instead of the effect question -- not a third target or effect
+clause; those two are now measured to work.
+
+One exploratory row, not scored either way: "hide the prisoner under the blanket" (the-prisoner#25's
+own second row, `checkpoints/2026-09-26-human-intents/corpus.json` id `I25-2` -- read directly from
+the corpus rather than guessed at: `chair: "prisoner"`, so this is Mara narrating her own act in the
+third person, never the warden hiding her) read `target: prisoner` in all three arms, D6+D9 included.
+D9's clause does not win against a literal noun match here, consistent with §68.4's standing finding,
+so §76.1's own flagged "narrower-than-worst-case overinclusion" (the mechanic marking the ACTOR
+contained even when she names someone else as the thing hidden) does not fire on this exact phrasing.

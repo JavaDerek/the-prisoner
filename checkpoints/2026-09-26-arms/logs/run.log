@@ -1,0 +1,43 @@
+[2026-09-26T07:24:08.255Z] INFO  [db] Using database path from DMCP_DB_PATH {"dbPath":":memory:"}
+[2026-09-26T07:24:08.265Z] INFO  [db] Database connection established {"path":":memory:"}
+[1] OFF S1 (S): none/conceal/none mag=slight applicable=false contained=n/a 21.5s
+[2] OFF S2 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 23.9s
+[3] OFF S3 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 33.5s
+[4] OFF S4 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 31.8s
+[5] OFF O1 (O): warden/wear/posture mag=moderate applicable=true contained=n/a 34.5s
+[6] OFF T1 (T): spoon/conceal/concealment mag=slight applicable=true contained=n/a 29.7s
+[7] OFF T2 (T): prisoner/wear/posture mag=slight applicable=true contained=n/a 37.4s
+[8] OFF C1 (C): none/conceal/none mag=slight applicable=false contained=n/a 41.2s
+[9] OFF C2 (C): blanket/none/none mag=slight applicable=false contained=n/a 33.9s
+[10] OFF C3 (C): prisoner/conceal/posture mag=slight applicable=true contained=n/a 55s
+[11] OFF P1 (P): prisoner/conceal/none mag=slight applicable=false contained=n/a 44s
+[12] OFF N1 (N): spoon/conceal/concealment mag=slight applicable=true contained=n/a 23.5s
+[13] OFF F1 (F): prisoner/conceal/none mag=slight applicable=false contained=n/a 28.3s
+[14] D6 S1 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 30.3s
+[15] D6 S2 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 26.9s
+[16] D6 S3 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 28.5s
+[17] D6 S4 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 32.4s
+[18] D6 O1 (O): warden/wear/posture mag=moderate applicable=true contained=n/a 28.8s
+[19] D6 T1 (T): spoon/conceal/concealment mag=slight applicable=true contained=n/a 15.7s
+[20] D6 T2 (T): prisoner/wear/posture mag=slight applicable=true contained=n/a 25.5s
+[21] D6 C1 (C): prisoner/conceal/none mag=slight applicable=false contained=n/a 29.9s
+[22] D6 C2 (C): blanket/none/concealment mag=slight applicable=false contained=n/a 47.5s
+[23] D6 C3 (C): prisoner/conceal/posture mag=slight applicable=true contained=n/a 26.2s
+[24] D6 P1 (P): prisoner/conceal/none mag=slight applicable=false contained=n/a 32.9s
+[25] D6 N1 (N): spoon/conceal/concealment mag=slight applicable=true contained=n/a 28.2s
+[26] D6 F1 (F): prisoner/conceal/none mag=slight applicable=false contained=n/a 30.7s
+[27] D6D9 S1 (S): prisoner/conceal/posture mag=slight applicable=true contained=n/a 41.9s
+[28] D6D9 S2 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 57.8s
+[29] D6D9 S3 (S): prisoner/none/none mag=slight applicable=false contained=n/a 40.3s
+[30] D6D9 S4 (S): prisoner/conceal/none mag=slight applicable=false contained=n/a 38.4s
+[31] D6D9 O1 (O): warden/wear/posture mag=moderate applicable=true contained=n/a 23.1s
+[32] D6D9 T1 (T): spoon/conceal/concealment mag=slight applicable=true contained=n/a 25.4s
+[33] D6D9 T2 (T): prisoner/wear/posture mag=slight applicable=true contained=n/a 26.8s
+[34] D6D9 C1 (C): blanket/conceal/concealment mag=slight applicable=true contained=false 31.3s
+[35] D6D9 C2 (C): blanket/conceal/concealment mag=slight applicable=true contained=false 22.8s
+[36] D6D9 C3 (C): cot/conceal/concealment mag=slight applicable=true contained=false 39.7s
+[37] D6D9 P1 (P): blanket/conceal/concealment mag=slight applicable=true contained=false 25.1s
+[38] D6D9 N1 (N): spoon/conceal/concealment mag=slight applicable=true contained=n/a 32.3s
+[39] D6D9 F1 (F): prisoner/conceal/none mag=slight applicable=false contained=n/a 64.3s
+
+done: 39 calls in 1293s -> /Users/derekferguson/rpg/the-prisoner/checkpoints/2026-09-26-arms/results.jsonl
