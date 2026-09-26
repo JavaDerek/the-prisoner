@@ -337,7 +337,8 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     createTestDb();
     const w = buildOpenWorld();
     wearBarTo(w, OPEN_WINDOW_BAR_MAX); // §24
-    const opened = await half(w, "I lever the bars out of the window.", scripted("window", "open", "passage", "lever the bars out of the window", "a single rusted bar closes its widest gap"), 1);
+    // OPEN-VARIANT.md §76 (D5, 2026-09-26), changed on purpose: the citation moves onto the new lead-in sentence.
+    const opened = await half(w, "I lever the bar out of the window.", scripted("window", "open", "passage", "lever the bar out of the window", "One rusted iron bar, set into the mortar across its middle, closes it"), 1);
     // §28: the window opens only by its bar coming free, and the actor is told that, as the action it opens up.
     // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
     // purpose: every outcome now opens with what was ruled, as fiction --

@@ -6339,3 +6339,51 @@ server that ignores `chat_template_kwargs` too, so it stays open rather than clo
 - **Stage 2 of the bottom row**: invalid intents that NAME a real-looking instrument or effect
   (the-prisoner#17). ~75 minutes with paired valid twins, labels definitional rather than judged.
 - **A serial LIVE game.** Everything in §75 replayed frozen requests.
+
+## 76. The window's plural is gone, and two containers can hold a person (owner's decision D5 + D9, 2026-09-26)
+
+`HUMAN-INTENTS-DESIGN.md` D5 and D9 land together, in one commit, so batch 8 has one scenario boundary
+rather than two -- exactly the discipline §27 followed for the window's own text the first time.
+
+**D5 (§4): the window models one bar, so its text stops implying a second one.** "Iron bars cross it, and
+a single rusted bar closes its widest gap" read as a plural obstacle to a person who had just worn the one
+bar the world tracks to nothing (§26.1's own failure, before this document's numbering reached D5). The
+window now reads: *"A small window set in the wall at shoulder height, a little wider than a person's
+shoulders. One rusted iron bar, set into the mortar across its middle, closes it: with that bar gone, a
+person could climb through."* The bar's own lead-in drops "that closes the widest gap" for the same reason
+(the window no longer has one to close); its rust sentence -- *"Rust has pitted it near the bottom, where
+it is set into old mortar that is dry and cracked."* -- is byte-identical to what §27 chose, only its word
+position moves. `scenarioObjects.test.ts` now asserts, generically, that no description in `OPEN_OBJECTS`
+ever contains "bars".
+
+The word-position move is not cosmetic: every citation by word range (§18) that named a span inside the
+bar's description shifted with it. `checkpointTranscript.test.ts`'s §18.3 pin moved from words 20-26 to
+16-22 for the identical rust sentence, and `elaborationBands.ts`'s six `window`/`bar` rows (§4.2a) had
+their `descriptionHash` go stale the instant the text changed. Rather than leave them `bandSource: "model"`
+with a hash that no longer describes what was read (or fabricate a model read that never happened), they
+were hand-converted to `bandSource: "author"`, hash recomputed against the live text, band carried over
+unchanged (the material facts -- one rusted bar, set into mortar -- did not move), each with a `comment`
+saying so and asking for a fresh `npm run price-world` to supersede it. `elaborationBandProblems()` checks
+the hash, not the citation, so this is what keeps `assertElaborationBandsReady()` green without a model
+call, per this task's own "no model calls" rule.
+
+**D9 (§6.2, decided 2026-09-26: the container shape): the blanket and the cot each gain `concealment`.**
+0 is open to view, 100 is covered, on the spoon's own wear/restore proportions (§9.1/§15.2: 20/50/100 for
+both directions) -- the identical property the hollow's own hiding already uses (§15.1). Each declares
+`readRanges` in the house style §56 set for posture (both bands non-empty, never a bare "nothing is here":
+`perception.test.ts`'s own `expectPositive` guard forbids the negation words a first draft of the cot's
+low band used):
+
+- **cot**: "The floor shows plainly beneath it." / "Something is drawn up close beneath its frame."
+- **blanket**: "It lies flat over the cot." / "It lies humped, as if something is under it."
+
+Adding a declared property moves the base request's property list for every mind that perceives the
+blanket or the cot -- the fingerprint pin in `referee.test.ts` is unaffected only because it rules against
+`[BAR, LOCK]`, not the two new objects, which is the reason this is still a recorded scenario change and
+not a silent one. It also moves the-prisoner#28's declared-space refusal list: a `wear` refused against the
+cot now reads *"The cot can be worn down or mended, hidden or uncovered, struck, taken."* (`perception.
+test.ts`, changed on purpose) -- the cot's own capability catalogue grows by exactly one clause, in the
+order its properties are declared (`integrity`, then `concealment`).
+
+The mechanism this property enables -- a person's own dynamic containment, what the other principal stops
+perceiving, and the ruling-expression limitation the design itself asks to be flagged -- is §76.1.

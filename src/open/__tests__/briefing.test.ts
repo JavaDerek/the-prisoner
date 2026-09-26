@@ -254,11 +254,12 @@ describe("open-mode perception and briefing", () => {
       createTestDb();
       const world = buildOpenWorld({ window: "open" });
       const described = (id: string) => computePerceivedObjects(world, "prisoner", world.base.clock.t0).find((o) => o.id === id)?.description;
+      // OPEN-VARIANT.md §76 (D5, 2026-09-26), changed on purpose: the plural "bars" is gone.
       expect(described("window")).toBe(
-        "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through."
+        "A small window set in the wall at shoulder height, a little wider than a person's shoulders. One rusted iron bar, set into the mortar across its middle, closes it: with that bar gone, a person could climb through."
       );
       expect(described("bar")).toBe(
-        "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+        "The iron bar set across the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
       );
     });
 

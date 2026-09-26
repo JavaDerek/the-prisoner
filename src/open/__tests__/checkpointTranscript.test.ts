@@ -239,7 +239,9 @@ describe("open checkpoint transcript", () => {
       { questionId: "target", answerKey: "bar", citation: words(2, 4) },
       { questionId: "effect", answerKey: "wear", citation: words(2, 2) },
       { questionId: "product", answerKey: "none", citation: words(2, 4) },
-      { questionId: "property", answerKey: "integrity", citation: words(20, 26, "desc:bar") },
+      // OPEN-VARIANT.md §76 (D5, 2026-09-26), changed on purpose: the bar's
+      // shorter lead-in moves this sentence's word range from 20-26 to 16-22.
+      { questionId: "property", answerKey: "integrity", citation: words(16, 22, "desc:bar") },
       { questionId: "magnitude", answerKey: "enormous", citation: words(5, 7) },
       { questionId: "perceptibility", answerKey: "audible", citation: { sourceId: "intent", quote: "scrape the bar" } },
     ]);
@@ -255,12 +257,12 @@ describe("open checkpoint transcript", () => {
     const half = find(game, 1, "prisoner");
     const text = renderOpenHalfRound(half).join("\n");
     expect(text).toContain('| target | `bar` | intent, words 2-4: "scrape the bar" | yes |');
-    expect(text).toContain('| property | `integrity` | desc:bar, words 20-26: "Rust has pitted it near the bottom," | yes |');
+    expect(text).toContain('| property | `integrity` | desc:bar, words 16-22: "Rust has pitted it near the bottom," | yes |');
     // A quote given instead is shown as a quote, as before.
     expect(text).toContain('| perceptibility | `audible` | intent: "scrape the bar" | n/a |');
     expect(text).toContain('magnitude: rejected (unknown-answer-key) `enormous`, intent, words 5-7: "with my spoon."');
-    expect(half.ruling?.citations.property.citation).toEqual({ sourceId: "desc:bar", quote: "Rust has pitted it near the bottom,", from: 20, to: 26 });
-    expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 20-26: "Rust has pitted it near the bottom,"');
+    expect(half.ruling?.citations.property.citation).toEqual({ sourceId: "desc:bar", quote: "Rust has pitted it near the bottom,", from: 16, to: 22 });
+    expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 16-22: "Rust has pitted it near the bottom,"');
   });
 
   it("a forced pick shows the mind's own intent and every candidate's verdict, so an override is never silent (§21)", () => {
@@ -348,8 +350,10 @@ describe("open checkpoint transcript", () => {
       principal: "warden", t: 2, roundN: 1,
       context: {
         principalId: "w", identity: "", motive: "", briefing: "B",
+        // OPEN-VARIANT.md §76 (D5, 2026-09-26), changed on purpose: the bar's fixture text must match the
+        // live authored description exactly, or this "unchanged" case degrades into the "changed" one below.
         perceivedObjects: [
-          { id: "bar", description: "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked." },
+          { id: "bar", description: "The iron bar set across the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked." },
           { id: "window", description: "A small window set in the wall at shoulder height. It stands open now: the bar is out of its widest gap." },
         ],
       },

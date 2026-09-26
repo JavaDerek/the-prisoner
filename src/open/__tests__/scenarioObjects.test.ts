@@ -95,17 +95,48 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
 
     const window = findObject("window");
     expect(window?.heldBy).toBe("the cell wall");
-    // OPEN-VARIANT.md §27: one bar is the whole obstacle, and the text says so; §29: nothing models reach, so the window is within it.
-    expect(window?.description).toBe("A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.");
+    // OPEN-VARIANT.md §76 (D5, 2026-09-26): the plural "bars" was flavour the world never modelled; gone.
+    expect(window?.description).toBe(
+      "A small window set in the wall at shoulder height, a little wider than a person's shoulders. One rusted iron bar, set into the mortar across its middle, closes it: with that bar gone, a person could climb through."
+    );
     expect(window?.properties.map((p) => p.key)).toEqual(["passage"]);
     expect(findProperty("window", "passage")).toEqual(expect.objectContaining({ resourceName: "window_passage", min: 0, max: 1, initialValue: 0 }));
 
     const bar = findObject("bar");
     expect(bar?.heldBy).toBe("the window");
+    // OPEN-VARIANT.md §76 (D5, 2026-09-26): the rust sentence is byte-identical to what §27 chose; only the lead-in changed.
     expect(bar?.description).toBe(
-      "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
+      "The iron bar set across the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked."
     );
     expect(bar?.properties.map((p) => p.key)).toEqual(["integrity"]);
+  });
+
+  // HUMAN-INTENTS-DESIGN.md D5, the-prisoner#26: the world models one bar, so
+  // no description may say "bars" -- the plural that misled §26.1's prisoner
+  // into hunting for a second one after the first came free.
+  it("no description in OPEN_OBJECTS ever says 'bars' (D5, the-prisoner#26)", () => {
+    for (const object of OPEN_OBJECTS) {
+      expect(object.description.toLowerCase(), object.id).not.toContain("bars");
+    }
+  });
+
+  // HUMAN-INTENTS-DESIGN.md D9 (§6.2, decided 2026-09-26): the blanket and
+  // the cot become containers a person can be held in, on the spoon's own
+  // wear/restore proportions (§9.1/§15.2), 0 open to view up to 100 covered.
+  it("the blanket and the cot each declare concealment, 0 open to view, with the spoon's own wear/restore proportions", () => {
+    for (const id of ["blanket", "cot"]) {
+      const property = findProperty(id, "concealment");
+      expect(property, id).toEqual(
+        expect.objectContaining({ key: "concealment", resourceName: `${id}_concealment`, min: 0, max: 100, initialValue: 0, wear: { slight: 20, moderate: 50, substantial: 100 }, restore: { slight: 20, moderate: 50, substantial: 100 } })
+      );
+      // readRanges cover the whole range in words, the house style §56 set for posture.
+      const ranges = property?.readRanges ?? [];
+      expect(ranges.length).toBeGreaterThan(0);
+      const bandFor = (value: number) => ranges.find((r) => value <= r.atOrBelow)?.text;
+      expect(bandFor(0)).toBeTruthy();
+      expect(bandFor(100)).toBeTruthy();
+      expect(bandFor(0)).not.toBe(bandFor(100));
+    }
   });
 
   it("findObject/findProperty return undefined for anything outside the scenario", () => {

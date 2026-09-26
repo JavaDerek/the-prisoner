@@ -113,7 +113,11 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
     heldBy: "the cell wall",
     description:
       // OPEN-VARIANT.md §27: the world models one bar as the whole obstacle, so the text says so. §29: nothing models reach, so the window is within it.
-      "A small window set in the wall at shoulder height, a little wider than a person's shoulders. Iron bars cross it, and a single rusted bar closes its widest gap: with that bar gone, a person could climb through.",
+      // OPEN-VARIANT.md §76 (HUMAN-INTENTS-DESIGN.md D5, the-prisoner#26, 2026-09-26), changed on purpose:
+      // "Iron bars cross it" was flavour the world never modelled -- the plural read as a second obstacle
+      // and §26.1's prisoner hunted for one after the first bar came free. Every clause the referee has
+      // ever cited (the mortar, "with that bar gone") survives; only the plural is gone.
+      "A small window set in the wall at shoulder height, a little wider than a person's shoulders. One rusted iron bar, set into the mortar across its middle, closes it: with that bar gone, a person could climb through.",
     properties: [
       {
         // 0 shut, 1 open, changed only by `open`/`close` (effects.ts refuses
@@ -133,8 +137,11 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
   {
     id: "bar",
     heldBy: "the window",
+    // OPEN-VARIANT.md §76 (HUMAN-INTENTS-DESIGN.md D5, the-prisoner#26, 2026-09-26), changed on purpose:
+    // the lead-in no longer says "widest gap" (the window's own text dropped it too); the rust sentence
+    // is byte-identical to what §27 chose, only its word positions move.
     description:
-      "The iron bar that closes the widest gap in the cell's small window, about as thick as a thumb. Rust has " +
+      "The iron bar set across the cell's small window, about as thick as a thumb. Rust has " +
       "pitted it near the bottom, where it is set into old mortar that is dry and cracked.",
     properties: [
       {
@@ -300,6 +307,22 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         wear: { slight: 10, moderate: 20, substantial: 35 },
         restore: { slight: 20, moderate: 50, substantial: 100 },
       },
+      // OPEN-VARIANT.md §76.1 (HUMAN-INTENTS-DESIGN.md D9, §6.2, 2026-09-26):
+      // a person can be held under the cot -- 0 open to view, 100 covered,
+      // the spoon's own wear/restore proportions (§9.1/§15.2). See PERSON_CONTAINERS below.
+      {
+        key: "concealment",
+        resourceName: "cot_concealment",
+        min: 0,
+        max: 100,
+        initialValue: 0,
+        wear: { slight: 20, moderate: 50, substantial: 100 },
+        restore: { slight: 20, moderate: 50, substantial: 100 },
+        readRanges: [
+          { atOrBelow: 49, text: "The floor shows plainly beneath it." },
+          { atOrBelow: 100, text: "Something is drawn up close beneath its frame." },
+        ],
+      },
     ],
   },
   {
@@ -317,6 +340,22 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         initialValue: 100,
         wear: { slight: 10, moderate: 20, substantial: 35 },
         restore: { slight: 20, moderate: 50, substantial: 100 },
+      },
+      // OPEN-VARIANT.md §76.1 (HUMAN-INTENTS-DESIGN.md D9, §6.2, 2026-09-26):
+      // a person can be held under the blanket -- 0 open to view, 100
+      // covered, the spoon's own wear/restore proportions (§9.1/§15.2).
+      {
+        key: "concealment",
+        resourceName: "blanket_concealment",
+        min: 0,
+        max: 100,
+        initialValue: 0,
+        wear: { slight: 20, moderate: 50, substantial: 100 },
+        restore: { slight: 20, moderate: 50, substantial: 100 },
+        readRanges: [
+          { atOrBelow: 49, text: "It lies flat over the cot." },
+          { atOrBelow: 100, text: "It lies humped, as if something is under it." },
+        ],
       },
     ],
   },
@@ -379,6 +418,42 @@ export function findProperty(objectId: string, key: OpenPropertyKey): OpenObject
 }
 
 export const OPEN_OBJECT_IDS: readonly string[] = OPEN_OBJECTS.map((o) => o.id);
+
+/** HUMAN-INTENTS-DESIGN.md D9 (§6.2, decided 2026-09-26), OPEN-VARIANT.md
+ *  §76.1: the objects a PERSON can be concealed IN. Unlike an object's own
+ *  `heldIn` above (authored once, static for the whole game -- the
+ *  banknotes never leave the tile), a person's containment is DYNAMIC: she
+ *  gets under one of these and out again over the course of a game, tracked
+ *  by her own `personHeldIn` resource (`world.ts`), never by this table.
+ *  Both already declare `concealment` (above): the same property the
+ *  hollow's own hiding uses (§15.1), so a container's contents are hidden
+ *  from a principal who does not hold them once its concealment reaches
+ *  `CONTAINMENT_HIDDEN_AT_OR_ABOVE`. Order fixes `personContainerIndex`'s
+ *  encoding -- 1 is `PERSON_CONTAINERS[0]`, 2 is `PERSON_CONTAINERS[1]`; a
+ *  resource holds 0 for "not contained". */
+export const PERSON_CONTAINERS: readonly string[] = ["blanket", "cot"];
+
+/** The value a container's `concealment` must reach for what -- or whom --
+ *  it holds to stop being perceived by anyone who does not hold it (§15.1,
+ *  briefing.ts's own long-standing object-concealment gate). Named here so
+ *  D9's own mechanism (`effects.ts`, `mechanics.ts`, `briefing.ts`) can
+ *  share the number with that established rule instead of a second copy of
+ *  it. */
+export const CONTAINMENT_HIDDEN_AT_OR_ABOVE = 50;
+
+/** `PERSON_CONTAINERS`' 1-based index for an object id, or 0 if it is not
+ *  one of them ("not contained" is also 0, so a resource of 0 and "no
+ *  container" are the same fact by construction, never two). */
+export function personContainerIndex(objectId: string): number {
+  const i = PERSON_CONTAINERS.indexOf(objectId);
+  return i < 0 ? 0 : i + 1;
+}
+
+/** The inverse of `personContainerIndex`: the container an index names, or
+ *  `undefined` for 0 ("not contained") or anything out of range. */
+export function personContainerId(index: number): string | undefined {
+  return index > 0 ? PERSON_CONTAINERS[index - 1] : undefined;
+}
 
 /** Issue #22 gap 3, the owner's decision D5 and his own scale: a person's own
  *  physical state as a bounded numeric property. 100 is on her feet, 50 is

@@ -699,7 +699,11 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
     // purpose: every outcome now opens with what was ruled, as fiction --
     // batch 8 starts after this commit.
-    expect(text).toBe(`You set about wearing at the cot. The cot can be worn down or mended, struck, taken.`);
+    //
+    // D9 (HUMAN-INTENTS-DESIGN.md §6.2, OPEN-VARIANT.md §76), changed on
+    // purpose: the cot now also declares `concealment` (a person can be held
+    // under it), so its own capability list gains "hidden or uncovered".
+    expect(text).toBe(`You set about wearing at the cot. The cot can be worn down or mended, hidden or uncovered, struck, taken.`);
   });
 
   it("key_ring/noise and prisoner/noise, as the batch recorded them: the effect is named and the grounds went unverified", async () => {
