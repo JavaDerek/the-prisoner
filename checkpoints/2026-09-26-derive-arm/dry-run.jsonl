@@ -1,0 +1,14 @@
+{"id":"B7-P41","kind":"fix","arm":"OFF","perceivedStrip":"strip","clausePresent":false}
+{"id":"B7-P41","kind":"fix","arm":"ON","perceivedStrip":"strip","clausePresent":true}
+{"id":"B7-P44","kind":"fix","arm":"OFF","perceivedStrip":"strip","clausePresent":false}
+{"id":"B7-P44","kind":"fix","arm":"ON","perceivedStrip":"strip","clausePresent":true}
+{"id":"B7-P50","kind":"fix","arm":"OFF","perceivedStrip":"strip","clausePresent":false}
+{"id":"B7-P50","kind":"fix","arm":"ON","perceivedStrip":"strip","clausePresent":true}
+{"id":"B7-P11","kind":"scope","arm":"OFF","perceivedStrip":null,"clausePresent":false}
+{"id":"B7-P11","kind":"scope","arm":"ON","perceivedStrip":null,"clausePresent":false}
+{"id":"B7-P47","kind":"scope","arm":"OFF","perceivedStrip":null,"clausePresent":false}
+{"id":"B7-P47","kind":"scope","arm":"ON","perceivedStrip":null,"clausePresent":false}
+{"id":"B7-P02","kind":"trap-strict","arm":"OFF","perceivedStrip":"strip","clausePresent":false}
+{"id":"B7-P02","kind":"trap-strict","arm":"ON","perceivedStrip":"strip","clausePresent":true}
+{"id":"B7-P15","kind":"trap-soft","arm":"OFF","perceivedStrip":"strip","clausePresent":false}
+{"id":"B7-P15","kind":"trap-soft","arm":"ON","perceivedStrip":"strip","clausePresent":true}
