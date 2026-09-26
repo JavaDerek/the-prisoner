@@ -1179,14 +1179,18 @@ async function mainOpen(): Promise<void> {
       : "Derive wording: BASELINE (the default): the effect question's original derive/wear wording, unchanged (§51, the-prisoner#18)."
   );
   transcript.push(
+    // LANDED 2026-09-26 (checkpoints/2026-09-26-arms/RESULTS.md): ON is now the default.
     ELISION === "on"
-      ? "Elision clause: ON (`PRISONER_ELISION=on`): the target question adds \"An act of hiding, sheltering or covering that names no thing hidden names the actor herself\" (HUMAN-INTENTS-DESIGN.md D6, the-prisoner#27)."
-      : "Elision clause: OFF (the default): the target question carries no elision clause (HUMAN-INTENTS-DESIGN.md D6, the-prisoner#27)."
+      ? "Elision clause: ON (the default since 2026-09-26): the target question adds \"An act of hiding, sheltering or covering that names no thing hidden names the actor herself\" (HUMAN-INTENTS-DESIGN.md D6, the-prisoner#27)."
+      : "Elision clause: OFF (`PRISONER_ELISION=off`): the target question carries no elision clause -- the pre-2026-09-26 behaviour, for a batch that must stay comparable to one recorded before this landed (HUMAN-INTENTS-DESIGN.md D6, the-prisoner#27)."
   );
   transcript.push(
+    // MEASURED AND STILL OFF 2026-09-26 (checkpoints/2026-09-26-arms/RESULTS.md, OPEN-VARIANT.md §77):
+    // targeting passed (3 of 3 core intents), the magnitude the referee answers alongside it did not
+    // cross the containment line on any of them, so this stays off pending a magnitude-wording arm.
     CONTAINER_CLAUSE === "on"
       ? "Container clause: ON (`PRISONER_CONTAINER_CLAUSE=on`): the target question adds \"An act of getting under or beneath a thing names that thing\" and the effect question adds the conceal-on-container reading (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
-      : "Container clause: OFF (the default): neither question mentions getting under or beneath a thing (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
+      : "Container clause: OFF (the default; measured 2026-09-26 and left off -- OPEN-VARIANT.md §77): neither question mentions getting under or beneath a thing (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
   );
   // WORLD-ELABORATION-DESIGN.md §4.7, §9 row P1b: `off` (the default) prints
   // NO line at all here -- not even one saying so -- because a checkpoint

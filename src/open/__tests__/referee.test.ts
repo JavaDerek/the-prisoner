@@ -873,9 +873,14 @@ async function promptsFor(
 }
 
 describe("PRISONER_ELISION (HUMAN-INTENTS-DESIGN.md D6, §5, the-prisoner#27)", () => {
-  it("readElisionMode: unset is off, 'on' is legal, anything else throws", () => {
-    expect(readElisionMode(undefined)).toBe("off");
-    expect(readElisionMode("")).toBe("off");
+  // LANDED 2026-09-26 (checkpoints/2026-09-26-arms/RESULTS.md): the env
+  // reader's own default flipped to "on", following PRISONER_ONE_ACT's own
+  // split -- `createReferee`'s bare constructor default (tested below)
+  // stays "off" regardless, so every test in this file that does not pass
+  // `elisionMode` explicitly is unaffected by this landing.
+  it("readElisionMode: unset is now on (landed 2026-09-26), 'off' still legal, anything else throws", () => {
+    expect(readElisionMode(undefined)).toBe("on");
+    expect(readElisionMode("")).toBe("on");
     expect(readElisionMode("on")).toBe("on");
     expect(readElisionMode("off")).toBe("off");
     expect(() => readElisionMode("wat")).toThrow(/PRISONER_ELISION/);
@@ -883,7 +888,7 @@ describe("PRISONER_ELISION (HUMAN-INTENTS-DESIGN.md D6, §5, the-prisoner#27)", 
 
   const ELISION_TEXT = "An act of hiding, sheltering or covering that names no thing hidden names the actor herself.";
 
-  it("off (the default): the target question is byte-identical whether or not a person is in view", async () => {
+  it("off (createReferee's own bare constructor default, unaffected by the landed env default): the target question carries no clause", async () => {
     const objectsOnly = await promptsFor([BAR]);
     const withPerson = await promptsFor([BAR, MARA_FOR_ARMS]);
     expect(withPerson.find((q) => q.id === "target")?.prompt).not.toContain(ELISION_TEXT);

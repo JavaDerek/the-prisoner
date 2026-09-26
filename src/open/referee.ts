@@ -232,21 +232,32 @@ export function readDeriveWordingMode(raw: string | undefined): DeriveWordingMod
  * HUMAN-INTENTS-DESIGN.md §5, D6, the-prisoner#27: whether the target
  * question carries the elision clause -- "An act of hiding, sheltering or
  * covering that names no thing hidden names the actor herself," verbatim,
- * the design's own quote, never reworded here. `off` is the pre-existing
- * request, unchanged byte for byte -- the standing D3-of-§40 lesson: a
- * clause that can shift a ruling ships switched off until a batch justifies
- * it, and §68.2 already measured one candidate clause worse than silence.
- * Conditional on a person being in view, like every person clause
- * (`PERSON_TARGET_CLAUSE`, above) -- with the presence arm off no person is
- * ever perceived, so this arm cannot move the base request's fingerprint
- * even when it is on.
+ * the design's own quote, never reworded here. Conditional on a person
+ * being in view, like every person clause (`PERSON_TARGET_CLAUSE`, above)
+ * -- with the presence arm off no person is ever perceived, so this arm
+ * cannot move the base request's fingerprint whichever way it is set.
+ *
+ * LANDED 2026-09-26 (`checkpoints/2026-09-26-arms/RESULTS.md`): measured
+ * live against Muse, 4 of 4 bare self-hiding intents ("hide", "hide
+ * myself", "cover myself up", "try to conceal myself") read
+ * `target: prisoner` with the clause on, against a 3-of-4 kill number, and
+ * neither trap row ("hide the spoon under the tile", "crouch by the
+ * window") moved from its own OFF answer. **THE GAME's DEFAULT IS NOW
+ * `on`** (`readElisionMode`'s own default, below) -- following
+ * `PRISONER_ONE_ACT`'s own split (OPEN-VARIANT.md §74.1): the ENV READER's
+ * default is what a real game gets, while `createReferee`'s own bare
+ * constructor default stays `off` (unchanged, below), so every existing
+ * unit test and replay of a recorded request stays byte-identical unless it
+ * explicitly asks for the arm. `PRISONER_ELISION=off` restores the
+ * pre-2026-09-26 behaviour for a batch that wants to stay comparable to one
+ * recorded before this landed.
  */
 export type ElisionMode = "off" | "on";
 
 export function readElisionMode(raw: string | undefined): ElisionMode {
-  if (raw === undefined || raw === "") return "off";
+  if (raw === undefined || raw === "") return "on";
   if (raw === "off" || raw === "on") return raw;
-  throw new Error(`PRISONER_ELISION: unrecognised value ${JSON.stringify(raw)} -- must be "on" or "off" (the default)`);
+  throw new Error(`PRISONER_ELISION: unrecognised value ${JSON.stringify(raw)} -- must be "on" (the default) or "off"`);
 }
 
 /**
@@ -265,6 +276,23 @@ export function readElisionMode(raw: string | undefined): ElisionMode {
  * being in view: the container mechanism (`OPEN_CONCEAL_CONTAINER`,
  * `effects.ts`) only ever hides a PERSON, so there is nothing for this
  * clause to ground without one.
+ *
+ * MEASURED AND STILL OFF 2026-09-26 (`checkpoints/2026-09-26-arms/RESULTS.md`,
+ * OPEN-VARIANT.md §77): the clause pair does exactly what it was built for --
+ * all 3 of 3 core "get under a container" intents read `target: <container>`
+ * / `effect: conceal` / `property: concealment`, up from 0 of 3 with the
+ * clause off -- but the referee's own `magnitude` answer came back `slight`
+ * on every one of them, and `slight` raises a container's concealment by 20
+ * (`scenarioObjects.ts`'s own wear/restore proportions), short of the 50
+ * `CONTAINMENT_HIDDEN_AT_OR_ABOVE` line D9's own mechanic gates containment
+ * on. So the pre-registered "actor contained after resolution" half of the
+ * kill number failed on every core item (0 of 3, against a 2-of-3 bar) even
+ * though the targeting half the clauses actually govern passed cleanly (3 of
+ * 3). The clauses are not the failure; the referee's independent judgment of
+ * how much a "hide under the blanket" is worth is. Left `off` rather than
+ * landed on a criterion this task pre-committed to and did not meet -- see
+ * the doc section for the full breakdown and what a follow-up would need to
+ * ask instead (a magnitude-wording arm, not a target/effect arm).
  */
 export type ContainerClauseMode = "off" | "on";
 
