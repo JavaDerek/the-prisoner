@@ -1,7 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { createHash } from "node:crypto";
 import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
-import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, ONE_ACT_QUESTION, targetUnreadWithEffectCited, type ObjectPerception } from "../referee.js";
+import {
+  createReferee,
+  readInstrumentMode,
+  readDeriveWordingMode,
+  readOneActMode,
+  readElisionMode,
+  readContainerClauseMode,
+  ONE_ACT_QUESTION,
+  targetUnreadWithEffectCited,
+  type ObjectPerception,
+} from "../referee.js";
 import { suspicionEligible } from "../loop.js";
 
 const BAR: ObjectPerception = {
@@ -832,6 +842,102 @@ describe("PRISONER_DERIVE_WORDING (OPEN-VARIANT.md §51, the-prisoner#18)", () =
     expect(effect?.prompt).toContain("holding a separate new thing");
     expect(effect?.prompt).toContain("a piece is kept afterward");
     expect(effect?.prompt).toContain("whatever verb");
+  });
+});
+
+/** Both new §9-step-5 arms share this pair of perceived objects: BAR (no
+ *  person at all -- proves the pin below cannot move) and MARA (a person in
+ *  view, the precondition both clauses share with every other person
+ *  clause). */
+const MARA_FOR_ARMS: ObjectPerception = {
+  id: "prisoner",
+  description: "Mara Voss, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her. She is on her feet.",
+};
+const withPersonProps = (id: string): readonly string[] => (id === "prisoner" || id === "warden" ? ["posture"] : id === "bar" ? ["integrity"] : []);
+
+async function promptsFor(
+  perceived: readonly ObjectPerception[],
+  options: Parameters<typeof createReferee>[1] = {}
+): Promise<readonly { id: string; prompt: string }[]> {
+  let questions: readonly { id: string; prompt: string }[] = [];
+  await createReferee(
+    [
+      async (request) => {
+        questions = request.questions;
+        return [];
+      },
+    ],
+    { propertiesOf: withPersonProps, ...options }
+  ).rule("hide under the blanket", perceived);
+  return questions;
+}
+
+describe("PRISONER_ELISION (HUMAN-INTENTS-DESIGN.md D6, §5, the-prisoner#27)", () => {
+  it("readElisionMode: unset is off, 'on' is legal, anything else throws", () => {
+    expect(readElisionMode(undefined)).toBe("off");
+    expect(readElisionMode("")).toBe("off");
+    expect(readElisionMode("on")).toBe("on");
+    expect(readElisionMode("off")).toBe("off");
+    expect(() => readElisionMode("wat")).toThrow(/PRISONER_ELISION/);
+  });
+
+  const ELISION_TEXT = "An act of hiding, sheltering or covering that names no thing hidden names the actor herself.";
+
+  it("off (the default): the target question is byte-identical whether or not a person is in view", async () => {
+    const objectsOnly = await promptsFor([BAR]);
+    const withPerson = await promptsFor([BAR, MARA_FOR_ARMS]);
+    expect(withPerson.find((q) => q.id === "target")?.prompt).not.toContain(ELISION_TEXT);
+    expect(objectsOnly.find((q) => q.id === "target")?.prompt).not.toContain(ELISION_TEXT);
+  });
+
+  it("on, but no person in view: still no clause -- conditional on a person in view, like every person clause", async () => {
+    const q = await promptsFor([BAR], { elisionMode: "on" });
+    expect(q.find((x) => x.id === "target")?.prompt).not.toContain(ELISION_TEXT);
+  });
+
+  it("on, a person in view: the target question gains D6's clause verbatim", async () => {
+    const q = await promptsFor([BAR, MARA_FOR_ARMS], { elisionMode: "on" });
+    expect(q.find((x) => x.id === "target")?.prompt).toContain(ELISION_TEXT);
+  });
+});
+
+describe("PRISONER_CONTAINER_CLAUSE (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)", () => {
+  it("readContainerClauseMode: unset is off, 'on' is legal, anything else throws", () => {
+    expect(readContainerClauseMode(undefined)).toBe("off");
+    expect(readContainerClauseMode("")).toBe("off");
+    expect(readContainerClauseMode("on")).toBe("on");
+    expect(readContainerClauseMode("off")).toBe("off");
+    expect(() => readContainerClauseMode("wat")).toThrow(/PRISONER_CONTAINER_CLAUSE/);
+  });
+
+  it("off (the default): neither question mentions getting under a thing, person or not", async () => {
+    const objectsOnly = await promptsFor([BAR]);
+    const withPerson = await promptsFor([BAR, MARA_FOR_ARMS]);
+    for (const qs of [objectsOnly, withPerson]) {
+      expect(qs.find((x) => x.id === "target")?.prompt).not.toContain("under or beneath a thing names that thing");
+      expect(qs.find((x) => x.id === "effect")?.prompt).not.toContain("conceal on that thing");
+    }
+  });
+
+  it("on, but no person in view: still no clause -- the container mechanism only ever hides a person", async () => {
+    const q = await promptsFor([BAR], { containerClauseMode: "on" });
+    expect(q.find((x) => x.id === "target")?.prompt).not.toContain("under or beneath a thing names that thing");
+    expect(q.find((x) => x.id === "effect")?.prompt).not.toContain("conceal on that thing");
+  });
+
+  it("on, a person in view: the target question gains D9's under/beneath clause and the effect question gains the conceal-on-container reading", async () => {
+    const q = await promptsFor([BAR, MARA_FOR_ARMS], { containerClauseMode: "on" });
+    expect(q.find((x) => x.id === "target")?.prompt).toContain("An act of getting under or beneath a thing names that thing.");
+    const effect = q.find((x) => x.id === "effect")?.prompt;
+    expect(effect).toContain("is conceal on that thing");
+    expect(effect).toContain("is expose on that thing");
+  });
+
+  it("both arms on, a person in view: D6's and D9's clauses both appear, in an order this task's own probe measures rather than assumes", async () => {
+    const q = await promptsFor([BAR, MARA_FOR_ARMS], { elisionMode: "on", containerClauseMode: "on" });
+    const target = q.find((x) => x.id === "target")?.prompt ?? "";
+    expect(target).toContain("names the actor herself");
+    expect(target).toContain("under or beneath a thing names that thing");
   });
 });
 

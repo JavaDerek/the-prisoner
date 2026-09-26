@@ -60,7 +60,7 @@ import { getVariant } from "./variant.js";
 import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, readWindowMode, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
-import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode } from "./open/referee.js";
+import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, readElisionMode, readContainerClauseMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
 import { readPresenceMode, authoredDescription, ownershipAt, buildOpenContext } from "./open/briefing.js";
@@ -245,6 +245,8 @@ const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
  *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
  *  (the pre-existing text) unless asked -- the same D3 lesson. */
 const DERIVE_WORDING = readDeriveWordingMode(process.env.PRISONER_DERIVE_WORDING);
+const ELISION = readElisionMode(process.env.PRISONER_ELISION);
+const CONTAINER_CLAUSE = readContainerClauseMode(process.env.PRISONER_CONTAINER_CLAUSE);
 /** A PERSON in one of the two chairs (`src/open/humanSeat.ts`, the-prisoner#11):
  *  `PRISONER_HUMAN=prisoner|warden`. Unset is two models, which every recorded
  *  batch is -- and a transcript with a person in it says so, so it can never be
@@ -860,6 +862,8 @@ async function mainOpen(): Promise<void> {
       propertiesOf: (objectId) => declaredPropertyKeys(openWorld, objectId),
       instrumentMode: INSTRUMENT,
       deriveWording: DERIVE_WORDING,
+      elisionMode: ELISION,
+      containerClauseMode: CONTAINER_CLAUSE,
       oneAct: ONE_ACT,
     }
   );
@@ -1173,6 +1177,16 @@ async function mainOpen(): Promise<void> {
     DERIVE_WORDING === "sharpened"
       ? "Derive wording: SHARPENED (`PRISONER_DERIVE_WORDING=sharpened`): the effect question adds an explicit keep-the-piece test distinguishing derive from wear (§51, the-prisoner#18)."
       : "Derive wording: BASELINE (the default): the effect question's original derive/wear wording, unchanged (§51, the-prisoner#18)."
+  );
+  transcript.push(
+    ELISION === "on"
+      ? "Elision clause: ON (`PRISONER_ELISION=on`): the target question adds \"An act of hiding, sheltering or covering that names no thing hidden names the actor herself\" (HUMAN-INTENTS-DESIGN.md D6, the-prisoner#27)."
+      : "Elision clause: OFF (the default): the target question carries no elision clause (HUMAN-INTENTS-DESIGN.md D6, the-prisoner#27)."
+  );
+  transcript.push(
+    CONTAINER_CLAUSE === "on"
+      ? "Container clause: ON (`PRISONER_CONTAINER_CLAUSE=on`): the target question adds \"An act of getting under or beneath a thing names that thing\" and the effect question adds the conceal-on-container reading (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
+      : "Container clause: OFF (the default): neither question mentions getting under or beneath a thing (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
   );
   // WORLD-ELABORATION-DESIGN.md §4.7, §9 row P1b: `off` (the default) prints
   // NO line at all here -- not even one saying so -- because a checkpoint

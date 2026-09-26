@@ -229,6 +229,52 @@ export function readDeriveWordingMode(raw: string | undefined): DeriveWordingMod
 }
 
 /**
+ * HUMAN-INTENTS-DESIGN.md §5, D6, the-prisoner#27: whether the target
+ * question carries the elision clause -- "An act of hiding, sheltering or
+ * covering that names no thing hidden names the actor herself," verbatim,
+ * the design's own quote, never reworded here. `off` is the pre-existing
+ * request, unchanged byte for byte -- the standing D3-of-§40 lesson: a
+ * clause that can shift a ruling ships switched off until a batch justifies
+ * it, and §68.2 already measured one candidate clause worse than silence.
+ * Conditional on a person being in view, like every person clause
+ * (`PERSON_TARGET_CLAUSE`, above) -- with the presence arm off no person is
+ * ever perceived, so this arm cannot move the base request's fingerprint
+ * even when it is on.
+ */
+export type ElisionMode = "off" | "on";
+
+export function readElisionMode(raw: string | undefined): ElisionMode {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "off" || raw === "on") return raw;
+  throw new Error(`PRISONER_ELISION: unrecognised value ${JSON.stringify(raw)} -- must be "on" or "off" (the default)`);
+}
+
+/**
+ * HUMAN-INTENTS-DESIGN.md §6.2, D9, the-prisoner#28: whether the target and
+ * effect questions carry D9's two container clauses -- the target question's
+ * "an act of getting under or beneath a thing names that thing," and the
+ * effect question's conceal-on-container reading, written in this module's
+ * own house style rather than the design doc's prose. Probed together with
+ * `ElisionMode` because §6.2 says the two clauses fire on the same intents
+ * ("hide under the blanket" is both an elided hiding act and a getting-under
+ * act); this is nonetheless its OWN switch, following `PRISONER_INSTRUMENT`/
+ * `PRISONER_DERIVE_WORDING`'s convention of one arm per clause, so a
+ * combination this task never measured (D9 alone, without D6) is not
+ * something a later caller has to invent a new switch to try. `off` is the
+ * pre-existing request, unchanged byte for byte. Conditional on a person
+ * being in view: the container mechanism (`OPEN_CONCEAL_CONTAINER`,
+ * `effects.ts`) only ever hides a PERSON, so there is nothing for this
+ * clause to ground without one.
+ */
+export type ContainerClauseMode = "off" | "on";
+
+export function readContainerClauseMode(raw: string | undefined): ContainerClauseMode {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "off" || raw === "on") return raw;
+  throw new Error(`PRISONER_CONTAINER_CLAUSE: unrecognised value ${JSON.stringify(raw)} -- must be "on" or "off" (the default)`);
+}
+
+/**
  * §3.5's actual requirement -- "the same intent in the same state should get
  * the same ruling" -- by construction, not by showing the referee its own
  * earlier work as a prompt example. OPEN-VARIANT.md §18.6/§18.7: a block of
@@ -277,7 +323,9 @@ function buildQuestions(
   kindOf: KindOf,
   propertiesOf: PropertiesOf,
   instrumentMode: InstrumentMode,
-  deriveWording: DeriveWordingMode
+  deriveWording: DeriveWordingMode,
+  elisionMode: ElisionMode,
+  containerClauseMode: ContainerClauseMode
 ): ReaderQuestion[] {
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
@@ -292,10 +340,29 @@ function buildQuestions(
   const personInView = personsInView.length > 0;
   const PERSON_TARGET_CLAUSE =
     " A person here is a thing that can be acted on like any other: an act on someone else's body -- pushing them down, hauling them up -- names that person, and an act on the actor's OWN body -- collapsing, dropping to the floor, crouching, going limp -- names the actor herself.";
+  // HUMAN-INTENTS-DESIGN.md §5, D6, the-prisoner#27 (`readElisionMode`,
+  // above): verbatim, the design's own quote. `PRISONER_ELISION=on`, off by
+  // default, conditional on a person in view like every clause here.
+  const ELISION_CLAUSE = " An act of hiding, sheltering or covering that names no thing hidden names the actor herself.";
+  // HUMAN-INTENTS-DESIGN.md §6.2, D9, the-prisoner#28 (`readContainerClauseMode`,
+  // above): the target half of D9's two clauses. `PRISONER_CONTAINER_CLAUSE=on`,
+  // off by default, conditional on a person in view -- the container mechanism
+  // (`OPEN_CONCEAL_CONTAINER`, `effects.ts`) only ever hides a person.
+  const CONTAINER_TARGET_CLAUSE = " An act of getting under or beneath a thing names that thing.";
   const PERSON_EFFECT_CLAUSE =
     " An act that changes how a person's own body is held -- dropping to the floor, collapsing, crouching down, going limp -- is wear on that person; an act that gets a body back up off the floor is restore on that person. The body is the target, even when the act is a performance and nothing else in the room changes." +
     // docs/CUSTODY-DESIGN.md: a search is the one custody act done TO a person, so it targets her.
     " Searching a person -- patting them down, turning out what they carry -- is expose on that person.";
+  // HUMAN-INTENTS-DESIGN.md §6.2, D9, the-prisoner#28: the effect half of
+  // D9's two clauses, in this question's own house style (a verb list, no
+  // object id named -- `PERSON_EFFECT_CLAUSE`'s own shape). `OPEN_CONCEAL_
+  // CONTAINER`/`OPEN_EXPOSE_CONTAINER` (`effects.ts`, `mechanics.ts`) are
+  // what actually resolve conceal/expose on a container that can hide a
+  // person; this clause is the prompt half that tells the referee such an
+  // act is conceal/expose at all, which §76.1 states this task built no
+  // clause for.
+  const CONTAINER_EFFECT_CLAUSE =
+    " Getting oneself under or beneath a thing that can conceal a person -- pulling it over the body, drawing it close so it covers her -- is conceal on that thing; coming out from under it again, or being uncovered, is expose on that thing.";
   const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), ";
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
@@ -334,6 +401,8 @@ function buildQuestions(
         // OPEN-VARIANT.md §74.3, `checkpoints/2026-09-22-hide-target/`: hiding targeted the place as often as the thing.
         "An act of hiding names the thing hidden, never the place it is hidden in, under or behind. " +
         (personInView ? PERSON_TARGET_CLAUSE : "") +
+        (personInView && elisionMode === "on" ? ELISION_CLAUSE : "") +
+        (personInView && containerClauseMode === "on" ? CONTAINER_TARGET_CLAUSE : "") +
         "Cite the exact words in the actor's intent that name it.",
       answerKeys: targetKeys,
       safeDefault: "none",
@@ -362,6 +431,7 @@ function buildQuestions(
         "is to have the piece afterwards; wear is for damage that leaves nothing in hand. " +
         deriveClarification +
         (personInView ? PERSON_EFFECT_CLAUSE : "") +
+        (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE : "") +
         "Cite the exact words in the actor's intent that describe the action.",
       answerKeys: [...EFFECT_KINDS],
       safeDefault: "none",
@@ -681,6 +751,14 @@ export function createReferee(
     /** OPEN-VARIANT.md §51, the-prisoner#18. Default `"baseline"`: the
      *  pre-existing effect-question wording, unchanged. */
     deriveWording?: DeriveWordingMode;
+    /** HUMAN-INTENTS-DESIGN.md §5, D6, the-prisoner#27 (`readElisionMode`,
+     *  above). Default `"off"`: byte-identical to every batch recorded
+     *  before this arm existed. */
+    elisionMode?: ElisionMode;
+    /** HUMAN-INTENTS-DESIGN.md §6.2, D9, the-prisoner#28
+     *  (`readContainerClauseMode`, above). Default `"off"`: byte-identical
+     *  to every batch recorded before this arm existed. */
+    containerClauseMode?: ContainerClauseMode;
     /** OPEN-VARIANT.md §74.1 (option B). The GAME's default is `"checked"` (`readOneActMode`, wired in
      *  `checkpoint.ts`); this constructor's own default is `"off"`, so a referee built bare -- every unit test,
      *  every replay of a recorded request -- makes exactly one call, as before. */
@@ -692,6 +770,8 @@ export function createReferee(
   const propertiesOf = options.propertiesOf ?? scenarioProperties;
   const instrumentMode = options.instrumentMode ?? "off";
   const deriveWording = options.deriveWording ?? "baseline";
+  const elisionMode = options.elisionMode ?? "off";
+  const containerClauseMode = options.containerClauseMode ?? "off";
   // docs/CUSTODY-DESIGN.md: a person is whatever declares a person's own key --
   // the same test `buildQuestions` uses, so no scenario import is needed here.
   const isPerson = (objectId: string): boolean => propertiesOf(objectId).some((k) => (PERSON_PROPERTY_KEYS as readonly string[]).includes(k));
@@ -702,7 +782,7 @@ export function createReferee(
       const cached = cache.get(key);
       if (cached) return cached;
 
-      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording);
+      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode);
       const sources = buildSources(intentText, perceivedObjects);
       // OPEN-VARIANT.md §18.3: the engine keeps an accepted citation as
       // `{sourceId, quote}` only, so what each rung offered is kept here, to
