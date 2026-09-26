@@ -2,7 +2,7 @@ import { readNumericFact, readFactValue, factReaderAt } from "../world/facts.js"
 import { getBelief, renderBeliefLine } from "../ledger/beliefs.js";
 import { SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 import { getNotes } from "../ledger/notes.js";
-import { OPEN_PERSONS, OPEN_OBJECTS, type OpenObjectSpec } from "./scenarioObjects.js";
+import { OPEN_PERSONS, OPEN_OBJECTS, PERSON_CONTAINERS, CONTAINMENT_HIDDEN_AT_OR_ABOVE, personContainerId, type OpenObjectSpec } from "./scenarioObjects.js";
 import { resourceIdForProperty, type OpenWorld, type WindowMode } from "./world.js";
 import type { ObjectPerception } from "./referee.js";
 import type { OpenPrincipalContext } from "./mind.js";
@@ -66,8 +66,14 @@ export function holderAt(openWorld: OpenWorld, objectId: string, t: number): Pri
   return ownershipAt(openWorld, t)(objectId).holder;
 }
 
-/** OPEN-VARIANT.md §15.1: the objects some other object is held in. */
-const CONTAINERS: ReadonlySet<string> = new Set(OPEN_OBJECTS.flatMap((spec) => (spec.heldIn ? [spec.heldIn] : [])));
+/** OPEN-VARIANT.md §15.1: the objects some other object is held in --
+ *  a STATIC object's own `heldIn` (the banknotes' loose_tile) plus, D9
+ *  (§6.2, OPEN-VARIANT.md §76.1), the objects a PERSON can be held in
+ *  DYNAMICALLY (`PERSON_CONTAINERS`: the blanket, the cot). Either way, a
+ *  container's own concealment hides what it holds, never the container
+ *  itself -- without this set, a covered blanket would vanish along with
+ *  whoever is under it, which §15.1 already forbids for the loose tile. */
+const CONTAINERS: ReadonlySet<string> = new Set([...OPEN_OBJECTS.flatMap((spec) => (spec.heldIn ? [spec.heldIn] : [])), ...PERSON_CONTAINERS]);
 
 /**
  * OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2): whether presence is
@@ -144,6 +150,19 @@ function concealmentAt(openWorld: OpenWorld, objectId: string, t: number): numbe
   const resourceId = resourceIdForProperty(openWorld, objectId, "concealment");
   if (!resourceId) return undefined; // Not concealable at all.
   return readNumericFact({ gameId: openWorld.base.gameId, t, entityId: resourceId, key: "value" });
+}
+
+/** D9 (HUMAN-INTENTS-DESIGN.md §6.2, OPEN-VARIANT.md §76.1): which
+ *  `PERSON_CONTAINERS` member, if any, this principal is currently held in
+ *  -- dynamic, read from her own resource (`world.ts`'s `personHeldIn`),
+ *  never authored the way an object's own `heldIn` is. `undefined` with the
+ *  presence arm off (no such resource exists) or when the value is 0
+ *  ("not contained"). */
+function personContainerAt(openWorld: OpenWorld, principal: Principal, t: number): string | undefined {
+  const resourceId = openWorld.personHeldIn[principal];
+  if (!resourceId) return undefined;
+  const value = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: resourceId, key: "value" });
+  return value ? personContainerId(value) : undefined;
 }
 
 /** OPEN-VARIANT.md §33.8: the authored description, then the reading of every
@@ -244,7 +263,16 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
       const spec = OPEN_PERSONS.find((p) => p.id === who);
       objects.push({ id: who, description: spec ? describedAsItStands(openWorld, spec, t) : PRINCIPAL_DESCRIPTION[who] });
     };
-    if (principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t)) perceive(other);
+    // D9 (HUMAN-INTENTS-DESIGN.md §6.2, OPEN-VARIANT.md §76.1): the OTHER
+    // principal's own view drops her when her own containment resource
+    // names a container whose concealment has reached the hidden line --
+    // never the actor's own view of herself (presence untouched, §55:
+    // hidden is not absent, and she perceives her own situation always).
+    if (principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t)) {
+      const containerId = personContainerAt(openWorld, other, t);
+      const hiddenFromOther = containerId !== undefined && (concealmentAt(openWorld, containerId, t) ?? 0) >= CONTAINMENT_HIDDEN_AT_OR_ABOVE;
+      if (!hiddenFromOther) perceive(other);
+    }
     perceive(principal);
   }
   return objects;

@@ -83,6 +83,86 @@ export const OPEN_RESTORE: Mechanic = {
   },
 };
 
+/**
+ * HUMAN-INTENTS-DESIGN.md D9 (§6.2), OPEN-VARIANT.md §76.1: a `conceal` on a
+ * person-container (the blanket, the cot) is `OPEN_RESTORE` on its own
+ * `concealment` PLUS, in the SAME resolution (the custody rule: one
+ * `resolve()` call, never two), the acting principal's own containment set
+ * to this container's index -- but only once the raise crosses
+ * `CONTAINMENT_HIDDEN_AT_OR_ABOVE`. A raise that does not cross the line
+ * (a `slight` tug at the blanket) sets nothing: `heldIn != 0` stays a
+ * precise invariant, never a flag that can drift from the number that
+ * actually gates perception (`briefing.ts`).
+ */
+export interface ConcealContainerParams extends WearRestoreParams {
+  /** Absent when the world built no containment resource for the actor at
+   *  all (the presence arm off) -- `effects.ts` never builds this shape in
+   *  that case, but the mechanic stays honest about it regardless. */
+  actorHeldIn?: { resourceId: string; containerIndex: number; max: number };
+  hiddenAtOrAbove: number;
+}
+
+export const OPEN_CONCEAL_CONTAINER: Mechanic = {
+  name: "OPEN_CONCEAL_CONTAINER",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as ConcealContainerParams;
+    const before = currentValue(input, p.resourceId);
+    const after = clamp(before + p.amount, p.min, p.max);
+    const changes: IntendedChange[] = [setResource(p.resourceId, after, p.min, p.max)];
+    const contained = after >= p.hiddenAtOrAbove;
+    if (p.actorHeldIn && contained) changes.push(setResource(p.actorHeldIn.resourceId, p.actorHeldIn.containerIndex, 0, p.actorHeldIn.max));
+    return {
+      changes,
+      result: { mechanic: "OPEN_CONCEAL_CONTAINER", resourceId: p.resourceId, before, after, ...(p.actorHeldIn ? { containment: contained ? p.actorHeldIn.containerIndex : 0 } : {}) },
+      description: p.description,
+    };
+  },
+};
+
+/**
+ * The reverse of `OPEN_CONCEAL_CONTAINER`: `OPEN_WEAR` on the container's
+ * own `concealment`, plus -- read from the facts this mechanic is handed AT
+ * RESOLUTION TIME, never at plan time, the same discipline `OPEN_TAKE`/
+ * `OPEN_SEARCH` already follow for who holds what -- clearing whichever
+ * principal's own containment resource currently names this container,
+ * once the lower crosses back below `CONTAINMENT_HIDDEN_AT_OR_ABOVE`. A
+ * partial expose that leaves concealment at or above the line clears
+ * nothing, symmetric with the forward direction.
+ */
+export interface ExposeContainerParams extends WearRestoreParams {
+  containerIndex: number;
+  hiddenAtOrAbove: number;
+  /** Every principal's own containment resource and its declared max, so
+   *  whichever one currently points at THIS container is cleared in the
+   *  same resolution -- there is no way to know which, if any, at plan
+   *  time. */
+  heldInResources: readonly { resourceId: string; max: number }[];
+}
+
+export const OPEN_EXPOSE_CONTAINER: Mechanic = {
+  name: "OPEN_EXPOSE_CONTAINER",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as ExposeContainerParams;
+    const before = currentValue(input, p.resourceId);
+    const after = clamp(before - p.amount, p.min, p.max);
+    const changes: IntendedChange[] = [setResource(p.resourceId, after, p.min, p.max)];
+    const uncovered: string[] = [];
+    if (after < p.hiddenAtOrAbove) {
+      for (const held of p.heldInResources) {
+        if (currentValue(input, held.resourceId) === p.containerIndex) {
+          changes.push(setResource(held.resourceId, 0, 0, held.max));
+          uncovered.push(held.resourceId);
+        }
+      }
+    }
+    return {
+      changes,
+      result: { mechanic: "OPEN_EXPOSE_CONTAINER", resourceId: p.resourceId, before, after, uncovered },
+      description: p.description,
+    };
+  },
+};
+
 /** No write -- an information move, exactly like the closed variant's
  *  INSPECT/OBSERVE (`world/mechanics.ts`), generalised to any declared
  *  resource. */
@@ -442,5 +522,7 @@ export const OPEN_DERIVE: Mechanic = {
 };
 
 export function buildOpenResolver(): Resolver {
-  return createResolver({ mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH] });
+  return createResolver({
+    mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH, OPEN_CONCEAL_CONTAINER, OPEN_EXPOSE_CONTAINER],
+  });
 }

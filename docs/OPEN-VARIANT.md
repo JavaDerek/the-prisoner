@@ -6387,3 +6387,99 @@ order its properties are declared (`integrity`, then `concealment`).
 
 The mechanism this property enables -- a person's own dynamic containment, what the other principal stops
 perceiving, and the ruling-expression limitation the design itself asks to be flagged -- is §76.1.
+
+### 76.1 D9's mechanics: a person's containment is dynamic, and today's ruling cannot fully tell why
+
+**The primitive.** Unlike an object's own `heldIn` (`scenarioObjects.ts`, authored once -- the banknotes
+never leave the tile), a person gets under a container and out again over a game, so her containment
+cannot live in a static table. Each principal gets her own resource (`prisoner_held_in` / `warden_held_in`,
+`world.ts`'s `personHeldIn`, built only under `PRISONER_PRESENCE=modelled` -- the same arm posture and a
+perceived principal already require, since without it neither principal is ever a legal target at all),
+bounded 0 to `PERSON_CONTAINERS.length`: 0 is "not contained", 1 is `PERSON_CONTAINERS[0]` (the blanket), 2
+is the cot (`personContainerIndex`/`personContainerId`, `scenarioObjects.ts`). It is never a declared
+`OpenObjectProperty` of `OPEN_PERSONS` -- deliberately: that would leak a "heldIn" key into the referee's
+own property-answer vocabulary and the belief-line and declared-property machinery that vocabulary drives,
+none of which D9 asks to grow. `resolve()` is still the only writer of it, through the two mechanics below.
+
+**The forward direction.** `effects.ts`'s `conceal` branch, when the target is a `PERSON_CONTAINERS` member
+and the actor's own containment resource exists, resolves through a new mechanic, `OPEN_CONCEAL_CONTAINER`
+(`mechanics.ts`), rather than the ordinary `OPEN_RESTORE`: it raises the container's own concealment by the
+ruled magnitude exactly as `OPEN_RESTORE` would, and -- **in the same resolution, through `resolve()` and
+nowhere else** -- sets the ACTOR's own containment resource to that container's index the moment the raise
+crosses `CONTAINMENT_HIDDEN_AT_OR_ABOVE` (50), the same line that already governs whether anything held in
+a container is perceived (§15.1). A conceal that does not cross the line (a `slight` tug at the blanket)
+raises concealment without marking anyone contained -- structurally sound, since nothing would be hidden
+from a principal's perception at that value anyway.
+
+**The reverse direction.** `expose` on a `PERSON_CONTAINERS` member (by anyone -- there is no "who may
+expose a container" gate, unlike a search of a person) resolves through `OPEN_EXPOSE_CONTAINER`: it lowers
+the container's own concealment exactly as `OPEN_WEAR` would, then -- reading both principals' containment
+resources AT RESOLUTION TIME, never at plan time, the same discipline `OPEN_TAKE`/`OPEN_SEARCH` already
+follow for who holds what -- clears whichever one currently points at this container, but only once the
+lowered value crosses back below `CONTAINMENT_HIDDEN_AT_OR_ABOVE`. A partial expose that leaves concealment
+at or above the line changes nothing about containment, symmetric with the forward direction: `heldIn !=
+0` is now a precise invariant ("this principal is hidden in this container's concealment sense"), never a
+flag that can drift from the number that actually gates perception.
+
+**What was NOT built, and said so rather than guessed at (the design's own permission, §6.2): the person's
+own leave-shaped act out of a container.** `leave` is reserved for the cell's own ways out (`world.ts`'s
+`exits` map: door, window) and refusing every other target is "no invented world" (§17.2), not a gap in
+this mechanism. Overloading `leave` to also mean "get out from under a blanket" would need a second exits-
+shaped table this task did not build. Getting uncovered by an `expose` on the container -- by either
+principal, including herself patting the blanket back down -- is the one reverse path that exists; a
+person who wants to be seen again and finds no `expose` ruled against her hiding place stays hidden until
+one is. This is the flagged limitation's twin and belongs in the same paragraph: **both halves of D9's
+mechanism depend on the referee choosing to rule `conceal`/`expose` on the container at all, and this task
+built no prompt clause to make it do so** (D6's elision clause and D9's own container clause are landing-
+order item 5, an unbuilt, measured arm -- §5/§6.2). Everything above is the mechanic a correctly-aimed
+ruling resolves through; whether today's referee, unaided, ever aims a "hide myself under the blanket"
+ruling at the container rather than leaving its target unread is exactly what that later measurement is for.
+
+**The read.** `briefing.ts`'s `computePerceivedObjects`, under the presence arm, drops the OTHER principal
+from view when her own containment resource names a container whose concealment has reached the hidden
+line -- never the actor's own view of herself (presence is untouched, §55: hidden is not absent, and she
+still perceives her own situation, the clock, and the conditions same as ever). The container itself is
+never hidden by its own concealment (the same rule loose_tile has always followed, §15.1): `blanket` and
+`cot` are added to `briefing.ts`'s `CONTAINERS` bypass set precisely so a covered blanket stays perceived
+as a covered blanket rather than vanishing along with what is under it. Its own `readRanges` then supply
+the "her briefing shows the container's own reads text instead" behaviour for free, with no extra plumbing:
+the container is an ordinary object in every principal's `perceivedObjects` list regardless of who is
+under it, and its description already reads differently once concealment crosses the same line.
+
+**THE RULING-EXPRESSION CHOICE, and its limit (flagged, per this task's brief).** The referee answers
+exactly `target`/`effect`/`property`/`magnitude`/`perceptibility` (plus `product`, irrelevant here) --
+there is no sixth key for "what is being hidden" separate from "what the act targets." So "hide myself
+under the blanket" and "hide the spoon under the blanket" are **indistinguishable at the mechanics layer**
+whenever both are ruled `conceal`/`blanket`/`concealment`: today's ruling cannot express which one it was
+without reading English, and this task does not add a reading of English. The structurally honest rule the
+design points at (§6.2: "the act is a conceal on the container that also sets the actor's own
+containment") is implemented exactly as stated -- **every** `conceal` on a person-container that crosses
+the hidden line marks the ACTING principal as contained, whether her intent was to hide herself or to
+stash the spoon. In practice this is narrower than it sounds: `effects.ts`'s existing target-resolution
+already sends "hide the spoon under the blanket" to `target: spoon` in the common case (the spoon declares
+its own `concealment`, and it is the more specific noun the target question's existing clauses reach for
+first, exactly as it always has for the tile), so the collision is live only when the referee's target
+answer lands on the container itself for an act that named some OTHER thing as what gets hidden -- a case
+that also depends on the still-unbuilt D9 prompt clause even firing. It is a known, documented,
+narrower-than-worst-case overinclusion, not a silent one, and D11's corpus (§9 row 6, unbuilt) is where a
+real game would show whether it ever actually bites.
+
+**What is unchanged, per the design's own checklist.** Presence (§55): untouched, hidden is not absent.
+Custody's C1 gate (a thing is taken from a person only while she is not on her feet): untouched -- C1 reads
+posture, this reads containment, and neither mechanism's own gate reads the other's resource. A search
+(`OPEN_SEARCH`) still targets a PERSON, unchanged; the container's own reverse path is `expose`, described
+above, and the two are not merged into one mechanic (their shapes differ too much: a search reads a list of
+candidate held ITEMS by ownership, a container's own concealment has no ownership to read). Hiding does not
+hide acts: perceptibility is still ruled per act by the referee's own `perceptibility` answer, independent
+of `computePerceivedObjects`, so wearing at the bar from under the blanket is exactly as audible as it was.
+
+Tests: `scenarioObjects.test.ts` (the two properties, their bounds and tables, their readRanges cover the
+whole range); the new `containment.test.ts` covers each bullet above (conceal-on-container sets
+containment past the line and not below it; expose-on-container clears it past the line and not below it,
+and never a DIFFERENT principal's containment in a DIFFERENT container; the other principal's
+`computePerceivedObjects` drops a contained person and keeps perceiving the container, whose own reads text
+changes; the actor still perceives herself; a visible/audible act while hidden still reaches the other
+principal's perception; C1 (posture) is unaffected by containment; presence off creates no containment
+resource at all and leaves `computePerceivedObjects` exactly as it was, so every batch recorded before D9
+is byte-identical).
+

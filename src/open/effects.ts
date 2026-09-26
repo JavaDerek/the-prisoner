@@ -1,4 +1,4 @@
-import { findProperty, POSTURE_ON_HER_FEET_ABOVE, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
+import { findProperty, POSTURE_ON_HER_FEET_ABOVE, PERSON_CONTAINERS, CONTAINMENT_HIDDEN_AT_OR_ABOVE, personContainerIndex, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
 import { findKind, composeDescription, parentLabel } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -69,7 +69,19 @@ export function effectRequiresProperty(effectKind: EffectKind): boolean {
   );
 }
 
-export type OpenMechanicName = "OPEN_WEAR" | "OPEN_RESTORE" | "OPEN_REVEAL" | "OPEN_NOISE" | "OPEN_PASSAGE" | "OPEN_LEAVE" | "OPEN_DERIVE" | "OPEN_TAKE" | "OPEN_GIVE" | "OPEN_SEARCH";
+export type OpenMechanicName =
+  | "OPEN_WEAR"
+  | "OPEN_RESTORE"
+  | "OPEN_REVEAL"
+  | "OPEN_NOISE"
+  | "OPEN_PASSAGE"
+  | "OPEN_LEAVE"
+  | "OPEN_DERIVE"
+  | "OPEN_TAKE"
+  | "OPEN_GIVE"
+  | "OPEN_SEARCH"
+  | "OPEN_CONCEAL_CONTAINER"
+  | "OPEN_EXPOSE_CONTAINER";
 
 /** What a `derive` plan will register in the world once its resolution has
  *  created the entities (OPEN-VARIANT.md §13.5) -- decided before the
@@ -180,6 +192,11 @@ export function planEffect(params: {
     /** Each person's posture resource, keyed by character id, where the world
      *  built one (the presence arm); C1's gate reads it at t. */
     postureOf: Readonly<Record<string, string>>;
+    /** HUMAN-INTENTS-DESIGN.md D9 (§6.2): each person's own containment
+     *  resource, keyed by character id like `postureOf`, where the world
+     *  built one (the presence arm). `conceal`/`expose` on a person-container
+     *  (below) read it; every other effect ignores it. */
+    heldInOf?: Readonly<Record<string, string>>;
   };
   description: string;
 }): EffectPlan | null {
@@ -289,6 +306,30 @@ export function planEffect(params: {
   }
   if (effectKind === "conceal") {
     if (property !== "concealment") return null;
+    // HUMAN-INTENTS-DESIGN.md D9 (§6.2), OPEN-VARIANT.md §76.1: a conceal on
+    // one of `PERSON_CONTAINERS` also sets the ACTOR's own containment, in
+    // the same resolution, once the raise crosses the hidden line -- but
+    // only when the world actually built a containment resource for her
+    // (the presence arm); without one this falls through to the ordinary
+    // OPEN_RESTORE every other conceal already uses, byte-identical to
+    // every batch recorded before D9.
+    const actorHeldInId = params.actorId && PERSON_CONTAINERS.includes(targetObjectId) ? params.custody?.heldInOf?.[params.actorId] : undefined;
+    if (actorHeldInId) {
+      return {
+        mechanic: "OPEN_CONCEAL_CONTAINER",
+        parameters: {
+          resourceId,
+          amount: declared.restore[magnitude],
+          min: declared.min,
+          max: declared.max,
+          actorHeldIn: { resourceId: actorHeldInId, containerIndex: personContainerIndex(targetObjectId), max: PERSON_CONTAINERS.length },
+          hiddenAtOrAbove: CONTAINMENT_HIDDEN_AT_OR_ABOVE,
+          description,
+        },
+        resourceId,
+        isWearType: false,
+      };
+    }
     return {
       mechanic: "OPEN_RESTORE",
       parameters: { resourceId, amount: declared.restore[magnitude], min: declared.min, max: declared.max, description },
@@ -298,6 +339,19 @@ export function planEffect(params: {
   }
   if (effectKind === "expose") {
     if (property !== "concealment") return null;
+    // The reverse of the above: uncovers whoever the container hid, read at
+    // resolution time (never known here at plan time). Only when the world
+    // built at least one containment resource -- otherwise there is nothing
+    // to clear and this is the ordinary OPEN_WEAR every other expose uses.
+    const heldInResources = PERSON_CONTAINERS.includes(targetObjectId) ? Object.values(params.custody?.heldInOf ?? {}).map((rid) => ({ resourceId: rid, max: PERSON_CONTAINERS.length })) : [];
+    if (heldInResources.length > 0) {
+      return {
+        mechanic: "OPEN_EXPOSE_CONTAINER",
+        parameters: { resourceId, amount: declared.wear[magnitude], min: declared.min, max: declared.max, containerIndex: personContainerIndex(targetObjectId), hiddenAtOrAbove: CONTAINMENT_HIDDEN_AT_OR_ABOVE, heldInResources, description },
+        resourceId,
+        isWearType: true,
+      };
+    }
     return {
       mechanic: "OPEN_WEAR",
       parameters: { resourceId, amount: declared.wear[magnitude], min: declared.min, max: declared.max, description },

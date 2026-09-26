@@ -731,6 +731,15 @@ export async function runOpenHalfRound(params: {
           return resourceId ? [[p === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId, resourceId]] : [];
         })
       ),
+      // HUMAN-INTENTS-DESIGN.md D9 (§6.2): each principal's own containment
+      // resource, where the world built one (the presence arm) -- read by
+      // `effects.ts`'s `conceal`/`expose` branches for a person-container.
+      heldInOf: Object.fromEntries(
+        (["prisoner", "warden"] as const).flatMap((p) => {
+          const resourceId = openWorld.personHeldIn[p];
+          return resourceId ? [[p === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId, resourceId]] : [];
+        })
+      ),
     },
     description,
   });

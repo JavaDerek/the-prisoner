@@ -1,6 +1,6 @@
 import { createItem, createLocation, createResource, declareBoundedConstraint, declareResolveOnlyConstraint, type Outcome } from "run-dmcp";
 import { buildWorld, type World } from "../world/setup.js";
-import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey, OPEN_PERSONS } from "./scenarioObjects.js";
+import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey, OPEN_PERSONS, PERSON_CONTAINERS } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
 import { ELABORABLE_EXITS } from "./acquirableProperties.js";
 import type { Principal } from "../ledger/beliefs.js";
@@ -65,6 +65,15 @@ export interface OpenWorld {
    *  belief line suppression) -- never threaded as a second parameter next
    *  to `openWorld`, since every caller that needs it already has one. */
   windowMode: WindowMode;
+  /** HUMAN-INTENTS-DESIGN.md D9 (§6.2), OPEN-VARIANT.md §76.1: each
+   *  principal's OWN resource for which `PERSON_CONTAINERS` member (if any)
+   *  currently holds her -- 0 for "not contained", never a declared
+   *  `OpenObjectProperty` of `OPEN_PERSONS` (that would leak a "heldIn" key
+   *  into the referee's own property vocabulary, which this gap does not
+   *  touch). Built only under the presence arm, the same gate `OPEN_PERSONS`'
+   *  own resources already use -- with it off, this is `{}`, and every batch
+   *  recorded before D9 is byte-identical. */
+  personHeldIn: Partial<Record<Principal, string>>;
 }
 
 /** One property acquired onto an existing object (WORLD-ELABORATION-DESIGN.md
@@ -303,6 +312,26 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     }
   }
 
+  // HUMAN-INTENTS-DESIGN.md D9 (§6.2), OPEN-VARIANT.md §76.1: each
+  // principal's own containment resource -- deliberately NOT one of
+  // `OPEN_PERSONS`' declared `properties` (the loop just above), which would
+  // put a "heldIn" key into the referee's own property vocabulary and the
+  // belief-line/declared-property machinery that vocabulary drives. Built
+  // under the SAME presence arm as posture, for the same reason: a person is
+  // only ever a perceivable, targetable thing at all once presence is
+  // modelled (`briefing.ts`'s own `perceive` closure), so there is nothing
+  // for this resource to gate without it.
+  const personHeldIn: Partial<Record<Principal, string>> = {};
+  if (options.presence === "modelled") {
+    for (const principal of ["prisoner", "warden"] as const) {
+      const characterId = principal === "prisoner" ? base.prisonerId : base.wardenId;
+      const resource = createResource({ gameId, ownerType: "character", ownerId: characterId, name: `${principal}_held_in`, value: 0, minValue: 0, maxValue: PERSON_CONTAINERS.length });
+      declareBoundedConstraint({ gameId, resourceId: resource.id });
+      declareResolveOnlyConstraint({ gameId, resourceId: resource.id });
+      personHeldIn[principal] = resource.id;
+    }
+  }
+
   const corridor = createLocation({ gameId, name: "the corridor", description: "The corridor outside the cell door." });
   const outsideWindow = createLocation({ gameId, name: "outside the window", description: "Outside the cell's small window." });
   const exit = (wayOut: string, part: string, destinationId: string, openWhenPartAtMost: number | null): OpenExit => ({
@@ -325,7 +354,7 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     ...(windowMode === "welded" ? {} : { window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX) }),
   };
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode };
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode, personHeldIn };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {
