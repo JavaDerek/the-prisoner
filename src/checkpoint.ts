@@ -61,7 +61,7 @@ import { getVariant } from "./variant.js";
 import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, readWindowMode, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
-import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, readElisionMode, readContainerClauseMode } from "./open/referee.js";
+import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, readElisionMode, readContainerClauseMode, readDeriveRepeatMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
 import { readPresenceMode, authoredDescription, ownershipAt, buildOpenContext } from "./open/briefing.js";
@@ -248,6 +248,11 @@ const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
 const DERIVE_WORDING = readDeriveWordingMode(process.env.PRISONER_DERIVE_WORDING);
 const ELISION = readElisionMode(process.env.PRISONER_ELISION);
 const CONTAINER_CLAUSE = readContainerClauseMode(process.env.PRISONER_CONTAINER_CLAUSE);
+/** Open variant only: the effect question's repeat-derive clause
+ *  (`src/open/referee.ts`, OPEN-VARIANT.md §78, D11 follow-up). Off unless
+ *  asked -- NOT YET MEASURED, see `checkpoints/2026-09-26-derive-arm/
+ *  PREDICTION.md`. */
+const DERIVE_REPEAT = readDeriveRepeatMode(process.env.PRISONER_DERIVE_REPEAT);
 /** A PERSON in one of the two chairs (`src/open/humanSeat.ts`, the-prisoner#11):
  *  `PRISONER_HUMAN=prisoner|warden`. Unset is two models, which every recorded
  *  batch is -- and a transcript with a person in it says so, so it can never be
@@ -865,6 +870,7 @@ async function mainOpen(): Promise<void> {
       deriveWording: DERIVE_WORDING,
       elisionMode: ELISION,
       containerClauseMode: CONTAINER_CLAUSE,
+      repeatDeriveMode: DERIVE_REPEAT,
       oneAct: ONE_ACT,
     }
   );
@@ -1199,6 +1205,11 @@ async function mainOpen(): Promise<void> {
     CONTAINER_CLAUSE === "on"
       ? "Container clause: ON (`PRISONER_CONTAINER_CLAUSE=on`): the target question adds \"An act of getting under or beneath a thing names that thing\" and the effect question adds the conceal-on-container reading (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
       : "Container clause: OFF (the default; measured 2026-09-26 and left off -- OPEN-VARIANT.md §77): neither question mentions getting under or beneath a thing (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
+  );
+  transcript.push(
+    DERIVE_REPEAT === "on"
+      ? "Derive-repeat clause: ON (`PRISONER_DERIVE_REPEAT=on`, NOT YET MEASURED): once a derivable kind already has an instance in view, the effect question adds a clause naming a repeated working of the source as derive again, not wear (OPEN-VARIANT.md §78, docs/HUMAN-INTENTS-DESIGN.md D11 follow-up)."
+      : "Derive-repeat clause: OFF (the default): the effect question carries no repeat-derive clause (OPEN-VARIANT.md §78, docs/HUMAN-INTENTS-DESIGN.md D11 follow-up)."
   );
   // WORLD-ELABORATION-DESIGN.md §4.7, §9 row P1b: `off` (the default) prints
   // NO line at all here -- not even one saying so -- because a checkpoint

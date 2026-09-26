@@ -8,9 +8,11 @@ import {
   readOneActMode,
   readElisionMode,
   readContainerClauseMode,
+  readDeriveRepeatMode,
   ONE_ACT_QUESTION,
   targetUnreadWithEffectCited,
   type ObjectPerception,
+  type KindOf,
 } from "../referee.js";
 import { suspicionEligible } from "../loop.js";
 
@@ -842,6 +844,57 @@ describe("PRISONER_DERIVE_WORDING (OPEN-VARIANT.md §51, the-prisoner#18)", () =
     expect(effect?.prompt).toContain("holding a separate new thing");
     expect(effect?.prompt).toContain("a piece is kept afterward");
     expect(effect?.prompt).toContain("whatever verb");
+  });
+});
+
+describe("PRISONER_DERIVE_REPEAT (OPEN-VARIANT.md §78, docs/HUMAN-INTENTS-DESIGN.md D11 follow-up)", () => {
+  it("readDeriveRepeatMode: unset is off, 'on' is legal, anything else throws", () => {
+    expect(readDeriveRepeatMode(undefined)).toBe("off");
+    expect(readDeriveRepeatMode("")).toBe("off");
+    expect(readDeriveRepeatMode("on")).toBe("on");
+    expect(readDeriveRepeatMode("off")).toBe("off");
+    expect(() => readDeriveRepeatMode("wat")).toThrow(/PRISONER_DERIVE_REPEAT/);
+  });
+
+  // OPEN-VARIANT.md §78's own wool-derive cluster: `blanket` is the §4.1
+  // parent, `strip` a derived instance already in view (`kindOf` reports its
+  // recorded kind exactly as `derivedKindOf`, `world.ts`, does live).
+  const BLANKET: ObjectPerception = { id: "blanket", description: "A heavy grey wool blanket, folded on the cot, with a loose thread running down one edge." };
+  const STRIP: ObjectPerception = { id: "strip", description: "A strip of coarse grey wool about an arm long, torn along the hem, with loose threads at both ends." };
+  const kindOfStrip: KindOf = (id) => (id === "strip" || id === "strip_2" ? "strip" : undefined);
+  const REPEAT_TEXT = "Working the target again for more of a kind of thing it has already yielded here";
+
+  async function effectPromptFor(perceived: readonly ObjectPerception[], repeatDeriveMode?: "off" | "on"): Promise<string | undefined> {
+    let questions: readonly { id: string; prompt: string }[] = [];
+    await createReferee(
+      [
+        async (request) => {
+          questions = request.questions;
+          return [];
+        },
+      ],
+      { kindOf: kindOfStrip, ...(repeatDeriveMode ? { repeatDeriveMode } : {}) }
+    ).rule("tug the thread again", perceived);
+    return questions.find((q) => q.id === "effect")?.prompt;
+  }
+
+  it("off (the default): no repeat-derive clause, even with a derived strip already in view", async () => {
+    expect(await effectPromptFor([BLANKET, STRIP])).not.toContain(REPEAT_TEXT);
+  });
+
+  it("on, but no derived instance of any derivable kind is in view yet: no clause -- the ambiguity this targets does not exist yet", async () => {
+    expect(await effectPromptFor([BLANKET], "on")).not.toContain(REPEAT_TEXT);
+  });
+
+  it("on, a derived instance already exists in view: the effect question gains the repeat-derive clause", async () => {
+    const prompt = await effectPromptFor([BLANKET, STRIP], "on");
+    expect(prompt).toContain(REPEAT_TEXT);
+    expect(prompt).toContain("it is wear only when the act works the piece already taken");
+  });
+
+  it("on, a second-instance id (strip_2) also counts as an existing instance of the same recorded kind", async () => {
+    const STRIP_2: ObjectPerception = { id: "strip_2", description: STRIP.description };
+    expect(await effectPromptFor([BLANKET, STRIP_2], "on")).toContain(REPEAT_TEXT);
   });
 });
 

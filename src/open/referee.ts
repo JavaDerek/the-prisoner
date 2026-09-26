@@ -303,6 +303,41 @@ export function readContainerClauseMode(raw: string | undefined): ContainerClaus
 }
 
 /**
+ * OPEN-VARIANT.md §78, docs/HUMAN-INTENTS-DESIGN.md D11 follow-up: whether
+ * the effect question carries a clause distinguishing a REPEATED derive from
+ * wear on the source, once at least one instance of that derived kind is
+ * already in view. D11's own 95-row measurement (`checkpoints/2026-09-26-
+ * human-intents/RESULTS.md`) found 5 of 11 misreads were one behaviour
+ * repeated five times: "tug the thread again"/"some more"/"quietly"/"a
+ * little more" all ruled `wear` on the blanket instead of a fresh `derive`
+ * of another strip, once a strip already existed in the game
+ * (`wool-derive` shape). This is NOT `PRISONER_DERIVE_WORDING=sharpened`
+ * (§51.3-§51.6, the-prisoner#18) reworded: that arm's own "holding a
+ * separate new thing" test was measured against a FIRST derive attempt
+ * ("pull a wire out of the cot", nothing yet made) and is not repeated here.
+ * This clause targets the opposite moment -- a piece already exists, and
+ * the paraphrase working the source again names no product at all -- which
+ * is exactly the shape `sharpened`'s own wording was never measured against.
+ * `off` is the pre-existing request, unchanged byte for byte. Conditional
+ * on a derivable kind ALREADY having an instance in view (never fires for a
+ * first attempt, where the ambiguity this clause names does not exist), so
+ * a game where nothing has been derived yet asks nothing new.
+ *
+ * NOT YET MEASURED. `checkpoints/2026-09-26-derive-arm/PREDICTION.md`
+ * (D11's own 5 misread rows plus the trap rows `B7-P02`/`B7-P15` that must
+ * stay `wear`) is the pre-registered probe; this switch stays `off` until
+ * that probe runs and lands it, per the D3 lesson (§40.1) and §68.2's own
+ * warning that a clause can be worse than silence.
+ */
+export type DeriveRepeatMode = "off" | "on";
+
+export function readDeriveRepeatMode(raw: string | undefined): DeriveRepeatMode {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "off" || raw === "on") return raw;
+  throw new Error(`PRISONER_DERIVE_REPEAT: unrecognised value ${JSON.stringify(raw)} -- must be "on" or "off" (the default)`);
+}
+
+/**
  * §3.5's actual requirement -- "the same intent in the same state should get
  * the same ruling" -- by construction, not by showing the referee its own
  * earlier work as a prompt example. OPEN-VARIANT.md §18.6/§18.7: a block of
@@ -353,7 +388,8 @@ function buildQuestions(
   instrumentMode: InstrumentMode,
   deriveWording: DeriveWordingMode,
   elisionMode: ElisionMode,
-  containerClauseMode: ContainerClauseMode
+  containerClauseMode: ContainerClauseMode,
+  repeatDeriveMode: DeriveRepeatMode
 ): ReaderQuestion[] {
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
@@ -417,6 +453,18 @@ function buildQuestions(
         "names how the piece comes free (pull, tear, cut, scrape, untwist, dig): the test is whether a piece is kept " +
         "afterward, not which verb describes taking it. "
       : "";
+  // OPEN-VARIANT.md §78, docs/HUMAN-INTENTS-DESIGN.md D11 follow-up
+  // (`readDeriveRepeatMode`, above): fires only once a derivable kind
+  // already has an instance in view (`derivable` is already filtered to
+  // kinds whose PARENT is in view; this narrows further to kinds that have
+  // ALREADY yielded one). A game where nothing has been derived yet asks
+  // nothing new -- the ambiguity this clause names does not exist before
+  // then.
+  const alreadyDerivedInView = derivable.some((k) => kindsInView.has(k.id));
+  const REPEAT_DERIVE_CLAUSE =
+    repeatDeriveMode === "on" && alreadyDerivedInView
+      ? " Working the target again for more of a kind of thing it has already yielded here -- tugging, pulling, cutting or scraping out another piece of the same material -- is derive again, a further piece kept, not damage with nothing to show; it is wear only when the act works the piece already taken, not the source it came from."
+      : "";
   return [
     {
       id: "target",
@@ -458,6 +506,7 @@ function buildQuestions(
         `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
         "is to have the piece afterwards; wear is for damage that leaves nothing in hand. " +
         deriveClarification +
+        REPEAT_DERIVE_CLAUSE +
         (personInView ? PERSON_EFFECT_CLAUSE : "") +
         (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE : "") +
         "Cite the exact words in the actor's intent that describe the action.",
@@ -787,6 +836,11 @@ export function createReferee(
      *  (`readContainerClauseMode`, above). Default `"off"`: byte-identical
      *  to every batch recorded before this arm existed. */
     containerClauseMode?: ContainerClauseMode;
+    /** OPEN-VARIANT.md §78, docs/HUMAN-INTENTS-DESIGN.md D11 follow-up
+     *  (`readDeriveRepeatMode`, above). Default `"off"`: byte-identical to
+     *  every batch recorded before this arm existed. NOT YET MEASURED --
+     *  see `checkpoints/2026-09-26-derive-arm/PREDICTION.md`. */
+    repeatDeriveMode?: DeriveRepeatMode;
     /** OPEN-VARIANT.md §74.1 (option B). The GAME's default is `"checked"` (`readOneActMode`, wired in
      *  `checkpoint.ts`); this constructor's own default is `"off"`, so a referee built bare -- every unit test,
      *  every replay of a recorded request -- makes exactly one call, as before. */
@@ -800,6 +854,7 @@ export function createReferee(
   const deriveWording = options.deriveWording ?? "baseline";
   const elisionMode = options.elisionMode ?? "off";
   const containerClauseMode = options.containerClauseMode ?? "off";
+  const repeatDeriveMode = options.repeatDeriveMode ?? "off";
   // docs/CUSTODY-DESIGN.md: a person is whatever declares a person's own key --
   // the same test `buildQuestions` uses, so no scenario import is needed here.
   const isPerson = (objectId: string): boolean => propertiesOf(objectId).some((k) => (PERSON_PROPERTY_KEYS as readonly string[]).includes(k));
@@ -810,7 +865,7 @@ export function createReferee(
       const cached = cache.get(key);
       if (cached) return cached;
 
-      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode);
+      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode);
       const sources = buildSources(intentText, perceivedObjects);
       // OPEN-VARIANT.md §18.3: the engine keeps an accepted citation as
       // `{sourceId, quote}` only, so what each rung offered is kept here, to
