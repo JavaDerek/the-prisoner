@@ -776,3 +776,69 @@ describe("the play view", () => {
     expect(shown).toContain(RULES_PARAGRAPH_LEAD);
   });
 });
+
+// D4 (docs/HUMAN-INTENTS-DESIGN.md §3.2, the-prisoner#29): `checkpoint.ts`'s
+// own "(X has taken a turn.)" line goes through the seat's own `notify`, not
+// a bare `console.log`, so a write that arrives while a question is open --
+// a bug under the serial loop (§3.2, red team point 11.4), never a case this
+// seat designs for -- is written and counted instead of corrupting whatever
+// is on screen. The readline pause/resume itself (checkpoint.ts's own `ask`)
+// needs a real terminal and is verified separately, by hand, through a pty.
+describe("the human seat's write ownership (D4, docs/HUMAN-INTENTS-DESIGN.md §3.2)", () => {
+  it("starts at zero mid-question writes, and a write between turns (no question open) is not counted", () => {
+    const written: string[] = [];
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask: async () => undefined, write: (t) => written.push(t) });
+    expect(mind.midQuestionWrites()).toBe(0);
+    mind.notify("(Warden Croft has taken a turn.)");
+    expect(written).toContain("(Warden Croft has taken a turn.)");
+    expect(mind.midQuestionWrites()).toBe(0);
+  });
+
+  it("a write that arrives WHILE a question is open is written through the same `write` AND counted, never dropped", async () => {
+    const written: string[] = [];
+    let resolveAsk: ((v: string | undefined) => void) | undefined;
+    const ask = () => new Promise<string | undefined>((resolve) => { resolveAsk = resolve; });
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t) });
+
+    // `consider` runs synchronously up to its own `await ask(...)`, so by the
+    // time this call returns a pending promise, the question is already open.
+    const pending = mind.consider(CONTEXT);
+    expect(mind.midQuestionWrites()).toBe(0);
+
+    mind.notify("(Warden Croft has taken a turn.)");
+    expect(mind.midQuestionWrites()).toBe(1);
+    expect(written.some((line) => line.includes("Warden Croft has taken a turn"))).toBe(true);
+
+    resolveAsk?.(undefined); // let the turn finish -- Enter, do nothing
+    await pending;
+    expect(mind.midQuestionWrites()).toBe(1); // the turn finishing does not itself count as a write
+
+    // Between turns again: the question closed when `ask` resolved, so a
+    // second notification here is not mid-question.
+    mind.notify("(Warden Croft has taken another turn.)");
+    expect(mind.midQuestionWrites()).toBe(1);
+  });
+
+  it("the SECOND question in a turn (the say/plan follow-up) is tracked as open too, not just the first", async () => {
+    const written: string[] = [];
+    const resolvers: ((v: string | undefined) => void)[] = [];
+    const ask = () => new Promise<string | undefined>((resolve) => resolvers.push(resolve));
+    const mind = createHumanSeatMind({ selfName: PRISONER_NAME, otherName: WARDEN_NAME, ask, write: (t) => written.push(t) });
+    const pending = mind.consider(CONTEXT);
+    expect(mind.midQuestionWrites()).toBe(0);
+
+    resolvers[0]?.("say"); // bare "say" at the main prompt -- costs no turn, asks a second question
+    while (resolvers.length < 2) await Promise.resolve(); // flush microtasks until the second `ask` fires
+
+    mind.notify("(Warden Croft has taken a turn.)");
+    expect(mind.midQuestionWrites()).toBe(1);
+
+    resolvers[1]?.("hello"); // answers the "say" prompt -- the loop then asks a THIRD time for the actual intent
+    while (resolvers.length < 3) await Promise.resolve();
+    resolvers[2]?.(undefined); // Enter -- do nothing this turn
+
+    const proposal = await pending;
+    expect(proposal).toBeNull();
+    expect(mind.midQuestionWrites()).toBe(1); // still exactly the one write from mid-question two
+  });
+});

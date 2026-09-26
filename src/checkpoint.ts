@@ -77,7 +77,7 @@ import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
 import { openConditions, readConditionsMode, readDoorMode } from "./open/conditions.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
-import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable } from "./open/humanSeat.js";
+import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable, type HumanSeatMind } from "./open/humanSeat.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
 import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_STRENGTH_FIELD } from "./open/thinking.js";
@@ -902,6 +902,14 @@ async function mainOpen(): Promise<void> {
   // the same opponent -- only this one mind is a terminal, and it is shown exactly what the
   // model in that chair would have been shown (`humanSeat.ts`).
   const rl = SEAT === "off" ? null : createInterface({ input: process.stdin, output: process.stdout });
+  // D4 (docs/HUMAN-INTENTS-DESIGN.md §3.2, the-prisoner#29): paused between
+  // questions, resumed inside `ask` below. Node buffers what is typed while
+  // paused and delivers it once resumed, after the prompt is written, so
+  // keystrokes sent between turns land in the right place instead of being
+  // echoed by a live interface into whatever else is on screen (the
+  // corrupted line in #29). Started paused here, before the first question
+  // is ever asked, for the same reason.
+  rl?.pause();
   let inputClosed = false;
   rl?.on("close", () => {
     inputClosed = true;
@@ -970,16 +978,29 @@ async function mainOpen(): Promise<void> {
           : {}),
       })
     : undefined;
-  const seatMind = (selfName: string, otherName: string, conditions: ReturnType<typeof openConditions> | undefined) =>
-    createHumanSeatMind({
+  // D4: the one human seat this run actually plays, so `onHalfRound` below
+  // has somewhere to route the opponent's "(X has taken a turn.)" line other
+  // than a bare `console.log`. At most one of `wardenMind`/`prisonerMind` is
+  // ever a human seat (`SEAT` names exactly one chair), so one variable is
+  // enough regardless of which chair it is.
+  let humanSeat: HumanSeatMind | undefined;
+  const seatMind = (selfName: string, otherName: string, conditions: ReturnType<typeof openConditions> | undefined) => {
+    const mind = createHumanSeatMind({
       selfName,
       otherName,
       ask: async (prompt: string) => {
         if (!rl || inputClosed) return undefined;
+        // D4: resumed for exactly the life of this question, paused again
+        // once it is answered (or the interface closes under it) -- see the
+        // `rl.pause()` call above `rl` is created, and this file's own
+        // CLAUDE.md pointer to the design doc for why.
+        rl.resume();
         try {
           return await rl.question(prompt);
         } catch {
           return undefined; // the terminal closed mid-question (ctrl-D)
+        } finally {
+          rl.pause();
         }
       },
       // eslint-disable-next-line no-console
@@ -988,6 +1009,9 @@ async function mainOpen(): Promise<void> {
       view: VIEW,
       ...(narrator ? { narrator } : {}),
     });
+    humanSeat = mind;
+    return mind;
+  };
 
   // The prose seat (`src/open/proseMind.ts`): same situation rendered, one
   // question asked. It takes that chair's own model (`PRISONER_*_MODEL`) and
@@ -1292,14 +1316,17 @@ async function mainOpen(): Promise<void> {
         // not: the model run's per-half "possible / impossible" line is the other side's
         // outcome, which is exactly what the fog exists to withhold. They learn a turn
         // happened -- the clock is visible anyway -- and nothing more.
-        // eslint-disable-next-line no-console
-        console.log(
-          SEAT === "off"
-            ? `round ${half.roundN} ${half.principal}: ${half.proposal ? (half.ruling?.applicable ? "possible" : "impossible") : "silent"} (${ms.toFixed(0)}ms)`
-            : half.principal === SEAT
-              ? ""
-              : `(${half.principal === "warden" ? WARDEN_NAME : PRISONER_NAME} has taken a turn.)`
-        );
+        if (SEAT === "off") {
+          // eslint-disable-next-line no-console
+          console.log(`round ${half.roundN} ${half.principal}: ${half.proposal ? (half.ruling?.applicable ? "possible" : "impossible") : "silent"} (${ms.toFixed(0)}ms)`);
+        } else if (half.principal !== SEAT) {
+          // D4 (docs/HUMAN-INTENTS-DESIGN.md §3.2, the-prisoner#29): through
+          // the seat's own `notify`, never a bare `console.log` -- the loop
+          // is serial so this never arrives while a question is open, but if
+          // it ever does, the seat counts it rather than this file silently
+          // interleaving it with whatever the player is mid-typing.
+          humanSeat?.notify(`(${half.principal === "warden" ? WARDEN_NAME : PRISONER_NAME} has taken a turn.)`);
+        }
         halfStart = performance.now();
       },
     });
@@ -1340,6 +1367,16 @@ async function mainOpen(): Promise<void> {
     transcript.push("### Half-round timings");
     transcript.push(...timings);
     transcript.push("");
+    if (SEAT !== "off") {
+      // D4 (docs/HUMAN-INTENTS-DESIGN.md §3.2, the-prisoner#29): should read
+      // 0 under the serial loop (red team point 11.4) -- a nonzero count
+      // means the opponent's turn line arrived while this seat had a
+      // question open, which is worth reading, not something to bury.
+      transcript.push("### Human seat (D4, docs/HUMAN-INTENTS-DESIGN.md §3.2)");
+      transcript.push("");
+      transcript.push(`Mid-question writes (a write arriving while a question was open -- expected 0): ${humanSeat?.midQuestionWrites() ?? 0}.`);
+      transcript.push("");
+    }
     if (VIEW === "narrated") {
       transcript.push("### Narrator (D3, the-prisoner#21 route 2)");
       transcript.push("");

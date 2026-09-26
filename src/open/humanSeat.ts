@@ -347,12 +347,68 @@ export function orderForPlay(blocks: readonly ProseBlock[]): ProseBlock[] {
     .sort((a, b) => PLAY_ORDER.indexOf(a.kind) - PLAY_ORDER.indexOf(b.kind));
 }
 
-export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
-  const { selfName, otherName, ask, write: rawWrite } = options;
+/**
+ * D4 (docs/HUMAN-INTENTS-DESIGN.md §3.2, the-prisoner#29): what
+ * `createHumanSeatMind` returns is an `OpenMind` PLUS one more thing --
+ * somewhere for `checkpoint.ts` to route a write that does not come from a
+ * question this seat is itself asking (its own "(X has taken a turn.)"
+ * line, today a bare `console.log` outside this file entirely).
+ */
+export interface HumanSeatMind extends OpenMind {
+  /** A write from OUTSIDE `consider` -- see this interface's own doc
+   *  comment. The loop is serial (§3.2, red team point 11.4): the OTHER
+   *  principal's whole half-round finishes, its news lands in the next
+   *  briefing, and only THEN does this seat's own `consider` open a
+   *  question, so nothing legitimate is ever written while one is open. If
+   *  something arrives anyway, that is a bug in the CALLER, not a case this
+   *  seat designs for: written through the same `write` (never silently
+   *  dropped) and counted (`midQuestionWrites` below), rather than
+   *  corrupting or blocking whatever the player is in the middle of typing. */
+  notify: (text: string) => void;
+  /** How many times `notify` fired while a question was open. Surfaced so
+   *  `checkpoint.ts` can print it in the transcript: a nonzero count says
+   *  the serial-loop assumption this design leans on (§3.2, red team 11.4)
+   *  was wrong on a real run and is worth reading, not something this seat
+   *  should ever paper over. */
+  midQuestionWrites: () => number;
+}
+
+export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatMind {
+  const { selfName, otherName, ask: rawAsk, write: rawWrite } = options;
   // Every `write` call below goes through this wrapper -- the ONE place
   // wrapping happens, so `raw`, `prose` and `narrated` all get it for free
   // rather than each view composing its own wrapped text (§1.1).
   const write = (text: string): void => rawWrite(wrapText(text, wrapWidth(process.stdout.columns)));
+  // D4: true for exactly as long as this seat is inside its OWN `ask` call
+  // -- the player has an open prompt on screen and has not yet answered it.
+  // Toggled at the one place this file ever calls the injected `ask`
+  // (`askWithStatus` below), so every question this seat asks in a turn --
+  // the main "what do you do?" and the `say`/`plan` follow-ups alike -- is
+  // covered without each call site tracking it separately.
+  let questionOpen = false;
+  let midQuestionWriteCount = 0;
+  const ask = async (prompt: string): Promise<string | undefined> => {
+    questionOpen = true;
+    try {
+      return await rawAsk(prompt);
+    } finally {
+      questionOpen = false;
+    }
+  };
+  /** D4's own `notify`: see `HumanSeatMind`'s doc comment. Written through
+   *  the SAME `write` every view already uses (so it gets the same
+   *  wrapping, and the player never silently misses it), never through
+   *  `rawWrite` directly. No attempt is made to redraw the terminal's own
+   *  input line from here -- this file only ever holds `ask`/`write`
+   *  callbacks, never the `readline.Interface` itself, by design (this
+   *  file's own header: "so the seat is testable without a terminal"), and
+   *  this branch is a tripwire for a case the serial loop's own design says
+   *  cannot occur (§3.2, red team point 11.4), not a feature worth building
+   *  real terminal cursor control for. */
+  const notify = (text: string): void => {
+    if (questionOpen) midQuestionWriteCount += 1;
+    write(text);
+  };
   const view = options.view ?? "raw";
   // Fail fast, same as every other misconfiguration in this file: a narrator
   // is REQUIRED for "narrated", checked once at construction rather than on
@@ -417,6 +473,8 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): OpenMind {
   // not need telling about a feature she is already using.
   let firstTurn = true;
   return {
+    notify,
+    midQuestionWrites: () => midQuestionWriteCount,
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
       const isFirstTurn = firstTurn;
