@@ -6575,3 +6575,63 @@ third person, never the warden hiding her) read `target: prisoner` in all three 
 D9's clause does not win against a literal noun match here, consistent with §68.4's standing finding,
 so §76.1's own flagged "narrower-than-worst-case overinclusion" (the mechanic marking the ACTOR
 contained even when she names someone else as the thing hidden) does not fire on this exact phrasing.
+
+## 78. D11: the referee against 95 human-shaped intents, and the kill fires (2026-09-26)
+
+`HUMAN-INTENTS-DESIGN.md` D11, `checkpoints/2026-09-26-human-intents/` (`PREDICTION.md` finalized and
+committed at `876e87a` before any model call, `RESULTS.md`, `corpus.json`, `results.jsonl`, `logs/
+run.log`, all committed unedited). 95 calls, one process, strictly serial, `doris:11435`,
+`muse-glimmer-30b-q4_k_m`, thinking off, ~55 minutes wall clock, zero transport errors. Every request
+built fresh from `buildOpenWorld` + prior-turn replay + `computePerceivedObjects`, at the game's own
+shipped defaults (D6's elision clause ON, D9's container clause OFF, matching §77's own landed state) --
+never a recorded request, and, unlike this checkpoint's own first draft, never `createReferee`'s BARE
+constructor defaults either (an instrument-fidelity bug found and fixed during finalization: the draft
+built every referee at `elisionMode: "off"`, not the game's actual `"on"`).
+
+**The kill fires: 11 of 70 batch-7 paraphrases (15.7%) misread, above the pre-registered 10% line.**
+Per §7.2's own protocol this is reported plainly, not re-litigated. The complication worth carrying
+forward: 5 of the 11 are one behaviour repeated five times (Muse answers `wear` rather than a fresh
+`derive` once an identical derived object already exists in view -- named, before the run, as this exact
+shape's own most-likely failure), not five independent misses. Even discounting that cluster to one
+finding, the row-count kill would still just clear at 6/70; scored by the letter of the pre-registration
+(rows, not patterns), it does not.
+
+**Two things this measurement discovered that D5-D9 did not anticipate.** First: a game that derives
+several structurally identical objects (a `wool-derive` game accumulates `strip`, `strip_2`, `strip_3`...
+up to seven) gives a terse paraphrase no textual basis to name one instance over another -- 9 of the 70
+rows diverged for exactly this reason, scored `ambiguous` rather than `misread` per §7.2 (every
+candidate's description supports the citation equally), and it is the largest single contributor to the
+secondary band's own failure (18/70 ambiguous, against a 15% bar). This is a derived-object-individuation
+gap, not a D5/D9/D6 one. Second: two corpus rows were filed under the wrong shape group during authoring
+(a physical compliance act filed as "spoken line," a spoken line filed as "compliance cue") -- caught and
+corrected during scoring, the same discipline `CORPUS.md`'s own `B7-P05`/`B7-P56` discovery set, and
+worth exactly one line here so it is not lost between the two documents.
+
+**The population finding cuts against #25's own original framing.** Batch7's paraphrases (model-written,
+but deliberately terse and method-first) and the 25 real-human rows misread at statistically
+indistinguishable rates (84.3% vs 84% "not misread"). What breaks the referee is terseness and
+method-first phrasing, not personhood specifically -- a finding #25 itself gestured at but did not
+measure directly.
+
+**D9's own two clauses, and D6's, behave exactly as §77 already measured**, now against real evidence
+rather than a constructed probe: `I25-1`/`I25-2` ("hide under the blanket" / "hide the prisoner under
+the blanket") reproduce §77's own C1 measurement exactly (`prisoner/conceal/none`, refused), confirming
+that D9's mechanic (the property) existing is not the same as the referee reaching for it without the
+still-off container clause. `I25-6`/`I25-7` -- near-identical paraphrases of the SAME original #25 turn
+("use the spoon to dig at the bars" / "dig at the bars with the spoon") -- returned `wear` and `open`
+respectively: the referee is not even self-consistent between two phrasings of one act, direct evidence
+for the standing bar/window wear-vs-open instability §5's own D7 discussion already named.
+
+**Band 3 (the two "watch" objects §4's audit flagged, never measured before tonight): 1 of 4.** The
+cot's "crossbar" bait never fired (0 of 2 -- both landed cleanly on `cot`). The bucket's "wire handle"
+bait fired once (`W-bucket-2`: `bucket/derive/wire`, `applicable: true`), reproducing `B7-P05`/`B7-P56`'s
+exact shape -- a resolved-looking ruling `planDerive` silently refuses downstream, because `wire`'s only
+declared parent is `cot`, never `bucket`.
+
+**What this changes:** nothing lands automatically from a kill firing (per §7.2, only a `misread` counts
+against the referee, and this section is the report, not a new arm). The dominant, actionable cluster is
+the `wool-derive` wear/derive tendency (reading layer, 5 of 11 misreads) -- a candidate for a future
+measured prompt clause, on the same discipline every arm here has used (a `PREDICTION.md` before the
+first call). The derived-object-individuation gap (world layer, 9 ambiguous rows) is a new, unscheduled
+finding, not yet anywhere in the landing order. Full per-row detail, the shapeGroup breakdown, and the
+corpus-authoring corrections found along the way are in `RESULTS.md`.
