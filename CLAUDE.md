@@ -298,6 +298,16 @@ whose words name something else -- which is the same conclusion `checkpoints/202
 and `checkpoints/2026-09-20-person-target/` reached from the other direction, and it is the standing
 reason to be suspicious of any fix that hopes a description will redirect a ruling.
 
+**Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
+D12). One: measure the referee on the population that will write to it. Every referee number before
+then was measured on intents a model typed with the answer keys in its prompt, which is an upper bound;
+a person states methods, elides the reflexive object and writes toward the room's prose, so a human-shaped
+row is labelled correct / misread / unmodelled / ambiguous before the run (§7.2), and only a misread
+counts against the referee. Two: no description carries another object's name, least of all in the
+plural when one is modelled. The window's "Iron bars cross it" was that failure (#26, fixed at §76);
+before authoring a description, list its nouns and ask of each whether it is another object's id or a
+plural of one.
+
 ## Never run against a real database
 
 `DMCP_DB_PATH=:memory:` is set process-wide in `src/test-setup.ts`, exactly as brink-workshop's own
