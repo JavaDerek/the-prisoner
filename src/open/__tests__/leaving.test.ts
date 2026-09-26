@@ -53,19 +53,26 @@ function plan(openWorld: OpenWorld, effectKind: "open" | "close" | "leave" | "we
 
 /** Wears the bar down to `value` through the resolve protocol, as play would. */
 function wearBarTo(openWorld: OpenWorld, value: number) {
+  // D7a (OPEN-VARIANT.md §76.2): a refused `open` now wears the part as a
+  // side effect, so the bar may already be below 100 by the time this is
+  // called -- read the current value rather than assuming it, or a call
+  // meant to land it AT `value` overshoots by whatever D7a already spent.
+  const current = getResource(openWorld.base.resources.barIntegrity)?.value ?? 100;
   buildOpenResolver().resolve({
     gameId: openWorld.base.gameId,
     mechanic: "OPEN_WEAR",
-    parameters: { resourceId: openWorld.base.resources.barIntegrity, amount: 100 - value, min: 0, max: 100, description: "worn" },
+    parameters: { resourceId: openWorld.base.resources.barIntegrity, amount: current - value, min: 0, max: 100, description: "worn" },
   });
 }
 
 /** Wears the lock down to `value` through the resolve protocol, as play would. */
 function wearLockTo(openWorld: OpenWorld, value: number) {
+  // See `wearBarTo`'s own comment: D7a can already have moved this away from 100.
+  const current = getResource(openWorld.base.resources.lockIntegrity)?.value ?? 100;
   buildOpenResolver().resolve({
     gameId: openWorld.base.gameId,
     mechanic: "OPEN_WEAR",
-    parameters: { resourceId: openWorld.base.resources.lockIntegrity, amount: 100 - value, min: 0, max: 100, description: "worn" },
+    parameters: { resourceId: openWorld.base.resources.lockIntegrity, amount: current - value, min: 0, max: 100, description: "worn" },
   });
 }
 
@@ -381,8 +388,11 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     const w = buildOpenWorld();
     const outcome = resolvePlan(w, plan(w, "open", "bar", "integrity"));
     expect(getResource(passageId(w.exits.window))?.value).toBe(0);
-    expect(outcome.result).toEqual(expect.objectContaining({ opened: false }));
-    expect(outcome.transitions).toEqual([]);
+    // D7a (OPEN-VARIANT.md §76.2), changed on purpose: a refused open no
+    // longer changes nothing -- it wears the bar by the ruled magnitude
+    // (here `plan`'s own hardcoded "slight", 8) in the same resolution.
+    expect(outcome.result).toEqual(expect.objectContaining({ opened: false, partId: "bar", partBefore: 100, partAfter: 92 }));
+    expect(outcome.transitions).toEqual([expect.objectContaining({ previousValue: 100, newValue: 92 })]);
   });
 
   it("naming the window itself is held to the same threshold: the bar is the only thing keeping it shut", () => {
@@ -465,7 +475,10 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     // window `wayOut` resolves to), matching D1's own worked example's shape
     // one field over: "You set about opening the window" there, because that
     // scenario's own ruling named the window; this one names the bar.
-    expect(renderOwnOutcome(half)).toBe("You set about opening the bar. Your last attempt met the window shut: it will not open yet.");
+    //
+    // D7a (OPEN-VARIANT.md §76.2), changed on purpose: the refusal also wears
+    // the bar (moderate magnitude here, 15) and the outcome says both.
+    expect(renderOwnOutcome(half)).toBe("You set about opening the bar. Your last attempt met the window shut: it will not open yet; the bar's integrity went from 100 to 85.");
   });
 
   it("once the bar allows it, the same act through the bar tells the actor it opened the window, not the bar (§24; half of #6)", () => {

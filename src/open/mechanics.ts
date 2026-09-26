@@ -208,6 +208,13 @@ export interface PassageParams {
   /** OPEN-VARIANT.md §24: open only while the part's integrity is at or below
    *  `atMost`. Absent for close and for a way out with no threshold. */
   gate?: { integrityResourceId: string; atMost: number; part: string };
+  /** HUMAN-INTENTS-DESIGN.md D7a (§5, OPEN-VARIANT.md §76.2, the-prisoner#26):
+   *  when the gate above refuses, the SAME resolution applies this magnitude
+   *  as `wear` on the part -- exactly as an ordinary `wear` ruling would --
+   *  rather than doing nothing. Absent for `close`, for a way out with no
+   *  threshold, and for a `gate` that lets the open through this turn (in
+   *  which case there is nothing left to wear: the part already frees it). */
+  wearOnRefusal?: { resourceId: string; amount: number; min: number; max: number };
   description: string;
 }
 
@@ -220,7 +227,23 @@ export const OPEN_PASSAGE: Mechanic = {
     const p = input.parameters as unknown as PassageParams;
     const before = currentValue(input, p.resourceId);
     if (p.open && p.gate && currentValue(input, p.gate.integrityResourceId) > p.gate.atMost) {
-      return { changes: [], result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, opened: false }, description: p.description };
+      // D7a: the passage itself changes nothing, but the SAME resolution
+      // wears the part by the ruled magnitude, exactly as `OPEN_WEAR` would
+      // -- a refused pry now progresses the window route instead of
+      // teaching the actor nothing and costing a turn for free.
+      const changes: IntendedChange[] = [];
+      let part: { before: number; after: number } | undefined;
+      if (p.wearOnRefusal) {
+        const partBefore = currentValue(input, p.wearOnRefusal.resourceId);
+        const partAfter = clamp(partBefore - p.wearOnRefusal.amount, p.wearOnRefusal.min, p.wearOnRefusal.max);
+        changes.push(setResource(p.wearOnRefusal.resourceId, partAfter, p.wearOnRefusal.min, p.wearOnRefusal.max));
+        part = { before: partBefore, after: partAfter };
+      }
+      return {
+        changes,
+        result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, opened: false, ...(part && p.gate ? { partId: p.gate.part, partBefore: part.before, partAfter: part.after } : {}) },
+        description: p.description,
+      };
     }
     const after = p.open ? p.max : p.min;
     return {

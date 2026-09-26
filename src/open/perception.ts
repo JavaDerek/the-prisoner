@@ -411,7 +411,7 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   }
 
   if (outcome !== null && plan !== null) {
-    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean; opened?: boolean; wayOut?: string; freedPart?: string };
+    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean; opened?: boolean; wayOut?: string; freedPart?: string; partId?: string; partBefore?: number; partAfter?: number };
     // OPEN-VARIANT.md §17.2: open, close and leave target the way out, and its id is its name.
     const exit = obj;
     if (ruling.effectKind === "leave") {
@@ -420,7 +420,16 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
     if (ruling.effectKind === "open" || ruling.effectKind === "close") {
       // §19: resolved through the way out even when the referee named its part.
       const wayOut = result.wayOut?.replace(/_/g, " ") ?? exit;
-      if (ruling.effectKind === "open" && result.opened === false) return told(`Your last attempt met the ${wayOut} shut: it will not open yet.`);
+      if (ruling.effectKind === "open" && result.opened === false) {
+        // D7a (HUMAN-INTENTS-DESIGN.md §5, OPEN-VARIANT.md §76.2, the-prisoner#26):
+        // a gate refusal still wears the part by the ruled magnitude, in the
+        // SAME resolution, and the outcome says both -- the part's own wear
+        // clause in the same house style every other wear outcome uses
+        // ("its integrity went from X to Y"), never a second sentence that
+        // hides what changed.
+        const wear = result.partId && typeof result.partBefore === "number" && typeof result.partAfter === "number" ? ` the ${result.partId.replace(/_/g, " ")}'s integrity went from ${result.partBefore} to ${result.partAfter}.` : "";
+        return told(`Your last attempt met the ${wayOut} shut: it will not open yet${wear ? ";" : "."}${wear}`);
+      }
       // OPEN-VARIANT.md §28: a way out whose part closes its gap opens by that part coming free, and is told
       // as the action it opens up (§27.1: "opened the window" left her prying a bar still in the way).
       if (ruling.effectKind === "open" && result.freedPart) {

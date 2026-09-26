@@ -6483,3 +6483,38 @@ principal's perception; C1 (posture) is unaffected by containment; presence off 
 resource at all and leaves `computePerceivedObjects` exactly as it was, so every batch recorded before D9
 is byte-identical).
 
+### 76.2 D7a: a refused open also wears the part, and the count the design asked for
+
+`HUMAN-INTENTS-DESIGN.md` §5, D7a (recommended over D7b's prompt arm): when `planEffect`'s `open` branch
+resolves a way out through its part (§17.2/§24 -- the window through the bar, gated on the bar's integrity
+at or below `OPEN_WINDOW_BAR_MAX`) and the gate refuses because the part still stands above that line, the
+SAME resolution now also applies the ruled magnitude as `wear` on the part, exactly as an ordinary `wear`
+ruling would -- one `OPEN_PASSAGE`-shaped mechanic doing both legs in the one `resolve()` call the custody
+rule requires, never two. The outcome says both, in D1's frame: *"You set about opening the window. It
+will not open yet; the bar's integrity went from 100 to 85."* A gate refusal that already frees the part
+(integrity spent to 0 by this same act) still reports `opened: true`, exactly as `open` already does when a
+`wear`-carried part crosses the line on its own turn (§27/§28's own wording) -- this is not a new success
+path, only the existing refusal path no longer doing nothing. Suspicion is unchanged: the act was visible
+or audible before this change and stays so, and `suspicionEligibleFor("wear", ...)` already covered a
+part's `integrity` before D7a existed.
+
+**The count the design asked for** (§5: "the window route getting cheaper by the number of `open` refusals
+a mind currently collects"), read from `checkpoints/2026-09-24-phase1-b6` and `checkpoints/2026-09-25-
+phase1-b7` before this mechanic was built, by the actor's own outcome sentence ("met the `<way out>` shut:
+it will not open yet" -- `perception.ts`'s `renderOwnOutcome`, the one sentence this exact refusal always
+produces), counted once per **"Actor learns:"** line rather than by raw occurrence (a briefing repeats the
+previous round's own outcome as news, so the same event's sentence appears a second time one round later;
+counting raw hits over-counts by roughly 2x):
+
+| batch | gate refusals of this kind |
+|---|---|
+| b6 (`checkpoints/2026-09-24-phase1-b6`) | **49** |
+| b7 (`checkpoints/2026-09-25-phase1-b7`) | **6** |
+| total | **55** |
+
+b6's own `refusal-audit.csv` is a different, hand-labelled cut (23 rows total, every refusal reason, not
+only this one) and is not the source of this count; §75.3's own caution about b6's concurrent-driver
+contamination (six of its 22 refusals are that artifact, all in the `reveal`-property cluster, none of them
+this one) does not touch this count either, since it is read from the actor's own outcome text, not from a
+resolved-versus-replayed verdict. This is the price every one of those 55 turns now pays differently: a
+pry that used to teach nothing and cost a turn now progresses the bar exactly as a deliberate scrape would.

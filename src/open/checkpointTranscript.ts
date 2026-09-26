@@ -158,7 +158,15 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
   const lines: string[] = [];
   if (outcome) {
     lines.push(`Resolved \`${plan?.mechanic ?? "?"}\` (${ruling.effectKind}, ${ruling.magnitude}, ${ruling.perceptibility}):`);
-    for (const t of outcome.transitions) lines.push(`  - ${resourceName}: ${t.previousValue} -> ${t.newValue}`);
+    // D7a (HUMAN-INTENTS-DESIGN.md §5, OPEN-VARIANT.md §76.2, the-prisoner#26):
+    // a refused `open` wears the PART, not the way out's own `passage` --
+    // the one case a plan's resolution writes a resource other than its own
+    // `resourceId` (the-prisoner#6's comment above still holds for every
+    // OTHER mechanic). `result.partId` names which, so the transition is
+    // labelled by what it actually is rather than by the plan's own pair.
+    const partResult = outcome.result as { partId?: string };
+    const partResourceName = partResult.partId ? (findProperty(partResult.partId, "integrity")?.resourceName ?? `${partResult.partId}.integrity`) : undefined;
+    for (const t of outcome.transitions) lines.push(`  - ${partResourceName ?? resourceName}: ${t.previousValue} -> ${t.newValue}`);
     for (const set of outcome.sets) lines.push(`  - ${set.key}: ${String(set.previousValue)} -> ${String(set.newValue)}`);
     const result = outcome.result as { value?: unknown; left?: boolean; made?: boolean };
     if (ruling.effectKind === "reveal" && result.value !== undefined) lines.push(`  - revealed ${resourceName} = ${String(result.value)}`);
