@@ -75,6 +75,13 @@ nobody has yet declared what an attack does.
 
 ## 4. The decisions the owner must make
 
+**DECIDED 2026-09-26 (morning), by the owner.** Q1 is not a decision: every game since mid-September
+runs `PRISONER_VARIANT=open`, so "open variant only" only means the closed variant's move enum does not
+grow, and it does not. Q2: **a new `condition` property** on a person, not a reuse of posture. Q3: **a
+new loss condition**; escape stays the only way to win. Q4: **the magnitude ladder, no dice.** Q5:
+**abstracted narration**, as recommended (not asked separately; the owner may still overrule it). Next
+is the full #1 design from these answers, to the owner before any code.
+
 House style, per the 2026-09-23 rule (`HUMAN-INTENTS-DESIGN.md` §0's own table): jurisdiction named per
 row (all five are **game**, this repository; none touch run-dmcp or mind-seam -- the issue's own scope
 line already says so), each with a recommendation and what a yes/no decides.
