@@ -212,6 +212,25 @@ const NOTHING_TO_VERB: Record<PropertyEffectKind, { infinitive: string; passive:
   close: { infinitive: "shut", passive: "shut" },
 };
 
+/** The-prisoner#28 fix (2026-09-26), the case D8's own design missed: which
+ *  of a target's DECLARED properties `PROPERTY_CAPABILITY` already phrases
+ *  as carrying a given effect kind, independent of which property the
+ *  referee actually cited. Only `wear`/`restore` (integrity, edge, posture),
+ *  `conceal`/`expose` (concealment) and `open`/`close` (passage) pair with a
+ *  capability phrase at all -- `reveal` never appears in `PROPERTY_CAPABILITY`
+ *  (looking closely at a thing is not one of the room's own "can be worn
+ *  down or mended"-style rules), so a `reveal` refusal can never be
+ *  contradicted by the catalogue that follows it and is deliberately absent
+ *  here. */
+const EFFECT_PAIR_PROPERTIES: Partial<Record<PropertyEffectKind, readonly OpenPropertyKey[]>> = {
+  wear: ["integrity", "edge", "posture"],
+  restore: ["integrity", "edge", "posture"],
+  conceal: ["concealment"],
+  expose: ["concealment"],
+  open: ["passage"],
+  close: ["passage"],
+};
+
 /** D8's join rule for the "what CAN be done" list, reproducing the design's
  *  two worked examples exactly: two chunks join with a comma AND "or"
  *  ("struck, or taken"), three or more join with commas alone ("put on the
@@ -259,10 +278,6 @@ function isUnmodelledPropertyRefusal(ruling: RefereeRuling): boolean {
 function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundResult): string {
   const targetId = ruling.targetObjectId;
   const person = isPrincipalTarget(targetId);
-  // Safe: `isUnmodelledPropertyRefusal` already established `effectRequiresProperty`,
-  // which is true for exactly this table's keys.
-  const verbs = NOTHING_TO_VERB[ruling.effectKind as PropertyEffectKind];
-  const opening = person ? `Nothing about ${principalName(targetId)} can be ${verbs.passive}.` : `The ${label(targetId)} has nothing to ${verbs.infinitive}.`;
   // A target this module has no static spec for (a derived/elaborated
   // object) contributes no declared-property chunk -- the same epistemic
   // limit `targetLacksProperty` already lives with -- and the sentence
@@ -279,8 +294,32 @@ function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundRe
         // this render has ever known about a target it does not itself hold.
         half.context.holding?.includes(targetId) ? "handed over" : "taken",
       ];
+  const capabilities = joinCapabilities([...declaredChunks, ...structuralChunks]);
+
+  // The-prisoner#28 fix (2026-09-26): sentence 1 ("Nothing about X can be
+  // Y." / "X has nothing to Z.") claims the target has NO way to carry the
+  // ATTEMPTED effect. That claim is false whenever one of the target's own
+  // declared properties is exactly the kind `PROPERTY_CAPABILITY` already
+  // phrases for this effect (`EFFECT_PAIR_PROPERTIES` above) -- a `wear`
+  // ruled against `posture` on the cot, which the cot does not declare,
+  // used to render "The cot has nothing to wear down. It can be worn down
+  // or mended..." because sentence 1 was driven only by the effect
+  // attempted, never checking whether a DIFFERENT declared property (the
+  // cot's own `integrity`) could carry it. A refusal must never say a thing
+  // cannot be done and then, one clause later, that it can: when a carrier
+  // exists, sentence 1 is omitted entirely and only the positive catalogue
+  // renders.
+  const carriers = EFFECT_PAIR_PROPERTIES[ruling.effectKind as PropertyEffectKind] ?? [];
+  const hasCarrier = (spec?.properties ?? []).some((p) => carriers.includes(p.key as OpenPropertyKey));
+  if (hasCarrier) {
+    return `${person ? "A person here" : `The ${label(targetId)}`} can be ${capabilities}.`;
+  }
+  // Safe: `isUnmodelledPropertyRefusal` already established `effectRequiresProperty`,
+  // which is true for exactly this table's keys.
+  const verbs = NOTHING_TO_VERB[ruling.effectKind as PropertyEffectKind];
+  const opening = person ? `Nothing about ${principalName(targetId)} can be ${verbs.passive}.` : `The ${label(targetId)} has nothing to ${verbs.infinitive}.`;
   const subject = person ? "A person here" : "It";
-  return `${opening} ${subject} can be ${joinCapabilities([...declaredChunks, ...structuralChunks])}.`;
+  return `${opening} ${subject} can be ${capabilities}.`;
 }
 
 /** OPEN-VARIANT.md §74.1, the owner's option B: what an actor whose intent the one-act reading called `several`

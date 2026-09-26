@@ -124,6 +124,13 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
   // structural capabilities every thing has), and the actor's quoted intent
   // is dropped along with it, exactly as the design's own worked examples
   // are: composed from the target's declared keys alone.
+  //
+  // D8 FIX (the-prisoner#28, 2026-09-26): the attempted effect is `wear`,
+  // and the bar's OWN declared property (`integrity`) is exactly the one
+  // `wear` can carry -- so "the bar has nothing to wear down" would be
+  // false, contradicted one clause later by "it can be worn down". Sentence
+  // 1 is omitted whenever a declared property could carry the attempted
+  // effect; only the positive catalogue renders.
   it("an impossible ruling whose property citation is rejected outright renders the declared-space catalogue, not the description", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();
@@ -134,7 +141,7 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
     expect(result.ruling?.applicable).toBe(false);
     expect(result.ruling?.property).toBe("none");
     const text = renderOwnOutcome(result) as string;
-    expect(text).toBe("The bar has nothing to wear down. It can be worn down or mended, struck, taken.");
+    expect(text).toBe("The bar can be worn down or mended, struck, taken.");
   });
 
   it("an impossible ruling with no object named lists what the actor can reach", async () => {
@@ -647,13 +654,15 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     expect(result.ruling?.property).toBe("posture");
     expect(result.ruling?.applicable).toBe(false);
     const text = renderOwnOutcome(result) as string;
-    // D8's sentence 1 is driven by the EFFECT attempted (`wear`), never by
-    // the specific (undeclared) property cited -- the cot's own declared
-    // `integrity` still shows up correctly in the catalogue that follows,
-    // even though the opening clause is scoped to "wear" in general. This
-    // is the shape the design's own bucket example uses (§2): "the bucket
-    // has nothing to wear down" is worded from the effect, not the key.
-    expect(text).toBe(`The cot has nothing to wear down. It can be worn down or mended, struck, taken.`);
+    // D8 FIX (the-prisoner#28, 2026-09-26): the cited property (`posture`)
+    // is undeclared on the cot, but the cot's OWN declared property
+    // (`integrity`) is exactly the one `wear` can carry -- so the old
+    // "the cot has nothing to wear down" was false the moment the very
+    // next clause said "it can be worn down or mended". A refusal must
+    // never say a thing cannot be done and then that it can: sentence 1 is
+    // omitted whenever a declared property could carry the attempted
+    // effect, whichever property the referee actually cited.
+    expect(text).toBe(`The cot can be worn down or mended, struck, taken.`);
   });
 
   it("key_ring/noise and prisoner/noise, as the batch recorded them: the effect is named and the grounds went unverified", async () => {
