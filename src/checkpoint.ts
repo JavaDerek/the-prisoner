@@ -78,6 +78,8 @@ import { openConditions, readConditionsMode, readDoorMode } from "./open/conditi
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable, type HumanSeatMind } from "./open/humanSeat.js";
+import { renderAbandonedSection, abandonedByPlayerAtRound, AbandonedByPlayerError } from "./open/runAbandon.js";
+import type { OpenHalfRoundResult } from "./open/loop.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
 import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_STRENGTH_FIELD } from "./open/thinking.js";
@@ -911,8 +913,27 @@ async function mainOpen(): Promise<void> {
   // is ever asked, for the same reason.
   rl?.pause();
   let inputClosed = false;
+  // D2 (docs/HUMAN-INTENTS-DESIGN.md §2, the-prisoner#29): the last
+  // half-round this seat actually saw complete, and the one hook a SIGINT
+  // handler and this very `close` event both throw an abandonment into --
+  // see `rejectAbandon`'s own assignment below, once the game loop it feeds
+  // exists. Declared here (before either fires) so this `close` handler
+  // needs no restructuring to reach it; `rejectAbandon` starts undefined,
+  // and `?.()` before it is assigned is simply a run that ends before its
+  // first question is ever asked, which needs no evidence of its own.
+  let lastRoundN = 0;
+  let rejectAbandon: ((err: Error) => void) | undefined;
   rl?.on("close", () => {
     inputClosed = true;
+    // "Treat a closed readline as abandonment the same way" (this task's
+    // brief, D4 §3.2): a ctrl-D closes the terminal, and without this the
+    // seat's own `ask` above starts returning `undefined` for every future
+    // question, silently, and the game plays itself out to the round limit
+    // looking like a loss rather than a player who left. Harmless once the
+    // game has already finished on its own (`rl.close()` in this file's own
+    // `finally` below fires this same event) -- `rejectAbandon` throws into
+    // a `Promise.race` that has already settled, which is simply a no-op.
+    rejectAbandon?.(new AbandonedByPlayerError(abandonedByPlayerAtRound(lastRoundN)));
   });
   // D3 (2026-09-18), the-prisoner#21 route 2: the narrator role, built only
   // when it can actually be called (`NARRATOR_IN_USE`) -- the human seat
@@ -1218,6 +1239,34 @@ async function mainOpen(): Promise<void> {
   const dir = join(process.cwd(), "checkpoints");
   const file = join(dir, `${stamp}.md`);
   let written = false;
+  // D2: every half-round played so far, under a human seat only -- what
+  // `refereeRequestsFor` below rewrites `<stamp>.referee.json` from after
+  // each one, so an abandoned run's replay file is never missing anything
+  // but the one turn that was still in flight when the player left.
+  const halvesSoFar: OpenHalfRoundResult[] = [];
+  // D2: thrown into by the SIGINT handler and the seat's readline closing
+  // (both installed above `rl` itself), and raced against the game loop
+  // below so its existing `catch` writes the same evidence a real crash
+  // would, worded for a player who chose to stop. `.catch(() => {})` here
+  // is not swallowing a real error -- it is the standing defence against
+  // Node's own `unhandledRejection`: `Promise.race` below settles on
+  // whichever of its two inputs finishes first, and the LOSING one (this
+  // promise, on every run that ends normally or from its own real error)
+  // is still rejected later by `rl.close()` in this file's own `finally`
+  // firing the `close` handler above -- a promise nothing is awaiting any
+  // more by then, which Node would otherwise report as unhandled.
+  let rejectAbandonNow: ((err: Error) => void) | undefined;
+  const abandonSignal = new Promise<never>((_resolve, reject) => {
+    rejectAbandonNow = reject;
+  });
+  abandonSignal.catch(() => {});
+  if (SEAT !== "off") {
+    rejectAbandon = rejectAbandonNow;
+    // D2: ctrl-C, under a human seat only -- a model batch's own crash
+    // reporting (this file's existing `catch` block, unchanged for that
+    // case) already treats an interrupted run as evidence.
+    process.on("SIGINT", () => rejectAbandonNow?.(new AbandonedByPlayerError(abandonedByPlayerAtRound(lastRoundN))));
+  }
   // docs/STRATEGY-DESIGN.md §3.2: two calls before round 1, in the place the precedent block is already
   // computed. The situation is the PRISONER's own round-1 seat, rendered by the same `renderSeatSituation`
   // the turn uses, so the step is never answering a question the game does not ask.
@@ -1292,44 +1341,59 @@ async function mainOpen(): Promise<void> {
   }
 
   try {
-    const game = await runOpenGame({
-      openWorld,
-      resolver,
-      referee,
-      wardenMind,
-      prisonerMind,
-      rounds: ROUNDS,
-      presenceMode: PRESENCE,
-      ...(strategy ? { strategy: strategy.sentence } : {}),
-      ...(elaborationReferee ? { elaborationReferee } : {}),
-      ...(ELABORATE_BAND ? { forcedElaborationBand: ELABORATE_BAND } : {}),
-      ...(precedent ? { precedent } : {}),
-      ...(PICK ? { pick: PICK } : {}),
-      onHalfRound: (half) => {
-        const ms = performance.now() - halfStart;
-        timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
-        const passive = WARDEN_MODE === "passive" && half.principal === "warden" ? { reason: "passive warden (§26)" } : undefined;
-        transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal]), lastVoiceSilence[half.principal]));
-        lastSilence[half.principal] = undefined;
-        lastVoiceSilence[half.principal] = undefined;
-        // With a person in a chair the screen must tell them nothing their briefing would
-        // not: the model run's per-half "possible / impossible" line is the other side's
-        // outcome, which is exactly what the fog exists to withhold. They learn a turn
-        // happened -- the clock is visible anyway -- and nothing more.
-        if (SEAT === "off") {
-          // eslint-disable-next-line no-console
-          console.log(`round ${half.roundN} ${half.principal}: ${half.proposal ? (half.ruling?.applicable ? "possible" : "impossible") : "silent"} (${ms.toFixed(0)}ms)`);
-        } else if (half.principal !== SEAT) {
-          // D4 (docs/HUMAN-INTENTS-DESIGN.md §3.2, the-prisoner#29): through
-          // the seat's own `notify`, never a bare `console.log` -- the loop
-          // is serial so this never arrives while a question is open, but if
-          // it ever does, the seat counts it rather than this file silently
-          // interleaving it with whatever the player is mid-typing.
-          humanSeat?.notify(`(${half.principal === "warden" ? WARDEN_NAME : PRISONER_NAME} has taken a turn.)`);
-        }
-        halfStart = performance.now();
-      },
-    });
+    const game = await Promise.race([
+      runOpenGame({
+        openWorld,
+        resolver,
+        referee,
+        wardenMind,
+        prisonerMind,
+        rounds: ROUNDS,
+        presenceMode: PRESENCE,
+        ...(strategy ? { strategy: strategy.sentence } : {}),
+        ...(elaborationReferee ? { elaborationReferee } : {}),
+        ...(ELABORATE_BAND ? { forcedElaborationBand: ELABORATE_BAND } : {}),
+        ...(precedent ? { precedent } : {}),
+        ...(PICK ? { pick: PICK } : {}),
+        onHalfRound: (half) => {
+          const ms = performance.now() - halfStart;
+          timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
+          const passive = WARDEN_MODE === "passive" && half.principal === "warden" ? { reason: "passive warden (§26)" } : undefined;
+          transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal]), lastVoiceSilence[half.principal]));
+          lastSilence[half.principal] = undefined;
+          lastVoiceSilence[half.principal] = undefined;
+          // With a person in a chair the screen must tell them nothing their briefing would
+          // not: the model run's per-half "possible / impossible" line is the other side's
+          // outcome, which is exactly what the fog exists to withhold. They learn a turn
+          // happened -- the clock is visible anyway -- and nothing more.
+          if (SEAT === "off") {
+            // eslint-disable-next-line no-console
+            console.log(`round ${half.roundN} ${half.principal}: ${half.proposal ? (half.ruling?.applicable ? "possible" : "impossible") : "silent"} (${ms.toFixed(0)}ms)`);
+          } else if (half.principal !== SEAT) {
+            // D4 (docs/HUMAN-INTENTS-DESIGN.md §3.2, the-prisoner#29): through
+            // the seat's own `notify`, never a bare `console.log` -- the loop
+            // is serial so this never arrives while a question is open, but if
+            // it ever does, the seat counts it rather than this file silently
+            // interleaving it with whatever the player is mid-typing.
+            humanSeat?.notify(`(${half.principal === "warden" ? WARDEN_NAME : PRISONER_NAME} has taken a turn.)`);
+          }
+          if (SEAT !== "off") {
+            // D2: the evidence as it goes, so an abandoned game is a dataset
+            // whether or not it finishes -- rewritten whole each time (both
+            // files are small) rather than appended to, so a reader never
+            // has to reconstruct a half-written JSON array or Markdown
+            // section from a run that stopped mid-write.
+            lastRoundN = half.roundN;
+            halvesSoFar.push(half);
+            mkdirSync(dir, { recursive: true });
+            writeFileSync(file, transcript.join("\n") + "\n");
+            writeFileSync(join(dir, `${stamp}.referee.json`), JSON.stringify(refereeRequestsFor(halvesSoFar), null, 2) + "\n");
+          }
+          halfStart = performance.now();
+        },
+      }),
+      abandonSignal,
+    ]);
 
     const { summary: loadedAtEnd } = await safePsSummary();
     transcript.push(...renderOpenSummary(game, ROUNDS));
@@ -1445,11 +1509,19 @@ async function mainOpen(): Promise<void> {
     // A bad run is still evidence (CLAUDE.md: transcripts committed unedited,
     // including bad runs): write what was played, and why it stopped.
     if (!written) {
-      transcript.push("## Run aborted");
-      transcript.push("");
-      transcript.push("```");
-      transcript.push(err instanceof Error ? (err.stack ?? err.message) : String(err));
-      transcript.push("```");
+      // D2: a player choosing to stop (`AbandonedByPlayerError`, thrown from
+      // the SIGINT handler or the seat's readline closing, above) is told
+      // exactly that -- never a stack trace, because nothing broke. Every
+      // other error keeps the ordinary code-fenced crash report.
+      if (err instanceof AbandonedByPlayerError) {
+        transcript.push(...renderAbandonedSection(err.message));
+      } else {
+        transcript.push("## Run aborted");
+        transcript.push("");
+        transcript.push("```");
+        transcript.push(err instanceof Error ? (err.stack ?? err.message) : String(err));
+        transcript.push("```");
+      }
       mkdirSync(dir, { recursive: true });
       writeFileSync(file, transcript.join("\n") + "\n");
       // eslint-disable-next-line no-console
@@ -1469,6 +1541,24 @@ if (SEAT !== "off" && VARIANT !== "open") {
 }
 
 (VARIANT === "open" ? mainOpen() : main()).catch((err) => {
+  // D2: a player pressing ctrl-C or closing the terminal is not a crash --
+  // the transcript already says so (`renderAbandonedSection`, above), and
+  // this is just where the process actually ends. 130 is the conventional
+  // exit code for SIGINT (128 + signal 2); a closed terminal gets the same
+  // code, since the design's own instruction is to treat the two the same
+  // way. Anything else keeps printing the stack, exactly as before.
+  if (err instanceof AbandonedByPlayerError) {
+    // eslint-disable-next-line no-console
+    console.log(err.message);
+    // `process.exit`, not just `process.exitCode`: the game loop's own
+    // in-flight call (whichever mind or referee request was running when
+    // this fired) LOST the `Promise.race` above, not cancelled by it, and
+    // its own timeout (minutes, under `PRISONER_REFEREE_TIMEOUT_MS`/
+    // `PRISONER_THINK_TIMEOUT_MS`) would otherwise keep the process alive
+    // long after the transcript (already written, above) says the run is
+    // over -- exactly what a player pressing ctrl-C does not expect.
+    process.exit(130);
+  }
   console.error(err);
   process.exitCode = 1;
 });
