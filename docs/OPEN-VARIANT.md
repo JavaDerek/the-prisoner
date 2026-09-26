@@ -6671,3 +6671,84 @@ measured prompt clause, on the same discipline every arm here has used (a `PREDI
 first call). The derived-object-individuation gap (world layer, 9 ambiguous rows) is a new, unscheduled
 finding, not yet anywhere in the landing order. Full per-row detail, the shapeGroup breakdown, and the
 corpus-authoring corrections found along the way are in `RESULTS.md`.
+
+## 79. D9 lands, the derive-repeat arm is held, and a server restart moved a reproducible row (2026-09-26, afternoon)
+
+Two probes ran the same afternoon, after the owner freed the GPU and the orchestrator restarted the
+Muse llama-server. Neither probe's own `PREDICTION.md` was touched after that restart; both were
+written and pre-registered before it.
+
+**D9 lands.** `checkpoints/2026-09-26-arms/PREDICTION-2.md` re-asked §77's own kill under §77.1's fixed
+mechanic (`OPEN_CONCEAL_CONTAINER` now floors a raised container's concealment at
+`CONTAINMENT_HIDDEN_AT_OR_ABOVE` regardless of the ruled magnitude) -- not a new measurement of the
+referee's targeting behaviour, which §77 already found clean, only of whether the SAME targeting
+answers now resolve `contained: true`. They do, on all three core items (`RESULTS-2.md`): C1, C2 and
+C3 read the identical `target: <container>` / `effect: conceal` / `property: concealment` triple §77
+recorded and now resolve `contained: true` through the real `planEffect` + `resolve()` path, 3 of 3
+against a 2-of-3 bar, with the precision kill (N1 stays `target: spoon`; neither trap row moves)
+confirmed clean a second time. `PRISONER_CONTAINER_CLAUSE`'s own default is now `on`
+(`readContainerClauseMode`, `src/open/referee.ts`), following `PRISONER_ELISION`'s own split between
+the env reader's default and `createReferee`'s bare constructor default (unchanged), so every existing
+test and replay of a recorded request stays byte-identical unless it opts in. This is a batch
+boundary: §77.1's mechanic fix and this re-probe are what make the landing correct, and §77's own dead
+run stands exactly as reported, not retroactively rescored.
+
+**The derive-repeat arm passes its own pre-registered numbers and is held anyway.**
+`checkpoints/2026-09-26-derive-arm/` measured `PRISONER_DERIVE_REPEAT` (§78's D11 follow-up, the
+`wool-derive` wear/derive tendency) against 3 fix rows, 2 scope rows and 2 trap rows. The fix kill
+cleared at 2 of 3 (`B7-P44`, `B7-P50` moved from OFF's `wear` to ON's correct `derive`) and the strict
+precision kill cleared cleanly (`B7-P02` stayed `target: strip, effect: wear` in both arms). But the
+third fix row, `B7-P41`, moved the OTHER way -- already correctly reading `derive` under OFF today, it
+read `wear` under ON, reproduced identically in a full-sequence replay. Net effect on the three rows
+this clause targets: +2 fixed, -1 broken on a row the clause's own precondition text exists
+specifically to protect, for a net of +1. Both pre-registered kills clear, which by
+`PREDICTION.md`'s own stated consequence makes the switch "a candidate to flip" -- but a candidate is
+not a landing, and this one is deliberately **not flipped**: `PRISONER_DERIVE_REPEAT` stays `off`
+pending the owner's decision on whether a net +1 with a reproducible regression on an already-correct
+row is worth landing as built, or whether the clause needs a second pass first. This is the difference
+in kind from D9 above: D9 cleared its bar with no reproducible regression anywhere in its item set;
+this arm cleared its bar with one, in full view, and the checkpoint says so rather than rounding a
+"passes the kill number" up to "ships."
+
+**The server restart moved a reproducible row, and the two probes found the same shape of drift
+independently.** The Muse llama-server had been stopped and was restarted by the orchestrator between
+last night's D11 run and today's two probes; its original full command line from last night was never
+recorded anywhere, only the reasoning flag (`chat_template_kwargs.reasoning_strength`), confirmed
+unchanged by a trivial-probe token count (33, matching `docs/issues/
+prisoner-P8-thinking-switch-is-a-no-op.md`'s own recorded value) run against the restarted server
+before either probe. Beyond that one flag, nothing about the new process's `-ngl`/`-c`/`-np`/
+quantisation was checked against the old one, because the old one's command line was never written
+down to check against. Two independent findings surfaced the same shape of problem:
+
+- `checkpoints/2026-09-26-arms/RESULTS-2.md`: 7 of 39 rows (`OFF O1`, `OFF C2`, `OFF C3`, `D6 C2`,
+  `D6 P1`, `D6D9 S1`, `D6D9 S3`) read a different `target`/`effect`/`property` key today than §77's own
+  `RESULTS.md` recorded last night, on the identical item, arm and request-building code. None of the
+  seven is a scored D9 row -- the drift happened to miss every row this checkpoint's own kill numbers
+  read -- but it is exactly the kind of thing that would not miss a future probe by luck a second time.
+- `checkpoints/2026-09-26-derive-arm/RESULTS.md`: `B7-P41`'s OFF answer moved from `wear` (D11, last
+  night, `checkpoints/2026-09-26-human-intents/results.jsonl`) to `derive` (today), on the identical
+  intent replayed through the identical mechanical history. This is the same confound as the arms
+  checkpoint's finding, on the same restarted server, the same day, found independently by a probe that
+  was not looking for it.
+
+**The lesson, so the next restart does not lose it again: record the served model's full command line
+with every batch, not just the reasoning flag.** A `server.txt` beside a batch's own checkpoint
+directory, or a line in the transcript header naming the exact command the server was started with, is
+enough -- `checkpoints/2026-09-26-arms/logs/server-2.txt` is the pattern to copy, and it was written
+only because this task's own instructions required it, not because any standing process asked for it
+before now. Without it, "the model is unchanged, only the process restarted" is an assumption, not a
+checked fact, and this afternoon is the second time (after the original, unrecorded restart itself)
+that assumption cost a checkpoint its ability to say WHY a reproducible row moved. A draft issue for
+this is filed at `docs/issues/prisoner-server-command-line.md`.
+
+**`B7-P11`'s own instability extends §75, not a new finding of the same kind.** §75 measured
+non-determinism only under two CONCURRENT drivers against one server; `determinism-P11.jsonl` (6 solo
+replays) plus the scored run's own two calls -- 8 dedicated stability calls, one driver, strictly
+serial -- found `B7-P11` reading `derive` once and `wear` seven times, and a further replay inside
+`determinism-sequence.jsonl` read `wear` twice more. **Serial and single-driver is not the same claim
+as fully deterministic** for a row the referee itself finds close: temperature 0 controls the sampling,
+not whatever else varies call to call on this server. This does not reopen §75's own verdict (batches
+still must run one driver at a time; the cost there was a flipped VERDICT on 2 of 4 replayed rows,
+categorically worse than one borderline row reading two different but both-plausible answers) -- it
+narrows what "deterministic" can be assumed to mean for any row this close to a boundary, in any future
+probe that treats N=1 as sufficient for such a row.
