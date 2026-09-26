@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createHash } from "node:crypto";
 import type { ReadRequest, TransportAnswer, ReaderTransport } from "run-dmcp";
-import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, ONE_ACT_QUESTION, type ObjectPerception } from "../referee.js";
+import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, ONE_ACT_QUESTION, targetUnreadWithEffectCited, type ObjectPerception } from "../referee.js";
 import { suspicionEligible } from "../loop.js";
 
 const BAR: ObjectPerception = {
@@ -1090,5 +1090,49 @@ describe("a person as a target: the other, and the actor's own body (issue #22 g
     ).rule("push the bar over", [BAR, MARA]);
 
     expect(ruling.applicable).toBe(false);
+  });
+});
+
+describe("targetUnreadWithEffectCited (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27, D3)", () => {
+  it("true when the target falls to its safe default and the effect is cited from the intent -- Infocom's 'Hide what?'", async () => {
+    // `target` is never offered at all, so the ladder falls to its own
+    // safeDefault ("none") with no citation -- `fromSafeDefault: true`,
+    // exactly what a real elided intent ("hide under the blanket") produces.
+    const transport = scriptedTransport({
+      effect: { answerKey: "conceal", citation: { sourceId: "intent", quote: "hide under the blanket" } },
+    });
+    const ruling = await createReferee([transport]).rule("hide under the blanket", [BAR]);
+    expect(ruling.targetObjectId).toBe("none");
+    expect(ruling.raw.answers.find((a) => a.questionId === "target")?.fromSafeDefault).toBe(true);
+    expect(ruling.citations.effect.verified).toBe(true);
+    expect(targetUnreadWithEffectCited(ruling)).toBe(true);
+  });
+
+  it("false when the target answer is a real, cited 'none' -- not a default at all", async () => {
+    // The referee explicitly offers `none` for target, cited from the
+    // intent: a genuine answer, not the ladder falling back to it.
+    const transport = scriptedTransport({
+      target: { answerKey: "none", citation: { sourceId: "intent", quote: "make a sound" } },
+      effect: { answerKey: "noise", citation: { sourceId: "intent", quote: "make a sound" } },
+    });
+    const ruling = await createReferee([transport]).rule("make a sound", [BAR]);
+    expect(ruling.raw.answers.find((a) => a.questionId === "target")?.fromSafeDefault).toBe(false);
+    expect(targetUnreadWithEffectCited(ruling)).toBe(false);
+  });
+
+  it("false when the target is unread but the effect ALSO went unread (no citation to speak of)", async () => {
+    const ruling = await createReferee([scriptedTransport({})]).rule("do something vague", [BAR]);
+    expect(ruling.raw.answers.find((a) => a.questionId === "target")?.fromSafeDefault).toBe(true);
+    expect(ruling.citations.effect.verified).toBe(false);
+    expect(targetUnreadWithEffectCited(ruling)).toBe(false);
+  });
+
+  it("false when the target is read normally (not a default) even though the effect is cited", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "bar", citation: { sourceId: "intent", quote: "file the bar" } },
+      effect: { answerKey: "wear", citation: { sourceId: "intent", quote: "file the bar" } },
+    });
+    const ruling = await createReferee([transport]).rule("file the bar", [BAR]);
+    expect(targetUnreadWithEffectCited(ruling)).toBe(false);
   });
 });

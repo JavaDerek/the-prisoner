@@ -228,6 +228,7 @@ describe("custody's sentences: what the other perceives, and the refused attempt
         resourceName: null,
         elaboration: null,
         acquired: null,
+        reconsidered: null,
       });
     expect(refused("take", "meal_tray")).toContain("as an attempt to take the meal tray");
     expect(refused("give", "meal_tray")).toContain("as an attempt to hand over the meal tray");

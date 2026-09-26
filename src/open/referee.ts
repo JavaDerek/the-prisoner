@@ -619,6 +619,23 @@ export interface Referee {
   rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling>;
 }
 
+/** D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): true exactly
+ *  when the TARGET question fell to its safe default (`"none"`, unread)
+ *  while the EFFECT question's answer is cited from the actor's own intent
+ *  -- the structural signal Infocom's parser reads as "verb parsed, noun
+ *  missing" ("Hide what?"). Read from the reader's own `fromSafeDefault`
+ *  flag (`ruling.raw.answers`, run-dmcp's own bookkeeping -- a default was
+ *  never cited against anything, `citation: null`) and `effect`'s own
+ *  citation check, never from a ruling's prose or any English the referee
+ *  wrote: root CLAUDE.md's "never pattern-match meaning" applies here
+ *  exactly as it does to every other closed-key check in this module.
+ *  `loop.ts` is the only caller, and only under a human seat -- see
+ *  `OpenMind.reconsider` (`mind.ts`). */
+export function targetUnreadWithEffectCited(ruling: RefereeRuling): boolean {
+  const targetAnswer = ruling.raw.answers.find((a) => a.questionId === "target");
+  return (targetAnswer?.fromSafeDefault ?? false) && ruling.citations.effect.verified;
+}
+
 /** Builds one referee for the lifetime of a game -- `transports` is the
  *  fallback ladder `createTurnReader` runs (this task's brief: "a plain
  *  async function in this repo that calls the configured referee model

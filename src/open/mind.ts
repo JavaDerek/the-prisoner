@@ -10,7 +10,7 @@ import {
   SEARCH_CATCH_SPOON_MIN,
 } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
-import type { ObjectPerception } from "./referee.js";
+import type { ObjectPerception, RefereeRuling } from "./referee.js";
 import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX } from "./world.js";
 import { renderConditionList, type Condition } from "./conditionList.js";
 import { withThinking, type ThinkingMode } from "./thinking.js";
@@ -91,7 +91,28 @@ export type OpenProposal = Proposal & {
   readonly voiceMs?: number;
 };
 
-export type OpenMind = Mind<OpenPrincipalContext, OpenProposal>;
+/**
+ * D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): `reconsider` is
+ * OPTIONAL and additional to `mind-seam`'s own `Mind` -- a model mind (every
+ * one `createOpenMind` below builds) is a plain object with no such method,
+ * so `mind.reconsider` is `undefined` for it and `loop.ts`'s own `if
+ * (mind.reconsider && ...)` guard never fires; every recorded batch and
+ * every model-mind test stays byte-identical. Only `createHumanSeatMind`
+ * (`humanSeat.ts`) implements it.
+ *
+ * Called by `loop.ts` at most once per turn, only when
+ * `targetUnreadWithEffectCited(ruling)` (referee.ts) is true: the referee's
+ * `target` answer fell to its own safe default while its `effect` answer
+ * was cited from the intent -- Infocom's "Hide what?" moment. `ruling` is
+ * handed over so the seat can phrase its own question from the ruling's
+ * `effectKind` alone (never the referee's prose); the seat asks once and
+ * returns the player's retyped intent VERBATIM, or `undefined` to let the
+ * first ruling stand (Enter). The seat composes nothing on the player's
+ * behalf, so this can never return anything but exactly what was typed.
+ */
+export type OpenMind = Mind<OpenPrincipalContext, OpenProposal> & {
+  reconsider?(ruling: RefereeRuling): Promise<string | undefined>;
+};
 
 function coerceFreeText(raw: unknown): string | undefined {
   if (typeof raw !== "string") return undefined;

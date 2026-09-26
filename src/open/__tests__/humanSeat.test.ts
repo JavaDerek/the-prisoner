@@ -6,6 +6,7 @@ import { CONDITION_LIST_OPENING } from "../conditionList.js";
 import type { Narrator } from "../narrator.js";
 import { openConditions } from "../conditions.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
+import type { RefereeRuling } from "../referee.js";
 
 const CONTEXT: OpenPrincipalContext = {
   principalId: "p1",
@@ -49,6 +50,29 @@ function seat(
     ...(options.narrator ? { narrator: options.narrator } : {}),
   });
   return { mind, written, asked };
+}
+
+/** D3 (HUMAN-INTENTS-DESIGN.md §3.1, the-prisoner#27): a minimal ruling for
+ *  `reconsider`, which reads only `effectKind` -- every other field is
+ *  filler this test never inspects. */
+function ruling(effectKind: RefereeRuling["effectKind"]): RefereeRuling {
+  return {
+    targetObjectId: "none",
+    effectKind,
+    property: "none",
+    magnitude: "moderate",
+    perceptibility: "silent",
+    product: "none",
+    applicable: false,
+    citations: {
+      target: { citation: null, requiredSourceId: null, verified: false },
+      effect: { citation: { sourceId: "intent", quote: "x" }, requiredSourceId: "intent", verified: true },
+      property: { citation: null, requiredSourceId: null, verified: false },
+      product: { citation: null, requiredSourceId: null, verified: false },
+    },
+    raw: { answers: [{ questionId: "target", answerKey: "none", fromSafeDefault: true, answeredByRung: null, citation: null, rejected: [] }], unmatched: [] },
+    request: { questions: [], sources: [] },
+  };
 }
 
 /** A narrator stand-in: fixed script, and it never touches a network --
@@ -840,5 +864,47 @@ describe("the human seat's write ownership (D4, docs/HUMAN-INTENTS-DESIGN.md §3
     const proposal = await pending;
     expect(proposal).toBeNull();
     expect(mind.midQuestionWrites()).toBe(1); // still exactly the one write from mid-question two
+  });
+});
+
+describe("D3: reconsider (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27)", () => {
+  it("asks once, phrased from the ruling's own effect kind, and returns the retype VERBATIM", async () => {
+    const { mind, asked, written } = seat(["hide myself under the blanket"]);
+    expect(typeof mind.reconsider).toBe("function");
+    const retype = await mind.reconsider?.(ruling("conceal"));
+    expect(retype).toBe("hide myself under the blanket");
+    expect(asked).toHaveLength(1);
+    const question = dewrap(asked[0]);
+    expect(question).toContain("That was read as hiding something, but not what.");
+    expect(question).toContain("Say it another way, or press Enter to let it stand.");
+    // The seat composes nothing on the player's behalf (this file's own
+    // header, rule 2): the retype reaches the caller exactly as typed, with
+    // no rewording, no quoting, nothing added.
+    expect(written.join("\n")).not.toContain("hide myself under the blanket");
+  });
+
+  it("Enter (or any blank answer) lets the first ruling stand: returns undefined, never invents a retype", async () => {
+    const { mind } = seat([""]);
+    const retype = await mind.reconsider?.(ruling("open"));
+    expect(retype).toBeUndefined();
+  });
+
+  it("the question names the effect actually ruled, not a fixed word -- 'wear' asks differently from 'open'", async () => {
+    const wear = seat(["scrape at it again"]);
+    await wear.mind.reconsider?.(ruling("wear"));
+    expect(dewrap(wear.asked[0])).toContain("wearing something down");
+
+    const open = seat(["pry at it again"]);
+    await open.mind.reconsider?.(ruling("open"));
+    expect(dewrap(open.asked[0])).toContain("opening something");
+  });
+
+  it("is never present on a model mind -- only the human seat implements it", async () => {
+    const fetchFn = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "x" }) } }] }),
+    })) as unknown as typeof fetch;
+    const model = createOpenMind({ baseUrl: "http://x", selfName: PRISONER_NAME, otherName: WARDEN_NAME, model: "m", fetchFn });
+    expect((model as { reconsider?: unknown }).reconsider).toBeUndefined();
   });
 });

@@ -79,7 +79,7 @@ function halfWithRuling(over: { targetObjectId: string; property: string; effect
     derived: null,
     reshaped: null,
     pick: null,
-    resourceName: null, elaboration: null, acquired: null,
+    resourceName: null, elaboration: null, acquired: null, reconsidered: null,
   };
 }
 
@@ -271,7 +271,7 @@ describe("open checkpoint transcript", () => {
       context: { principalId: "p", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
       proposal: { intent: "Lift the tile." },
       pick: { own: "Scrape the bar.", forced: true, overridden: true, verdicts: [{ candidate: "Scrape the bar.", verdict: "seen" }, { candidate: "Lift the tile.", verdict: "unseen" }] },
-      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null,
+      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null,
     }).join("\n");
     expect(text).toContain("**Forced pick:** overrode the mind's own intent: Scrape the bar.");
     expect(text).toContain("- seen: Scrape the bar.");
@@ -298,7 +298,7 @@ describe("open checkpoint transcript", () => {
       perceptionForOther: null,
       revealFor: null,
       derived: null,
-      reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null,
+      reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null,
     }).join("\n");
     expect(text).toContain("**Candidates:**");
     expect(text).toContain("Examine the bar closely. (check for damage)");
@@ -307,7 +307,7 @@ describe("open checkpoint transcript", () => {
 
   it("a silent half-round shows its reason and raw text", () => {
     const text = renderOpenHalfRound(
-      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null },
+      { principal: "warden", t: 2, roundN: 1, context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] }, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null },
       { reason: "unparseable", text: "RAW_MODEL_TEXT" }
     ).join("\n");
     expect(text).toContain("**Silence.** SilenceReason: `unparseable`");
@@ -325,7 +325,7 @@ describe("open checkpoint transcript", () => {
         context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
         proposal: { intent: "I examine the bar closely." },
         ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
-        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null,
+        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null,
       },
       undefined,
       { reason: "rejected", text: "Voss," }
@@ -355,7 +355,7 @@ describe("open checkpoint transcript", () => {
       },
       proposal: { intent: "I look around." },
       ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
-      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null,
+      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null,
     }).join("\n");
     // Every id it could act on, so the target answer key set is recoverable.
     expect(text).toContain("**Perceived:** bar, window");
@@ -540,6 +540,63 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain(`location_id: ${openWorld.base.cellId} -> ${openWorld.exits.door.destinationId}`);
     expect(text).not.toContain("(no state changed)");
     expect(renderOpenSummary(game).join("\n")).toContain("**The prisoner escaped, at round 2.**");
+  });
+
+  // D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): built directly
+  // (like the "forced pick"/"candidates" tests above), since reaching a real
+  // reconsideration through a full game needs a human seat, which this
+  // module's own tests never seat -- `humanSeat.test.ts` and `loop.test.ts`
+  // cover the mechanic itself; this is only the RENDERING.
+  it("a reconsidered half-round shows BOTH rulings, the first intent, and the retype", () => {
+    const minimalRuling = (targetObjectId: string, effectKind: string): OpenHalfRoundResult["ruling"] =>
+      ({
+        applicable: targetObjectId !== "none",
+        targetObjectId,
+        effectKind,
+        property: "none",
+        product: "none",
+        magnitude: "slight",
+        perceptibility: "silent",
+        citations: {
+          target: { verified: targetObjectId !== "none", citation: null },
+          effect: { verified: true, citation: { sourceId: "intent", quote: "x" } },
+          property: { verified: false, citation: null },
+          product: { verified: false, citation: null },
+        },
+        raw: {
+          answers: [{ questionId: "target", answerKey: targetObjectId, fromSafeDefault: targetObjectId === "none", answeredByRung: null, citation: null, rejected: [] }],
+          unmatched: [],
+        },
+        request: { questions: [], sources: [] },
+      }) as unknown as OpenHalfRoundResult["ruling"];
+
+    const text = renderOpenHalfRound({
+      principal: "prisoner",
+      t: 1,
+      roundN: 1,
+      context: { principalId: "p", identity: "", motive: "", briefing: "B", perceivedObjects: [] },
+      proposal: { intent: "scrape at the bar with the spoon" },
+      pick: null,
+      ruling: minimalRuling("bar", "wear"),
+      plan: null,
+      outcome: null,
+      refusalError: null,
+      perceptionForOther: null,
+      revealFor: null,
+      derived: null,
+      reshaped: null,
+      resourceName: null,
+      elaboration: null,
+      acquired: null,
+      reconsidered: { firstRuling: minimalRuling("none", "conceal") as NonNullable<OpenHalfRoundResult["ruling"]>, firstIntent: "hide myself under the blanket" },
+    }).join("\n");
+
+    expect(text).toContain("**Reconsidered (D3):**");
+    expect(text).toContain("First intent: hide myself under the blanket");
+    expect(text).toContain("Retyped to: scrape at the bar with the spoon");
+    // Both rulings' own tables appear: the first (target unread) and the final (target bar).
+    expect(text).toContain("| target | `none` |");
+    expect(text).toContain("| target | `bar` |");
   });
 });
 

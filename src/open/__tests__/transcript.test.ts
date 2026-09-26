@@ -46,6 +46,7 @@ function half(over: Partial<OpenHalfRoundResult>): OpenHalfRoundResult {
     resourceName: null,
     elaboration: null,
     acquired: null,
+    reconsidered: null,
     ...over,
   };
 }

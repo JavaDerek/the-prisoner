@@ -3,7 +3,7 @@ import { adoptDerivedObject, retireDerivedObject, nextDerivedId, adoptAcquiredPr
 import { findKind } from "./derivedObjects.js";
 import { bandNumbersFor } from "./acquirableProperties.js";
 import { computePerceivedObjects, principalLocation, holderAt, type PresenceMode } from "./briefing.js";
-import type { Referee, RefereeRuling, ObjectPerception } from "./referee.js";
+import { targetUnreadWithEffectCited, type Referee, type RefereeRuling, type ObjectPerception } from "./referee.js";
 import type { ElaborationReferee, ElaborationRuling } from "./elaborationReferee.js";
 import { ELABORATION_BANDS, type ElaborationBandRow, type DifficultyBand } from "./elaborationBands.js";
 import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent, PROPERTY_KEYS } from "./effects.js";
@@ -109,6 +109,15 @@ export interface OpenHalfRoundResult {
    *  apart the way Appendix C requires ("the override can never be mistaken
    *  for the world's own reading") even when they happen to agree. */
   acquired: { objectId: string; need: string; band: Exclude<DifficultyBand, "impossible">; builtBand: DifficultyBand; bandSource: "model" | "author"; startValue: number; resourceName: string } | null;
+  /** D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): set only
+   *  when a human seat's `mind.reconsider` was OFFERED and actually
+   *  returned a retype (Enter, or a model mind with no `reconsider` at
+   *  all, leaves this `null`) -- the FIRST ruling (the one
+   *  `targetUnreadWithEffectCited` fired on) and the intent it was ruled
+   *  against, kept so the transcript can show both rulings even though only
+   *  the SECOND (from the retyped intent, now `proposal.intent`) is what
+   *  the rest of this half-round acted on. */
+  reconsidered: { firstRuling: RefereeRuling; firstIntent: string } | null;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -545,7 +554,7 @@ export async function runOpenHalfRound(params: {
 
   const considered = await mind.consider(context);
   if (considered === null) {
-    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null };
+    return { principal, t, roundN, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null };
   }
 
   // §21: the recogniser is the referee itself, so "seen" means exactly what
@@ -606,14 +615,32 @@ export async function runOpenHalfRound(params: {
     }
     picked = { own: considered.intent, forced: true, overridden: proposal.intent !== considered.intent, verdicts: [{ candidate: considered.intent, verdict: first.verdict }], reasked };
   }
-  const base = { principal, t, roundN, context, pick: picked };
-
   // Notes to self, persisted before the referee rules -- exactly the closed
   // variant's `runHalfRound`: a note is the mind's own memo, independent of
   // what its attempt goes on to do.
   if (proposal.notes) setNotes(openWorld.base.gameId, principal, proposal.notes, roundN);
 
-  const ruling = await referee.rule(proposal.intent, context.perceivedObjects);
+  let ruling = await referee.rule(proposal.intent, context.perceivedObjects);
+  // D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): `mind.reconsider`
+  // exists only on a human seat (`createHumanSeatMind`, humanSeat.ts) -- a
+  // model mind is a plain object with no such property, so this guard is
+  // the WHOLE reason model minds and every recorded batch never reach any
+  // of this. Offered once per turn, only when the referee's own TARGET fell
+  // to its safe default while its EFFECT was cited from the intent
+  // (Infocom's "Hide what?"): the retype (if any) is re-ruled here, once,
+  // and that second ruling stands unconditionally from this point on --
+  // never re-checked for the same condition, so this can never loop.
+  let reconsidered: OpenHalfRoundResult["reconsidered"] = null;
+  if (mind.reconsider && targetUnreadWithEffectCited(ruling)) {
+    const retype = await mind.reconsider(ruling);
+    if (retype !== undefined) {
+      reconsidered = { firstRuling: ruling, firstIntent: proposal.intent };
+      proposal = { ...proposal, intent: retype };
+      ruling = await referee.rule(proposal.intent, context.perceivedObjects);
+    }
+  }
+  const base = { principal, t, roundN, context, pick: picked, reconsidered };
+
   if (!ruling.applicable) {
     // WORLD-ELABORATION-DESIGN.md §1.4's first silent null path: the
     // referee found nothing applicable. §4.1's first of its two routes.

@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { scriptedMind } from "mind-seam";
-import { getResource } from "run-dmcp";
+import { getResource, type ReaderTransport } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty, type OpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
@@ -76,6 +76,49 @@ function grounderReferee(): Referee {
 
 function inapplicableReferee(): Referee {
   return createReferee([]); // no transports -- every answer falls to its safe default, "none"
+}
+
+/** D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): wraps a real
+ *  `Referee` to count `.rule()` calls -- how the loop-level tests below
+ *  prove the retype re-rules exactly once (never a loop) and a rejected
+ *  offer (Enter) never re-rules at all. */
+function countingReferee(inner: Referee): { referee: Referee; calls: () => number } {
+  let calls = 0;
+  return {
+    referee: {
+      rule: async (intentText, perceivedObjects) => {
+        calls += 1;
+        return inner.rule(intentText, perceivedObjects);
+      },
+    },
+    calls: () => calls,
+  };
+}
+
+/** D3's own scripted transport: `firstIntent` leaves TARGET unanswered
+ *  entirely (so the ladder falls to its own safe default, "none") while
+ *  EFFECT is answered and cited -- exactly `targetUnreadWithEffectCited`'s
+ *  trigger, Infocom's "Hide what?". Any OTHER intent text (the retype) is
+ *  ruled as a fully grounded `wear` on the bar, so a caller can tell the two
+ *  rulings apart by their own targets (`none` vs `bar`). */
+function reconsiderTransport(firstIntent: string): ReaderTransport {
+  return async (request) => {
+    const intentText = request.sources.find((s) => s.id === "intent")?.text ?? "";
+    if (intentText === firstIntent) {
+      return request.questions.filter((q) => q.id === "effect").map((q) => ({ questionId: q.id, answerKey: "conceal", citation: { sourceId: "intent", quote: intentText } }));
+    }
+    const applicable: Record<string, { answerKey: string; citation: { sourceId: string; quote: string } }> = {
+      target: { answerKey: "bar", citation: { sourceId: "intent", quote: intentText } },
+      effect: { answerKey: "wear", citation: { sourceId: "intent", quote: intentText } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: intentText } },
+      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: intentText } },
+    };
+    return request.questions.map((q) => {
+      const scripted = applicable[q.id];
+      return { questionId: q.id, answerKey: scripted?.answerKey ?? q.safeDefault, citation: scripted?.citation ?? { sourceId: "intent", quote: intentText } };
+    });
+  };
 }
 
 describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", () => {
@@ -758,5 +801,139 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
       expect(result.resourceName).toBeNull();
       expect(getResource(openWorld.base.resources.wardenSuspicion)?.value).toBe(0);
     });
+  });
+});
+
+describe("D3: reconsider, at the loop level (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27)", () => {
+  afterEach(() => destroyTestDb());
+
+  it("a MODEL mind never sees `reconsider` -- the referee runs once and the first (unread) ruling stands", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const resolver = buildOpenResolver();
+    const firstIntent = "hide myself under the blanket";
+    const { referee, calls } = countingReferee(createReferee([reconsiderTransport(firstIntent)]));
+    // `scriptedMind` (mind-seam) returns a plain object with `consider` alone
+    // -- no `reconsider` property at all, exactly like every real model mind
+    // `createOpenMind` builds (mind.ts).
+    const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: firstIntent });
+
+    const result = await runOpenHalfRound({
+      openWorld,
+      resolver,
+      referee,
+      principal: "prisoner",
+      roundN: 1,
+      t: openWorld.base.clock.prisonerT(1),
+      context: context(openWorld),
+      mind,
+    });
+
+    expect(result.ruling?.applicable).toBe(false);
+    expect(result.ruling?.targetObjectId).toBe("none");
+    expect(result.proposal?.intent).toBe(firstIntent);
+    expect(result.reconsidered).toBeNull();
+    expect(calls()).toBe(1); // no second call: nothing ever asked for a retype
+  });
+
+  it("a human seat's `reconsider` is offered once, and an accepted retype re-rules and wins -- both rulings are recorded", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const resolver = buildOpenResolver();
+    const firstIntent = "hide myself under the blanket";
+    const retypedIntent = "scrape at the bar with the spoon";
+    const { referee, calls } = countingReferee(createReferee([reconsiderTransport(firstIntent)]));
+    let reconsiderCalls = 0;
+    let seenRuling: RefereeRuling | undefined;
+    const mind: OpenMind = {
+      consider: async () => ({ intent: firstIntent }),
+      reconsider: async (ruling) => {
+        reconsiderCalls += 1;
+        seenRuling = ruling;
+        return retypedIntent; // the seat hands back exactly what the player typed
+      },
+    };
+
+    const result = await runOpenHalfRound({
+      openWorld,
+      resolver,
+      referee,
+      principal: "prisoner",
+      roundN: 1,
+      t: openWorld.base.clock.prisonerT(1),
+      context: context(openWorld),
+      mind,
+    });
+
+    expect(reconsiderCalls).toBe(1);
+    expect(seenRuling?.targetObjectId).toBe("none"); // the seat is handed the FIRST (unread) ruling
+    expect(calls()).toBe(2); // the retype is a fresh referee call, once
+    expect(result.proposal?.intent).toBe(retypedIntent); // the retype reaches the referee verbatim, as the new intent
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.ruling?.targetObjectId).toBe("bar");
+    expect(result.reconsidered?.firstIntent).toBe(firstIntent);
+    expect(result.reconsidered?.firstRuling.targetObjectId).toBe("none");
+  });
+
+  it("Enter (reconsider returns undefined) lets the first ruling stand: one offer, never a second referee call", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const resolver = buildOpenResolver();
+    const firstIntent = "hide myself under the blanket";
+    const { referee, calls } = countingReferee(createReferee([reconsiderTransport(firstIntent)]));
+    let reconsiderCalls = 0;
+    const mind: OpenMind = {
+      consider: async () => ({ intent: firstIntent }),
+      reconsider: async () => {
+        reconsiderCalls += 1;
+        return undefined;
+      },
+    };
+
+    const result = await runOpenHalfRound({
+      openWorld,
+      resolver,
+      referee,
+      principal: "prisoner",
+      roundN: 1,
+      t: openWorld.base.clock.prisonerT(1),
+      context: context(openWorld),
+      mind,
+    });
+
+    expect(reconsiderCalls).toBe(1); // one offer
+    expect(calls()).toBe(1); // never a loop: no second referee call
+    expect(result.proposal?.intent).toBe(firstIntent);
+    expect(result.ruling?.applicable).toBe(false);
+    expect(result.reconsidered).toBeNull();
+  });
+
+  it("reconsider is never offered when the target was read normally -- even under a human seat", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const resolver = buildOpenResolver();
+    let reconsiderCalls = 0;
+    const mind: OpenMind = {
+      consider: async () => ({ intent: "file at the bar" }),
+      reconsider: async () => {
+        reconsiderCalls += 1;
+        return undefined;
+      },
+    };
+
+    const result = await runOpenHalfRound({
+      openWorld,
+      resolver,
+      referee: grounderReferee(),
+      principal: "prisoner",
+      roundN: 1,
+      t: openWorld.base.clock.prisonerT(1),
+      context: context(openWorld),
+      mind,
+    });
+
+    expect(reconsiderCalls).toBe(0);
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.reconsidered).toBeNull();
   });
 });

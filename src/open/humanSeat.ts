@@ -4,7 +4,8 @@ import { createDeltaView } from "./deltaView.js";
 import { findObject } from "./scenarioObjects.js";
 import type { Narrator } from "./narrator.js";
 import { renderConditionList, type Condition } from "./conditionList.js";
-import type { ObjectPerception } from "./referee.js";
+import type { ObjectPerception, RefereeRuling } from "./referee.js";
+import type { EffectKind } from "./effects.js";
 
 /**
  * A PERSON in one of the two chairs (the-prisoner#11, its terminal half).
@@ -290,6 +291,29 @@ function conditionsAnswer(selfName: string, conditions: readonly Condition[] | u
   return lines.length > 0 ? lines.join("\n") : "This chair has no condition list.";
 }
 
+/** D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): the bare
+ *  gerund `reconsider` names the attempted effect with -- no object, because
+ *  the whole point of the offer is that no object was read ("but not what"
+ *  says that for it). A `Record` over every `EffectKind` but `none` (never
+ *  reached: `targetUnreadWithEffectCited`, referee.ts, only fires when the
+ *  effect's own citation verified, and a `none` effect never carries one),
+ *  so a new effect kind fails to typecheck here until it has a phrase --
+ *  the same exhaustiveness discipline `perception.ts`'s own D1 table keeps. */
+const RECONSIDER_GERUND: Record<Exclude<EffectKind, "none">, string> = {
+  wear: "wearing something down",
+  restore: "restoring something",
+  reveal: "looking closely at something",
+  conceal: "hiding something",
+  expose: "uncovering something",
+  noise: "making a noise",
+  open: "opening something",
+  close: "shutting something",
+  leave: "leaving",
+  derive: "making something",
+  take: "taking something",
+  give: "handing something over",
+};
+
 /** §1.4's `help`: the command set itself, in the same voice as the prompt's
  *  own hint below -- computed once, since it depends on nothing per-turn. */
 export const SEAT_COMMANDS = ["raw", "say", "plan", "holding", "desc", "conditions", "rules", "me", "help"] as const;
@@ -475,6 +499,21 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   return {
     notify,
     midQuestionWrites: () => midQuestionWriteCount,
+    // D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): called by
+    // `loop.ts` at most once per turn, only when the referee's TARGET fell
+    // to its safe default while its EFFECT was cited
+    // (`targetUnreadWithEffectCited`, referee.ts) -- Infocom's "Hide what?"
+    // moment. Composes nothing on the player's behalf (this file's own rule
+    // 2): the wording states the READING, never that the player left
+    // something out (a referee that missed a typed noun looks identical to
+    // one that was never given one), and the retype -- if any -- is handed
+    // back exactly as typed, never quoted, reworded, or combined with the
+    // first attempt.
+    async reconsider(ruling: RefereeRuling): Promise<string | undefined> {
+      const gerund = RECONSIDER_GERUND[ruling.effectKind as Exclude<EffectKind, "none">];
+      write("");
+      return typed(await ask(`That was read as ${gerund}, but not what. Say it another way, or press Enter to let it stand.\n> `));
+    },
     async consider(context: OpenPrincipalContext): Promise<OpenProposal | null> {
       write("");
       const isFirstTurn = firstTurn;

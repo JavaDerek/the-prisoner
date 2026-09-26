@@ -1,7 +1,7 @@
 import { ResolveProtocolError, type ReadRequest } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
 import type { RangedCitation } from "./refereeTransport.js";
-import type { RefereeExchangeRecord } from "./referee.js";
+import type { RefereeExchangeRecord, RefereeRuling } from "./referee.js";
 import type { OpenGameResult } from "./game.js";
 import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
@@ -45,8 +45,11 @@ function citationCell(citation: RangedCitation | null | undefined): string {
   return `${citation.sourceId}${range}: "${citation.quote}"`;
 }
 
-function refereeTable(half: OpenHalfRoundResult): string[] {
-  const ruling = half.ruling;
+/** D3 (the-prisoner#27): takes a `RefereeRuling` directly, not a whole
+ *  `OpenHalfRoundResult` -- so it can render EITHER the half-round's own
+ *  final ruling (its original caller) OR a `reconsidered.firstRuling`
+ *  (below), which is a ruling with no `OpenHalfRoundResult` of its own. */
+function refereeTable(ruling: RefereeRuling | null): string[] {
   if (!ruling) return [];
   // OPEN-VARIANT.md §51, the-prisoner#17: present in `raw.answers` only when
   // `PRISONER_INSTRUMENT=checked` actually asked it this half-round.
@@ -297,11 +300,28 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   if (p.plan) lines.push(`**Plan:** ${p.plan}`);
   if (p.notes) lines.push(`**Notes:** ${p.notes}`);
 
+  // D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): set only when
+  // the referee's target fell to its safe default while its effect was
+  // cited and the seat was offered (and accepted) a retype -- BOTH rulings
+  // are shown, never only the one the rest of the half-round acted on, so a
+  // reader can audit what the first reading actually looked like.
+  if (half.reconsidered) {
+    lines.push("");
+    lines.push(`**Reconsidered (D3):** the first reading's target went unread; the seat was offered a retype and took it.`);
+    lines.push(`First intent: ${half.reconsidered.firstIntent}`);
+    lines.push("");
+    lines.push("First referee reading:");
+    lines.push("");
+    lines.push(...refereeTable(half.reconsidered.firstRuling));
+    lines.push("");
+    lines.push(`Retyped to: ${p.intent}`);
+  }
+
   if (half.ruling) {
     lines.push("");
     lines.push("**Referee:**");
     lines.push("");
-    lines.push(...refereeTable(half));
+    lines.push(...refereeTable(half.ruling));
     lines.push("");
     lines.push(`**Ruled:** ${half.ruling.applicable ? "possible" : "impossible"}`);
     // OPEN-VARIANT.md §74.1 (option B): the separate one-act reading, when it ran.
