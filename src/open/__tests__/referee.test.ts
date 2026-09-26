@@ -960,15 +960,20 @@ describe("PRISONER_ELISION (HUMAN-INTENTS-DESIGN.md D6, §5, the-prisoner#27)", 
 });
 
 describe("PRISONER_CONTAINER_CLAUSE (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)", () => {
-  it("readContainerClauseMode: unset is off, 'on' is legal, anything else throws", () => {
-    expect(readContainerClauseMode(undefined)).toBe("off");
-    expect(readContainerClauseMode("")).toBe("off");
+  // LANDED 2026-09-26 (checkpoints/2026-09-26-arms/RESULTS-2.md): the env
+  // reader's own default flipped to "on", following PRISONER_ELISION's own
+  // split -- `createReferee`'s bare constructor default (tested below) stays
+  // "off" regardless, so every test in this file that does not pass
+  // `containerClauseMode` explicitly is unaffected by this landing.
+  it("readContainerClauseMode: unset is now on (landed 2026-09-26), 'off' still legal, anything else throws", () => {
+    expect(readContainerClauseMode(undefined)).toBe("on");
+    expect(readContainerClauseMode("")).toBe("on");
     expect(readContainerClauseMode("on")).toBe("on");
     expect(readContainerClauseMode("off")).toBe("off");
     expect(() => readContainerClauseMode("wat")).toThrow(/PRISONER_CONTAINER_CLAUSE/);
   });
 
-  it("off (the default): neither question mentions getting under a thing, person or not", async () => {
+  it("off (createReferee's own bare constructor default, unaffected by the landed env default): neither question mentions getting under a thing, person or not", async () => {
     const objectsOnly = await promptsFor([BAR]);
     const withPerson = await promptsFor([BAR, MARA_FOR_ARMS]);
     for (const qs of [objectsOnly, withPerson]) {

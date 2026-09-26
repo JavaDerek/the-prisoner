@@ -277,27 +277,39 @@ export function readElisionMode(raw: string | undefined): ElisionMode {
  * `effects.ts`) only ever hides a PERSON, so there is nothing for this
  * clause to ground without one.
  *
- * MEASURED AND STILL OFF 2026-09-26 (`checkpoints/2026-09-26-arms/RESULTS.md`,
+ * MEASURED AND STILL OFF 2026-09-26, THEN LANDED 2026-09-26 once the mechanic
+ * it was scored against was fixed (`checkpoints/2026-09-26-arms/RESULTS.md`,
  * OPEN-VARIANT.md §77): the clause pair does exactly what it was built for --
  * all 3 of 3 core "get under a container" intents read `target: <container>`
  * / `effect: conceal` / `property: concealment`, up from 0 of 3 with the
  * clause off -- but the referee's own `magnitude` answer came back `slight`
  * on every one of them, and `slight` raises a container's concealment by 20
  * (`scenarioObjects.ts`'s own wear/restore proportions), short of the 50
- * `CONTAINMENT_HIDDEN_AT_OR_ABOVE` line D9's own mechanic gates containment
- * on. So the pre-registered "actor contained after resolution" half of the
- * kill number failed on every core item (0 of 3, against a 2-of-3 bar) even
- * though the targeting half the clauses actually govern passed cleanly (3 of
- * 3). The clauses are not the failure; the referee's independent judgment of
- * how much a "hide under the blanket" is worth is. Left `off` rather than
- * landed on a criterion this task pre-committed to and did not meet -- see
- * the doc section for the full breakdown and what a follow-up would need to
- * ask instead (a magnitude-wording arm, not a target/effect arm).
+ * `CONTAINMENT_HIDDEN_AT_OR_ABOVE` line D9's own mechanic gated containment
+ * on at the time. So the pre-registered "actor contained after resolution"
+ * half of the kill number failed on every core item (0 of 3, against a
+ * 2-of-3 bar) even though the targeting half the clauses actually govern
+ * passed cleanly (3 of 3). The clauses were not the failure; a magnitude
+ * gate on a fact ("is she under it or not") that does not actually vary by
+ * magnitude was (§77.1's own owner decision). Once `OPEN_CONCEAL_CONTAINER`
+ * floored a raised container's concealment at the hidden line regardless of
+ * magnitude (`mechanics.ts`, `21e9479`), the SAME targeting answers were
+ * re-probed under the fixed mechanic (`checkpoints/2026-09-26-arms/
+ * PREDICTION-2.md`, `RESULTS-2.md`) and resolved `contained: true` on 3 of 3
+ * core items, with the precision kill (N1 stays `target: spoon`; neither
+ * trap row moves) confirmed clean a second time. **THE GAME's DEFAULT IS NOW
+ * `on`** (`readContainerClauseMode`'s own default, below), following
+ * `PRISONER_ELISION`'s own split between the env reader's default and
+ * `createReferee`'s bare constructor default (unchanged, below), so every
+ * existing unit test and replay of a recorded request stays byte-identical
+ * unless it explicitly asks for the arm. `PRISONER_CONTAINER_CLAUSE=off`
+ * restores the pre-2026-09-26 behaviour for a batch that wants to stay
+ * comparable to one recorded before this landed.
  */
 export type ContainerClauseMode = "off" | "on";
 
 export function readContainerClauseMode(raw: string | undefined): ContainerClauseMode {
-  if (raw === undefined || raw === "") return "off";
+  if (raw === undefined || raw === "") return "on";
   if (raw === "off" || raw === "on") return raw;
   throw new Error(`PRISONER_CONTAINER_CLAUSE: unrecognised value ${JSON.stringify(raw)} -- must be "on" or "off" (the default)`);
 }

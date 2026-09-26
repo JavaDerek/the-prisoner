@@ -1199,12 +1199,12 @@ async function mainOpen(): Promise<void> {
       : "Elision clause: OFF (`PRISONER_ELISION=off`): the target question carries no elision clause -- the pre-2026-09-26 behaviour, for a batch that must stay comparable to one recorded before this landed (HUMAN-INTENTS-DESIGN.md D6, the-prisoner#27)."
   );
   transcript.push(
-    // MEASURED AND STILL OFF 2026-09-26 (checkpoints/2026-09-26-arms/RESULTS.md, OPEN-VARIANT.md §77):
-    // targeting passed (3 of 3 core intents), the magnitude the referee answers alongside it did not
-    // cross the containment line on any of them, so this stays off pending a magnitude-wording arm.
+    // LANDED 2026-09-26 (checkpoints/2026-09-26-arms/RESULTS-2.md): ON is now the default, once the
+    // mechanic §77 scored it against was fixed to floor concealment at the hidden line regardless of
+    // magnitude (§77.1). Targeting was clean (3 of 3) both times; only the mechanic's own gate moved.
     CONTAINER_CLAUSE === "on"
-      ? "Container clause: ON (`PRISONER_CONTAINER_CLAUSE=on`): the target question adds \"An act of getting under or beneath a thing names that thing\" and the effect question adds the conceal-on-container reading (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
-      : "Container clause: OFF (the default; measured 2026-09-26 and left off -- OPEN-VARIANT.md §77): neither question mentions getting under or beneath a thing (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
+      ? "Container clause: ON (the default since 2026-09-26): the target question adds \"An act of getting under or beneath a thing names that thing\" and the effect question adds the conceal-on-container reading (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
+      : "Container clause: OFF (`PRISONER_CONTAINER_CLAUSE=off`): neither question mentions getting under or beneath a thing -- the pre-2026-09-26 behaviour, for a batch that must stay comparable to one recorded before this landed (HUMAN-INTENTS-DESIGN.md D9, §6.2, the-prisoner#28)."
   );
   transcript.push(
     DERIVE_REPEAT === "on"
