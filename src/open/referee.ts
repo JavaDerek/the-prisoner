@@ -323,11 +323,24 @@ export function readContainerClauseMode(raw: string | undefined): ContainerClaus
  * first attempt, where the ambiguity this clause names does not exist), so
  * a game where nothing has been derived yet asks nothing new.
  *
- * NOT YET MEASURED. `checkpoints/2026-09-26-derive-arm/PREDICTION.md`
- * (D11's own 5 misread rows plus the trap rows `B7-P02`/`B7-P15` that must
- * stay `wear`) is the pre-registered probe; this switch stays `off` until
- * that probe runs and lands it, per the D3 lesson (§40.1) and §68.2's own
- * warning that a clause can be worse than silence.
+ * SCOPE, CHECKED BY HAND AGAINST THE ACTUAL GAME STATE (not assumed from
+ * §78's own prose): replaying each misread row's own prior turns
+ * (`checkpoints/2026-09-26-derive-arm/PREDICTION.md`'s own diagnostic) found
+ * only 3 of the 5 misread rows (`B7-P41`, `B7-P44`, `B7-P50`) actually have a
+ * derived strip in view at the point the paraphrase is read; the other 2
+ * (`B7-P11`, `B7-P47`) are each their game's OWN FIRST turn, with nothing yet
+ * derived, so this clause's own precondition cannot fire for them -- they are
+ * a first-attempt aim-elision failure (`sharpened`'s own territory, not
+ * measured here) wearing the same surface wording ("tug"/"work the thread"),
+ * not the repeat-derive shape this clause targets. `PREDICTION.md` reports
+ * those two as an explicit scope boundary, not a third kind of kill row.
+ *
+ * NOT YET MEASURED. `checkpoints/2026-09-26-derive-arm/PREDICTION.md` (the 3
+ * in-scope misread rows, the 2 out-of-scope rows reported as a scope check,
+ * and the trap rows `B7-P02`/`B7-P15` that must stay `wear`) is the
+ * pre-registered probe; this switch stays `off` until that probe runs and
+ * lands it, per the D3 lesson (§40.1) and §68.2's own warning that a clause
+ * can be worse than silence.
  */
 export type DeriveRepeatMode = "off" | "on";
 
