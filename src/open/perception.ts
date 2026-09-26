@@ -94,6 +94,33 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
   }
 }
 
+/** D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26): the gerund form
+ *  of `attemptPhrase`'s own closed frames, for the sentence every outcome
+ *  now opens with -- "You set about opening the window," never "was read
+ *  as open, window": what was ruled, told as FICTION in the actor's own
+ *  act, from `ruling.effectKind` and `ruling.targetObjectId` alone, never
+ *  from the referee's raw prose or citations. A `Record` over every effect
+ *  kind but `none` (which never reaches this table: `renderOwnOutcomeUnflagged`
+ *  renders no opening sentence at all when nothing was ruled), so a new
+ *  effect kind fails to typecheck here until it has a phrase -- the same
+ *  exhaustiveness device `NOTHING_TO_VERB` already uses for D8. */
+const SET_ABOUT_PHRASE: Record<Exclude<EffectKind, "none">, (ruling: RefereeRuling, what: string | null) => string> = {
+  wear: (_r, what) => `wearing at ${what ?? "something"}`,
+  restore: (_r, what) => `restoring ${what ?? "something"}`,
+  reveal: (_r, what) => `looking closely at ${what ?? "something"}`,
+  conceal: (_r, what) => `hiding ${what ?? "something"}`,
+  // docs/CUSTODY-DESIGN.md: an expose on a person is a search of her, exactly
+  // as `attemptPhrase` already splits it.
+  expose: (r, what) => (isPrincipalTarget(r.targetObjectId) ? `searching ${what ?? "something"}` : `uncovering ${what ?? "something"}`),
+  noise: (r, what) => (what === null ? "making a noise" : isPrincipalTarget(r.targetObjectId) ? `calling out to ${what}` : `making a noise with ${what}`),
+  open: (_r, what) => `opening ${what ?? "something"}`,
+  close: (_r, what) => `shutting ${what ?? "something"}`,
+  leave: (_r, what) => (what === null ? "leaving" : `leaving through ${what}`),
+  derive: (_r, what) => `making something from ${what ?? "something"}`,
+  take: (_r, what) => `taking ${what ?? "something"}`,
+  give: (_r, what) => `handing over ${what ?? "something"}`,
+};
+
 /** The scenario's own static knowledge of an object -- the §4.1 table and
  *  `OPEN_PERSONS` -- the same fallback `checkpointTranscript.ts` already
  *  reads. An object made in THIS game (OPEN-VARIANT.md §13) or a property
@@ -337,14 +364,34 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   if (proposal === null || ruling === null) return null;
   const obj = label(ruling.targetObjectId);
   const property = ruling.property;
+  // Hoisted for both this function's own opening sentence (`told`, D1
+  // immediately below) and the bottom refusal fallback's `attemptPhrase`
+  // call, which used to compute the identical pair itself.
+  const person = isPrincipalTarget(ruling.targetObjectId);
+  const who = ruling.targetObjectId === "none" ? null : person ? principalName(ruling.targetObjectId) : `the ${obj}`;
+
+  // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), a batch
+  // boundary: every outcome sentence opens with what was ruled, as FICTION
+  // in the actor's own act -- "You set about opening the window," built
+  // from `ruling.effectKind` and `ruling.targetObjectId` alone, in the same
+  // closed frames the refusal path's own `attemptPhrase` uses, never as
+  // keys and never from the referee's prose. The one place this sentence is
+  // OMITTED is the bottom refusal fallback, which already opens with the
+  // identical fiction via `attemptPhrase` itself ("was refused as an
+  // attempt to open the window") -- prefixing it there would say the same
+  // thing twice.
+  const setAbout = ruling.effectKind === "none" ? null : `You set about ${SET_ABOUT_PHRASE[ruling.effectKind](ruling, who)}.`;
+  const told = (sentence: string): string => (setAbout ? `${setAbout} ${sentence}` : sentence);
 
   if (refusalError !== null) {
     let value: unknown;
     if (refusalError instanceof ResolveProtocolError) value = refusalError.contradictions?.[0]?.fact.value;
     else value = refusalError.contradictedFact?.value;
-    return value !== undefined
-      ? `Your last attempt on the ${obj} was refused by the world as it stands: its ${property} is ${value}.`
-      : `Your last attempt on the ${obj} was refused by the world as it stands.`;
+    return told(
+      value !== undefined
+        ? `Your last attempt on the ${obj} was refused by the world as it stands: its ${property} is ${value}.`
+        : `Your last attempt on the ${obj} was refused by the world as it stands.`,
+    );
   }
 
   // WORLD-ELABORATION-DESIGN.md §4.6: positive, from state, rendered by
@@ -360,7 +407,7 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
     const numbers = bandNumbersFor(a.need as OpenPropertyKey, a.band);
     const wornLine = numbers?.readRanges.find((r) => a.startValue <= r.atOrBelow)?.text;
     const base = target ? target.description : "";
-    return `Your last attempt (${quoted(proposal.intent)}) found the ${acquiredObj} as it is: ${base}${wornLine ? ` ${wornLine}` : ""}`;
+    return told(`Your last attempt (${quoted(proposal.intent)}) found the ${acquiredObj} as it is: ${base}${wornLine ? ` ${wornLine}` : ""}`);
   }
 
   if (outcome !== null && plan !== null) {
@@ -368,22 +415,24 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
     // OPEN-VARIANT.md §17.2: open, close and leave target the way out, and its id is its name.
     const exit = obj;
     if (ruling.effectKind === "leave") {
-      return result.left ? `You are out of the cell, through the ${exit}.` : `Your last attempt met the ${exit} shut: you are still in the cell.`;
+      return told(result.left ? `You are out of the cell, through the ${exit}.` : `Your last attempt met the ${exit} shut: you are still in the cell.`);
     }
     if (ruling.effectKind === "open" || ruling.effectKind === "close") {
       // §19: resolved through the way out even when the referee named its part.
       const wayOut = result.wayOut?.replace(/_/g, " ") ?? exit;
-      if (ruling.effectKind === "open" && result.opened === false) return `Your last attempt met the ${wayOut} shut: it will not open yet.`;
+      if (ruling.effectKind === "open" && result.opened === false) return told(`Your last attempt met the ${wayOut} shut: it will not open yet.`);
       // OPEN-VARIANT.md §28: a way out whose part closes its gap opens by that part coming free, and is told
       // as the action it opens up (§27.1: "opened the window" left her prying a bar still in the way).
       if (ruling.effectKind === "open" && result.freedPart) {
         const part = result.freedPart.replace(/_/g, " ");
-        return result.before === result.after
-          ? `The ${part} is already free of the ${wayOut}: the ${wayOut} can be climbed through now.`
-          : `Your last attempt worked the ${part} free of the ${wayOut}: the ${wayOut} can be climbed through now.`;
+        return told(
+          result.before === result.after
+            ? `The ${part} is already free of the ${wayOut}: the ${wayOut} can be climbed through now.`
+            : `Your last attempt worked the ${part} free of the ${wayOut}: the ${wayOut} can be climbed through now.`,
+        );
       }
       const verb = ruling.effectKind === "open" ? "opened" : "shut";
-      return result.before === result.after ? `The ${wayOut} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${wayOut}.`;
+      return told(result.before === result.after ? `The ${wayOut} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${wayOut}.`);
     }
     // docs/CUSTODY-DESIGN.md: one closed sentence per outcome the custody
     // mechanics report (`OPEN_TAKE`/`OPEN_GIVE`/`OPEN_SEARCH`, mechanics.ts),
@@ -392,22 +441,22 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
     const other = principalName(half.principal === "prisoner" ? "warden" : "prisoner");
     if (plan.mechanic === "OPEN_TAKE") {
       const taken = outcome.result as { taken?: boolean; refused?: string };
-      if (taken.taken === true) return `Your last attempt took the ${obj}: you hold it now.`;
-      if (taken.refused === "already-held") return `You already hold the ${obj}.`;
-      return `Your last attempt reached for the ${obj}, but ${other} is on her feet and keeps it.`;
+      if (taken.taken === true) return told(`Your last attempt took the ${obj}: you hold it now.`);
+      if (taken.refused === "already-held") return told(`You already hold the ${obj}.`);
+      return told(`Your last attempt reached for the ${obj}, but ${other} is on her feet and keeps it.`);
     }
     if (plan.mechanic === "OPEN_GIVE") {
       const given = outcome.result as { given?: boolean; refused?: string };
-      if (given.given === true) return `Your last attempt handed the ${obj} to ${other}: she holds it now.`;
-      if (given.refused === "recipient-absent") return `Your last attempt held out the ${obj} to an empty room: you still hold it.`;
-      return `Your last attempt held out empty hands: the ${obj} is elsewhere.`;
+      if (given.given === true) return told(`Your last attempt handed the ${obj} to ${other}: she holds it now.`);
+      if (given.refused === "recipient-absent") return told(`Your last attempt held out the ${obj} to an empty room: you still hold it.`);
+      return told(`Your last attempt held out empty hands: the ${obj} is elsewhere.`);
     }
     if (plan.mechanic === "OPEN_SEARCH") {
       const found = ((outcome.result as { uncovered?: readonly string[] }).uncovered ?? []).map(label);
-      return `Your search of ${principalName(ruling.targetObjectId)} turned up: ${found.length > 0 ? found.join(", ") : "empty hands"}.`;
+      return told(`Your search of ${principalName(ruling.targetObjectId)} turned up: ${found.length > 0 ? found.join(", ") : "empty hands"}.`);
     }
     if (ruling.effectKind === "reveal" && typeof result.value === "number") {
-      return `Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`;
+      return told(`Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`);
     }
     if (ruling.effectKind === "noise") {
       // OPEN-VARIANT.md §55 (issue #22 gap 2): a principal is now a legal
@@ -415,47 +464,51 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
       // mirrors `loop.ts`'s own `describeAttempt` special case for the
       // same reason.
       if (isPrincipalTarget(ruling.targetObjectId)) {
-        return `Your last attempt called out to ${principalName(ruling.targetObjectId)}.`;
+        return told(`Your last attempt called out to ${principalName(ruling.targetObjectId)}.`);
       }
       // OPUS-FIRST-DESIGN.md §3.2: a noise may have no target at all; the
       // sound is then the actor's own, mirroring `describeAttempt` again.
-      if (ruling.targetObjectId === "none") return "Your last attempt made a sound.";
-      return `Your last attempt made the ${obj} ring out.`;
+      if (ruling.targetObjectId === "none") return told("Your last attempt made a sound.");
+      return told(`Your last attempt made the ${obj} ring out.`);
     }
     if (ruling.effectKind === "derive") {
       // OPEN-VARIANT.md §13.4: the maker holds it now, and learns the
       // parent's numbers; a stripped parent is stated as it is.
       const made = (outcome.result as { made?: boolean }).made === true;
       const label = findKind(ruling.product)?.label ?? ruling.product;
-      if (!made) return `Your last attempt met the ${obj} with its ${property} at ${result.before}, already stripped.`;
+      if (!made) return told(`Your last attempt met the ${obj} with its ${property} at ${result.before}, already stripped.`);
       if (half.reshaped && half.derived) {
         // OPEN-VARIANT.md §14.4: the whole parent became the product, which
         // whoever held the parent holds.
         const parentLabel = findKind(half.reshaped.parent.kindId)?.label ?? label;
         const holder = half.derived.heldBy === half.principal ? "you hold it" : `${half.derived.heldBy === "prisoner" ? PRISONER_SHORT_NAME : WARDEN_SHORT_NAME} holds it`;
-        return `Your last attempt made a ${label} from the ${parentLabel}: ${holder} now, as ${half.derived.id}, and the ${parentLabel} is gone.`;
+        return told(`Your last attempt made a ${label} from the ${parentLabel}: ${holder} now, as ${half.derived.id}, and the ${parentLabel} is gone.`);
       }
       const wear = typeof result.before === "number" && typeof result.after === "number" ? ` The ${obj}'s ${property} went from ${result.before} to ${result.after}.` : "";
-      return `Your last attempt made a ${label} from the ${obj}: you hold it now, as ${half.derived?.id ?? ruling.product}.${wear}`;
+      return told(`Your last attempt made a ${label} from the ${obj}: you hold it now, as ${half.derived?.id ?? ruling.product}.${wear}`);
     }
     if (typeof result.before === "number" && typeof result.after === "number") {
-      return result.before === result.after
-        ? `Your last attempt left the ${obj}'s ${property} at ${result.after}, where it already stood.`
-        : `Your last attempt worked on the ${obj}: its ${property} went from ${result.before} to ${result.after}.${
-            // OPEN-VARIANT.md §27: a part worn through is told as the way out it frees (§12: passable at 0).
-            plan.frees && result.after === (plan.parameters as { min?: number }).min ? ` The ${plan.frees.replace(/_/g, " ")} can be climbed through now.` : ""
-          }`;
+      return told(
+        result.before === result.after
+          ? `Your last attempt left the ${obj}'s ${property} at ${result.after}, where it already stood.`
+          : `Your last attempt worked on the ${obj}: its ${property} went from ${result.before} to ${result.after}.${
+              // OPEN-VARIANT.md §27: a part worn through is told as the way out it frees (§12: passable at 0).
+              plan.frees && result.after === (plan.parameters as { min?: number }).min ? ` The ${plan.frees.replace(/_/g, " ")} can be climbed through now.` : ""
+            }`,
+      );
     }
-    return `Your last attempt on the ${obj} took effect.`;
+    return told(`Your last attempt on the ${obj} took effect.`);
   }
 
   // D8 (HUMAN-INTENTS-DESIGN.md §2, §11.6, the-prisoner#28): a property that
   // fell to its default or named a key the target does not declare is
-  // rendered ENTIRELY by `unmodelledPropertySentence` -- no quoted intent, no
-  // attempt phrase, no "why" clause, and no standing description, composed
+  // rendered by `unmodelledPropertySentence` -- no quoted intent, no
+  // `attemptPhrase`, no "why" clause, and no standing description, composed
   // only from the target's own declared properties and its structural
-  // capabilities. Checked before any of that other composition begins.
-  if (isUnmodelledPropertyRefusal(ruling)) return unmodelledPropertySentence(ruling, half);
+  // capabilities. D1's own opening sentence still applies here (unaffected
+  // by D8): `unmodelledPropertySentence` never opens with the attempt the
+  // way the bottom fallback does, so there is nothing to double up on.
+  if (isUnmodelledPropertyRefusal(ruling)) return told(unmodelledPropertySentence(ruling, half));
 
   // Ruled impossible (or ungrounded): the positive reason, from authored text
   // -- the description this principal was itself shown, which for an object
@@ -471,8 +524,12 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   // the exact frames earlier tests pin ("met the X as it is:", "matches none
   // of what is here:"). Only rulings that resolved to nothing come through
   // here; a resolved ruling's sentence above is byte-identical to before.
-  const person = isPrincipalTarget(ruling.targetObjectId);
-  const who = ruling.targetObjectId === "none" ? null : person ? principalName(ruling.targetObjectId) : `the ${obj}`;
+  //
+  // D1: this is the ONE branch that never gets `told`'s prefix -- it already
+  // opens with the identical fiction via `attemptPhrase` below, so adding
+  // `setAbout` here would say the same thing twice ("You set about opening
+  // the window. Your last attempt (...) was refused as an attempt to open
+  // the window, ...").
   const attempt = ruling.effectKind === "none" ? "" : ` as an attempt to ${attemptPhrase(ruling, who)}`;
   const why = refusalWhy(ruling, who ?? "", who === null ? "" : `${who}'s`);
   const refused = `Your last attempt (${quoted(proposal.intent)}) was refused${attempt}, ${why}, and`;

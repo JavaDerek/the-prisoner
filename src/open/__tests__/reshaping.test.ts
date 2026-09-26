@@ -129,7 +129,10 @@ describe("reshaping, through a half-round (OPEN-VARIANT.md §14.2)", () => {
     const twisted = await half(w, resolver, referee, "prisoner", TWIST_CORD, 2);
     expect(twisted.derived?.id).toBe("cord");
     expect(w.derived.map((d) => d.id)).toEqual(["cord"]);
-    expect(renderOwnOutcome(twisted)).toBe("Your last attempt made a cord from the strip of wool: you hold it now, as cord, and the strip of wool is gone.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(twisted)).toBe("You set about making something from the strip. Your last attempt made a cord from the strip of wool: you hold it now, as cord, and the strip of wool is gone.");
   });
 
   it("the product's declared parent must be the target's recorded kind; a §4.1 object is never a kind's parent; a reshape with a property named still reshapes (§25)", async () => {
@@ -177,7 +180,8 @@ describe("reshaping, through a half-round (OPEN-VARIANT.md §14.2)", () => {
     expect(bent.derived).toEqual(expect.objectContaining({ id: "hook", heldBy: "prisoner" }));
     expect(itemsOwnedBy(w.base.prisonerId)).toEqual(["the spoon", "the hook"]);
     const own = renderOwnOutcome(bent) as string;
-    expect(own).toBe("Your last attempt made a hook from the length of wire: Voss holds it now, as hook, and the length of wire is gone.");
+    // D1, changed on purpose (see the comment above on the cord test).
+    expect(own).toBe("You set about making something from the wire. Your last attempt made a hook from the length of wire: Voss holds it now, as hook, and the length of wire is gone.");
     expectPositive(own);
   });
 });
@@ -190,7 +194,8 @@ describe("reshaping: perception, precedent, suspicion (OPEN-VARIANT.md §14.4)",
     await half(w, resolver, referee, "prisoner", CUT_WIRE, 1);
     const bent = await half(w, resolver, referee, "prisoner", BEND_HOOK, 2);
     const own = renderOwnOutcome(bent) as string;
-    expect(own).toBe("Your last attempt made a hook from the length of wire: you hold it now, as hook, and the length of wire is gone.");
+    // D1, changed on purpose (see the comment above on the cord test).
+    expect(own).toBe("You set about making something from the wire. Your last attempt made a hook from the length of wire: you hold it now, as hook, and the length of wire is gone.");
     expectPositive(own);
     expect(bent.perceptionForOther).toBe("Mara Voss works at the length of wire.");
     expect(bent.reshaped?.seenByOther).toBe(true);

@@ -141,7 +141,10 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
     expect(result.ruling?.applicable).toBe(false);
     expect(result.ruling?.property).toBe("none");
     const text = renderOwnOutcome(result) as string;
-    expect(text).toBe("The bar can be worn down or mended, struck, taken.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(text).toBe("You set about wearing at the bar. The bar can be worn down or mended, struck, taken.");
   });
 
   it("an impossible ruling with no object named lists what the actor can reach", async () => {
@@ -554,14 +557,20 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     const result = await halfWithPresence(openWorld, "warden", { intent }, [ruling({ target: "prisoner", effect: "reveal", property: "none", intentQuote: "Watch Voss closely", descQuote: "" })]);
     expect(result.ruling?.applicable).toBe(false);
     const text = renderOwnOutcome(result) as string;
-    expect(text).toBe(`Nothing about ${PRISONER_NAME} can be revealed. A person here can be put on the floor or got back up, searched, spoken to.`);
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(text).toBe(`You set about looking closely at ${PRISONER_NAME}. Nothing about ${PRISONER_NAME} can be revealed. A person here can be put on the floor or got back up, searched, spoken to.`);
     // D8's own opening clause ("Nothing about X can be Y") is a deliberate,
     // scoped negative -- the design's own literal wording, used verbatim in
     // every worked example -- so `expectPositive`'s "never say what is
     // absent" check (built for this module's OTHER refusal sentences) is
-    // checked against the positive catalogue that follows it, not the
-    // opening clause.
-    expectPositive(text.slice(text.indexOf(". ") + 2));
+    // checked against the positive catalogue that follows it, not either
+    // opening sentence (D1's own "You set about..." nor D8's "Nothing
+    // about...").
+    const firstEnd = text.indexOf(". ");
+    const secondEnd = text.indexOf(". ", firstEnd + 1);
+    expectPositive(text.slice(secondEnd + 2));
   });
 
   it("none/reveal and none/noise: the effect is named and the target went unread, still listing what is here", async () => {
@@ -578,7 +587,10 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     // never fires for this shape. The §3.4 sentence for it is kept reachable through `refusalWhy`'s
     // closed set, but what a warden is actually told after a circuit of the cell is the resolved line.
     expect(noise.ruling?.applicable).toBe(true);
-    expect(renderOwnOutcome(noise)).toBe("Your last attempt made a sound.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(noise)).toBe("You set about making a noise. Your last attempt made a sound.");
     expectPositive(renderOwnOutcome(reveal) as string);
     expectPositive(renderOwnOutcome(noise) as string);
   });
@@ -605,14 +617,23 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     const tray = "Use the thin steel edge of the tray to push the bolt back through the gap.";
     const open1 = await half(openWorld, "prisoner", { intent: tray }, [ruling({ target: "meal_tray", effect: "open", property: "edge", intentQuote: "push the bolt back", descQuote: "A shallow steel tray" })]);
     expect(open1.ruling?.applicable).toBe(false);
-    expect(renderOwnOutcome(open1)).toBe(`The meal tray has nothing to open. It can be struck, or taken.`);
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(open1)).toBe(`You set about opening the meal tray. The meal tray has nothing to open. It can be struck, or taken.`);
     const keys = "Unhook the key ring from her belt and lever the bolt back out of the strike plate.";
     const open2 = await half(openWorld, "prisoner", { intent: keys }, [ruling({ target: "key_ring", effect: "open", property: "passage", intentQuote: "lever the bolt back", descQuote: "A heavy iron ring" })]);
-    expect(renderOwnOutcome(open2)).toBe(`The key ring has nothing to open. It can be struck, or taken.`);
+    expect(renderOwnOutcome(open2)).toBe(`You set about opening the key ring. The key ring has nothing to open. It can be struck, or taken.`);
     // D8's opening clause is a deliberate scoped negative (see the comment on
-    // the prisoner/reveal test above); only the catalogue after it is checked.
-    expectPositive((renderOwnOutcome(open1) as string).slice((renderOwnOutcome(open1) as string).indexOf(". ") + 2));
-    expectPositive((renderOwnOutcome(open2) as string).slice((renderOwnOutcome(open2) as string).indexOf(". ") + 2));
+    // the prisoner/reveal test above); only the catalogue after D1's AND
+    // D8's own opening sentences is checked.
+    const secondSentence = (text: string): string => {
+      const firstEnd = text.indexOf(". ");
+      const secondEnd = text.indexOf(". ", firstEnd + 1);
+      return text.slice(secondEnd + 2);
+    };
+    expectPositive(secondSentence(renderOwnOutcome(open1) as string));
+    expectPositive(secondSentence(renderOwnOutcome(open2) as string));
   });
 
   it("spoon/reveal integrity, meal_tray/reveal integrity: a property the target lacks, whether or not the citation verified", async () => {
@@ -625,7 +646,10 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     const tray = await half(openWorld, "warden", { intent: examine }, [ruling({ target: "meal_tray", effect: "reveal", property: "integrity", intentQuote: "closely examine", descQuote: "Rust has pitted it", propertySource: "desc:bar" })]);
     expect(tray.ruling?.property).toBe("integrity");
     expect(tray.ruling?.citations.property.verified).toBe(false);
-    expect(renderOwnOutcome(tray)).toBe(`The meal tray has nothing to reveal. It can be struck, or taken.`);
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(tray)).toBe(`You set about looking closely at the meal tray. The meal tray has nothing to reveal. It can be struck, or taken.`);
     // The batch's spoon/reveal/integrity cited the spoon's own words
     // verbatim ("worn flat from being scraped along the floor") and was
     // still refused: the spoon declares edge and concealment, never
@@ -639,9 +663,18 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     const spoon = await half(openWorld, "prisoner", { intent: inspect }, [ruling({ target: "spoon", effect: "reveal", property: "integrity", intentQuote: "inspect its wear closely", descQuote: "worn flat from being scraped along the floor" })]);
     expect(spoon.ruling?.applicable).toBe(false);
     expect(spoon.ruling?.citations.property.verified).toBe(true);
-    expect(renderOwnOutcome(spoon)).toBe(`The spoon has nothing to reveal. It can be sharpened or dulled, hidden or uncovered, struck, handed over.`);
-    expectPositive((renderOwnOutcome(spoon) as string).slice((renderOwnOutcome(spoon) as string).indexOf(". ") + 2));
-    expectPositive((renderOwnOutcome(tray) as string).slice((renderOwnOutcome(tray) as string).indexOf(". ") + 2));
+    // D1, changed on purpose (see the comment above on the meal tray assertion).
+    expect(renderOwnOutcome(spoon)).toBe(`You set about looking closely at the spoon. The spoon has nothing to reveal. It can be sharpened or dulled, hidden or uncovered, struck, handed over.`);
+    // D8's opening clause is a deliberate scoped negative (see the comment on
+    // the prisoner/reveal test above); only the catalogue after D1's AND
+    // D8's own opening sentences is checked.
+    const secondSentence = (text: string): string => {
+      const firstEnd = text.indexOf(". ");
+      const secondEnd = text.indexOf(". ", firstEnd + 1);
+      return text.slice(secondEnd + 2);
+    };
+    expectPositive(secondSentence(renderOwnOutcome(spoon) as string));
+    expectPositive(secondSentence(renderOwnOutcome(tray) as string));
   });
 
   it("cot/wear posture: a person's property named on furniture is one the cot lacks", async () => {
@@ -662,7 +695,11 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     // never say a thing cannot be done and then that it can: sentence 1 is
     // omitted whenever a declared property could carry the attempted
     // effect, whichever property the referee actually cited.
-    expect(text).toBe(`The cot can be worn down or mended, struck, taken.`);
+    //
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(text).toBe(`You set about wearing at the cot. The cot can be worn down or mended, struck, taken.`);
   });
 
   it("key_ring/noise and prisoner/noise, as the batch recorded them: the effect is named and the grounds went unverified", async () => {

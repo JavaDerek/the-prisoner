@@ -310,12 +310,16 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     createTestDb();
     const w = buildOpenWorld();
     const opened = await half(w, "I lever the bolt back through the gap.", scripted("door", "open", "passage", "lever the bolt back", "the edge of the bolt shows in the gap"), 1);
-    expect(renderOwnOutcome(opened)).toBe("Your last attempt opened the door.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(opened)).toBe("You set about opening the door. Your last attempt opened the door.");
     expect(opened.perceptionForOther).toBe("Mara Voss opens the door.");
 
     const left = await half(w, "I slip out through the open door.", scripted("door", "leave", "none", "slip out through the open door", "A heavy door of iron-bound planks"), 2);
     expect(left.outcome?.result).toEqual(expect.objectContaining({ left: true }));
-    expect(renderOwnOutcome(left)).toBe("You are out of the cell, through the door.");
+    // D1, changed on purpose (see the comment above on the "opened the door" assertion).
+    expect(renderOwnOutcome(left)).toBe("You set about leaving through the door. You are out of the cell, through the door.");
     expect(left.perceptionForOther).toBe("Mara Voss makes for the door.");
     expect(checkOpenEscape(w, w.base.clock.wardenT(3))).toBe(true);
   });
@@ -325,7 +329,8 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     const w = buildOpenWorld();
     const tried = await half(w, "I walk out of the door.", scripted("door", "leave", "none", "walk out of the door", "A heavy door of iron-bound planks"), 1);
     expect(tried.outcome?.result).toEqual(expect.objectContaining({ left: false }));
-    expect(renderOwnOutcome(tried)).toBe("Your last attempt met the door shut: you are still in the cell.");
+    // D1, changed on purpose (see the comment on the earlier "open the door" test).
+    expect(renderOwnOutcome(tried)).toBe("You set about leaving through the door. Your last attempt met the door shut: you are still in the cell.");
   });
 
   it("the window, opened and left through, is told as the window (§17.2: the ids are the names)", async () => {
@@ -334,9 +339,13 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     wearBarTo(w, OPEN_WINDOW_BAR_MAX); // §24
     const opened = await half(w, "I lever the bars out of the window.", scripted("window", "open", "passage", "lever the bars out of the window", "a single rusted bar closes its widest gap"), 1);
     // §28: the window opens only by its bar coming free, and the actor is told that, as the action it opens up.
-    expect(renderOwnOutcome(opened)).toBe("Your last attempt worked the bar free of the window: the window can be climbed through now.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit. This is D1's own worked example:
+    // "You set about opening the window."
+    expect(renderOwnOutcome(opened)).toBe("You set about opening the window. Your last attempt worked the bar free of the window: the window can be climbed through now.");
     const left = await half(w, "I climb out of the window.", scripted("window", "leave", "none", "climb out of the window", "A small window set in the wall"), 2);
-    expect(renderOwnOutcome(left)).toBe("You are out of the cell, through the window.");
+    expect(renderOwnOutcome(left)).toBe("You set about leaving through the window. You are out of the cell, through the window.");
     expect(left.perceptionForOther).toBe("Mara Voss makes for the window.");
   });
 
@@ -449,7 +458,13 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
       context: buildOpenContext(w, "prisoner", t, 1),
       mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "Scrape the rusted bar with the spoon to loosen it" }),
     });
-    expect(renderOwnOutcome(half)).toBe("Your last attempt met the window shut: it will not open yet.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit. The ruled TARGET is the bar (not the
+    // window `wayOut` resolves to), matching D1's own worked example's shape
+    // one field over: "You set about opening the window" there, because that
+    // scenario's own ruling named the window; this one names the bar.
+    expect(renderOwnOutcome(half)).toBe("You set about opening the bar. Your last attempt met the window shut: it will not open yet.");
   });
 
   it("once the bar allows it, the same act through the bar tells the actor it opened the window, not the bar (§24; half of #6)", () => {
@@ -491,9 +506,12 @@ describe("a way out's part worn through is told as the way out it frees (OPEN-VA
     const w = buildOpenWorld();
     wearBarTo(w, 20);
     const short = await wearBar(w, 1); // moderate: 20 -> 5
-    expect(renderOwnOutcome(short)).toBe("Your last attempt worked on the bar: its integrity went from 20 to 5.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(short)).toBe("You set about wearing at the bar. Your last attempt worked on the bar: its integrity went from 20 to 5.");
     const through = await wearBar(w, 2); // 5 -> 0
-    expect(renderOwnOutcome(through)).toBe("Your last attempt worked on the bar: its integrity went from 5 to 0. The window can be climbed through now.");
+    expect(renderOwnOutcome(through)).toBe("You set about wearing at the bar. Your last attempt worked on the bar: its integrity went from 5 to 0. The window can be climbed through now.");
   });
 });
 
@@ -526,8 +544,11 @@ describe("a window opened through its bar is told as the bar out of the way (OPE
     createTestDb();
     const w = buildOpenWorld();
     wearBarTo(w, 24);
-    expect(renderOwnOutcome(await pry(w, 1))).toBe("Your last attempt worked the bar free of the window: the window can be climbed through now.");
-    expect(renderOwnOutcome(await pry(w, 2))).toBe("The bar is already free of the window: the window can be climbed through now.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(await pry(w, 1))).toBe("You set about opening the bar. Your last attempt worked the bar free of the window: the window can be climbed through now.");
+    expect(renderOwnOutcome(await pry(w, 2))).toBe("You set about opening the bar. The bar is already free of the window: the window can be climbed through now.");
   });
 
   it("the door, whose lock is not what closes its gap, is still told as opened", async () => {

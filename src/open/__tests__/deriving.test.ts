@@ -148,7 +148,10 @@ describe("deriving, through a half-round (OPEN-VARIANT.md §13.1, §13.5)", () =
     const { openWorld: w, resolver, referee } = setup();
     const made = await half(w, resolver, referee, "prisoner", CUT_WIRE, 1);
     const own = renderOwnOutcome(made) as string;
-    expect(own).toBe("Your last attempt made a length of wire from the cot: you hold it now, as wire. The cot's integrity went from 100 to 80.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(own).toBe("You set about making something from the cot. Your last attempt made a length of wire from the cot: you hold it now, as wire. The cot's integrity went from 100 to 80.");
     expectPositive(own);
     expect(made.perceptionForOther).toBe("Mara Voss works a piece loose from the cot.");
     expect(made.perceptionForOther).not.toContain("wire");
@@ -189,7 +192,8 @@ describe("deriving, through a half-round (OPEN-VARIANT.md §13.1, §13.5)", () =
     expect(made.outcome?.transitions).toEqual([]);
     expect(made.outcome?.created.map((c) => c.entityKind)).toEqual(["item", "resource"]);
     expect(made.derived?.id).toBe("grit");
-    expect(renderOwnOutcome(made)).toBe("Your last attempt made a handful of grit from the loose tile: you hold it now, as grit.");
+    // D1, changed on purpose (see the comment on the earlier "what each side is told" test).
+    expect(renderOwnOutcome(made)).toBe("You set about making something from the loose tile. Your last attempt made a handful of grit from the loose tile: you hold it now, as grit.");
   });
 
   it("a second of the same kind is wire_2", async () => {
@@ -241,7 +245,8 @@ describe("deriving, through a half-round (OPEN-VARIANT.md §13.1, §13.5)", () =
     expect(tried.derived).toBeNull();
     expect(w.derived).toEqual([]);
     const own = renderOwnOutcome(tried) as string;
-    expect(own).toBe("Your last attempt met the cot with its integrity at 0, already stripped.");
+    // D1, changed on purpose (see the comment on the earlier "what each side is told" test).
+    expect(own).toBe("You set about making something from the cot. Your last attempt met the cot with its integrity at 0, already stripped.");
     expectPositive(own);
   });
 

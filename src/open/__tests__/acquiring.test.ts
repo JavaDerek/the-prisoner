@@ -256,7 +256,10 @@ describe("OPEN_ACQUIRE, through a half-round (WORLD-ELABORATION-DESIGN.md §4.4,
     const made = await half(w, resolver, referee, "prisoner", DIG_TILE, 1, { need: "none" });
     expect(made.acquired).toBeNull();
     const own = renderOwnOutcome(made);
-    expect(own).toBe("The loose tile has nothing to wear down. It can be hidden or uncovered, struck, taken.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(own).toBe("You set about wearing at the loose tile. The loose tile has nothing to wear down. It can be hidden or uncovered, struck, taken.");
   });
 
   it("an unverified need citation (cited from the wrong source) acquires nothing", async () => {

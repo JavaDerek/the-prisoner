@@ -548,7 +548,10 @@ describe("custody through a half-round (docs/CUSTODY-DESIGN.md)", () => {
     expect(holderAt(s.w, "meal_tray", currentT(s.w.base.gameId))).toBe("prisoner");
     expect(result.perceptionForOther).toBe(`${PRISONER_NAME} reaches for the meal tray.`);
     expect(suspicion(s.w)).toBe(10);
-    expect(renderOwnOutcome(result)).toBe("Your last attempt took the meal tray: you hold it now.");
+    // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
+    // purpose: every outcome now opens with what was ruled, as fiction --
+    // batch 8 starts after this commit.
+    expect(renderOwnOutcome(result)).toBe("You set about taking the meal tray. Your last attempt took the meal tray: you hold it now.");
     const transcript = renderOpenHalfRound(result).join("\n");
     expect(transcript).toContain("  - owner_id: ");
     expect(transcript).toContain("  - taken: the prisoner holds the meal tray");
@@ -576,7 +579,8 @@ describe("custody through a half-round (docs/CUSTODY-DESIGN.md)", () => {
     expect(result.plan?.mechanic).toBe("OPEN_TAKE");
     expect(result.outcome?.result.taken).toBe(false);
     expect(holderAt(s.w, "key_ring", currentT(s.w.base.gameId))).toBe("warden");
-    expect(renderOwnOutcome(result)).toBe(`Your last attempt reached for the key ring, but ${WARDEN_NAME} is on her feet and keeps it.`);
+    // D1, changed on purpose (see the comment above the "visible take" test).
+    expect(renderOwnOutcome(result)).toBe(`You set about taking the key ring. Your last attempt reached for the key ring, but ${WARDEN_NAME} is on her feet and keeps it.`);
     // The reach was still seen: an attempt, like a leave that meets a shut door.
     expect(result.perceptionForOther).toBe(`${PRISONER_NAME} reaches for the key ring.`);
     expect(renderOpenHalfRound(result).join("\n")).toContain("kept: the holder is on her feet");
@@ -607,7 +611,8 @@ describe("custody through a half-round (docs/CUSTODY-DESIGN.md)", () => {
     expect(holderAt(s.w, "wire", currentT(s.w.base.gameId))).toBe("prisoner");
     const given = await half(s, "prisoner", GIVE_WIRE, 2);
     expect(given.outcome?.result.given).toBe(true);
-    expect(renderOwnOutcome(given)).toBe(`Your last attempt handed the wire to ${WARDEN_NAME}: she holds it now.`);
+    // D1, changed on purpose (see the comment above the "visible take" test).
+    expect(renderOwnOutcome(given)).toBe(`You set about handing over the wire. Your last attempt handed the wire to ${WARDEN_NAME}: she holds it now.`);
     expect(holderAt(s.w, "wire", currentT(s.w.base.gameId))).toBe("warden");
 
     const bent = await half(s, "warden", BEND_HOOK, 3);
@@ -626,7 +631,8 @@ describe("custody through a half-round (docs/CUSTODY-DESIGN.md)", () => {
     const searched = await half(s, "warden", PAT_DOWN, 2);
     expect(searched.ruling?.applicable).toBe(true);
     expect(searched.plan?.mechanic).toBe("OPEN_SEARCH");
-    expect(renderOwnOutcome(searched)).toBe(`Your search of ${PRISONER_NAME} turned up: spoon.`);
+    // D1, changed on purpose (see the comment above the "visible take" test).
+    expect(renderOwnOutcome(searched)).toBe(`You set about searching ${PRISONER_NAME}. Your search of ${PRISONER_NAME} turned up: spoon.`);
     expect(searched.perceptionForOther).toBe(`${WARDEN_NAME} searches ${PRISONER_NAME}.`);
     const after = buildOpenContext(s.w, "warden", s.w.base.clock.wardenT(3), 3, 12, {}, "modelled");
     expect(after.perceivedObjects.map((o) => o.id)).toContain("spoon");
