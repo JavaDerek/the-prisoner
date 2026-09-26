@@ -32,8 +32,9 @@ import { resolutionDescription } from "./world/facts.js";
 import { buildPrisonerContext, buildWardenContext } from "./mind/briefing.js";
 import { createPrisonerMind } from "./mind/prisonerMind.js";
 import { createWardenMind } from "./mind/wardenMind.js";
-import { pinnedDependencyVersion } from "./packageInfo.js";
+import { pinnedDependencyVersion, ownPackageVersion } from "./packageInfo.js";
 import { describeRunRevision } from "./runRevision.js";
+import { humanTurnRowsFor, renderHumanTurnRows, type TurnReportVersions } from "./open/turnReport.js";
 import {
   readSkipVoice,
   resolveVoiceModel,
@@ -1098,10 +1099,17 @@ async function mainOpen(): Promise<void> {
   transcript.push(`Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}. Referee timeout: ${REFEREE_TIMEOUT_MS ?? "default (12000ms)"}.`);
   transcript.push(`Rounds (max): ${ROUNDS}.`);
   transcript.push(`Database: \`${dbPath}\` (scratch, never the default path).`);
-  transcript.push(`Code revision: ${describeRunRevision()}`);
+  // Computed once and reused below for the human-turn report rows'
+  // `versions` field (`docs/HUMAN-INTENTS-DESIGN.md` §8.2) -- the identical
+  // value this header line already names, never a second `git` call that
+  // could read a different answer if the tree changed between the two.
+  const codeRevision = describeRunRevision();
+  transcript.push(`Code revision: ${codeRevision}`);
   transcript.push(`Models loaded at start (/api/ps): ${loadedAtStart}`);
   if (residentsAtStart.length > 0) transcript.push(`Resident at start: ${residentsAtStart.map((n) => `\`${n}\``).join(", ")}.`);
   transcript.push(`Referee requests for replay: \`checkpoints/${stamp}.referee.json\`.`);
+  const turnReportVersions: TurnReportVersions = { runDmcp: pinnedDependencyVersion("run-dmcp"), game: ownPackageVersion(), codeRevision };
+  if (SEAT !== "off") transcript.push(`Human-turn report rows (D11 §8.2, the-prisoner#43): \`checkpoints/${stamp}.rows.jsonl\`.`);
   if (precedentLedger) {
     transcript.push(
       `Precedent condition: ON. Ledger \`${PRECEDENT_LEDGER}\`, ${precedentLedger.episodes.length - 1} earlier episode(s); ` +
@@ -1406,6 +1414,12 @@ async function mainOpen(): Promise<void> {
             mkdirSync(dir, { recursive: true });
             writeFileSync(file, transcript.join("\n") + "\n");
             writeFileSync(join(dir, `${stamp}.referee.json`), JSON.stringify(refereeRequestsFor(halvesSoFar), null, 2) + "\n");
+            // §8.2, the-prisoner#43: one report row per HUMAN half-round,
+            // rewritten whole from every half played so far -- D2's own
+            // discipline (commit 3131939), applied to a second piece of
+            // evidence instead of duplicating it. `humanTurnRowsFor` filters
+            // to `SEAT`'s own halves, so a model's turns never reach this file.
+            writeFileSync(join(dir, `${stamp}.rows.jsonl`), renderHumanTurnRows(humanTurnRowsFor(halvesSoFar, SEAT, turnReportVersions)));
           }
           halfStart = performance.now();
         },
@@ -1502,6 +1516,13 @@ async function mainOpen(): Promise<void> {
     writeFileSync(file, transcript.join("\n") + "\n");
     written = true;
     writeFileSync(join(dir, `${stamp}.referee.json`), JSON.stringify(refereeRequestsFor(game.halves), null, 2) + "\n");
+    if (SEAT !== "off") {
+      // §8.2: the same final rewrite `referee.json` gets, from the game's
+      // own authoritative `halves` rather than the per-half `halvesSoFar`
+      // accumulator -- the two should already agree, and this is the same
+      // belt-and-braces the line above already keeps.
+      writeFileSync(join(dir, `${stamp}.rows.jsonl`), renderHumanTurnRows(humanTurnRowsFor(game.halves, SEAT, turnReportVersions)));
+    }
     if (precedentLedger && PRECEDENT_LEDGER) {
       // Only a finished game adds to the warden's experience.
       writeFileSync(PRECEDENT_LEDGER, JSON.stringify(recordGame(precedentLedger, stamp, game.halves), null, 2) + "\n");
