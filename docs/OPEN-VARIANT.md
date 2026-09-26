@@ -6752,3 +6752,5 @@ still must run one driver at a time; the cost there was a flipped VERDICT on 2 o
 categorically worse than one borderline row reading two different but both-plausible answers) -- it
 narrows what "deterministic" can be assumed to mean for any row this close to a boundary, in any future
 probe that treats N=1 as sufficient for such a row.
+
+**Owner decision, 2026-09-26 (afternoon): `PRISONER_DERIVE_REPEAT` stays off.** A net +1 on three fix rows, with a reproducible regression, on a server that moved the same day, does not justify changing every mind's prompt. Revisit once a batch runs on a server whose full command line is recorded.
