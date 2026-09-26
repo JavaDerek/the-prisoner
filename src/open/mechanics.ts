@@ -88,11 +88,28 @@ export const OPEN_RESTORE: Mechanic = {
  * person-container (the blanket, the cot) is `OPEN_RESTORE` on its own
  * `concealment` PLUS, in the SAME resolution (the custody rule: one
  * `resolve()` call, never two), the acting principal's own containment set
- * to this container's index -- but only once the raise crosses
- * `CONTAINMENT_HIDDEN_AT_OR_ABOVE`. A raise that does not cross the line
- * (a `slight` tug at the blanket) sets nothing: `heldIn != 0` stays a
- * precise invariant, never a flag that can drift from the number that
- * actually gates perception (`briefing.ts`).
+ * to this container's index -- once the raise crosses
+ * `CONTAINMENT_HIDDEN_AT_OR_ABOVE`.
+ *
+ * OWNER'S DECISION, 2026-09-26 (OPEN-VARIANT.md §77 addendum): "getting under
+ * covers you." §77 measured the shipped referee ruling `magnitude: slight`
+ * on every "hide under the blanket"-shaped intent it was ever asked (§76.1's
+ * own precision, §77's own targeting fix, both landed; the magnitude
+ * question is a THIRD, untouched prompt), and `slight` raises a container's
+ * concealment by only 20 (`scenarioObjects.ts`'s own wear/restore table),
+ * short of the 50 line -- so the mechanic that exists to hide a person under
+ * a blanket had never once fired, against a referee that reads the act
+ * correctly by every other measure. Getting under a container now sets its
+ * concealment to AT LEAST `hiddenAtOrAbove`, regardless of the ruled
+ * magnitude, so the actor is contained in that one resolution: `after` is
+ * the raise the magnitude earns, floored at the hidden line, never the
+ * reverse -- a magnitude that already earns more than the floor (a
+ * `moderate` or `substantial` conceal, or a `slight` one stacked on an
+ * earlier raise) is never brought DOWN to it. `PRISONER_CONTAINER_CLAUSE`
+ * itself stays off pending a re-probe under this mechanic
+ * (`checkpoints/2026-09-26-arms/PREDICTION-2.md`) -- this fixes the
+ * mechanic the clause would resolve through, not whether the referee reaches
+ * for `conceal` on the container at all.
  */
 export interface ConcealContainerParams extends WearRestoreParams {
   /** Absent when the world built no containment resource for the actor at
@@ -107,7 +124,12 @@ export const OPEN_CONCEAL_CONTAINER: Mechanic = {
   adjudicate(input: AdjudicationInput): Adjudication {
     const p = input.parameters as unknown as ConcealContainerParams;
     const before = currentValue(input, p.resourceId);
-    const after = clamp(before + p.amount, p.min, p.max);
+    // Owner's decision, 2026-09-26 (OPEN-VARIANT.md §77 addendum): the raise
+    // floors at `hiddenAtOrAbove` -- `Math.max` before the final clamp, so a
+    // magnitude that already earns more than the floor is never brought
+    // down to it, and the floor itself never exceeds `p.max` (the floor,
+    // 50, is always below the scenario's own 100 ceiling).
+    const after = clamp(Math.max(before + p.amount, p.hiddenAtOrAbove), p.min, p.max);
     const changes: IntendedChange[] = [setResource(p.resourceId, after, p.min, p.max)];
     const contained = after >= p.hiddenAtOrAbove;
     if (p.actorHeldIn && contained) changes.push(setResource(p.actorHeldIn.resourceId, p.actorHeldIn.containerIndex, 0, p.actorHeldIn.max));

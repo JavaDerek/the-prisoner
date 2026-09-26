@@ -6576,6 +6576,42 @@ D9's clause does not win against a literal noun match here, consistent with §68
 so §76.1's own flagged "narrower-than-worst-case overinclusion" (the mechanic marking the ACTOR
 contained even when she names someone else as the thing hidden) does not fire on this exact phrasing.
 
+### 77.1 Addendum (owner's decision, 2026-09-26): "getting under covers you"
+
+The kill above bundled two questions into one number: whether the referee REACHES for `conceal` on the
+container (it does, 3 of 3, cleanly), and whether the SAME ruling's `magnitude` answer is large enough
+for the existing mechanic to actually mark the actor contained. The owner's reading of that split: the
+magnitude gate is the wrong place to require confidence a small local model has no reason to express.
+Every one of the three core rows, and the paraphrase row (P1), came back `magnitude: slight` -- the
+referee did not waver once across four tries -- and `slight` earns only +20 against a 50-point line
+`scenarioObjects.ts`'s own wear/restore table sets for every other use of the same property. A person
+who gets under a blanket is hidden the moment she is under it; nothing about how carefully she did it
+changes whether Croft can still see her. Gating containment on a magnitude the act's own physical
+outcome does not actually depend on was asking the mechanic to fail exactly where §77 found it failing.
+
+**The decision: a `conceal` that puts a person INTO a container (`OPEN_CONCEAL_CONTAINER`, commit
+`21e9479`, §76.1) sets the container's concealment to AT LEAST `CONTAINMENT_HIDDEN_AT_OR_ABOVE` (50) in
+that one resolution, regardless of the ruled magnitude, so the actor is contained the moment the act
+resolves.** A higher magnitude may still raise concealment further (a `substantial` conceal still
+reaches 100, not merely 50); the floor never LOWERS a raise that already earns more than it, whether
+from this act's own magnitude or from an earlier one already recorded on the same resource. Implemented
+in `mechanics.ts`: `after = clamp(Math.max(before + amount, hiddenAtOrAbove), min, max)`, replacing the
+plain `clamp(before + amount, min, max)` `OPEN_RESTORE` itself still uses (this mechanic's own forward
+direction is otherwise unchanged, and `OPEN_EXPOSE_CONTAINER`'s reverse direction is untouched by this
+decision -- getting UNCOVERED is not the mirror of this floor, and D9's own design never asked it to
+be). `containment.test.ts` covers both the floor firing on a bare `slight` conceal from 0, and the floor
+never resetting a concealment that a stacked pair of conceals already carried past it.
+
+**What this does NOT do: it does not turn `PRISONER_CONTAINER_CLAUSE` on.** §77's own kill was about
+whether the referee's *targeting* answer (`target`/`effect`/`property`) reaches the container at all --
+untouched by this mechanic change, since the clause that sends "hide under the blanket" to `target:
+blanket` in the first place is a separate, still-off arm. This fix repairs the mechanic that ruling
+would resolve through once the referee reaches it; it says nothing new about whether the referee reaches
+it without that clause. §77's own pre-registered kill was scored dead under the mechanic AS IT STOOD
+THEN, and a re-probe under this new mechanic is the correct way to ask the question again -- not a
+retroactive re-scoring of §77's own run, which stands as reported. That re-probe is pre-registered in
+`checkpoints/2026-09-26-arms/PREDICTION-2.md`, not yet run.
+
 ## 78. D11: the referee against 95 human-shaped intents, and the kill fires (2026-09-26)
 
 `HUMAN-INTENTS-DESIGN.md` D11, `checkpoints/2026-09-26-human-intents/` (`PREDICTION.md` finalized and

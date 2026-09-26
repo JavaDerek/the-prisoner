@@ -108,12 +108,20 @@ describe("D9's mechanic: a person's containment is dynamic (HUMAN-INTENTS-DESIGN
     expect(valueOf(w, w.resourceIdFor["blanket.concealment"])).toBe(0); // untouched
   });
 
-  it("a conceal that does not cross the hidden line raises concealment but sets no containment: heldIn stays a precise invariant", () => {
+  it("OWNER'S DECISION (2026-09-26, OPEN-VARIANT.md §77 addendum): a `slight` conceal on a person-container floors to CONTAINMENT_HIDDEN_AT_OR_ABOVE (50) and marks the actor contained, regardless of the ruled magnitude -- §77 measured the referee ruling `slight` on every 'hide under the blanket' turn, and a +20 raise never crossed 50, so the mechanic never fired at all", () => {
     const w = world();
-    const plan = planContain(w, "conceal", "blanket", "prisoner", "slight"); // +20, from 0 -> 20
+    const plan = planContain(w, "conceal", "blanket", "prisoner", "slight"); // +20 from 0, floored to 50
     resolvePlan(w, plan);
-    expect(valueOf(w, w.resourceIdFor["blanket.concealment"])).toBe(20);
-    expect(valueOf(w, w.personHeldIn.prisoner)).toBe(0);
+    expect(valueOf(w, w.resourceIdFor["blanket.concealment"])).toBe(CONTAINMENT_HIDDEN_AT_OR_ABOVE);
+    expect(valueOf(w, w.personHeldIn.prisoner)).toBe(1);
+  });
+
+  it("the floor never LOWERS an already-higher concealment: a further conceal on top of one that already cleared the line keeps the raised sum, not a reset to 50", () => {
+    const w = world();
+    resolvePlan(w, planContain(w, "conceal", "blanket", "prisoner", "moderate")); // 0 -> 50: already at the floor
+    resolvePlan(w, planContain(w, "conceal", "blanket", "prisoner", "slight")); // 50 -> 70: well above the floor
+    expect(valueOf(w, w.resourceIdFor["blanket.concealment"])).toBe(70);
+    expect(valueOf(w, w.personHeldIn.prisoner)).toBe(1);
   });
 
   it("PLANTED VIOLATION: without a containment resource to set (presence off), conceal on the blanket is exactly the ordinary OPEN_RESTORE it always was", () => {
