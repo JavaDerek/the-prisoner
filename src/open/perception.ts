@@ -114,6 +114,44 @@ function scenarioSpec(objectId: string): { properties: readonly { key: string }[
  *  unverified, outside -- and the wording is the same for either chair:
  *  this renders a ruling the actor already received, never a hint about
  *  what to try next. */
+/** True exactly when the target's own declared properties (`scenarioSpec`)
+ *  are known well enough to say `ruling.property` is not among them --
+ *  certain for a §4.1 object or a person, whose declarations are static.
+ *  For a target whose declarations this module cannot see, only a ruling
+ *  whose every citation verified can have failed on the declaration gate
+ *  alone -- otherwise the citation gate is the honest answer instead (a
+ *  §4.1 object with a property ACQUIRED this game and a miscited ruling on
+ *  it reads as "lacks" here; that pair needs the elaboration arm on, and
+ *  the world, to tell apart). Shared by `refusalWhy`'s own fallback and by
+ *  D8's `isUnmodelledPropertyRefusal` below, so the two can never drift on
+ *  what "lacks" means. */
+function targetLacksProperty(ruling: RefereeRuling): boolean {
+  const spec = scenarioSpec(ruling.targetObjectId);
+  const declared = spec ? spec.properties.some((p) => p.key === ruling.property) : undefined;
+  const allCited = ruling.citations.target.verified && ruling.citations.effect.verified && ruling.citations.property.verified;
+  return declared === false || (declared === undefined && allCited);
+}
+
+/** OPUS-FIRST-DESIGN.md §3.4: why the world said no, as one of a small closed
+ *  set derived from the ruling's own keys -- never from its prose, and never
+ *  from a value (the bar's integrity stays exactly as hidden as it was). The
+ *  order follows the referee's own applicability gates (`computeRuling`,
+ *  referee.ts) and then `planEffect`'s (effects.ts), so the reason named is
+ *  the first gate this ruling actually failed. Every clause is worded for
+ *  §2 invariant 7 ("say what is, never what is absent") -- unread, lacks,
+ *  unverified, outside -- and the wording is the same for either chair:
+ *  this renders a ruling the actor already received, never a hint about
+ *  what to try next.
+ *
+ *  HUMAN-INTENTS-DESIGN.md §2 (D8, the-prisoner#28): the two shapes this
+ *  function used to return for "the property fell to its default" and "it
+ *  named a key the target does not declare" are gone from here -- they are
+ *  now `isUnmodelledPropertyRefusal`'s own gate, checked by
+ *  `renderOwnOutcomeUnflagged` BEFORE this function is ever called, and
+ *  rendered as `unmodelledPropertySentence`'s declared-space catalogue
+ *  instead of a "why" clause glued onto the standing description. This
+ *  function is therefore never reached for either shape any more; every
+ *  other refusal still renders exactly as it did. */
 function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
   if (ruling.targetObjectId === "none") return ruling.effectKind === "none" ? "both its target and its effect left unread" : "its target left unread";
   if (ruling.effectKind === "none") return `its effect on ${who} left unread`;
@@ -125,20 +163,6 @@ function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
   // grounded by the actor's words alone, never by a property of the target.
   const custody = ruling.effectKind === "take" || ruling.effectKind === "give" || (ruling.effectKind === "expose" && isPrincipalTarget(ruling.targetObjectId));
   if (custody && !ruling.applicable) return "its grounds in your words left unverified";
-  if (effectRequiresProperty(ruling.effectKind) && !custody) {
-    if (ruling.property === "none") return "which property it meant left unread";
-    // Undeclared on the target: certain for a §4.1 object or a person, whose
-    // declarations are static. For a target whose declarations this module
-    // cannot see, only a ruling whose every citation verified can have
-    // failed on the declaration gate alone -- otherwise the citation gate
-    // is the honest answer, below. (A §4.1 object with a property ACQUIRED
-    // this game and a miscited ruling on it reads as "lacks" here; that
-    // pair needs the elaboration arm on, and the world, to tell apart.)
-    const spec = scenarioSpec(ruling.targetObjectId);
-    const declared = spec ? spec.properties.some((p) => p.key === ruling.property) : undefined;
-    const allCited = ruling.citations.target.verified && ruling.citations.effect.verified && ruling.citations.property.verified;
-    if (!ruling.applicable && (declared === false || (declared === undefined && allCited))) return `${ruling.property} being a property ${who} lacks`;
-  }
   if (!ruling.applicable) return `its grounds in your words and in ${whose} description left unverified`;
   // Applicable, and still no plan: `planEffect` found no leg for this pair
   // -- a conceal on a property other than concealment, an open on something
@@ -146,6 +170,117 @@ function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
   // comes from another parent. It returns a bare `null` for all of them
   // (the-prisoner#8), so this claims only what that null establishes.
   return "an act outside what this world models";
+}
+
+/** D8's own table, exhaustive over `OpenPropertyKey` by its type (a new key
+ *  in `scenarioObjects.ts` fails to typecheck here until it has a phrase):
+ *  the two directions a declared property's own effects move it in, joined
+ *  by a bare "or" -- never a comma, so a longer list built from several of
+ *  these (`joinCapabilities` below) never reads with two commas back to
+ *  back. Authored once, in the room's own words; no property key's NAME
+ *  ever appears in generated text. */
+const PROPERTY_CAPABILITY: Record<OpenPropertyKey, string> = {
+  integrity: "worn down or mended",
+  edge: "sharpened or dulled",
+  concealment: "hidden or uncovered",
+  passage: "opened or shut",
+  posture: "put on the floor or got back up",
+};
+
+/** The subset of `EffectKind` that names a property at all
+ *  (`effectRequiresProperty`, effects.ts) -- the only effects
+ *  `isUnmodelledPropertyRefusal` can ever fire for, since every other
+ *  effect kind is refused (or not) for a reason that has nothing to do with
+ *  a declared property. Kept as its own literal union, exhaustive by
+ *  construction against `NOTHING_TO_VERB` below, so a new member of that
+ *  set fails to typecheck here until it has a phrase too. */
+type PropertyEffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "open" | "close";
+
+/** D8's sentence 1 ("Nothing about X can be Y." / "X has nothing to Z."):
+ *  one phrase pair per effect actually ATTEMPTED, never per property cited
+ *  -- the design's own bucket example ("has nothing to wear down") is
+ *  worded from the effect `wear`, not from whichever property answer the
+ *  referee happened to name, and this table reproduces that choice for
+ *  every property-requiring effect. */
+const NOTHING_TO_VERB: Record<PropertyEffectKind, { infinitive: string; passive: string }> = {
+  wear: { infinitive: "wear down", passive: "worn down" },
+  restore: { infinitive: "mend", passive: "mended" },
+  reveal: { infinitive: "reveal", passive: "revealed" },
+  conceal: { infinitive: "hide", passive: "hidden" },
+  expose: { infinitive: "uncover", passive: "uncovered" },
+  open: { infinitive: "open", passive: "opened" },
+  close: { infinitive: "shut", passive: "shut" },
+};
+
+/** D8's join rule for the "what CAN be done" list, reproducing the design's
+ *  two worked examples exactly: two chunks join with a comma AND "or"
+ *  ("struck, or taken"), three or more join with commas alone ("put on the
+ *  floor or got back up, searched, spoken to"). The asymmetry is not
+ *  arbitrary: a property's own chunk (`PROPERTY_CAPABILITY` above) already
+ *  contains a bare "or" between its two directions, and a second,
+ *  sentence-final "or" next to it would read as two "or"s in one breath.
+ *  Every input is one of the fixed authored strings above or below --
+ *  nothing here is composed from a key name or the actor's intent. */
+function joinCapabilities(chunks: readonly string[]): string {
+  if (chunks.length <= 1) return chunks.join("");
+  if (chunks.length === 2) return `${chunks[0]}, or ${chunks[1]}`;
+  return chunks.join(", ");
+}
+
+/** D8 (HUMAN-INTENTS-DESIGN.md §2, §11.6, the-prisoner#28): true exactly
+ *  when a refusal's `property` answer fell to its default (`"none"`) or
+ *  named a key the target does not declare -- the two shapes §7.2 of that
+ *  design labels "unmodelled" rather than "misread". Mirrors
+ *  `refusalWhy`'s own precedence (target/effect unread, instrument absent,
+ *  and custody all take priority, since each is a DIFFERENT reason the
+ *  world said no) so the two functions can never disagree about which case
+ *  a ruling is in. */
+function isUnmodelledPropertyRefusal(ruling: RefereeRuling): boolean {
+  if (ruling.targetObjectId === "none" || ruling.effectKind === "none") return false;
+  if (ruling.instrument === "absent") return false;
+  // `effectRequiresProperty` is false for `derive`/`take`/`give`/`noise`/`leave`/`none` --
+  // excluding all of them (and so also excluding custody's take/give) in one check.
+  if (!effectRequiresProperty(ruling.effectKind)) return false;
+  // docs/CUSTODY-DESIGN.md: an `expose` on a person is a search, grounded by
+  // the actor's words alone -- never by a declared property of hers.
+  if (ruling.effectKind === "expose" && isPrincipalTarget(ruling.targetObjectId)) return false;
+  if (ruling.property === "none") return true;
+  return !ruling.applicable && targetLacksProperty(ruling);
+}
+
+/** D8's declared-space refusal: what CAN be done to `ruling.targetObjectId`,
+ *  composed only from its own declared property keys (`scenarioSpec`, static
+ *  content this module already reads for `refusalWhy`'s "lacks" case) and
+ *  the structural, propertyless capabilities every person or thing has --
+ *  search and speech for a person, a noise and take-or-give for a thing.
+ *  Nothing here reads `ruling.property`, the actor's intent, or any key
+ *  name; the two worked examples in HUMAN-INTENTS-DESIGN.md §2 are this
+ *  function's own pinned tests (perception.test.ts). */
+function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundResult): string {
+  const targetId = ruling.targetObjectId;
+  const person = isPrincipalTarget(targetId);
+  // Safe: `isUnmodelledPropertyRefusal` already established `effectRequiresProperty`,
+  // which is true for exactly this table's keys.
+  const verbs = NOTHING_TO_VERB[ruling.effectKind as PropertyEffectKind];
+  const opening = person ? `Nothing about ${principalName(targetId)} can be ${verbs.passive}.` : `The ${label(targetId)} has nothing to ${verbs.infinitive}.`;
+  // A target this module has no static spec for (a derived/elaborated
+  // object) contributes no declared-property chunk -- the same epistemic
+  // limit `targetLacksProperty` already lives with -- and the sentence
+  // falls back to the structural capabilities alone.
+  const spec = scenarioSpec(targetId);
+  const declaredChunks = (spec?.properties ?? []).map((p) => PROPERTY_CAPABILITY[p.key as OpenPropertyKey]);
+  const structuralChunks = person
+    ? ["searched", "spoken to"]
+    : [
+        "struck",
+        // Whether THIS actor currently holds it is all `half.context` can
+        // say (docs/CUSTODY-DESIGN.md); a thing the other principal holds
+        // still reads as "taken" here, which is the honest limit of what
+        // this render has ever known about a target it does not itself hold.
+        half.context.holding?.includes(targetId) ? "handed over" : "taken",
+      ];
+  const subject = person ? "A person here" : "It";
+  return `${opening} ${subject} can be ${joinCapabilities([...declaredChunks, ...structuralChunks])}.`;
 }
 
 /** OPEN-VARIANT.md §74.1, the owner's option B: what an actor whose intent the one-act reading called `several`
@@ -274,6 +409,14 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
     }
     return `Your last attempt on the ${obj} took effect.`;
   }
+
+  // D8 (HUMAN-INTENTS-DESIGN.md §2, §11.6, the-prisoner#28): a property that
+  // fell to its default or named a key the target does not declare is
+  // rendered ENTIRELY by `unmodelledPropertySentence` -- no quoted intent, no
+  // attempt phrase, no "why" clause, and no standing description, composed
+  // only from the target's own declared properties and its structural
+  // capabilities. Checked before any of that other composition begins.
+  if (isUnmodelledPropertyRefusal(ruling)) return unmodelledPropertySentence(ruling, half);
 
   // Ruled impossible (or ungrounded): the positive reason, from authored text
   // -- the description this principal was itself shown, which for an object

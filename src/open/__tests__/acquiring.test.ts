@@ -244,12 +244,19 @@ describe("OPEN_ACQUIRE, through a half-round (WORLD-ELABORATION-DESIGN.md §4.4,
     expect(made.acquired).toBeNull();
   });
 
-  it("need: none acquires nothing, and the actor is told the ordinary positive refusal", async () => {
+  // D8 (docs/HUMAN-INTENTS-DESIGN.md §2, the-prisoner#28), changed on
+  // purpose: `need: none` means no property was cited for the acquisition,
+  // so the wear ruling's own `property` answer falls to its default -- D8's
+  // own trigger -- and the actor is told the declared-space catalogue
+  // (the tile's one declared property, `concealment`, plus the two
+  // structural capabilities) instead of the old "met the loose tile as it
+  // is: <description>" tail.
+  it("need: none acquires nothing, and the actor is told the declared-space refusal", async () => {
     const { openWorld: w, resolver, referee } = setup();
     const made = await half(w, resolver, referee, "prisoner", DIG_TILE, 1, { need: "none" });
     expect(made.acquired).toBeNull();
     const own = renderOwnOutcome(made);
-    expect(own).toContain("met the loose tile as it is:");
+    expect(own).toBe("The loose tile has nothing to wear down. It can be hidden or uncovered, struck, taken.");
   });
 
   it("an unverified need citation (cited from the wrong source) acquires nothing", async () => {

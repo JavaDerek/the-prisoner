@@ -115,7 +115,16 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
     expectPositive(text);
   });
 
-  it("an impossible ruling on a named object renders the object's own description as the positive reason", async () => {
+  // D8 (docs/HUMAN-INTENTS-DESIGN.md §2, the-prisoner#28), changed on
+  // purpose: a citation from nowhere ("made of butter" matches no real
+  // source) is rejected outright and the property falls to `none` -- one of
+  // D8's own two triggers -- so this ruling no longer shows the standing
+  // description at all. It shows the bar's own declared-space catalogue
+  // instead (its one declared property, `integrity`, plus the two
+  // structural capabilities every thing has), and the actor's quoted intent
+  // is dropped along with it, exactly as the design's own worked examples
+  // are: composed from the target's declared keys alone.
+  it("an impossible ruling whose property citation is rejected outright renders the declared-space catalogue, not the description", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();
     // The referee names the bar but cites nothing from its description.
@@ -123,10 +132,9 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
       ruling({ ...BAR_WEAR, intentQuote: "bend the bar", descQuote: "made of butter" }),
     ]);
     expect(result.ruling?.applicable).toBe(false);
+    expect(result.ruling?.property).toBe("none");
     const text = renderOwnOutcome(result) as string;
-    expect(text).toContain("I bend the bar with my bare hands.");
-    expect(text).toContain("Rust has pitted it near the bottom"); // the bar's authored description
-    expectPositive(text);
+    expect(text).toBe("The bar has nothing to wear down. It can be worn down or mended, struck, taken.");
   });
 
   it("an impossible ruling with no object named lists what the actor can reach", async () => {
@@ -524,15 +532,29 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     }
   });
 
-  it("prisoner/reveal with property none: the effect is named, the property went unread, and the person is met as a person", async () => {
+  // D8 (docs/HUMAN-INTENTS-DESIGN.md §2, §11.6, the-prisoner#28), changed on
+  // purpose: a `property` answer that fell to its default no longer renders
+  // the old "which property it meant left unread, and met X: <description>"
+  // tail. It renders what CAN be done to the target instead, composed only
+  // from the target's own declared property keys and the structural
+  // (propertyless) capabilities every person or thing has -- never a key
+  // name, never the actor's intent. This is a refusal-path wording change
+  // only (§9 landing order step 1), not a batch boundary the way D1 is.
+  it("prisoner/reveal with property none: the declared-space refusal names what CAN be done to a person, never the property key", async () => {
     createTestDb();
     const openWorld = buildOpenWorld({ presence: "modelled" });
     const intent = "Watch Voss closely for any sign of what she is planning.";
     const result = await halfWithPresence(openWorld, "warden", { intent }, [ruling({ target: "prisoner", effect: "reveal", property: "none", intentQuote: "Watch Voss closely", descQuote: "" })]);
     expect(result.ruling?.applicable).toBe(false);
     const text = renderOwnOutcome(result) as string;
-    expect(text).toBe(`Your last attempt ("${intent}") was refused as an attempt to look closely at ${PRISONER_NAME}, which property it meant left unread, and met ${PRISONER_NAME}: ${desc(result, "prisoner")}`);
-    expectPositive(text);
+    expect(text).toBe(`Nothing about ${PRISONER_NAME} can be revealed. A person here can be put on the floor or got back up, searched, spoken to.`);
+    // D8's own opening clause ("Nothing about X can be Y") is a deliberate,
+    // scoped negative -- the design's own literal wording, used verbatim in
+    // every worked example -- so `expectPositive`'s "never say what is
+    // absent" check (built for this module's OTHER refusal sentences) is
+    // checked against the positive catalogue that follows it, not the
+    // opening clause.
+    expectPositive(text.slice(text.indexOf(". ") + 2));
   });
 
   it("none/reveal and none/noise: the effect is named and the target went unread, still listing what is here", async () => {
@@ -564,18 +586,26 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     expectPositive(text);
   });
 
+  // D8, changed on purpose (see the comment above the prisoner/reveal test):
+  // a property the referee named that the target does not declare gets the
+  // same declared-space sentence as a defaulted property, never the old
+  // "X being a property Y lacks" tail. meal_tray and key_ring both declare
+  // no properties at all (scenarioObjects.ts), so their catalogue is only
+  // the two structural, propertyless capabilities.
   it("meal_tray/open and key_ring/open: the property the referee named is one the target lacks", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();
     const tray = "Use the thin steel edge of the tray to push the bolt back through the gap.";
     const open1 = await half(openWorld, "prisoner", { intent: tray }, [ruling({ target: "meal_tray", effect: "open", property: "edge", intentQuote: "push the bolt back", descQuote: "A shallow steel tray" })]);
     expect(open1.ruling?.applicable).toBe(false);
-    expect(renderOwnOutcome(open1)).toBe(`Your last attempt ("${tray}") was refused as an attempt to open the meal tray, edge being a property the meal tray lacks, and met the meal tray as it is: ${desc(open1, "meal_tray")}`);
+    expect(renderOwnOutcome(open1)).toBe(`The meal tray has nothing to open. It can be struck, or taken.`);
     const keys = "Unhook the key ring from her belt and lever the bolt back out of the strike plate.";
     const open2 = await half(openWorld, "prisoner", { intent: keys }, [ruling({ target: "key_ring", effect: "open", property: "passage", intentQuote: "lever the bolt back", descQuote: "A heavy iron ring" })]);
-    expect(renderOwnOutcome(open2)).toBe(`Your last attempt ("${keys}") was refused as an attempt to open the key ring, passage being a property the key ring lacks, and met the key ring as it is: ${desc(open2, "key_ring")}`);
-    expectPositive(renderOwnOutcome(open1) as string);
-    expectPositive(renderOwnOutcome(open2) as string);
+    expect(renderOwnOutcome(open2)).toBe(`The key ring has nothing to open. It can be struck, or taken.`);
+    // D8's opening clause is a deliberate scoped negative (see the comment on
+    // the prisoner/reveal test above); only the catalogue after it is checked.
+    expectPositive((renderOwnOutcome(open1) as string).slice((renderOwnOutcome(open1) as string).indexOf(". ") + 2));
+    expectPositive((renderOwnOutcome(open2) as string).slice((renderOwnOutcome(open2) as string).indexOf(". ") + 2));
   });
 
   it("spoon/reveal integrity, meal_tray/reveal integrity: a property the target lacks, whether or not the citation verified", async () => {
@@ -588,18 +618,23 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     const tray = await half(openWorld, "warden", { intent: examine }, [ruling({ target: "meal_tray", effect: "reveal", property: "integrity", intentQuote: "closely examine", descQuote: "Rust has pitted it", propertySource: "desc:bar" })]);
     expect(tray.ruling?.property).toBe("integrity");
     expect(tray.ruling?.citations.property.verified).toBe(false);
-    expect(renderOwnOutcome(tray)).toBe(`Your last attempt ("${examine}") was refused as an attempt to look closely at the meal tray, integrity being a property the meal tray lacks, and met the meal tray as it is: ${desc(tray, "meal_tray")}`);
+    expect(renderOwnOutcome(tray)).toBe(`The meal tray has nothing to reveal. It can be struck, or taken.`);
     // The batch's spoon/reveal/integrity cited the spoon's own words
     // verbatim ("worn flat from being scraped along the floor") and was
     // still refused: the spoon declares edge and concealment, never
     // integrity. A verified citation and an undeclared property together.
+    // Its catalogue lists BOTH declared properties (edge, concealment, in
+    // their own authored order) ahead of the two structural capabilities --
+    // "handed over", not "taken": the spoon is authored held BY the
+    // prisoner (`scenarioObjects.ts`'s `heldBy: "Voss"`), so this actor
+    // already holds it.
     const inspect = "Pick up the spoon and inspect its wear closely.";
     const spoon = await half(openWorld, "prisoner", { intent: inspect }, [ruling({ target: "spoon", effect: "reveal", property: "integrity", intentQuote: "inspect its wear closely", descQuote: "worn flat from being scraped along the floor" })]);
     expect(spoon.ruling?.applicable).toBe(false);
     expect(spoon.ruling?.citations.property.verified).toBe(true);
-    expect(renderOwnOutcome(spoon)).toBe(`Your last attempt ("${inspect}") was refused as an attempt to look closely at the spoon, integrity being a property the spoon lacks, and met the spoon as it is: ${desc(spoon, "spoon")}`);
-    expectPositive(renderOwnOutcome(spoon) as string);
-    expectPositive(renderOwnOutcome(tray) as string);
+    expect(renderOwnOutcome(spoon)).toBe(`The spoon has nothing to reveal. It can be sharpened or dulled, hidden or uncovered, struck, handed over.`);
+    expectPositive((renderOwnOutcome(spoon) as string).slice((renderOwnOutcome(spoon) as string).indexOf(". ") + 2));
+    expectPositive((renderOwnOutcome(tray) as string).slice((renderOwnOutcome(tray) as string).indexOf(". ") + 2));
   });
 
   it("cot/wear posture: a person's property named on furniture is one the cot lacks", async () => {
@@ -612,8 +647,13 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     expect(result.ruling?.property).toBe("posture");
     expect(result.ruling?.applicable).toBe(false);
     const text = renderOwnOutcome(result) as string;
-    expect(text).toBe(`Your last attempt ("${intent}") was refused as an attempt to wear at the cot, posture being a property the cot lacks, and met the cot as it is: ${desc(result, "cot")}`);
-    expectPositive(text);
+    // D8's sentence 1 is driven by the EFFECT attempted (`wear`), never by
+    // the specific (undeclared) property cited -- the cot's own declared
+    // `integrity` still shows up correctly in the catalogue that follows,
+    // even though the opening clause is scoped to "wear" in general. This
+    // is the shape the design's own bucket example uses (§2): "the bucket
+    // has nothing to wear down" is worded from the effect, not the key.
+    expect(text).toBe(`The cot has nothing to wear down. It can be worn down or mended, struck, taken.`);
   });
 
   it("key_ring/noise and prisoner/noise, as the batch recorded them: the effect is named and the grounds went unverified", async () => {
