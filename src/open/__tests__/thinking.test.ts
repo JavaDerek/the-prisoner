@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { readThinkingMode, withThinking, withReasoningStrength, withholdsSchemaWhenThinkingOff, schemaWithheldHeaderLine, resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine } from "../thinking.js";
+import { readThinkingMode, withThinking, resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine } from "../thinking.js";
 
 // OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md §4.8: `off` reproduces
 // §64.7's finding as a real, runnable arm -- `reasoning_effort: "none"` on
@@ -216,60 +216,23 @@ describe("thinkingHeaderLine: per-role transcript reporting (§68.1)", () => {
   });
 });
 
-// Ollama 0.34.4's glimmer parser returns no ThinkingClose when thinking is off, so a JSON schema's grammar
-// binds from the first generated token -- before Muse has written its ` to=user<|message|>` header. Muse
-// then writes that header INSIDE the first string field, the parser drops everything up to `<|message|>`,
-// and the reply comes back `{","candidates":...}` with `thoughts` gone (measured 2026-09-27: 4 of 6 on the
-// two worst requests, 2 of 18 across a game's six, 3 of 10 live). Withholding the schema on those calls
-// was 12 of 12 complete. `docs/issues/prisoner-P9-muse-schema-with-thinking-off.md`.
-describe("withholding the JSON schema from Muse when thinking is off", () => {
-  async function sentBody(wrap: (f: typeof fetch) => typeof fetch | undefined, body: Record<string, unknown>) {
+// P9, retired 2026-09-27: doris now runs ollama 0.34.4 + ollama/ollama#18687, which fixes the glimmer
+// parser that ate a schema reply's first field with thinking off (12 of 12 complete on the worst replayed
+// requests, against 2 of 6 on stock). So a thinking-off call keeps its schema for every model, Muse included.
+describe("thinking off keeps the JSON schema (P9 retired)", () => {
+  it("off, Muse: response_format is sent as the caller built it", async () => {
     let captured: RequestInit | undefined;
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
       captured = init;
       return { ok: true, json: async () => ({}) };
     }) as unknown as typeof fetch;
-    await (wrap(fetchFn) as typeof fetch)("http://x/chat/completions", { method: "POST", body: JSON.stringify(body) });
-    return JSON.parse(captured?.body as string) as Record<string, unknown>;
-  }
-  const SCHEMA = { type: "json_schema", json_schema: { name: "proposal", strict: true, schema: { type: "object" } } };
-
-  it("names Muse-Glimmer by its Ollama tag and its older llama-server alias, and nothing else", () => {
-    expect(withholdsSchemaWhenThinkingOff("muse-glimmer:30b")).toBe(true);
-    expect(withholdsSchemaWhenThinkingOff("muse-glimmer-30b-q4_k_m")).toBe(true);
-    for (const other of ["qwen3:14b", "claude-opus-4-6", "opus", "Qwen/Qwen3-235B-A22B", "", undefined, 7]) {
-      expect(withholdsSchemaWhenThinkingOff(other), String(other)).toBe(false);
-    }
-  });
-
-  it("off, Muse: the schema is withheld; reasoning and the stop are still sent", async () => {
-    const body = await sentBody((f) => withThinking(f, "off"), { model: "muse-glimmer:30b", response_format: SCHEMA, messages: [] });
-    expect(body).not.toHaveProperty("response_format");
+    const schema = { type: "json_schema", json_schema: { name: "proposal", strict: true, schema: { type: "object" } } };
+    await (withThinking(fetchFn, "off") as typeof fetch)("http://x/chat/completions", {
+      method: "POST",
+      body: JSON.stringify({ model: "muse-glimmer:30b", response_format: schema, messages: [] }),
+    });
+    const body = JSON.parse(captured?.body as string);
+    expect(body.response_format).toEqual(schema);
     expect(body.reasoning_effort).toBe("none");
-    expect(body.stop).toEqual(["<|eot|>"]);
-  });
-
-  it("off, any other model: the schema is kept -- a Claude seat's schema becomes the CLI's --json-schema", async () => {
-    const body = await sentBody((f) => withThinking(f, "off"), { model: "claude-opus-4-6", response_format: SCHEMA, messages: [] });
-    expect(body.response_format).toEqual(SCHEMA);
-  });
-
-  it("on: nothing is touched, Muse or not -- the grammar waits for the header when thinking is on", async () => {
-    const fetchFn = vi.fn() as unknown as typeof fetch;
-    expect(withThinking(fetchFn, "on")).toBe(fetchFn);
-  });
-
-  it("withReasoningStrength: withheld only at 'none', kept at any real strength", async () => {
-    const none = await sentBody((f) => withReasoningStrength(f, "none"), { model: "muse-glimmer:30b", response_format: SCHEMA });
-    const low = await sentBody((f) => withReasoningStrength(f, "low"), { model: "muse-glimmer:30b", response_format: SCHEMA });
-    expect(none).not.toHaveProperty("response_format");
-    expect(low.response_format).toEqual(SCHEMA);
-  });
-
-  it("the transcript header says so exactly when a configured model is affected and wits thinking is off", () => {
-    expect(schemaWithheldHeaderLine(["muse-glimmer:30b", "claude-opus-4-6"], "off")).toContain("muse-glimmer:30b");
-    expect(schemaWithheldHeaderLine(["muse-glimmer:30b"], "off")).toContain("response_format");
-    expect(schemaWithheldHeaderLine(["claude-opus-4-6"], "off")).toBeNull();
-    expect(schemaWithheldHeaderLine(["muse-glimmer:30b"], "on")).toBeNull();
   });
 });

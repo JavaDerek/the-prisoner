@@ -58,49 +58,11 @@ export const REASONING_FIELD = "reasoning_effort";
 /** Muse's end-of-turn token, which leaks into content on Ollama when reasoning is off. */
 export const END_OF_TURN_STOP = "<|eot|>";
 
-/**
- * Ollama 0.34.4's glimmer parser (`model/parsers/glimmer.go`) returns no
- * `ThinkingClose` when thinking is off, and the server applies a request's
- * JSON-schema grammar from the first token whenever `ThinkingClose` is empty
- * ("none when the response starts in content"). A glimmer response never
- * starts in content: the prompt ends `<|start|>assistant` and the model must
- * write ` to=user<|message|>` first. With the grammar already binding, Muse
- * sometimes writes that header INSIDE the first string field; the parser
- * takes everything before `<|message|>` as a header and drops it, and the
- * reply arrives as `{","candidates":...}` -- `thoughts` gone, unparseable.
- * Measured 2026-09-27: 4 of 6 on the two worst requests, 3 of 10 wits calls
- * live; with the schema withheld, 12 of 12 complete, bare JSON, no fences
- * (`docs/issues/prisoner-P9-muse-schema-with-thinking-off.md`).
- *
- * So thinking-off calls to Muse go WITHOUT `response_format`. Named by model
- * rather than runtime because the fault is in the parser Ollama binds to this
- * model family, and because withholding a schema from any other model would
- * change it for nothing -- a Claude seat's schema becomes the CLI's
- * `--json-schema`. Thinking ON needs nothing: the grammar waits for the header.
- * Remove this when Ollama's `GlimmerParser.ThinkingClose` returns its header
- * markers whether or not thinking is emitted.
- */
-export function withholdsSchemaWhenThinkingOff(model: unknown): boolean {
-  return typeof model === "string" && model.startsWith("muse-glimmer");
-}
-
-/** The transcript line that says a run's thinking-off calls went without their
- *  schema, or `null` when none did -- so a batch across this change can tell. */
-export function schemaWithheldHeaderLine(models: readonly string[], witsThinking: ThinkingMode): string | null {
-  const affected = [...new Set(models.filter(withholdsSchemaWhenThinkingOff))];
-  if (witsThinking !== "off" || affected.length === 0) return null;
-  return (
-    `Schema withheld: thinking-off wits calls to ${affected.map((m) => `\`${m}\``).join(", ")} are sent without ` +
-    "`response_format` (Ollama's glimmer parser drops the first field under a schema with thinking off, P9)."
-  );
-}
-
-/** Drops `response_format` when `withholdsSchemaWhenThinkingOff` says so. */
-function withoutSchemaForMuse(body: Record<string, unknown>): Record<string, unknown> {
-  if (!withholdsSchemaWhenThinkingOff(body.model) || !("response_format" in body)) return body;
-  const { response_format: _withheld, ...rest } = body;
-  return rest;
-}
+/* P9 (2026-09-27): thinking-off calls to Muse used to go WITHOUT `response_format`,
+ * because Ollama 0.34.4's glimmer parser bound the schema's grammar before Muse's
+ * message header and the reply lost its first field. Retired the same day: doris
+ * runs 0.34.4 + ollama/ollama#18687, which fixes the parser, so every model keeps
+ * its schema again. `docs/issues/prisoner-P9-muse-schema-with-thinking-off.md`. */
 
 /** The fields every reasoning-controlled request adds: the strength, and the
  *  `<|eot|>` stop MERGED onto whatever `stop` the caller already set (a
@@ -252,8 +214,7 @@ export function withThinking(fetchFn: typeof fetch | undefined, mode: ThinkingMo
       return base(input, init);
     }
     if (typeof body !== "object" || body === null || Array.isArray(body)) return base(input, init);
-    const record = body as Record<string, unknown>;
-    return base(input, { ...init, body: JSON.stringify({ ...withoutSchemaForMuse(record), ...reasoningFields("none", record.stop) }) });
+    return base(input, { ...init, body: JSON.stringify({ ...body, ...reasoningFields("none", (body as Record<string, unknown>).stop) }) });
   };
   return wrapped;
 }
@@ -286,9 +247,7 @@ export function withReasoningStrength(fetchFn: typeof fetch | undefined, strengt
       return base(input, init);
     }
     if (typeof body !== "object" || body === null || Array.isArray(body)) return base(input, init);
-    const record = body as Record<string, unknown>;
-    const sent = strength === "none" ? withoutSchemaForMuse(record) : record;
-    return base(input, { ...init, body: JSON.stringify({ ...sent, ...reasoningFields(strength, record.stop) }) });
+    return base(input, { ...init, body: JSON.stringify({ ...body, ...reasoningFields(strength, (body as Record<string, unknown>).stop) }) });
   };
   return wrapped;
 }

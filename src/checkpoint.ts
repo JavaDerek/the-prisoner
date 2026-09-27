@@ -83,7 +83,7 @@ import { renderAbandonedSection, abandonedByPlayerAtRound, AbandonedByPlayerErro
 import type { OpenHalfRoundResult } from "./open/loop.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
-import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, schemaWithheldHeaderLine, REASONING_FIELD } from "./open/thinking.js";
+import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_FIELD } from "./open/thinking.js";
 import { readStrategyMode, chooseStrategy, strategyHeaderBlock, revisionWouldFireAt, revisionHeaderLine, type ReasoningStrength, type Strategy } from "./open/strategy.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
@@ -1172,8 +1172,6 @@ async function mainOpen(): Promise<void> {
   // batch ran.
   transcript.push(thinkingHeaderLine("referee", REFEREE_THINKING));
   transcript.push(thinkingHeaderLine("wits", WITS_THINKING));
-  const schemaWithheld = schemaWithheldHeaderLine(seatModelNames(PRISONER_SEAT, WARDEN_SEAT), WITS_THINKING.mode);
-  if (schemaWithheld) transcript.push(schemaWithheld);
   transcript.push(
     INSTRUMENT === "checked"
       ? "Instrument: CHECKED (`PRISONER_INSTRUMENT=checked`): a seventh referee question names the instrument an act uses, from the objects this principal perceives or holds, none, or absent (a tool named that is none of those); absent is ruled impossible (§51, the-prisoner#17)."

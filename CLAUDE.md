@@ -283,12 +283,15 @@ unread", which is a different condition from the llama-server batches (P8 measur
 `none` there). Compare across the move on process measures only, and do not read `reasoning 0` in a
 probe as "did not reason".
 
-**With thinking off, Muse's wits calls go WITHOUT their JSON schema** (P9,
-`docs/issues/prisoner-P9-muse-schema-with-thinking-off.md`). Ollama's glimmer parser lets the schema's
-grammar bind before Muse writes its message header, and up to a third of wits replies came back with the
-first field eaten (`{","candidates":...}`, `SilenceReason: unparseable`). `withThinking` now withholds
-`response_format` for `muse-glimmer*` when thinking is off, and the header says `Schema withheld:`. Replies
-are shorter unconstrained (median thoughts 485 vs 1028 chars), so do not pool across the change.
+**doris runs a PATCHED Ollama (0.34.4 + ollama/ollama#18687) since 2026-09-27** (P9,
+`docs/issues/prisoner-P9-muse-schema-with-thinking-off.md`). Stock 0.34.4's glimmer parser let a JSON
+schema's grammar bind before Muse wrote its message header, and up to a third of wits replies lost their
+first field (`{","candidates":...}`, `SilenceReason: unparseable`); the same path leaked `<|eot|>`. For a few
+hours that day `withThinking` withheld the schema from Muse (transcripts headed `Schema withheld:`); that
+workaround is retired and every call sends its schema again. **If doris ever runs stock Ollama without
+the fix, P9 comes back** -- check `ollama --version` says `+pr18687` or a release containing #18687. Shep's
+repo owns the swap (`docs/doris-substrate.md` "Patched Ollama"); a weekly routine emails Derek when the
+fix ships upstream.
 
 ## Run a batch from a pinned commit, not from live `main`
 

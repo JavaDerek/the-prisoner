@@ -1,8 +1,15 @@
 title: Muse on Ollama loses the first JSON field when thinking is off and a schema is sent
 
-**Status: worked around 2026-09-27 (`src/open/thinking.ts`, `withholdsSchemaWhenThinkingOff`). An
-upstream fix is prepared as a pull request against ollama/ollama (branch
-`parsers-glimmer-thinking-close-off`, commit a4380a5 in a local clone at `~/oss/ollama`); see the end.**
+**Status: FIXED AT THE SERVER 2026-09-27.** Upstream PR ollama/ollama#18687
+(https://github.com/ollama/ollama/pull/18687). doris runs `shep-ollama-patched:0.34.4-pr18687`, the official
+0.34.4 image with only the `ollama` binary rebuilt from `JavaDerek/ollama@v0.34.4-pr18687` (Shep repo,
+`deploy/ollama-patched/`, runbook in its `docs/doris-substrate.md`). Verified after the swap: the two worst
+requests 12 of 12 complete (2 of 6 on stock); thinking-off JSON with no stop token no longer leaks
+`<|eot|>`; a 4-round all-Muse game with the schema sent, 8 of 8 ruled, no silences
+(`checkpoints/2026-09-27T19-51-08-781Z.md`). The client workaround below (`withholdsSchemaWhenThinkingOff`)
+was live only from a96fc79 until its retirement the same day; transcripts from that window say
+`Schema withheld:`. A weekly routine emails Derek when a release contains the fix, which is when doris
+changes back to the official image.
 
 **Correction to the table below:** "reasoning 0" means none RETURNED. With thinking off Ollama discards
 Muse's `to=self` message, and logprobs show Muse writes one anyway (4 of 4 unconstrained calls). The
