@@ -106,15 +106,17 @@ describe("staleness pricing (§42): a known approach costs what its own preceden
   });
 
   it("states each approach's own price in both briefings, and no single global number", () => {
-    const lines = precedentLines([seen(19), { text: "A prisoner opens the door.", times: 1, episodes: 1, lastEpisode: "g1" }], { price: "stale" });
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1): the door's line was
+    // "A prisoner opens the door."; the ledger now carries the attempt, so this fixture does too.
+    const lines = precedentLines([seen(19), { text: "A prisoner works to open the door.", times: 1, episodes: 1, lastEpisode: "g1" }], { price: "stale" });
     expect(lines.prisoner.join("\n")).toContain(`A prisoner works at the bar. (seen 19 times, in 19 earlier attempts) -- suspicion jumps by ${RESOURCE_MAX}`);
-    expect(lines.prisoner.join("\n")).toContain(`A prisoner opens the door. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by ${KNOWN_APPROACH_SUSPICION_BUMP}`);
+    expect(lines.prisoner.join("\n")).toContain(`A prisoner works to open the door. (seen 1 time, in 1 earlier attempt) -- suspicion jumps by ${KNOWN_APPROACH_SUSPICION_BUMP}`);
     expect(lines.warden.join("\n")).toContain(`-- suspicion jumps by ${RESOURCE_MAX}`);
     // The flat arm's one global sentence would be a lie here: the prices differ per line.
     expect(lines.prisoner.join("\n")).not.toContain(`jumps by ${KNOWN_APPROACH_SUSPICION_BUMP} at once`);
     expect(lines.known).toEqual([
       { text: "A prisoner works at the bar.", suspicionBump: RESOURCE_MAX },
-      { text: "A prisoner opens the door.", suspicionBump: KNOWN_APPROACH_SUSPICION_BUMP },
+      { text: "A prisoner works to open the door.", suspicionBump: KNOWN_APPROACH_SUSPICION_BUMP },
     ]);
   });
 

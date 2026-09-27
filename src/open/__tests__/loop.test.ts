@@ -279,7 +279,9 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
 
     expect(result.outcome).toBeNull();
     expect(result.refusalError).toBeTruthy();
-    expect(result.perceptionForOther).toBeNull();
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1): a refused attempt is still
+    // the attempt a bystander saw, relayed exactly as a landed one would be.
+    expect(result.perceptionForOther).toBe("Mara Voss works at the bar.");
 
     // The refusal reveals the true value into the acting principal's own belief.
     const belief = getBelief(openWorld.base.gameId, "prisoner", "bar_integrity");

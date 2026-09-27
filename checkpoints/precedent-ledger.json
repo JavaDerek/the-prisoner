@@ -299,19 +299,19 @@
       "episode": "2026-09-14T22-15-20-246Z",
       "actor": "prisoner",
       "observer": "warden",
-      "text": "A prisoner works a piece loose from the blanket."
+      "text": "A prisoner works to free a piece of the blanket."
     },
     {
       "episode": "2026-09-14T22-15-20-246Z",
       "actor": "prisoner",
       "observer": "warden",
-      "text": "A prisoner works a piece loose from the cot."
+      "text": "A prisoner works to free a piece of the cot."
     },
     {
       "episode": "2026-09-14T22-15-20-246Z",
       "actor": "prisoner",
       "observer": "warden",
-      "text": "A prisoner opens the door."
+      "text": "A prisoner works to open the door."
     },
     {
       "episode": "2026-09-15T00-50-03-121Z",
@@ -479,7 +479,7 @@
       "episode": "2026-09-15T14-45-03-829Z",
       "actor": "prisoner",
       "observer": "warden",
-      "text": "A prisoner works a piece loose from the cot."
+      "text": "A prisoner works to free a piece of the cot."
     },
     {
       "episode": "2026-09-15T14-45-03-829Z",
@@ -503,7 +503,7 @@
       "episode": "2026-09-15T14-45-03-829Z",
       "actor": "prisoner",
       "observer": "warden",
-      "text": "A prisoner works a piece loose from the cot."
+      "text": "A prisoner works to free a piece of the cot."
     },
     {
       "episode": "2026-09-15T14-45-03-829Z",
@@ -551,7 +551,7 @@
       "episode": "2026-09-15T19-18-46-428Z",
       "actor": "prisoner",
       "observer": "warden",
-      "text": "A prisoner opens the bar."
+      "text": "A prisoner works to open the bar."
     },
     {
       "episode": "2026-09-15T19-18-46-428Z",
@@ -665,7 +665,7 @@
       "episode": "2026-09-15T21-35-43-447Z",
       "actor": "prisoner",
       "observer": "warden",
-      "text": "A prisoner works a piece loose from the cot."
+      "text": "A prisoner works to free a piece of the cot."
     },
     {
       "episode": "2026-09-15T21-35-43-447Z",

@@ -321,7 +321,8 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
     // purpose: every outcome now opens with what was ruled, as fiction --
     // batch 8 starts after this commit.
     expect(renderOwnOutcome(opened)).toBe("You set about opening the door. Your last attempt opened the door.");
-    expect(opened.perceptionForOther).toBe("Mara Voss opens the door.");
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1): the attempt, never the outcome.
+    expect(opened.perceptionForOther).toBe("Mara Voss works to open the door.");
 
     const left = await half(w, "I slip out through the open door.", scripted("door", "leave", "none", "slip out through the open door", "A heavy door of iron-bound planks"), 2);
     expect(left.outcome?.result).toEqual(expect.objectContaining({ left: true }));
@@ -364,7 +365,8 @@ describe("leaving, through a whole half-round: what each side is told (OPEN-VARI
 
   it("the known-approach sentence for these acts is role-neutral, like every other", () => {
     // The same sentences the ledger recorded before §17, now from the ids themselves.
-    expect(precedentTextFor({ targetObjectId: "door", effectKind: "open" })).toBe("A prisoner opens the door.");
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1): the ledger was rewritten to match.
+    expect(precedentTextFor({ targetObjectId: "door", effectKind: "open" })).toBe("A prisoner works to open the door.");
     expect(precedentTextFor({ targetObjectId: "window", effectKind: "leave" })).toBe("A prisoner makes for the window.");
     // Work on a part stays work on the part (§17.3: "works at the lock" stays true).
     expect(precedentTextFor({ targetObjectId: "lock", effectKind: "wear" })).toBe("A prisoner works at the lock.");

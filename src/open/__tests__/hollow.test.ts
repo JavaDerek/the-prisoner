@@ -106,7 +106,8 @@ describe("the hollow's banknotes (OPEN-VARIANT.md §15)", () => {
     const before = getResource(w.base.resources.wardenSuspicion)?.value as number;
     const lifted = await half(w, resolver, referee, "prisoner", LIFT_TILE, 1);
     expect(lifted.outcome?.result).toEqual(expect.objectContaining({ before: 100, after: 0 }));
-    expect(lifted.perceptionForOther).toBe("Mara Voss brings the loose tile into view.");
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1): the attempt, never the outcome.
+    expect(lifted.perceptionForOther).toBe("Mara Voss works to uncover the loose tile.");
     expect(getResource(w.base.resources.wardenSuspicion)?.value).toBe(before + 30); // substantial
   });
 

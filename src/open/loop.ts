@@ -52,7 +52,9 @@ export interface OpenHalfRoundResult {
   refusalError: ResolveProtocolError | ConstraintViolationError | null;
   /** The positive sentence relayed to the OTHER principal's own next
    *  briefing -- `null` when nothing is perceptible (silence, an
-   *  inapplicable ruling, a refusal, or a ruled-`"silent"` perceptibility).
+   *  inapplicable ruling, or a ruled-`"silent"` perceptibility). A refused
+   *  resolution relays the same attempt a landed one would
+   *  (PLAYTEST-2026-09-27-DESIGN.md R1, D1).
    *  Never carries a revealed VALUE (invariant 2: a mind never learns what
    *  it could not perceive) -- only the authored, positive description of
    *  the ATTEMPT itself. */
@@ -381,7 +383,8 @@ async function tryAcquire(
 /** One authored, positive sentence per effect kind -- used as BOTH the
  *  resolved mechanic's own `description` (the ledger/transcript record) AND,
  *  when perceptibility allows it, the sentence relayed to the other
- *  principal. Never states a number, a property name, or a magnitude --
+ *  principal, whether the act lands or is refused (PLAYTEST-2026-09-27-DESIGN.md
+ *  R1, D1): every case describes the ATTEMPT, never its outcome. Never states a number, a property name, or a magnitude --
  *  "say what is, never what is absent" applies equally to "say only what
  *  was actually perceived," so this never leaks more than "something
  *  happened here," which is all a bystander -- as opposed to the actor --
@@ -403,11 +406,16 @@ export function describeAttempt(
     case "reveal":
       return `${actor} examines the ${obj} closely.`;
     case "conceal":
-      return `${actor} hides the ${obj} from view.`;
+      // PLAYTEST-2026-09-27-DESIGN.md R1 (D1), 2026-09-27: this sentence is
+      // built before `resolve()` and relayed whether or not the act lands, so
+      // it says what a bystander saw -- the attempt. The five kinds that used
+      // to state an outcome (open, close, conceal, expose, derive) now say
+      // "works to"; the world's own state tells the rest.
+      return `${actor} works to hide the ${obj}.`;
     case "expose":
       // docs/CUSTODY-DESIGN.md: an expose on a PERSON is a search of her.
       if (isPrincipalId(ruling.targetObjectId)) return `${actor} searches ${actorName(ruling.targetObjectId)}.`;
-      return `${actor} brings the ${obj} into view.`;
+      return `${actor} works to uncover the ${obj}.`;
     case "noise":
       // OPEN-VARIANT.md §55 (issue #22 gap 2): a principal is now a legal
       // `noise` target (`referee.ts`'s `targetKeys` is built from whatever
@@ -426,9 +434,11 @@ export function describeAttempt(
       if (ruling.targetObjectId === "none") return `${actor} makes a sound.`;
       return `A sound rings out from the ${obj}.`;
     case "open":
-      return `${actor} opens the ${obj}.`;
+      // R1 (D1): "opens the window" was relayed on four rounds while it
+      // stayed shut (checkpoints/2026-09-27T20-14-57-505Z.md, rounds 4-7).
+      return `${actor} works to open the ${obj}.`;
     case "close":
-      return `${actor} shuts the ${obj}.`;
+      return `${actor} works to shut the ${obj}.`;
     case "leave":
       // OPEN-VARIANT.md §17.2: the target is the way out, whose id is its name.
       // True whether or not the way turns out to be open: what a bystander
@@ -438,7 +448,8 @@ export function describeAttempt(
       if (reshapeOf !== undefined) return `${actor} works at the ${reshapeOf}.`;
       // The act on the parent, and nothing about the product (OPEN-VARIANT.md
       // §13.4): what was made, a bystander learns by perceiving it later.
-      return `${actor} works a piece loose from the ${obj}.`;
+      // R1 (D1): an attempt, true when a stripped parent yields nothing too.
+      return `${actor} works to free a piece of the ${obj}.`;
     case "take":
       // docs/CUSTODY-DESIGN.md: the attempt, as `leave` tells one -- true
       // whether or not the thing ends up in hand (C1: a holder on her feet
@@ -814,6 +825,21 @@ export async function runOpenHalfRound(params: {
   const priorBeliefResourceName = principal === "warden" && plan.resourceId ? openWorld.resourceNameById[plan.resourceId] : undefined;
   const priorBelief = priorBeliefResourceName ? getBelief(openWorld.base.gameId, "warden", priorBeliefResourceName) : null;
 
+  // A known approach is known on sight: a reshaping the warden cannot see is
+  // no approach it recognises (§14.4).
+  const knownAs = precedentTextFor(ruling, reshapeOf);
+  const known = principal === "prisoner" && seenByOther ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
+  // OPEN-VARIANT.md §55 (issue #22 gap 1): not present at all is not "a
+  // reshaping unseen" (`describeUnseenAttempt`'s own vague noise) -- it is
+  // nothing perceived whatsoever, the same "the warden hears nothing...
+  // and sees none of it" rule the closed variant's own
+  // `WARDEN_PRESENCE_RULE` already states.
+  // PLAYTEST-2026-09-27-DESIGN.md R1 (D1), 2026-09-27: decided BEFORE
+  // `resolve()`, from the ruling alone, so a refused resolution relays
+  // exactly what a landed one would -- the bystander saw the reach whether
+  // or not the world let it land.
+  const perceptionForOther = !otherPresent ? null : ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
+
   try {
     const outcome = resolver.resolve({
       gameId: openWorld.base.gameId,
@@ -835,17 +861,6 @@ export async function runOpenHalfRound(params: {
       // §14.2: the parent went in the same resolution; the world forgets it.
       if (replaces) reshaped = { parent: retireDerivedObject(openWorld, replaces.id), seenByOther };
     }
-
-    // A known approach is known on sight: a reshaping the warden cannot see is
-    // no approach it recognises (§14.4).
-    const knownAs = precedentTextFor(ruling, reshapeOf);
-    const known = principal === "prisoner" && seenByOther ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
-    // OPEN-VARIANT.md §55 (issue #22 gap 1): not present at all is not "a
-    // reshaping unseen" (`describeUnseenAttempt`'s own vague noise) -- it is
-    // nothing perceived whatsoever, the same "the warden hears nothing...
-    // and sees none of it" rule the closed variant's own
-    // `WARDEN_PRESENCE_RULE` already states.
-    const perceptionForOther = !otherPresent ? null : ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
 
     // OPEN-VARIANT.md §9.3, "grounds accrue": a prisoner's own non-silent
     // wear/restore/expose bumps warden_suspicion by a fixed, magnitude-scaled
@@ -876,7 +891,8 @@ export async function runOpenHalfRound(params: {
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);
-      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName, elaboration: null, acquired: null };
+      // R1 (D1): the refused attempt reaches the other side as the attempt.
+      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther, revealFor: null, derived: null, reshaped: null, resourceName, elaboration: null, acquired: null };
     }
     throw err;
   }

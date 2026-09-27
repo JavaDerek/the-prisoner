@@ -189,7 +189,8 @@ describe("custody's sentences: what the other perceives, and the refused attempt
     expect(describeAttempt("warden", { targetObjectId: "meal_tray", effectKind: "give" })).toBe(`${WARDEN_NAME} holds out the meal tray.`);
     expect(describeAttempt("warden", { targetObjectId: "prisoner", effectKind: "expose" })).toBe(`${WARDEN_NAME} searches ${PRISONER_NAME}.`);
     // An expose on an object is unchanged.
-    expect(describeAttempt("prisoner", { targetObjectId: "loose_tile", effectKind: "expose" })).toBe(`${PRISONER_NAME} brings the loose tile into view.`);
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1): the attempt, never the outcome.
+    expect(describeAttempt("prisoner", { targetObjectId: "loose_tile", effectKind: "expose" })).toBe(`${PRISONER_NAME} works to uncover the loose tile.`);
   });
 
   it("a refused take or give names the attempt in the actor's own outcome, and a refused search names the person", () => {

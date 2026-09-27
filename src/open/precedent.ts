@@ -19,7 +19,10 @@ import { findKind } from "./derivedObjects.js";
  * role-neutral actor so it reads truly in a later game. Never the intent: the
  * warden did not hear the prisoner's thoughts, and every way of scraping the
  * bar is one perceived act. An attempt the warden could not perceive (silent,
- * refused, ruled impossible) was never seen, so it is never recorded.
+ * ruled impossible, or done while he was away) was never seen, so it is never
+ * recorded. A REFUSED attempt he could perceive is recorded since 2026-09-27:
+ * PLAYTEST-2026-09-27-DESIGN.md R1 (D1) relays it to him as the attempt it
+ * was, so he saw the reach whether or not the world let it land.
  */
 
 export function recordGame(ledger: Ledger, episode: string, halves: readonly OpenHalfRoundResult[]): Ledger {

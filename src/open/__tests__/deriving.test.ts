@@ -153,9 +153,10 @@ describe("deriving, through a half-round (OPEN-VARIANT.md §13.1, §13.5)", () =
     // batch 8 starts after this commit.
     expect(own).toBe("You set about making something from the cot. Your last attempt made a length of wire from the cot: you hold it now, as wire. The cot's integrity went from 100 to 80.");
     expectPositive(own);
-    expect(made.perceptionForOther).toBe("Mara Voss works a piece loose from the cot.");
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1): the attempt, never the outcome.
+    expect(made.perceptionForOther).toBe("Mara Voss works to free a piece of the cot.");
     expect(made.perceptionForOther).not.toContain("wire");
-    expect(precedentTextFor({ targetObjectId: "cot", effectKind: "derive" })).toBe("A prisoner works a piece loose from the cot.");
+    expect(precedentTextFor({ targetObjectId: "cot", effectKind: "derive" })).toBe("A prisoner works to free a piece of the cot.");
     expectPositive(describeAttempt("warden", { targetObjectId: "blanket", effectKind: "derive" }));
   });
 
@@ -288,7 +289,8 @@ describe("a whole game: escape with a derived object (issue #4, step 4)", () => 
     expect(round2?.outcome?.result).toEqual(expect.objectContaining({ before: 0, after: 1 }));
 
     const round2Warden = game.halves.find((h) => h.roundN === 2 && h.principal === "warden");
-    expect(round2Warden?.context.briefing).toContain("works a piece loose from the cot");
+    // PLAYTEST-2026-09-27-DESIGN.md R1, changed on purpose, 2026-09-27 (D1).
+    expect(round2Warden?.context.briefing).toContain("works to free a piece of the cot");
     // Issue #15: the briefing itself no longer repeats each object's
     // description -- `perceivedObjects` (rendered once, by `renderSeatSituation`)
     // is where "the warden can perceive the wire" is checked now.
