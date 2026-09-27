@@ -694,11 +694,32 @@ describe("no-turn info commands (§1.4): holding, look, conditions, help", () =>
     expect(written.join("\n")).toMatch(/no condition list/i);
   });
 
+  // D10-2 (PLAYTEST-2026-09-27-DESIGN.md R7): the delta now holds back an
+  // unchanged belief (see deltaView.test.ts); `known` is the escape hatch
+  // that reprints the WHOLE knowledge block on demand, the same pattern
+  // `conditions`/`rules`/`me` already set.
+  it('"known" prints the whole knowledge block on demand, costs no turn, and is never forwarded', async () => {
+    // A belief line as `briefing.ts` actually renders one, trailing period and
+    // all -- CONTEXT's own is a shorthand older tests share, which
+    // `parseBriefing` keeps verbatim as news rather than reading as a belief.
+    const withBelief: OpenPrincipalContext = { ...CONTEXT, briefing: "Round 1 of 12.\nbar integrity: 100 (as of round 1)." };
+    const { mind, written, asked } = seat(["known", "I test the bar."]);
+    expect(await mind.consider(withBelief)).toEqual({ intent: "I test the bar." });
+    expect(dewrap(written.join("\n"))).toContain("Your last word on the bar integrity was 100, as of round 1.");
+    expect(asked.length).toBe(2);
+  });
+
+  it('"known" says plainly when nothing is known yet', async () => {
+    const { mind, written } = seat(["known", "I test the bar."]);
+    await mind.consider({ ...CONTEXT, briefing: "Round 1 of 12." });
+    expect(written.join("\n")).toMatch(/no beliefs/i);
+  });
+
   it('"help" lists the command set, costs no turn, and is never forwarded', async () => {
     const { mind, written, asked } = seat(["help", "I test the bar."]);
     expect(await mind.consider(CONTEXT)).toEqual({ intent: "I test the bar." });
     const shown = written.join("\n");
-    for (const token of ["say", "plan", "raw", "holding", "desc", "conditions", "help"]) expect(shown).toContain(token);
+    for (const token of ["say", "plan", "raw", "holding", "desc", "conditions", "known", "help"]) expect(shown).toContain(token);
     expect(asked.length).toBe(2);
   });
 
@@ -769,6 +790,12 @@ describe("the play view", () => {
     expect(shown).toContain("You are Mara Voss, three years into a sentence.");
     expect(shown).toContain("Get out of this cell.");
     expect(asked.length).toBe(2);
+  });
+
+  it("mentions `known` in the first-turn one-time command list, alongside the rest (D10-2)", async () => {
+    const { mind, written } = seat(["I test the bar."], { view: "play" });
+    await mind.consider(PLAY_CONTEXT);
+    expect(dewrap(written.join("\n"))).toContain('"known"');
   });
 
   it("classifies EVERY block the prose view can compose: shown, or behind a command that exists", () => {

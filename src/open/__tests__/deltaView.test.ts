@@ -23,7 +23,15 @@ const scene = (barDescription: string, extra: readonly { key: string; text: stri
 
 const news = (round: number): ProseBlock => ({ kind: "news", text: `This is round ${round} of 30. Warden Croft examines the bar closely.` });
 const STAKES: ProseBlock = { kind: "stakes", text: "At the end of round 30 you are transferred to a maximum-security block, and this chance is gone." };
-const KNOWLEDGE: ProseBlock = { kind: "knowledge", text: "Your last word on the bar integrity was 100, as of round 0." };
+// D10-2 (PLAYTEST-2026-09-27-DESIGN.md R7): the real `knowledge` block
+// (`proseView.ts`) is now a list, one item per belief keyed by its resource
+// label -- shaped here the same way `scene`/`CONDITIONS` already are, so this
+// suite exercises the SAME per-item mechanism those blocks already pin,
+// rather than a second, bespoke one.
+const knowledge = (barValue = 100, round = 0, extra: readonly { key: string; text: string }[] = []): ProseBlock => {
+  const items = [{ key: "bar integrity", text: `Your last word on the bar integrity was ${barValue}, as of round ${round}.` }, ...extra];
+  return { kind: "knowledge", lead: "What you know, and as of when:", items, text: ["What you know, and as of when:", ...items.map((i) => i.text)].join("\n") };
+};
 const RULES: ProseBlock = { kind: "rules", text: "Some things about this cell never change: suspicion rises by 5 for a slight act." };
 
 const turn = (round: number, bar = "Rust has pitted it.", thresholds = "50", extra: readonly { key: string; text: string }[] = []): ProseBlock[] => [
@@ -31,7 +39,7 @@ const turn = (round: number, bar = "Rust has pitted it.", thresholds = "50", ext
   IDENTITY,
   scene(bar, extra),
   news(round),
-  KNOWLEDGE,
+  knowledge(),
   RULES,
 ];
 
@@ -50,13 +58,15 @@ describe("the delta view: the standing world once, the turn's news every turn", 
 
     // The turn's own state, every turn, however little it moved.
     expect(second).toContain("This is round 2 of 30");
-    expect(second).toContain("Your last word on the bar integrity was 100, as of round 0.");
 
-    // The standing world, shown once and held back after.
+    // The standing world, shown once and held back after -- D10-2 moved
+    // `knowledge` into this set too (see the dedicated describe block below):
+    // an UNCHANGED belief is held back exactly like an unchanged condition.
     expect(second).not.toContain("You are Mara Voss");
     expect(second).not.toContain("The spoon: A dented aluminium spoon.");
     expect(second).not.toContain("condition 1, for you.");
     expect(second).not.toContain("suspicion rises by 5");
+    expect(second).not.toContain("Your last word on the bar integrity was 100, as of round 0.");
   });
 
   it("names what it held back, and how to get it all again", () => {
@@ -221,5 +231,53 @@ describe("the delta view: the stakes block is STANDING, with a forced re-show (D
     const view = createDeltaView();
     view.render(turnWithStakes(1));
     expect(view.render(turnWithStakes(2))).not.toContain("transferred to a maximum-security block");
+  });
+});
+
+// D10-2 (PLAYTEST-2026-09-27-DESIGN.md R7): the motivating transcript's
+// six-line belief block repeated whole every round. `knowledge` is now
+// STANDING and a list block, so an unchanged belief is held back exactly
+// like an unchanged perceived object, while a belief that actually moved
+// still shows -- under its own lead line, with the held-back notice for the
+// rest.
+describe("the delta view: an unchanged belief is held back, a changed one still shows (D10-2)", () => {
+  const LOCK = { key: "lock integrity", text: "Your last word on the lock integrity was 80, as of round 0." };
+
+  it("shows every belief the first turn", () => {
+    const view = createDeltaView();
+    const shown = view.render([knowledge(100, 0, [LOCK])]);
+    expect(shown).toContain("Your last word on the bar integrity was 100, as of round 0.");
+    expect(shown).toContain("Your last word on the lock integrity was 80, as of round 0.");
+  });
+
+  it("holds back a belief whose text has not moved, but still shows one that has -- under the lead line", () => {
+    const view = createDeltaView();
+    view.render([knowledge(100, 0, [LOCK])]);
+    const second = view.render([knowledge(92, 1, [LOCK])]); // bar moved, lock did not
+    // A PARTIAL change re-prints the lead and only the item that moved --
+    // exactly the "shows the ONE object that changed" rule `scene` already
+    // pins -- so there is no separate "held back" NOTICE here (that notice
+    // is for a block held back WHOLE; see the next test).
+    expect(second).toContain("What you know, and as of when:");
+    expect(second).toContain("Your last word on the bar integrity was 92, as of round 1.");
+    expect(second).not.toContain("Your last word on the lock integrity was 80, as of round 0.");
+  });
+
+  it("holds back the whole knowledge block when NOTHING in it has moved", () => {
+    const view = createDeltaView();
+    view.render([knowledge(100, 0, [LOCK])]);
+    const second = view.render([knowledge(100, 0, [LOCK])]);
+    expect(second).not.toContain("Your last word on the bar integrity");
+    expect(second).not.toContain("Your last word on the lock integrity");
+    expect(second).toContain("what you know");
+  });
+
+  it("keeps the warden's own suspicion item separate: an unchanged suspicion is held back even while a belief moves, and vice versa", () => {
+    const SUSPICION = (n: number): { key: string; text: string } => ({ key: "suspicion", text: `Your own reading of her, right now, stands at suspicion ${n}.` });
+    const view = createDeltaView();
+    view.render([knowledge(100, 0, [SUSPICION(40)])]);
+    const second = view.render([knowledge(92, 1, [SUSPICION(40)])]); // belief moved, suspicion did not
+    expect(second).toContain("bar integrity was 92");
+    expect(second).not.toContain("suspicion 40");
   });
 });

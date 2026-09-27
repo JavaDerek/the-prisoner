@@ -255,6 +255,57 @@ describe("D10-1: the stakes line is its own block, recognised by this repository
 });
 
 /**
+ * D10-2 (PLAYTEST-2026-09-27-DESIGN.md R7): the motivating transcript's
+ * six-line belief block repeated whole every round. The `knowledge` block
+ * becomes a real list block -- a lead line plus one `ProseItem` per belief,
+ * keyed by its resource label -- so `deltaView.ts` can hold back an
+ * UNCHANGED belief the same way it already holds back an unchanged
+ * perceived object (`deltaView.test.ts` pins the delta side of this; this
+ * file pins that `proseBlocks` hands it the items to work with).
+ */
+describe("D10-2: the knowledge block is a list, one item per belief", () => {
+  it("gives every belief its own item, keyed by its resource label", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, CONTEXT, undefined);
+    const knowledge = blocks.find((b) => b.kind === "knowledge");
+    expect(knowledge?.items).toBeDefined();
+    const keys = knowledge?.items?.map((i) => i.key) ?? [];
+    expect(keys).toContain("bar integrity");
+    expect(keys).toContain("lock integrity");
+    expect(keys).toContain("guard attention");
+    const barItem = knowledge?.items?.find((i) => i.key === "bar integrity");
+    expect(barItem?.text).toContain("92");
+    expect(barItem?.text).toContain("round 2");
+  });
+
+  it("keeps the warden's own suspicion line as its own item, separate from the belief items", () => {
+    const wardenContext: OpenPrincipalContext = {
+      ...CONTEXT,
+      identity: "You are Warden Croft.",
+      motive: "Keep this cell secure.",
+      briefing: ["Round 4 of 30.", "warden suspicion: 55.", "You have grounds to search: suspicion 55.", "bar integrity: 92 (as of round 2)."].join("\n"),
+    };
+    const blocks = proseBlocks(WARDEN_NAME, PRISONER_NAME, wardenContext, undefined);
+    const knowledge = blocks.find((b) => b.kind === "knowledge");
+    const items = knowledge?.items ?? [];
+    expect(items.length).toBe(2);
+    const suspicionItem = items.find((i) => i.text.includes("suspicion 55"));
+    expect(suspicionItem).toBeDefined();
+    expect(suspicionItem?.text).toContain("enough to search her cell outright");
+    expect(items.find((i) => i.key === "bar integrity")?.text).toContain("92");
+  });
+
+  it("still carries every belief's number and stamp in the full prose join -- completeness, unaffected by becoming a list", () => {
+    const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, CONTEXT, openConditions());
+    expect(prose).toContain("92");
+    expect(prose).toContain("round 2");
+    expect(prose).toContain("78");
+    expect(prose).toContain("round 3");
+    expect(prose).toContain("40");
+    expect(prose).toContain("round 1");
+  });
+});
+
+/**
  * D10-3 (PLAYTEST-2026-09-27-DESIGN.md R7): a belief whose property declares
  * `reads`/`readRanges` (`scenarioObjects.ts`) reads as the WORDS she was last
  * told, quoted, rather than the raw number -- the door/window's own passage

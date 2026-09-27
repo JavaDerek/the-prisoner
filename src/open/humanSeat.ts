@@ -317,7 +317,7 @@ const RECONSIDER_GERUND: Record<Exclude<EffectKind, "none">, string> = {
 
 /** §1.4's `help`: the command set itself, in the same voice as the prompt's
  *  own hint below -- computed once, since it depends on nothing per-turn. */
-export const SEAT_COMMANDS = ["raw", "say", "plan", "holding", "desc", "conditions", "rules", "me", "help"] as const;
+export const SEAT_COMMANDS = ["raw", "say", "plan", "holding", "desc", "conditions", "rules", "me", "known", "help"] as const;
 
 const HELP_TEXT = [
   "Commands (each costs no turn, and none of them reach the referee):",
@@ -329,6 +329,7 @@ const HELP_TEXT = [
   "  conditions      reprint this chair's condition list",
   "  rules           the standing rules of this cell (how suspicion moves, what counts as escape)",
   "  me              who you are, and what you want",
+  "  known           everything you currently believe, even what has not changed since you last heard it",
   "  help            this list",
   "Anything else you type is your intent for this turn.",
 ].join("\n");
@@ -576,7 +577,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
       if (view === "play" && isFirstTurn) {
         write(
           'This view shows what has changed. The rest is a keystroke away and costs no turn: "me", "conditions", ' +
-            '"rules", "desc <id>", "holding", "raw" for the full model view, or "help".'
+            '"rules", "known", "desc <id>", "holding", "raw" for the full model view, or "help".'
         );
         write("");
       }
@@ -681,6 +682,15 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
         if (command.command === "me") {
           const identity = blockText(context, "identity");
           write(identity.length > 0 ? identity : `You are ${selfName}.`);
+          continue;
+        }
+        if (command.command === "known") {
+          // D10-2: the escape hatch for the delta now holding back an
+          // unchanged belief (`deltaView.ts`) -- the FULL knowledge block,
+          // read fresh from the same composer every other block command
+          // uses, never a second rendering and never delta-filtered.
+          const known = blockText(context, "knowledge");
+          write(known.length > 0 ? known : "You have no beliefs recorded yet.");
           continue;
         }
         if (command.command === "help") {

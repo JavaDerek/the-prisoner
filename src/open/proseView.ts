@@ -257,6 +257,10 @@ export const MAX_PROSE_LINE_LENGTH = 300;
  *  explicitly rather than matching it by a wildcard. */
 export const RULES_PARAGRAPH_LEAD = "Some things about this cell never change:";
 
+/** D10-2: the knowledge block's own lead line, exported so `humanSeat.ts`'s
+ *  `known` command and this file's tests can name it explicitly. */
+export const KNOWLEDGE_LEAD = "What you know, and as of when:";
+
 /** The round-and-news paragraph always opens with this exact clock sentence
  *  when the briefing carries round information (every real game turn does;
  *  see `parseBriefing`'s `ROUND_LINE`). Matched by pattern because the
@@ -381,17 +385,29 @@ export function proseBlocks(selfName: string, otherName: string, context: OpenPr
   if (parsed.plan !== undefined) notesAndPlan.push(`Your plan, from your last turn, was: ${parsed.plan}`);
   if (notesAndPlan.length > 0) blocks.push({ kind: "notesAndPlan", text: notesAndPlan.join(" ") });
 
-  const knowledge: string[] = [];
+  // D10-2 (PLAYTEST-2026-09-27-DESIGN.md R7): the motivating transcript's
+  // six-line belief block repeated whole every round. A list block, one
+  // `ProseItem` per belief keyed by its resource label, lets `deltaView.ts`
+  // hold back an unchanged belief exactly the way it already holds back an
+  // unchanged perceived object -- never a change to what a belief says.
+  const knowledgeItems: ProseItem[] = [];
   if (parsed.suspicion !== undefined) {
     // `warden suspicion` is only ever rendered into a warden's OWN briefing
     // (`buildOpenBriefing`), so a chair reading this line is always the
     // warden's, reading of the prisoner -- authored throughout scenario.ts
-    // and docs/OPEN-VARIANT.md as "her" (Voss).
-    knowledge.push(`Your own reading of her, right now, stands at suspicion ${parsed.suspicion}.`);
-    if (parsed.hasGrounds) knowledge.push("That is enough to search her cell outright, whenever you choose to.");
+    // and docs/OPEN-VARIANT.md as "her" (Voss). The suspicion reading and its
+    // grounds clause are ONE item -- "the warden's suspicion line stays its
+    // own item" (D10-2) -- never merged with a belief item.
+    const suspicionText = [
+      `Your own reading of her, right now, stands at suspicion ${parsed.suspicion}.`,
+      parsed.hasGrounds ? "That is enough to search her cell outright, whenever you choose to." : undefined,
+    ]
+      .filter((s): s is string => s !== undefined)
+      .join(" ");
+    knowledgeItems.push({ key: "suspicion", text: suspicionText });
   }
-  for (const belief of parsed.beliefs) knowledge.push(beliefSentence(belief));
-  if (knowledge.length > 0) blocks.push({ kind: "knowledge", text: knowledge.join(" ") });
+  for (const belief of parsed.beliefs) knowledgeItems.push({ key: belief.label, text: beliefSentence(belief) });
+  if (knowledgeItems.length > 0) blocks.push(listBlock("knowledge", KNOWLEDGE_LEAD, knowledgeItems));
 
   const parts = seatSituationParts(selfName, otherName, context, conditions);
   const rules = rulesParagraph(parts.ruleLines);

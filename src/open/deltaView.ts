@@ -37,8 +37,18 @@ import type { ProseBlock, ProseBlockKind, ProseItem } from "./proseView.js";
  *  folded anonymously into the news paragraph -- worth reading once, exactly
  *  like the rest of this set, with its own forced re-show near the end of
  *  the game (`render`'s `forceShow` option, below) standing in for "it
- *  changed". */
-const STANDING: ReadonlySet<ProseBlockKind> = new Set<ProseBlockKind>(["conditions", "identity", "scene", "rules", "stakes"]);
+ *  changed".
+ *
+ *  D10-2 (same decision file) adds `knowledge`: the same transcript's
+ *  six-line belief block repeated whole every round too. This is a real
+ *  reversal of this module's own earlier reasoning (below, and the module
+ *  header above) that a belief must always show "however little it moved" --
+ *  the owner's decision now is that an unchanged belief IS unchanged, and
+ *  the fog it puts a player in is exactly as well served by the SAME
+ *  held-back notice every other standing block already uses, since
+ *  `knowledge` is a LIST block (`proseView.ts`): a belief that actually
+ *  moves still shows, under its own lead line, on the very turn it does. */
+const STANDING: ReadonlySet<ProseBlockKind> = new Set<ProseBlockKind>(["conditions", "identity", "scene", "rules", "stakes", "knowledge"]);
 
 /** How a held-back block is named in the notice. Short, and in the player's
  *  own terms rather than this codebase's block kinds. */
@@ -108,11 +118,12 @@ export function createDeltaView(options: DeltaViewOptions = {}): DeltaView {
 
       for (const block of blocks) {
         if (!STANDING.has(block.kind)) {
-          // The turn's own state -- the news, the plan, every belief with its
-          // "as of round N" stamp. Always shown, however little it moved:
-          // this is the fog the seat exists to put a person inside, and a
-          // player reasoning about a stale belief needs the stamp in front of
-          // them, not in their memory of last turn.
+          // The turn's own state -- the news and the plan. Always shown,
+          // however little it moved. D10-2 moved `knowledge` (every belief
+          // with its "as of round N" stamp) OUT of this set and into
+          // `STANDING`, above: an unchanged belief is now held back like any
+          // other unchanged standing fact, and a belief that actually moves
+          // still shows, under its own lead line, the turn it does.
           out.push(block.text);
           continue;
         }
