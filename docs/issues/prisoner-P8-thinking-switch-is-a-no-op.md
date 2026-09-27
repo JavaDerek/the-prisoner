@@ -56,3 +56,29 @@ flag would have made the referee measurably worse, not merely different.
 
 Found while designing the strategy step (`docs/STRATEGY-DESIGN.md` §1.1), whose commit call needs a
 per-request strength and therefore had to learn which field carries one.
+
+## 2026-09-26: the runtime moved, and the field flipped back
+
+Muse-Glimmer is now served by doris's Ollama as `muse-glimmer:30b` (the llama-server on :11435 is gone),
+and Ollama is the mirror image of the server this issue was measured on. Same trivial prompt,
+temperature 0, completion tokens / characters of reasoning:
+
+| request | tokens | reasoning chars |
+|---|---|---|
+| no field | 128 | 470 |
+| `chat_template_kwargs: {"reasoning_strength":"none"}` | 131 | 491 |
+| `reasoning_effort: "none"` | 74 | 0 |
+| `reasoning_effort: "low"` / `"medium"` / `"high"` | 58 / 109 / 131 | 149 / 365 / 491 |
+
+So on Ollama `chat_template_kwargs` is the no-op, `reasoning_effort` is the field, and **Muse reasons by
+default** -- there is no server start flag holding it off any more. Unchanged, fix 2 above would have
+printed `Thinking: OFF` over a model reasoning on every call, which is this issue's hazard exactly.
+`withThinking`, `withReasoningStrength` and the referee transport now send `reasoning_effort`.
+
+A second Ollama fact, found the same day by Shep and reproduced here: with reasoning off, JSON-mode output
+ends in a literal `<|eot|>` (`{ "answer": 391 }<|eot|>`), which fails every schema-constrained mind call.
+All three now also send `stop: ["<|eot|>"]`, merged into any stop the caller set. Not `<|eom|>`: it also
+closes Muse's reasoning channel and empties the reply when reasoning is on.
+
+Fix 3 (a startup assertion that `none` and `high` differ) is still unbuilt, and this move is its best
+argument: the field has now been wrong on both runtimes Muse has run on.

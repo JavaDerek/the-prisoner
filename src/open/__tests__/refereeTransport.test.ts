@@ -211,10 +211,11 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       return JSON.parse(capturedInit?.body as string);
     }
 
-    it("off: sends chat_template_kwargs.reasoning_strength 'none' (P8 -- reasoning_effort is a no-op here)", async () => {
+    it("off: sends reasoning_effort 'none' and the <|eot|> stop (Ollama ignores chat_template_kwargs)", async () => {
       const body = await capturedBody("off");
-      expect(body.chat_template_kwargs).toEqual({ reasoning_strength: "none" });
-      expect(body).not.toHaveProperty("reasoning_effort");
+      expect(body.reasoning_effort).toBe("none");
+      expect(body.stop).toEqual(["<|eot|>"]);
+      expect(body).not.toHaveProperty("chat_template_kwargs");
     });
 
     it("on, and unset: the request body is byte-identical -- no reasoning field at all", async () => {

@@ -16,10 +16,11 @@
 //     on the same machine as doris's Ollama (below);
 //   - everything else -> doris `/v1/chat/completions`, proxied unchanged.
 //
-// The local route exists because doris's Ollama cannot load every GGUF worth measuring: batch 3's
-// referee (`checkpoints/2026-09-23-phase1-b3/`) is `muse-glimmer`, an architecture that build
-// rejects outright, so it is served by a `llama-server` on another port of the same box and the
-// Ollama install is left untouched. Only the CHAT call moves. `/api/ps` still asks the real Ollama,
+// The local route exists because doris's Ollama cannot always load every GGUF worth measuring: batch
+// 3's referee (`checkpoints/2026-09-23-phase1-b3/`) was `muse-glimmer`, an architecture that build
+// rejected outright, so batches 3-7 served it from a `llama-server` on another port of the same box.
+// Since 2026-09-26 Ollama ships Muse itself (`muse-glimmer:30b`) and that server is gone, so nothing
+// uses this route today; it stays for the next model Ollama cannot load. Only the CHAT call moves. `/api/ps` still asks the real Ollama,
 // which is what keeps `assertNoForeignModel` honest about a card this run does not own alone, and
 // the model is named explicitly rather than sniffed from its id, because nothing in an id says
 // which runtime happens to hold it today.

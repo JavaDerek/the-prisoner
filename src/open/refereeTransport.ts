@@ -1,5 +1,5 @@
 import type { ReadRequest, ReaderTransport, TransportAnswer } from "run-dmcp";
-import type { ThinkingMode } from "./thinking.js";
+import { reasoningFields, type ThinkingMode } from "./thinking.js";
 
 /**
  * The referee's real transport (this task's brief: "The referee transport
@@ -47,10 +47,10 @@ export interface CreateRefereeTransportOptions {
    *  except a real checkpoint run. */
   ensureLoaded?: (model: string) => Promise<void>;
   /** OPEN-VARIANT.md §64.7/§68.1, WORLD-ELABORATION-DESIGN.md §4.8, `thinking.ts`.
-   *  `"off"` sends `chat_template_kwargs: { reasoning_strength: "none" }` --
-   *  the field this llama-server actually honours. It used to send
-   *  `reasoning_effort`, which it ignores (P8); see `thinking.ts`'s header for
-   *  the measurement. `"on"` sends no reasoning field at all, leaving the
+   *  `"off"` sends `reasoningFields("none")` -- `reasoning_effort: "none"`, the
+   *  field Ollama honours, and the `<|eot|>` stop; see `thinking.ts`'s header
+   *  for both measurements (P8, and the 2026-09-26 move off llama-server).
+   *  `"on"` sends no reasoning field at all, leaving the
    *  served model's own configuration (including a server start flag) to
    *  decide, which is why a transcript's `ON` is not evidence of reasoning. */
   thinking?: ThinkingMode;
@@ -311,8 +311,8 @@ export function createRefereeTransport(options: CreateRefereeTransportOptions): 
           // §64.7: "off" only -- "on" (the default) never adds this key at
           // all, so the request stays byte-identical to every batch
           // recorded before this arm existed.
-          // P8: `reasoning_effort` is a no-op on this server. `thinking.ts`.
-          ...(options.thinking === "off" ? { chat_template_kwargs: { reasoning_strength: "none" } } : {}),
+          // Ollama reads `reasoning_effort`, not `chat_template_kwargs`. `thinking.ts`.
+          ...(options.thinking === "off" ? reasoningFields("none") : {}),
         }),
         signal: AbortSignal.timeout(timeoutMs),
       });

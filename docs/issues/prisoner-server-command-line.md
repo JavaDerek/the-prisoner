@@ -38,3 +38,11 @@ belongs in `run-dmcp` or `mind-seam`.
 Not yet built. No code change; this is a process habit for whoever launches or restarts the server a
 batch depends on, plus a place (this file, until something more permanent exists) to check whether it
 has already been proposed before re-discovering it.
+
+**2026-09-26: Muse moved to Ollama.** The llama-server is gone; Muse is `muse-glimmer:30b` in doris's
+Ollama, shared with Shep. The command line worth recording is now Ollama's runner process
+(`/usr/lib/ollama/llama-server ...`, found with `pgrep -a -f ollama/llama-server` -- do NOT grep doris's
+whole process table, it holds other services' credentials on their command lines) plus `/api/show
+muse-glimmer:30b` (Modelfile and parameters) and the Ollama version. As first seen: `-c 65536 -np 2
+--no-jinja --chat-template chatml --cache-type-k q8_0 --cache-type-v q8_0 --flash-attn on -b 512 -ub 512
+--context-shift --keep 4`, so 32768 of context per slot.

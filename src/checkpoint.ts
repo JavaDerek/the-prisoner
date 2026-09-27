@@ -83,7 +83,7 @@ import { renderAbandonedSection, abandonedByPlayerAtRound, AbandonedByPlayerErro
 import type { OpenHalfRoundResult } from "./open/loop.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
-import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_STRENGTH_FIELD } from "./open/thinking.js";
+import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_FIELD } from "./open/thinking.js";
 import { readStrategyMode, chooseStrategy, strategyHeaderBlock, revisionWouldFireAt, revisionHeaderLine, type ReasoningStrength, type Strategy } from "./open/strategy.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
@@ -209,7 +209,7 @@ const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
  *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
  *  asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const WINDOW = readWindowMode(process.env.PRISONER_WINDOW);
-/** Open variant only: `chat_template_kwargs.reasoning_strength` on the referee
+/** Open variant only: `reasoning_effort` on the referee
  *  and wits calls (`src/open/thinking.ts`, OPEN-VARIANT.md §68.1, §64.7, §70).
  *  TWO CALLERS, TWO SWITCHES, BOTH NOW DEFAULTING OFF. §68.1 measured on
  *  `qwen3:14b` that thinking changes the REFEREE's rulings a great deal (19/29
@@ -1359,7 +1359,7 @@ async function mainOpen(): Promise<void> {
         chosen: strategy.chosen,
         sentence: strategy.sentence,
         targets: strategy.targets,
-        reasoningField: REASONING_STRENGTH_FIELD,
+        reasoningField: REASONING_FIELD,
         reasoningStrength: STRATEGY_STRENGTH,
         optionsTokens: strategy.rawOptions.tokens,
         commitTokens: strategy.rawCommit.tokens,

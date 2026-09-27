@@ -227,8 +227,25 @@ first and recorded it as unexplained.
 
 ## Local play is all-Muse, and thinking is OFF everywhere
 
-**Owner's decision, 2026-09-25: playing locally uses `muse-glimmer-30b-q4_k_m` in all three chairs** --
+**Owner's decision, 2026-09-25: playing locally uses Muse-Glimmer-30B in all three chairs** --
 prisoner, warden and referee. Not a per-run choice to relitigate.
+
+**Since 2026-09-26 it is served by doris's Ollama as `muse-glimmer:30b`, not by llama-server.** Batches
+3-7 name it `muse-glimmer-30b-q4_k_m` and ran on a llama-server at doris:11435 (reached through the
+router's `SHIM_LOCAL_URL`/`SHIM_LOCAL_MODELS`); that server is gone, so leave both variables unset and
+name the model `muse-glimmer:30b`. Same Q4_K_M weights, a different runtime: Ollama's own chat template
+and parser, `-np 2`, q8_0 KV cache. **Comparing a new batch with a llama-server batch is a runtime change,
+not a replication** -- say so in its RESULTS. The runtime's command line is still worth recording
+(`docs/issues/prisoner-server-command-line.md`); on doris it is the `/usr/lib/ollama/llama-server` runner
+process, plus `/api/show muse-glimmer:30b`.
+
+**The card is shared with Shep.** Shep's production bridge uses the same `muse-glimmer:30b`, kept
+resident, with thinking at medium. A run whose every chair is Muse needs no swap and touches nothing.
+Any run that also needs a different Ollama model would unload Shep's model from under production, so
+set `PRISONER_OLLAMA_RESIDENT_MODELS=muse-glimmer:30b` so it is restored, or better, don't mix models.
+Shep's calls also share the runner's two slots with the batch, and OPEN-VARIANT §75.2 measured the
+referee non-deterministic when two drivers share one server -- a batch that
+needs determinism has to be scheduled when Shep is quiet, or accept that noise and say so.
 
 Why the alternatives lost. The **referee** is measured good serially (OPEN-VARIANT §75.4: 97%
 sensitivity, 89% specificity, 1 of 29 escape-route captures, 0 harmful false positives); a hosted
@@ -247,12 +264,15 @@ benefit" but *harm*: serially over 22 rows, `none` gave 6 correct resolutions an
 transfer**. For the wits it is the weaker claim -- no measured difference on two separate calls,
 never shown harmful.
 
-**The switch used to be a no-op and now is not** (P8, §75.6). `withThinking` sent `reasoning_effort`,
-which this llama-server ignores; what actually held reasoning off was the server's start flag. It now
-sends `chat_template_kwargs: { reasoning_strength: "none" }`, which **overrides** that flag, and the
-transcript header names the field and value actually sent. `ON` sends no field at all, so the served
-model's configuration decides -- the header says exactly that, and a transcript reading `ON` is
-therefore not evidence that anything reasoned.
+**The switch follows the runtime, and it has been wrong on each one before it was measured** (P8,
+§75.6). On llama-server `reasoning_effort` was a no-op and `chat_template_kwargs.reasoning_strength`
+worked; on Ollama (2026-09-26) it is exactly the other way round, so `withThinking` now sends
+`reasoning_effort: "none"`. **Muse on Ollama reasons by default** -- no field gave 128 tokens and 470
+characters of reasoning on a trivial prompt, `reasoning_effort: "none"` gave none. It also sends
+`stop: ["<|eot|>"]`: with reasoning off, Muse ends JSON-mode output with a literal `<|eot|>` that breaks
+every schema-constrained mind call (Shep hit the same token). The transcript header names the field and
+value actually sent. `ON` sends no field at all, so the served model's own default decides -- which on
+Ollama means it reasons. **If the runtime changes again, re-measure the field before trusting a header.**
 
 ## Run a batch from a pinned commit, not from live `main`
 

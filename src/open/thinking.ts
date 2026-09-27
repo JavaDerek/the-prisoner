@@ -1,3 +1,5 @@
+import type { ReasoningStrength } from "./strategy.js";
+
 /**
  * The thinking switch (OPEN-VARIANT.md §64.7, WORLD-ELABORATION-DESIGN.md
  * §4.8). §64.7's finding, outside the game, was run by hitting the raw
@@ -8,7 +10,20 @@
  * 15-25s. This module makes that a real, runnable arm.
  *
  * `on` sends NO reasoning field, so the served model's own configuration decides.
- * `off` sends `chat_template_kwargs: { reasoning_strength: "none" }`.
+ * `off` sends `reasoning_effort: "none"` and `stop: ["<|eot|>"]`.
+ *
+ * THE FIELD CHANGED BACK, 2026-09-26: MUSE MOVED TO OLLAMA. Muse-Glimmer is now served by
+ * doris's Ollama as `muse-glimmer:30b` (the same resident copy Shep uses), not by a
+ * llama-server on :11435. Ollama's `/v1` reads `reasoning_effort` and IGNORES
+ * `chat_template_kwargs` -- the mirror image of P8 below. Measured 2026-09-26 on one trivial
+ * prompt at temperature 0: no field 128 completion tokens / 470 chars of reasoning;
+ * `chat_template_kwargs.reasoning_strength: "none"` 131 / 491 (nothing); `reasoning_effort`
+ * none 74 / 0, low 58 / 149, medium 109 / 365, high 131 / 491. So on Ollama Muse REASONS
+ * unless asked not to, and the old field would have printed `OFF` over a reasoning model.
+ * Second Ollama fact: with reasoning off, JSON-mode output ends in a literal `<|eot|>`
+ * (`{ "answer": 391 }<|eot|>`), which breaks every schema-constrained mind call; `stop`
+ * removes it. Shep found and fixed the same token the same day. Do not add `<|eom|>` -- it
+ * also closes Muse's reasoning channel and empties the reply when reasoning is on.
  *
  * THE FIELD CHANGED, 2026-09-25 (`docs/issues/prisoner-P8-thinking-switch-is-a-no-op.md`).
  * This used to send `reasoning_effort`, which the llama-server serving Muse-Glimmer
@@ -34,10 +49,22 @@
  */
 export type ThinkingMode = "on" | "off";
 
-/** The wire field this server honours, and the one every header names
- *  (P8). Declared here rather than beside `withReasoningStrength` below
- *  because `thinkingHeaderLine` needs it and `const` does not hoist. */
-export const REASONING_STRENGTH_FIELD = "chat_template_kwargs.reasoning_strength";
+/** The wire field Ollama honours, and the one every header names (P8, and
+ *  the 2026-09-26 move above). Declared here rather than beside
+ *  `withReasoningStrength` below because `thinkingHeaderLine` needs it and
+ *  `const` does not hoist. */
+export const REASONING_FIELD = "reasoning_effort";
+
+/** Muse's end-of-turn token, which leaks into content on Ollama when reasoning is off. */
+export const END_OF_TURN_STOP = "<|eot|>";
+
+/** The fields every reasoning-controlled request adds: the strength, and the
+ *  `<|eot|>` stop MERGED onto whatever `stop` the caller already set (a
+ *  string or a list), never replacing it. */
+export function reasoningFields(strength: ReasoningStrength, existingStop?: unknown): { reasoning_effort: ReasoningStrength; stop: string[] } {
+  const prior = typeof existingStop === "string" ? [existingStop] : Array.isArray(existingStop) ? existingStop.filter((x): x is string => typeof x === "string") : [];
+  return { reasoning_effort: strength, stop: prior.includes(END_OF_TURN_STOP) ? prior : [...prior, END_OF_TURN_STOP] };
+}
 
 /** Parses one raw env value for a named `PRISONER_*_THINKING` variable.
  *  Unset/empty returns `undefined` -- "not specified" -- rather than
@@ -138,12 +165,11 @@ export function thinkingHeaderLine(role: ThinkingRole, resolved: ResolvedThinkin
   const label = ROLE_LABEL[role];
   // P8 fix 1: name the FIELD AND VALUE actually sent, never a word standing for them.
   // `OFF` is now checkable against the wire; `ON` says plainly that the request
-  // constrains nothing, which is where P8's hazard lives -- a server started with
-  // `--chat-template-kwargs '{"reasoning_strength":"none"}'` reasons not at all while
-  // the transcript says ON.
+  // constrains nothing, which is where P8's hazard lives -- the served model's own
+  // default decides (Muse on Ollama reasons by default).
   const effect =
     resolved.mode === "off"
-      ? `the ${label} call carries \`${REASONING_STRENGTH_FIELD}: "none"\``
+      ? `the ${label} call carries \`${REASONING_FIELD}: "none"\``
       : `no reasoning field is sent on the ${label} call, so the served model's own configuration decides ` +
         `(a server start flag can hold reasoning off while this line says ON)`;
   const setting = resolved.mode === "off" ? "OFF" : "ON";
@@ -162,10 +188,10 @@ export function thinkingHeaderLine(role: ThinkingRole, resolved: ResolvedThinkin
  * batch recorded before this arm existed, by construction rather than by
  * inspection.
  *
- * `off`: wraps it so every outgoing POST body gains
- * `chat_template_kwargs: { reasoning_strength: "none" }`, MERGED into any
- * `chat_template_kwargs` the caller already set rather than replacing it --
- * a caller that sets one for its own reasons must not silently lose it. A
+ * `off`: wraps it so every outgoing POST body gains `reasoningFields("none")`
+ * -- `reasoning_effort: "none"` and the `<|eot|>` stop, MERGED into any `stop`
+ * the caller already set rather than replacing it -- a caller that sets one
+ * for its own reasons must not silently lose it. A
  * body that is not JSON, or not a JSON object, passes through untouched
  * rather than throwing -- this wrapper never invents a reason a call should
  * fail that the call itself did not already have.
@@ -182,18 +208,16 @@ export function withThinking(fetchFn: typeof fetch | undefined, mode: ThinkingMo
       return base(input, init);
     }
     if (typeof body !== "object" || body === null || Array.isArray(body)) return base(input, init);
-    const existing = (body as Record<string, unknown>).chat_template_kwargs;
-    const kwargs = typeof existing === "object" && existing !== null && !Array.isArray(existing) ? existing : {};
-    return base(input, { ...init, body: JSON.stringify({ ...body, chat_template_kwargs: { ...kwargs, reasoning_strength: "none" } }) });
+    return base(input, { ...init, body: JSON.stringify({ ...body, ...reasoningFields("none", (body as Record<string, unknown>).stop) }) });
   };
   return wrapped;
 }
 
 /**
- * The field this server actually honours, measured 2026-09-25 03:22Z and again at 04:00Z on the identical
- * trivial prompt: `chat_template_kwargs: {"reasoning_strength": …}` moves completion tokens 33 / 51 / 60 /
- * 109 across `none` / `low` / `medium` / `high`, while `reasoning_effort: "high"` gives 33 -- the same as
- * `none`, i.e. nothing. See `docs/issues/prisoner-P8-thinking-switch-is-a-no-op.md`.
+ * The field Ollama actually honours: `reasoning_effort` (measured 2026-09-26, header above). Until
+ * 2026-09-26 this sent `chat_template_kwargs.reasoning_strength`, which was the right field for the
+ * llama-server Muse ran on then (measured 2026-09-25: 33 / 51 / 60 / 109 tokens across none / low /
+ * medium / high, `reasoning_effort` a no-op) -- see `docs/issues/prisoner-P8-thinking-switch-is-a-no-op.md`.
  *
  * STILL BESIDE `withThinking` AND NOT INSIDE IT, for a smaller reason than before. P8 is now fixed:
  * `withThinking` sends this same field, so the two no longer disagree about the wire. What keeps them
@@ -206,7 +230,7 @@ export function withThinking(fetchFn: typeof fetch | undefined, mode: ThinkingMo
  * to `reasoning_effort`. Those headers are already written and unchanged; what was actually pinned was a
  * wire fact that did nothing, which is exactly why P8 called the fix urgent rather than cosmetic.
  */
-export function withReasoningStrength(fetchFn: typeof fetch | undefined, strength: "none" | "low" | "medium" | "high"): typeof fetch | undefined {
+export function withReasoningStrength(fetchFn: typeof fetch | undefined, strength: ReasoningStrength): typeof fetch | undefined {
   const base = fetchFn ?? fetch;
   const wrapped: typeof fetch = async (input, init) => {
     if (typeof init?.body !== "string") return base(input, init);
@@ -217,7 +241,7 @@ export function withReasoningStrength(fetchFn: typeof fetch | undefined, strengt
       return base(input, init);
     }
     if (typeof body !== "object" || body === null || Array.isArray(body)) return base(input, init);
-    return base(input, { ...init, body: JSON.stringify({ ...body, chat_template_kwargs: { reasoning_strength: strength } }) });
+    return base(input, { ...init, body: JSON.stringify({ ...body, ...reasoningFields(strength, (body as Record<string, unknown>).stop) }) });
   };
   return wrapped;
 }

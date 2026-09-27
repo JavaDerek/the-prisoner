@@ -34,7 +34,7 @@ describe("withThinking", () => {
     expect(withThinking(undefined, "on")).toBeUndefined();
   });
 
-  it("off: adds chat_template_kwargs.reasoning_strength 'none' to the body, preserving every other field", async () => {
+  it("off: adds reasoning_effort 'none' and the <|eot|> stop to the body, preserving every other field", async () => {
     let capturedInit: RequestInit | undefined;
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
       capturedInit = init;
@@ -49,11 +49,13 @@ describe("withThinking", () => {
     });
 
     const body = JSON.parse(capturedInit?.body as string);
-    // P8: `reasoning_effort` is a NO-OP on the llama-server serving Muse-Glimmer
-    // (measured 2026-09-25: `high` returns the same 33 tokens as `none`). The field
-    // this server honours is `chat_template_kwargs.reasoning_strength`.
-    expect(body.chat_template_kwargs).toEqual({ reasoning_strength: "none" });
-    expect(body.reasoning_effort).toBeUndefined();
+    // Muse moved to Ollama 2026-09-26. Ollama's /v1 reads `reasoning_effort` and IGNORES
+    // `chat_template_kwargs` (measured: `reasoning_strength: "none"` gave 131 tokens and 491
+    // characters of reasoning, the same as no field; `reasoning_effort: "none"` gave none).
+    // With reasoning off, Muse appends a literal `<|eot|>` to JSON-mode output unless stopped.
+    expect(body.reasoning_effort).toBe("none");
+    expect(body.stop).toEqual(["<|eot|>"]);
+    expect(body).not.toHaveProperty("chat_template_kwargs");
     expect(body.model).toBe("m");
     expect(body.temperature).toBe(0);
     expect(body.stream).toBe(false);
@@ -61,7 +63,7 @@ describe("withThinking", () => {
     expect(body.messages).toEqual([{ role: "user", content: "hi" }]);
   });
 
-  it("off: MERGES into an existing chat_template_kwargs rather than replacing it", async () => {
+  it("off: MERGES the <|eot|> stop into an existing stop rather than replacing it", async () => {
     let capturedInit: RequestInit | undefined;
     const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
       capturedInit = init;
@@ -71,11 +73,24 @@ describe("withThinking", () => {
     const wrapped = withThinking(fetchFn, "off") as typeof fetch;
     await wrapped("http://x/chat/completions", {
       method: "POST",
-      body: JSON.stringify({ model: "m", chat_template_kwargs: { enable_thinking: true } }),
+      body: JSON.stringify({ model: "m", stop: ["\n\n"] }),
     });
 
     const body = JSON.parse(capturedInit?.body as string);
-    expect(body.chat_template_kwargs).toEqual({ enable_thinking: true, reasoning_strength: "none" });
+    expect(body.stop).toEqual(["\n\n", "<|eot|>"]);
+  });
+
+  it("off: a caller's single-string stop is kept too", async () => {
+    let capturedInit: RequestInit | undefined;
+    const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      capturedInit = init;
+      return { ok: true, json: async () => ({}) };
+    }) as unknown as typeof fetch;
+
+    const wrapped = withThinking(fetchFn, "off") as typeof fetch;
+    await wrapped("http://x/chat/completions", { method: "POST", body: JSON.stringify({ model: "m", stop: "END" }) });
+
+    expect(JSON.parse(capturedInit?.body as string).stop).toEqual(["END", "<|eot|>"]);
   });
 
   it("off: falls back to global fetch when no fetchFn is given (never throws building the wrapper)", () => {
@@ -174,8 +189,8 @@ describe("thinkingHeaderLine: per-role transcript reporting (§68.1)", () => {
     expect(line).toContain("PRISONER_REFEREE_THINKING=off");
     // P8 fix 1: the header names the FIELD AND VALUE actually sent, never a word
     // standing for them -- a header that says OFF must be checkable against the wire.
-    expect(line).toContain('chat_template_kwargs.reasoning_strength: "none"');
-    expect(line).not.toContain("reasoning_effort");
+    expect(line).toContain('reasoning_effort: "none"');
+    expect(line).not.toContain("chat_template_kwargs");
   });
 
   it("names the legacy variable, and says it applies to both roles, when that is what set it", () => {
@@ -186,9 +201,8 @@ describe("thinkingHeaderLine: per-role transcript reporting (§68.1)", () => {
   });
 
   it("ON says the request constrains NOTHING, so the served model's own configuration decides", () => {
-    // P8's live hazard stated in the header itself: with no field on the request, a
-    // server started with `--chat-template-kwargs '{"reasoning_strength":"none"}'`
-    // reasons not at all while the transcript says ON.
+    // P8's hazard stated in the header itself: with no field on the request, the served
+    // model's own default decides (Muse on Ollama reasons by default).
     const line = thinkingHeaderLine("referee", { mode: "on", source: "role" });
     expect(line).toContain("Thinking (referee): ON");
     expect(line).toContain("no reasoning field is sent");

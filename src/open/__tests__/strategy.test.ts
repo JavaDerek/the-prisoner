@@ -37,7 +37,7 @@ describe("the switch, and the guard that the module is unreachable without it", 
       chosen: 2,
       sentence: "Work the second thing until it gives.",
       targets: ["beta"],
-      reasoningField: "chat_template_kwargs.reasoning_strength",
+      reasoningField: "reasoning_effort",
       reasoningStrength: "high",
       optionsTokens: 608,
       commitTokens: 4492,
@@ -45,7 +45,7 @@ describe("the switch, and the guard that the module is unreachable without it", 
       rawCommit: { content: '{"chosen":2}', reasoning: "thinking..." },
     });
     // The strength AND the field, because §1.1 found a switch that named a field the server ignores.
-    expect(block).toContain("chat_template_kwargs.reasoning_strength");
+    expect(block).toContain("reasoning_effort");
     expect(block).toContain("high");
     expect(block).toContain("2");
     expect(block).toContain("beta");
@@ -57,7 +57,7 @@ describe("the switch, and the guard that the module is unreachable without it", 
 });
 
 describe("the reasoning wrapper", () => {
-  it("adds chat_template_kwargs, which is the field this server actually honours", async () => {
+  it("adds reasoning_effort, which is the field Ollama actually honours, and the <|eot|> stop", async () => {
     let sent: unknown = null;
     const fake: typeof fetch = async (_input, init) => {
       sent = JSON.parse(String(init?.body));
@@ -65,9 +65,9 @@ describe("the reasoning wrapper", () => {
     };
     const wrapped = withReasoningStrength(fake, "high");
     await wrapped!("http://x/v1/chat/completions", { method: "POST", body: JSON.stringify({ model: "m", messages: [] }) });
-    expect(sent).toMatchObject({ model: "m", chat_template_kwargs: { reasoning_strength: "high" } });
-    // NOT reasoning_effort: that field is a measured no-op here (§1.1) and sending it would restate the bug.
-    expect(sent).not.toHaveProperty("reasoning_effort");
+    expect(sent).toMatchObject({ model: "m", reasoning_effort: "high", stop: ["<|eot|>"] });
+    // NOT chat_template_kwargs: Ollama ignores it (measured 2026-09-26), the mirror image of §1.1.
+    expect(sent).not.toHaveProperty("chat_template_kwargs");
   });
 
   it("leaves a body it cannot parse completely alone rather than inventing a failure", async () => {
