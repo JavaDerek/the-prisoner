@@ -113,9 +113,10 @@ start, because `readline` would close before the first question and every turn w
 It is the one real run you do NOT detach with `nohup`.
 
 ```bash
-PRISONER_VARIANT=open PRISONER_HUMAN=prisoner \
+PRISONER_VARIANT=open PRISONER_HUMAN=prisoner PRISONER_VIEW=play \
   PRISONER_MODEL_URL=http://doris:11434/v1 \
-  PRISONER_WITS_MODEL=qwen3:14b PRISONER_VOICE_MODEL=ancient-awakening:12b \
+  PRISONER_WITS_MODEL=muse-glimmer:30b PRISONER_VOICE_MODEL=muse-glimmer:30b \
+  PRISONER_REFEREE_MODEL=muse-glimmer:30b \
   PRISONER_REFEREE_TIMEOUT_MS=180000 \
   PRISONER_THINK_TIMEOUT_MS=180000 PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
   npm run checkpoint
@@ -124,12 +125,19 @@ PRISONER_VARIANT=open PRISONER_HUMAN=prisoner \
 Leave it unset for anything measured. A transcript with a person in it says so in its own header and
 must never be pooled with a model batch, because a batch means identical conditions.
 
+**Local play is Muse in all three chairs** (owner's decision, 2026-09-25): prisoner, warden and
+referee all run `muse-glimmer:30b`, the copy already resident in doris's Ollama. That is why this
+example pins all three. Naming any other model on doris -- including the code's own
+`DEFAULT_REFEREE_MODEL` (`qwen3:14b`) and default wits/voice models -- loads a second model onto the
+one 4090 and evicts the resident Muse that other tenants share. The code defaults predate that
+decision. Until they are changed, an unset role here does NOT mean "the current choice".
+
 **Do not pin `PRISONER_REFEREE_MODEL=qwen2.5:14b` here or anywhere else.** This example used to, long
 after `DEFAULT_REFEREE_MODEL` became `qwen3:14b` (§33.16), and a human game on 2026-09-18
 copied the stale pin and spent five rounds under a referee the project had already replaced for
-exactly the failure it then hit (§62). Leave the referee unset and let `modelRoles.ts` supply the
-default -- that constant carries the evidence for its own value, and an example that overrides it
-silently un-fixes a fixed bug.
+exactly the failure it then hit (§62). The general lesson still binds: a worked example that pins a
+configurable is a second copy of a decision. When the decision moves, update this block in the same
+change.
 
 `PRISONER_VIEW=raw|prose|narrated|play` (the-prisoner#21) chooses *how* the seat's own situation is
 shown, never *what*: `raw` (unset, the default) is the labelled-block view the model itself reads,
