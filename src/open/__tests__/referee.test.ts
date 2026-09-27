@@ -264,9 +264,10 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
   // the act applies; a cited `several` only flags the ruling, so the actor is told a turn does one thing.
   describe("the one-act reading: a separate call that flags, never refuses (OPEN-VARIANT.md §74.1, option B)", () => {
     const checked = { oneAct: "checked" as const };
-    it("the game's default is checked; `off` is the one-call referee of every earlier batch; anything else throws", () => {
-      expect(readOneActMode(undefined)).toBe("checked");
-      expect(readOneActMode("")).toBe("checked");
+    // Changed ON PURPOSE 2026-09-27 (D7): the game's default is now `first`; `checked` is the arm for this block's
+    // flag-only behaviour. The D7 block at the end of this file pins the new default.
+    it("`checked` stays as an arm; `off` is the one-call referee of every earlier batch; anything else throws", () => {
+      expect(readOneActMode("checked")).toBe("checked");
       expect(readOneActMode("off")).toBe("off");
       expect(() => readOneActMode("on")).toThrow(/PRISONER_ONE_ACT/);
     });
@@ -1305,5 +1306,145 @@ describe("targetUnreadWithEffectCited (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, th
     });
     const ruling = await createReferee([transport]).rule("file the bar", [BAR]);
     expect(targetUnreadWithEffectCited(ruling)).toBe(false);
+  });
+});
+
+// D7 (build spec 2026-09-27; docs/PLAYTEST-2026-09-27-DESIGN.md §3 R5; RED-TEAM.md §3's R5 row): under
+// `PRISONER_ONE_ACT=first`, a cited `several` names the SECOND act's words; the intent is cut to the words before
+// them and that first act is ruled as a fresh intent. The real case: `checkpoints/2026-09-27T20-14-57-505Z.referee.json`
+// entry 31, prisoner round 8, whose one-act reply cited words 8-9 ("and leave") while the main ruling chose `leave`.
+describe("D7 (R5): a several-act intent attempts its FIRST act under `PRISONER_ONE_ACT=first`", () => {
+  const PULL_AND_LEAVE = "Pull the bar out of the window and leave";
+  const PULL = "Pull the bar out of the window";
+  const WINDOW: ObjectPerception = {
+    id: "window",
+    description: "A small window set in the wall at shoulder height. One rusted iron bar, set into the mortar across its middle, closes it: with that bar gone, a person could climb through.",
+  };
+  const first = { oneAct: "first" as const };
+  type Offer = { answerKey: string; citation: { sourceId: string; quote: string } | { sourceId: string; from: number; to: number } };
+  const LEAVE: Record<string, Offer> = {
+    target: { answerKey: "window", citation: { sourceId: "intent", quote: "window" } },
+    effect: { answerKey: "leave", citation: { sourceId: "intent", quote: "and leave" } },
+    magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "leave" } },
+    perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "leave" } },
+  };
+  const OPEN: Record<string, Offer> = {
+    target: { answerKey: "window", citation: { sourceId: "intent", quote: "window" } },
+    effect: { answerKey: "open", citation: { sourceId: "intent", quote: "Pull the bar out of the window" } },
+    property: { answerKey: "passage", citation: { sourceId: "desc:window", quote: "closes it" } },
+    magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "Pull" } },
+    perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "Pull" } },
+  };
+  const NOTHING: Record<string, Offer> = {};
+  /** Answers by which request it is: the one-act question, or a main ruling on a given intent text. */
+  function scripted(byIntent: Record<string, Record<string, Offer>>, acts: Offer | null): { transport: ReaderTransport; requests: ReadRequest[] } {
+    const requests: ReadRequest[] = [];
+    const transport: ReaderTransport = async (request) => {
+      requests.push(request);
+      if (request.questions[0]?.id === "acts") return acts ? [{ questionId: "acts", ...acts }] : [];
+      const intent = request.sources.find((s) => s.id === "intent")?.text ?? "";
+      const answers = byIntent[intent] ?? {};
+      return request.questions.flatMap((q) => (answers[q.id] ? [{ questionId: q.id, ...answers[q.id] }] : []));
+    };
+    return { transport, requests };
+  }
+  const SECOND_ACT: Offer = { answerKey: "several", citation: { sourceId: "intent", from: 8, to: 9 } };
+
+  it("`first` is the game's default; `checked` (flag only) and `off` stay as arms; anything else throws", () => {
+    expect(readOneActMode(undefined)).toBe("first");
+    expect(readOneActMode("")).toBe("first");
+    expect(readOneActMode("first")).toBe("first");
+    expect(readOneActMode("checked")).toBe("checked");
+    expect(readOneActMode("off")).toBe("off");
+    expect(() => readOneActMode("on")).toThrow(/PRISONER_ONE_ACT/);
+  });
+
+  it("truncates to the words before the cited second act and makes the first act's ruling THE ruling, keeping the full one", async () => {
+    const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE, [PULL]: OPEN }, SECOND_ACT);
+    const ruling = await createReferee([transport], first).rule(PULL_AND_LEAVE, [WINDOW]);
+    expect(requests.length).toBe(3);
+    expect(requests[2].sources.find((s) => s.id === "intent")?.text).toBe(PULL);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("open");
+    expect(ruling.request.sources.find((s) => s.id === "intent")?.text).toBe(PULL);
+    expect(ruling.oneAct?.answer).toBe("several");
+    expect(ruling.oneAct?.flagged).toBe(true);
+    expect(ruling.oneAct?.attempted).toEqual({ text: PULL, dropped: "and leave" });
+    expect(ruling.oneAct?.fullRuling?.effectKind).toBe("leave");
+    expect(ruling.oneAct?.fullRuling?.request.sources.find((s) => s.id === "intent")?.text).toBe(PULL_AND_LEAVE);
+    expect(ruling.oneAct?.request.questions).toEqual([ONE_ACT_QUESTION]);
+  });
+
+  it("the whole thing is cached: the same intent again asks nothing", async () => {
+    const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE, [PULL]: OPEN }, SECOND_ACT);
+    const referee = createReferee([transport], first);
+    const once = await referee.rule(PULL_AND_LEAVE, [WINDOW]);
+    const again = await referee.rule(PULL_AND_LEAVE, [WINDOW]);
+    expect(requests.length).toBe(3);
+    expect(again).toBe(once);
+  });
+
+  it("the quotes are the actor's own words, spacing and punctuation kept word for word", async () => {
+    const text = "Pull  the bar, then   leave!";
+    const { transport } = scripted({ [text]: LEAVE, ["Pull the bar,"]: { ...OPEN, target: { answerKey: "window", citation: { sourceId: "intent", quote: "the bar" } }, effect: { answerKey: "open", citation: { sourceId: "intent", quote: "Pull the bar" } } } }, { answerKey: "several", citation: { sourceId: "intent", from: 4, to: 5 } });
+    const ruling = await createReferee([transport], first).rule(text, [WINDOW]);
+    expect(ruling.oneAct?.attempted).toEqual({ text: "Pull the bar,", dropped: "then leave!" });
+  });
+
+  it("a second act cited from word 1 leaves nothing before it: the full ruling stands, `attempted` absent", async () => {
+    const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE }, { answerKey: "several", citation: { sourceId: "intent", from: 1, to: 2 } });
+    const ruling = await createReferee([transport], first).rule(PULL_AND_LEAVE, [WINDOW]);
+    expect(requests.length).toBe(2);
+    expect(ruling.effectKind).toBe("leave");
+    expect(ruling.oneAct?.flagged).toBe(true);
+    expect(ruling.oneAct?.attempted).toBeUndefined();
+    expect(ruling.oneAct?.fullRuling).toBeUndefined();
+  });
+
+  it("a truncated ruling that is inapplicable costs nothing: the full ruling stands exactly, `attempted` absent", async () => {
+    const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE, [PULL]: NOTHING }, SECOND_ACT);
+    const ruling = await createReferee([transport], first).rule(PULL_AND_LEAVE, [WINDOW]);
+    expect(requests.length).toBe(3);
+    expect(ruling.effectKind).toBe("leave");
+    expect(ruling.request.sources.find((s) => s.id === "intent")?.text).toBe(PULL_AND_LEAVE);
+    expect(ruling.oneAct?.flagged).toBe(true);
+    expect(ruling.oneAct?.attempted).toBeUndefined();
+    expect(ruling.oneAct?.fullRuling).toBeUndefined();
+  });
+
+  it("a `several` cited by quote (no word range) cannot be cut by code: the full ruling stands", async () => {
+    const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE, [PULL]: OPEN }, { answerKey: "several", citation: { sourceId: "intent", quote: "and leave" } });
+    const ruling = await createReferee([transport], first).rule(PULL_AND_LEAVE, [WINDOW]);
+    expect(requests.length).toBe(2);
+    expect(ruling.effectKind).toBe("leave");
+    expect(ruling.oneAct?.flagged).toBe(true);
+    expect(ruling.oneAct?.attempted).toBeUndefined();
+  });
+
+  it("an unverified or `one` answer never truncates", async () => {
+    for (const acts of [{ answerKey: "one", citation: { sourceId: "intent", from: 8, to: 9 } }, { answerKey: "several", citation: { sourceId: "desc:window", from: 1, to: 2 } }] as Offer[]) {
+      const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE, [PULL]: OPEN }, acts);
+      const ruling = await createReferee([transport], first).rule(PULL_AND_LEAVE, [WINDOW]);
+      expect(requests.length).toBe(2);
+      expect(ruling.effectKind).toBe("leave");
+      expect(ruling.oneAct?.flagged).toBe(false);
+      expect(ruling.oneAct?.attempted).toBeUndefined();
+    }
+  });
+
+  it("`checked` is byte-identical to today: two calls, the full ruling, and a oneAct record with no new field", async () => {
+    const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE, [PULL]: OPEN }, SECOND_ACT);
+    const ruling = await createReferee([transport], { oneAct: "checked" }).rule(PULL_AND_LEAVE, [WINDOW]);
+    expect(requests.length).toBe(2);
+    expect(ruling.effectKind).toBe("leave");
+    expect(Object.keys(ruling.oneAct ?? {}).sort()).toEqual(["answer", "exchanges", "flagged", "request"]);
+    expect(ruling.oneAct?.flagged).toBe(true);
+  });
+
+  it("a referee built bare still makes exactly one call (the constructor default stays `off`, so the PIN holds)", async () => {
+    const { transport, requests } = scripted({ [PULL_AND_LEAVE]: LEAVE, [PULL]: OPEN }, SECOND_ACT);
+    const ruling = await createReferee([transport]).rule(PULL_AND_LEAVE, [WINDOW]);
+    expect(requests.length).toBe(1);
+    expect(ruling.oneAct).toBeUndefined();
   });
 });

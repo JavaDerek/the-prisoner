@@ -1,4 +1,4 @@
-import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type AcceptedCitation } from "run-dmcp";
+import { createTurnReader, sourceWords, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type AcceptedCitation } from "run-dmcp";
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findObject, OPEN_PERSONS, type OpenObjectSpec, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
@@ -107,7 +107,19 @@ export interface RefereeRuling {
   /** OPEN-VARIANT.md §74.1 (option B): the separate one-act reading. `flagged` only when the answer is `several`
    *  AND its citation names the actor's intent; it never touches `applicable`. Absent on a ruling built by
    *  `computeRuling` alone (tests), present on every ruling `createReferee` returns. */
-  oneAct?: { answer: "one" | "several"; flagged: boolean; request: { questions: readonly ReaderQuestion[]; sources: readonly ReaderSource[] }; exchanges: readonly (RefereeExchangeRecord | null)[] };
+  oneAct?: {
+    answer: "one" | "several";
+    flagged: boolean;
+    request: { questions: readonly ReaderQuestion[]; sources: readonly ReaderSource[] };
+    exchanges: readonly (RefereeExchangeRecord | null)[];
+    /** D7 (PLAYTEST-2026-09-27-DESIGN.md R5), `PRISONER_ONE_ACT=first` only: present exactly when the intent was cut
+     *  at the cited second act and the first act's ruling became THIS ruling. `text` is the words before the cited
+     *  `from`, `dropped` the words from it to the end -- both the actor's own words, rebuilt from word ranges by
+     *  run-dmcp's `sourceWords` and joined with single spaces, never paraphrased. */
+    attempted?: { text: string; dropped: string };
+    /** D7: the ruling on the WHOLE intent, kept beside `attempted` so the transcript shows both rulings. */
+    fullRuling?: RefereeRuling;
+  };
   /** Whether this ruling passed every citation and "declared in the
    *  scenario" check (this module's own check; `planEffect`, `effects.ts`,
    *  does the scenario-declaration half) -- when `false`, the intent does
@@ -802,18 +814,21 @@ export function targetUnreadWithEffectCited(ruling: RefereeRuling): boolean {
  *  every test in this module for a scripted one). Temperature 0 is the
  *  TRANSPORT's own concern (`refereeTransport.ts`), not this module's --
  *  this module never itself calls a model. */
-/** OPEN-VARIANT.md §74.1: whether the separate one-act reading runs. `checked` is the owner's decision and the
- *  game's default; `off` restores the one-call referee every batch before 2026-09-22 was ruled by. */
-export type OneActMode = "checked" | "off";
+/** OPEN-VARIANT.md §74.1: whether the separate one-act reading runs, and what a cited `several` does.
+ *  `first` (D7, PLAYTEST-2026-09-27-DESIGN.md R5; the game's default since 2026-09-27): the intent is cut at the
+ *  cited second act and its first act is attempted, and the actor is told which. `checked` is the arm for the
+ *  behaviour of every batch from 2026-09-22 to 2026-09-27: a cited `several` flags the ruling and nothing else.
+ *  `off` restores the one-call referee every batch before 2026-09-22 was ruled by. */
+export type OneActMode = "first" | "checked" | "off";
 
 export function readOneActMode(raw: string | undefined): OneActMode {
-  if (raw === undefined || raw === "") return "checked";
-  if (raw === "checked" || raw === "off") return raw;
-  throw new Error(`PRISONER_ONE_ACT: unrecognised value ${JSON.stringify(raw)} -- must be "checked" (the default) or "off"`);
+  if (raw === undefined || raw === "") return "first";
+  if (raw === "first" || raw === "checked" || raw === "off") return raw;
+  throw new Error(`PRISONER_ONE_ACT: unrecognised value ${JSON.stringify(raw)} -- must be "first" (the default), "checked" or "off"`);
 }
 
 /** The one-act reading (OPEN-VARIANT.md §74.1): its own reader, one question, the intent as its only source. */
-async function readOneAct(intentText: string, transports: readonly ReaderTransport[]): Promise<NonNullable<RefereeRuling["oneAct"]>> {
+async function readOneAct(intentText: string, transports: readonly ReaderTransport[]): Promise<{ oneAct: NonNullable<RefereeRuling["oneAct"]>; secondActFrom: number | null }> {
   const questions = [ONE_ACT_QUESTION];
   const sources: ReaderSource[] = [{ id: INTENT_SOURCE_ID, text: intentText }];
   const exchanges: (RefereeExchangeRecord | null)[] = transports.map(() => null);
@@ -825,7 +840,21 @@ async function readOneAct(intentText: string, transports: readonly ReaderTranspo
   const result = await createTurnReader({ questions, transports: recording }).read(sources);
   const answer = answerFor(result, "acts");
   const several = answer.answerKey === "several";
-  return { answer: several ? "several" : "one", flagged: several && citationCheck(answer, INTENT_SOURCE_ID).verified, request: { questions, sources }, exchanges };
+  const flagged = several && citationCheck(answer, INTENT_SOURCE_ID).verified;
+  // D7: where the second act starts, when the flagged citation came by word range (a quoted one has no range, and
+  // code never searches the intent for a quote's words, so it cannot be cut).
+  const secondActFrom = flagged ? (citedSpan(answer.citation)?.from ?? null) : null;
+  return { oneAct: { answer: several ? "several" : "one", flagged, request: { questions, sources }, exchanges }, secondActFrom };
+}
+
+/** D7 (PLAYTEST-2026-09-27-DESIGN.md R5): the words of the intent before word `from` (1-based, `sourceWords`'
+ *  numbering) and the words from it to the end, each joined with single spaces -- or `null` when nothing precedes
+ *  it. Word ranges only: the question asks for "the words that show the second act", and RED-TEAM.md §3's R5 row
+ *  confirmed that span is the second act's on both rows this game has. */
+export function splitAtSecondAct(intentText: string, from: number): { text: string; dropped: string } | null {
+  const words = sourceWords(intentText).map((w) => w.word);
+  if (from <= 1 || from > words.length) return null;
+  return { text: words.slice(0, from - 1).join(" "), dropped: words.slice(from - 1).join(" ") };
 }
 
 export function createReferee(
@@ -853,7 +882,7 @@ export function createReferee(
      *  every batch recorded before this arm existed. NOT YET MEASURED --
      *  see `checkpoints/2026-09-26-derive-arm/PREDICTION.md`. */
     repeatDeriveMode?: DeriveRepeatMode;
-    /** OPEN-VARIANT.md §74.1 (option B). The GAME's default is `"checked"` (`readOneActMode`, wired in
+    /** OPEN-VARIANT.md §74.1 (option B), D7. The GAME's default is `"first"` (`readOneActMode`, wired in
      *  `checkpoint.ts`); this constructor's own default is `"off"`, so a referee built bare -- every unit test,
      *  every replay of a recorded request -- makes exactly one call, as before. */
     oneAct?: OneActMode;
@@ -870,27 +899,52 @@ export function createReferee(
   // docs/CUSTODY-DESIGN.md: a person is whatever declares a person's own key --
   // the same test `buildQuestions` uses, so no scenario import is needed here.
   const isPerson = (objectId: string): boolean => propertiesOf(objectId).some((k) => (PERSON_PROPERTY_KEYS as readonly string[]).includes(k));
+  // Two caches under one key scheme: `mainCache` holds the six-question ruling alone, so D7's first act -- ruled
+  // as a fresh intent -- is served from it on an exact repeat; `cache` holds what `rule()` returns.
+  const mainCache = new Map<string, RefereeRuling>();
   const cache = new Map<string, RefereeRuling>();
+  const ruleMain = async (intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> => {
+    const key = cacheKeyFor(intentText, perceivedObjects);
+    const cached = mainCache.get(key);
+    if (cached) return cached;
+    const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode);
+    const sources = buildSources(intentText, perceivedObjects);
+    // OPEN-VARIANT.md §38: each rung's last exchange, for the sidecar. (What each rung OFFERED was
+    // kept here too until run-dmcp 0.10.0 put the word range on the accepted citation itself.)
+    const exchanges: (RefereeExchangeRecord | null)[] = transports.map(() => null);
+    const recording = transports.map((transport, rung): ReaderTransport => async (request) => {
+      const answers = await transport(request);
+      exchanges[rung] = (transport as ExchangeKeeping).lastExchange?.() ?? null;
+      return answers;
+    });
+    const reader = createTurnReader({ questions, transports: recording });
+    const result = await reader.read(sources);
+    const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson), exchanges };
+    mainCache.set(key, ruling);
+    return ruling;
+  };
   return {
     async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
       const key = cacheKeyFor(intentText, perceivedObjects);
       const cached = cache.get(key);
       if (cached) return cached;
-
-      const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode);
-      const sources = buildSources(intentText, perceivedObjects);
-      // OPEN-VARIANT.md §38: each rung's last exchange, for the sidecar. (What each rung OFFERED was
-      // kept here too until run-dmcp 0.10.0 put the word range on the accepted citation itself.)
-      const exchanges: (RefereeExchangeRecord | null)[] = transports.map(() => null);
-      const recording = transports.map((transport, rung): ReaderTransport => async (request) => {
-        const answers = await transport(request);
-        exchanges[rung] = (transport as ExchangeKeeping).lastExchange?.() ?? null;
-        return answers;
-      });
-      const reader = createTurnReader({ questions, transports: recording });
-      const result = await reader.read(sources);
-      const oneAct = options.oneAct === "checked" ? await readOneAct(intentText, transports) : undefined;
-      const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson), exchanges, ...(oneAct ? { oneAct } : {}) };
+      const full = await ruleMain(intentText, perceivedObjects);
+      let ruling: RefereeRuling = full;
+      if (options.oneAct === "checked" || options.oneAct === "first") {
+        const { oneAct, secondActFrom } = await readOneAct(intentText, transports);
+        ruling = { ...full, oneAct };
+        // D7 (PLAYTEST-2026-09-27-DESIGN.md R5): a verified `several` cited by word range names where the second act
+        // starts; the words before it are ruled as a fresh intent (the same cached path), and an applicable ruling
+        // on them becomes THE ruling. From word 1, or an inapplicable first act, the full ruling stands exactly as
+        // under `checked`: a false positive costs nothing. The cost is time: this is a third referee call on a
+        // flagged turn, about 30 s on the local card (RED-TEAM.md F13), and §74.1 measured the detector flagging a
+        // preparatory step about one time in four -- so a player waits longer on those turns.
+        const split = options.oneAct === "first" && secondActFrom !== null ? splitAtSecondAct(intentText, secondActFrom) : null;
+        if (split) {
+          const attempted = await ruleMain(split.text, perceivedObjects);
+          if (attempted.applicable) ruling = { ...attempted, oneAct: { ...oneAct, attempted: split, fullRuling: full } };
+        }
+      }
       cache.set(key, ruling);
       return ruling;
     },
