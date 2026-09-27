@@ -6754,3 +6754,167 @@ narrows what "deterministic" can be assumed to mean for any row this close to a 
 probe that treats N=1 as sufficient for such a row.
 
 **Owner decision, 2026-09-26 (afternoon): `PRISONER_DERIVE_REPEAT` stays off.** A net +1 on three fix rows, with a reproducible regression, on a server that moved the same day, does not justify changing every mind's prompt. Revisit once a batch runs on a server whose full command line is recorded.
+
+## 80. The 2026-09-27 playtest's decisions land (2026-09-27, evening)
+
+The owner's human game that afternoon (`checkpoints/2026-09-27T20-14-57-505Z.md`, escaped at round 10) ended
+with "this game sucks", and the chain it started is four documents long. **Requirements**:
+`docs/PLAYTEST-2026-09-27-REQUIREMENTS.md`, R1–R7, committed at `a7f566f`. **Design** (pass 1):
+`docs/PLAYTEST-2026-09-27-DESIGN.md`, D1–D10 with a measurement plan P1–P7, committed with the red team at
+`5d9f705`. **Red team** (pass 2): `docs/PLAYTEST-2026-09-27-RED-TEAM.md`, F1–F13, whose §9 rewrote five of the
+design's decisions (D1, D3, D4, D5, D6) and added D11 and D12. **External review**: not in this repository; its
+two surviving points reached the build only through the owner's build specification, which is what landed —
+D12's blindness band at 60 (the red team asked for 50) and D5's fixed cadence (the red team recommended the
+absence be the price of the warden's own act, F10 and its D5'). Where the build and the two documents differ,
+the build is what the owner decided, and the paragraphs below say which way each went.
+
+**The order was changed on purpose, and it matters for what is known.** The design's §8 put D9 after P6, D7
+after P1, and every default after P2–P4. The owner's build landed all of it before any probe ran: nothing in
+this section is measured, no model was called to build it, and every number below is a unit test or
+arithmetic. §80.5 lists what is still owed.
+
+### 80.1 What landed, per decision
+
+Seventeen commits on `main`, `acc0c2a` to `e4ea404`, each naming the decision it lands and what it depends on:
+eleven for the mechanics and defaults (to `ac47293`), two for the review (§80.4), four for the seat (D10).
+Library defaults (`buildOpenWorld`, `openConditions`, `runOpenGame`, `runOpenHalfRound`, `createReferee`'s bare
+constructor) did not move, so every existing unit test and every replay of a recorded request is unchanged;
+only the env readers' defaults, which are what a real game gets, did.
+
+| decision | what it does | where | pinned by |
+|---|---|---|---|
+| **D1** (R1) | The other side is told the attempt, never an outcome: `describeAttempt`'s open/close/conceal/expose/derive sentences become "works to open / shut / hide / uncover / free a piece of". A refused resolution now relays the same sentence under the same gating as a landed one; `perceptionForOther` is decided before `resolve()`. Seven texts in `checkpoints/precedent-ledger.json` rewritten to match. | `loop.ts`, `precedent.ts`, the ledger | `attemptNotOutcome.test.ts` (new: for every `EffectKind` but `none`, a landed and a failed half-round relay the identical sentence; every ledger text is producible by `precedentTextFor`) |
+| **D8** (R6) | `updateActorBelief` walks every `value` transition in the actor's own outcome, so D7a's wear on a refused open (§76.2) reaches her belief. A fix, no arm (RED-TEAM F9: the stale belief built the next wear's `expects` and would refuse a correct turn). | `loop.ts` | `loop.test.ts` (the round-4 refused open leaves `bar_integrity = 85`; the next wear resolves) |
+| **D7** (R5) | `PRISONER_ONE_ACT=first`: a cited `several` cuts the intent before the second act's first word (run-dmcp's `sourceWords`) and rules the first act through the same cached path; the actor is told `A turn does one thing. This turn: "…". "…" waits.` A cut from word 1, a quoted citation, or an inapplicable first act leaves the full ruling standing, exactly as `checked`. One more referee call on a flagged turn (~30 s, RED-TEAM F13). | `referee.ts`, `perception.ts`, `checkpointTranscript.ts`, `checkpoint.ts` | `referee.test.ts`, `perception.test.ts`, `checkpointTranscript.test.ts` (both rulings printed; the sidecar's `whole intent:` entry) |
+| **D9** (R7) | The bar's `integrity` gains reading bands; the window's open line names the climb (§80.3). | `scenarioObjects.ts` | `scenarioObjects.test.ts`, `briefing.test.ts` (the citation "stands open now:" still at words 41–43) |
+| **D4'** + **D4b** | New effect `block`: stand in a way out. An **occupation**, not a position (RED-TEAM F11): it lapses, through an audited `OPEN_BLOCK` to 0, before the blocker's next applicable act of any other kind; a silent or inapplicable turn keeps it. One bounded, resolve-only `${principal}_blocking` resource each (the `*_held_in` pattern — RED-TEAM F4: a `set` on the item is not expressible in run-dmcp 0.10.0). `OPEN_LEAVE` refuses (`held: "blocked"`) while the other stands in that way out, shares the leaver's place, is on her feet (posture > 75, C1) and can see (sight > 60). Three conditions appended after every existing one, so catch numbering is unchanged: the block, and the warden can mend the bar and the lock. The review found the cadence's move to the corridor never reached the lapse (it is not his act) and fixed it: the move out now lapses his block first (`3e1c24a`). | `effects.ts`, `mechanics.ts`, `loop.ts`, `world.ts`, `referee.ts`, `conditions.ts`, `perception.ts` | `block.test.ts` (the conditions asserted against the world's own lines) |
+| **D11** (new, F3) | `close` carries the open's gate: a window whose bar is at or under 50 cannot be shut; a door whose lock is at or under its gate cannot be bolted. A null gate (the door under `free`) closes as before. No arm. | `effects.ts`, `mechanics.ts`, `perception.ts` | `closeGate.test.ts`; `leaving.test.ts` "close is gated too" |
+| **D12** (new, F2) | Each person gains `sight` (0–100 from 100; worn 10/50/100; restored 10/10/10, slight-only by the owner's decision; blind at or below `SIGHT_BLIND_AT_OR_BELOW = 60`), under the presence arm like posture. Blind: the other's acts reach her as nothing; she keeps nothing she holds; her close examination refuses with no value; her block holds nothing. The referee's person clauses name sight (only with a person in view, so the PIN holds). The person-instrument target clause is built behind `PRISONER_PERSON_INSTRUMENT`, **off**. Turn-report rows gain `personsInView`. | `scenarioObjects.ts`, `effects.ts`, `mechanics.ts`, `loop.ts`, `referee.ts`, `perception.ts`, `turnReport.ts` | `sight.test.ts` |
+| **D5** | `PRISONER_ABSENCE=cadence`: the warden is moved to the corridor (an audited `OPEN_MOVE`, no exit opened) on every round divisible by `ABSENT_EVERY_N_ROUNDS = 4` and back before his next half; his absent half-round is skipped outright (no wits call, no referee call) and printed `absent (cadence)`. Both briefings carry the rule line every turn. Cadence needs presence modelled and stops the run at startup without it. | `game.ts`, `briefing.ts`, `mechanics.ts`, `checkpoint.ts` | `absence.test.ts` |
+| **D2, D3, D6'** | The defaults flip (§80.2). | `briefing.ts`, `conditions.ts`, `world.ts`, `checkpoint.ts` | `briefing.test.ts`, `conditions.test.ts`, `world.test.ts` |
+| **D10** (R7, seat) | Four seat-only changes, none touching a model prompt, briefing or referee request. **Stakes once**: `parseBriefing` recognises `scenario.ts`'s own stakes templates literally into a `stakes` block, held back after the first showing and forced back (`forceShow`) when five or fewer rounds remain. **Beliefs by item**: the knowledge block is a list block keyed by resource label and STANDING in the delta, so an unchanged belief is held back with the usual notice; a new no-turn command `known` prints it whole. **A boolean-shaped belief reads as words**: a belief whose property declares `reads` or `readRanges` renders as `Your last word on the <label>, as of round N, was: "<text>"`. **The player's own outcome at once**: `checkpoint.ts` notifies it the moment the half-round ends, then `(<other> is thinking.)`; the `play` view drops a news line byte-equal to the last notified one (exact string equality). | `humanSeat.ts`, `proseView.ts`, `deltaView.ts`, `checkpoint.ts` | `proseView.test.ts`, `deltaView.test.ts`, `humanSeat.test.ts` |
+
+The authoring side went first, in its own repository: run-dmcp `e008cb5` extends `engineVocabulary.test.ts` to
+this game's words (RED-TEAM F8), and `51d9436` adds the guide's two lessons from R1 and R7, which this
+repository's `CLAUDE.md` points at (`39c87b1`).
+
+### 80.2 Every default that changed, and the arm that restores it
+
+| variable | was | now | the arm for the 2026-09-26 game |
+|---|---|---|---|
+| `PRISONER_PRESENCE` | `off` | `modelled` (D2) | `off` |
+| `PRISONER_CONDITIONS` | `list` | `both` (D3) | `list` (and `off`, the pre-§40 baseline) |
+| `PRISONER_DOOR` | `unstated` | `stated` (D6') | `unstated` |
+| `PRISONER_DOOR_PRICE` | `free` | `margin` (D6', §50.5's gate at 60) | `free` (and `threshold`) |
+| `PRISONER_BLOCK` | — | `on` (D4', D4b) | `off` |
+| `PRISONER_ABSENCE` | — | `cadence` (D5) | `off` |
+| `PRISONER_ONE_ACT` | `checked` | `first` (D7) | `checked` (and `off`, pre-§74) |
+| `PRISONER_PERSON_INSTRUMENT` | — | `off` (D12) | stays off until P3 |
+
+Each reader throws on an unrecognised value, and each arm has a transcript-header line that names it
+(`Presence:`, `Conditions:`, `Door:`, `Door price:`, `Block:`, `Absence:`, `One act:`, `Person instrument:`), with
+the new default marked "(the default since 2026-09-27)". `PRISONER_ABSENCE=cadence` with `PRISONER_PRESENCE=off`
+stops the run, so restoring presence alone is not enough: set both.
+
+### 80.3 The batch boundary, and the scenario changes
+
+**2026-09-27 is a batch boundary for both chairs.** Every batch before it is comparable to a new run only under
+`PRISONER_PRESENCE` as it ran (`modelled` for b1–b7, `off` for everything before 2026-09-21), `CONDITIONS=list`
+(or `off` before 2026-09-17), `DOOR=unstated`, `DOOR_PRICE=free`, `BLOCK=off`, `ABSENCE=off` and
+`ONE_ACT=checked` (or `off` before 2026-09-22), and the header names every one of them, so a mis-set run
+describes itself. **Even then it is not byte-identical**, because four changes have no arm by decision: D1 (the
+other side's news line, and the ledger texts a precedent batch matches on), D8 (the prisoner's belief line after
+a refused open), D11 (a close on a spent part) and D9's text below. A replication of a past arm after this date
+is a near-replication and says so in its RESULTS.
+
+**The scenario changes, recorded as §27 and §76 recorded theirs.** The bar's `integrity` now reads, authored
+ascending because `describedAsItStands` takes the first band the value is at or under (RED-TEAM F13): at or
+below 40, *"It shifts in its socket."*; at or below 55, *"The mortar at its foot has crumbled away in places."*;
+at or below 70, *"Bright metal shows through the rust where it meets the mortar."*; nothing above 70, so an
+untouched bar reads its description alone. Every principal who perceives the bar reads the band, the warden
+included, without a close look. The window's `passage` reading at 1 becomes *"It stands open now: the bar is
+out, and the gap is wide enough to climb through."* — the span the referee cites for a climb-out, "stands open
+now:", keeps words 41–43. Under presence modelled each person also carries `sight`, read as *"Her eyes are on the
+cell."* or, at or below 60, *"Something covers her head; she cannot see."*, and the referee's property question
+names sight whenever a person is in view — which, under the new default, is every turn both share the cell.
+
+**Pins changed on purpose, all dated 2026-09-27:** `leaving.test.ts` ("Mara Voss works to open the door.";
+"close is gated too"), the D1 perception pins in `deriving`, `custody`, `hollow`, `loop` and `precedent`
+tests; `checkpointTranscript.test.ts` for the window line; `referee.test.ts`'s one-act default; the reader
+defaults in `briefing.test.ts`, `conditions.test.ts` and `world.test.ts`; the person property keys and the
+person capability catalogue ("blinded or cleared") in `briefing.test.ts` and `perception.test.ts`. The
+fingerprint PIN in `referee.test.ts` ("the base referee request's own six questions") did **not** change: every
+new clause is either behind an arm whose bare default is off or conditional on a person in view.
+
+### 80.4 The review, and three consequences left to the owner
+
+**The review played the red team's arithmetic instead of re-deriving it** (`4312541`,
+`src/open/__tests__/contestLines.test.ts`): each of RED-TEAM §2's lines runs through the real `runOpenGame`,
+with scripted minds and a scripted referee (a fixed ruling per intent, test content only), under the defaults
+exactly as the env readers return them. What it pins: **Line B** (every dig in an absence, the window opened
+in one) escapes at round 21 with suspicion peaking at 28, never at grounds. **Line A** reaches grounds at round
+3 (44) and the window opened in his presence is caught on his next turn — and the table's "+7 at round 5" is
++15 in play, because his last look was round 3 (70), not the 55 the table assumed: round 4 he was out. **A
+block is an occupation**: re-blocked every turn it holds the window and not the door (two lock wears to 60,
+open, leave); a leave refused by his block still costs her +10; the cadence lifts a block. **D11**: at every bar value her
+open lands exactly where his close is refused, so F3's open–close loop cannot occur. **D12**: covered at
+`moderate` (sight 100 → 50), he needs two slight clearings (60, still blind; then 70) and she opens unseen and
+is out on round 3. The one production fix it found is `3e1c24a` (§80.1, D4'). Every line is scripted, so this
+says what the rules allow, not what a model does (§80.5).
+
+Three things follow from the code as built that nobody decided; each is one question.
+
+1. **Blindness does not stop suspicion.** D12 gates what a blind warden *perceives* (`perceptionForOther` is
+   null), but the suspicion bump reads presence, not sight (`loop.ts`: `otherPresent`, never `otherBlind`);
+   the review asserts the +10 landing while he is blind. Should a blind warden's suspicion rise from acts he
+   cannot perceive? *Yes* keeps today's code; *no* adds sight to that gate and moves every blinded-warden line
+   in her favour.
+2. **The key ring opens nothing** (RED-TEAM F12). Taking it from a crouched or blinded warden changes who holds
+   it and no gate: the door under `margin` is gated on the lock alone. The same gap binds him: with the lock
+   above 60 **the warden cannot open his own door**, and trying wears his own lock (D7a's wear on a refused
+   open). Should holding the key ring open the door regardless of the lock? *Yes* is a new gate reading
+   custody (a mechanics change and a batch boundary); *no* keeps the key ring a prop and says so to both chairs.
+3. **A refused attempt now enters the precedent ledger.** D1 relays a refused visible attempt to the warden,
+   and `seenAttempts` reads exactly that relay, so a refused reach he perceived is recorded as a known approach
+   (`precedent.ts`'s comment says so). No suspicion bump is added on a thrown refusal. Should the ledger record
+   what he saw attempted, or only what landed? *Attempted* is today's code and the R1 reading; *landed* needs
+   the ledger to read the outcome and splits it from the perception text again.
+
+### 80.5 What is not yet measured
+
+**All of it.** The design's P1–P7 are being scaffolded by a separate agent under `checkpoints/2026-09-28-*/`:
+`PREDICTION.md` drafts and scripts, **not run**, and not yet on `main` when this was written. None has made a
+call, so none has yet been committed before one. In the order the design gave them: P1 (the first act, 3
+compounds + 12 controls), P2 (does a Muse warden reach for `block` and `restore`), P3 (the person-instrument
+clause; gates `PRISONER_PERSON_INSTRUMENT`), P4 (list × true line, the 2×2), P5 (the batch, arm A = these
+defaults, arm B = `BLOCK=off`), P6 (the D11 corpus replayed against D9's new text — D9 landed with P6 pending,
+so its kill, ≥ 3 rows changing target or effect, can still reword the bands), and P7 (request order, optional).
+Until they run, every claim in §80.1 is "built and unit-tested", and §57.3's warning stands in full: three
+mechanisms in a row were reached for by the owner and never by a model, and this section adds four more
+(`block`, the stated restores, `sight`, the cadence) that no model has yet been shown.
+
+### 80.6 F1, restated as what P5 must show
+
+RED-TEAM F1 found that under the design as written — `block` a position kept while examining, `close` ungated,
+the absence fixed — **no prisoner line survives a warden who examines the bar and places one block**: he acts
+first every round, one late look at a bar he believes is 100 is +30 on its own, and a standing block makes the
+window's route impossible and the door's too slow (RED-TEAM §2, lines A–E). The owner took three of its levers
+and not the fourth: the block is an occupation (D4'), a spent way out cannot be shut (D11), blindness is a
+moderate act with slight-only recovery (D12) — but the absence is still a cadence, not his choice (D5).
+
+**P5's kill in arm A is therefore the question F1 asked, not a formality: 0 escapes of 6 means the contest is
+still unwinnable, and it goes back to §2 before any further lever.** Six of 6 means his tools are inert.
+`contestLines.test.ts` (§80.4) plays lines A, B and D and the blind line; the one below is not among them, so it
+is hand arithmetic from the constants, not a test and not a measurement. It is what the built mechanics change
+under the shipped defaults (12 rounds, so he is out on 4, 8 and 12), assuming the referee rules her two digs
+`substantial` and her open `moderate`: r4, unseen, bar 100 → 75; r5 he examines it, +12; r8, unseen, 75 → 50; r9
+he examines it, +12 (24), and she opens the window, +10 (34). At r10 he acts first. An examination of the open
+window finds it at 34, under 40: no catch, and she leaves. A block holds it at r10 and r11, but only by spending
+both acts on it (anything else lapses it first, and D11 forbids shutting it with the bar at 50), and at r12 the
+cadence moves him to the corridor, which ends the block (`3e1c24a`): she leaves. His one win on that line is to
+reach 40 before he looks, and she hands it to him only by acting visibly while he blocks (a blocked leave still
+resolves, so at `moderate` it is +10 and takes him from 34 to 44). **So under the build the contest turns on two
+things P5 can see: whether he blocks at r10, and whether she waits.** Two cautions for whoever runs it: the
+design's P5 specified ten rounds, which removes the r12 absence and turns this line into a timeout whenever he
+blocks; and the line needs `substantial` rulings on two unseen digs, which is the referee's call, not the
+prisoner's. State the round count in P5's `PREDICTION.md` and read its escapes against it.
