@@ -226,7 +226,8 @@ const WITS_THINKING = resolveWitsThinking(process.env.PRISONER_WITS_THINKING, pr
  *  an act uses (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#17).
  *  Off unless asked -- an arm, not a new default (the D3 lesson, §40.1). */
 const INSTRUMENT = readInstrumentMode(process.env.PRISONER_INSTRUMENT);
-// OPEN-VARIANT.md §74.1 (the owner's option B): the separate one-act reading, on by default.
+// OPEN-VARIANT.md §74.1 (the owner's option B): the separate one-act reading, on by default; D7
+// (PLAYTEST-2026-09-27-DESIGN.md R5): `first`, the default since 2026-09-27, attempts a flagged intent's first act.
 const ONE_ACT = readOneActMode(process.env.PRISONER_ONE_ACT);
 /** Open variant only: the play-time elaboration request (§9 row P1b,
  *  `src/open/elaborationReferee.ts`, WORLD-ELABORATION-DESIGN.md §4.1/§4.2).
@@ -1175,9 +1176,11 @@ async function mainOpen(): Promise<void> {
       : "Instrument: UNASKED (the default): the referee is never asked what tool an act uses (§51, the-prisoner#17)."
   );
   transcript.push(
-    ONE_ACT === "checked"
-      ? "One act: CHECKED (the default): a separate referee call asks whether each intent attempts more than one act; a cited `several` flags the ruling and the actor is told a turn does one thing -- it never refuses (OPEN-VARIANT.md §74.1)."
-      : "One act: OFF (`PRISONER_ONE_ACT=off`): the one-call referee of every batch before 2026-09-22."
+    ONE_ACT === "first"
+      ? "One act: FIRST (the default since 2026-09-27): a separate referee call asks whether each intent attempts more than one act; a cited `several` cuts the intent at the second act's first word and rules the words before it, and when that ruling applies it is the one acted on and the actor is told which words were attempted and which wait -- otherwise the whole intent's ruling stands, flagged (D7, PLAYTEST-2026-09-27-DESIGN.md R5)."
+      : ONE_ACT === "checked"
+        ? "One act: CHECKED (`PRISONER_ONE_ACT=checked`): a separate referee call asks whether each intent attempts more than one act; a cited `several` flags the ruling and the actor is told a turn does one thing -- it never refuses (OPEN-VARIANT.md §74.1); the default from 2026-09-22 to 2026-09-27."
+        : "One act: OFF (`PRISONER_ONE_ACT=off`): the one-call referee of every batch before 2026-09-22."
   );
   transcript.push(
     PRESENCE === "modelled"
