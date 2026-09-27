@@ -405,6 +405,42 @@ describe("open checkpoint transcript", () => {
     expect(one).toContain("**One act:** `one`.");
   });
 
+  // D7 (PLAYTEST-2026-09-27-DESIGN.md R5): under `PRISONER_ONE_ACT=first` a truncated half-round carries TWO main
+  // rulings -- the first act's (acted on) and the whole intent's (kept) -- and both are shown, the way a D3
+  // reconsideration already shows two; the whole intent's request is its own replayable sidecar entry.
+  function truncatedHalf(): OpenHalfRoundResult {
+    const base = halfWithRuling({ targetObjectId: "window", property: "passage", effectKind: "open", product: "none" });
+    const attemptedRuling = base.ruling as NonNullable<OpenHalfRoundResult["ruling"]>;
+    const full = halfWithRuling({ targetObjectId: "window", property: "none", effectKind: "leave", product: "none" }).ruling as NonNullable<OpenHalfRoundResult["ruling"]>;
+    const effectAnswer = (key: string) => ({ answers: [{ questionId: "effect", answerKey: key, fromSafeDefault: false, answeredByRung: 0, citation: null, rejected: [] }], unmatched: [], rungs: [] }) as unknown as typeof full.raw;
+    const fullRuling = { ...full, raw: effectAnswer("leave"), request: { questions: full.request.questions, sources: [{ id: "intent", text: "Pull the bar out of the window and leave" }] } };
+    return { ...base, ruling: { ...attemptedRuling, raw: effectAnswer("open"), oneAct: { ...ONE_ACT, attempted: { text: "Pull the bar out of the window", dropped: "and leave" }, fullRuling } } };
+  }
+
+  it("D7: a truncated half-round shows the attempted and dropped words and BOTH referee tables", () => {
+    const text = renderOpenHalfRound(truncatedHalf()).join("\n");
+    expect(text).toContain("**One act:** `several` -- flagged, and the first act was attempted (D7, PLAYTEST-2026-09-27-DESIGN.md R5).");
+    expect(text).toContain("Attempted: Pull the bar out of the window");
+    expect(text).toContain("Waits: and leave");
+    expect(text).toContain("Whole-intent referee reading (not acted on):");
+    expect(text).toContain("| effect | `open` |");
+    expect(text).toContain("| effect | `leave` |");
+    expect(text.indexOf("| effect | `open` |")).toBeLessThan(text.indexOf("| effect | `leave` |"));
+  });
+
+  it("D7: a flagged reading with no first act attempted prints today's line and one table", () => {
+    const base = halfWithRuling({ targetObjectId: "door", property: "passage", effectKind: "open", product: "none" });
+    const text = renderOpenHalfRound({ ...base, ruling: { ...(base.ruling as NonNullable<OpenHalfRoundResult["ruling"]>), oneAct: ONE_ACT } }).join("\n");
+    expect(text).not.toContain("Whole-intent referee reading");
+    expect(text).not.toContain("Attempted:");
+  });
+
+  it("D7: the whole intent's ruling is its own replayable sidecar entry, labelled distinctly", () => {
+    const requests = refereeRequestsFor([truncatedHalf()]);
+    expect(requests.map((r) => r.label)).toEqual(["round 1, prisoner: x", "round 1, prisoner, one act: x", "round 1, prisoner, whole intent: x"]);
+    expect(requests[2].request.sources.find((s) => s.id === "intent")?.text).toBe("Pull the bar out of the window and leave");
+  });
+
   it("elaboration: a SECOND sidecar entry per half-round it fired on, labelled distinctly, and `npm run referee-replay` reads it unchanged (WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b)", async () => {
     const elaboration: ElaborationRuling = {
       targetObjectId: "loose_tile",

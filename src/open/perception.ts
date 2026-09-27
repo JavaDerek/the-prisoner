@@ -354,9 +354,19 @@ function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundRe
  *  sentence after it states exactly what was ruled. */
 export const ONE_ACT_FLAG = "A turn does one thing, and your intent tried more than one, so only one act was attempted. ";
 
+/** D7 (PLAYTEST-2026-09-27-DESIGN.md R5), `PRISONER_ONE_ACT=first`: when the intent was cut at the cited second act
+ *  and its first act ruled, the actor is told which, in her own words -- both quotes are word spans of her intent
+ *  (`RefereeRuling.oneAct.attempted`, rebuilt by `sourceWords`), never a paraphrase -- ahead of the ordinary
+ *  outcome sentence. Takes the place of `ONE_ACT_FLAG` on exactly those turns. */
+export function firstActSentence(attempted: { text: string; dropped: string }): string {
+  return `A turn does one thing. This turn: "${attempted.text}". "${attempted.dropped}" waits. `;
+}
+
 export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
   const outcome = renderOwnOutcomeUnflagged(half);
-  return outcome !== null && half.ruling?.oneAct?.flagged ? ONE_ACT_FLAG + outcome : outcome;
+  const oneAct = half.ruling?.oneAct;
+  if (outcome === null || !oneAct?.flagged) return outcome;
+  return (oneAct.attempted ? firstActSentence(oneAct.attempted) : ONE_ACT_FLAG) + outcome;
 }
 
 function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {

@@ -92,6 +92,43 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
     expect(flagged).toContain("85");
   });
 
+  // D7 (PLAYTEST-2026-09-27-DESIGN.md R5): under `PRISONER_ONE_ACT=first` the intent is cut at the cited second act
+  // and the first act is attempted; the actor is told which, in her own words (rebuilt from word ranges, never
+  // paraphrased), then the ordinary outcome sentence for the act that was ruled.
+  it("a first act attempted after truncation names both halves in the actor's own words, then the outcome", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const acts: ReaderTransport = async (request) =>
+      request.questions[0]?.id === "acts" ? [{ questionId: "acts", answerKey: "several", citation: { sourceId: "intent", from: 5, to: 8 } }] : ruling(BAR_WEAR)(request);
+    const t = openWorld.base.clock.prisonerT(1);
+    const result = await runOpenHalfRound({
+      openWorld, resolver: buildOpenResolver(), referee: createReferee([acts], { oneAct: "first" }), principal: "prisoner", roundN: 1, t,
+      context: buildOpenContext(openWorld, "prisoner", t, 1),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I scrape the bar and hide the spoon." }),
+    });
+    expect(result.ruling?.oneAct?.attempted).toEqual({ text: "I scrape the bar", dropped: "and hide the spoon." });
+    const text = renderOwnOutcome(result) as string;
+    expect(text.startsWith('A turn does one thing. This turn: "I scrape the bar". "and hide the spoon." waits. ')).toBe(true);
+    expect(text.includes(ONE_ACT_FLAG)).toBe(false);
+    expect(text).toContain("100");
+    expect(text).toContain("85");
+  });
+
+  it("a flagged reading whose first act was NOT attempted keeps today's flag sentence", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const acts: ReaderTransport = async (request) =>
+      request.questions[0]?.id === "acts" ? [{ questionId: "acts", answerKey: "several", citation: { sourceId: "intent", from: 1, to: 3 } }] : ruling(BAR_WEAR)(request);
+    const t = openWorld.base.clock.prisonerT(1);
+    const result = await runOpenHalfRound({
+      openWorld, resolver: buildOpenResolver(), referee: createReferee([acts], { oneAct: "first" }), principal: "prisoner", roundN: 1, t,
+      context: buildOpenContext(openWorld, "prisoner", t, 1),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I scrape the bar and hide the spoon." }),
+    });
+    expect(result.ruling?.oneAct?.attempted).toBeUndefined();
+    expect((renderOwnOutcome(result) as string).startsWith(ONE_ACT_FLAG)).toBe(true);
+  });
+
   it("a resolved wear states the property's exact before and after", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();

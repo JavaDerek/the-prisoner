@@ -343,7 +343,20 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
     lines.push(`**Ruled:** ${half.ruling.applicable ? "possible" : "impossible"}`);
     // OPEN-VARIANT.md §74.1 (option B): the separate one-act reading, when it ran.
     const oneAct = half.ruling.oneAct;
-    if (oneAct) lines.push(oneAct.flagged ? "**One act:** `several` -- flagged: the actor is told a turn does one thing (OPEN-VARIANT.md §74.1)." : `**One act:** \`${oneAct.answer}\`.`);
+    // D7 (PLAYTEST-2026-09-27-DESIGN.md R5): when the intent was cut at the cited second act, the table above is the
+    // FIRST act's ruling (the one acted on); the whole intent's ruling is shown too, never only the one acted on,
+    // the way a D3 reconsideration shows both of its readings.
+    if (oneAct?.attempted && oneAct.fullRuling) {
+      lines.push("**One act:** `several` -- flagged, and the first act was attempted (D7, PLAYTEST-2026-09-27-DESIGN.md R5).");
+      lines.push(`Attempted: ${oneAct.attempted.text}`);
+      lines.push(`Waits: ${oneAct.attempted.dropped}`);
+      lines.push("");
+      lines.push("Whole-intent referee reading (not acted on):");
+      lines.push("");
+      lines.push(...refereeTable(oneAct.fullRuling));
+      lines.push("");
+      lines.push(`Whole intent ruled: ${oneAct.fullRuling.applicable ? "possible" : "impossible"}`);
+    } else if (oneAct) lines.push(oneAct.flagged ? "**One act:** `several` -- flagged: the actor is told a turn does one thing (OPEN-VARIANT.md §74.1)." : `**One act:** \`${oneAct.answer}\`.`);
     const outcome = outcomeLines(half);
     if (outcome.length > 0) {
       lines.push("```");
@@ -396,6 +409,10 @@ export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { la
     if (h.ruling && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}: ${h.proposal.intent}`, request: h.ruling.request as ReadRequest, replies: h.ruling.exchanges ?? [] });
     // OPEN-VARIANT.md §74.1: the one-act reading is its own request, so its own replayable entry.
     if (h.ruling?.oneAct && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}, one act: ${h.proposal.intent}`, request: h.ruling.oneAct.request as ReadRequest, replies: h.ruling.oneAct.exchanges });
+    // D7: when the first act was attempted, the entry above labelled with the bare intent replays the FIRST act's
+    // request (the one acted on); the whole intent's request is its own entry, labelled distinctly.
+    const whole = h.ruling?.oneAct?.fullRuling;
+    if (whole && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}, whole intent: ${h.proposal.intent}`, request: whole.request as ReadRequest, replies: whole.exchanges ?? [] });
     if (h.elaboration && h.proposal) {
       entries.push({
         label: `round ${h.roundN}, ${h.principal}, elaboration: ${h.proposal.intent}`,
