@@ -167,6 +167,8 @@ export interface RecordedHalf {
   ruled: "possible" | "impossible" | null;
   /** The `**Other perceives:**` line as the game printed it -- this repository's own output, quoted. */
   otherPerceives?: string;
+  /** The half-round's whole section, for a scorer that reads one more structural line (P5's outcome block). */
+  body: string;
 }
 export interface RecordedGame {
   file: string;
@@ -184,7 +186,11 @@ const CELL = /^(\S+?)(?:, words (\d+)-(\d+))?: "([\s\S]*)"$/;
  *  the half-round ACTED on -- a D3 reconsideration's first reading is printed before that marker and skipped),
  *  and `**Ruled:**`. */
 export function parseRecordedGame(relPath: string): RecordedGame {
-  const text = readFileSync(join(REPO, relPath), "utf8");
+  return parseRecordedText(readFileSync(join(REPO, relPath), "utf8"), relPath);
+}
+
+/** `parseRecordedGame` over text already read (P5's scoreboard reads transcripts from its own arm directories). */
+export function parseRecordedText(text: string, relPath: string): RecordedGame {
   const rounds = Number(/^Rounds \(max\): (\d+)\./m.exec(text)?.[1] ?? "12");
   const parts = text.split(HEADING);
   const halves: RecordedHalf[] = [];
@@ -213,6 +219,7 @@ export function parseRecordedGame(relPath: string): RecordedGame {
       rows,
       ruled: (one(/^\*\*Ruled:\*\* (possible|impossible)/m) as RecordedHalf["ruled"]) ?? null,
       ...(one(/^\*\*Other perceives:\*\* (.*)$/m) !== undefined ? { otherPerceives: one(/^\*\*Other perceives:\*\* (.*)$/m) } : {}),
+      body,
     });
   }
   return { file: relPath, rounds, halves };

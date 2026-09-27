@@ -28,7 +28,11 @@ function cleanEnv(): NodeJS.ProcessEnv {
 }
 
 async function tsx(script: string, ...argv: string[]): Promise<string> {
-  const { stdout } = await run(TSX, [join(REPO, script), ...argv], { cwd: REPO, env: cleanEnv(), maxBuffer: 64 * 1024 * 1024 });
+  return tsxWith({}, script, ...argv);
+}
+
+async function tsxWith(extra: NodeJS.ProcessEnv, script: string, ...argv: string[]): Promise<string> {
+  const { stdout } = await run(TSX, [join(REPO, script), ...argv], { cwd: REPO, env: { ...cleanEnv(), ...extra }, maxBuffer: 64 * 1024 * 1024 });
   return stdout;
 }
 
@@ -173,6 +177,42 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P5 contest batch: the driver's dry run prints all twelve games, arms alternating, and each arm's environment passes the game's own readers",
+    async () => {
+      const { stdout } = await run("bash", [join(REPO, "checkpoints/2026-09-28-contest-batch/run-batch.sh"), "--dry-run"], { cwd: REPO, env: cleanEnv(), maxBuffer: 64 * 1024 * 1024 });
+      expect(stdout).toContain("DRY RUN -- no game runs, no network call is made.");
+      expect([...stdout.matchAll(/^== ([AB]\d+): env /gm)].map((m) => m[1])).toEqual(["A1", "B1", "A2", "B2", "A3", "B3", "A4", "B4", "A5", "B5", "A6", "B6"]);
+      expect(stdout).toContain("env-check arm A: every arm is the one PREDICTION.md names.");
+      expect(stdout).toContain("env-check arm B: every arm is the one PREDICTION.md names.");
+      expect(stdout).toMatch(/== A1: env .*PRISONER_BLOCK=on .*PRISONER_ROUNDS=10|== A1: env .*PRISONER_ROUNDS=10 .*PRISONER_BLOCK=on/);
+      expect(stdout).toMatch(/== B1: env .*PRISONER_BLOCK=off/);
+      expect(stdout).toMatch(/== A1: env -u PRISONER_SKIP_VOICE /);
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P5 contest batch: env-check refuses a game whose environment is not its arm",
+    async () => {
+      await expect(tsxWith({ PRISONER_VARIANT: "open", PRISONER_ROUNDS: "10", PRISONER_BLOCK: "off" }, "checkpoints/2026-09-28-contest-batch/env-check.mts", "--arm=A")).rejects.toThrow(/block is off, arm A needs on/);
+      const ok = await tsxWith({ PRISONER_VARIANT: "open", PRISONER_ROUNDS: "10", PRISONER_BLOCK: "off" }, "checkpoints/2026-09-28-contest-batch/env-check.mts", "--arm=B");
+      expect(ok).toContain("every arm is the one PREDICTION.md names.");
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P5 contest batch: the scoreboard's dry run parses the playtest as a fixture game",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-contest-batch/scoreboard.mts", "--dry-run");
+      expect(out).toContain("## P5 -- the contest batch (arm A 1 of 6, arm B 0 of 6 games in)");
+      expect(out).toContain("[A] escaped; warden block 0, restore 0, absent halves 0; openings window@r9");
+      expect(out).toContain('header lacks "Block: ON"');
     },
     TIMEOUT
   );
