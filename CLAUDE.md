@@ -40,6 +40,17 @@ the authority for that variant. Everything except the action layer is shared: ce
 beliefs, clock, presence, thoughts/notes, wits/voice model roles, swapper, engine, seam. Keep it that
 way; if the two variants diverge anywhere else, a comparison between them stops meaning anything.
 
+## Defaults changed on 2026-09-27
+
+The owner's playtest that day (`docs/PLAYTEST-2026-09-27-*.md`) moved seven open-variant defaults at once,
+and 2026-09-27 is a batch boundary for both chairs. A run with no variables set now gets presence
+`modelled`, conditions `both`, the door `stated` and priced at `margin`, `block` on, the warden's absence on a
+`cadence` (out every fourth round), and one act `first`; `PRISONER_PERSON_INSTRUMENT` stays `off`. Every old
+value is still an arm, named in the transcript header. D1 (the other side is told the attempt), D8, D9's
+scenario text and D11 have no arm, so a replication of an earlier batch is a near-replication and says so.
+What landed, the arms, the boundary and what is still unmeasured: `docs/OPEN-VARIANT.md` §80. Every variable
+and its current default: `docs/ARCHITECTURE.md`, "Configuration reference".
+
 ## Real games use one model at a time
 
 Model roles are configured by `PRISONER_WITS_MODEL`, `PRISONER_VOICE_MODEL` and (open variant)
@@ -120,6 +131,13 @@ PRISONER_VARIANT=open PRISONER_HUMAN=prisoner PRISONER_VIEW=play \
   PRISONER_THINK_TIMEOUT_MS=180000 PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
   npm run checkpoint
 ```
+
+That command sets no arm, so it plays the defaults since 2026-09-27: presence modelled, conditions both,
+the door stated and priced at margin, block on, the warden's absence on a cadence, and one act first. To
+play the 2026-09-26 game instead, add `PRISONER_PRESENCE=off PRISONER_ABSENCE=off PRISONER_CONDITIONS=list
+PRISONER_DOOR=unstated PRISONER_DOOR_PRICE=free PRISONER_BLOCK=off PRISONER_ONE_ACT=checked` (the absence
+arm has to go with presence: cadence with presence off stops the run). It is still not byte-identical to
+that game; OPEN-VARIANT.md §80.3 says which changes have no arm.
 
 Leave it unset for anything measured. A transcript with a person in it says so in its own header and
 must never be pooled with a model batch, because a batch means identical conditions.
@@ -375,28 +393,24 @@ never reach `run-dmcp` or `mind-seam`. An engine or seam issue filed from here d
 structurally ("two principals, one location, contended physical state"), never in this game's own
 terms.
 
-## Custody is not built, though the engine no longer blocks it
+## Custody is built, through the one write path
 
-`run-dmcp`'s `IntendedChange` (`src/timeline/resolve.ts`, this repo pinned at `run-dmcp@0.8.0`) is no
+`run-dmcp`'s `IntendedChange` (`src/timeline/resolve.ts`, this repo pinned at `run-dmcp@0.10.0`) is no
 longer numeric-only. Alongside `write` (a numeric fact key, delta or set) and `transfer` (a conserved
 numeric amount moved between two entities), `set`, `create` and `destroy` shipped in 0.7.0 and 0.8.0
 (engine issues #32, #34): `set` changes a non-numeric column on an entity's own projected row, and the
 engine's own doc comment gives this exact case as its example — "a thing changing owner, a character
-changing place." `create`/`destroy` bring an entity into or out of existence. the-prisoner#5 names
-this directly: what used to be blocked at the protocol is now only blocked by this game's own
-referee, which still proposes one of eleven fixed effects (`src/open/effects.ts`) rather than the
-engine's five change kinds directly.
+changing place." `create`/`destroy` bring an entity into or out of existence.
 
-That makes an item's owner representable, not built. `mechanics.ts` already writes an item's
-`owner_id`/`owner_type` (the engine's own `items` columns) once, at creation (`derive`'s `create` leg,
-`src/open/mechanics.ts:227`) — the same columns a `{ kind: "set", entityId: <item>, key: "owner_id",
-value: <new owner's EntityRef> }` could change afterward. Nothing in this game emits that today: no
-effect moves an item's owner, `transfer` is unused here (it only ever carries a numeric resource,
-never an item), and there is no SEARCH, CONFISCATE, or any other custody move in either variant.
-Loosening the referee toward the engine's own five kinds is the-prisoner#5's step 1, and a custody
-mechanic is downstream of that step, not shipped by this paragraph.
+This game uses that for custody (`docs/CUSTODY-DESIGN.md`, OPEN-VARIANT.md §74 decision 2). The referee
+proposes one of thirteen fixed effects plus `none` (`src/open/effects.ts`), not the engine's five change
+kinds directly, and three of them move who holds a thing: `take` and `give` (`OPEN_TAKE`/`OPEN_GIVE`,
+`src/open/mechanics.ts`) `set` the item's own `owner_id`/`owner_type` columns inside the resolution, and a
+search is `expose` on a person (`OPEN_SEARCH`), uncovering what she holds. A holder keeps a thing only while
+on her feet (C1) and, since 2026-09-27, able to see (D12). Every read of who holds what reads the owner at
+`t` from facts. `transfer` is still unused here; it only ever carries a conserved numeric amount.
 
 What does not change: ownership must never move outside `resolver.resolve()`. That would be a second
 write path, and the engine records decisions, it does not make them anywhere but at that one choke
-point — true when this section described a numeric-only protocol, and still true now that the part of
-the protocol that used to block custody is gone.
+point — true when this section described a numeric-only protocol, and still true now that custody is
+built on the part of the protocol that used to block it.
