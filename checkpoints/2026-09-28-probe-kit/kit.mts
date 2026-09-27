@@ -279,6 +279,9 @@ export async function rebuildContext(params: {
   arms: GameArms;
   rounds?: number;
   historyAbsence?: "off" | "cadence";
+  /** Recorded half-rounds to replay as silent instead (`--omit=prisoner:2`), for an owner who decides a recorded
+   *  ruling should not stand in today's world. Printed in every meta line; empty by default. */
+  omit?: readonly { chair: Principal; round: number }[];
 }): Promise<RebuiltContext> {
   const { chair, round, arms } = params;
   const recorded = params.transcript ? parseRecordedGame(params.transcript) : { file: "(none)", rounds: params.rounds ?? 30, halves: [] };
@@ -293,7 +296,8 @@ export async function rebuildContext(params: {
     async consider(context: any) {
       const n = Number(/^Round (\d+) of/.exec(context.briefing)?.[1] ?? "0");
       if (principal === chair && n === round) throw new Captured(context);
-      const half = recorded.halves.find((h) => h.chair === principal && h.round === n) ?? null;
+      const omitted = (params.omit ?? []).some((o) => o.chair === principal && o.round === n);
+      const half = omitted ? null : (recorded.halves.find((h) => h.chair === principal && h.round === n) ?? null);
       current = half;
       if (!half || half.intent === null) return null;
       replayed += 1;
@@ -660,16 +664,29 @@ export interface RefereeArm {
   wrapTransport?: (transport: any) => any;
 }
 
+/** `--omit=prisoner:2,warden:4` -> half-rounds of the owner's playtest replayed as silent (`rebuildContext`). */
+export function omitArg(a: ReturnType<typeof args>): { chair: Principal; round: number }[] {
+  return (a.get("omit") ?? "")
+    .split(",")
+    .filter(Boolean)
+    .map((x) => {
+      const [chair, round] = x.split(":");
+      if ((chair !== "prisoner" && chair !== "warden") || !Number.isInteger(Number(round))) throw new Error(`--omit: "${x}" is not chair:round`);
+      return { chair: chair as Principal, round: Number(round) };
+    });
+}
+
 /** A run stops after this many errored samples in a row (every PREDICTION.md's stopping rule). */
 export const MAX_ERRORS_IN_A_ROW = 3;
 
 const WORLD_ARMS: readonly (keyof GameArms)[] = ["presence", "absence", "doorPrice", "window"];
 
-async function contextFor(cache: Map<string, RebuiltContext>, item: Item, arms: GameArms): Promise<RebuiltContext> {
-  const key = `${item.transcript}|${item.chair}|${item.round}|${WORLD_ARMS.map((k) => arms[k]).join(",")}`;
+async function contextFor(cache: Map<string, RebuiltContext>, item: Item, arms: GameArms, omit: readonly { chair: Principal; round: number }[] = []): Promise<RebuiltContext> {
+  const key = `${item.transcript}|${item.chair}|${item.round}|${WORLD_ARMS.map((k) => arms[k]).join(",")}|${JSON.stringify(omit)}`;
   const hit = cache.get(key);
   if (hit) return hit;
-  const built = await rebuildContext({ transcript: item.transcript, chair: item.chair, round: item.round, arms });
+  // `--omit` names half-rounds of the owner's playtest only (the one game whose round-2 ruling it exists for).
+  const built = await rebuildContext({ transcript: item.transcript, chair: item.chair, round: item.round, arms, omit: item.transcript === PLAYTEST_2026_09_27 ? omit : [] });
   cache.set(key, built);
   return built;
 }
@@ -694,6 +711,7 @@ export async function runRefereeProbe(opts: {
   const items = opts.items.filter((i) => !only || only.includes(i.id));
   const base = gameArms();
   const cache = new Map<string, RebuiltContext>();
+  const omit = omitArg(a);
 
   if (a.has("score")) {
     const rows = resultsFile(a.get("out") ?? opts.dir).rows().filter((r: any) => r.sampleId);
@@ -706,7 +724,7 @@ export async function runRefereeProbe(opts: {
   if (dry) {
     forbidNetwork();
     console.log(`${opts.name} DRY RUN -- no model is called; the network is forbidden in this process.`);
-    console.log(`arms (env): ${armsLine(base)}`);
+    console.log(`arms (env): ${armsLine(base)}${omit.length ? `; omitted from the playtest's history: ${omit.map((o) => `${o.chair}:${o.round}`).join(",")}` : ""}`);
     let requests = 0;
     for (const arm of opts.arms) {
       const arms = { ...base, ...(arm.overrides ?? {}) };
@@ -715,7 +733,7 @@ export async function runRefereeProbe(opts: {
       console.log(`\n=== arm ${arm.name}${arm.overrides ? ` (overrides: ${JSON.stringify(arm.overrides)})` : ""}, N=${opts.n} per item`);
       let first = true;
       for (const item of items) {
-        const built = await contextFor(cache, item, arms);
+        const built = await contextFor(cache, item, arms, omit);
         const perceived = arm.perceived ? arm.perceived(built.context.perceivedObjects) : built.context.perceivedObjects;
         const reqs = await captureRefereeRequests(built.world, arms, item.intent, perceived);
         requests += reqs.length;
@@ -747,7 +765,7 @@ export async function runRefereeProbe(opts: {
   const results = resultsFile(mode.outDir);
   const live = await liveModels(process.env, base);
   try {
-    const meta = { type: "meta", probe: opts.name, started: new Date().toISOString(), revision, arms: armsLine(base), cells: opts.arms.map((c) => ({ name: c.name, overrides: c.overrides ?? {} })), n: opts.n, models: live.describe };
+    const meta = { type: "meta", probe: opts.name, started: new Date().toISOString(), revision, arms: armsLine(base), omit, cells: opts.arms.map((c) => ({ name: c.name, overrides: c.overrides ?? {} })), n: opts.n, models: live.describe };
     results.append(meta);
     log(JSON.stringify(meta));
     let k = 0;
@@ -758,7 +776,7 @@ export async function runRefereeProbe(opts: {
       const problem = opts.requireArms?.(arms);
       if (problem) throw new Error(`${opts.name}: ${problem}`);
       for (const item of items) {
-        const built = await contextFor(cache, item, arms);
+        const built = await contextFor(cache, item, arms, omit);
         const perceived = arm.perceived ? arm.perceived(built.context.perceivedObjects) : built.context.perceivedObjects;
         for (let s = 1; s <= opts.n; s++) {
           k += 1;
@@ -820,8 +838,9 @@ export async function runMindProbe(opts: {
   const cache = new Map<string, RebuiltContext>();
   const conditionsOf = (cell: MindCell) =>
     cell.conditions === "env" ? conditionsFor(cell.chair, arms) : cell.conditions === "list" ? openConditions({ door: arms.door, doorPrice: arms.doorPrice, window: arms.window, block: arms.block }) : undefined;
+  const omit = omitArg(a);
   const contextOf = async (cell: MindCell) => {
-    const built = await contextFor(cache, { id: cell.name, transcript: opts.transcript, chair: cell.chair, round: cell.round, intent: "" }, arms);
+    const built = await contextFor(cache, { id: cell.name, transcript: opts.transcript, chair: cell.chair, round: cell.round, intent: "" }, arms, omit);
     return { built, context: cell.transform ? cell.transform(built.context) : built.context };
   };
 
@@ -850,7 +869,8 @@ export async function runMindProbe(opts: {
       await mind.consider(context);
       const reqs = await captureRefereeRequests(built.world, arms, "(the intent the mind writes)", context.perceivedObjects);
       console.log(`\n=== cell ${cell.name}: ${cell.chair}, round ${cell.round}, conditions ${cell.conditions}${conditions ? " (list)" : " (rule sentences)"}, N=${opts.n}`);
-      console.log(`replay: ${built.halvesReplayed} half-rounds, ${built.divergences.length} divergences, ${built.warnings.length} warnings`);
+      console.log(`replay: ${built.halvesReplayed} half-rounds, ${built.divergences.length} divergences, ${built.warnings.length} warnings${omit.length ? `; omitted ${omit.map((o) => `${o.chair}:${o.round}`).join(",")}` : ""}`);
+      for (const o of context.perceivedObjects) console.log(`  perceived ${o.id}: ${o.description}`);
       console.log(`referee calls per sample: ${reqs.map((r: any) => r.questions.map((q: any) => q.id).join("+")).join(" ; ")}; effect keys ${reqs[0].questions.find((q: any) => q.id === "effect")?.answerKeys.join(",")}`);
       console.log("--- the mind's prompt, verbatim ---");
       console.log(prompt);
@@ -866,7 +886,7 @@ export async function runMindProbe(opts: {
   const results = resultsFile(mode.outDir);
   const live = await liveModels(process.env, arms);
   try {
-    const meta = { type: "meta", probe: opts.name, started: new Date().toISOString(), revision, arms: armsLine(arms), cells: opts.cells.map((c) => ({ name: c.name, round: c.round, conditions: c.conditions, transformed: !!c.transform })), n: opts.n, models: live.describe };
+    const meta = { type: "meta", probe: opts.name, started: new Date().toISOString(), revision, arms: armsLine(arms), omit, cells: opts.cells.map((c) => ({ name: c.name, round: c.round, conditions: c.conditions, transformed: !!c.transform })), n: opts.n, models: live.describe };
     results.append(meta);
     log(JSON.stringify(meta));
     let k = 0;

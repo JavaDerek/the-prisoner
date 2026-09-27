@@ -71,4 +71,45 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
     },
     TIMEOUT
   );
+
+  it(
+    "P2 block reach: the dry run rebuilds the three warden contexts at 20, 90 and 95 suspicion and prints each prompt with the block condition",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-block-reach/probe.mts", "--dry-run");
+      expect(out).toContain("3 cells built, no request sent.");
+      for (const s of ["warden suspicion: 20.", "warden suspicion: 90.", "warden suspicion: 95."]) expect(out).toContain(s);
+      expect(out).toContain("If Warden Croft stands in a way out, and Warden Croft is on her feet, and Warden Croft can see, then Mara Voss cannot leave through it.");
+      expect(out).toContain("Mara Voss works to open the window.");
+      expect(out).not.toMatch(/[1-9]\d* divergences/);
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P2 block reach: --omit=prisoner:2 replays the playtest's round 2 as silent, and the prisoner is perceived",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-block-reach/probe.mts", "--dry-run", "--omit=prisoner:2", "--only=r5");
+      expect(out).toContain("omitted prisoner:2");
+      expect(out).toContain("perceived prisoner: Mara Voss, the prisoner.");
+      expect(out).toContain("warden suspicion: 20.");
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P2 block reach: a rehearsal of the live path rules the mind's intent and scores it",
+    async () => {
+      const dir = mkdtempSync(join(tmpdir(), "p2-rehearsal-"));
+      try {
+        const out = await tsx("checkpoints/2026-09-28-block-reach/probe.mts", "--rehearse", `--out=${dir}`, "--only=r10");
+        const rows = rehearsalRows(dir).filter((r) => r.sampleId);
+        expect(rows).toHaveLength(10);
+        expect(rows.every((r) => typeof r.intent === "string" && typeof r.effect === "string")).toBe(true);
+        expect(out).toContain("## P2 -- block reach");
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
+    TIMEOUT
+  );
 });

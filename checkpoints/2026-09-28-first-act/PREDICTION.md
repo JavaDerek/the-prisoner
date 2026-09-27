@@ -57,7 +57,9 @@ An item's verdict is the majority of its N = 3 samples (2 or 3 of 3), scored onl
 - **Context**: `HB-r10`'s rebuilt context perceives `wire` and `grit` (derived in that game's earlier turns). This
   game's warden r7 context does not perceive the prisoner: replaying her round-2 `blanket` / `conceal` under
   today's container rule (D9, OPEN-VARIANT §76.1) puts her under the blanket. That is today's mechanics acting on
-  the recorded keys, not a copied state; it does not touch a one-act reading.
+  the recorded keys, not a copied state, and it touches no one-act reading; P2's PREDICTION asks the owner once,
+  for every probe, whether to replay that round as silent (`--omit=prisoner:2`, which applies to the playtest's
+  history only). Whatever is chosen there, pass the same flag here; the meta line records it.
 
 ## Reported, no weight
 
