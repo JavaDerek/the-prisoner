@@ -112,4 +112,34 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
     },
     TIMEOUT
   );
+
+  it(
+    "P3 person target: the dry run builds both arms, and only the `on` arm's target question carries the person-instrument clause",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-person-target/probe.mts", "--dry-run");
+      expect(out).toContain("11 items x 2 arm(s): 44 requests built, none sent.");
+      expect(out.split("names the person; the thing is only what it is done with.").length - 1).toBe(1);
+      expect(out).toMatch(/\[on\] question target: .*names the person; the thing is only what it is done with\./);
+      expect(out).toContain("sight (whether a person can see, 100 clear, 0 blind)");
+      expect(out).not.toMatch(/[1-9]\d* divergences/);
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P3 person target: a rehearsal writes N=5 rows per item per arm, the arm recorded on each",
+    async () => {
+      const dir = mkdtempSync(join(tmpdir(), "p3-rehearsal-"));
+      try {
+        const out = await tsx("checkpoints/2026-09-28-person-target/probe.mts", "--rehearse", `--out=${dir}`, "--only=G27-P2,C-take");
+        const rows = rehearsalRows(dir).filter((r) => r.sampleId);
+        expect(rows).toHaveLength(20);
+        expect(rows.filter((r) => r.arm === "on")).toHaveLength(10);
+        expect(out).toContain("## P3 -- the person");
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
+    TIMEOUT
+  );
 });
