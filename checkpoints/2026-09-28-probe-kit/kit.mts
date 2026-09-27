@@ -672,7 +672,7 @@ export interface RefereeArm {
   /** Arms this cell overrides; each is printed in the meta line. Only referee-side arms may differ here. */
   overrides?: Partial<GameArms>;
   /** A probe-local change to what the referee is SHOWN (P6's pre-D9 descriptions), applied to the perceived list. */
-  perceived?: (objects: any[]) => any[];
+  perceived?: (objects: any[], item: Item) => any[];
   /** A probe-local change to the request's byte order (P7), applied inside the transport. */
   wrapTransport?: (transport: any) => any;
 }
@@ -747,7 +747,7 @@ export async function runRefereeProbe(opts: {
       let first = true;
       for (const item of items) {
         const built = await contextFor(cache, item, arms, omit);
-        const perceived = arm.perceived ? arm.perceived(built.context.perceivedObjects) : built.context.perceivedObjects;
+        const perceived = arm.perceived ? arm.perceived(built.context.perceivedObjects, item) : built.context.perceivedObjects;
         const reqs = await captureRefereeRequests(built.world, arms, item.intent, perceived);
         requests += reqs.length;
         const main = reqs[0];
@@ -757,7 +757,7 @@ export async function runRefereeProbe(opts: {
             (built.divergences.length || built.warnings.length ? ` | replay: ${built.divergences.length} divergences, ${built.warnings.length} warnings` : "")
         );
         if (first) {
-          for (const id of opts.showQuestions ?? []) {
+          for (const id of (opts.showQuestions ?? []).filter((x) => !x.startsWith("source:"))) {
             const q = main.questions.find((x: any) => x.id === id);
             console.log(`  [${arm.name}] question ${id}: ${q ? q.prompt : "(not asked)"}`);
           }
@@ -790,7 +790,7 @@ export async function runRefereeProbe(opts: {
       if (problem) throw new Error(`${opts.name}: ${problem}`);
       for (const item of items) {
         const built = await contextFor(cache, item, arms, omit);
-        const perceived = arm.perceived ? arm.perceived(built.context.perceivedObjects) : built.context.perceivedObjects;
+        const perceived = arm.perceived ? arm.perceived(built.context.perceivedObjects, item) : built.context.perceivedObjects;
         for (let s = 1; s <= opts.n; s++) {
           k += 1;
           const sampleId = `${arm.name}:${item.id}:${s}`;

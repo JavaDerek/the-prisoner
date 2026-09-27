@@ -216,4 +216,42 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
     },
     TIMEOUT
   );
+
+  it(
+    "P6 texture replay: the dry run builds both arms, and exactly the requests D9's text reaches differ",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-texture-replay/probe.mts", "--dry-run");
+      expect(out).toContain("22 items x 2 arm(s): 88 requests built, none sent.");
+      expect(out).toContain("Requests that differ between pre-D9 and D9: 12 of 22.");
+      expect(out).not.toMatch(/[1-9]\d* divergences/);
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P6 texture replay: the pre-D9 arm shows the old window line and no bar band; the D9 arm shows today's",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-texture-replay/probe.mts", "--dry-run", "--only=G27-P10");
+      expect(out).toMatch(/\[pre-D9\] desc:window: .*It stands open now: the bar is out of its widest gap\.$/m);
+      expect(out).toMatch(/\[D9\] desc:window: .*It stands open now: the bar is out, and the gap is wide enough to climb through\.$/m);
+      expect(out).toMatch(/\[pre-D9\] desc:bar: .*dry and cracked\.$/m);
+      expect(out).toMatch(/\[D9\] desc:bar: .*It shifts in its socket\.$/m);
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P6 texture replay: a rehearsal writes N=3 rows per arm and scores the pair",
+    async () => {
+      const dir = mkdtempSync(join(tmpdir(), "p6-rehearsal-"));
+      try {
+        const out = await tsx("checkpoints/2026-09-28-texture-replay/probe.mts", "--rehearse", `--out=${dir}`, "--only=D1-r7");
+        expect(rehearsalRows(dir).filter((r) => r.sampleId)).toHaveLength(6);
+        expect(out).toContain("## P6 -- the texture replay");
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
+    TIMEOUT
+  );
 });
