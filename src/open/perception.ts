@@ -216,6 +216,8 @@ const PROPERTY_CAPABILITY: Record<OpenPropertyKey, string> = {
   concealment: "hidden or uncovered",
   passage: "opened or shut",
   posture: "put on the floor or got back up",
+  // PLAYTEST-2026-09-27 D12.
+  sight: "blinded or cleared",
 };
 
 /** The subset of `EffectKind` that names a property at all
@@ -254,8 +256,8 @@ const NOTHING_TO_VERB: Record<PropertyEffectKind, { infinitive: string; passive:
  *  contradicted by the catalogue that follows it and is deliberately absent
  *  here. */
 const EFFECT_PAIR_PROPERTIES: Partial<Record<PropertyEffectKind, readonly OpenPropertyKey[]>> = {
-  wear: ["integrity", "edge", "posture"],
-  restore: ["integrity", "edge", "posture"],
+  wear: ["integrity", "edge", "posture", "sight"],
+  restore: ["integrity", "edge", "posture", "sight"],
   conceal: ["concealment"],
   expose: ["concealment"],
   open: ["passage"],
@@ -489,6 +491,10 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
     if (plan.mechanic === "OPEN_SEARCH") {
       const found = ((outcome.result as { uncovered?: readonly string[] }).uncovered ?? []).map(label);
       return told(`Your search of ${principalName(ruling.targetObjectId)} turned up: ${found.length > 0 ? found.join(", ") : "empty hands"}.`);
+    }
+    // PLAYTEST-2026-09-27 D12 (c): a close look by someone who cannot see.
+    if (ruling.effectKind === "reveal" && (outcome.result as { blind?: boolean }).blind === true) {
+      return told(`You cannot see the ${obj}: something covers your head.`);
     }
     if (ruling.effectKind === "reveal" && typeof result.value === "number") {
       return told(`Your last attempt showed you the ${obj} closely: its ${property} is ${result.value}.`);

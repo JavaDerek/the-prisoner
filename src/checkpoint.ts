@@ -62,7 +62,7 @@ import { getVariant } from "./variant.js";
 import { buildOpenWorld, declaredProperty, declaredPropertyKeys, derivedKindOf, readDoorPrice, readWindowMode, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "./open/world.js";
 import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
-import { createReferee, readInstrumentMode, readDeriveWordingMode, readOneActMode, readElisionMode, readContainerClauseMode, readDeriveRepeatMode } from "./open/referee.js";
+import { createReferee, readPersonInstrumentMode, readInstrumentMode, readDeriveWordingMode, readOneActMode, readElisionMode, readContainerClauseMode, readDeriveRepeatMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
 import { readPresenceMode, authoredDescription, ownershipAt, buildOpenContext } from "./open/briefing.js";
@@ -245,6 +245,9 @@ const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
  *  state the block and the two restores (`src/open/effects.ts`, `src/open/conditions.ts`). On unless asked;
  *  `off` is every earlier batch's request and list, byte for byte. */
 const BLOCK = readBlockMode(process.env.PRISONER_BLOCK);
+/** Open variant only: PLAYTEST-2026-09-27 D12 -- the target question reads an act done to a person with a thing
+ *  as naming the person (`src/open/referee.ts`). Off until probe P3 lands it. */
+const PERSON_INSTRUMENT = readPersonInstrumentMode(process.env.PRISONER_PERSON_INSTRUMENT);
 /** Open variant only: the effect question's sharpened derive/wear wording
  *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
  *  (the pre-existing text) unless asked -- the same D3 lesson. */
@@ -876,6 +879,7 @@ async function mainOpen(): Promise<void> {
       repeatDeriveMode: DERIVE_REPEAT,
       oneAct: ONE_ACT,
       blockMode: BLOCK,
+      personInstrumentMode: PERSON_INSTRUMENT,
     }
   );
   // WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b: a second, separate referee
@@ -1190,8 +1194,13 @@ async function mainOpen(): Promise<void> {
   );
   transcript.push(
     PRESENCE === "modelled"
-      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name, and each principal carries its own bounded `posture` -- 100 on her feet, 50 crouched, 0 on the floor -- which the other perceives in words and which raises no suspicion (§55, §56, issue #22)."
+      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name, and each principal carries its own bounded `posture` -- 100 on her feet, 50 crouched, 0 on the floor -- and `sight` -- 100 clear, at or below 60 she cannot see, restored slight-only -- which the other perceives in words and which raise no suspicion; a principal who cannot see perceives none of the other's acts, keeps nothing, examines nothing and holds no way out (§55, §56, issue #22; PLAYTEST-2026-09-27 D12)."
       : "Presence: OFF (the default): both principals are always treated as present to each other, and no person carries a declared state, as every batch before this gap recorded (§55, §56, issue #22)."
+  );
+  transcript.push(
+    PERSON_INSTRUMENT === "on"
+      ? "Person instrument: ON (`PRISONER_PERSON_INSTRUMENT=on`): with a person in view, the target question reads an act done to a person with a thing as naming the person (PLAYTEST-2026-09-27 D12, design R3)."
+      : "Person instrument: OFF (the default): the target question carries no person-instrument clause (PLAYTEST-2026-09-27 D12, pending probe P3)."
   );
   transcript.push(
     BLOCK === "on"

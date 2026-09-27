@@ -597,7 +597,9 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
     // purpose: every outcome now opens with what was ruled, as fiction --
     // batch 8 starts after this commit.
-    expect(text).toBe(`You set about looking closely at ${PRISONER_NAME}. Nothing about ${PRISONER_NAME} can be revealed. A person here can be put on the floor or got back up, searched, spoken to.`);
+    // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D12): a person's `sight` is declared, so its
+    // capability joins the catalogue.
+    expect(text).toBe(`You set about looking closely at ${PRISONER_NAME}. Nothing about ${PRISONER_NAME} can be revealed. A person here can be put on the floor or got back up, blinded or cleared, searched, spoken to.`);
     // D8's own opening clause ("Nothing about X can be Y") is a deliberate,
     // scoped negative -- the design's own literal wording, used verbatim in
     // every worked example -- so `expectPositive`'s "never say what is

@@ -69,7 +69,7 @@ export const PROPERTY_ANSWER_KEYS: readonly string[] = [...PROPERTY_KEYS, "none"
  *  actually perceived (`referee.ts`): with the presence arm off no person is
  *  ever in view, so the base request stays byte-identical to every recorded
  *  batch -- which `referee.test.ts`'s fingerprint PIN proves mechanically. */
-export const PERSON_PROPERTY_KEYS: readonly OpenPropertyKey[] = ["posture"];
+export const PERSON_PROPERTY_KEYS: readonly OpenPropertyKey[] = ["posture", "sight"];
 
 /** The property answers a ruling may give for the objects actually in view:
  *  the object vocabulary always, plus a person's own keys when one is there
@@ -218,6 +218,9 @@ export function planEffect(params: {
     /** Each person's posture resource, keyed by character id, where the world
      *  built one (the presence arm); C1's gate reads it at t. */
     postureOf: Readonly<Record<string, string>>;
+    /** PLAYTEST-2026-09-27 D12: each person's sight resource, keyed by character id like `postureOf`, where the
+     *  world built one. A take reads the holder's; a reveal reads the actor's own. */
+    sightOf?: Readonly<Record<string, string>>;
     /** HUMAN-INTENTS-DESIGN.md D9 (§6.2): each person's own containment
      *  resource, keyed by character id like `postureOf`, where the world
      *  built one (the presence arm). `conceal`/`expose` on a person-container
@@ -346,7 +349,14 @@ export function planEffect(params: {
   if (!resourceId) return null;
 
   if (effectKind === "reveal") {
-    return { mechanic: "OPEN_REVEAL", parameters: { resourceId, description }, resourceId, isWearType: false };
+    // PLAYTEST-2026-09-27 D12: a close look needs eyes -- the actor's own sight, read live, where built.
+    const actorSightResourceId = params.actorId ? params.custody?.sightOf?.[params.actorId] : undefined;
+    return {
+      mechanic: "OPEN_REVEAL",
+      parameters: { resourceId, ...(actorSightResourceId ? { actorSightResourceId, blindAtOrBelow: SIGHT_BLIND_AT_OR_BELOW } : {}), description },
+      resourceId,
+      isWearType: false,
+    };
   }
   if (effectKind === "wear") {
     const frees = property === "integrity" ? Object.keys(params.exits ?? {}).find((id) => params.exits?.[id]?.part === targetObjectId) : undefined;
@@ -467,7 +477,13 @@ function planCustody(params: Parameters<typeof planEffect>[0], entityId: string,
   const exits = params.exits ?? {};
   if (exits[targetObjectId] || Object.values(exits).some((exit) => exit.part === targetObjectId)) return null;
   if (effectKind === "take") {
-    return { mechanic: "OPEN_TAKE", parameters: { itemId: entityId, actorId, postureOf: custody.postureOf, keptAtOrAbove: POSTURE_ON_HER_FEET_ABOVE + 1, description }, resourceId: null, isWearType: false };
+    // PLAYTEST-2026-09-27 D12: C1 extended -- a holder keeps a thing only while on her feet AND able to see.
+    return {
+      mechanic: "OPEN_TAKE",
+      parameters: { itemId: entityId, actorId, postureOf: custody.postureOf, keptAtOrAbove: POSTURE_ON_HER_FEET_ABOVE + 1, ...(custody.sightOf ? { sightOf: custody.sightOf, blindAtOrBelow: SIGHT_BLIND_AT_OR_BELOW } : {}), description },
+      resourceId: null,
+      isWearType: false,
+    };
   }
   return { mechanic: "OPEN_GIVE", parameters: { itemId: entityId, actorId, recipientId: custody.otherId, description }, resourceId: null, isWearType: false };
 }

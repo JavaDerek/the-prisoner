@@ -250,8 +250,9 @@ describe("open-mode perception and briefing", () => {
       expect(other?.description).toContain("She is on her feet.");
       // And the property the referee would name for an act on that body is the
       // one the world actually built, from the caller's own lookup.
-      expect(declaredPropertyKeys(world, "prisoner")).toEqual(["posture"]);
-      expect(declaredPropertyKeys(world, "warden")).toEqual(["posture"]);
+      // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D12): a person declares `sight` beside `posture`.
+      expect(declaredPropertyKeys(world, "prisoner")).toEqual(["posture", "sight"]);
+      expect(declaredPropertyKeys(world, "warden")).toEqual(["posture", "sight"]);
     });
 
     it("modelled: once the warden leaves through the door, the prisoner no longer perceives her, or her key ring, which travels with her -- and she still perceives the (cell-fixed) bar", () => {

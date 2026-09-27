@@ -13,6 +13,7 @@ import { pick, type Verdict } from "mother-of-invention";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
+import { SIGHT_BLIND_AT_OR_BELOW } from "./scenarioObjects.js";
 import { HONE_SUSPICION_BUMP, FILE_SUSPICION_BUMP, FAILED_ESCAPE_SUSPICION_BUMP, EVIDENCE_SUSPICION_DIVISOR } from "../world/mechanics.js";
 
 /**
@@ -588,6 +589,11 @@ export async function runOpenHalfRound(params: {
   // (further down) always has.
   const other: Principal = principal === "prisoner" ? "warden" : "prisoner";
   const otherPresent = presenceMode === "off" || principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t);
+  // PLAYTEST-2026-09-27 D12 (a): the other principal cannot see -- this act reaches her as nothing, the same
+  // gate absence uses. Read live at t from her own sight, where the world built one (the presence arm).
+  const otherSightId = resourceIdForProperty(openWorld, other, "sight");
+  const otherSight = otherSightId ? readNumericFact({ gameId: openWorld.base.gameId, t, entityId: otherSightId, key: "value" }) : null;
+  const otherBlind = otherSight !== null && otherSight <= SIGHT_BLIND_AT_OR_BELOW;
 
   const considered = await mind.consider(context);
   if (considered === null) {
@@ -694,7 +700,7 @@ export async function runOpenHalfRound(params: {
       plan: null,
       outcome: acquired?.outcome ?? null,
       refusalError: null,
-      perceptionForOther: acquired?.perceptionForOther ?? null,
+      perceptionForOther: otherBlind ? null : (acquired?.perceptionForOther ?? null),
       revealFor: null,
       derived: null,
       reshaped: null,
@@ -768,6 +774,14 @@ export async function runOpenHalfRound(params: {
           return resourceId ? [[p === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId, resourceId]] : [];
         })
       ),
+      // PLAYTEST-2026-09-27 D12: each person's sight, where the world built one -- a take reads the holder's,
+      // a reveal the actor's own.
+      sightOf: Object.fromEntries(
+        (["prisoner", "warden"] as const).flatMap((p) => {
+          const resourceId = resourceIdForProperty(openWorld, p, "sight");
+          return resourceId ? [[p === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId, resourceId]] : [];
+        })
+      ),
       // HUMAN-INTENTS-DESIGN.md D9 (§6.2): each principal's own containment
       // resource, where the world built one (the presence arm) -- read by
       // `effects.ts`'s `conceal`/`expose` branches for a person-container.
@@ -817,7 +831,7 @@ export async function runOpenHalfRound(params: {
       plan: null,
       outcome: acquired?.outcome ?? null,
       refusalError: null,
-      perceptionForOther: acquired?.perceptionForOther ?? null,
+      perceptionForOther: otherBlind ? null : (acquired?.perceptionForOther ?? null),
       revealFor: null,
       derived: null,
       reshaped: null,
@@ -862,7 +876,7 @@ export async function runOpenHalfRound(params: {
   // `resolve()`, from the ruling alone, so a refused resolution relays
   // exactly what a landed one would -- the bystander saw the reach whether
   // or not the world let it land.
-  const perceptionForOther = !otherPresent ? null : ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
+  const perceptionForOther = !otherPresent || otherBlind ? null : ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
 
   // PLAYTEST-2026-09-27 D4' (RED-TEAM.md F11): a block is an OCCUPATION. Once this turn's ruling applies and its
   // plan is anything but a block on the way out she already stands in, she steps out of it first -- an audited

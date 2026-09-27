@@ -382,6 +382,20 @@ export function readContainerClauseMode(raw: string | undefined): ContainerClaus
  */
 export type DeriveRepeatMode = "off" | "on";
 
+/**
+ * PLAYTEST-2026-09-27 D12 (design R3, change 2): whether the target question, with a person in view, reads an act
+ * done to a person WITH a thing as naming the person ("throw the blanket over Croft" lands on Croft, the blanket
+ * only what it is done with). Generic -- the same sentence for any two people in any room, never a prisoner-only
+ * hint. `off` (the default, and `createReferee`'s bare default) until probe P3 measures it; `on` is the arm.
+ */
+export type PersonInstrumentMode = "off" | "on";
+
+export function readPersonInstrumentMode(raw: string | undefined): PersonInstrumentMode {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "off" || raw === "on") return raw;
+  throw new Error(`PRISONER_PERSON_INSTRUMENT: unrecognised value ${JSON.stringify(raw)} -- must be "on" or "off" (the default)`);
+}
+
 export function readDeriveRepeatMode(raw: string | undefined): DeriveRepeatMode {
   if (raw === undefined || raw === "") return "off";
   if (raw === "off" || raw === "on") return raw;
@@ -441,7 +455,8 @@ function buildQuestions(
   elisionMode: ElisionMode,
   containerClauseMode: ContainerClauseMode,
   repeatDeriveMode: DeriveRepeatMode,
-  blockMode: BlockMode = "off"
+  blockMode: BlockMode = "off",
+  personInstrumentMode: PersonInstrumentMode = "off"
 ): ReaderQuestion[] {
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
@@ -468,7 +483,12 @@ function buildQuestions(
   const PERSON_EFFECT_CLAUSE =
     " An act that changes how a person's own body is held -- dropping to the floor, collapsing, crouching down, going limp -- is wear on that person; an act that gets a body back up off the floor is restore on that person. The body is the target, even when the act is a performance and nothing else in the room changes." +
     // docs/CUSTODY-DESIGN.md: a search is the one custody act done TO a person, so it targets her.
-    " Searching a person -- patting them down, turning out what they carry -- is expose on that person.";
+    " Searching a person -- patting them down, turning out what they carry -- is expose on that person." +
+    // PLAYTEST-2026-09-27 D12 (design R3): a person's `sight`, worn and restored like her posture.
+    " Covering someone's eyes or head so they cannot see is wear on that person; clearing one's own eyes or head is restore on the actor herself.";
+  // PLAYTEST-2026-09-27 D12 (design R3 change 2), `PRISONER_PERSON_INSTRUMENT` (`readPersonInstrumentMode`), off
+  // until P3 measures it: an act done to a person WITH a thing names the person.
+  const PERSON_INSTRUMENT_CLAUSE = " An act done to a person with a thing -- striking, covering, blinding, restraining, tying -- names the person; the thing is only what it is done with.";
   // HUMAN-INTENTS-DESIGN.md §6.2, D9, the-prisoner#28: the effect half of
   // D9's two clauses, in this question's own house style (a verb list, no
   // object id named -- `PERSON_EFFECT_CLAUSE`'s own shape). `OPEN_CONCEAL_
@@ -479,7 +499,7 @@ function buildQuestions(
   // clause for.
   const CONTAINER_EFFECT_CLAUSE =
     " Getting oneself under or beneath a thing that can conceal a person -- pulling it over the body, drawing it close so it covers her -- is conceal on that thing; coming out from under it again, or being uncovered, is expose on that thing.";
-  const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), ";
+  const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), sight (whether a person can see, 100 clear, 0 blind), ";
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
   // in the effect question by example and offered as the product keys. A
@@ -531,6 +551,7 @@ function buildQuestions(
         (personInView ? PERSON_TARGET_CLAUSE : "") +
         (personInView && elisionMode === "on" ? ELISION_CLAUSE : "") +
         (personInView && containerClauseMode === "on" ? CONTAINER_TARGET_CLAUSE : "") +
+        (personInView && personInstrumentMode === "on" ? PERSON_INSTRUMENT_CLAUSE : "") +
         "Cite the exact words in the actor's intent that name it.",
       answerKeys: targetKeys,
       safeDefault: "none",
@@ -896,6 +917,8 @@ export function createReferee(
      *  constructor's own default is `"off"`, so a bare referee's request is byte-identical to every recorded
      *  batch and the fingerprint PIN holds. */
     blockMode?: BlockMode;
+    /** PLAYTEST-2026-09-27 D12 (`readPersonInstrumentMode`). Default `"off"`, like its env reader. */
+    personInstrumentMode?: PersonInstrumentMode;
   } = {}
 ): Referee {
   const isDeclared = options.isDeclared ?? declaredInScenario;
@@ -917,7 +940,7 @@ export function createReferee(
     const key = cacheKeyFor(intentText, perceivedObjects);
     const cached = mainCache.get(key);
     if (cached) return cached;
-    const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode, options.blockMode ?? "off");
+    const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode, options.blockMode ?? "off", options.personInstrumentMode ?? "off");
     const sources = buildSources(intentText, perceivedObjects);
     // OPEN-VARIANT.md §38: each rung's last exchange, for the sidecar. (What each rung OFFERED was
     // kept here too until run-dmcp 0.10.0 put the word range on the accepted citation itself.)

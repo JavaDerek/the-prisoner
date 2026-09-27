@@ -100,6 +100,10 @@ export interface HumanTurnRow {
   captured: CapturedKind;
   outcomeWordingRead: OutcomeWordingRead;
   versions: TurnReportVersions;
+  /** PLAYTEST-2026-09-27 D12 (design R3, silent-rewrite detection): the persons among what the actor perceived
+   *  this turn, so an audit can tell "no person was a key" from "a person was a key and the referee chose the
+   *  object". Data only; the label is the owner's. */
+  personsInView: string[];
   /** Left `null` by this module always -- §7.2's label is filled in by the
    *  owner after playing, from reading the transcript against what the
    *  player meant, never guessed at here. */
@@ -119,6 +123,7 @@ export function buildHumanTurnRow(half: OpenHalfRoundResult, versions: TurnRepor
     captured: classifyCapture(half),
     outcomeWordingRead: "post-D1",
     versions,
+    personsInView: half.context.perceivedObjects.map((o) => o.id).filter((id) => id === "prisoner" || id === "warden"),
     label: null,
   };
 }

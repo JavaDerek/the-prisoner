@@ -183,6 +183,8 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
     for (const set of outcome.sets) lines.push(`  - ${set.key}: ${String(set.previousValue)} -> ${String(set.newValue)}`);
     const result = outcome.result as { value?: unknown; left?: boolean; made?: boolean };
     if (ruling.effectKind === "reveal" && result.value !== undefined) lines.push(`  - revealed ${resourceName} = ${String(result.value)}`);
+    // PLAYTEST-2026-09-27 D12 (c): the examiner could not see.
+    if (ruling.effectKind === "reveal" && (outcome.result as { blind?: boolean }).blind === true) lines.push(`  - the ${half.principal} cannot see: nothing revealed`);
     if (ruling.effectKind === "derive") {
       if (half.derived) {
         lines.push(`  - made ${half.derived.id} (${half.derived.kindId}), held by the ${half.derived.heldBy}: ${half.derived.description}`);

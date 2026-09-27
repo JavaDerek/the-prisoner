@@ -31,6 +31,10 @@ export interface WearRestoreParams {
 
 export interface RevealParams {
   resourceId: string;
+  /** PLAYTEST-2026-09-27 D12: the actor's own sight resource and its blind line, where the world built one. At
+   *  or below the line the reveal refuses: no value, `result.blind`. */
+  actorSightResourceId?: string;
+  blindAtOrBelow?: number;
   description: string;
 }
 
@@ -192,6 +196,10 @@ export const OPEN_REVEAL: Mechanic = {
   name: "OPEN_REVEAL",
   adjudicate(input: AdjudicationInput): Adjudication {
     const p = input.parameters as unknown as RevealParams;
+    const sight = p.actorSightResourceId ? numericFactFrom(input.constraint.mustHonor, p.actorSightResourceId, "value") : null;
+    if (sight !== null && p.blindAtOrBelow !== undefined && sight <= p.blindAtOrBelow) {
+      return { changes: [], result: { mechanic: "OPEN_REVEAL", resourceId: p.resourceId, blind: true }, description: p.description };
+    }
     const value = currentValue(input, p.resourceId);
     return {
       changes: [],
@@ -386,6 +394,10 @@ export interface TakeParams {
   /** docs/CUSTODY-DESIGN.md, C1 = A: a holder whose posture stands at or
    *  above this keeps what she holds. Handed in, never known here. */
   keptAtOrAbove: number;
+  /** PLAYTEST-2026-09-27 D12: each person's sight resource by character id, and the line at or below which she
+   *  cannot see -- a holder who cannot see keeps nothing. Absent: sight is not modelled. */
+  sightOf?: Readonly<Record<string, string>>;
+  blindAtOrBelow?: number;
   description: string;
 }
 
@@ -446,7 +458,10 @@ export const OPEN_TAKE: Mechanic = {
     if (holder.type === "character") {
       const postureId = p.postureOf[holder.id];
       const posture = postureId ? numericFactFrom(input.constraint.mustHonor, postureId, "value") : null;
-      if (posture === null || posture >= p.keptAtOrAbove) return refuse("holder-on-her-feet", holder.id);
+      const sightId = p.sightOf?.[holder.id];
+      const sight = sightId ? numericFactFrom(input.constraint.mustHonor, sightId, "value") : null;
+      const sees = sight === null || p.blindAtOrBelow === undefined || sight > p.blindAtOrBelow;
+      if ((posture === null || posture >= p.keptAtOrAbove) && sees) return refuse("holder-on-her-feet", holder.id);
     }
     return {
       changes: setOwner(p.itemId, p.actorId),

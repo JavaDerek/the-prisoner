@@ -42,7 +42,7 @@
  *  state, never an object's. */
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 
-export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage" | "posture";
+export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage" | "posture" | "sight";
 
 export interface MagnitudeTable {
   slight: number;
@@ -515,6 +515,25 @@ const posture = (who: string): OpenObjectProperty => ({
   ],
 });
 
+/** PLAYTEST-2026-09-27 D12 (design R3, RED-TEAM.md F2): whether a person can see. 100 clear, 0 blind; at or
+ *  below `SIGHT_BLIND_AT_OR_BELOW` she cannot. Worn like posture (a moderate cover blinds, a substantial one
+ *  puts her at 0); restored SLIGHT-ONLY at every magnitude -- the owner's decision, so one substantial cover
+ *  outlasts one clearing (F2's table: at equal tables he always clears it before her next turn). Read in
+ *  bands authored ascending, because `describedAsItStands` takes the first band the value falls in. */
+const sight = (who: string): OpenObjectProperty => ({
+  key: "sight",
+  resourceName: `${who}_sight`,
+  min: 0,
+  max: 100,
+  initialValue: 100,
+  wear: { slight: 10, moderate: 50, substantial: 100 },
+  restore: { slight: 10, moderate: 10, substantial: 10 },
+  readRanges: [
+    { atOrBelow: SIGHT_BLIND_AT_OR_BELOW, text: "Something covers her head; she cannot see." },
+    { atOrBelow: 100, text: "Her eyes are on the cell." },
+  ],
+});
+
 /** The two principals as perceivable, targetable things (§55 gap 2) that carry
  *  their own declared state (this gap). Shaped exactly like `OPEN_OBJECTS` so
  *  every mechanism that already reads a spec -- `describedAsItStands`,
@@ -524,12 +543,12 @@ export const OPEN_PERSONS: readonly OpenObjectSpec[] = [
     id: "prisoner",
     heldBy: "prisoner",
     description: `${PRISONER_NAME}, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
-    properties: [posture("prisoner")],
+    properties: [posture("prisoner"), sight("prisoner")],
   },
   {
     id: "warden",
     heldBy: "warden",
     description: `${WARDEN_NAME}, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
-    properties: [posture("warden")],
+    properties: [posture("warden"), sight("warden")],
   },
 ];
