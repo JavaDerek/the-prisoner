@@ -130,7 +130,13 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         wear: { slight: 1, moderate: 1, substantial: 1 },
         restore: { slight: 1, moderate: 1, substantial: 1 },
         // §33.7: the referee could not rule a climb out as `leave` without it (9 of 9 on replay).
-        reads: { 1: "It stands open now: the bar is out of its widest gap." },
+        // D9 (PLAYTEST-2026-09-27-DESIGN.md §3 R7), changed on purpose, 2026-09-27: reworded to
+        // name the climb rather than the "widest gap" phrasing §76 already dropped from this
+        // object's own authored description. The referee's recorded citation for a climb-out is
+        // the span "stands open now:" -- unchanged in wording and, briefing.test.ts checks with
+        // run-dmcp's own `sourceWords`, unchanged in word position (41-43) either. P6 (a replay of
+        // recorded rulings against this text) is PENDING -- not run by this change.
+        reads: { 1: "It stands open now: the bar is out, and the gap is wide enough to climb through." },
       },
     ],
   },
@@ -161,6 +167,22 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
         // move name, but the magnitude table exists independent of any one
         // move.
         restore: { slight: 20, moderate: 50, substantial: 100 },
+        // D9 (PLAYTEST-2026-09-27-DESIGN.md §3 R7, texture; RED-TEAM.md F13, authored
+        // ascending): `describedAsItStands` (briefing.ts) takes the FIRST entry with
+        // `value <= atOrBelow`, so these three must read low-to-high or a wider band
+        // would shadow a narrower one below it forever. Nothing above 70 -- the bar
+        // at 85 and 100 reads its authored description alone. The bands reach every
+        // principal who perceives the bar, not only the one who last wore it: the
+        // warden sees "It shifts in its socket." without a close look, the same as
+        // the prisoner would. The catch (gameEnd.ts's own integrity threshold) is
+        // unchanged by this -- reading in words never touches a resource's value.
+        // P6 (a replay of recorded rulings against this text) is PENDING -- not run
+        // by this change.
+        readRanges: [
+          { atOrBelow: 40, text: "It shifts in its socket." },
+          { atOrBelow: 55, text: "The mortar at its foot has crumbled away in places." },
+          { atOrBelow: 70, text: "Bright metal shows through the rust where it meets the mortar." },
+        ],
       },
     ],
   },

@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
+import { sourceWords } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty, declaredPropertyKeys } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
@@ -40,10 +41,84 @@ describe("open-mode perception and briefing", () => {
     }
     const t = world.base.clock.wardenT(1);
     for (const principal of ["prisoner", "warden"] as const) {
-      expect(described(principal, "window", t)).toBe(`${authored("window")} It stands open now: the bar is out of its widest gap.`);
+      // D9 (PLAYTEST-2026-09-27-DESIGN.md §3 R7), changed on purpose, 2026-09-27:
+      // reworded to name the climb rather than the widest-gap phrasing §76 already
+      // dropped from the window's own authored text -- see the word-position test
+      // below for the referee's actual cited span.
+      expect(described(principal, "window", t)).toBe(`${authored("window")} It stands open now: the bar is out, and the gap is wide enough to climb through.`);
       expect(described(principal, "door", t)).toBe(`${authored("door")} It stands open now.`);
       expect(described(principal, "bar", t)).toBe(authored("bar"));
     }
+  });
+
+  // D9 (PLAYTEST-2026-09-27-DESIGN.md §3 R7, texture; RED-TEAM.md F13, authored
+  // ascending): the bar's `integrity` gains `readRanges` so a texture reaches
+  // EVERY principal who perceives the bar, not only the one who last wore it --
+  // the warden gets "It shifts in its socket." without a close look, same as the
+  // prisoner would. `describedAsItStands` (briefing.ts) takes the first entry
+  // with `value <= atOrBelow`, so the bands must be authored low-to-high or the
+  // higher band would shadow the lower one forever. The catch (gameEnd.ts's own
+  // integrity check) is unchanged by this: reading in words never touches a
+  // resource's value. P6 (a replay of recorded rulings against this new text) is
+  // PENDING -- not run by this change.
+  it("the bar's integrity reads a texture band at 40, 55 and 70, reaching every principal (D9)", () => {
+    const bands: readonly [number, string][] = [
+      [40, "It shifts in its socket."],
+      [55, "The mortar at its foot has crumbled away in places."],
+      [70, "Bright metal shows through the rust where it meets the mortar."],
+    ];
+    for (const [value, text] of bands) {
+      createTestDb();
+      const world = buildOpenWorld();
+      const authored = OPEN_OBJECTS.find((o) => o.id === "bar")?.description;
+      const resourceId = resourceIdForProperty(world, "bar", "integrity") as string;
+      buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId, amount: 100 - value, min: 0, max: 100, description: "x" } });
+      const t = world.base.clock.wardenT(1);
+      for (const principal of ["prisoner", "warden"] as const) {
+        expect(computePerceivedObjects(world, principal, t).find((o) => o.id === "bar")?.description, `value ${value}, ${principal}`).toBe(`${authored} ${text}`);
+      }
+      destroyTestDb();
+    }
+  });
+
+  it("the bar's integrity reads nothing above 70: at 85 and 100 it reads the authored description alone (D9)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const authored = OPEN_OBJECTS.find((o) => o.id === "bar")?.description;
+    const resourceId = resourceIdForProperty(world, "bar", "integrity") as string;
+    // 100: the initial value, no wear at all.
+    expect(computePerceivedObjects(world, "warden", world.base.clock.t0).find((o) => o.id === "bar")?.description).toBe(authored);
+    // 85: worn, but still above every band's `atOrBelow`.
+    buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId, amount: 15, min: 0, max: 100, description: "x" } });
+    const t = world.base.clock.wardenT(1);
+    expect(computePerceivedObjects(world, "warden", t).find((o) => o.id === "bar")?.description).toBe(authored);
+  });
+
+  it("41 reads the 55 band, not the 40 band -- the bands are searched low-to-high (D9)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const authored = OPEN_OBJECTS.find((o) => o.id === "bar")?.description;
+    const resourceId = resourceIdForProperty(world, "bar", "integrity") as string;
+    buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId, amount: 100 - 41, min: 0, max: 100, description: "x" } });
+    const t = world.base.clock.wardenT(1);
+    expect(computePerceivedObjects(world, "warden", t).find((o) => o.id === "bar")?.description).toBe(`${authored} The mortar at its foot has crumbled away in places.`);
+  });
+
+  // D9: the referee's recorded citation for a climb-out is the span "stands open
+  // now:" -- checked here with run-dmcp's own `sourceWords` (the same numbering
+  // the referee transport hands a model) rather than trusted by eye, because a
+  // citation is only as good as the word positions it actually names.
+  it("the window's climb-out citation \"stands open now:\" keeps word positions 41-43 in the perceived description (D9)", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const resourceId = resourceIdForProperty(world, "window", "passage") as string;
+    buildOpenResolver().resolve({ gameId: world.base.gameId, mechanic: "OPEN_RESTORE", parameters: { resourceId, amount: 1, min: 0, max: 1, description: "x" } });
+    const t = world.base.clock.wardenT(1);
+    const description = computePerceivedObjects(world, "prisoner", t).find((o) => o.id === "window")?.description as string;
+    const words = sourceWords(description);
+    const span = words.slice(40, 43).map((w) => w.word);
+    expect(span).toEqual(["stands", "open", "now:"]);
+    expect([words[40].index, words[41].index, words[42].index]).toEqual([41, 42, 43]);
   });
 
   // OPEN-VARIANT.md §33.9 (owner's decision): nothing in the open variant reads

@@ -114,6 +114,35 @@ describe("open-variant scenario objects (OPEN-VARIANT.md §4.1)", () => {
   // HUMAN-INTENTS-DESIGN.md D5, the-prisoner#26: the world models one bar, so
   // no description may say "bars" -- the plural that misled §26.1's prisoner
   // into hunting for a second one after the first came free.
+  // D9 (PLAYTEST-2026-09-27-DESIGN.md §3 R7, texture; RED-TEAM.md F13, authored
+  // ascending): `describedAsItStands` (briefing.ts) takes the FIRST readRanges
+  // entry with `value <= atOrBelow`, so these must be authored low-to-high or a
+  // wider band would shadow a narrower one below it forever. Reaches every
+  // principal who perceives the bar -- the warden reads "It shifts in its
+  // socket." without a close look, same as the prisoner would -- and the catch
+  // (gameEnd.ts's own integrity threshold) is unchanged: reading in words never
+  // touches a resource's value. P6 (a replay of recorded rulings against this
+  // text) is PENDING -- not run by this change.
+  it("the bar's integrity declares readRanges authored ascending, 40/55/70, nothing above 70 (D9)", () => {
+    expect(findProperty("bar", "integrity")?.readRanges).toEqual([
+      { atOrBelow: 40, text: "It shifts in its socket." },
+      { atOrBelow: 55, text: "The mortar at its foot has crumbled away in places." },
+      { atOrBelow: 70, text: "Bright metal shows through the rust where it meets the mortar." },
+    ]);
+    const ranges = findProperty("bar", "integrity")?.readRanges ?? [];
+    expect(ranges.every((r, i) => i === 0 || ranges[i - 1].atOrBelow < r.atOrBelow)).toBe(true);
+    expect(Math.max(...ranges.map((r) => r.atOrBelow))).toBe(70);
+  });
+
+  // D9: the window's `reads[1]` line is reworded to name the climb, replacing the
+  // "widest gap" phrasing the window's own authored text already dropped at §76.
+  // The word-position claim about its cited span ("stands open now:", 41-43) is
+  // checked with run-dmcp's `sourceWords` in briefing.test.ts, where the full
+  // perceived description (authored text + this line) actually exists.
+  it("the window's open reading names the climb (D9)", () => {
+    expect(findProperty("window", "passage")?.reads).toEqual({ 1: "It stands open now: the bar is out, and the gap is wide enough to climb through." });
+  });
+
   it("no description in OPEN_OBJECTS ever says 'bars' (D5, the-prisoner#26)", () => {
     for (const object of OPEN_OBJECTS) {
       expect(object.description.toLowerCase(), object.id).not.toContain("bars");

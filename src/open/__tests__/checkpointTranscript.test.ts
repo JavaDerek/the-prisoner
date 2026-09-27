@@ -356,7 +356,7 @@ describe("open checkpoint transcript", () => {
         // live authored description exactly, or this "unchanged" case degrades into the "changed" one below.
         perceivedObjects: [
           { id: "bar", description: "The iron bar set across the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked." },
-          { id: "window", description: "A small window set in the wall at shoulder height. It stands open now: the bar is out of its widest gap." },
+          { id: "window", description: "A small window set in the wall at shoulder height. It stands open now: the bar is out, and the gap is wide enough to climb through." },
         ],
       },
       proposal: { intent: "I look around." },
@@ -366,7 +366,7 @@ describe("open checkpoint transcript", () => {
     // Every id it could act on, so the target answer key set is recoverable.
     expect(text).toContain("**Perceived:** bar, window");
     // The changed description in full -- this is the sentence a mind reasons from.
-    expect(text).toContain("It stands open now: the bar is out of its widest gap.");
+    expect(text).toContain("It stands open now: the bar is out, and the gap is wide enough to climb through.");
     // The unchanged one is not repeated: it is in the header, once.
     expect(text).not.toContain("dry and cracked");
   });
