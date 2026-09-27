@@ -369,27 +369,40 @@ export function insertAbsenceLine(briefing: string): string {
 
 /** Every request one `rule()` makes, captured by a transport that answers nothing (so the one-act reading and
  *  the six-question reading are both captured, and nothing is split). */
-export async function captureRefereeRequests(world: any, arms: GameArms, intent: string, perceived: any[]): Promise<any[]> {
+export async function captureRefereeRequests(world: any, arms: GameArms, intent: string, perceived: any[], wrap?: (transport: any) => any): Promise<any[]> {
   const requests: any[] = [];
   const captor = async (request: any) => {
     requests.push(request);
     return [];
   };
-  await createReferee([captor as any], refereeOptions(world, arms) as any).rule(intent, perceived);
+  // A probe-local transport arm (P7) wraps the captor exactly as it wraps the real transport, so the dry run
+  // shows the bytes' order the live run would send.
+  await createReferee([(wrap ? wrap(captor) : captor) as any], refereeOptions(world, arms) as any).rule(intent, perceived);
   return requests;
 }
 
 /** A transport wrapper that records every exchange it carries -- which intent text each call ruled on and the
  *  keys that came back. Under `oneAct: first` this is how a probe sees the truncated ruling's own keys (D7),
  *  which the returned ruling keeps only when it applied. */
-export function tracing(transport: any): { transport: any; trace: { questionIds: string[]; intent: string; answers: { questionId: string; answerKey: string }[] }[] } {
-  const trace: { questionIds: string[]; intent: string; answers: { questionId: string; answerKey: string }[] }[] = [];
+export interface TraceEntry {
+  questionIds: string[];
+  intent: string;
+  answers: { questionId: string; answerKey: string }[];
+  /** Wall time of the call as this process saw it, and the transport's own `ms` when it keeps one (P7). */
+  ms: number;
+  exchangeMs: number | null;
+}
+export function tracing(transport: any): { transport: any; trace: TraceEntry[] } {
+  const trace: TraceEntry[] = [];
   const wrapped = async (request: any) => {
+    const t0 = performance.now();
     const answers = await transport(request);
     trace.push({
       questionIds: request.questions.map((q: any) => q.id),
       intent: request.sources.find((s: any) => s.id === "intent")?.text ?? "",
       answers: Array.isArray(answers) ? answers.map((a: any) => ({ questionId: a.questionId, answerKey: a.answerKey })) : [],
+      ms: Math.round(performance.now() - t0),
+      exchangeMs: transport.lastExchange?.()?.ms ?? null,
     });
     return answers;
   };
@@ -748,7 +761,7 @@ export async function runRefereeProbe(opts: {
       for (const item of items) {
         const built = await contextFor(cache, item, arms, omit);
         const perceived = arm.perceived ? arm.perceived(built.context.perceivedObjects, item) : built.context.perceivedObjects;
-        const reqs = await captureRefereeRequests(built.world, arms, item.intent, perceived);
+        const reqs = await captureRefereeRequests(built.world, arms, item.intent, perceived, arm.wrapTransport);
         requests += reqs.length;
         const main = reqs[0];
         const effect = main.questions.find((q: any) => q.id === "effect");
@@ -757,6 +770,7 @@ export async function runRefereeProbe(opts: {
             (built.divergences.length || built.warnings.length ? ` | replay: ${built.divergences.length} divergences, ${built.warnings.length} warnings` : "")
         );
         if (first) {
+          console.log(`  [${arm.name}] source order sent: ${main.sources.map((x: any) => x.id).join(", ")}`);
           for (const id of (opts.showQuestions ?? []).filter((x) => !x.startsWith("source:"))) {
             const q = main.questions.find((x: any) => x.id === id);
             console.log(`  [${arm.name}] question ${id}: ${q ? q.prompt : "(not asked)"}`);

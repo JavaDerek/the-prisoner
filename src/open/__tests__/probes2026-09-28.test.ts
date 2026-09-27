@@ -254,4 +254,36 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
     },
     TIMEOUT
   );
+
+  it(
+    "P7 request order: the dry run sends the intent first in one arm and last in the other, nothing else moved",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-request-order/probe.mts", "--dry-run");
+      expect(out).toContain("20 items x 2 arm(s): 80 requests built, none sent.");
+      const first = /\[intent-first\] source order sent: (.*)$/m.exec(out)?.[1].split(", ") ?? [];
+      const last = /\[intent-last\] source order sent: (.*)$/m.exec(out)?.[1].split(", ") ?? [];
+      expect(first[0]).toBe("intent");
+      expect(last[last.length - 1]).toBe("intent");
+      expect([...last.slice(0, -1)]).toEqual(first.slice(1));
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P7 request order: a rehearsal pairs the arms and times each six-question call",
+    async () => {
+      const dir = mkdtempSync(join(tmpdir(), "p7-rehearsal-"));
+      try {
+        const out = await tsx("checkpoints/2026-09-28-request-order/probe.mts", "--rehearse", `--out=${dir}`, "--only=r1-warden,r1-prisoner");
+        const rows = rehearsalRows(dir).filter((r) => r.sampleId);
+        expect(rows).toHaveLength(4);
+        expect(rows.every((r) => Array.isArray(r.trace) && (r.trace as { ms: unknown }[]).every((c) => typeof c.ms === "number"))).toBe(true);
+        expect(out).toContain("## P7 -- the request order");
+        expect(out).toMatch(/\| HOLD \| .* \| 0 of 2 \|/);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
+    TIMEOUT
+  );
 });
