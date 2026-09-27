@@ -228,7 +228,8 @@ export interface PassageParams {
   min: number;
   max: number;
   /** OPEN-VARIANT.md §24: open only while the part's integrity is at or below
-   *  `atMost`. Absent for close and for a way out with no threshold. */
+   *  `atMost`. PLAYTEST-2026-09-27 D11: close only while it is ABOVE it. Absent
+   *  for a way out with no threshold. */
   gate?: { integrityResourceId: string; atMost: number; part: string };
   /** HUMAN-INTENTS-DESIGN.md D7a (§5, OPEN-VARIANT.md §76.2, the-prisoner#26):
    *  when the gate above refuses, the SAME resolution applies this magnitude
@@ -264,6 +265,16 @@ export const OPEN_PASSAGE: Mechanic = {
       return {
         changes,
         result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, opened: false, ...(part && p.gate ? { partId: p.gate.part, partBefore: part.before, partAfter: part.after } : {}) },
+        description: p.description,
+      };
+    }
+    if (!p.open && p.gate && currentValue(input, p.gate.integrityResourceId) <= p.gate.atMost) {
+      // PLAYTEST-2026-09-27 D11 (RED-TEAM.md F3), 2026-09-27: a part at or under the gate cannot hold the way out
+      // shut -- the window's bar is out of it, the door's lock will not hold. Nothing changes, and `result` says
+      // which part, so the actor is told.
+      return {
+        changes: [],
+        result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, shut: false, partId: p.gate.part },
         description: p.description,
       };
     }

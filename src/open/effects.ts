@@ -309,13 +309,15 @@ export function planEffect(params: {
     // §24: an open is held to the way out's threshold on its part, whichever
     // object the referee named.
     const exit = exits[exitId];
-    const gate = effectKind === "open" && exit?.openWhenPartAtMost !== null && exit?.openWhenPartAtMost !== undefined ? { integrityResourceId: exit.integrityResourceId, atMost: exit.openWhenPartAtMost, part: exit.part } : undefined;
+    // PLAYTEST-2026-09-27 D11 (RED-TEAM.md F3), 2026-09-27, no arm: `close` carries the same gate -- a way out
+    // whose part is at or under it has nothing left to shut it with (`OPEN_PASSAGE` refuses).
+    const gate = exit?.openWhenPartAtMost !== null && exit?.openWhenPartAtMost !== undefined ? { integrityResourceId: exit.integrityResourceId, atMost: exit.openWhenPartAtMost, part: exit.part } : undefined;
     // HUMAN-INTENTS-DESIGN.md D7a (§5, OPEN-VARIANT.md §76.2): when the gate
     // above refuses, the same resolution wears the part by the ruled
     // magnitude -- the part's own declared `integrity` table, the identical
     // one an ordinary `wear` on it would use. Only ever built alongside a
     // gate: a way out with no threshold has nothing D7a changes.
-    const partDeclared = gate ? lookup(gate.part, "integrity") : undefined;
+    const partDeclared = gate && effectKind === "open" ? lookup(gate.part, "integrity") : undefined;
     const wearOnRefusal = gate && partDeclared ? { resourceId: gate.integrityResourceId, amount: partDeclared.wear[magnitude], min: partDeclared.min, max: partDeclared.max } : undefined;
     return {
       mechanic: "OPEN_PASSAGE",

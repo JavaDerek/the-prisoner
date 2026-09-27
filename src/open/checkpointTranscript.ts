@@ -198,6 +198,9 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
       const held = (outcome.result as { held?: string }).held;
       lines.push(result.left ? `  - went out through the ${exit}` : held === "blocked" ? `  - the ${exit} is held: the ${half.principal === "prisoner" ? "warden" : "prisoner"} stands in it` : `  - the ${exit} held shut`);
     }
+    // PLAYTEST-2026-09-27 D11: a close the spent part refused.
+    const shutResult = outcome.result as { shut?: boolean; partId?: string; wayOut?: string };
+    if (ruling.effectKind === "close" && shutResult.shut === false) lines.push(`  - the ${(shutResult.wayOut ?? ruling.targetObjectId).replace(/_/g, " ")} would not shut: the ${(shutResult.partId ?? "part").replace(/_/g, " ")} is at or under its gate`);
     // docs/CUSTODY-DESIGN.md: what the custody mechanic reported, in its own
     // closed keys -- the `owner_id`/`owner_type` sets themselves print above.
     const custody = custodyLine(half);

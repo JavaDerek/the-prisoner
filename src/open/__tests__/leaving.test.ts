@@ -439,14 +439,16 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     expect(getResource(passageId(w.exits.door))?.value).toBe(1);
   });
 
-  it("close is never gated", () => {
+  // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D11, RED-TEAM.md F3): this pinned "close is never
+  // gated". A window whose bar is out has nothing to shut it with, so close now refuses at or under the gate.
+  it("close is gated too: a window whose bar is out cannot be shut (D11)", () => {
     createTestDb();
     const w = buildOpenWorld();
     wearBarTo(w, 0);
     resolvePlan(w, plan(w, "open", "window", "passage"));
     wearBarTo(w, 0);
     resolvePlan(w, plan(w, "close", "bar", "integrity"));
-    expect(getResource(passageId(w.exits.window))?.value).toBe(0);
+    expect(getResource(passageId(w.exits.window))?.value).toBe(1);
   });
 
   it("the actor is told the way out held, never that it opened or was already open", async () => {

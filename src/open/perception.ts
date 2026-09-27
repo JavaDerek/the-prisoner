@@ -461,6 +461,11 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
             : `Your last attempt worked the ${part} free of the ${wayOut}: the ${wayOut} can be climbed through now.`,
         );
       }
+      // PLAYTEST-2026-09-27 D11: a close refused because the part is spent, worded per part.
+      if (ruling.effectKind === "close" && (result as { shut?: boolean }).shut === false) {
+        const part = result.partId ?? "";
+        return told(part === "lock" ? `The ${wayOut} cannot be bolted: the lock will not hold.` : part === "bar" ? `The ${wayOut} cannot be shut: the bar is out of it.` : `The ${wayOut} cannot be shut: the ${part.replace(/_/g, " ")} will not hold it.`);
+      }
       const verb = ruling.effectKind === "open" ? "opened" : "shut";
       return told(result.before === result.after ? `The ${wayOut} was already ${ruling.effectKind === "open" ? "open" : "shut"}.` : `Your last attempt ${verb} the ${wayOut}.`);
     }
