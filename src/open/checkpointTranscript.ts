@@ -1,6 +1,7 @@
 import { ResolveProtocolError, type ReadRequest } from "run-dmcp";
 import type { OpenHalfRoundResult } from "./loop.js";
-import type { RangedCitation } from "./refereeTransport.js";
+import type { AcceptedCitation, TransportAnswer } from "run-dmcp";
+import type { CitedSpan } from "./referee.js";
 import type { RefereeExchangeRecord, RefereeRuling } from "./referee.js";
 import type { OpenGameResult } from "./game.js";
 import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
@@ -38,11 +39,19 @@ const INSTRUMENT_QUESTION_ID = "instrument" as const;
 
 /** A citation as the human reader audits it: its source, the word range the
  *  referee named when it cited by range (OPEN-VARIANT.md §18.3), and the
- *  quote -- rebuilt from that range, or as the referee gave it. */
-function citationCell(citation: RangedCitation | null | undefined): string {
+ *  quote -- rebuilt from that range, or as the referee gave it. Three shapes
+ *  arrive here: this game's `CitedSpan`, the engine's accepted citation (range
+ *  nested, run-dmcp 0.10.0), and a REJECTED offer exactly as the transport sent
+ *  it -- which, cited by range, has no quote, because since 0.10.0 only the
+ *  engine rebuilds one, and only for an offer it accepts. An accepted citation
+ *  renders byte-identically to every transcript before the re-pin. */
+function citationCell(citation: CitedSpan | AcceptedCitation | TransportAnswer["citation"] | null | undefined): string {
   if (!citation) return "(none)";
-  const range = typeof citation.from === "number" && typeof citation.to === "number" ? `, words ${citation.from}-${citation.to}` : "";
-  return `${citation.sourceId}${range}: "${citation.quote}"`;
+  const c = citation as { sourceId: string; quote?: unknown; from?: unknown; to?: unknown; range?: { from: number; to: number } };
+  const from = c.range?.from ?? c.from;
+  const to = c.range?.to ?? c.to;
+  const range = from !== undefined || to !== undefined ? `, words ${String(from)}-${String(to)}` : "";
+  return typeof c.quote === "string" ? `${c.sourceId}${range}: "${c.quote}"` : `${c.sourceId}${range}`;
 }
 
 /** D3 (the-prisoner#27): takes a `RefereeRuling` directly, not a whole

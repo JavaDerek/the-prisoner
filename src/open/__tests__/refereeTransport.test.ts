@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createTurnReader, type ReadRequest } from "run-dmcp";
+import { createTurnReader, sourceWords, type ReadRequest } from "run-dmcp";
 import { createRefereeTransport } from "../refereeTransport.js";
 
 const REQUEST: ReadRequest = {
@@ -299,7 +299,11 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
     });
   });
 
-  describe("citations by word range (OPEN-VARIANT.md §18)", () => {
+  // run-dmcp 0.10.0 (#35, #36) took the range rebuild into the engine, which owns the source text: the
+  // transport now hands a range on as `{sourceId, from, to}` and the engine rebuilds, clamps, and names
+  // why an offer was discarded. The §18/§30 guarantees this block used to pin on the transport are
+  // pinned here through the engine's own reader instead, so a later re-pin that moved them goes red.
+  describe("citations by word range (OPEN-VARIANT.md §18, run-dmcp 0.10.0 #35)", () => {
     const SOURCES: ReadRequest = {
       questions: [
         { id: "target", prompt: "Which object?", answerKeys: ["door", "none"], safeDefault: "none" },
@@ -311,73 +315,93 @@ describe("createRefereeTransport (offline only -- never run against doris in thi
       ],
     };
 
-    async function answersFor(citations: unknown[], request: ReadRequest = SOURCES) {
+    function transportFor(citations: unknown[]) {
       const content = JSON.stringify(citations.map((citation, i) => ({ questionId: i === 0 ? "target" : "property", answerKey: i === 0 ? "door" : "passage", citation })));
-      return createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content } }] }) })(request);
+      return createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content } }] }) });
     }
 
-    it("rebuilds the quote as the source sliced from the first character of word `from` to the last of word `to`, whitespace and punctuation included, and keeps the range", async () => {
-      const answers = await answersFor([
+    async function readWith(citations: unknown[]) {
+      return createTurnReader({ questions: SOURCES.questions, transports: [transportFor(citations)] }).read(SOURCES.sources);
+    }
+
+    it("hands a range on to the engine as it came, rebuilding nothing -- a quote beside it is not forwarded", async () => {
+      const answers = await transportFor([
+        { sourceId: "intent", from: 2, to: 5, quote: "ignored" },
+        { sourceId: "desc:door", from: 11, to: 11 },
+      ])(SOURCES);
+      expect(answers).toEqual([
+        { questionId: "target", answerKey: "door", citation: { sourceId: "intent", from: 2, to: 5 } },
+        { questionId: "property", answerKey: "passage", citation: { sourceId: "desc:door", from: 11, to: 11 } },
+      ]);
+    });
+
+    it("the engine rebuilds the quote from the first character of word `from` to the last of word `to`, whitespace and punctuation included, and keeps the range", async () => {
+      const result = await readWith([
         { sourceId: "intent", from: 2, to: 5 },
         { sourceId: "desc:door", from: 11, to: 11 },
       ]);
-      expect(answers).toEqual([
-        { questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "push  the bolt\tback,", from: 2, to: 5 } },
-        { questionId: "property", answerKey: "passage", citation: { sourceId: "desc:door", quote: "It", from: 11, to: 11 } },
+      expect(result.answers.map((a) => a.citation)).toEqual([
+        { sourceId: "intent", quote: "push  the bolt\tback,", range: { from: 2, to: 5 } },
+        { sourceId: "desc:door", quote: "It", range: { from: 11, to: 11 } },
       ]);
     });
 
     it("the rebuilt quote is exact: a span that starts mid-sentence keeps its small letter, and one that ends a sentence keeps its full stop", async () => {
-      const answers = await answersFor([
+      const result = await readWith([
         { sourceId: "desc:door", from: 21, to: 29 },
         { sourceId: "desc:door", from: 1, to: 10 },
       ]);
-      expect(answers[0].citation.quote).toBe("the edge of the bolt shows in the gap.");
-      expect(answers[1].citation.quote).toBe("A heavy door of iron-bound planks in a stone frame.");
+      expect(result.answers.map((a) => a.citation?.quote)).toEqual(["the edge of the bolt shows in the gap.", "A heavy door of iron-bound planks in a stone frame."]);
     });
 
-    it("a range whose end runs past the last word is clamped to it: the referee's own first word stands, the span ends where the source does (OPEN-VARIANT.md §30)", async () => {
+    it("a range whose end runs past the last word is clamped to it, and the offer as given stays visible (OPEN-VARIANT.md §30)", async () => {
       // §29.1/§30: "Climb through the window" is four words, and the referee cited 3-7; the whole answer
       // was dropped, so seven attempts to leave were ruled against an object the referee had named.
-      const answers = await answersFor([{ sourceId: "intent", from: 3, to: 7 }]);
-      expect(answers).toEqual([{ questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "the bolt\tback, slowly.", from: 3, to: 6 } }]);
+      const result = await readWith([{ sourceId: "intent", from: 3, to: 7 }]);
+      const target = result.answers.find((a) => a.questionId === "target");
+      expect(target?.citation).toEqual({ sourceId: "intent", quote: "the bolt\tback, slowly.", range: { from: 3, to: 6 } });
+      expect(target?.acceptedOffer?.citation).toEqual({ sourceId: "intent", from: 3, to: 7 });
     });
 
-    it("drops a range out of bounds, reversed, non-integer, or naming a source not in the request", async () => {
-      const bad = [
-        { sourceId: "intent", from: 0, to: 2 },
-        { sourceId: "intent", from: 3, to: 2 },
-        { sourceId: "intent", from: 1.5, to: 2 },
-        { sourceId: "intent", from: "1", to: "2" },
-        { sourceId: "intent", from: 1 },
-        { sourceId: "desc:bar", from: 1, to: 1 },
-        { sourceId: "[intent]", from: 1, to: 1 },
+    it("a range out of bounds, reversed, non-integer, or naming a source not in the request is never accepted, and the engine says why", async () => {
+      const bad: [unknown, string][] = [
+        [{ sourceId: "intent", from: 0, to: 2 }, "invalid-range"],
+        [{ sourceId: "intent", from: 3, to: 2 }, "invalid-range"],
+        [{ sourceId: "intent", from: 1.5, to: 2 }, "invalid-range"],
+        [{ sourceId: "intent", from: "1", to: "2" }, "invalid-range"],
+        [{ sourceId: "intent", from: 1 }, "invalid-range"],
+        [{ sourceId: "intent", from: 9, to: 12 }, "range-start-past-end"],
+        [{ sourceId: "desc:bar", from: 1, to: 1 }, "unknown-source-id"],
+        [{ sourceId: "[intent]", from: 1, to: 1 }, "unknown-source-id"],
       ];
-      for (const citation of bad) expect(await answersFor([citation]), JSON.stringify(citation)).toEqual([]);
+      for (const [citation, reason] of bad) {
+        const target = (await readWith([citation])).answers.find((a) => a.questionId === "target");
+        expect(target?.fromSafeDefault, JSON.stringify(citation)).toBe(true);
+        expect(target?.rejected.map((r) => r.reason), JSON.stringify(citation)).toEqual([reason]);
+      }
     });
 
     it("passes a quote citation through untouched, verbatim or not -- the engine checks it byte-exact as before", async () => {
-      const answers = await answersFor([
+      const answers = await transportFor([
         { sourceId: "intent", quote: "push the bolt back" },
         { sourceId: "desc:door", quote: "the edge of the bolt shows in the gap" },
-      ]);
+      ])(SOURCES);
       expect(answers).toEqual([
         { questionId: "target", answerKey: "door", citation: { sourceId: "intent", quote: "push the bolt back" } },
         { questionId: "property", answerKey: "passage", citation: { sourceId: "desc:door", quote: "the edge of the bolt shows in the gap" } },
       ]);
     });
 
-    it("a ranged citation verifies through the engine's own unchanged turn reader", async () => {
-      const content = JSON.stringify([
-        { questionId: "target", answerKey: "door", citation: { sourceId: "intent", from: 2, to: 5 } },
-        { questionId: "property", answerKey: "passage", citation: { sourceId: "desc:door", from: 21, to: 29 } },
-      ]);
-      const transport = createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn: fakeFetch({ choices: [{ message: { content } }] }) });
-      const result = await createTurnReader({ questions: SOURCES.questions, transports: [transport] }).read(SOURCES.sources);
-      expect(result.answers.map((a) => [a.answerKey, a.fromSafeDefault, a.citation?.quote])).toEqual([
-        ["door", false, "push  the bolt\tback,"],
-        ["passage", false, "the edge of the bolt shows in the gap."],
-      ]);
+    it("numbers the prompt's words with the engine's own sourceWords, so the prompt and the rebuild cannot disagree by a word", async () => {
+      let prompt = "";
+      const fetchFn = vi.fn(async (_url: unknown, init?: RequestInit) => {
+        prompt = JSON.parse(init?.body as string).messages[0].content;
+        return { ok: true, json: async () => ({ choices: [{ message: { content: "[]" } }] }) };
+      }) as unknown as typeof fetch;
+      await createRefereeTransport({ baseUrl: "http://x", model: "m", fetchFn })(SOURCES);
+      for (const source of SOURCES.sources) {
+        expect(prompt).toContain(`words: ${sourceWords(source.text).map((w) => `${w.index}:${w.word}`).join(" ")}`);
+      }
     });
   });
 

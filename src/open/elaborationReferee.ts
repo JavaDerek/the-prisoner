@@ -5,7 +5,6 @@ import {
   answerFor,
   citationCheck,
   descriptionSourceId,
-  withRanges,
   INTENT_SOURCE_ID,
   type ObjectPerception,
   type CitationCheck,
@@ -130,19 +129,15 @@ export function createElaborationReferee(transports: readonly ReaderTransport[])
     async rule(intentText: string, target: ObjectPerception): Promise<ElaborationRuling> {
       const questions = buildElaborationQuestions();
       const sources = buildElaborationSources(intentText, target);
-      // OPEN-VARIANT.md §18.3, carried over from `referee.ts`: what each
-      // rung offered, kept so `withRanges` can put the word range back
-      // beside the accepted quote.
-      const offered: unknown[] = [];
+      // OPEN-VARIANT.md §38, as in `referee.ts`: each rung's last exchange, for the sidecar.
       const exchanges: (RefereeExchangeRecord | null)[] = transports.map(() => null);
       const recording = transports.map((transport, rung): ReaderTransport => async (request) => {
         const answers = await transport(request);
-        offered[rung] = answers;
         exchanges[rung] = (transport as ExchangeKeeping).lastExchange?.() ?? null;
         return answers;
       });
       const reader = createTurnReader({ questions, transports: recording });
-      const result = withRanges(await reader.read(sources), offered);
+      const result = await reader.read(sources);
       return { ...computeElaborationRuling(result, { questions, sources }, target.id), exchanges };
     },
   };

@@ -68,7 +68,7 @@ function halfWithRuling(over: { targetObjectId: string; property: string; effect
         property: { verified: true, citation: null },
         product: { verified: true, citation: null },
       },
-      raw: { answers: [], unmatched: [] },
+      raw: { answers: [], unmatched: [], rungs: [] },
       request: { questions: [], sources: [] },
     } as unknown as OpenHalfRoundResult["ruling"],
     plan: null,
@@ -260,7 +260,9 @@ describe("open checkpoint transcript", () => {
     expect(text).toContain('| property | `integrity` | desc:bar, words 16-22: "Rust has pitted it near the bottom," | yes |');
     // A quote given instead is shown as a quote, as before.
     expect(text).toContain('| perceptibility | `audible` | intent: "scrape the bar" | n/a |');
-    expect(text).toContain('magnitude: rejected (unknown-answer-key) `enormous`, intent, words 5-7: "with my spoon."');
+    // Since run-dmcp 0.10.0 (#35) only the engine rebuilds a range into a quote, and only for an offer it
+    // accepts: a REJECTED offer is shown exactly as the transport sent it, range and no quote.
+    expect(text).toContain("magnitude: rejected (unknown-answer-key) `enormous`, intent, words 5-7\n");
     expect(half.ruling?.citations.property.citation).toEqual({ sourceId: "desc:bar", quote: "Rust has pitted it near the bottom,", from: 16, to: 22 });
     expect(renderOpenSummary(game).join("\n")).toContain('grounding desc:bar, words 16-22: "Rust has pitted it near the bottom,"');
   });
@@ -408,7 +410,7 @@ describe("open checkpoint transcript", () => {
       targetObjectId: "loose_tile",
       need: "passage",
       citation: { citation: { sourceId: "desc:loose_tile", quote: "a hollow of dry grit" }, requiredSourceId: "desc:loose_tile", verified: true },
-      raw: { answers: [], unmatched: [] },
+      raw: { answers: [], unmatched: [], rungs: [] },
       request: {
         questions: [{ id: "need", prompt: "which property?", answerKeys: ["integrity", "edge", "concealment", "passage", "none"], safeDefault: "none" }],
         sources: [

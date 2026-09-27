@@ -34,10 +34,11 @@ function makeRuling(overrides: Partial<RefereeRuling> = {}): RefereeRuling {
     },
     raw: {
       answers: [
-        { questionId: "target", answerKey: "bar", fromSafeDefault: false, answeredByRung: 0, citation: { sourceId: "intent", quote: "bar" }, rejected: [] },
-        { questionId: "effect", answerKey: "wear", fromSafeDefault: false, answeredByRung: 0, citation: { sourceId: "intent", quote: "scrape" }, rejected: [] },
+        { questionId: "target", answerKey: "bar", fromSafeDefault: false, answeredByRung: 0, citation: { sourceId: "intent", quote: "bar" }, rejected: [], acceptedOffer: null, askedOfRungs: [] },
+        { questionId: "effect", answerKey: "wear", fromSafeDefault: false, answeredByRung: 0, citation: { sourceId: "intent", quote: "scrape" }, rejected: [], acceptedOffer: null, askedOfRungs: [] },
       ],
       unmatched: [],
+      rungs: [],
     },
     request: { questions: [{ id: "target", prompt: "p", answerKeys: ["bar", "none"], safeDefault: "none" }], sources: [{ id: "intent", text: "scrape the bar" }] },
     ...overrides,
@@ -60,10 +61,11 @@ function unreadTargetRuling(): RefereeRuling {
     },
     raw: {
       answers: [
-        { questionId: "target", answerKey: "none", fromSafeDefault: true, answeredByRung: null, citation: null, rejected: [] },
-        { questionId: "effect", answerKey: "conceal", fromSafeDefault: false, answeredByRung: 0, citation: { sourceId: "intent", quote: "hide" }, rejected: [] },
+        { questionId: "target", answerKey: "none", fromSafeDefault: true, answeredByRung: null, citation: null, rejected: [], acceptedOffer: null, askedOfRungs: [] },
+        { questionId: "effect", answerKey: "conceal", fromSafeDefault: false, answeredByRung: 0, citation: { sourceId: "intent", quote: "hide" }, rejected: [], acceptedOffer: null, askedOfRungs: [] },
       ],
       unmatched: [],
+      rungs: [],
     },
   });
 }

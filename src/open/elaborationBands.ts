@@ -50,8 +50,8 @@ import { PROPERTY_KEYS } from "./effects.js";
 export type DifficultyBand = "trivial" | "hard" | "ruinous" | "impossible";
 export const DIFFICULTY_BANDS: readonly DifficultyBand[] = ["trivial", "hard", "ruinous", "impossible"];
 
-/** A citation exactly as the referee's own (`refereeTransport.ts`'s
- *  `RangedCitation`) -- the engine's `{sourceId, quote}` plus the word range
+/** A citation exactly as the referee's own (`referee.ts`'s
+ *  `CitedSpan`) -- the engine's `{sourceId, quote}` plus the word range
  *  it was rebuilt from, when the reader cited by range. `null` only for a
  *  row whose every replay fell to the safe default (`impossible`) with
  *  nothing to cite -- §4.2a's own closing note: "`impossible` needs no

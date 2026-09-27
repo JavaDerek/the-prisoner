@@ -1,4 +1,4 @@
-import type { ReadRequest, ReaderTransport, TransportAnswer } from "run-dmcp";
+import { sourceWords, type RangedCitation, type ReadRequest, type ReaderTransport, type TransportAnswer } from "run-dmcp";
 import { reasoningFields, type ThinkingMode } from "./thinking.js";
 
 /**
@@ -70,33 +70,14 @@ const DEFAULT_TIMEOUT_MS = 12_000;
  *  citation to a word range `{sourceId, from, to}`, rebuilt into that shape
  *  by `coerceAnswers`; a `{sourceId, quote}` still passes through. */
 
-/** A citation as this transport hands it on (OPEN-VARIANT.md §18): the
- *  engine's `{sourceId, quote}`, plus the word range the quote was rebuilt
- *  from when the referee cited by range. The engine reads only `sourceId`
- *  and `quote`; the range is this repository's record, for transcripts. */
-export type RangedCitation = { sourceId: string; quote: string; from?: number; to?: number };
-
-/** A source's words, OPEN-VARIANT.md §18.1: each maximal run of
- *  non-whitespace, with where it starts and ends in the text. Lexical only --
- *  nothing here reads what a word means. */
-function wordsOf(text: string): { start: number; end: number }[] {
-  const words: { start: number; end: number }[] = [];
-  let start = -1;
-  for (let i = 0; i <= text.length; i++) {
-    const isSpace = i === text.length || text[i].trim() === "";
-    if (!isSpace && start < 0) start = i;
-    else if (isSpace && start >= 0) {
-      words.push({ start, end: i });
-      start = -1;
-    }
-  }
-  return words;
-}
-
-/** `1:A 2:heavy 3:door ...` -- the words of `text`, numbered from 1. */
+/** `1:A 2:heavy 3:door ...` -- the words of `text`, numbered from 1 by the
+ *  engine's own `sourceWords` (run-dmcp 0.10.0, #35), which is also what
+ *  rebuilds a ranged citation, so the prompt and the rebuild cannot
+ *  disagree by a word. Byte-identical to the numbering this file did
+ *  itself through 0.9.0: a word is a maximal run of non-whitespace in both. */
 function numberedWords(text: string): string {
-  return wordsOf(text)
-    .map((w, i) => `${i + 1}:${text.slice(w.start, w.end)}`)
+  return sourceWords(text)
+    .map((w) => `${w.index}:${w.word}`)
     .join(" ");
 }
 
@@ -216,27 +197,6 @@ function firstJsonArray(text: string): unknown {
 }
 
 /**
- * OPEN-VARIANT.md §18.1: a ranged citation becomes the engine's quote, the
- * source sliced from the first character of word `from` to the last of word
- * `to` -- an exact substring by construction. `null` (the offer is dropped,
- * §18.2) for a source not in the request, or a range that is not two
- * integers with 1 <= from <= to <= the source's word count.
- */
-function rebuildRanged(citation: { sourceId: string; from?: unknown; to?: unknown }, request: ReadRequest): RangedCitation | null {
-  const { from, to } = citation;
-  const source = request.sources.find((s) => s.id === citation.sourceId);
-  if (!source || typeof from !== "number" || typeof to !== "number" || !Number.isInteger(from) || !Number.isInteger(to)) return null;
-  const words = wordsOf(source.text);
-  if (from < 1 || from > to || from > words.length) return null;
-  // OPEN-VARIANT.md §30: a referee that names a real first word and runs past the
-  // source's last one is citing what is there plus nothing; the span ends where the
-  // source does. Dropping it instead cost seven attempts to leave (§29.1), each on an
-  // intent short enough to overshoot. A `from` past the end is still no citation at all.
-  const end = Math.min(to, words.length);
-  return { sourceId: source.id, quote: source.text.slice(words[from - 1].start, words[end - 1].end), from, to: end };
-}
-
-/**
  * OPEN-VARIANT.md §33.16: `buildPrompt` lists each question as `- id "target": ...`, and a referee
  * that copies that label back as its questionId has every answer ignored. Exactly `id "<id>"`, for
  * an id the request asked, is read as that id; any other questionId is handed on unchanged. Lexical
@@ -260,11 +220,13 @@ function coerceAnswers(raw: unknown, request: ReadRequest): TransportAnswer[] {
     if (typeof questionId !== "string" || typeof answerKey !== "string") continue;
     if (!citation || typeof citation.sourceId !== "string") continue;
     // A range, when one is given, is what the referee cited; a quote alongside
-    // it is not read (§18.1: the quote is rebuilt). Without one, a quote
-    // passes through untouched for the engine's byte-exact check (§18.2).
+    // it is not read (§18.1). Since run-dmcp 0.10.0 (#35) the ENGINE rebuilds
+    // it, clamps an overshooting end (§30), and names why a bad one was
+    // discarded (#36) -- so it is handed on exactly as it came, even when it is
+    // not two integers: dropping it here is what used to hide that reason.
+    // Without one, a quote passes through untouched for the byte-exact check (§18.2).
     if (citation.from !== undefined || citation.to !== undefined) {
-      const rebuilt = rebuildRanged({ sourceId: citation.sourceId, from: citation.from, to: citation.to }, request);
-      if (rebuilt) answers.push({ questionId, answerKey, citation: rebuilt });
+      answers.push({ questionId, answerKey, citation: { sourceId: citation.sourceId, from: citation.from, to: citation.to } as RangedCitation });
       continue;
     }
     if (typeof citation.quote !== "string") continue;

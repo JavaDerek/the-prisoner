@@ -307,7 +307,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
         property: { citation: { sourceId: "desc:meal_tray", quote: "x" }, requiredSourceId: "desc:meal_tray", verified: true },
         product: { citation: null, requiredSourceId: "intent", verified: false },
       },
-      raw: { answers: [], unmatched: [] },
+      raw: { answers: [], unmatched: [], rungs: [] },
       request: { questions: [], sources: [] },
     };
     const referee: Referee = { rule: async () => manualRuling };
@@ -341,7 +341,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
             targetObjectId: target.id,
             need: need as ElaborationRuling["need"],
             citation: { citation: { sourceId: `desc:${target.id}`, quote: "x" }, requiredSourceId: `desc:${target.id}`, verified: true },
-            raw: { answers: [], unmatched: [] },
+            raw: { answers: [], unmatched: [], rungs: [] },
             request: { questions: [], sources: [] },
           };
         },
@@ -369,7 +369,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
           property: { citation: null, requiredSourceId: "desc:bar", verified: false },
           product: { citation: null, requiredSourceId: "intent", verified: false },
         },
-        raw: { answers: [], unmatched: [] },
+        raw: { answers: [], unmatched: [], rungs: [] },
         request: { questions: [], sources: [] },
       };
       const referee: Referee = { rule: async () => ruling };
@@ -413,7 +413,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
           property: { citation: { sourceId: "desc:meal_tray", quote: "x" }, requiredSourceId: "desc:meal_tray", verified: true },
           product: { citation: null, requiredSourceId: "intent", verified: false },
         },
-        raw: { answers: [], unmatched: [] },
+        raw: { answers: [], unmatched: [], rungs: [] },
         request: { questions: [], sources: [] },
       };
       const referee: Referee = { rule: async () => manualRuling };
@@ -460,7 +460,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
           property: { citation: null, requiredSourceId: "desc:bar", verified: false },
           product: { citation: null, requiredSourceId: "intent", verified: false },
         },
-        raw: { answers: [], unmatched: [] },
+        raw: { answers: [], unmatched: [], rungs: [] },
         request: { questions: [], sources: [] },
       };
       const referee: Referee = { rule: async () => ruling };
@@ -501,7 +501,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
           property: { citation: null, requiredSourceId: null, verified: false },
           product: { citation: null, requiredSourceId: "intent", verified: false },
         },
-        raw: { answers: [], unmatched: [] },
+        raw: { answers: [], unmatched: [], rungs: [] },
         request: { questions: [], sources: [] },
       };
       const referee: Referee = { rule: async () => ruling };
@@ -772,7 +772,7 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
           property: { citation: { sourceId: "desc:warden", quote: "can be seen, heard, spoken to" }, requiredSourceId: "desc:warden", verified: true },
           product: { citation: null, requiredSourceId: "intent", verified: false },
         },
-        raw: { answers: [], unmatched: [] },
+        raw: { answers: [], unmatched: [], rungs: [] },
         request: { questions: [], sources: [] },
       };
     }

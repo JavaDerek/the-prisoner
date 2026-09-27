@@ -22,7 +22,7 @@ function ruling(over: Partial<RefereeRuling>): RefereeRuling {
       property: verifiedCitation("desc:bar", "x"),
       product: verifiedCitation("intent", "x"),
     },
-    raw: { answers: [], unmatched: [] },
+    raw: { answers: [], unmatched: [], rungs: [] },
     request: { questions: [], sources: [] },
     ...over,
   };

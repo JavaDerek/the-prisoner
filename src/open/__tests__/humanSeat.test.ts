@@ -70,7 +70,7 @@ function ruling(effectKind: RefereeRuling["effectKind"]): RefereeRuling {
       property: { citation: null, requiredSourceId: null, verified: false },
       product: { citation: null, requiredSourceId: null, verified: false },
     },
-    raw: { answers: [{ questionId: "target", answerKey: "none", fromSafeDefault: true, answeredByRung: null, citation: null, rejected: [] }], unmatched: [] },
+    raw: { answers: [{ questionId: "target", answerKey: "none", fromSafeDefault: true, answeredByRung: null, citation: null, rejected: [], acceptedOffer: null, askedOfRungs: [] }], unmatched: [], rungs: [] },
     request: { questions: [], sources: [] },
   };
 }

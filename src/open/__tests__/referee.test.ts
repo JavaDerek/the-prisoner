@@ -670,7 +670,9 @@ describe("the referee (OPEN-VARIANT.md §3, this task's brief)", () => {
     const ruling = await createReferee([transport]).rule(intent, [BAR]);
     expect(ruling.citations.target.citation).toEqual({ sourceId: "intent", quote: "file the bar" });
     expect(ruling.citations.effect.citation).toEqual({ sourceId: "intent", quote: "file", from: 2, to: 2 });
-    expect(ruling.raw.answers.find((a) => a.questionId === "effect")?.citation).toEqual({ sourceId: "intent", quote: "file", from: 2, to: 2 });
+    // The engine's own record nests the range (run-dmcp 0.10.0, #35); the ruling's citations flatten it,
+    // the shape every transcript and sidecar has recorded since §18.
+    expect(ruling.raw.answers.find((a) => a.questionId === "effect")?.citation).toEqual({ sourceId: "intent", quote: "file", range: { from: 2, to: 2 } });
   });
 });
 

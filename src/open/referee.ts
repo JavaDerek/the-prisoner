@@ -1,8 +1,7 @@
-import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type TransportAnswer } from "run-dmcp";
+import { createTurnReader, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type AcceptedCitation } from "run-dmcp";
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findObject, OPEN_PERSONS, type OpenObjectSpec, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
-import type { RangedCitation } from "./refereeTransport.js";
 
 /**
  * The referee (OPEN-VARIANT.md §3, this task's brief "The referee"). A
@@ -104,7 +103,7 @@ export interface RefereeRuling {
    *  blocking is always the safe direction here), but only a verified one is
    *  trustworthy enough to report as a specific reason, which is what this
    *  field is for. Optional for the same reason `instrument` is. */
-  missingInstrument?: { citation: RangedCitation } | null;
+  missingInstrument?: { citation: CitedSpan } | null;
   /** OPEN-VARIANT.md §74.1 (option B): the separate one-act reading. `flagged` only when the answer is `several`
    *  AND its citation names the actor's intent; it never touches `applicable`. Absent on a ruling built by
    *  `computeRuling` alone (tests), present on every ruling `createReferee` returns. */
@@ -139,10 +138,25 @@ export interface RefereeRuling {
   request: { questions: readonly ReaderQuestion[]; sources: readonly ReaderSource[] };
 }
 
+/** A citation as this game records it: the engine's accepted quote, with the
+ *  word range it was rebuilt from when the referee cited by range
+ *  (OPEN-VARIANT.md §18.3). Since run-dmcp 0.10.0 (#35) the range is the
+ *  engine's own `AcceptedCitation.range` -- clamped, as §30 needs -- so
+ *  nothing here reconstructs it from what a rung offered any more. Flat
+ *  `from`/`to` rather than the engine's nested `range`, because every
+ *  transcript and sidecar written since §18 records it that way. */
+export type CitedSpan = { sourceId: string; quote: string; from?: number; to?: number };
+
+export function citedSpan(citation: AcceptedCitation | null): CitedSpan | null {
+  if (!citation) return null;
+  const { sourceId, quote, range } = citation;
+  return range ? { sourceId, quote, from: range.from, to: range.to } : { sourceId, quote };
+}
+
 export interface CitationCheck {
   /** With the word range it was rebuilt from, when the referee cited by
    *  range (OPEN-VARIANT.md §18). */
-  citation: RangedCitation | null;
+  citation: CitedSpan | null;
   /** The sourceId this citation was REQUIRED to name (`"intent"` for
    *  target/effect; the target's own `desc:<id>` source for property) --
    *  `null` when there was no target to require one against yet (a `none`
@@ -633,7 +647,7 @@ export function answerFor(result: ReaderResult, questionId: string): AnsweredQue
 /** Exported for `elaborationReferee.ts` (P1b): the identical verbatim-source
  *  check every one of this module's own answers is held to. */
 export function citationCheck(answer: AnsweredQuestion, requiredSourceId: string | null): CitationCheck {
-  const citation: RangedCitation | null = answer.citation;
+  const citation = citedSpan(answer.citation);
   const verified = citation !== null && requiredSourceId !== null && citation.sourceId === requiredSourceId;
   return { citation, requiredSourceId, verified };
 }
@@ -760,33 +774,6 @@ export function computeRuling(
   };
 }
 
-/**
- * The reader's result with each accepted citation's word range restored from
- * the offer it came from (OPEN-VARIANT.md §18.3) -- for the transcript; the
- * sourceId and quote are the engine's own, unchanged. The accepted offer is
- * the first one on its rung with the same question, key, source and quote:
- * any earlier identical offer would have passed the same checks and been the
- * one accepted. A citation given as a quote has no range and gains none.
- *
- * Exported for `elaborationReferee.ts` (P1b): the second referee's own
- * single-question request needs the identical range-rebuilding, never a
- * second copy of it.
- */
-export function withRanges(result: ReaderResult, offered: readonly unknown[]): ReaderResult {
-  const answers = result.answers.map((answer) => {
-    const rungOffers = answer.answeredByRung === null ? undefined : offered[answer.answeredByRung];
-    if (!answer.citation || !Array.isArray(rungOffers)) return answer;
-    const { sourceId, quote } = answer.citation;
-    const offer = (rungOffers as TransportAnswer[]).find(
-      (o) => o?.questionId === answer.questionId && o.answerKey === answer.answerKey && o.citation?.sourceId === sourceId && o.citation.quote === quote
-    );
-    const { from, to } = (offer?.citation ?? {}) as RangedCitation;
-    if (typeof from !== "number" || typeof to !== "number") return answer;
-    return { ...answer, citation: { sourceId, quote, from, to } };
-  });
-  return { ...result, answers };
-}
-
 export interface Referee {
   rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling>;
 }
@@ -892,19 +879,16 @@ export function createReferee(
 
       const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode);
       const sources = buildSources(intentText, perceivedObjects);
-      // OPEN-VARIANT.md §18.3: the engine keeps an accepted citation as
-      // `{sourceId, quote}` only, so what each rung offered is kept here, to
-      // put the word range back beside the quote it was rebuilt into.
-      const offered: unknown[] = [];
+      // OPEN-VARIANT.md §38: each rung's last exchange, for the sidecar. (What each rung OFFERED was
+      // kept here too until run-dmcp 0.10.0 put the word range on the accepted citation itself.)
       const exchanges: (RefereeExchangeRecord | null)[] = transports.map(() => null);
       const recording = transports.map((transport, rung): ReaderTransport => async (request) => {
         const answers = await transport(request);
-        offered[rung] = answers;
         exchanges[rung] = (transport as ExchangeKeeping).lastExchange?.() ?? null;
         return answers;
       });
       const reader = createTurnReader({ questions, transports: recording });
-      const result = withRanges(await reader.read(sources), offered);
+      const result = await reader.read(sources);
       const oneAct = options.oneAct === "checked" ? await readOneAct(intentText, transports) : undefined;
       const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson), exchanges, ...(oneAct ? { oneAct } : {}) };
       cache.set(key, ruling);
