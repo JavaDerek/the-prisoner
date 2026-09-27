@@ -274,6 +274,13 @@ every schema-constrained mind call (Shep hit the same token). The transcript hea
 value actually sent. `ON` sends no field at all, so the served model's own default decides -- which on
 Ollama means it reasons. **If the runtime changes again, re-measure the field before trusting a header.**
 
+**With thinking off, Muse's wits calls go WITHOUT their JSON schema** (P9,
+`docs/issues/prisoner-P9-muse-schema-with-thinking-off.md`). Ollama's glimmer parser lets the schema's
+grammar bind before Muse writes its message header, and up to a third of wits replies came back with the
+first field eaten (`{","candidates":...}`, `SilenceReason: unparseable`). `withThinking` now withholds
+`response_format` for `muse-glimmer*` when thinking is off, and the header says `Schema withheld:`. Replies
+are shorter unconstrained (median thoughts 485 vs 1028 chars), so do not pool across the change.
+
 ## Run a batch from a pinned commit, not from live `main`
 
 A batch means identical conditions (§31), and `npm run checkpoint` executes whatever the working tree
