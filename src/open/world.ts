@@ -215,16 +215,18 @@ export function readWindowMode(raw: string | undefined): WindowMode {
 
 export type DoorPriceMode = "free" | "threshold" | "margin";
 
-/** `free` unless asked otherwise: the door's passage has no threshold to
- *  meet, today's behaviour, unchanged -- every batch recorded before this
- *  arm (issue #19) stays the comparison it was, the D3 lesson (§40.1)
- *  applied here before the fact. `threshold` gates it on `OPEN_DOOR_LOCK_MAX`,
- *  exactly mirroring the window's own gate on the bar. Anything else stops
- *  the run rather than guessing. */
+/** `margin` unless asked otherwise, the default since 2026-09-27
+ *  (PLAYTEST-2026-09-27 D6', design §2: the door priced so it is not a free
+ *  two-turn win during the warden's absence): gated on `OPEN_DOOR_LOCK_MARGIN`
+ *  (§50.5). `free` -- no threshold to meet -- is the arm, byte-identical to
+ *  every batch recorded before that date; `threshold` gates it on
+ *  `OPEN_DOOR_LOCK_MAX`, mirroring the window's own gate on the bar.
+ *  `buildOpenWorld`'s own bare default stays `free`. Anything else stops the
+ *  run rather than guessing. */
 export function readDoorPrice(raw: string | undefined): DoorPriceMode {
-  if (raw === undefined || raw === "") return "free";
+  if (raw === undefined || raw === "") return "margin";
   if (raw === "free" || raw === "threshold" || raw === "margin") return raw;
-  throw new Error(`PRISONER_DOOR_PRICE: unrecognised value ${JSON.stringify(raw)} -- must be "threshold", "margin" or "free" (the default)`);
+  throw new Error(`PRISONER_DOOR_PRICE: unrecognised value ${JSON.stringify(raw)} -- must be "margin" (the default), "threshold" or "free"`);
 }
 
 /** The lock value the door's passage is gated on, per arm: none under `free`

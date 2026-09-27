@@ -199,9 +199,12 @@ describe("open-mode perception and briefing", () => {
   // OPEN-VARIANT.md §55 (issue #22 gap 1/2): `PRISONER_PRESENCE=modelled`,
   // default `off`, byte-identical to today.
   describe("presence (§55, PRISONER_PRESENCE, issue #22)", () => {
-    it("readPresenceMode: off by default, modelled when asked, rejects anything else", () => {
-      expect(readPresenceMode(undefined)).toBe("off");
-      expect(readPresenceMode("")).toBe("off");
+    // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D2, design R3 change 1): `modelled` is the default;
+    // `off`, the pre-§55 request fingerprint, is the arm.
+    it("readPresenceMode: modelled by default, off when asked, rejects anything else", () => {
+      expect(readPresenceMode(undefined)).toBe("modelled");
+      expect(readPresenceMode("")).toBe("modelled");
+      expect(readPresenceMode("off")).toBe("off");
       expect(readPresenceMode("modelled")).toBe("modelled");
       expect(() => readPresenceMode("elsewhere")).toThrow(/PRISONER_PRESENCE/);
     });

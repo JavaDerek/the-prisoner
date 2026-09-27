@@ -77,8 +77,11 @@ const CONTAINERS: ReadonlySet<string> = new Set([...OPEN_OBJECTS.flatMap((spec) 
 
 /**
  * OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2): whether presence is
- * modelled at all. `off` (the default, and every batch recorded before this
- * gap existed) keeps `computePerceivedObjects`/`buildOpenBriefing` exactly
+ * modelled at all. `modelled` is the env default since 2026-09-27
+ * (PLAYTEST-2026-09-27 D2, design R3 change 1: every Phase 1 batch already ran
+ * it, and under `off` no person is ever a referee key). `off` is the arm: the
+ * pre-§55 request fingerprint, byte-identical to every batch recorded before
+ * this gap existed -- it keeps `computePerceivedObjects`/`buildOpenBriefing` exactly
  * as they were -- both principals always share the cell, and the other
  * principal is never itself a perceivable target. `modelled` reads each
  * character's own `location_id` (already written by `world/setup.ts` at
@@ -93,9 +96,9 @@ const CONTAINERS: ReadonlySet<string> = new Set([...OPEN_OBJECTS.flatMap((spec) 
 export type PresenceMode = "off" | "modelled";
 
 export function readPresenceMode(raw: string | undefined): PresenceMode {
-  if (raw === undefined || raw === "") return "off";
+  if (raw === undefined || raw === "") return "modelled";
   if (raw === "off" || raw === "modelled") return raw;
-  throw new Error(`PRISONER_PRESENCE: unrecognised value ${JSON.stringify(raw)} -- must be "modelled" or "off" (the default)`);
+  throw new Error(`PRISONER_PRESENCE: unrecognised value ${JSON.stringify(raw)} -- must be "modelled" (the default) or "off"`);
 }
 
 /**

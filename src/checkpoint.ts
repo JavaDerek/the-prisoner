@@ -193,15 +193,19 @@ const PICK = readPickCondition(process.env.PRISONER_PICK);
 /** Open variant only: `passive` takes the warden out of the question
  *  (`src/open/passiveWarden.ts`, OPEN-VARIANT.md §26). Unset: the model warden. */
 const WARDEN_MODE = readWardenMode(process.env.PRISONER_WARDEN);
-/** Open variant only: the prisoner's mind gets the thresholds as a condition
- *  list (`src/open/conditions.ts`, OPEN-VARIANT.md §34) unless told otherwise.
- *  Unset: `list`, the default since D3. `off` is the old rule-sentence baseline. */
+/** Open variant only: both minds get the thresholds as a condition list
+ *  (`src/open/conditions.ts`, OPEN-VARIANT.md §34) unless told otherwise.
+ *  Unset: `both`, the default since 2026-09-27 (PLAYTEST-2026-09-27 D3). `list`
+ *  (the default from D3 of 2026-09-17) and `off` (the old rule-sentence
+ *  baseline) are arms. */
 const CONDITIONS = readConditionsMode(process.env.PRISONER_CONDITIONS);
 /** Open variant only: whether her conditions state the cell's other way out
- *  (`src/open/conditions.ts`, OPEN-VARIANT.md §46). Unstated unless asked. */
+ *  (`src/open/conditions.ts`, OPEN-VARIANT.md §46). Stated unless asked, since
+ *  2026-09-27 (PLAYTEST-2026-09-27 D6'); `unstated` is the arm. */
 const DOOR = readDoorMode(process.env.PRISONER_DOOR);
 /** Open variant only: whether the door's passage is gated on the lock
- *  (`src/open/world.ts`, OPEN-VARIANT.md §50, issue #19). Free unless asked. */
+ *  (`src/open/world.ts`, OPEN-VARIANT.md §50, issue #19). `margin` unless
+ *  asked, since 2026-09-27 (PLAYTEST-2026-09-27 D6'); `free` is the arm. */
 const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
 /** Open variant only: the welded-window arm (`src/open/world.ts`,
  *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
@@ -1158,22 +1162,22 @@ async function mainOpen(): Promise<void> {
   );
   transcript.push(
     CONDITIONS === "both"
-      ? "Conditions: BOTH (`PRISONER_CONDITIONS=both`): both minds get the thresholds as a condition list at the top of their wits prompts, each read from its own side, not as rule sentences (§34.3)."
+      ? "Conditions: BOTH (the default since 2026-09-27): both minds get the thresholds as a condition list at the top of their wits prompts, each read from its own side, not as rule sentences (§34.3; PLAYTEST-2026-09-27 D3)."
       : CONDITIONS === "list"
-        ? "Conditions: LIST (the default): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34)."
+        ? "Conditions: LIST (`PRISONER_CONDITIONS=list`): the prisoner's thresholds are stated as a condition list at the top of her wits prompt, not as rule sentences; the warden's prompt is unchanged (§34) -- the default from 2026-09-17 to 2026-09-27."
         : "Conditions: OFF (`PRISONER_CONDITIONS=off`): thresholds stated as rule sentences. The pre-D3 baseline, now an arm."
   );
   transcript.push(
     DOOR === "stated"
-      ? "Door: STATED (`PRISONER_DOOR=stated`): her conditions also say the door can be opened with no threshold to meet, which is what the world declares (§46). The catch conditions are numbered 4-7 under this arm."
-      : "Door: UNSTATED (the default): only the window is stated as a way she can open. The cell's other exit is named in no condition of her own."
+      ? "Door: STATED (the default since 2026-09-27): her conditions also say when the door can be opened -- the lock's gate under the door price below, or no threshold under `free` -- which is what the world declares (§46; PLAYTEST-2026-09-27 D6'). The catch conditions are numbered 4-7 under this arm."
+      : "Door: UNSTATED (`PRISONER_DOOR=unstated`): only the window is stated as a way she can open. The cell's other exit is named in no condition of her own -- every batch before 2026-09-27."
   );
   transcript.push(
     DOOR_PRICE === "threshold"
       ? `Door price: THRESHOLD (\`PRISONER_DOOR_PRICE=threshold\`): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MAX}, exactly like the window on the bar (§50, issue #19).`
       : DOOR_PRICE === "margin"
-        ? `Door price: MARGIN (\`PRISONER_DOOR_PRICE=margin\`): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MARGIN} -- the lowest gate that leaves a wear step where the door is openable and the lock is still safe to be found at, which ${OPEN_DOOR_LOCK_MAX} did not (§50.5).`
-        : "Door price: FREE (the default): the door's passage has no threshold to meet, today's behaviour, unchanged."
+        ? `Door price: MARGIN (the default since 2026-09-27): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MARGIN} -- the lowest gate that leaves a wear step where the door is openable and the lock is still safe to be found at, which ${OPEN_DOOR_LOCK_MAX} did not (§50.5; PLAYTEST-2026-09-27 D6').`
+        : "Door price: FREE (`PRISONER_DOOR_PRICE=free`): the door's passage has no threshold to meet -- every batch before 2026-09-27."
   );
   transcript.push(
     WINDOW === "welded"
@@ -1200,8 +1204,8 @@ async function mainOpen(): Promise<void> {
   );
   transcript.push(
     PRESENCE === "modelled"
-      ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name, and each principal carries its own bounded `posture` -- 100 on her feet, 50 crouched, 0 on the floor -- and `sight` -- 100 clear, at or below 60 she cannot see, restored slight-only -- which the other perceives in words and which raise no suspicion; a principal who cannot see perceives none of the other's acts, keeps nothing, examines nothing and holds no way out (§55, §56, issue #22; PLAYTEST-2026-09-27 D12)."
-      : "Presence: OFF (the default): both principals are always treated as present to each other, and no person carries a declared state, as every batch before this gap recorded (§55, §56, issue #22)."
+      ? "Presence: MODELLED (the default since 2026-09-27, PLAYTEST-2026-09-27 D2): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name, and each principal carries its own bounded `posture` -- 100 on her feet, 50 crouched, 0 on the floor -- and `sight` -- 100 clear, at or below 60 she cannot see, restored slight-only -- which the other perceives in words and which raise no suspicion; a principal who cannot see perceives none of the other's acts, keeps nothing, examines nothing and holds no way out (§55, §56, issue #22; PLAYTEST-2026-09-27 D12)."
+      : "Presence: OFF (`PRISONER_PRESENCE=off`): both principals are always treated as present to each other, and no person carries a declared state, as every batch before this gap recorded (§55, §56, issue #22)."
   );
   transcript.push(
     ABSENCE === "cadence"

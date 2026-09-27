@@ -52,7 +52,8 @@ export async function runOpenGame(params: {
    *  forced away from a known approach. Absent in the baseline. */
   pick?: PickCondition;
   onHalfRound?: (half: OpenHalfRoundResult) => void | Promise<void>;
-  /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). Default `"off"`. */
+  /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). This function's own default is `"off"`; a real game gets
+   *  `readPresenceMode`'s, `"modelled"` since 2026-09-27 (PLAYTEST-2026-09-27 D2). */
   presenceMode?: PresenceMode;
   /** WORLD-ELABORATION-DESIGN.md §4.1, §9 row P1b. Absent under
    *  `PRISONER_ELABORATE=off` (the default) -- passed through to every
@@ -68,7 +69,8 @@ export async function runOpenGame(params: {
    *  override -- both passed through to every half-round unchanged. */
   elaborationBands?: readonly ElaborationBandRow[];
   forcedElaborationBand?: DifficultyBand;
-  /** PLAYTEST-2026-09-27 D5 (`readAbsenceMode`). Default `"off"`: the warden never leaves unless he walks out.
+  /** PLAYTEST-2026-09-27 D5. This function's own default is `"off"` (the warden never leaves unless he walks
+   *  out); a real game gets `readAbsenceMode`'s, `"cadence"`.
    *  `"cadence"` needs `presenceMode: "modelled"` and refuses to start without it. */
   absenceMode?: AbsenceMode;
 }): Promise<OpenGameResult> {

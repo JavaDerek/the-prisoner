@@ -22,7 +22,8 @@ export type DoorMode = "unstated" | "stated";
  *  threshold, where the window's is 50. Its own test asserts that against the
  *  world, so the condition cannot outlive the fact.
  *
- *  `unstated` is the default and is byte-identical to every batch before it.
+ *  `stated` is the env default since 2026-09-27 (PLAYTEST-2026-09-27 D6'); `unstated` is the arm, and it is
+ *  byte-identical to every batch before that date. `openConditions`' own bare default stays `unstated`.
  *
  *  `doorPrice` (§50, issue #19) decides what the STATED clause claims, so it
  *  can never say more or less than `world.ts` enforces: `threshold` names the
@@ -86,27 +87,29 @@ function blockConditions(weldedWindow: boolean): Condition[] {
 
 export type ConditionsMode = "off" | "list" | "both";
 
-/** The prisoner's mind gets the condition list in place of the threshold
- *  sentences (§34) unless told otherwise: `list` is the **default** by decision
- *  D3 (2026-09-17), because with it she escaped 6 of 6 against the rule
- *  sentences' 2 of 6 (§34.2, §34.5). `both` gives the list to the warden's mind
- *  too, read from its own side (§34.3); `off` is the old rule-sentence
- *  baseline, now an arm you ask for rather than the one you get by saying
- *  nothing. Anything else stops the run rather than guessing.
- *
- *  A batch from before this date is only comparable to an `off` run. */
+/** Both minds get the condition list in place of the threshold sentences
+ *  (§34), each read from its own side (§34.3), unless told otherwise: `both`
+ *  is the **default** since 2026-09-27 (PLAYTEST-2026-09-27 D3, design R4: the
+ *  warden could not see his own win conditions). `list` -- the prisoner's
+ *  list only, the default by decision D3 of 2026-09-17 (she escaped 6 of 6
+ *  against the rule sentences' 2 of 6, §34.2, §34.5) -- is now an arm, and a
+ *  batch from 2026-09-17 to 2026-09-27 is comparable to a `list` run; `off` is
+ *  the old rule-sentence baseline, and a batch from before 2026-09-17 is only
+ *  comparable to an `off` run. Anything else stops the run rather than
+ *  guessing. */
 export function readConditionsMode(raw: string | undefined): ConditionsMode {
-  if (raw === undefined || raw === "") return "list";
+  if (raw === undefined || raw === "") return "both";
   if (raw === "off" || raw === "list" || raw === "both") return raw;
-  throw new Error(`PRISONER_CONDITIONS: unrecognised value ${JSON.stringify(raw)} -- must be "list" (the default), "both" or "off"`);
+  throw new Error(`PRISONER_CONDITIONS: unrecognised value ${JSON.stringify(raw)} -- must be "both" (the default), "list" or "off"`);
 }
 
-/** `unstated` unless asked: the door condition is §46's arm, and a default that
- *  changed silently would make every earlier batch incomparable -- the D3 lesson
- *  (§40.1), applied before the fact rather than after it. Anything else stops
- *  the run rather than guessing. */
+/** `stated` unless asked, the default since 2026-09-27 (PLAYTEST-2026-09-27
+ *  D6', RED-TEAM.md F5: under `margin` the door is priced, and a price she is
+ *  never told is no line for her). `unstated` is the arm, byte-identical to
+ *  every batch before that date -- the D3 lesson (§40.1): the change is named,
+ *  never silent. Anything else stops the run rather than guessing. */
 export function readDoorMode(raw: string | undefined): DoorMode {
-  if (raw === undefined || raw === "") return "unstated";
+  if (raw === undefined || raw === "") return "stated";
   if (raw === "unstated" || raw === "stated") return raw;
-  throw new Error(`PRISONER_DOOR: unrecognised value ${JSON.stringify(raw)} -- must be "stated" or "unstated" (the default)`);
+  throw new Error(`PRISONER_DOOR: unrecognised value ${JSON.stringify(raw)} -- must be "stated" (the default) or "unstated"`);
 }

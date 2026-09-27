@@ -78,9 +78,11 @@ describe("readConditionsMode: PRISONER_CONDITIONS", () => {
   // D3, 2026-09-17: the list is the default. Batch G escaped 6 of 6 where the
   // rule sentences escaped 2 of 6 (OPEN-VARIANT.md §34.2, §34.5), so an unset
   // run is a list run from here; `off` is the old baseline, now an arm.
-  it("unset or empty is the list; off is the old baseline; anything else stops the run", () => {
-    expect(readConditionsMode(undefined)).toBe("list");
-    expect(readConditionsMode("")).toBe("list");
+  // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D3): `both` is the default -- the warden reads his own
+  // list too; `list` (the default from 2026-09-17 to 2026-09-27) and `off` stay as arms.
+  it("unset or empty is both; list and off are arms; anything else stops the run", () => {
+    expect(readConditionsMode(undefined)).toBe("both");
+    expect(readConditionsMode("")).toBe("both");
     expect(readConditionsMode("list")).toBe("list");
     expect(readConditionsMode("both")).toBe("both");
     expect(readConditionsMode("off")).toBe("off");
@@ -168,9 +170,11 @@ describe("the door condition (§46): the cell's other way out, stated", () => {
 });
 
 describe("readDoorMode: PRISONER_DOOR (§46)", () => {
-  it("leaves the door unstated unless asked", () => {
-    expect(readDoorMode(undefined)).toBe("unstated");
-    expect(readDoorMode("")).toBe("unstated");
+  // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D6'): the door is stated unless asked otherwise;
+  // `unstated`, every batch before that date, is the arm.
+  it("states the door unless asked; unstated is the arm", () => {
+    expect(readDoorMode(undefined)).toBe("stated");
+    expect(readDoorMode("")).toBe("stated");
     expect(readDoorMode("unstated")).toBe("unstated");
   });
 

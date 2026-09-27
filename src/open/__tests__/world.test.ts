@@ -193,9 +193,11 @@ describe("readDoorPrice: PRISONER_DOOR_PRICE (§50)", () => {
     expect(readDoorPrice("margin")).toBe("margin");
   });
 
-  it("leaves the door free unless asked", () => {
-    expect(readDoorPrice(undefined)).toBe("free");
-    expect(readDoorPrice("")).toBe("free");
+  // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D6'): the door is priced at `margin` unless asked
+  // otherwise; `free`, every batch before that date, is the arm.
+  it("prices the door at margin unless asked; free is the arm", () => {
+    expect(readDoorPrice(undefined)).toBe("margin");
+    expect(readDoorPrice("")).toBe("margin");
     expect(readDoorPrice("free")).toBe("free");
   });
 
@@ -205,6 +207,6 @@ describe("readDoorPrice: PRISONER_DOOR_PRICE (§50)", () => {
 
   it("stops the run rather than guessing", () => {
     expect(() => readDoorPrice("expensive")).toThrow(/PRISONER_DOOR_PRICE/);
-    expect(() => readDoorPrice("expensive")).toThrow(/"free"/);
+    expect(() => readDoorPrice("expensive")).toThrow(/"margin" \(the default\)/);
   });
 });

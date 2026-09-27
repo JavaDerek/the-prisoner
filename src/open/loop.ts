@@ -563,8 +563,10 @@ export async function runOpenHalfRound(params: {
    *  prisoner turn under it: what counts as seen, and whether the prisoner
    *  had a plan before this turn (a first plan is a new plan). */
   replanPick?: { readonly seen: readonly string[]; readonly hadPlan: boolean };
-  /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). Default `"off"`:
-   *  byte-identical to every batch recorded before this gap existed. */
+  /** OPEN-VARIANT.md §55 (issue #22, gaps 1 and 2). This function's own
+   *  default is `"off"`, the arm byte-identical to every batch recorded before
+   *  this gap existed; a real game gets `"modelled"` since 2026-09-27
+   *  (PLAYTEST-2026-09-27 D2, `readPresenceMode`). */
   presenceMode?: PresenceMode;
   /** WORLD-ELABORATION-DESIGN.md §4.1, §9 row P1b: the play-time elaboration
    *  referee -- present only under `PRISONER_ELABORATE=property`. Absent
