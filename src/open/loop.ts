@@ -493,12 +493,29 @@ function revealBeliefFromRefusal(openWorld: OpenWorld, principal: Principal, res
 }
 
 function updateActorBelief(openWorld: OpenWorld, principal: Principal, plan: EffectPlan, outcome: Outcome, roundN: number): void {
-  if (!plan.resourceId) return;
+  // PLAYTEST-2026-09-27-DESIGN.md R6 (D8), a fix with no arm, 2026-09-27:
+  // EVERY named resource the actor's own resolution moved is now known to
+  // her, not only the plan's own resource. D7a's refused `open` wears the
+  // part as a second transition (`mechanics.ts`, `wearOnRefusal`), and her
+  // own outcome sentence already tells her the number; her belief used to
+  // stay where it was, and that stale belief then built the next `wear`'s
+  // `expects` and refused a correct turn (RED-TEAM.md F9). The warden's
+  // suspicion bump is a SEPARATE resolution (`bumpWardenSuspicion`), never
+  // in this outcome, so she still learns nothing of it here.
+  const written = new Set<string>();
+  for (const t of outcome.transitions) {
+    if (t.key !== "value") continue;
+    const resourceName = openWorld.resourceNameById[t.entityId];
+    if (!resourceName) continue;
+    const value = Number(t.newValue);
+    if (Number.isNaN(value)) continue;
+    setBelief(openWorld.base.gameId, principal, resourceName, value, roundN);
+    written.add(t.entityId);
+  }
+  // A reveal writes nothing: its own read is what she now knows.
+  if (!plan.resourceId || written.has(plan.resourceId)) return;
   const resourceName = openWorld.resourceNameById[plan.resourceId];
-  if (!resourceName) return;
-  const written = outcome.transitions.find((t) => t.entityId === plan.resourceId && t.key === "value");
-  const value = written ? Number(written.newValue) : typeof outcome.result.value === "number" ? outcome.result.value : undefined;
-  if (typeof value === "number") setBelief(openWorld.base.gameId, principal, resourceName, value, roundN);
+  if (resourceName && typeof outcome.result.value === "number") setBelief(openWorld.base.gameId, principal, resourceName, outcome.result.value, roundN);
 }
 
 export async function runOpenHalfRound(params: {

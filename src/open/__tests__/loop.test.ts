@@ -8,9 +8,10 @@ import { planEffect } from "../effects.js";
 import { createReferee, type Referee, type RefereeRuling } from "../referee.js";
 import type { ElaborationReferee, ElaborationRuling } from "../elaborationReferee.js";
 import { runOpenHalfRound, precedentTextFor, KNOWN_APPROACH_SUSPICION_BUMP } from "../loop.js";
-import { getBelief, setBelief } from "../../ledger/beliefs.js";
+import { getBelief, setBelief, seedInitialBeliefs } from "../../ledger/beliefs.js";
 import { getNotes } from "../../ledger/notes.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "../mind.js";
+import { buildOpenContext } from "../briefing.js";
 import { WARDEN_NAME } from "../../scenario.js";
 
 /** Moves the warden out through the door, the way real play does it: open,
@@ -935,5 +936,68 @@ describe("D3: reconsider, at the loop level (HUMAN-INTENTS-DESIGN.md §3.1, §11
     expect(reconsiderCalls).toBe(0);
     expect(result.ruling?.applicable).toBe(true);
     expect(result.reconsidered).toBeNull();
+  });
+});
+
+/**
+ * PLAYTEST-2026-09-27-DESIGN.md R6 (D8), RED-TEAM.md F9: the actor's belief
+ * updates from EVERY transition in her own outcome, not only the plan's own
+ * resource. The game's round 4 (`checkpoints/2026-09-27T20-14-57-505Z.md`):
+ * an `open` on the window, refused by the bar's gate, wore the bar 100 -> 85
+ * in the same resolution (D7a), told her so, and left her belief at "100 (as
+ * of round 0)" -- which then fed a later `wear bar`'s `expects` and would
+ * have refused it for a belief the game itself made stale.
+ */
+describe("the actor's belief follows every transition in her own outcome (PLAYTEST-2026-09-27 R6, D8)", () => {
+  afterEach(() => destroyTestDb());
+
+  const scripted = (target: string, effect: string, property: string, intentQuote: string, descQuote: string) =>
+    createReferee([
+      async (request) =>
+        request.questions.map((q) => ({
+          questionId: q.id,
+          answerKey: ({ target, effect, property, magnitude: "moderate", perceptibility: "visible" } as Record<string, string>)[q.id] ?? q.safeDefault,
+          citation: q.id === "property" ? { sourceId: `desc:${target}`, quote: descQuote } : { sourceId: "intent", quote: intentQuote },
+        })),
+    ]);
+
+  async function prisonerHalf(w: OpenWorld, intent: string, referee: Referee, roundN: number) {
+    const t = w.base.clock.prisonerT(roundN);
+    return runOpenHalfRound({
+      openWorld: w,
+      resolver: buildOpenResolver(),
+      referee,
+      principal: "prisoner",
+      roundN,
+      t,
+      context: buildOpenContext(w, "prisoner", t, roundN),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent }),
+    });
+  }
+
+  const openWindow = () => scripted("window", "open", "passage", "lever the bar out of the window", "One rusted iron bar, set into the mortar across its middle, closes it");
+
+  it("an open on the window refused by its gate, with wearOnRefusal applied, leaves bar_integrity = 85 as of that round", async () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    seedInitialBeliefs(w.base); // what `game.ts` does: 100, as of round 0
+    const barName = w.resourceNameById[w.base.resources.barIntegrity];
+    expect(getBelief(w.base.gameId, "prisoner", barName)).toEqual(expect.objectContaining({ value: 100, asOfRound: 0 }));
+
+    const pried = await prisonerHalf(w, "I lever the bar out of the window.", openWindow(), 4);
+    expect(pried.outcome?.result).toEqual(expect.objectContaining({ opened: false, partId: "bar", partBefore: 100, partAfter: 85 }));
+    expect(getBelief(w.base.gameId, "prisoner", barName)).toEqual(expect.objectContaining({ value: 85, asOfRound: 4 }));
+  });
+
+  it("a wear on the bar the following turn resolves: its expects now matches what her own hands did (RED-TEAM.md F9)", async () => {
+    createTestDb();
+    const w = buildOpenWorld();
+    seedInitialBeliefs(w.base);
+    await prisonerHalf(w, "I lever the bar out of the window.", openWindow(), 4);
+
+    const scraped = await prisonerHalf(w, "I scrape at the bar with the spoon.", scripted("bar", "wear", "integrity", "scrape at the bar", "Rust has pitted it near the bottom"), 5);
+    expect(scraped.refusalError).toBeNull();
+    expect(scraped.outcome).not.toBeNull();
+    expect(getResource(w.base.resources.barIntegrity)?.value).toBe(70);
   });
 });
