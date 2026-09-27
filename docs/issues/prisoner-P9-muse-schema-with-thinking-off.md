@@ -1,7 +1,13 @@
 title: Muse on Ollama loses the first JSON field when thinking is off and a schema is sent
 
-**Status: worked around 2026-09-27 (`src/open/thinking.ts`, `withholdsSchemaWhenThinkingOff`). The
-real fix is upstream in Ollama; a ready-to-file report is at the bottom. Nothing has been filed.**
+**Status: worked around 2026-09-27 (`src/open/thinking.ts`, `withholdsSchemaWhenThinkingOff`). An
+upstream fix is prepared as a pull request against ollama/ollama (branch
+`parsers-glimmer-thinking-close-off`, commit a4380a5 in a local clone at `~/oss/ollama`); see the end.**
+
+**Correction to the table below:** "reasoning 0" means none RETURNED. With thinking off Ollama discards
+Muse's `to=self` message, and logprobs show Muse writes one anyway (4 of 4 unconstrained calls). The
+unconstrained arm's higher token counts are probably that hidden message. The schema arm's zero was the
+bug itself: the grammar forced JSON from the first token, leaving no room to think.
 
 ## Symptom
 
@@ -52,7 +58,7 @@ ordinary error path covers it and it did not recur.
 Ollama's `GlimmerParser.ThinkingClose()` returns its header markers whether or not thinking is emitted.
 Re-run the replay (`reasoning_effort: "none"` + the proposal schema, ~20 calls) before removing it.
 
-## Draft upstream report (for ollama/ollama; not filed)
+## Draft upstream report (superseded by the prepared pull request)
 
 > **glimmer: JSON `format` with `think: false` drops the start of the output**
 >

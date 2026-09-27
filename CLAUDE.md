@@ -274,6 +274,15 @@ every schema-constrained mind call (Shep hit the same token). The transcript hea
 value actually sent. `ON` sends no field at all, so the served model's own default decides -- which on
 Ollama means it reasons. **If the runtime changes again, re-measure the field before trusting a header.**
 
+**Correction, 2026-09-27: on Ollama, `none` HIDES Muse's reasoning; it does not stop it.** The
+"reasoning returned" counts above are what Ollama hands back, and with thinking off its glimmer parser
+discards any `to=self` message. Token logprobs show Muse still writes one: on one prompt at temperature 0,
+101 hidden tokens at `none` against 70 at `low` and 373 at `high`. `none` is advice in the system prompt
+(`Reasoning strength: none.`), nothing more. So "thinking OFF" locally now means "reasoning short and
+unread", which is a different condition from the llama-server batches (P8 measured 33 total tokens at
+`none` there). Compare across the move on process measures only, and do not read `reasoning 0` in a
+probe as "did not reason".
+
 **With thinking off, Muse's wits calls go WITHOUT their JSON schema** (P9,
 `docs/issues/prisoner-P9-muse-schema-with-thinking-off.md`). Ollama's glimmer parser lets the schema's
 grammar bind before Muse writes its message header, and up to a third of wits replies came back with the
