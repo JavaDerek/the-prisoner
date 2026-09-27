@@ -165,6 +165,8 @@ export interface RecordedHalf {
   replanBecause?: string;
   rows: RecordedRow[];
   ruled: "possible" | "impossible" | null;
+  /** The `**Other perceives:**` line as the game printed it -- this repository's own output, quoted. */
+  otherPerceives?: string;
 }
 export interface RecordedGame {
   file: string;
@@ -210,6 +212,7 @@ export function parseRecordedGame(relPath: string): RecordedGame {
       ...(replanBecause !== undefined ? { replanned: true, replanBecause } : {}),
       rows,
       ruled: (one(/^\*\*Ruled:\*\* (possible|impossible)/m) as RecordedHalf["ruled"]) ?? null,
+      ...(one(/^\*\*Other perceives:\*\* (.*)$/m) !== undefined ? { otherPerceives: one(/^\*\*Other perceives:\*\* (.*)$/m) } : {}),
     });
   }
   return { file: relPath, rounds, halves };
@@ -596,11 +599,14 @@ export interface Prediction {
   total: number;
   /** `atLeast k`, `atMost k`, or `between [a, b]`; `report` carries no bound (reported, no weight). */
   bound: { atLeast?: number; atMost?: number } | "report";
+  /** A prediction that is not a count of hits (P4's difference between two cells) brings its own columns. */
+  custom?: { soFar: string; projected: string; verdict: "DEAD" | "OPEN" | "MET" | "REPORT" };
 }
 
 /** DEAD is arithmetic, never judgement: an `atMost k` dies when hits already exceed k; an `atLeast k` dies when
  *  hits plus every item still to come cannot reach k. A dead prediction is ANNOUNCED on the poll it dies. */
 export function verdict(p: Prediction): "DEAD" | "OPEN" | "MET" | "REPORT" {
+  if (p.custom) return p.custom.verdict;
   if (p.bound === "report") return "REPORT";
   const remaining = Math.max(0, p.total - p.seen);
   if (p.bound.atMost !== undefined && p.hits > p.bound.atMost) return "DEAD";
@@ -614,8 +620,8 @@ export function verdict(p: Prediction): "DEAD" | "OPEN" | "MET" | "REPORT" {
 export function renderScoreboard(title: string, predictions: Prediction[]): string[] {
   const out = [`## ${title}`, "", "| id | prediction | so far | projected at N | verdict |", "|---|---|---|---|---|"];
   for (const p of predictions) {
-    const projected = p.seen === 0 ? "-" : `${Math.round((p.hits / p.seen) * p.total * 10) / 10} of ${p.total}`;
-    out.push(`| ${p.id} | ${p.text} | ${p.hits} of ${p.seen} | ${projected} | ${verdict(p)} |`);
+    const projected = p.custom?.projected ?? (p.seen === 0 ? "-" : `${Math.round((p.hits / p.seen) * p.total * 10) / 10} of ${p.total}`);
+    out.push(`| ${p.id} | ${p.text} | ${p.custom?.soFar ?? `${p.hits} of ${p.seen}`} | ${projected} | ${verdict(p)} |`);
   }
   const dead = predictions.filter((p) => verdict(p) === "DEAD");
   out.push("");

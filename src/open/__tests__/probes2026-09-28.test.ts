@@ -142,4 +142,38 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
     },
     TIMEOUT
   );
+
+  it(
+    "P4 list x line: the dry run shows the outcome line in the `outcome` cells, the attempt line in the others, and the list only in the `list` cells",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-warden-list-line/probe.mts", "--dry-run", "--with-round6");
+      expect(out).toContain("6 cells built, no request sent.");
+      const cells = out.split(/^=== cell /m).slice(1);
+      expect(cells).toHaveLength(6);
+      for (const c of cells) {
+        const name = c.slice(0, c.indexOf(":"));
+        expect(c.includes("\nMara Voss opens the window.\n")).toBe(name.endsWith("outcome"));
+        expect(c.includes("\nMara Voss works to open the window.\n")).toBe(name.endsWith("attempt"));
+        expect(c.includes("START LIST OF CONDITIONS")).toBe(name.includes("list"));
+      }
+      expect(out).toContain("warden suspicion: 95.");
+    },
+    TIMEOUT
+  );
+
+  it(
+    "P4 list x line: a rehearsal writes N=10 rows for one cell and the scoreboard asks for labels",
+    async () => {
+      const dir = mkdtempSync(join(tmpdir(), "p4-rehearsal-"));
+      try {
+        const out = await tsx("checkpoints/2026-09-28-warden-list-line/probe.mts", "--rehearse", `--out=${dir}`, "--only=list-attempt");
+        expect(rehearsalRows(dir).filter((r) => r.sampleId)).toHaveLength(10);
+        expect(out).toContain("## P4 -- the 2x2 at round 10");
+        expect(out).toContain("not labelled yet");
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
+    TIMEOUT
+  );
 });
