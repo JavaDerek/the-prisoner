@@ -276,6 +276,8 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   if (!p) {
     // PLAYTEST-2026-09-27 D5: a half-round the absence cadence skipped says so, the way `passive` does.
     lines.push(`**Silence.** SilenceReason: \`${half.skipped === "absent" ? "absent (cadence)" : (silence?.reason ?? "unknown")}\`.`);
+    // D4' on the cadence's move out: the block he stood in lapsed as he left (game.ts).
+    if (half.blockLapsed) lines.push(`Resolved \`OPEN_BLOCK\` first: the ${half.principal} steps out of the ${half.blockLapsed.replace(/_/g, " ")} (${half.principal}_blocking -> 0).`);
     if (silence?.text !== undefined) {
       lines.push("**Raw text:**");
       lines.push("```");

@@ -10,6 +10,7 @@ import { openConditions, readConditionsMode, readDoorMode } from "../conditions.
 import { renderConditionList } from "../conditionList.js";
 import { runOpenGame, type OpenGameResult } from "../game.js";
 import { renderOwnOutcome } from "../perception.js";
+import { renderOpenHalfRound } from "../checkpointTranscript.js";
 import type { Referee, RefereeRuling } from "../referee.js";
 import type { OpenMind, OpenProposal } from "../mind.js";
 import type { OpenHalfRoundResult } from "../loop.js";
@@ -280,10 +281,32 @@ describe("a block is an occupation, played (D4', RED-TEAM.md F11, Line D)", () =
     const game = await play(w, warden, prisoner);
 
     for (const n of [1, 2, 3]) expect(half(game, n, "prisoner").outcome?.result).toMatchObject({ left: false, held: "blocked" });
-    // Still standing in the window by his own resource, but out of the cell.
-    expect(valueAt(w, w.blocking.warden, half(game, 4, "prisoner").t)).toBe(2);
+    // Out of the cell, and out of the window with it (his block lapsed as the cadence moved him).
+    expect(valueAt(w, w.blocking.warden, half(game, 4, "prisoner").t)).toBe(0);
     expect(game.ended).toEqual({ kind: "escaped" });
     expect(game.endedAtRound).toBe(4);
+  });
+
+  it("being moved out by the cadence ends his block: back on round 5 with a silent turn, he is not in the window", async () => {
+    // D4' (an occupation; "leaving clears it") applied to the one departure that is not his own act: D5's move to
+    // the corridor. Without this his resource still read 2 on his return, and a silent turn -- which keeps a block
+    // he is standing in -- put him back in a window he walked away from, with no act of his.
+    const w = newWorld();
+    wearTo(w, w.base.resources.barIntegrity, 40);
+    buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_PASSAGE", parameters: { resourceId: w.exits.window.passageResourceId, wayOut: "window", open: true, min: 0, max: 1, description: "set up" } });
+    const warden = byRound("warden", (n) => (n === 3 ? BLOCK_WINDOW : null));
+    const prisoner = byRound("prisoner", (n) => (n === 3 || n === 5 ? LEAVE_WINDOW : null));
+    const game = await play(w, warden, prisoner, 5);
+
+    expect(half(game, 3, "prisoner").outcome?.result).toMatchObject({ left: false, held: "blocked" });
+    const out = half(game, 4, "warden");
+    expect(out.skipped).toBe("absent");
+    expect(out.blockLapsed).toBe("window");
+    expect(valueAt(w, w.blocking.warden, out.t)).toBe(0);
+    expect(renderOpenHalfRound(out).join("\n")).toContain("Resolved `OPEN_BLOCK` first: the warden steps out of the window (warden_blocking -> 0).");
+    expect(half(game, 5, "warden").proposal).toBeNull();
+    expect(half(game, 5, "prisoner").outcome?.result.left).toBe(true);
+    expect(game.endedAtRound).toBe(5);
   });
 });
 

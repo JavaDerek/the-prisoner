@@ -1,5 +1,5 @@
-import type { Resolver } from "run-dmcp";
-import type { OpenWorld } from "./world.js";
+import { getResource, type Resolver } from "run-dmcp";
+import { wayOutAt, type OpenWorld } from "./world.js";
 import type { Referee } from "./referee.js";
 import type { ElaborationReferee } from "./elaborationReferee.js";
 import type { ElaborationBandRow, DifficultyBand } from "./elaborationBands.js";
@@ -12,6 +12,8 @@ import { buildOpenContext, checkAbsenceMode, wardenAbsentOn, principalLocation, 
 import { renderOwnOutcome, renderForOther } from "./perception.js";
 import { seedInitialBeliefs, type Principal } from "../ledger/beliefs.js";
 import { TIME_DECAY_AMOUNT } from "../world/mechanics.js";
+import { readNumericFact } from "../world/facts.js";
+import { WARDEN_NAME } from "../scenario.js";
 import { RESOURCE_MIN, RESOURCE_MAX } from "../world/setup.js";
 
 /**
@@ -104,15 +106,25 @@ export async function runOpenGame(params: {
 
       // PLAYTEST-2026-09-27 D5: at the start of an absent round the warden steps out to the corridor; at the start
       // of the round after, he is back. Both before his half-round, at his own t.
+      let blockLapsed: string | undefined;
       if (cadence && principal === "warden") {
-        if (wardenAbsentOn(n)) moveWarden(openWorld.namedLocations.corridor, "The warden steps out of the cell.");
-        else if (wardenAbsentOn(n - 1)) moveWarden(openWorld.base.cellId, "The warden comes back into the cell.");
+        if (wardenAbsentOn(n)) {
+          // D4' ("leaving clears it") on the one departure that is not his own act: stepping out of the cell, he
+          // steps out of any way out he stood in -- an audited OPEN_BLOCK to 0, the loop's own lapse -- so he
+          // comes back holding nothing until he blocks again (review of 2026-09-27, contestLines.test.ts).
+          const held = readNumericFact({ gameId, t, entityId: openWorld.blocking.warden, key: "value" }) ?? 0;
+          blockLapsed = held > 0 ? wayOutAt(openWorld, held) : undefined;
+          if (blockLapsed !== undefined) {
+            resolver.resolve({ gameId, mechanic: "OPEN_BLOCK", parameters: { resourceId: openWorld.blocking.warden, index: 0, max: getResource(openWorld.blocking.warden)?.maxValue ?? held, description: `${WARDEN_NAME} steps out of the ${blockLapsed.replace(/_/g, " ")}.` } });
+          }
+          moveWarden(openWorld.namedLocations.corridor, "The warden steps out of the cell.");
+        } else if (wardenAbsentOn(n - 1)) moveWarden(openWorld.base.cellId, "The warden comes back into the cell.");
       }
       if (cadence && principal === "warden" && wardenAbsentOn(n)) {
         // D5 (RED-TEAM.md F10 (i)): his half-round is skipped -- no wits call, no referee call. His news waits
         // in his inbox for the round he is back; the context is built for the transcript only.
         const context = buildOpenContext(openWorld, principal, t, n, rounds, { ...inbox[principal], standing: params.precedent?.[principal], ...(plans[principal] ? { plan: plans[principal] } : {}) }, presenceMode, absenceMode);
-        const half: OpenHalfRoundResult = { principal, t, roundN: n, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null, skipped: "absent" };
+        const half: OpenHalfRoundResult = { principal, t, roundN: n, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null, skipped: "absent", ...(blockLapsed !== undefined ? { blockLapsed } : {}) };
         halves.push(half);
         await params.onHalfRound?.(half);
         const ended = checkOpenGameEnd(openWorld, t);
