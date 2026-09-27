@@ -126,6 +126,9 @@ export interface OpenHalfRoundResult {
    *  way out the actor already stood in, so her block lapsed first -- the way out she stepped out of. Absent on
    *  every other half-round. */
   blockLapsed?: string;
+  /** PLAYTEST-2026-09-27 D5: set when the game skipped this half-round because the principal was out of the
+   *  cell on the absence cadence -- no mind was asked and no referee called (`proposal` is `null`). */
+  skipped?: "absent";
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/

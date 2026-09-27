@@ -65,7 +65,7 @@ import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readPersonInstrumentMode, readInstrumentMode, readDeriveWordingMode, readOneActMode, readElisionMode, readContainerClauseMode, readDeriveRepeatMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
-import { readPresenceMode, authoredDescription, ownershipAt, buildOpenContext } from "./open/briefing.js";
+import { readPresenceMode, readAbsenceMode, checkAbsenceMode, authoredDescription, ownershipAt, buildOpenContext } from "./open/briefing.js";
 import { currentT } from "./world/clock.js";
 import { createRefereeTransport } from "./open/refereeTransport.js";
 import { createOpenPrisonerMind, createOpenWardenMind, renderSeatSituation } from "./open/mind.js";
@@ -248,6 +248,10 @@ const BLOCK = readBlockMode(process.env.PRISONER_BLOCK);
 /** Open variant only: PLAYTEST-2026-09-27 D12 -- the target question reads an act done to a person with a thing
  *  as naming the person (`src/open/referee.ts`). Off until probe P3 lands it. */
 const PERSON_INSTRUMENT = readPersonInstrumentMode(process.env.PRISONER_PERSON_INSTRUMENT);
+/** Open variant only: PLAYTEST-2026-09-27 D5 -- the warden is out of the cell on round 4 and every fourth round
+ *  after (`src/open/briefing.ts`, `src/open/game.ts`). Cadence unless asked; it needs presence `modelled`, which
+ *  `mainOpen` checks before anything else. `off` is every earlier batch. */
+const ABSENCE = readAbsenceMode(process.env.PRISONER_ABSENCE);
 /** Open variant only: the effect question's sharpened derive/wear wording
  *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
  *  (the pre-existing text) unless asked -- the same D3 lesson. */
@@ -854,6 +858,8 @@ async function main(): Promise<void> {
  * `npm run referee-replay` reads for §5.2's consistency measurement.
  */
 async function mainOpen(): Promise<void> {
+  // PLAYTEST-2026-09-27 D5: an absence cadence over a presence that is not modelled stops the run here, first.
+  checkAbsenceMode(ABSENCE, PRESENCE);
   // WORLD-ELABORATION-DESIGN.md §4.2a, §9 row P1b: with the arm on, a game
   // may not start against a band table with any row missing, under
   // `review`, or stale against a live description -- checked before
@@ -1198,6 +1204,11 @@ async function mainOpen(): Promise<void> {
       : "Presence: OFF (the default): both principals are always treated as present to each other, and no person carries a declared state, as every batch before this gap recorded (§55, §56, issue #22)."
   );
   transcript.push(
+    ABSENCE === "cadence"
+      ? "Absence: CADENCE (the default since 2026-09-27): the warden is moved out to the corridor on round 4 and every fourth round after (no exit opened), his half-round is skipped, and he is back before his next; while out he perceives nothing the prisoner does, and both briefings state the rule every turn (PLAYTEST-2026-09-27 D5)."
+      : "Absence: OFF (`PRISONER_ABSENCE=off`): the warden is never moved out of the cell by the game, as every batch before 2026-09-27 recorded (PLAYTEST-2026-09-27 D5)."
+  );
+  transcript.push(
     PERSON_INSTRUMENT === "on"
       ? "Person instrument: ON (`PRISONER_PERSON_INSTRUMENT=on`): with a person in view, the target question reads an act done to a person with a thing as naming the person (PLAYTEST-2026-09-27 D12, design R3)."
       : "Person instrument: OFF (the default): the target question carries no person-instrument clause (PLAYTEST-2026-09-27 D12, pending probe P3)."
@@ -1349,7 +1360,7 @@ async function mainOpen(): Promise<void> {
     // §5.1's cross-batch claim depends on. "Byte-identical to what the turn sees" in §3.2 is about the
     // rendering function being shared, never about the timepoint.
     const t1 = openWorld.base.clock.t0;
-    const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE);
+    const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE, ABSENCE);
     const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }));
     strategy = await chooseStrategy({
       context: { situation, objectIds: c1.perceivedObjects.map((o) => o.id) },
@@ -1407,6 +1418,7 @@ async function mainOpen(): Promise<void> {
         prisonerMind,
         rounds: ROUNDS,
         presenceMode: PRESENCE,
+        absenceMode: ABSENCE,
         ...(strategy ? { strategy: strategy.sentence } : {}),
         ...(elaborationReferee ? { elaborationReferee } : {}),
         ...(ELABORATE_BAND ? { forcedElaborationBand: ELABORATE_BAND } : {}),

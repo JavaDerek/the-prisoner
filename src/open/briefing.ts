@@ -7,7 +7,7 @@ import { resourceIdForProperty, type OpenWorld, type WindowMode } from "./world.
 import type { ObjectPerception } from "./referee.js";
 import type { OpenPrincipalContext } from "./mind.js";
 import type { Principal } from "../ledger/beliefs.js";
-import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRISONER_NAME, WARDEN_NAME, prisonerStakes, wardenStakes } from "../scenario.js";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, prisonerStakes, wardenStakes } from "../scenario.js";
 
 /**
  * Open-mode perception and briefing (OPEN-VARIANT.md §1: presence, thoughts
@@ -96,6 +96,45 @@ export function readPresenceMode(raw: string | undefined): PresenceMode {
   if (raw === undefined || raw === "") return "off";
   if (raw === "off" || raw === "modelled") return raw;
   throw new Error(`PRISONER_PRESENCE: unrecognised value ${JSON.stringify(raw)} -- must be "modelled" or "off" (the default)`);
+}
+
+/**
+ * PLAYTEST-2026-09-27 D5 (design §2's presence rhythm; RED-TEAM.md F10): whether the warden is out of the cell on
+ * a fixed, stated cadence. `cadence` (the default since 2026-09-27): out on every round divisible by
+ * `ABSENT_EVERY_N_ROUNDS`, moved by the game (`game.ts`, an audited `OPEN_MOVE`, no exit opened), his half-round
+ * skipped, and both chairs told the rule every turn. `off` is every earlier batch: he never leaves unless he walks
+ * out himself. Cadence reads presence -- an absence nobody's perception is gated on is not one -- so it needs
+ * `PRISONER_PRESENCE=modelled` (`checkAbsenceMode`). F10's own recommendation (absence as the price of the
+ * warden's own mending) is not this; the cadence is what the owner decided, and `off` stays the arm.
+ */
+export type AbsenceMode = "cadence" | "off";
+
+export function readAbsenceMode(raw: string | undefined): AbsenceMode {
+  if (raw === undefined || raw === "") return "cadence";
+  if (raw === "cadence" || raw === "off") return raw;
+  throw new Error(`PRISONER_ABSENCE: unrecognised value ${JSON.stringify(raw)} -- must be "cadence" (the default) or "off"`);
+}
+
+/** D5: stops a run whose absence arm reads a presence that is not modelled, at startup, with the fix named. */
+export function checkAbsenceMode(absence: AbsenceMode, presence: PresenceMode): void {
+  if (absence === "cadence" && presence !== "modelled") {
+    throw new Error(`PRISONER_ABSENCE=cadence needs PRISONER_PRESENCE=modelled (it is "${presence}"): set PRISONER_PRESENCE=modelled, or PRISONER_ABSENCE=off`);
+  }
+}
+
+/** D5: the warden is out of the cell on round 4, and every fourth round after. */
+export const ABSENT_EVERY_N_ROUNDS = 4;
+
+export function wardenAbsentOn(roundN: number): boolean {
+  return roundN > 0 && roundN % ABSENT_EVERY_N_ROUNDS === 0;
+}
+
+const ORDINAL: Readonly<Record<number, string>> = { 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth" };
+
+/** D5: the standing rule both chairs read every turn under `cadence`, its numbers built from the constant. */
+export function absenceRuleLine(): string {
+  const every = ORDINAL[ABSENT_EVERY_N_ROUNDS] ?? `${ABSENT_EVERY_N_ROUNDS}th`;
+  return `${WARDEN_NAME} is out of the cell on round ${ABSENT_EVERY_N_ROUNDS}, and every ${every} round after; while out, nothing ${PRISONER_SHORT_NAME} does is seen or heard.`;
 }
 
 /** Where a principal currently is -- the cell by default (before anything
@@ -328,7 +367,8 @@ export function buildOpenBriefing(
   roundN: number,
   totalRounds: number = DEFAULT_TOTAL_ROUNDS,
   news: OpenNews = {},
-  presenceMode: PresenceMode = "off"
+  presenceMode: PresenceMode = "off",
+  absenceMode: AbsenceMode = "off"
 ): string {
   const gameId = openWorld.base.gameId;
   const lines: string[] = [];
@@ -347,6 +387,8 @@ export function buildOpenBriefing(
     const otherName = other === "prisoner" ? PRISONER_NAME : WARDEN_NAME;
     const together = principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t);
     lines.push(together ? `${otherName} is here with you.` : `${otherName} is not here right now.`);
+    // PLAYTEST-2026-09-27 D5: the cadence, stated to both, beside the presence line it explains.
+    if (absenceMode === "cadence") lines.push(absenceRuleLine());
   }
 
   const notes = getNotes(gameId, principal);
@@ -391,7 +433,8 @@ export function buildOpenContext(
   roundN: number,
   totalRounds: number = DEFAULT_TOTAL_ROUNDS,
   news: OpenNews = {},
-  presenceMode: PresenceMode = "off"
+  presenceMode: PresenceMode = "off",
+  absenceMode: AbsenceMode = "off"
 ): OpenPrincipalContext {
   const principalId = principal === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId;
   const perceivedObjects = computePerceivedObjects(openWorld, principal, t, presenceMode);
@@ -402,7 +445,7 @@ export function buildOpenContext(
     principalId,
     identity: principal === "prisoner" ? PRISONER_IDENTITY : WARDEN_IDENTITY,
     motive: principal === "prisoner" ? PRISONER_MOTIVE : WARDEN_MOTIVE,
-    briefing: buildOpenBriefing(openWorld, principal, t, roundN, totalRounds, news, presenceMode),
+    briefing: buildOpenBriefing(openWorld, principal, t, roundN, totalRounds, news, presenceMode, absenceMode),
     perceivedObjects,
     holding: perceivedObjects.filter((o) => ownership(o.id).holder === principal).map((o) => o.id),
   };

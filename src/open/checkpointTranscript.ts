@@ -274,7 +274,8 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
 
   const p = half.proposal;
   if (!p) {
-    lines.push(`**Silence.** SilenceReason: \`${silence?.reason ?? "unknown"}\`.`);
+    // PLAYTEST-2026-09-27 D5: a half-round the absence cadence skipped says so, the way `passive` does.
+    lines.push(`**Silence.** SilenceReason: \`${half.skipped === "absent" ? "absent (cadence)" : (silence?.reason ?? "unknown")}\`.`);
     if (silence?.text !== undefined) {
       lines.push("**Raw text:**");
       lines.push("```");

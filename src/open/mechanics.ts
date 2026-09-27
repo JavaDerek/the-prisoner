@@ -386,6 +386,27 @@ export const OPEN_BLOCK: Mechanic = {
   },
 };
 
+export interface MoveParams {
+  characterId: string;
+  destinationId: string;
+  description: string;
+}
+
+/** PLAYTEST-2026-09-27 D5 (RED-TEAM.md F10): the game moves a principal -- one `set` of her location, the change
+ *  `OPEN_LEAVE` makes, with no exit involved (the absence cadence's out and back; the door stays as it is).
+ *  Still an audited resolution through the one choke point, never a direct write. */
+export const OPEN_MOVE: Mechanic = {
+  name: "OPEN_MOVE",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as MoveParams;
+    return {
+      changes: [{ kind: "set", entityId: p.characterId, key: "location_id", value: p.destinationId }],
+      result: { mechanic: "OPEN_MOVE", destinationId: p.destinationId },
+      description: p.description,
+    };
+  },
+};
+
 export interface TakeParams {
   itemId: string;
   actorId: string;
@@ -651,6 +672,6 @@ export const OPEN_DERIVE: Mechanic = {
 
 export function buildOpenResolver(): Resolver {
   return createResolver({
-    mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH, OPEN_CONCEAL_CONTAINER, OPEN_EXPOSE_CONTAINER, OPEN_BLOCK],
+    mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH, OPEN_CONCEAL_CONTAINER, OPEN_EXPOSE_CONTAINER, OPEN_BLOCK, OPEN_MOVE],
   });
 }

@@ -8,7 +8,7 @@ import { runOpenHalfRound, type OpenHalfRoundResult, type KnownApproach } from "
 import { seenAttempts } from "./precedent.js";
 import type { PickCondition } from "./pickCondition.js";
 import { checkOpenGameEnd, type OpenGameEnd } from "./gameEnd.js";
-import { buildOpenContext, type OpenNews, type PresenceMode } from "./briefing.js";
+import { buildOpenContext, checkAbsenceMode, wardenAbsentOn, principalLocation, type OpenNews, type PresenceMode, type AbsenceMode } from "./briefing.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
 import { seedInitialBeliefs, type Principal } from "../ledger/beliefs.js";
 import { TIME_DECAY_AMOUNT } from "../world/mechanics.js";
@@ -68,9 +68,19 @@ export async function runOpenGame(params: {
    *  override -- both passed through to every half-round unchanged. */
   elaborationBands?: readonly ElaborationBandRow[];
   forcedElaborationBand?: DifficultyBand;
+  /** PLAYTEST-2026-09-27 D5 (`readAbsenceMode`). Default `"off"`: the warden never leaves unless he walks out.
+   *  `"cadence"` needs `presenceMode: "modelled"` and refuses to start without it. */
+  absenceMode?: AbsenceMode;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
   const presenceMode = params.presenceMode ?? "off";
+  const absenceMode = params.absenceMode ?? "off";
+  checkAbsenceMode(absenceMode, presenceMode);
+  const cadence = absenceMode === "cadence";
+  // D5: the game's own hand moving the warden, out and back -- audited, no exit involved.
+  const moveWarden = (destinationId: string, description: string): void => {
+    resolver.resolve({ gameId, mechanic: "OPEN_MOVE", parameters: { characterId: openWorld.base.wardenId, destinationId, description } });
+  };
   const gameId = openWorld.base.gameId;
   const clock = openWorld.base.clock;
   seedInitialBeliefs(openWorld.base);
@@ -90,6 +100,24 @@ export async function runOpenGame(params: {
       const other: Principal = principal === "warden" ? "prisoner" : "warden";
       const t = principal === "warden" ? clock.wardenT(n) : clock.prisonerT(n);
 
+      // PLAYTEST-2026-09-27 D5: at the start of an absent round the warden steps out to the corridor; at the start
+      // of the round after, he is back. Both before his half-round, at his own t.
+      if (cadence && principal === "warden") {
+        if (wardenAbsentOn(n)) moveWarden(openWorld.namedLocations.corridor, "The warden steps out of the cell.");
+        else if (wardenAbsentOn(n - 1)) moveWarden(openWorld.base.cellId, "The warden comes back into the cell.");
+      }
+      if (cadence && principal === "warden" && wardenAbsentOn(n)) {
+        // D5 (RED-TEAM.md F10 (i)): his half-round is skipped -- no wits call, no referee call. His news waits
+        // in his inbox for the round he is back; the context is built for the transcript only.
+        const context = buildOpenContext(openWorld, principal, t, n, rounds, { ...inbox[principal], standing: params.precedent?.[principal], ...(plans[principal] ? { plan: plans[principal] } : {}) }, presenceMode, absenceMode);
+        const half: OpenHalfRoundResult = { principal, t, roundN: n, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null, skipped: "absent" };
+        halves.push(half);
+        await params.onHalfRound?.(half);
+        const ended = checkOpenGameEnd(openWorld, t);
+        if (ended) return { halves, ended, endedAtRound: n };
+        continue;
+      }
+
       const news: OpenNews = {
         ...inbox[principal],
         standing: params.precedent?.[principal],
@@ -97,7 +125,8 @@ export async function runOpenGame(params: {
         ...(principal === "prisoner" && params.strategy ? { strategy: params.strategy } : {}),
       };
       inbox[principal] = { fromOther: [] };
-      const context = buildOpenContext(openWorld, principal, t, n, rounds, news, presenceMode);
+      const context = buildOpenContext(openWorld, principal, t, n, rounds, news, presenceMode, absenceMode);
+      const otherHere = presenceMode === "off" || principalLocation(openWorld, principal, t) === principalLocation(openWorld, other, t);
 
       const half = await runOpenHalfRound({
         openWorld,
@@ -123,7 +152,10 @@ export async function runOpenGame(params: {
 
       const ownOutcome = renderOwnOutcome(half);
       if (ownOutcome) inbox[principal].ownOutcome = ownOutcome;
-      inbox[other].fromOther.push(...renderForOther(half));
+      // D5: what the other would perceive -- the act AND the spoken line -- reaches her only if she was here when
+      // the half-round began (read before it, so a principal who walks out is still seen going). Under presence
+      // `off`, or while both share the cell, this is every line, as before.
+      if (otherHere) inbox[other].fromOther.push(...renderForOther(half));
 
       await params.onHalfRound?.(half);
 
