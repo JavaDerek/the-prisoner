@@ -80,7 +80,8 @@ import { openConditions, readConditionsMode, readDoorMode } from "./open/conditi
 import { readBlockMode } from "./open/effects.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
-import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable, type HumanSeatMind } from "./open/humanSeat.js";
+import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable, turnTakenNotice, otherIsThinkingNotice, type HumanSeatMind } from "./open/humanSeat.js";
+import { renderOwnOutcome } from "./open/perception.js";
 import { renderAbandonedSection, abandonedByPlayerAtRound, AbandonedByPlayerError } from "./open/runAbandon.js";
 import type { OpenHalfRoundResult } from "./open/loop.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
@@ -1448,7 +1449,18 @@ async function mainOpen(): Promise<void> {
             // is serial so this never arrives while a question is open, but if
             // it ever does, the seat counts it rather than this file silently
             // interleaving it with whatever the player is mid-typing.
-            humanSeat?.notify(`(${half.principal === "warden" ? WARDEN_NAME : PRISONER_NAME} has taken a turn.)`);
+            humanSeat?.notify(turnTakenNotice(half.principal === "warden" ? WARDEN_NAME : PRISONER_NAME));
+          } else {
+            // D10-4 (PLAYTEST-2026-09-27-DESIGN.md R7): the player's OWN
+            // outcome, at once, rather than waiting for it to resurface as
+            // ordinary news on her own next turn (`game.ts`'s
+            // `inbox[principal].ownOutcome` is the SAME sentence,
+            // `renderOwnOutcome`) -- the `play` view's own delta then omits
+            // that repeat (`humanSeat.ts`'s `notify`/`playSituation`). Raw
+            // view untouched: it never goes through the seat's delta at all.
+            const outcome = renderOwnOutcome(half);
+            if (outcome !== null) humanSeat?.notify(outcome);
+            humanSeat?.notify(otherIsThinkingNotice(SEAT === "warden" ? PRISONER_NAME : WARDEN_NAME));
           }
           if (SEAT !== "off") {
             // D2: the evidence as it goes, so an abandoned game is a dataset

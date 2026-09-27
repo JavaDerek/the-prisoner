@@ -341,8 +341,27 @@ function listBlock(kind: ProseBlockKind, lead: string, items: readonly ProseItem
  * what lets a caller treat the standing world differently from the turn's
  * news without pattern-matching finished prose.
  */
-export function proseBlocks(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): ProseBlock[] {
+/** D10-4 (PLAYTEST-2026-09-27-DESIGN.md R7): `humanSeat.ts`'s `play` view
+ *  alone -- never `prose`/`narrated`, which pass none -- omits a news LINE
+ *  it has already told the player through `notify` (`checkpoint.ts`'s
+ *  `onHalfRound`), so the player's own outcome is not repeated the turn
+ *  after it was shown at once. A predicate over `parseBriefing`'s own
+ *  `other` lines, never a rewrite of them: `true` keeps a line, exactly the
+ *  discipline `keepShownWhileChanged` (`deltaView.ts`) already uses for a
+ *  different kind of caller-supplied exception. */
+export interface ProseBlocksOptions {
+  readonly newsFilter?: (line: string) => boolean;
+}
+
+export function proseBlocks(
+  selfName: string,
+  otherName: string,
+  context: OpenPrincipalContext,
+  conditions?: readonly Condition[],
+  options: ProseBlocksOptions = {}
+): ProseBlock[] {
   const parsed = parseBriefing(context.briefing);
+  const otherLines = options.newsFilter ? parsed.other.filter(options.newsFilter) : parsed.other;
   const blocks: ProseBlock[] = [];
 
   if (conditions && conditions.length > 0) {
@@ -370,9 +389,9 @@ export function proseBlocks(selfName: string, otherName: string, context: OpenPr
   }
 
   if (parsed.roundN !== undefined && parsed.totalRounds !== undefined) {
-    blocks.push({ kind: "news", text: [`This is round ${parsed.roundN} of ${parsed.totalRounds}.`, ...parsed.other].join(" ") });
-  } else if (parsed.other.length > 0) {
-    blocks.push({ kind: "news", text: parsed.other.join(" ") });
+    blocks.push({ kind: "news", text: [`This is round ${parsed.roundN} of ${parsed.totalRounds}.`, ...otherLines].join(" ") });
+  } else if (otherLines.length > 0) {
+    blocks.push({ kind: "news", text: otherLines.join(" ") });
   }
 
   // D10-1: the stakes sentence is its own block -- STANDING, so `deltaView.ts`

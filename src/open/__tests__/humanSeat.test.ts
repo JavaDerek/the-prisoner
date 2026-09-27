@@ -1,6 +1,18 @@
 import { describe, it, expect, vi } from "vitest";
 import { createOpenMind, renderSeatSituation, ONE_ACT_RULE, type OpenPrincipalContext } from "../mind.js";
-import { assertSeatIsPlayable, createHumanSeatMind, readSeatMode, readViewMode, wrapText, wrapWidth, PLAY_BLOCK_POLICY, SEAT_COMMANDS, type ViewMode } from "../humanSeat.js";
+import {
+  assertSeatIsPlayable,
+  createHumanSeatMind,
+  readSeatMode,
+  readViewMode,
+  wrapText,
+  wrapWidth,
+  PLAY_BLOCK_POLICY,
+  SEAT_COMMANDS,
+  turnTakenNotice,
+  otherIsThinkingNotice,
+  type ViewMode,
+} from "../humanSeat.js";
 import { proseBlocks, RULES_PARAGRAPH_LEAD } from "../proseView.js";
 import { CONDITION_LIST_OPENING } from "../conditionList.js";
 import type { Narrator } from "../narrator.js";
@@ -861,6 +873,79 @@ describe("the play view: the stakes reminder near the end of the game (D10-1)", 
     written.length = 0;
     await mind.consider(withStakes(8, 12)); // 12 - 8 = 4 <= 5
     expect(dewrap(written.join("\n"))).toContain("transferred to a maximum-security block");
+  });
+});
+
+/**
+ * D10-4 (PLAYTEST-2026-09-27-DESIGN.md R7): `checkpoint.ts`'s `onHalfRound`
+ * now tells the player their own outcome AT ONCE, through `notify`, rather
+ * than making them wait for it to resurface as news on their own next turn
+ * (`game.ts`'s `inbox[principal].ownOutcome`, which is the SAME sentence).
+ * The seat remembers the last line it notified and the `play` view omits a
+ * news line byte-equal to it -- exact string equality only, never a reading
+ * of what either says. `turnTakenNotice`/`otherIsThinkingNotice` are the two
+ * FIXED administrative templates `checkpoint.ts` also sends through this
+ * same `notify` (naming a turn happening, or the other principal now
+ * thinking); neither is a game fact a real news line could ever equal, so
+ * neither updates the remembered line -- otherwise the very next
+ * administrative notification would silently defeat the suppression this
+ * decision exists for.
+ */
+describe("the play view: the player's own outcome, told at once, is not repeated as next turn's news (D10-4)", () => {
+  const PLAY_CONTEXT: OpenPrincipalContext = {
+    principalId: "p1",
+    identity: "You are Mara Voss, three years into a sentence.",
+    motive: "Get out of this cell.",
+    briefing: "Round 1 of 12.\nbar integrity: 100 (as of round 0).\nWarden Croft examines the bar closely.",
+    perceivedObjects: [{ id: "bar", description: "One of five vertical iron bars." }],
+  };
+
+  it("omits a news line byte-equal to what notify last told the player", async () => {
+    const { mind, written } = seat(["I test the bar.", "I test the bar again."], { view: "play" });
+    await mind.consider(PLAY_CONTEXT);
+    mind.notify("Your last attempt worked.");
+    written.length = 0;
+    const next: OpenPrincipalContext = { ...PLAY_CONTEXT, briefing: "Round 2 of 12.\nbar integrity: 90 (as of round 2).\nYour last attempt worked." };
+    await mind.consider(next);
+    expect(dewrap(written.join("\n"))).not.toContain("Your last attempt worked.");
+  });
+
+  it("keeps suppressing across an intervening administrative notification, which is never itself remembered", async () => {
+    const { mind, written } = seat(["I test the bar.", "I test the bar again."], { view: "play" });
+    await mind.consider(PLAY_CONTEXT);
+    mind.notify("Your last attempt worked.");
+    mind.notify(otherIsThinkingNotice(WARDEN_NAME));
+    mind.notify(turnTakenNotice(WARDEN_NAME));
+    written.length = 0;
+    const next: OpenPrincipalContext = { ...PLAY_CONTEXT, briefing: "Round 2 of 12.\nbar integrity: 90 (as of round 2).\nYour last attempt worked." };
+    await mind.consider(next);
+    expect(dewrap(written.join("\n"))).not.toContain("Your last attempt worked.");
+  });
+
+  it("suppresses by exact string equality only -- a DIFFERENT news line still shows", async () => {
+    const { mind, written } = seat(["I test the bar.", "I test the bar again."], { view: "play" });
+    await mind.consider(PLAY_CONTEXT);
+    mind.notify("Your last attempt worked.");
+    written.length = 0;
+    const next: OpenPrincipalContext = { ...PLAY_CONTEXT, briefing: "Round 2 of 12.\nbar integrity: 90 (as of round 2).\nCroft steps out into the corridor." };
+    await mind.consider(next);
+    expect(dewrap(written.join("\n"))).toContain("Croft steps out into the corridor.");
+  });
+
+  it("never suppresses anything before notify has been called at all", async () => {
+    const { mind, written } = seat(["I test the bar."], { view: "play" });
+    await mind.consider(PLAY_CONTEXT);
+    expect(dewrap(written.join("\n"))).toContain("Warden Croft examines the bar closely.");
+  });
+
+  it("the `prose` view is untouched -- suppression is a `play`-only decision", async () => {
+    const { mind, written } = seat(["I test the bar.", "I test the bar again."], { view: "prose" });
+    await mind.consider(PLAY_CONTEXT);
+    mind.notify("Your last attempt worked.");
+    written.length = 0;
+    const next: OpenPrincipalContext = { ...PLAY_CONTEXT, briefing: "Round 2 of 12.\nbar integrity: 90 (as of round 2).\nYour last attempt worked." };
+    await mind.consider(next);
+    expect(dewrap(written.join("\n"))).toContain("Your last attempt worked.");
   });
 });
 

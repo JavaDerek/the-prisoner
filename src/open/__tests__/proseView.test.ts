@@ -347,3 +347,26 @@ describe("D10-3: a belief on a `reads`/`readRanges` property reads as words", ()
     expect(knowledge?.text).toContain("Your last word on the some future thing was 7, as of round 1.");
   });
 });
+
+/**
+ * D10-4 (PLAYTEST-2026-09-27-DESIGN.md R7): the human seat now tells the
+ * player their own outcome AT ONCE, through `notify` (`checkpoint.ts`'s
+ * `onHalfRound`) -- see `humanSeat.test.ts` for that half of it. This half:
+ * `proseBlocks` accepts an optional filter over the news lines it composes,
+ * so `humanSeat.ts`'s `play` view can omit a line byte-equal to what it just
+ * told the player, without `prose`/`narrated` (which never pass it) losing
+ * anything -- completeness for those views is untouched.
+ */
+describe("D10-4: proseBlocks can filter individual news lines (the play view's own-outcome suppression)", () => {
+  it("omits a news line the caller's filter rejects, keeping the rest of the news paragraph", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, CONTEXT, undefined, { newsFilter: (line) => line !== "Warden Croft examines the bar closely." });
+    const news = blocks.find((b) => b.kind === "news");
+    expect(news?.text).not.toContain("Warden Croft examines the bar closely.");
+    expect(news?.text).toContain('Croft says:');
+  });
+
+  it("with no filter at all (the default `prose`/`narrated` path), every news line survives -- completeness unaffected", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, CONTEXT, undefined);
+    expect(blocks.find((b) => b.kind === "news")?.text).toContain("Warden Croft examines the bar closely.");
+  });
+});

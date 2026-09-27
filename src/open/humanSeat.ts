@@ -386,6 +386,23 @@ export function orderForPlay(blocks: readonly ProseBlock[]): ProseBlock[] {
  * question this seat is itself asking (its own "(X has taken a turn.)"
  * line, today a bare `console.log` outside this file entirely).
  */
+/** D10-4 (PLAYTEST-2026-09-27-DESIGN.md R7): the two FIXED administrative
+ *  lines `checkpoint.ts`'s `onHalfRound` sends through this seat's own
+ *  `notify` -- naming the OTHER principal's turn, or her now thinking --
+ *  built here, once, so `checkpoint.ts` and `notify` (below) share the exact
+ *  same words rather than `notify` guessing at what checkpoint.ts sent.
+ *  Neither is ever a game fact a real news line could equal, so `notify`
+ *  recognises them literally (never by reading what either says) and never
+ *  lets them overwrite the remembered outcome line the `play` view compares
+ *  news against -- otherwise the very next such notification, which always
+ *  follows within the same round, would silently defeat the suppression. */
+export function turnTakenNotice(otherName: string): string {
+  return `(${otherName} has taken a turn.)`;
+}
+export function otherIsThinkingNotice(otherName: string): string {
+  return `(${otherName} is thinking.)`;
+}
+
 export interface HumanSeatMind extends OpenMind {
   /** A write from OUTSIDE `consider` -- see this interface's own doc
    *  comment. The loop is serial (§3.2, red team point 11.4): the OTHER
@@ -437,8 +454,18 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
    *  this branch is a tripwire for a case the serial loop's own design says
    *  cannot occur (§3.2, red team point 11.4), not a feature worth building
    *  real terminal cursor control for. */
+  // D10-4: the last line this seat was told OUTSIDE its own `consider` --
+  // the player's own outcome, at once (`checkpoint.ts`'s `onHalfRound`). The
+  // `play` view's own composition (below) omits a news line byte-equal to
+  // it, so the same sentence is not repeated the turn it resurfaces as
+  // ordinary news (`game.ts`'s `inbox[principal].ownOutcome`). The two fixed
+  // administrative notices (`turnTakenNotice`/`otherIsThinkingNotice`) never
+  // update it -- see their own doc comment for why that is load-bearing, not
+  // an optimisation.
+  let lastNotifiedText: string | null = null;
   const notify = (text: string): void => {
     if (questionOpen) midQuestionWriteCount += 1;
+    if (text !== turnTakenNotice(otherName) && text !== otherIsThinkingNotice(otherName)) lastNotifiedText = text;
     write(text);
   };
   const view = options.view ?? "raw";
@@ -477,8 +504,15 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   // `PLAY_ORDER` and without the three `PLAY_BLOCK_POLICY` puts behind a
   // command. Composed here rather than in `proseView.ts` because it is a
   // seat decision about a reader, not a change to what the prose says.
+  //
+  // D10-4: the ONLY view that filters a news line at all -- `prose`'s own
+  // completeness test (proseView.test.ts) stays the guard it was, and
+  // `narrated`'s `stateBlocks` (below) is untouched too.
   const playSituation = (context: OpenPrincipalContext): string =>
-    delta.render(orderForPlay(proseBlocks(selfName, otherName, context, options.conditions)), { forceShow: forceShowStakes(context) });
+    delta.render(
+      orderForPlay(proseBlocks(selfName, otherName, context, options.conditions, { newsFilter: (line) => line !== lastNotifiedText })),
+      { forceShow: forceShowStakes(context) }
+    );
   // One block of the prose view by kind, for the commands that print a block
   // `play` holds back -- read from the same composer the view itself uses, so
   // `rules` and `me` can never drift into being a second rendering.
