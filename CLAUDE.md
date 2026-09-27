@@ -341,7 +341,15 @@ one that named the tile on top of it, and authoring the containment in words mov
 referee's `target` question is answered from the words of the intent, so no description reaches an act
 whose words name something else -- which is the same conclusion `checkpoints/2026-09-19-selftarget/`
 and `checkpoints/2026-09-20-person-target/` reached from the other direction, and it is the standing
-reason to be suspicious of any fix that hopes a description will redirect a ruling.
+reason to be suspicious of any fix that hopes a description will redirect a ruling. The guide's two
+2026-09-27 lessons came from this repository's own 2026-09-27 playtest
+(`docs/PLAYTEST-2026-09-27-DESIGN.md` R1 and R7): what one principal perceives of the other's act is
+the attempt, never an outcome that may not have happened, and the object's own reading carries the
+outcome (the warden was told four times that Voss opened the window while it stayed shut); and a
+property a mind works on over several turns should read differently as it moves, from reading bands
+authored ascending and silent above the first, which every principal who can see the object reads. The
+playtest's D1 (`describeAttempt`'s perception sentences) and D9 (the bar's `integrity` reading bands)
+are where this game follows them.
 
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
 D12). One: measure the referee on the population that will write to it. Every referee number before
