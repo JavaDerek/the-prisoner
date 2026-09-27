@@ -1,4 +1,4 @@
-import { findProperty, POSTURE_ON_HER_FEET_ABOVE, PERSON_CONTAINERS, CONTAINMENT_HIDDEN_AT_OR_ABOVE, personContainerIndex, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
+import { findProperty, POSTURE_ON_HER_FEET_ABOVE, SIGHT_BLIND_AT_OR_BELOW, PERSON_CONTAINERS, CONTAINMENT_HIDDEN_AT_OR_ABOVE, personContainerIndex, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
 import { findKind, composeDescription, parentLabel } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -11,12 +11,37 @@ import type { Principal } from "../ledger/beliefs.js";
  * non-empty `answerKeys` set; `none` is a member of it here, not an
  * absence).
  */
-export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "take" | "give" | "none";
+export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "take" | "give" | "block" | "none";
 /** docs/CUSTODY-DESIGN.md: `take` and `give` move who holds a thing -- the
  *  target is the thing, never the place or the person -- through one `set`
  *  of the item's own owner columns (`OPEN_TAKE`/`OPEN_GIVE`, mechanics.ts).
  *  `none` stays last: it is the "nothing applies" key, not an effect. */
-export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "take", "give", "none"];
+export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "take", "give", "block", "none"];
+
+/**
+ * PLAYTEST-2026-09-27 D4' (RED-TEAM.md F4, F11): `block` -- stand in a way out so nobody passes through it; the
+ * target is the way out. Whether the referee is OFFERED the key: `on` is what a real game gets
+ * (`PRISONER_BLOCK`, the default since 2026-09-27); `off` is the effect question every batch before it was asked,
+ * byte for byte. `createReferee`'s bare default is `off`, so the fingerprint PIN holds. The same arm gates the
+ * block and restore conditions (`conditions.ts`, D4b), so the key and the rule that tells both chairs about it
+ * cross one boundary together.
+ */
+export type BlockMode = "off" | "on";
+
+export function readBlockMode(raw: string | undefined): BlockMode {
+  if (raw === undefined || raw === "") return "on";
+  if (raw === "off" || raw === "on") return raw;
+  throw new Error(`PRISONER_BLOCK: unrecognised value ${JSON.stringify(raw)} -- must be "on" (the default) or "off"`);
+}
+
+/** D4': the OTHER principal as a leave's blocker -- her blocking resource, and the posture and sight resources
+ *  where the world built them (the presence arm). `OPEN_LEAVE` reads every one live, at t. */
+export interface BlockerRecord {
+  characterId: string;
+  blockingResourceId: string;
+  postureResourceId?: string;
+  sightResourceId?: string;
+}
 
 export type Magnitude = "slight" | "moderate" | "substantial";
 export const MAGNITUDES: readonly Magnitude[] = ["slight", "moderate", "substantial"];
@@ -81,7 +106,8 @@ export type OpenMechanicName =
   | "OPEN_GIVE"
   | "OPEN_SEARCH"
   | "OPEN_CONCEAL_CONTAINER"
-  | "OPEN_EXPOSE_CONTAINER";
+  | "OPEN_EXPOSE_CONTAINER"
+  | "OPEN_BLOCK";
 
 /** What a `derive` plan will register in the world once its resolution has
  *  created the entities (OPEN-VARIANT.md §13.5) -- decided before the
@@ -198,6 +224,15 @@ export function planEffect(params: {
      *  (below) read it; every other effect ignores it. */
     heldInOf?: Readonly<Record<string, string>>;
   };
+  /** PLAYTEST-2026-09-27 D4': what `block` and `leave` need -- the actor's own blocking resource, each way
+   *  out's fixed 1-based index (`world.ts`'s `wayOutIndex`), the resource's bound, and the OTHER principal as a
+   *  blocker. Absent: `block` has no plan and `leave` reads no blocker, as before D4'. */
+  block?: {
+    actorResourceId: string;
+    wayOutIndex: Readonly<Record<string, number>>;
+    max: number;
+    blockers: readonly BlockerRecord[];
+  };
   description: string;
 }): EffectPlan | null {
   const { targetObjectId, effectKind, property, magnitude, entityIdFor, resourceIdFor, description } = params;
@@ -223,10 +258,28 @@ export function planEffect(params: {
     const exit = params.exits?.[targetObjectId];
     if (!exit || !params.actorId) return null;
     const { passageResourceId, integrityResourceId, destinationId } = exit;
+    // D4': the other principal standing in this way out, on her feet and able to see, holds it -- read live by
+    // the mechanic, against C1's posture line and D12's sight line.
+    const blocked = params.block
+      ? { blockers: params.block.blockers, wayOutIndex: params.block.wayOutIndex[targetObjectId] ?? 0, standsAbove: POSTURE_ON_HER_FEET_ABOVE, seesAbove: SIGHT_BLIND_AT_OR_BELOW }
+      : {};
     return {
       mechanic: "OPEN_LEAVE",
-      parameters: { characterId: params.actorId, passageResourceId, integrityResourceId, destinationId, description },
+      parameters: { characterId: params.actorId, passageResourceId, integrityResourceId, destinationId, ...blocked, description },
       resourceId: null,
+      isWearType: false,
+    };
+  }
+  if (effectKind === "block") {
+    // D4': a block stands in a way out and nothing else -- not its part, not any other object ("no invented
+    // world"). One `write` of the actor's own blocking resource to the way out's index (RED-TEAM.md F4: never a
+    // `set` on the item, which has no such column).
+    const index = params.block?.wayOutIndex[targetObjectId] ?? 0;
+    if (!params.exits?.[targetObjectId] || !params.block || index < 1) return null;
+    return {
+      mechanic: "OPEN_BLOCK",
+      parameters: { resourceId: params.block.actorResourceId, index, max: params.block.max, wayOut: targetObjectId, description },
+      resourceId: params.block.actorResourceId,
       isWearType: false,
     };
   }

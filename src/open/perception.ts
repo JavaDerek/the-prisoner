@@ -89,6 +89,8 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
       return `take ${it}`;
     case "give":
       return `hand over ${it}`;
+    case "block":
+      return `stand in ${it}`;
     case "none":
       return "";
   }
@@ -119,6 +121,8 @@ const SET_ABOUT_PHRASE: Record<Exclude<EffectKind, "none">, (ruling: RefereeRuli
   derive: (_r, what) => `making something from ${what ?? "something"}`,
   take: (_r, what) => `taking ${what ?? "something"}`,
   give: (_r, what) => `handing over ${what ?? "something"}`,
+  // PLAYTEST-2026-09-27 D4'.
+  block: (_r, what) => `standing in ${what ?? "something"}`,
 };
 
 /** The scenario's own static knowledge of an object -- the §4.1 table and
@@ -188,7 +192,7 @@ function refusalWhy(ruling: RefereeRuling, who: string, whose: string): string {
   if (ruling.effectKind === "derive" && ruling.product === "none") return "what it would make left unread";
   // docs/CUSTODY-DESIGN.md: take, give and a search (expose on a person) are
   // grounded by the actor's words alone, never by a property of the target.
-  const custody = ruling.effectKind === "take" || ruling.effectKind === "give" || (ruling.effectKind === "expose" && isPrincipalTarget(ruling.targetObjectId));
+  const custody = ruling.effectKind === "take" || ruling.effectKind === "give" || ruling.effectKind === "block" || (ruling.effectKind === "expose" && isPrincipalTarget(ruling.targetObjectId));
   if (custody && !ruling.applicable) return "its grounds in your words left unverified";
   if (!ruling.applicable) return `its grounds in your words and in ${whose} description left unverified`;
   // Applicable, and still no plan: `planEffect` found no leg for this pair
@@ -421,11 +425,18 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   }
 
   if (outcome !== null && plan !== null) {
-    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean; opened?: boolean; wayOut?: string; freedPart?: string; partId?: string; partBefore?: number; partAfter?: number };
+    const result = outcome.result as { before?: number; after?: number; value?: number; left?: boolean; held?: string; opened?: boolean; wayOut?: string; freedPart?: string; partId?: string; partBefore?: number; partAfter?: number };
     // OPEN-VARIANT.md §17.2: open, close and leave target the way out, and its id is its name.
     const exit = obj;
     if (ruling.effectKind === "leave") {
-      return told(result.left ? `You are out of the cell, through the ${exit}.` : `Your last attempt met the ${exit} shut: you are still in the cell.`);
+      if (result.left) return told(`You are out of the cell, through the ${exit}.`);
+      // PLAYTEST-2026-09-27 D4': the way was passable, and the other principal stood in it.
+      if (result.held === "blocked") return told(`Your last attempt met ${principalName(half.principal === "prisoner" ? "warden" : "prisoner")} standing in the ${exit}: you are still in the cell.`);
+      return told(`Your last attempt met the ${exit} shut: you are still in the cell.`);
+    }
+    if (plan.mechanic === "OPEN_BLOCK") {
+      // PLAYTEST-2026-09-27 D4': an occupation, told as one.
+      return told(`You stand in the ${exit}; nobody passes while you hold it.`);
     }
     if (ruling.effectKind === "open" || ruling.effectKind === "close") {
       // §19: resolved through the way out even when the referee named its part.

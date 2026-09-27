@@ -1,5 +1,5 @@
 import { createTurnReader, sourceWords, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type AcceptedCitation } from "run-dmcp";
-import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
+import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type BlockMode, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findObject, OPEN_PERSONS, type OpenObjectSpec, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
 
@@ -440,7 +440,8 @@ function buildQuestions(
   deriveWording: DeriveWordingMode,
   elisionMode: ElisionMode,
   containerClauseMode: ContainerClauseMode,
-  repeatDeriveMode: DeriveRepeatMode
+  repeatDeriveMode: DeriveRepeatMode,
+  blockMode: BlockMode = "off"
 ): ReaderQuestion[] {
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
@@ -543,7 +544,10 @@ function buildQuestions(
         "one act -- a door, a window), close (shut a way out), leave (go out through a way out), " +
         // docs/CUSTODY-DESIGN.md: one clause each, generic -- the target is the thing that changes hands.
         "take (come to hold a thing that lies here or that someone else holds; the target is the thing), " +
-        "give (hand a thing the actor holds to someone else who is present; the target is the thing), or none. " +
+        "give (hand a thing the actor holds to someone else who is present; the target is the thing), " +
+        // PLAYTEST-2026-09-27 D4': offered only under `PRISONER_BLOCK=on`; `off` is every earlier request, byte for byte.
+        (blockMode === "on" ? "block (stand in a way out so nobody passes through it; the target is the way out), " : "") +
+        "or none. " +
         "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
         "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
         "wear is for damage or dulling with no way out as its goal. " +
@@ -561,7 +565,7 @@ function buildQuestions(
         (personInView ? PERSON_EFFECT_CLAUSE : "") +
         (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE : "") +
         "Cite the exact words in the actor's intent that describe the action.",
-      answerKeys: [...EFFECT_KINDS],
+      answerKeys: EFFECT_KINDS.filter((k) => k !== "block" || blockMode === "on"),
       safeDefault: "none",
     },
     {
@@ -735,7 +739,9 @@ export function computeRuling(
   // their EFFECT citation from the intent, plus -- unlike a noise -- a named
   // target cited from the intent too: custody always acts on something named.
   const search = effectKind === "expose" && targetObjectId !== "none" && isPerson(targetObjectId);
-  const custody = effectKind === "take" || effectKind === "give" || search;
+  // PLAYTEST-2026-09-27 D4': a block stands in a way out, which is no property of it either -- grounded the same
+  // way, by the effect and the named target, both cited from the actor's words.
+  const custody = effectKind === "take" || effectKind === "give" || effectKind === "block" || search;
   const propertyNamedWhenRequired = custody || !effectRequiresProperty(effectKind) || (property !== "none" && isDeclared(targetObjectId, property));
   // OPEN-VARIANT.md §13.1: a derive names a declared product, cited from the
   // intent. Whether that product's parent is the target is `effects.ts`'s
@@ -886,6 +892,10 @@ export function createReferee(
      *  `checkpoint.ts`); this constructor's own default is `"off"`, so a referee built bare -- every unit test,
      *  every replay of a recorded request -- makes exactly one call, as before. */
     oneAct?: OneActMode;
+    /** PLAYTEST-2026-09-27 D4'. The GAME's default is `"on"` (`readBlockMode`, wired in `checkpoint.ts`); this
+     *  constructor's own default is `"off"`, so a bare referee's request is byte-identical to every recorded
+     *  batch and the fingerprint PIN holds. */
+    blockMode?: BlockMode;
   } = {}
 ): Referee {
   const isDeclared = options.isDeclared ?? declaredInScenario;
@@ -907,7 +917,7 @@ export function createReferee(
     const key = cacheKeyFor(intentText, perceivedObjects);
     const cached = mainCache.get(key);
     if (cached) return cached;
-    const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode);
+    const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode, options.blockMode ?? "off");
     const sources = buildSources(intentText, perceivedObjects);
     // OPEN-VARIANT.md §38: each rung's last exchange, for the sidecar. (What each rung OFFERED was
     // kept here too until run-dmcp 0.10.0 put the word range on the accepted citation itself.)

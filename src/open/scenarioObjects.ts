@@ -494,6 +494,10 @@ export const POSTURE_LYING = 0;
  *  (docs/CUSTODY-DESIGN.md) keys on the same boundary, so the rule and the words cannot drift apart. */
 export const POSTURE_ON_HER_FEET_ABOVE = 75;
 
+/** PLAYTEST-2026-09-27 D12: at or below this a person's `sight` reads "she cannot see". Defined here with D4'
+ *  (`block`), whose gate already reads it: a blocker who cannot see holds nothing, like one who is down. */
+export const SIGHT_BLIND_AT_OR_BELOW = 60;
+
 const posture = (who: string): OpenObjectProperty => ({
   key: "posture",
   resourceName: `${who}_posture`,

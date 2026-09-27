@@ -74,6 +74,22 @@ export interface OpenWorld {
    *  own resources already use -- with it off, this is `{}`, and every batch
    *  recorded before D9 is byte-identical. */
   personHeldIn: Partial<Record<Principal, string>>;
+  /** PLAYTEST-2026-09-27 D4' (RED-TEAM.md F4): each principal's own blocking resource -- 0 for standing in no
+   *  way out, else the 1-based index of the way out she stands in (`wayOutIndex`). The `*_held_in` pattern
+   *  above, never a `set` on the item (run-dmcp refuses a key that is not a live column). Built ALWAYS, not only
+   *  under presence: a block needs no person to be perceivable, only a body in a doorway. */
+  blocking: Record<Principal, string>;
+}
+
+/** D4': a way out's fixed 1-based index -- `Object.keys(openWorld.exits)` order, the order the exits were
+ *  built in (a route acquired later is appended, so no earlier index moves) -- or 0 for anything else. */
+export function wayOutIndex(openWorld: OpenWorld, wayOutId: string): number {
+  return Object.keys(openWorld.exits).indexOf(wayOutId) + 1;
+}
+
+/** The inverse of `wayOutIndex`: the way out an index names, or `undefined` for 0 or out of range. */
+export function wayOutAt(openWorld: OpenWorld, index: number): string | undefined {
+  return index > 0 ? Object.keys(openWorld.exits)[index - 1] : undefined;
 }
 
 /** One property acquired onto an existing object (WORLD-ELABORATION-DESIGN.md
@@ -354,7 +370,20 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     ...(windowMode === "welded" ? {} : { window: exit("window", "bar", outsideWindow.id, OPEN_WINDOW_BAR_MAX) }),
   };
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode, personHeldIn };
+  // D4': one blocking resource per principal, bounded over every way out this game can ever have -- the ones
+  // built here plus every route `ELABORABLE_EXITS` could add later (`adoptAcquiredProperty` appends them, so
+  // an acquired route's index is always within this bound).
+  const blockingMax = Object.keys(exits).length + Object.keys(ELABORABLE_EXITS).length;
+  const blocking = {} as Record<Principal, string>;
+  for (const principal of ["prisoner", "warden"] as const) {
+    const characterId = principal === "prisoner" ? base.prisonerId : base.wardenId;
+    const resource = createResource({ gameId, ownerType: "character", ownerId: characterId, name: `${principal}_blocking`, value: 0, minValue: 0, maxValue: blockingMax });
+    declareBoundedConstraint({ gameId, resourceId: resource.id });
+    declareResolveOnlyConstraint({ gameId, resourceId: resource.id });
+    blocking[principal] = resource.id;
+  }
+
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode, personHeldIn, blocking };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {

@@ -276,8 +276,25 @@ export const OPEN_PASSAGE: Mechanic = {
   },
 };
 
+/** PLAYTEST-2026-09-27 D4': the other principal as a leave's blocker (`effects.ts`'s `BlockerRecord`). */
+export interface LeaveBlocker {
+  characterId: string;
+  blockingResourceId: string;
+  postureResourceId?: string;
+  sightResourceId?: string;
+}
+
 export interface LeaveParams {
   characterId: string;
+  /** D4': who might stand in this way out, and the way out's own index in their blocking resource. Absent
+   *  (every caller before D4'): nothing blocks. */
+  blockers?: readonly LeaveBlocker[];
+  wayOutIndex?: number;
+  /** D4': a blocker holds the way only while her posture is above `standsAbove` (C1's line) and her sight
+   *  above `seesAbove` (D12's line); either one unmodelled counts as standing and seeing. Handed in, never known
+   *  here. */
+  standsAbove?: number;
+  seesAbove?: number;
   /** `null` for a route with no explicit "open" step of its own -- an
    *  ELABORABLE_EXITS route (WORLD-ELABORATION-DESIGN.md §4.3): nobody
    *  "opens" a dug hole; it is simply passable once its part's integrity
@@ -301,10 +318,50 @@ export const OPEN_LEAVE: Mechanic = {
     const p = input.parameters as unknown as LeaveParams;
     const passage = p.passageResourceId ? numericFactFrom(input.constraint.mustHonor, p.passageResourceId, "value") : null;
     const integrity = numericFactFrom(input.constraint.mustHonor, p.integrityResourceId, "value");
-    const left = passage === 1 || integrity === 0;
+    const passable = passage === 1 || integrity === 0;
+    // PLAYTEST-2026-09-27 D4': a passable way is still held by a blocker who stands in it -- in this place, on
+    // her feet, able to see -- every fact read live, at t.
+    const here = factFrom(input, p.characterId, "location_id");
+    const live = (resourceId: string | undefined): number | null => (resourceId ? numericFactFrom(input.constraint.mustHonor, resourceId, "value") : null);
+    const blocker = (p.blockers ?? []).find((b) => {
+      if (!p.wayOutIndex || live(b.blockingResourceId) !== p.wayOutIndex) return false;
+      const there = factFrom(input, b.characterId, "location_id");
+      if (here === null || there === null || here !== there) return false;
+      const posture = live(b.postureResourceId);
+      const sight = live(b.sightResourceId);
+      return (posture === null || posture > (p.standsAbove ?? -Infinity)) && (sight === null || sight > (p.seesAbove ?? -Infinity));
+    });
+    const left = passable && blocker === undefined;
     return {
       changes: left ? [{ kind: "set", entityId: p.characterId, key: "location_id", value: p.destinationId }] : [],
-      result: { mechanic: "OPEN_LEAVE", left, ...(left ? { destinationId: p.destinationId } : {}) },
+      result: { mechanic: "OPEN_LEAVE", left, ...(left ? { destinationId: p.destinationId } : {}), ...(passable && blocker ? { held: "blocked", blockerId: blocker.characterId } : {}) },
+      description: p.description,
+    };
+  },
+};
+
+export interface BlockParams {
+  /** The actor's own blocking resource (`world.ts`'s `blocking`). */
+  resourceId: string;
+  /** The way out's 1-based index, or 0 to stand clear. */
+  index: number;
+  max: number;
+  /** The way out's id, for the record; absent on a lapse. */
+  wayOut?: string;
+  description: string;
+}
+
+/** PLAYTEST-2026-09-27 D4' (RED-TEAM.md F4, F11): stand in a way out -- one `write` of the actor's own blocking
+ *  resource to the way out's index (0 stands clear). One body, one doorway: the resource holds one index. The
+ *  loop writes index 0 through this same mechanic when a block lapses (an occupation). */
+export const OPEN_BLOCK: Mechanic = {
+  name: "OPEN_BLOCK",
+  adjudicate(input: AdjudicationInput): Adjudication {
+    const p = input.parameters as unknown as BlockParams;
+    const before = currentValue(input, p.resourceId);
+    return {
+      changes: [setResource(p.resourceId, p.index, 0, p.max)],
+      result: { mechanic: "OPEN_BLOCK", resourceId: p.resourceId, before, after: p.index, ...(p.wayOut ? { wayOut: p.wayOut } : {}) },
       description: p.description,
     };
   },
@@ -568,6 +625,6 @@ export const OPEN_DERIVE: Mechanic = {
 
 export function buildOpenResolver(): Resolver {
   return createResolver({
-    mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH, OPEN_CONCEAL_CONTAINER, OPEN_EXPOSE_CONTAINER],
+    mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH, OPEN_CONCEAL_CONTAINER, OPEN_EXPOSE_CONTAINER, OPEN_BLOCK],
   });
 }

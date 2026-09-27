@@ -1,6 +1,8 @@
 import { SEARCH_SUSPICION_THRESHOLD, SEARCH_CATCH_LOCK_MAX, SEARCH_CATCH_SPOON_MIN } from "../world/mechanics.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN, type DoorPriceMode, type WindowMode } from "./world.js";
+import { findProperty } from "./scenarioObjects.js";
+import type { BlockMode } from "./effects.js";
 import type { Condition } from "./conditionList.js";
 
 /**
@@ -32,7 +34,7 @@ export type DoorMode = "unstated" | "stated";
  *  bar's own catch condition -- matching what `world.ts` no longer enforces
  *  under this arm (no `bar.integrity` resource at all). `"open"` (the
  *  default) is every batch recorded before this arm existed. */
-export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPriceMode; window?: WindowMode } = {}): Condition[] {
+export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPriceMode; window?: WindowMode; block?: BlockMode } = {}): Condition[] {
   const grounds = `warden suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}`;
   const catches = `${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends`;
   const examines = (what: string) => `${WARDEN_NAME} closely examines ${what}`;
@@ -58,6 +60,27 @@ export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPrice
     { when: [grounds, examines("the lock"), finds(`its integrity at or below ${SEARCH_CATCH_LOCK_MAX}`)], then: catches, for: WARDEN_NAME },
     { when: [grounds, examines("the spoon"), "the spoon is out in the open", finds(`its edge at or above ${SEARCH_CATCH_SPOON_MIN}`)], then: catches, for: WARDEN_NAME },
     { when: [grounds, examines("a way out"), finds("it standing open")], then: catches, for: WARDEN_NAME },
+    ...(options.block === "on" ? blockConditions(weldedWindow) : []),
+  ];
+}
+
+/**
+ * PLAYTEST-2026-09-27 D4' and D4b, under `PRISONER_BLOCK=on` only: the warden's prevention moves, stated to
+ * both chairs. Appended after every existing condition so the catch numbering the header and earlier batches
+ * name is unchanged. Each claim is one `world.ts`/`mechanics.ts` enforces, asserted by `block.test.ts`: a
+ * blocker holds a way out while her posture is above `POSTURE_ON_HER_FEET_ABOVE` and her sight above
+ * `SIGHT_BLIND_AT_OR_BELOW` (`OPEN_LEAVE`); the bar and the lock each declare a restore table up to their max,
+ * which `restore` has always used, and which was never stated to him (design R2).
+ */
+function blockConditions(weldedWindow: boolean): Condition[] {
+  const mend = (part: "bar" | "lock"): Condition[] => {
+    const declared = findProperty(part, "integrity");
+    return declared ? [{ when: [`the ${part}'s integrity is below ${declared.max}`], then: `${WARDEN_NAME} can mend it`, for: WARDEN_NAME }] : [];
+  };
+  return [
+    { when: [`${WARDEN_NAME} stands in a way out`, `${WARDEN_NAME} is on her feet`, `${WARDEN_NAME} can see`], then: `${PRISONER_NAME} cannot leave through it`, for: WARDEN_NAME },
+    ...(weldedWindow ? [] : mend("bar")),
+    ...mend("lock"),
   ];
 }
 

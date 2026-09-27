@@ -312,6 +312,7 @@ const RECONSIDER_GERUND: Record<Exclude<EffectKind, "none">, string> = {
   derive: "making something",
   take: "taking something",
   give: "handing something over",
+  block: "standing in a way out",
 };
 
 /** §1.4's `help`: the command set itself, in the same voice as the prompt's

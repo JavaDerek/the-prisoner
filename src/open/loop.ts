@@ -1,5 +1,6 @@
-import { ResolveProtocolError, ConstraintViolationError, type Resolver, type Outcome, type Expectation } from "run-dmcp";
-import { adoptDerivedObject, retireDerivedObject, nextDerivedId, adoptAcquiredProperty, declaredProperty, declaredPropertyKeys, resourceIdForProperty, type OpenWorld, type DerivedObjectRecord } from "./world.js";
+import { ResolveProtocolError, ConstraintViolationError, getResource, type Resolver, type Outcome, type Expectation } from "run-dmcp";
+import { adoptDerivedObject, retireDerivedObject, nextDerivedId, adoptAcquiredProperty, declaredProperty, declaredPropertyKeys, resourceIdForProperty, wayOutAt, type OpenWorld, type DerivedObjectRecord } from "./world.js";
+import { readNumericFact } from "../world/facts.js";
 import { findKind } from "./derivedObjects.js";
 import { bandNumbersFor } from "./acquirableProperties.js";
 import { computePerceivedObjects, principalLocation, holderAt, type PresenceMode } from "./briefing.js";
@@ -120,6 +121,10 @@ export interface OpenHalfRoundResult {
    *  the SECOND (from the retyped intent, now `proposal.intent`) is what
    *  the rest of this half-round acted on. */
   reconsidered: { firstRuling: RefereeRuling; firstIntent: string } | null;
+  /** PLAYTEST-2026-09-27 D4' (RED-TEAM.md F11): set when this half-round's resolved act was not a block on the
+   *  way out the actor already stood in, so her block lapsed first -- the way out she stepped out of. Absent on
+   *  every other half-round. */
+  blockLapsed?: string;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -174,6 +179,7 @@ export function describeUnseenAttempt(principal: Principal): string {
  *  `suspicionEligibleFor` below exempts a person as the target whatever the
  *  effect kind is, which is why widening the effect changed nothing here. */
 export function suspicionEligible(effectKind: EffectKind): boolean {
+  // PLAYTEST-2026-09-27 D4': `block` is not here -- standing in a doorway damages, repairs and uncovers nothing.
   // docs/CUSTODY-DESIGN.md: a take or give is a visible act like any other --
   // unchanged rules, so it bumps exactly when a wear would (non-silent, the
   // warden present, the prisoner acting).
@@ -457,6 +463,9 @@ export function describeAttempt(
       return `${actor} reaches for the ${obj}.`;
     case "give":
       return `${actor} holds out the ${obj}.`;
+    case "block":
+      // PLAYTEST-2026-09-27 D4': the attempt, as every case here since D1.
+      return `${actor} plants herself in the ${obj}.`;
     case "none":
       // Dead in the real pipeline: `runOpenHalfRound` only calls this once
       // `ruling.applicable` is true, which requires `effectKind !== "none"`
@@ -769,6 +778,21 @@ export async function runOpenHalfRound(params: {
         })
       ),
     },
+    // PLAYTEST-2026-09-27 D4': the actor's own blocking resource, each way out's index, and the OTHER principal
+    // as the one who might stand in a way out this actor leaves by.
+    block: {
+      actorResourceId: openWorld.blocking[principal],
+      wayOutIndex: Object.fromEntries(Object.keys(openWorld.exits).map((id, i) => [id, i + 1])),
+      max: getResource(openWorld.blocking[principal])?.maxValue ?? Object.keys(openWorld.exits).length,
+      blockers: [
+        {
+          characterId: principal === "prisoner" ? openWorld.base.wardenId : openWorld.base.prisonerId,
+          blockingResourceId: openWorld.blocking[other],
+          ...(resourceIdForProperty(openWorld, other, "posture") ? { postureResourceId: resourceIdForProperty(openWorld, other, "posture") } : {}),
+          ...(resourceIdForProperty(openWorld, other, "sight") ? { sightResourceId: resourceIdForProperty(openWorld, other, "sight") } : {}),
+        },
+      ],
+    },
     description,
   });
   if (plan === null) {
@@ -840,6 +864,22 @@ export async function runOpenHalfRound(params: {
   // or not the world let it land.
   const perceptionForOther = !otherPresent ? null : ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
 
+  // PLAYTEST-2026-09-27 D4' (RED-TEAM.md F11): a block is an OCCUPATION. Once this turn's ruling applies and its
+  // plan is anything but a block on the way out she already stands in, she steps out of it first -- an audited
+  // `OPEN_BLOCK` to 0 through the one choke point, before the new act resolves. A silent turn and an
+  // inapplicable ruling never reach here, so she is still standing there. Only when she holds one: a turn that
+  // blocked nothing records no extra resolution.
+  const held = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: openWorld.blocking[principal], key: "value" }) ?? 0;
+  const blockLapsed = held > 0 && !(plan.mechanic === "OPEN_BLOCK" && (plan.parameters as { index?: number }).index === held) ? wayOutAt(openWorld, held) : undefined;
+  if (blockLapsed !== undefined) {
+    resolver.resolve({
+      gameId: openWorld.base.gameId,
+      mechanic: "OPEN_BLOCK",
+      parameters: { resourceId: openWorld.blocking[principal], index: 0, max: getResource(openWorld.blocking[principal])?.maxValue ?? held, description: `${actorName(principal)} steps out of the ${objectLabel(blockLapsed)}.` },
+    });
+  }
+  const lapse = blockLapsed !== undefined ? { blockLapsed } : {};
+
   try {
     const outcome = resolver.resolve({
       gameId: openWorld.base.gameId,
@@ -887,12 +927,12 @@ export async function runOpenHalfRound(params: {
       }
     }
 
-    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName, elaboration: null, acquired: null };
+    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName, elaboration: null, acquired: null, ...lapse };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);
       // R1 (D1): the refused attempt reaches the other side as the attempt.
-      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther, revealFor: null, derived: null, reshaped: null, resourceName, elaboration: null, acquired: null };
+      return { ...base, proposal, ruling, plan, outcome: null, refusalError: err, perceptionForOther, revealFor: null, derived: null, reshaped: null, resourceName, elaboration: null, acquired: null, ...lapse };
     }
     throw err;
   }

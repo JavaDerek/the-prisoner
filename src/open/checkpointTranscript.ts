@@ -122,6 +122,7 @@ function refusalReason(ruling: NonNullable<OpenHalfRoundResult["ruling"]>): stri
   // docs/CUSTODY-DESIGN.md: `planEffect`'s custody refusals, all of them and
   // nothing more -- the thing is not among what the actor perceives, or it is
   // a person, or a way out or its part (`effects.ts`'s `planCustody`).
+  if (ruling.effectKind === "block") return `the ${ruling.targetObjectId.replace(/_/g, " ")} is not a way out`;
   if (ruling.effectKind === "take" || ruling.effectKind === "give") {
     return `the ${ruling.targetObjectId.replace(/_/g, " ")} is out of the actor's reach, a person, or fixed in place as a way out`;
   }
@@ -163,8 +164,11 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
   // hid the one value escape is decided on). The ruling's own pair is still
   // the fallback for a plan that wrote no resource at all -- `leave`, `noise`
   // -- and for a half-round that never reached a plan.
-  const resourceName = half.resourceName ?? (ruling.property !== "none" ? (findProperty(ruling.targetObjectId, ruling.property)?.resourceName ?? `${ruling.targetObjectId}.${ruling.property}`) : ruling.targetObjectId);
+  // PLAYTEST-2026-09-27 D4': a block writes the actor's own blocking resource, named for her.
+  const resourceName = plan?.mechanic === "OPEN_BLOCK" ? `${half.principal}_blocking` : half.resourceName ?? (ruling.property !== "none" ? (findProperty(ruling.targetObjectId, ruling.property)?.resourceName ?? `${ruling.targetObjectId}.${ruling.property}`) : ruling.targetObjectId);
   const lines: string[] = [];
+  // D4' (RED-TEAM.md F11): an occupation lapses before the new act resolves, through its own audited resolution.
+  if (half.blockLapsed) lines.push(`Resolved \`OPEN_BLOCK\` first: the ${half.principal} steps out of the ${half.blockLapsed.replace(/_/g, " ")} (${half.principal}_blocking -> 0).`);
   if (outcome) {
     lines.push(`Resolved \`${plan?.mechanic ?? "?"}\` (${ruling.effectKind}, ${ruling.magnitude}, ${ruling.perceptibility}):`);
     // D7a (HUMAN-INTENTS-DESIGN.md §5, OPEN-VARIANT.md §76.2, the-prisoner#26):
@@ -191,7 +195,8 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
     }
     if (ruling.effectKind === "leave") {
       const exit = ruling.targetObjectId.replace(/_/g, " ");
-      lines.push(result.left ? `  - went out through the ${exit}` : `  - the ${exit} held shut`);
+      const held = (outcome.result as { held?: string }).held;
+      lines.push(result.left ? `  - went out through the ${exit}` : held === "blocked" ? `  - the ${exit} is held: the ${half.principal === "prisoner" ? "warden" : "prisoner"} stands in it` : `  - the ${exit} held shut`);
     }
     // docs/CUSTODY-DESIGN.md: what the custody mechanic reported, in its own
     // closed keys -- the `owner_id`/`owner_type` sets themselves print above.

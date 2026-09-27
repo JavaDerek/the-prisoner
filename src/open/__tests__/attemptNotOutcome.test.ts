@@ -137,6 +137,8 @@ const SCENARIOS: Record<Exclude<EffectKind, "none">, Scenario> = {
     fail: [{ why: "a holder on her feet keeps it", setup: () => undefined, failed: (r) => r.outcome?.result.taken === false }],
   },
   give: { ruling: ruling("spoon", "give", "none"), landed: (r) => r.outcome?.result.given === true, fail: [] },
+  // PLAYTEST-2026-09-27 D4': a block has no refusal of its own in this world; it meets `refusingResolver`.
+  block: { ruling: ruling("window", "block", "none"), landed: (r) => r.outcome?.result.after === 2, fail: [] },
 };
 
 async function half(scenario: Scenario, setup: ((w: OpenWorld) => void) | undefined, resolver?: Resolver): Promise<OpenHalfRoundResult> {

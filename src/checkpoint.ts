@@ -77,6 +77,7 @@ import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-in
 import { recordGame, precedentLines, readPrecedentPrice } from "./open/precedent.js";
 import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
 import { openConditions, readConditionsMode, readDoorMode } from "./open/conditions.js";
+import { readBlockMode } from "./open/effects.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable, type HumanSeatMind } from "./open/humanSeat.js";
@@ -240,6 +241,10 @@ const ELABORATE = readElaborateMode(process.env.PRISONER_ELABORATE);
  *  built table's own reading always applies. */
 const ELABORATE_BAND = readElaborateBandMode(process.env.PRISONER_ELABORATE_BAND);
 const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
+/** Open variant only: PLAYTEST-2026-09-27 D4'/D4b -- the referee is offered `block`, and both chairs' conditions
+ *  state the block and the two restores (`src/open/effects.ts`, `src/open/conditions.ts`). On unless asked;
+ *  `off` is every earlier batch's request and list, byte for byte. */
+const BLOCK = readBlockMode(process.env.PRISONER_BLOCK);
 /** Open variant only: the effect question's sharpened derive/wear wording
  *  (`src/open/referee.ts`, OPEN-VARIANT.md §51, the-prisoner#18). Baseline
  *  (the pre-existing text) unless asked -- the same D3 lesson. */
@@ -870,6 +875,7 @@ async function mainOpen(): Promise<void> {
       containerClauseMode: CONTAINER_CLAUSE,
       repeatDeriveMode: DERIVE_REPEAT,
       oneAct: ONE_ACT,
+      blockMode: BLOCK,
     }
   );
   // WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b: a second, separate referee
@@ -1064,15 +1070,15 @@ async function mainOpen(): Promise<void> {
     WARDEN_MODE === "passive"
       ? passiveWardenMind()
       : PROSE_SEAT === "warden"
-        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) : undefined)
-        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) } : {}) });
-  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) : undefined) : modelWarden();
+        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) : undefined)
+        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) } : {}) });
+  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) : undefined) : modelWarden();
   const prisonerMind =
     SEAT === "prisoner"
-      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }))
+      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }))
       : PROSE_SEAT === "prisoner"
-        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }))
-        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }) }) });
+        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }))
+        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -1186,6 +1192,11 @@ async function mainOpen(): Promise<void> {
     PRESENCE === "modelled"
       ? "Presence: MODELLED (`PRISONER_PRESENCE=modelled`): perception, warden_suspicion and what each principal can perceive of the other's acts are gated on whether they currently share a location; a perceived principal is a legal referee target, and a noise ruled at one reaches their own next briefing by name, and each principal carries its own bounded `posture` -- 100 on her feet, 50 crouched, 0 on the floor -- which the other perceives in words and which raises no suspicion (§55, §56, issue #22)."
       : "Presence: OFF (the default): both principals are always treated as present to each other, and no person carries a declared state, as every batch before this gap recorded (§55, §56, issue #22)."
+  );
+  transcript.push(
+    BLOCK === "on"
+      ? "Block: ON (the default since 2026-09-27): the referee is offered `block` -- stand in a way out so nobody passes through it -- and both chairs' conditions state it and the warden's two restores; a block is an occupation, lapsing at the blocker's next resolved act of any other kind (PLAYTEST-2026-09-27 D4', D4b)."
+      : "Block: OFF (`PRISONER_BLOCK=off`): the referee is never offered `block` and no block or restore condition is stated, as every batch before 2026-09-27 recorded (PLAYTEST-2026-09-27 D4')."
   );
   transcript.push(
     DERIVE_WORDING === "sharpened"
@@ -1330,7 +1341,7 @@ async function mainOpen(): Promise<void> {
     // rendering function being shared, never about the timepoint.
     const t1 = openWorld.base.clock.t0;
     const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE);
-    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW }));
+    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }));
     strategy = await chooseStrategy({
       context: { situation, objectIds: c1.perceivedObjects.map((o) => o.id) },
       reasoningStrength: STRATEGY_STRENGTH,
