@@ -61,6 +61,7 @@ import { randomUUID } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import type { OllamaLoadedModel } from "../ollamaStatus.js";
+import { DEFAULT_REFEREE_MODEL } from "../modelRoles.js";
 
 // ---------------------------------------------------------------- configuration
 
@@ -68,9 +69,10 @@ export const DEFAULT_PORT = 8799;
 export const DEFAULT_HOST = "127.0.0.1";
 export const DEFAULT_DORIS = "http://doris:11434";
 export const DEFAULT_DEEPINFRA = "https://api.deepinfra.com/v1/openai";
-/** The resident referee (`DEFAULT_REFEREE_MODEL`, §33.16) -- the model a Claude or DeepInfra
- *  batch still needs loaded on doris the whole time. */
-export const DEFAULT_HIDE_MODELS = "qwen3:14b";
+/** The resident referee (`DEFAULT_REFEREE_MODEL`) -- the model a Claude or DeepInfra
+ *  batch still needs loaded on doris the whole time. Read from the constant, not copied, so
+ *  the two cannot drift apart again. */
+export const DEFAULT_HIDE_MODELS = DEFAULT_REFEREE_MODEL;
 /** Well inside the mind's own 300s timeout, so a hung CLI is the shim's failure, reported as
  *  such, not the mind's silence. */
 const DEFAULT_CLAUDE_TIMEOUT_MS = 280_000;

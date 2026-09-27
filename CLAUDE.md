@@ -79,7 +79,8 @@ PRISONER_VARIANT=open PRISONER_MODEL_URL=http://localhost:8799/v1 \
   PRISONER_OLLAMA_RESIDENT_MODELS= npm run checkpoint
 ```
 
-**The resident referee is hidden from `/api/ps` on purpose** (`SHIM_HIDE_MODELS`, default `qwen3:14b`).
+**The resident referee is hidden from `/api/ps` on purpose** (`SHIM_HIDE_MODELS`, default `DEFAULT_REFEREE_MODEL`;
+the text below was written when that was `qwen3:14b`).
 The one-model swapper above runs on every real run, and before the wits call it would see `qwen3:14b`
 loaded, decide it was in the way of `claude-opus-4-6`, and unload it -- to make room on a GPU the
 Opus call never touches -- then the referee's own next call would reload it, once per half-round. So
@@ -115,8 +116,6 @@ It is the one real run you do NOT detach with `nohup`.
 ```bash
 PRISONER_VARIANT=open PRISONER_HUMAN=prisoner PRISONER_VIEW=play \
   PRISONER_MODEL_URL=http://doris:11434/v1 \
-  PRISONER_WITS_MODEL=muse-glimmer:30b PRISONER_VOICE_MODEL=muse-glimmer:30b \
-  PRISONER_REFEREE_MODEL=muse-glimmer:30b \
   PRISONER_REFEREE_TIMEOUT_MS=180000 \
   PRISONER_THINK_TIMEOUT_MS=180000 PRISONER_ROUNDS=30 PRISONER_OLLAMA_RESIDENT_MODELS= \
   npm run checkpoint
@@ -125,19 +124,18 @@ PRISONER_VARIANT=open PRISONER_HUMAN=prisoner PRISONER_VIEW=play \
 Leave it unset for anything measured. A transcript with a person in it says so in its own header and
 must never be pooled with a model batch, because a batch means identical conditions.
 
-**Local play is Muse in all three chairs** (owner's decision, 2026-09-25): prisoner, warden and
-referee all run `muse-glimmer:30b`, the copy already resident in doris's Ollama. That is why this
-example pins all three. Naming any other model on doris -- including the code's own
-`DEFAULT_REFEREE_MODEL` (`qwen3:14b`) and default wits/voice models -- loads a second model onto the
-one 4090 and evicts the resident Muse that other tenants share. The code defaults predate that
-decision. Until they are changed, an unset role here does NOT mean "the current choice".
+**Local play is Muse in all three chairs** (owner's decision, 2026-09-25; the code's default since
+2026-09-27): prisoner, warden and referee all run `DEFAULT_MIND_MODEL` (`muse-glimmer:30b`,
+`modelRoles.ts`), the copy already resident in doris's Ollama. That is why this example names no
+model. Naming any other model on doris loads a second one onto the one 4090 and evicts the resident
+Muse that other tenants share.
 
 **Do not pin `PRISONER_REFEREE_MODEL=qwen2.5:14b` here or anywhere else.** This example used to, long
 after `DEFAULT_REFEREE_MODEL` became `qwen3:14b` (§33.16), and a human game on 2026-09-18
 copied the stale pin and spent five rounds under a referee the project had already replaced for
-exactly the failure it then hit (§62). The general lesson still binds: a worked example that pins a
-configurable is a second copy of a decision. When the decision moves, update this block in the same
-change.
+exactly the failure it then hit (§62). Leave the models unset and let `modelRoles.ts` supply them --
+a worked example that pins a configurable is a second, mute copy of a decision, and it does not get
+updated when the decision does.
 
 `PRISONER_VIEW=raw|prose|narrated|play` (the-prisoner#21) chooses *how* the seat's own situation is
 shown, never *what*: `raw` (unset, the default) is the labelled-block view the model itself reads,

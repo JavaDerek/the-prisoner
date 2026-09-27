@@ -23,6 +23,7 @@ import {
   type RouterChild,
   type RouterRequest,
 } from "../modelRouter.js";
+import { DEFAULT_REFEREE_MODEL } from "../../modelRoles.js";
 
 // ---------------------------------------------------------------- fixtures
 
@@ -219,7 +220,7 @@ describe("configFromEnv -- every knob is an env var, with the scratch shim's def
     expect(c.host).toBe("127.0.0.1");
     expect(c.dorisBaseUrl).toBe("http://doris:11434");
     expect(c.deepInfraBaseUrl).toBe("https://api.deepinfra.com/v1/openai");
-    expect([...c.hideModels]).toEqual(["qwen3:14b"]);
+    expect([...c.hideModels]).toEqual([DEFAULT_REFEREE_MODEL]);
     expect(c.claudeCwd).toBe("/cwd");
     expect(c.deepInfraKey).toBe("");
     expect(c.dumpDir).toBe("");

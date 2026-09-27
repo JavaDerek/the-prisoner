@@ -3,6 +3,7 @@ import {
   readSkipVoice,
   resolveVoiceModel,
   resolveRefereeModel,
+  DEFAULT_MIND_MODEL,
   resolveSeatModels,
   seatModelNames,
   openModelHeaderLines,
@@ -53,17 +54,25 @@ describe("resolveVoiceModel", () => {
 });
 
 /**
- * OPEN-VARIANT.md §33.16: on the unchanged referee prompt, qwen3:14b rules an
- * attempt to remove a part as the way out opening (24 of 26 controls), where
- * qwen2.5:14b rules it wear and no rewording fixed that without breaking
- * leave. The owner made qwen3:14b the default (2026-09-16).
+ * OPEN-VARIANT.md §33.16 made qwen3:14b the referee default (2026-09-16) over
+ * qwen2.5:14b's wear-for-open collapse. The owner then decided (2026-09-25)
+ * that local play is muse-glimmer:30b in ALL THREE chairs, and on 2026-09-27
+ * made that the code's default too: one model means no swap on the one 4090,
+ * and no unset role can evict the resident copy other tenants share.
  */
-describe("the referee model", () => {
-  it("defaults to qwen3:14b when PRISONER_REFEREE_MODEL is unset or empty", () => {
-    expect(resolveRefereeModel(undefined)).toBe("qwen3:14b");
-    expect(resolveRefereeModel("")).toBe("qwen3:14b");
+describe("the default models", () => {
+  it("the referee defaults to muse-glimmer:30b when PRISONER_REFEREE_MODEL is unset or empty", () => {
+    expect(resolveRefereeModel(undefined)).toBe("muse-glimmer:30b");
+    expect(resolveRefereeModel("")).toBe("muse-glimmer:30b");
   });
 
+  it("the minds default to the same model as the referee, so an unflagged run loads exactly one", () => {
+    expect(DEFAULT_MIND_MODEL).toBe("muse-glimmer:30b");
+    expect(resolveRefereeModel(undefined)).toBe(DEFAULT_MIND_MODEL);
+  });
+});
+
+describe("the referee model", () => {
   it("uses the model a run names", () => {
     expect(resolveRefereeModel("qwen2.5:14b")).toBe("qwen2.5:14b");
   });

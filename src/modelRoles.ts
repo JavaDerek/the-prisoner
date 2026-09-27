@@ -26,11 +26,20 @@ export function resolveVoiceModel(witsModel: string, configuredVoiceModel: strin
   return skipVoice ? witsModel : configuredVoiceModel;
 }
 
-/** OPEN-VARIANT.md §33.16: the referee model when a run names none. On the
- *  unchanged referee prompt qwen3:14b rules an attempt to remove a way out's
- *  part as `open` (24 of 26 controls); qwen2.5:14b rules it `wear`, and no
- *  rewording fixed that without breaking `leave`. */
-export const DEFAULT_REFEREE_MODEL = "qwen3:14b";
+/** The model every chair runs when a run names none (owner's decision,
+ *  2026-09-25, made the code default 2026-09-27): `muse-glimmer:30b` for the
+ *  prisoner, the warden AND the referee. One model on the one 4090 means no
+ *  swap, and no unset role loads a second model that evicts the resident copy
+ *  other tenants share. History: §33.16 had made the referee `qwen3:14b` over
+ *  qwen2.5:14b's wear-for-open collapse; Muse's referee measured 97%
+ *  sensitivity / 89% specificity (checkpoints/2026-09-25-referee-thinking). An
+ *  unflagged run from here on runs different models than every older
+ *  unflagged batch -- transcripts print their models in the header, so they
+ *  are told apart, and must not be pooled. */
+export const DEFAULT_MIND_MODEL = "muse-glimmer:30b";
+
+/** The referee model when a run names none: the same model as the minds. */
+export const DEFAULT_REFEREE_MODEL = DEFAULT_MIND_MODEL;
 
 /** `PRISONER_REFEREE_MODEL`, or the default when unset or empty. Shared by
  *  the checkpoint and the replay tool, so a replay rules with the referee a
