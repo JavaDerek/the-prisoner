@@ -30,8 +30,15 @@ import type { ProseBlock, ProseBlockKind, ProseItem } from "./proseView.js";
 
 /** The world as it stands: worth reading once, and again whenever it moves.
  *  A player who has read the condition list does not need it re-read to them
- *  while it says the same thing. */
-const STANDING: ReadonlySet<ProseBlockKind> = new Set<ProseBlockKind>(["conditions", "identity", "scene", "rules"]);
+ *  while it says the same thing.
+ *
+ *  D10-1 (PLAYTEST-2026-09-27-DESIGN.md R7) adds `stakes`: the checkpoint
+ *  transcript this fixes repeated the SAME stakes sentence every round,
+ *  folded anonymously into the news paragraph -- worth reading once, exactly
+ *  like the rest of this set, with its own forced re-show near the end of
+ *  the game (`render`'s `forceShow` option, below) standing in for "it
+ *  changed". */
+const STANDING: ReadonlySet<ProseBlockKind> = new Set<ProseBlockKind>(["conditions", "identity", "scene", "rules", "stakes"]);
 
 /** How a held-back block is named in the notice. Short, and in the player's
  *  own terms rather than this codebase's block kinds. */
@@ -43,17 +50,30 @@ const BLOCK_NAMES: Record<ProseBlockKind, string> = {
   news: "the news",
   notesAndPlan: "your notes and plan",
   knowledge: "what you know",
+  stakes: "what is at stake",
 };
 
 /** Exported so the test names this line explicitly rather than matching it
  *  by a wildcard, and so a future edit to the wording fails loudly. */
 export const HELD_BACK_LEAD = "Unchanged since last round, so held back:";
 
+/** D10-1: a per-RENDER decision, never baked into the view at construction --
+ *  a `DeltaView` is long-lived for the whole game, and whether to force a
+ *  block back on screen (the stakes reminder, in the last five rounds)
+ *  depends on the CURRENT turn, which only the caller knows at render time. */
+export interface RenderOptions {
+  /** `true` for a STANDING block kind that must show again even though its
+   *  own text has not changed since it was last shown. Never consulted for a
+   *  kind not in `STANDING`, and never a reason to show an item-level change
+   *  that was not there -- see `render`'s own plain-block branch. */
+  readonly forceShow?: (kind: ProseBlockKind) => boolean;
+}
+
 export interface DeltaView {
   /** The turn's blocks, rendered with the standing world held back where the
    *  player has already read exactly that text. Stateful across calls: one
    *  `DeltaView` per seat, for the life of a game. */
-  render(blocks: readonly ProseBlock[]): string;
+  render(blocks: readonly ProseBlock[], options?: RenderOptions): string;
 }
 
 function byKey(items: readonly ProseItem[]): ReadonlyMap<string, string> {
@@ -81,9 +101,10 @@ export function createDeltaView(options: DeltaViewOptions = {}): DeltaView {
   const keep = options.keepShownWhileChanged ?? (() => false);
 
   return {
-    render(blocks: readonly ProseBlock[]): string {
+    render(blocks: readonly ProseBlock[], renderOptions: RenderOptions = {}): string {
       const out: string[] = [];
       const heldBack: ProseBlockKind[] = [];
+      const forceShow = renderOptions.forceShow ?? (() => false);
 
       for (const block of blocks) {
         if (!STANDING.has(block.kind)) {
@@ -98,7 +119,11 @@ export function createDeltaView(options: DeltaViewOptions = {}): DeltaView {
 
         const items = block.items;
         if (items === undefined) {
-          if (lastText.get(block.kind) === block.text) {
+          // D10-1: forced back on screen for a reason this module never
+          // reasons about (the caller's own -- the last five rounds of the
+          // game), still tracked as "shown" below so a later, ordinary turn
+          // resumes holding it back exactly as before.
+          if (!forceShow(block.kind) && lastText.get(block.kind) === block.text) {
             heldBack.push(block.kind);
             continue;
           }

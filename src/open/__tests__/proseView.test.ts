@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { renderProseSituation, MAX_PROSE_LINE_LENGTH, isExemptFromLineLength } from "../proseView.js";
+import { renderProseSituation, proseBlocks, MAX_PROSE_LINE_LENGTH, isExemptFromLineLength } from "../proseView.js";
 import { renderSeatSituation, type OpenPrincipalContext } from "../mind.js";
 import { openConditions } from "../conditions.js";
 import type { Condition } from "../conditionList.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, prisonerStakes, wardenStakes } from "../../scenario.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
 
 /**
@@ -207,5 +207,49 @@ describe("the prose view (the-prisoner#21)", () => {
     };
     const prose = renderProseSituation(WARDEN_NAME, PRISONER_NAME, wardenContext, undefined);
     expect(prose).toContain("55");
+  });
+});
+
+/**
+ * D10-1 (PLAYTEST-2026-09-27-DESIGN.md R7, the coordinator's decision file):
+ * the checkpoint transcript's rounds 5-10 repeated the SAME stakes sentence
+ * every round, folded anonymously into the news paragraph. `parseBriefing`
+ * now recognises this repository's own two stakes templates
+ * (`scenario.ts`'s `prisonerStakes`/`wardenStakes`) -- literal templates,
+ * never a reading of what they mean -- as their own `stakes` block, so
+ * `deltaView.ts` can hold it back after the first turn (D10-1's own decision;
+ * see `deltaView.test.ts`) instead of repeating it as anonymous news forever.
+ */
+describe("D10-1: the stakes line is its own block, recognised by this repository's own literal template", () => {
+  it("pulls the prisoner's own stakes sentence out of the news paragraph and into a `stakes` block", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, CONTEXT, openConditions());
+    const stakes = blocks.find((b) => b.kind === "stakes");
+    expect(stakes?.text).toBe(prisonerStakes(30));
+    const news = blocks.find((b) => b.kind === "news");
+    expect(news?.text).not.toContain("transferred to a maximum-security block");
+  });
+
+  it("recognises the warden's own stakes sentence the same way", () => {
+    const wardenContext: OpenPrincipalContext = {
+      ...CONTEXT,
+      identity: "You are Warden Croft.",
+      motive: "Keep this cell secure.",
+      briefing: ["Round 4 of 30.", wardenStakes(30)].join("\n"),
+    };
+    const blocks = proseBlocks(WARDEN_NAME, PRISONER_NAME, wardenContext, undefined);
+    expect(blocks.find((b) => b.kind === "stakes")?.text).toBe(wardenStakes(30));
+    expect(blocks.find((b) => b.kind === "news")?.text).not.toContain("transfer goes through");
+  });
+
+  it("a briefing with no round line yet (so the exact total-rounds template cannot be known) still keeps the line, verbatim, as news -- never dropped", () => {
+    const noRound: OpenPrincipalContext = { ...CONTEXT, briefing: "A brand-new kind of line this module has never seen." };
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, noRound, undefined);
+    expect(blocks.find((b) => b.kind === "stakes")).toBeUndefined();
+    expect(blocks.find((b) => b.kind === "news")?.text).toContain("A brand-new kind of line this module has never seen.");
+  });
+
+  it("still carries the stakes sentence in the full prose join -- completeness, never dropped by moving it to its own block", () => {
+    const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, CONTEXT, openConditions());
+    expect(prose).toContain(prisonerStakes(30));
   });
 });

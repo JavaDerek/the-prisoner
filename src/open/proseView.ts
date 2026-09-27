@@ -1,5 +1,6 @@
 import { CONDITION_LIST_OPENING, type Condition } from "./conditionList.js";
 import { seatSituationParts, type OpenPrincipalContext } from "./mind.js";
+import { prisonerStakes, wardenStakes } from "../scenario.js";
 
 /**
  * The-prisoner#21: a human-fiction view of a turn, for the PLAYER only, that
@@ -72,12 +73,20 @@ export interface ParsedBriefing {
   readonly plan?: string;
   readonly suspicion?: number;
   readonly hasGrounds: boolean;
+  /** D10-1 (PLAYTEST-2026-09-27-DESIGN.md R7): this principal's own stakes
+   *  sentence (`scenario.ts`'s `prisonerStakes`/`wardenStakes`), recognised
+   *  by exact match against those two templates at the parsed `totalRounds`
+   *  -- this repository's own literal output, never a reading of what it
+   *  means. `undefined` when the line has not been seen yet (no round line
+   *  parsed before it), in which case it is kept in `other` instead of being
+   *  silently dropped. */
+  readonly stakes?: string;
   /** Everything this parser does not recognise a fixed template for --
    *  the outcome of the actor's own last attempt, what it perceived of the
-   *  other principal, the authored stakes sentence, and standing/precedent
-   *  news. Each is already a complete, free-text sentence (`perception.ts`,
-   *  `scenario.ts`, `precedent.ts`); this module places them, never
-   *  rewrites them, so nothing here can drift into inventing what they say. */
+   *  other principal, and standing/precedent news. Each is already a
+   *  complete, free-text sentence (`perception.ts`, `precedent.ts`); this
+   *  module places them, never rewrites them, so nothing here can drift into
+   *  inventing what they say. */
   readonly other: readonly string[];
 }
 
@@ -103,6 +112,7 @@ export function parseBriefing(briefing: string): ParsedBriefing {
   let plan: string | undefined;
   let suspicion: number | undefined;
   let hasGrounds = false;
+  let stakes: string | undefined;
 
   for (const line of briefing.split("\n")) {
     if (line.length === 0) continue;
@@ -110,6 +120,13 @@ export function parseBriefing(briefing: string): ParsedBriefing {
     if (round) {
       roundN = Number(round[1]);
       totalRounds = Number(round[2]);
+      continue;
+    }
+    // D10-1: checked against the templates at the round line's OWN
+    // `totalRounds` -- always parsed already, since `buildOpenBriefing`
+    // (briefing.ts) puts the round line first, before this one.
+    if (totalRounds !== undefined && (line === prisonerStakes(totalRounds) || line === wardenStakes(totalRounds))) {
+      stakes = line;
       continue;
     }
     const suspicionMatch = SUSPICION_LINE.exec(line);
@@ -139,7 +156,7 @@ export function parseBriefing(briefing: string): ParsedBriefing {
     other.push(line);
   }
 
-  return { roundN, totalRounds, beliefs, notes, plan, suspicion, hasGrounds, other };
+  return { roundN, totalRounds, beliefs, notes, plan, suspicion, hasGrounds, stakes, other };
 }
 
 function spacedLabel(id: string): string {
@@ -227,7 +244,7 @@ export function isExemptFromLineLength(line: string): boolean {
  * SAY so, in a field, rather than for another module to match its finished
  * prose with a regular expression and guess.
  */
-export type ProseBlockKind = "conditions" | "identity" | "scene" | "news" | "notesAndPlan" | "knowledge" | "rules";
+export type ProseBlockKind = "conditions" | "identity" | "scene" | "news" | "notesAndPlan" | "knowledge" | "rules" | "stakes";
 
 /**
  * One block of the prose view, with its kind and -- for the two blocks that
@@ -308,6 +325,11 @@ export function proseBlocks(selfName: string, otherName: string, context: OpenPr
   } else if (parsed.other.length > 0) {
     blocks.push({ kind: "news", text: parsed.other.join(" ") });
   }
+
+  // D10-1: the stakes sentence is its own block -- STANDING, so `deltaView.ts`
+  // holds it back after the first turn instead of repeating it as anonymous
+  // news every round (the motivating transcript's rounds 5-10).
+  if (parsed.stakes !== undefined) blocks.push({ kind: "stakes", text: parsed.stakes });
 
   const notesAndPlan: string[] = [];
   if (parsed.notes !== undefined) notesAndPlan.push(`You'd made a note to yourself last round: ${parsed.notes}`);

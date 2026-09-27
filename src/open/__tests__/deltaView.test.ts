@@ -22,6 +22,7 @@ const scene = (barDescription: string, extra: readonly { key: string; text: stri
 };
 
 const news = (round: number): ProseBlock => ({ kind: "news", text: `This is round ${round} of 30. Warden Croft examines the bar closely.` });
+const STAKES: ProseBlock = { kind: "stakes", text: "At the end of round 30 you are transferred to a maximum-security block, and this chance is gone." };
 const KNOWLEDGE: ProseBlock = { kind: "knowledge", text: "Your last word on the bar integrity was 100, as of round 0." };
 const RULES: ProseBlock = { kind: "rules", text: "Some things about this cell never change: suspicion rises by 5 for a slight act." };
 
@@ -177,5 +178,48 @@ describe("the delta view: a changed way out stays on screen", () => {
     view.render(turn(1, "Rust has pitted it.", "50", [DOOR_SHUT]));
     view.render(turn(2, "Rust has pitted it.", "50", [DOOR_OPEN]));
     expect(view.render(turn(3, "Rust has pitted it.", "50", [DOOR_OPEN]))).not.toContain("It stands open now.");
+  });
+});
+
+// D10-1 (PLAYTEST-2026-09-27-DESIGN.md R7): the stakes sentence is STANDING
+// (shown once, held back once it repeats verbatim), except a caller may force
+// it back on screen for a reason the delta itself never reasons about --
+// here, the last five rounds of the game. `forceShow` is decided fresh on
+// every `render` call, never baked into the view at construction, because it
+// depends on the CURRENT round and the view is long-lived for the whole game.
+describe("the delta view: the stakes block is STANDING, with a forced re-show (D10-1)", () => {
+  const turnWithStakes = (round: number): ProseBlock[] => [...turn(round), STAKES];
+
+  it("shows the stakes sentence once, then holds it back on a later turn while it is unchanged", () => {
+    const view = createDeltaView();
+    const first = view.render(turnWithStakes(1));
+    expect(first).toContain("transferred to a maximum-security block");
+    const second = view.render(turnWithStakes(2));
+    expect(second).not.toContain("transferred to a maximum-security block");
+  });
+
+  it("forces the stakes block back on screen when the caller says so, even though its text has not changed", () => {
+    const view = createDeltaView();
+    view.render(turnWithStakes(1));
+    view.render(turnWithStakes(2)); // held back
+    const forced = view.render(turnWithStakes(3), { forceShow: (kind) => kind === "stakes" });
+    expect(forced).toContain("transferred to a maximum-security block");
+  });
+
+  it("forceShow is scoped to the kind it names -- it does not also resurrect other held-back standing blocks", () => {
+    const view = createDeltaView();
+    view.render(turnWithStakes(1));
+    const second = view.render(turnWithStakes(2), { forceShow: (kind) => kind === "stakes" });
+    // The stakes block is forced back...
+    expect(second).toContain("transferred to a maximum-security block");
+    // ...but the identity/rules/conditions blocks are still held back as before.
+    expect(second).not.toContain("You are Mara Voss");
+    expect(second).not.toContain("suspicion rises by 5");
+  });
+
+  it("with no forceShow at all (the default), the stakes block behaves exactly like any other standing block", () => {
+    const view = createDeltaView();
+    view.render(turnWithStakes(1));
+    expect(view.render(turnWithStakes(2))).not.toContain("transferred to a maximum-security block");
   });
 });

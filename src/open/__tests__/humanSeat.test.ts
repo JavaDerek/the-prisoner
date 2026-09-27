@@ -5,7 +5,7 @@ import { proseBlocks, RULES_PARAGRAPH_LEAD } from "../proseView.js";
 import { CONDITION_LIST_OPENING } from "../conditionList.js";
 import type { Narrator } from "../narrator.js";
 import { openConditions } from "../conditions.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, prisonerStakes } from "../../scenario.js";
 import type { RefereeRuling } from "../referee.js";
 
 const CONTEXT: OpenPrincipalContext = {
@@ -798,6 +798,42 @@ describe("the play view", () => {
     const shown = dewrap(written.join("\n"));
     expect(shown).toContain(CONDITION_LIST_OPENING);
     expect(shown).toContain(RULES_PARAGRAPH_LEAD);
+  });
+});
+
+// D10-1 (PLAYTEST-2026-09-27-DESIGN.md R7): the checkpoint transcript this
+// task is fixing repeated the stakes sentence every round for six rounds
+// straight. It is STANDING now -- shown once, held back after -- except in
+// the last five rounds of the game, where it is worth repeating on purpose.
+describe("the play view: the stakes reminder near the end of the game (D10-1)", () => {
+  const withStakes = (roundN: number, totalRounds = 12): OpenPrincipalContext => ({
+    principalId: "p1",
+    identity: "You are Mara Voss, three years into a sentence.",
+    motive: "Get out of this cell.",
+    briefing: [`Round ${roundN} of ${totalRounds}.`, prisonerStakes(totalRounds), "Warden Croft examines the bar closely."].join("\n"),
+    perceivedObjects: [{ id: "bar", description: "One of five vertical iron bars." }],
+  });
+
+  it("shows the stakes sentence the first turn it appears", async () => {
+    const { mind, written } = seat(["I test the bar."], { view: "play" });
+    await mind.consider(withStakes(1));
+    expect(dewrap(written.join("\n"))).toContain("transferred to a maximum-security block");
+  });
+
+  it("holds the stakes sentence back on a later turn, far from the end, once it has already been shown", async () => {
+    const { mind, written } = seat(["I test the bar.", "I test the bar again."], { view: "play" });
+    await mind.consider(withStakes(1));
+    written.length = 0;
+    await mind.consider(withStakes(2));
+    expect(dewrap(written.join("\n"))).not.toContain("transferred to a maximum-security block");
+  });
+
+  it("shows the stakes sentence again once five rounds or fewer remain, even though its words have not changed", async () => {
+    const { mind, written } = seat(["I test the bar.", "I test the bar again."], { view: "play" });
+    await mind.consider(withStakes(1));
+    written.length = 0;
+    await mind.consider(withStakes(8, 12)); // 12 - 8 = 4 <= 5
+    expect(dewrap(written.join("\n"))).toContain("transferred to a maximum-security block");
   });
 });
 

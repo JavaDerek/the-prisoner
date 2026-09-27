@@ -1,5 +1,5 @@
 import { renderSeatSituation, ONE_ACT_RULE, type OpenMind, type OpenPrincipalContext, type OpenProposal } from "./mind.js";
-import { proseBlocks, type ProseBlock, type ProseBlockKind } from "./proseView.js";
+import { proseBlocks, parseBriefing, type ProseBlock, type ProseBlockKind } from "./proseView.js";
 import { createDeltaView } from "./deltaView.js";
 import { findObject } from "./scenarioObjects.js";
 import type { Narrator } from "./narrator.js";
@@ -353,15 +353,21 @@ export const PLAY_BLOCK_POLICY: Record<ProseBlockKind, "shown" | "conditions" | 
   notesAndPlan: "shown",
   knowledge: "shown",
   scene: "shown",
+  // D10-1 (PLAYTEST-2026-09-27-DESIGN.md R7): STANDING like `identity`,
+  // `conditions` and `rules`, but "shown" rather than behind a command --
+  // the whole point of the delta's own `forceShow` (below) is to bring it
+  // back automatically near the end of the game, which only matters if it
+  // is normally part of the automatic flow in the first place.
+  stakes: "shown",
   conditions: "conditions",
   rules: "rules",
   identity: "me",
 };
 
 /** Reading order for the blocks `PLAY_BLOCK_POLICY` shows: what happened,
- *  what you had planned, what you know, then the room. Infocom's order, and
- *  the reverse of the one that buried the news. */
-const PLAY_ORDER: readonly ProseBlockKind[] = ["news", "notesAndPlan", "knowledge", "scene"];
+ *  what is at stake, what you had planned, what you know, then the room.
+ *  Infocom's order, and the reverse of the one that buried the news. */
+const PLAY_ORDER: readonly ProseBlockKind[] = ["news", "stakes", "notesAndPlan", "knowledge", "scene"];
 
 /** The play view's blocks, in `PLAY_ORDER` -- a stable sort over the kinds
  *  that are shown, so a block kind absent this turn simply does not appear
@@ -454,13 +460,24 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   // a door stood open four rounds and was shown once). `deltaView.ts` compares
   // strings it has already shown -- it never reads what they say.
   const delta = createDeltaView({ keepShownWhileChanged: (key) => findObject(key)?.properties.some((p) => p.key === "passage") ?? false });
-  const proseSituation = (context: OpenPrincipalContext): string => delta.render(proseBlocks(selfName, otherName, context, options.conditions));
+  // D10-1: how many rounds remain before the stakes block is worth repeating
+  // even though it has already been shown -- built from the parsed clock,
+  // never hard-coded per call site, so `proseSituation`/`playSituation`/
+  // `stateBlocks` all read the identical rule.
+  const STAKES_REMINDER_WINDOW = 5;
+  const forceShowStakes = (context: OpenPrincipalContext) => (kind: ProseBlockKind): boolean => {
+    if (kind !== "stakes") return false;
+    const { roundN, totalRounds } = parseBriefing(context.briefing);
+    return roundN !== undefined && totalRounds !== undefined && totalRounds - roundN <= STAKES_REMINDER_WINDOW;
+  };
+  const proseSituation = (context: OpenPrincipalContext): string =>
+    delta.render(proseBlocks(selfName, otherName, context, options.conditions), { forceShow: forceShowStakes(context) });
   // The play view (2026-09-25): the SAME blocks, through the SAME delta, in
   // `PLAY_ORDER` and without the three `PLAY_BLOCK_POLICY` puts behind a
   // command. Composed here rather than in `proseView.ts` because it is a
   // seat decision about a reader, not a change to what the prose says.
   const playSituation = (context: OpenPrincipalContext): string =>
-    delta.render(orderForPlay(proseBlocks(selfName, otherName, context, options.conditions)));
+    delta.render(orderForPlay(proseBlocks(selfName, otherName, context, options.conditions)), { forceShow: forceShowStakes(context) });
   // One block of the prose view by kind, for the commands that print a block
   // `play` holds back -- read from the same composer the view itself uses, so
   // `rules` and `me` can never drift into being a second rendering.
@@ -482,7 +499,10 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   // code prints perfectly is how §60's first attempt threw away good prose
   // over a missing "round 1 of 30".
   const stateBlocks = (context: OpenPrincipalContext): string =>
-    delta.render(proseBlocks(selfName, otherName, context, options.conditions).filter((b) => b.kind !== ("scene" as ProseBlockKind)));
+    delta.render(
+      proseBlocks(selfName, otherName, context, options.conditions).filter((b) => b.kind !== ("scene" as ProseBlockKind)),
+      { forceShow: forceShowStakes(context) }
+    );
   const narratedSituation = async (context: OpenPrincipalContext): Promise<string> => {
     const narration = narrator ? await narrator.narrate(selfName, otherName, context, options.conditions) : null;
     if (narration === null) return proseSituation(context);
