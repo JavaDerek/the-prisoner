@@ -1,6 +1,7 @@
 import { CONDITION_LIST_OPENING, type Condition } from "./conditionList.js";
 import { seatSituationParts, type OpenPrincipalContext } from "./mind.js";
 import { prisonerStakes, wardenStakes } from "../scenario.js";
+import { OPEN_OBJECT_IDS, findObject, findProperty, type OpenObjectProperty } from "./scenarioObjects.js";
 
 /**
  * The-prisoner#21: a human-fiction view of a turn, for the PLAYER only, that
@@ -163,10 +164,54 @@ function spacedLabel(id: string): string {
   return id.replace(/_/g, " ");
 }
 
+/** D10-3: the belief store keys a belief by the resource name with
+ *  underscores turned to spaces (`briefing.ts`'s `buildOpenBriefing`,
+ *  `name.replace(/_/g, " ")`) -- so recovering the resource name back is
+ *  the exact inverse, `label.replace(/ /g, "_")`, never a guess (no
+ *  resource name in this scenario contains a space of its own). Looked up
+ *  via `findObject`/`findProperty` as this task's brief requires, rather
+ *  than reaching into `OPEN_OBJECTS` directly: the id and key are found by
+ *  the FIRST call's own search, then re-fetched by the SECOND, canonical
+ *  accessor, so there is exactly one place ("the property this object
+ *  declares at this key") that ever answers "what is this property". */
+function propertyForBeliefLabel(label: string): OpenObjectProperty | undefined {
+  const resourceName = label.replace(/ /g, "_");
+  for (const id of OPEN_OBJECT_IDS) {
+    const match = findObject(id)?.properties.find((p) => p.resourceName === resourceName);
+    if (match) return findProperty(id, match.key);
+  }
+  return undefined;
+}
+
+/** The same exact/band lookup `briefing.ts`'s own `describedAsItStands` uses
+ *  to read a property's CURRENT value in words -- an exact `reads` entry
+ *  wins as the more specific statement, otherwise the first `readRanges`
+ *  band the value does not exceed. `undefined` when the property declares
+ *  neither, or declares them but this value falls in no band (never below
+ *  the lowest `readRanges` entry: D9's bar has "nothing above 70"). */
+function readingFor(property: OpenObjectProperty, value: number): string | undefined {
+  const exact = property.reads?.[value];
+  if (exact) return exact;
+  return property.readRanges?.find((range) => value <= range.atOrBelow)?.text;
+}
+
 /** Keeps the exact number and the exact stamp -- "as of round N" is kept in
  *  those words rather than paraphrased ("recently", "a while back"), because
- *  a paraphrase is exactly the kind of softening the issue forbids. */
+ *  a paraphrase is exactly the kind of softening the issue forbids.
+ *
+ *  D10-3 (PLAYTEST-2026-09-27-DESIGN.md R7): a belief whose own property
+ *  declares `reads`/`readRanges` -- a boolean-shaped or banded reading, not
+ *  a quantity a player reasons about as a number -- renders as the WORDS
+ *  she was last told, quoted, rather than the raw integer the model's own
+ *  prompt still carries (that prompt, and the referee, are untouched: this
+ *  is a re-presentation for the human seat alone). A property with no
+ *  reading for this value keeps today's numeric sentence unchanged. */
 function beliefSentence(belief: BeliefFact): string {
+  const property = propertyForBeliefLabel(belief.label);
+  const reading = property ? readingFor(property, belief.value) : undefined;
+  if (reading !== undefined) {
+    return `Your last word on the ${belief.label}, as of round ${belief.asOfRound}, was: "${reading}"`;
+  }
   return `Your last word on the ${belief.label} was ${belief.value}, as of round ${belief.asOfRound}.`;
 }
 

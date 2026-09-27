@@ -253,3 +253,46 @@ describe("D10-1: the stakes line is its own block, recognised by this repository
     expect(prose).toContain(prisonerStakes(30));
   });
 });
+
+/**
+ * D10-3 (PLAYTEST-2026-09-27-DESIGN.md R7): a belief whose property declares
+ * `reads`/`readRanges` (`scenarioObjects.ts`) reads as the WORDS she was last
+ * told, quoted, rather than the raw number -- the door/window's own passage
+ * property is a boolean in effect (0 shut, 1 open), and reading "1" tells a
+ * player nothing a number-blind reading of the model's own prompt would not
+ * already cost her. A numeric-only property (the bar's own `integrity`, as
+ * of this build) keeps today's sentence.
+ *
+ * Checked against the block's own `.text` (not `.items`) so these tests hold
+ * whether or not `knowledge` has yet become a list block (D10-2, a separate
+ * decision): `listBlock` folds every item's text into `.text` unchanged, so
+ * this is never a second, shape-dependent assertion.
+ */
+describe("D10-3: a belief on a `reads`/`readRanges` property reads as words", () => {
+  it("renders the door's passage belief as the quoted words, not the raw 0/1", () => {
+    const context: OpenPrincipalContext = { ...CONTEXT, briefing: ["Round 4 of 30.", "door passage: 1 (as of round 3)."].join("\n") };
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, context, undefined);
+    const knowledge = blocks.find((b) => b.kind === "knowledge");
+    expect(knowledge?.text).toContain('Your last word on the door passage, as of round 3, was: "It stands open now."');
+  });
+
+  it("a passage belief at a value with no `reads` entry (shut, 0) falls back to the numeric sentence", () => {
+    const context: OpenPrincipalContext = { ...CONTEXT, briefing: ["Round 4 of 30.", "door passage: 0 (as of round 3)."].join("\n") };
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, context, undefined);
+    const knowledge = blocks.find((b) => b.kind === "knowledge");
+    expect(knowledge?.text).toContain("Your last word on the door passage was 0, as of round 3.");
+  });
+
+  it("a numeric-only property (bar integrity, as of this build) keeps today's plain sentence", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, CONTEXT, undefined);
+    const knowledge = blocks.find((b) => b.kind === "knowledge");
+    expect(knowledge?.text).toContain("Your last word on the bar integrity was 92, as of round 2.");
+  });
+
+  it("a belief label matching no known object property (a future/derived resource) falls back to the numeric sentence rather than crashing", () => {
+    const context: OpenPrincipalContext = { ...CONTEXT, briefing: ["Round 4 of 30.", "some future thing: 7 (as of round 1)."].join("\n") };
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, context, undefined);
+    const knowledge = blocks.find((b) => b.kind === "knowledge");
+    expect(knowledge?.text).toContain("Your last word on the some future thing was 7, as of round 1.");
+  });
+});
