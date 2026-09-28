@@ -1,0 +1,14 @@
+{
+  "name": "console-spike-electron",
+  "version": "0.0.1",
+  "private": true,
+  "description": "the-prisoner#14 spike 1 (Electron half). Not built here -- see docs/CONSOLE-HOST-PROFILE.md.",
+  "main": "main.js",
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "2.0.0"
+  },
+  "devDependencies": {
+    "electron": "^24.0.0 || ^44.0.0",
+    "esbuild": "^0.28.0"
+  }
+}
