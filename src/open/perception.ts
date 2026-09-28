@@ -3,7 +3,7 @@ import type { OpenHalfRoundResult } from "./loop.js";
 import { findKind } from "./derivedObjects.js";
 import { bandNumbersFor } from "./acquirableProperties.js";
 import { findObject, OPEN_PERSONS, type OpenPropertyKey } from "./scenarioObjects.js";
-import { effectRequiresProperty, type EffectKind } from "./effects.js";
+import { effectRequiresProperty, type EffectKind, type HarmMode } from "./effects.js";
 import type { RefereeRuling } from "./referee.js";
 import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
 
@@ -91,6 +91,9 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
       return `hand over ${it}`;
     case "block":
       return `stand in ${it}`;
+    case "harm":
+      // the-prisoner#1: the target is always a person (`effects.ts` refuses a self-target).
+      return `hurt ${it}`;
     case "none":
       return "";
   }
@@ -123,6 +126,8 @@ const SET_ABOUT_PHRASE: Record<Exclude<EffectKind, "none">, (ruling: RefereeRuli
   give: (_r, what) => `handing over ${what ?? "something"}`,
   // PLAYTEST-2026-09-27 D4'.
   block: (_r, what) => `standing in ${what ?? "something"}`,
+  // the-prisoner#1: the target is always a person.
+  harm: (_r, what) => `lashing out at ${what ?? "someone"}`,
 };
 
 /** The scenario's own static knowledge of an object -- the §4.1 table and
@@ -218,6 +223,8 @@ const PROPERTY_CAPABILITY: Record<OpenPropertyKey, string> = {
   posture: "put on the floor or got back up",
   // PLAYTEST-2026-09-27 D12.
   sight: "blinded or cleared",
+  // the-prisoner#1.
+  condition: "hurt or tended",
 };
 
 /** The subset of `EffectKind` that names a property at all
@@ -227,7 +234,7 @@ const PROPERTY_CAPABILITY: Record<OpenPropertyKey, string> = {
  *  a declared property. Kept as its own literal union, exhaustive by
  *  construction against `NOTHING_TO_VERB` below, so a new member of that
  *  set fails to typecheck here until it has a phrase too. */
-type PropertyEffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "open" | "close";
+type PropertyEffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "open" | "close" | "harm";
 
 /** D8's sentence 1 ("Nothing about X can be Y." / "X has nothing to Z."):
  *  one phrase pair per effect actually ATTEMPTED, never per property cited
@@ -243,6 +250,9 @@ const NOTHING_TO_VERB: Record<PropertyEffectKind, { infinitive: string; passive:
   expose: { infinitive: "uncover", passive: "uncovered" },
   open: { infinitive: "open", passive: "opened" },
   close: { infinitive: "shut", passive: "shut" },
+  // the-prisoner#1: never reached in practice (harm's only property is `condition`, declared on every person),
+  // kept for the same exhaustiveness this table already enforces.
+  harm: { infinitive: "hurt", passive: "hurt" },
 };
 
 /** The-prisoner#28 fix (2026-09-26), the case D8's own design missed: which
@@ -262,6 +272,8 @@ const EFFECT_PAIR_PROPERTIES: Partial<Record<PropertyEffectKind, readonly OpenPr
   expose: ["concealment"],
   open: ["passage"],
   close: ["passage"],
+  // the-prisoner#1.
+  harm: ["condition"],
 };
 
 /** D8's join rule for the "what CAN be done" list, reproducing the design's
@@ -308,7 +320,7 @@ function isUnmodelledPropertyRefusal(ruling: RefereeRuling): boolean {
  *  Nothing here reads `ruling.property`, the actor's intent, or any key
  *  name; the two worked examples in HUMAN-INTENTS-DESIGN.md §2 are this
  *  function's own pinned tests (perception.test.ts). */
-function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundResult): string {
+function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundResult, harmMode: HarmMode = "off"): string {
   const targetId = ruling.targetObjectId;
   const person = isPrincipalTarget(targetId);
   // A target this module has no static spec for (a derived/elaborated
@@ -316,7 +328,12 @@ function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundRe
   // limit `targetLacksProperty` already lives with -- and the sentence
   // falls back to the structural capabilities alone.
   const spec = scenarioSpec(targetId);
-  const declaredChunks = (spec?.properties ?? []).map((p) => PROPERTY_CAPABILITY[p.key as OpenPropertyKey]);
+  // the-prisoner#1: `condition` is declared on `OPEN_PERSONS` unconditionally (the same choice §64.3 makes for
+  // the bar's `integrity`), but unlike the bar's, this module has no world reference to check whether the harm
+  // arm actually built its resource -- so it is filtered here, explicitly, by the mode its callers are handed.
+  // `off` (the default) is what every batch recorded before this issue reads, byte for byte.
+  const declaredProperties = (spec?.properties ?? []).filter((p) => p.key !== "condition" || harmMode === "on");
+  const declaredChunks = declaredProperties.map((p) => PROPERTY_CAPABILITY[p.key as OpenPropertyKey]);
   const structuralChunks = person
     ? ["searched", "spoken to"]
     : [
@@ -343,7 +360,7 @@ function unmodelledPropertySentence(ruling: RefereeRuling, half: OpenHalfRoundRe
   // exists, sentence 1 is omitted entirely and only the positive catalogue
   // renders.
   const carriers = EFFECT_PAIR_PROPERTIES[ruling.effectKind as PropertyEffectKind] ?? [];
-  const hasCarrier = (spec?.properties ?? []).some((p) => carriers.includes(p.key as OpenPropertyKey));
+  const hasCarrier = declaredProperties.some((p) => carriers.includes(p.key as OpenPropertyKey));
   if (hasCarrier) {
     return `${person ? "A person here" : `The ${label(targetId)}`} can be ${capabilities}.`;
   }
@@ -368,14 +385,14 @@ export function firstActSentence(attempted: { text: string; dropped: string }): 
   return `A turn does one thing. This turn: "${attempted.text}". "${attempted.dropped}" waits. `;
 }
 
-export function renderOwnOutcome(half: OpenHalfRoundResult): string | null {
-  const outcome = renderOwnOutcomeUnflagged(half);
+export function renderOwnOutcome(half: OpenHalfRoundResult, harmMode: HarmMode = "off"): string | null {
+  const outcome = renderOwnOutcomeUnflagged(half, harmMode);
   const oneAct = half.ruling?.oneAct;
   if (outcome === null || !oneAct?.flagged) return outcome;
   return (oneAct.attempted ? firstActSentence(oneAct.attempted) : ONE_ACT_FLAG) + outcome;
 }
 
-function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
+function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult, harmMode: HarmMode = "off"): string | null {
   const { proposal, ruling, plan, outcome, refusalError } = half;
   if (proposal === null || ruling === null) return null;
   const obj = label(ruling.targetObjectId);
@@ -528,6 +545,12 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
       const wear = typeof result.before === "number" && typeof result.after === "number" ? ` The ${obj}'s ${property} went from ${result.before} to ${result.after}.` : "";
       return told(`Your last attempt made a ${label} from the ${obj}: you hold it now, as ${half.derived?.id ?? ruling.product}.${wear}`);
     }
+    // the-prisoner#1 (`docs/ISSUE-1-DESIGN.md` §4 Q5, abstracted -- no wounds, no blood): the actor learns the
+    // number moved, by NAME and in person-shaped wording ("Warden Croft's condition went from 100 to 60."),
+    // never a pronoun (another task is centralising pronouns in `scenario.ts` concurrently).
+    if (ruling.effectKind === "harm" && typeof result.before === "number" && typeof result.after === "number") {
+      return told(`${who}'s condition went from ${result.before} to ${result.after}.`);
+    }
     if (typeof result.before === "number" && typeof result.after === "number") {
       return told(
         result.before === result.after
@@ -549,7 +572,7 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   // capabilities. D1's own opening sentence still applies here (unaffected
   // by D8): `unmodelledPropertySentence` never opens with the attempt the
   // way the bottom fallback does, so there is nothing to double up on.
-  if (isUnmodelledPropertyRefusal(ruling)) return told(unmodelledPropertySentence(ruling, half));
+  if (isUnmodelledPropertyRefusal(ruling)) return told(unmodelledPropertySentence(ruling, half, harmMode));
 
   // Ruled impossible (or ungrounded): the positive reason, from authored text
   // -- the description this principal was itself shown, which for an object

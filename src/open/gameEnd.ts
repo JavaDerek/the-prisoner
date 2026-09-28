@@ -4,7 +4,9 @@ import {
   SEARCH_CATCH_LOCK_MAX,
   SEARCH_CATCH_SPOON_MIN,
 } from "../world/mechanics.js";
+import { HARM_DISABLED_AT_OR_BELOW } from "./scenarioObjects.js";
 import { resourceIdForProperty, OPEN_CATCH_BAR_MAX, type OpenWorld } from "./world.js";
+import type { Principal } from "../ledger/beliefs.js";
 
 /**
  * Game end, open mode (OPEN-VARIANT.md §9.3, this revision note written
@@ -12,8 +14,25 @@ import { resourceIdForProperty, OPEN_CATCH_BAR_MAX, type OpenWorld } from "./wor
  * on STATE, exactly as the closed variant's own `checkGameEnd`
  * (`src/world/mechanics.ts`) is -- called by a caller BETWEEN half-rounds,
  * never embedded in a mechanic, never something a referee rules on.
+ *
+ * the-prisoner#1 (`docs/ISSUE-1-DESIGN.md` §4, Q3): a THIRD ending, `disabled` -- the prisoner's own `condition`
+ * reaching the floor. Escape stays the sole way to WIN; this is a new way to LOSE, scoped the same way as
+ * `caught`. The warden's own `condition` reaching the floor does NOT end the game (his side just stops taking
+ * turns, `personDisabled` below and `game.ts`'s own skip) -- there is no third principal-specific ending for him,
+ * only a state a caller reads every round to decide whether to give him one at all.
  */
-export type OpenGameEnd = { kind: "escaped" | "caught" } | null;
+export type OpenGameEnd = { kind: "escaped" | "caught" | "disabled" } | null;
+
+/** the-prisoner#1: whether a person's own `condition` has reached the floor, read live at `t` -- `false` when
+ *  the harm arm never built the resource (every batch recorded before this issue is unaffected). Shared by the
+ *  prisoner's own ending below and by `game.ts`'s warden turn-skip: the same fact, read the same way, for
+ *  whichever side asks. */
+export function personDisabled(openWorld: OpenWorld, principal: Principal, t: number): boolean {
+  const conditionId = resourceIdForProperty(openWorld, principal, "condition");
+  if (!conditionId) return false;
+  const value = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: conditionId, key: "value" });
+  return value !== null && value <= HARM_DISABLED_AT_OR_BELOW;
+}
 
 /** Escape (OPEN-VARIANT.md §12): the prisoner is anywhere but the cell,
  *  however it came about. Read from the character's location fact at `t`;
@@ -62,6 +81,9 @@ export function checkOpenCatch(
  *  timeline). */
 export function checkOpenGameEnd(openWorld: OpenWorld, t: number, reveal?: { objectId: string; property: string; value: number }): OpenGameEnd {
   if (checkOpenEscape(openWorld, t)) return { kind: "escaped" };
+  // the-prisoner#1: checked before the catch, mirroring escape's own priority -- a prisoner disabled the same
+  // half-round a warden's reveal would otherwise catch her is already out of the contest on her own state.
+  if (personDisabled(openWorld, "prisoner", t)) return { kind: "disabled" };
   if (reveal && checkOpenCatch(openWorld, t, reveal)) return { kind: "caught" };
   return null;
 }

@@ -1,5 +1,5 @@
 import { createTurnReader, sourceWords, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type AcceptedCitation } from "run-dmcp";
-import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type BlockMode, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
+import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type BlockMode, type HarmMode, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findObject, OPEN_PERSONS, type OpenObjectSpec, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
 
@@ -456,7 +456,8 @@ function buildQuestions(
   containerClauseMode: ContainerClauseMode,
   repeatDeriveMode: DeriveRepeatMode,
   blockMode: BlockMode = "off",
-  personInstrumentMode: PersonInstrumentMode = "off"
+  personInstrumentMode: PersonInstrumentMode = "off",
+  harmMode: HarmMode = "off"
 ): ReaderQuestion[] {
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
@@ -489,6 +490,12 @@ function buildQuestions(
   // PLAYTEST-2026-09-27 D12 (design R3 change 2), `PRISONER_PERSON_INSTRUMENT` (`readPersonInstrumentMode`), off
   // until P3 measures it: an act done to a person WITH a thing names the person.
   const PERSON_INSTRUMENT_CLAUSE = " An act done to a person with a thing -- striking, covering, blinding, restraining, tying -- names the person; the thing is only what it is done with.";
+  // the-prisoner#1 (`docs/ISSUE-1-DESIGN.md` §4), `PRISONER_HARM` (`readHarmMode`): separates a stab from a
+  // shove at THIS question, never at the property question -- both remain wear/posture-shaped acts on a body,
+  // but only one is meant to hurt. Appended to `PERSON_EFFECT_CLAUSE` only under the arm, so `off` (the
+  // default) leaves every earlier clause byte-identical.
+  const PERSON_HARM_CLAUSE =
+    " An act meant to hurt someone -- striking, stabbing, throwing something at them -- is harm on that person; pushing them down or hauling them up is not harm.";
   // HUMAN-INTENTS-DESIGN.md §6.2, D9, the-prisoner#28: the effect half of
   // D9's two clauses, in this question's own house style (a verb list, no
   // object id named -- `PERSON_EFFECT_CLAUSE`'s own shape). `OPEN_CONCEAL_
@@ -499,7 +506,10 @@ function buildQuestions(
   // clause for.
   const CONTAINER_EFFECT_CLAUSE =
     " Getting oneself under or beneath a thing that can conceal a person -- pulling it over the body, drawing it close so it covers her -- is conceal on that thing; coming out from under it again, or being uncovered, is expose on that thing.";
-  const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), sight (whether a person can see, 100 clear, 0 blind), ";
+  const PERSON_PROPERTY_CLAUSE =
+    "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), sight (whether a person can see, 100 clear, 0 blind), " +
+    // the-prisoner#1: named only under the harm arm, so `off` leaves this clause byte-identical.
+    (harmMode === "on" ? "condition (how hurt a person is, 100 unharmed, 0 disabled), " : "");
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
   // in the effect question by example and offered as the product keys. A
@@ -568,6 +578,9 @@ function buildQuestions(
         "give (hand a thing the actor holds to someone else who is present; the target is the thing), " +
         // PLAYTEST-2026-09-27 D4': offered only under `PRISONER_BLOCK=on`; `off` is every earlier request, byte for byte.
         (blockMode === "on" ? "block (stand in a way out so nobody passes through it; the target is the way out), " : "") +
+        // the-prisoner#1: offered only under `PRISONER_HARM=on` AND with a person in view -- `off` (the
+        // default) is every request recorded before this issue, byte for byte.
+        (harmMode === "on" && personInView ? "harm (hurt another person -- striking, stabbing, throwing something at them; the target is the person), " : "") +
         "or none. " +
         "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
         "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
@@ -584,9 +597,10 @@ function buildQuestions(
         deriveClarification +
         REPEAT_DERIVE_CLAUSE +
         (personInView ? PERSON_EFFECT_CLAUSE : "") +
+        (personInView && harmMode === "on" ? PERSON_HARM_CLAUSE : "") +
         (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE : "") +
         "Cite the exact words in the actor's intent that describe the action.",
-      answerKeys: EFFECT_KINDS.filter((k) => k !== "block" || blockMode === "on"),
+      answerKeys: EFFECT_KINDS.filter((k) => (k !== "block" || blockMode === "on") && (k !== "harm" || (harmMode === "on" && personInView))),
       safeDefault: "none",
     },
     {
@@ -617,7 +631,7 @@ function buildQuestions(
         "An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). " +
         "Cite the exact words in the TARGET " +
         "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
-      answerKeys: [...rulingPropertyAnswerKeys(personInView)],
+      answerKeys: [...rulingPropertyAnswerKeys(personInView, harmMode)],
       safeDefault: "none",
     },
     {
@@ -919,6 +933,10 @@ export function createReferee(
     blockMode?: BlockMode;
     /** PLAYTEST-2026-09-27 D12 (`readPersonInstrumentMode`). Default `"off"`, like its env reader. */
     personInstrumentMode?: PersonInstrumentMode;
+    /** the-prisoner#1 (`readHarmMode`, `effects.ts`). The GAME's default is `"off"` -- this constructor's own
+     *  default is `"off"` too, so a bare referee's request is byte-identical to every recorded batch and the
+     *  fingerprint PIN holds. */
+    harmMode?: HarmMode;
   } = {}
 ): Referee {
   const isDeclared = options.isDeclared ?? declaredInScenario;
@@ -940,7 +958,19 @@ export function createReferee(
     const key = cacheKeyFor(intentText, perceivedObjects);
     const cached = mainCache.get(key);
     if (cached) return cached;
-    const questions = buildQuestions(perceivedObjects, kindOf, propertiesOf, instrumentMode, deriveWording, elisionMode, containerClauseMode, repeatDeriveMode, options.blockMode ?? "off", options.personInstrumentMode ?? "off");
+    const questions = buildQuestions(
+      perceivedObjects,
+      kindOf,
+      propertiesOf,
+      instrumentMode,
+      deriveWording,
+      elisionMode,
+      containerClauseMode,
+      repeatDeriveMode,
+      options.blockMode ?? "off",
+      options.personInstrumentMode ?? "off",
+      options.harmMode ?? "off"
+    );
     const sources = buildSources(intentText, perceivedObjects);
     // OPEN-VARIANT.md §38: each rung's last exchange, for the sidecar. (What each rung OFFERED was
     // kept here too until run-dmcp 0.10.0 put the word range on the accepted citation itself.)

@@ -12,6 +12,7 @@ import {
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import type { ObjectPerception, RefereeRuling } from "./referee.js";
 import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX } from "./world.js";
+import type { HarmMode } from "./effects.js";
 import { renderConditionList, type Condition } from "./conditionList.js";
 import { withThinking, type ThinkingMode } from "./thinking.js";
 
@@ -175,7 +176,7 @@ const VOICE_SCHEMA: InertRecord = {
  *  list by another route) and describe presence, which O1 does not model
  *  (OPEN-VARIANT.md §9.3) -- so these are restated here from the SAME
  *  constants, in terms of what happens rather than which move does it. */
-function stateBasedRules(conditions?: readonly Condition[]): string[] {
+function stateBasedRules(conditions?: readonly Condition[], harmMode: HarmMode = "off"): string[] {
   // OPEN-VARIANT.md §34: given a condition list, the thresholds are stated
   // there, at the top, and only there.
   const thresholds = conditions
@@ -195,6 +196,14 @@ function stateBasedRules(conditions?: readonly Condition[]): string[] {
     `An act on ${WARDEN_NAME}'s own body gives grounds at once: warden suspicion rises to at least ${SEARCH_SUSPICION_THRESHOLD}, then by the act's own amount.`,
     // D14 (owner, 2026-09-27, §80): mirrors the absence line (`briefing.ts`'s `absenceRuleLine`).
     `While ${WARDEN_NAME} cannot see, nothing ${PRISONER_NAME} does is seen.`,
+    // the-prisoner#1 (`docs/ISSUE-1-DESIGN.md` §4), `PRISONER_HARM=on` only: `loop.ts`'s `laysHandsOnWarden`
+    // extended, and the two endings `gameEnd.ts`/`game.ts` build from `condition` reaching the floor.
+    ...(harmMode === "on"
+      ? [
+          `An act meant to hurt someone lowers their own condition, 100 unharmed down to 0 -- pushing them down or hauling them up does not. ` +
+            `If ${PRISONER_NAME}'s condition reaches 0 she is disabled and the game ends. If ${WARDEN_NAME}'s condition reaches 0 he takes no further turns, and the game continues until ${PRISONER_NAME} escapes or time runs out.`,
+        ]
+      : []),
     `When ${WARDEN_NAME} examines something closely and finds it more worn than ${WARDEN_NAME} last believed, warden suspicion ` +
       `rises by the unexplained drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down -- finding damage is evidence.`,
     // OPEN-VARIANT.md §12: escape is leaving the cell, however it comes about.
@@ -246,12 +255,12 @@ export interface SeatSituationParts {
   readonly ruleLines: readonly string[];
 }
 
-export function seatSituationParts(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): SeatSituationParts {
+export function seatSituationParts(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[], harmMode: HarmMode = "off"): SeatSituationParts {
   return {
     conditionLines: conditions ? renderConditionList(conditions, { reader: selfName }) : [],
     identityLines: identityLines(selfName, otherName, context),
     objectLines: objectLines(context),
-    ruleLines: stateBasedRules(conditions),
+    ruleLines: stateBasedRules(conditions, harmMode),
   };
 }
 
@@ -265,8 +274,8 @@ export function seatSituationParts(selfName: string, otherName: string, context:
  * become a fork of an older prompt. What is deliberately NOT here is the
  * model's alone: the answer format, the JSON, the candidates.
  */
-export function renderSeatSituation(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
-  const parts = seatSituationParts(selfName, otherName, context, conditions);
+export function renderSeatSituation(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[], harmMode: HarmMode = "off"): string {
+  const parts = seatSituationParts(selfName, otherName, context, conditions, harmMode);
   return [
     ...(parts.conditionLines.length > 0 ? [...parts.conditionLines, ""] : []),
     ...parts.identityLines,
@@ -287,9 +296,9 @@ export const ONE_ACT_RULE =
   "Do ONE thing per turn: if an intent attempts more than one act -- two things worked on, or one thing and then " +
   "another -- only one of them is attempted. Getting ready for the act, and speaking or watching alongside it, are part of it.";
 
-function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[], harmMode: HarmMode = "off"): string {
   return [
-    renderSeatSituation(selfName, otherName, context, conditions),
+    renderSeatSituation(selfName, otherName, context, conditions, harmMode),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
@@ -310,9 +319,9 @@ function buildOpenWitsPrompt(selfName: string, otherName: string, context: OpenP
   ].join("\n");
 }
 
-function buildOpenSingleCallPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+function buildOpenSingleCallPrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[], harmMode: HarmMode = "off"): string {
   return [
-    renderSeatSituation(selfName, otherName, context, conditions),
+    renderSeatSituation(selfName, otherName, context, conditions, harmMode),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
@@ -424,6 +433,9 @@ export interface CreateOpenMindOptions {
   /** OPEN-VARIANT.md §34: state the thresholds as a condition list at the top
    *  of the wits prompt instead of as rule sentences. Absent: the baseline. */
   conditions?: readonly Condition[];
+  /** the-prisoner#1 (`readHarmMode`, `effects.ts`). Absent (`"off"`): every prompt byte-identical to before
+   *  this issue landed. */
+  harmMode?: HarmMode;
   /** OPEN-VARIANT.md §64.7, `thinking.ts`. Applies to the WITS call only
    *  (the single call, when `witsModel === voiceModel`, decides `intent` and
    *  so counts as wits too) -- the separate voice call is never wrapped, in
@@ -505,7 +517,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
       timeoutMs: options.timeoutMs,
       fetchFn: witsFetchFn,
       responseFormat: { jsonSchema: OPEN_SINGLE_CALL_SCHEMA, name: "proposal" },
-      prompt: (context) => buildOpenSingleCallPrompt(options.selfName, options.otherName, context, options.conditions),
+      prompt: (context) => buildOpenSingleCallPrompt(options.selfName, options.otherName, context, options.conditions, options.harmMode),
       coerce: (raw) => {
         const base = coerceProposal(raw);
         if (base === null) return null;
@@ -539,7 +551,7 @@ export function createOpenMind(options: CreateOpenMindOptions): OpenMind {
     timeoutMs: options.timeoutMs,
     fetchFn: witsFetchFn,
     responseFormat: { jsonSchema: OPEN_WITS_SCHEMA, name: "wits" },
-    prompt: (context) => buildOpenWitsPrompt(options.selfName, options.otherName, context, options.conditions),
+    prompt: (context) => buildOpenWitsPrompt(options.selfName, options.otherName, context, options.conditions, options.harmMode),
     coerce: (raw) => coerceWits(raw) as { intent: string; thoughts?: string; candidates?: Candidate[]; plan?: string; replanned?: boolean; replanBecause?: string; notes?: string; line?: string } | null,
     onSilence: options.onSilence,
   });

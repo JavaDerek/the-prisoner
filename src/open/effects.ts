@@ -1,4 +1,4 @@
-import { findProperty, POSTURE_ON_HER_FEET_ABOVE, SIGHT_BLIND_AT_OR_BELOW, PERSON_CONTAINERS, CONTAINMENT_HIDDEN_AT_OR_ABOVE, personContainerIndex, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
+import { findProperty, POSTURE_ON_HER_FEET_ABOVE, SIGHT_BLIND_AT_OR_BELOW, HARM_DISABLED_AT_OR_BELOW, PERSON_CONTAINERS, CONTAINMENT_HIDDEN_AT_OR_ABOVE, personContainerIndex, type OpenPropertyKey, type OpenObjectProperty } from "./scenarioObjects.js";
 import { findKind, composeDescription, parentLabel } from "./derivedObjects.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -11,12 +11,30 @@ import type { Principal } from "../ledger/beliefs.js";
  * non-empty `answerKeys` set; `none` is a member of it here, not an
  * absence).
  */
-export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "take" | "give" | "block" | "none";
+export type EffectKind = "wear" | "restore" | "reveal" | "conceal" | "expose" | "noise" | "open" | "close" | "leave" | "derive" | "take" | "give" | "block" | "harm" | "none";
 /** docs/CUSTODY-DESIGN.md: `take` and `give` move who holds a thing -- the
  *  target is the thing, never the place or the person -- through one `set`
  *  of the item's own owner columns (`OPEN_TAKE`/`OPEN_GIVE`, mechanics.ts).
  *  `none` stays last: it is the "nothing applies" key, not an effect. */
-export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "take", "give", "block", "none"];
+export const EFFECT_KINDS: readonly EffectKind[] = ["wear", "restore", "reveal", "conceal", "expose", "noise", "open", "close", "leave", "derive", "take", "give", "block", "harm", "none"];
+
+/**
+ * the-prisoner#1 (`docs/ISSUE-1-DESIGN.md`): `harm` -- hurt the OTHER principal, lowering her own `condition`.
+ * A SEPARATE effect kind from `wear` (rather than another property `wear` can name, the way posture/sight are)
+ * on purpose: the design's own Q4/§3 reasoning is that the referee has to separate a stab from a shove at the
+ * EFFECT question, because `wear`/`posture` already means "put on the floor" and cannot also mean "wounded"
+ * without making a compliant crouch and a stab wound the same fact. Offered to the referee only when the arm is
+ * on AND a person is in view (`referee.ts`'s `buildQuestions`); `off` (the default) is every batch recorded
+ * before this issue landed, byte for byte -- `createReferee`'s bare default is `off`, so the fingerprint PIN
+ * holds.
+ */
+export type HarmMode = "off" | "on";
+
+export function readHarmMode(raw: string | undefined): HarmMode {
+  if (raw === undefined || raw === "") return "off";
+  if (raw === "off" || raw === "on") return raw;
+  throw new Error(`PRISONER_HARM: unrecognised value ${JSON.stringify(raw)} -- must be "off" (the default) or "on"`);
+}
 
 /**
  * PLAYTEST-2026-09-27 D4' (RED-TEAM.md F4, F11): `block` -- stand in a way out so nobody passes through it; the
@@ -41,6 +59,9 @@ export interface BlockerRecord {
   blockingResourceId: string;
   postureResourceId?: string;
   sightResourceId?: string;
+  /** the-prisoner#1: a blocker disabled (condition at or below `HARM_DISABLED_AT_OR_BELOW`) holds no way out,
+   *  the same treatment D12 already gives a blind one. Absent: the harm arm is off. */
+  conditionResourceId?: string;
 }
 
 export type Magnitude = "slight" | "moderate" | "substantial";
@@ -68,20 +89,31 @@ export const PROPERTY_ANSWER_KEYS: readonly string[] = [...PROPERTY_KEYS, "none"
  *  Only the RULING's own property question widens, and only when a person is
  *  actually perceived (`referee.ts`): with the presence arm off no person is
  *  ever in view, so the base request stays byte-identical to every recorded
- *  batch -- which `referee.test.ts`'s fingerprint PIN proves mechanically. */
+ *  batch -- which `referee.test.ts`'s fingerprint PIN proves mechanically.
+ *
+ *  `condition` (the-prisoner#1) is deliberately NOT here: this array is also how `referee.ts` detects "a person
+ *  is in view" at all (any perceived object declaring one of these keys), and `posture`/`sight` already do that
+ *  job under the presence arm alone. `condition` is offered separately, gated on the harm arm too
+ *  (`rulingPropertyAnswerKeys` below) -- adding it here would put it in every property answer set the moment a
+ *  person is perceived, whether or not the harm arm is on, which is exactly the byte-identity this array's own
+ *  comment protects. */
 export const PERSON_PROPERTY_KEYS: readonly OpenPropertyKey[] = ["posture", "sight"];
 
 /** The property answers a ruling may give for the objects actually in view:
  *  the object vocabulary always, plus a person's own keys when one is there
- *  to be acted on. */
-export function rulingPropertyAnswerKeys(personInView: boolean): readonly string[] {
-  return personInView ? [...PROPERTY_KEYS, ...PERSON_PROPERTY_KEYS, "none"] : [...PROPERTY_ANSWER_KEYS];
+ *  to be acted on, plus `condition` (the-prisoner#1) only under the harm arm --
+ *  `off` (the default) leaves this byte-identical to every batch recorded
+ *  before this issue landed. */
+export function rulingPropertyAnswerKeys(personInView: boolean, harmMode: HarmMode = "off"): readonly string[] {
+  if (!personInView) return [...PROPERTY_ANSWER_KEYS];
+  return [...PROPERTY_KEYS, ...PERSON_PROPERTY_KEYS, ...(harmMode === "on" ? (["condition"] as const) : []), "none"];
 }
 
 /** `noise` names no property at all (OPEN-VARIANT.md §4.2: "a perceptible
  *  event with no state change"), and neither do `take`/`give`
  *  (docs/CUSTODY-DESIGN.md): what they change is who holds the thing, an
- *  owner column on the item itself, never one of its bounded properties. */
+ *  owner column on the item itself, never one of its bounded properties.
+ *  `harm` (the-prisoner#1) DOES: its only property is `condition`. */
 export function effectRequiresProperty(effectKind: EffectKind): boolean {
   return (
     effectKind === "wear" ||
@@ -90,7 +122,8 @@ export function effectRequiresProperty(effectKind: EffectKind): boolean {
     effectKind === "conceal" ||
     effectKind === "expose" ||
     effectKind === "open" ||
-    effectKind === "close"
+    effectKind === "close" ||
+    effectKind === "harm"
   );
 }
 
@@ -225,6 +258,9 @@ export function planEffect(params: {
     /** PLAYTEST-2026-09-27 D12: each person's sight resource, keyed by character id like `postureOf`, where the
      *  world built one. A take reads the holder's; a reveal reads the actor's own. */
     sightOf?: Readonly<Record<string, string>>;
+    /** the-prisoner#1: each person's condition resource, keyed by character id like `postureOf`, where the
+     *  harm arm built one. C1 reads it beside posture/sight: a disabled holder keeps nothing. */
+    conditionOf?: Readonly<Record<string, string>>;
     /** HUMAN-INTENTS-DESIGN.md D9 (§6.2): each person's own containment
      *  resource, keyed by character id like `postureOf`, where the world
      *  built one (the presence arm). `conceal`/`expose` on a person-container
@@ -266,9 +302,10 @@ export function planEffect(params: {
     if (!exit || !params.actorId) return null;
     const { passageResourceId, integrityResourceId, destinationId } = exit;
     // D4': the other principal standing in this way out, on her feet and able to see, holds it -- read live by
-    // the mechanic, against C1's posture line and D12's sight line.
+    // the mechanic, against C1's posture line and D12's sight line. the-prisoner#1: and above the disabled
+    // line, when the harm arm built one -- a disabled blocker holds no way out, like a floored or blind one.
     const blocked = params.block
-      ? { blockers: params.block.blockers, wayOutIndex: params.block.wayOutIndex[targetObjectId] ?? 0, standsAbove: POSTURE_ON_HER_FEET_ABOVE, seesAbove: SIGHT_BLIND_AT_OR_BELOW }
+      ? { blockers: params.block.blockers, wayOutIndex: params.block.wayOutIndex[targetObjectId] ?? 0, standsAbove: POSTURE_ON_HER_FEET_ABOVE, seesAbove: SIGHT_BLIND_AT_OR_BELOW, aliveAbove: HARM_DISABLED_AT_OR_BELOW }
       : {};
     return {
       mechanic: "OPEN_LEAVE",
@@ -364,6 +401,20 @@ export function planEffect(params: {
       parameters: { resourceId, ...(actorSightResourceId ? { actorSightResourceId, blindAtOrBelow: SIGHT_BLIND_AT_OR_BELOW } : {}), description },
       resourceId,
       isWearType: false,
+    };
+  }
+  if (effectKind === "harm") {
+    // the-prisoner#1: `harm`'s only property is `condition` -- a ruling naming any other property is incoherent
+    // ("no invented world"), the same discipline `conceal`/`expose` already hold to for `concealment`.
+    if (property !== "condition") return null;
+    // Target must be the OTHER principal: harming oneself is refused as outside what the world models. Reads
+    // the actor's own entity id, exactly the self-check `isPerson` above already makes for custody.
+    if (params.actorId && entityId === params.actorId) return null;
+    return {
+      mechanic: "OPEN_WEAR",
+      parameters: { resourceId, amount: declared.wear[magnitude], min: declared.min, max: declared.max, description },
+      resourceId,
+      isWearType: true,
     };
   }
   if (effectKind === "wear") {
@@ -486,9 +537,18 @@ function planCustody(params: Parameters<typeof planEffect>[0], entityId: string,
   if (exits[targetObjectId] || Object.values(exits).some((exit) => exit.part === targetObjectId)) return null;
   if (effectKind === "take") {
     // PLAYTEST-2026-09-27 D12: C1 extended -- a holder keeps a thing only while on her feet AND able to see.
+    // the-prisoner#1: and, when the harm arm built one, not disabled -- treated like floored/blind for custody.
     return {
       mechanic: "OPEN_TAKE",
-      parameters: { itemId: entityId, actorId, postureOf: custody.postureOf, keptAtOrAbove: POSTURE_ON_HER_FEET_ABOVE + 1, ...(custody.sightOf ? { sightOf: custody.sightOf, blindAtOrBelow: SIGHT_BLIND_AT_OR_BELOW } : {}), description },
+      parameters: {
+        itemId: entityId,
+        actorId,
+        postureOf: custody.postureOf,
+        keptAtOrAbove: POSTURE_ON_HER_FEET_ABOVE + 1,
+        ...(custody.sightOf ? { sightOf: custody.sightOf, blindAtOrBelow: SIGHT_BLIND_AT_OR_BELOW } : {}),
+        ...(custody.conditionOf ? { conditionOf: custody.conditionOf, disabledAtOrBelow: HARM_DISABLED_AT_OR_BELOW } : {}),
+        description,
+      },
       resourceId: null,
       isWearType: false,
     };

@@ -7,9 +7,10 @@ import type { OpenMind } from "./mind.js";
 import { runOpenHalfRound, type OpenHalfRoundResult, type KnownApproach } from "./loop.js";
 import { seenAttempts } from "./precedent.js";
 import type { PickCondition } from "./pickCondition.js";
-import { checkOpenGameEnd, type OpenGameEnd } from "./gameEnd.js";
+import { checkOpenGameEnd, personDisabled, type OpenGameEnd } from "./gameEnd.js";
 import { buildOpenContext, checkAbsenceMode, wardenAbsentOn, principalLocation, type OpenNews, type PresenceMode, type AbsenceMode } from "./briefing.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
+import type { HarmMode } from "./effects.js";
 import { seedInitialBeliefs, type Principal } from "../ledger/beliefs.js";
 import { TIME_DECAY_AMOUNT } from "../world/mechanics.js";
 import { readNumericFact } from "../world/facts.js";
@@ -75,6 +76,11 @@ export async function runOpenGame(params: {
    *  out); a real game gets `readAbsenceMode`'s, `"cadence"`.
    *  `"cadence"` needs `presenceMode: "modelled"` and refuses to start without it. */
   absenceMode?: AbsenceMode;
+  /** the-prisoner#1 (`readHarmMode`, `effects.ts`). Every mechanic and gate that depends on the harm arm reads
+   *  it implicitly, from whether a `condition` resource exists (`buildOpenWorld`'s own `harm` option) -- this
+   *  is the one exception, needed only because `renderOwnOutcome`'s declared-space refusal text has no world
+   *  reference to check that against. Absent (`"off"`): byte-identical to before this issue landed. */
+  harmMode?: HarmMode;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
   const presenceMode = params.presenceMode ?? "off";
@@ -103,6 +109,21 @@ export async function runOpenGame(params: {
     for (const principal of ["warden", "prisoner"] as const) {
       const other: Principal = principal === "warden" ? "prisoner" : "warden";
       const t = principal === "warden" ? clock.wardenT(n) : clock.prisonerT(n);
+
+      // the-prisoner#1 (design §4, Q3): the warden's own condition at the floor is his loss of the contest
+      // without ending the game -- from here on he takes no half-round at all (no wits call, no referee call,
+      // exactly D5's own absence skip), read fresh at his own t every round rather than latched once, since
+      // nothing in this game ever restores him on its own. `personDisabled` is `false` whenever the harm arm
+      // never built a condition resource, so this is a no-op for every batch recorded before this issue.
+      if (principal === "warden" && personDisabled(openWorld, "warden", t)) {
+        const context = buildOpenContext(openWorld, principal, t, n, rounds, { ...inbox[principal], standing: params.precedent?.[principal], ...(plans[principal] ? { plan: plans[principal] } : {}) }, presenceMode, absenceMode);
+        const half: OpenHalfRoundResult = { principal, t, roundN: n, context, pick: null, proposal: null, ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null, revealFor: null, derived: null, reshaped: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null, skipped: "disabled" };
+        halves.push(half);
+        await params.onHalfRound?.(half);
+        // No `checkOpenGameEnd` call: a disabled warden does not end the game (only a disabled PRISONER, or her
+        // escape, or his own catch, do) -- the game continues until she escapes or time runs out.
+        continue;
+      }
 
       // PLAYTEST-2026-09-27 D5: at the start of an absent round the warden steps out to the corridor; at the start
       // of the round after, he is back. Both before his half-round, at his own t.
@@ -164,7 +185,7 @@ export async function runOpenGame(params: {
       halves.push(half);
       if (half.proposal?.plan) plans[principal] = half.proposal.plan;
 
-      const ownOutcome = renderOwnOutcome(half);
+      const ownOutcome = renderOwnOutcome(half, params.harmMode);
       if (ownOutcome) inbox[principal].ownOutcome = ownOutcome;
       // D5: what the other would perceive -- the act AND the spoken line -- reaches her only if she was here when
       // the half-round began (read before it, so a principal who walks out is still seen going). Under presence
