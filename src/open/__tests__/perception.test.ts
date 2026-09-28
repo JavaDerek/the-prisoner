@@ -276,8 +276,9 @@ describe("renderOwnOutcome: what the actor learns from its own attempt, rendered
     expect(wording).not.toMatch(/the warden/i);
     expect(wording).not.toMatch(/as it is/);
     // Still the positive reason the object branch gives: what the actor
-    // perceives of the target, verbatim from its own description.
-    expect(text).toContain("on her feet");
+    // perceives of the target, verbatim from its own description. The-prisoner#34, changed on
+    // purpose: the target here is Croft, who reads in his own declared pronoun.
+    expect(text).toContain("on his feet");
     expectPositive(text);
   });
 

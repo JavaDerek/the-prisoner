@@ -5,6 +5,7 @@ import { parseBriefing, type ParsedBriefing } from "./proseView.js";
 import type { ObjectPerception } from "./referee.js";
 import type { Condition } from "./conditionList.js";
 import type { NarrationAuditor, SentenceVerdict } from "./narrationAudit.js";
+import { PRISONER_NAME, pronounsFor } from "../scenario.js";
 
 /**
  * The-prisoner#21 route 2 (D3, 2026-09-18): a narrator model, deferred at
@@ -523,7 +524,13 @@ function factsAsPromptLines(facts: NarratorFacts): string[] {
   return lines;
 }
 
-function buildNarratorPrompt(selfName: string, otherName: string, facts: NarratorFacts): string {
+/** Exported only for `pronouns.test.ts` (the-prisoner#34): this prompt used to hardcode "her"/"she"
+ *  for whichever principal it addressed, wrong every time `selfName` was the warden's. */
+export function buildNarratorPrompt(selfName: string, otherName: string, facts: NarratorFacts): string {
+  // The-prisoner#34: this used to say "her name"/"'she'" no matter which chair `selfName` was --
+  // `selfName` is always `PRISONER_NAME` or `WARDEN_NAME` (`checkpoint.ts`'s own `seatMind`), so the
+  // principal it names, and so its own declared pronoun, is recoverable from the name alone.
+  const pronouns = pronounsFor(selfName === PRISONER_NAME ? "prisoner" : "warden");
   return [
     `You are a narrator writing immersive prose for ${selfName}, addressed as "you", from EXACTLY the facts below -- nothing more.`,
     "",
@@ -551,7 +558,7 @@ function buildNarratorPrompt(selfName: string, otherName: string, facts: Narrato
       "exist and you may not put it in the room.",
     "- You may re-order what is above, connect it into flowing sentences, and choose what to foreground. You may not " +
       "add to it. Every concrete thing in your prose must be traceable to a line above.",
-    `- Write about ${selfName} as "you" throughout. Never switch to her name or to "she" for the person you are addressing.`,
+    `- Write about ${selfName} as "you" throughout. Never switch to ${pronouns.possessive} name or to "${pronouns.subject}" for the person you are addressing.`,
     `- Never write what ${otherName} thinks, feels, plans, wants, believes, hopes, or decides -- you are only given what ${selfName} perceives, never ${otherName}'s own mind.`,
     "- Never say what happens as a RESULT of anything -- only a referee decides outcomes. Describe the scene as it stands, not what will happen next.",
     'Answer with one JSON object: {"narration": string}.',

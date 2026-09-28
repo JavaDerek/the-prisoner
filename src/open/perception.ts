@@ -5,7 +5,7 @@ import { bandNumbersFor } from "./acquirableProperties.js";
 import { findObject, OPEN_PERSONS, type OpenPropertyKey } from "./scenarioObjects.js";
 import { effectRequiresProperty, type EffectKind } from "./effects.js";
 import type { RefereeRuling } from "./referee.js";
-import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME } from "../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME, pronounsFor, type PrincipalId } from "../scenario.js";
 
 /**
  * What each principal learns from a half-round, rendered by code from
@@ -475,16 +475,21 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
     // mechanics report (`OPEN_TAKE`/`OPEN_GIVE`/`OPEN_SEARCH`, mechanics.ts),
     // from their result keys alone. There are two people in this world, so a
     // thing another person holds is the other principal's, and so is a gift.
-    const other = principalName(half.principal === "prisoner" ? "warden" : "prisoner");
+    // The-prisoner#34: `other` used to be named but its pronoun hardcoded ("her feet", "she holds it
+    // now") regardless of which principal it actually was -- correct only when the OTHER happened to
+    // be the warden's target, Voss. Built from `pronounsFor(otherPrincipal)` now.
+    const otherPrincipal: PrincipalId = half.principal === "prisoner" ? "warden" : "prisoner";
+    const other = principalName(otherPrincipal);
+    const otherPronouns = pronounsFor(otherPrincipal);
     if (plan.mechanic === "OPEN_TAKE") {
       const taken = outcome.result as { taken?: boolean; refused?: string };
       if (taken.taken === true) return told(`Your last attempt took the ${obj}: you hold it now.`);
       if (taken.refused === "already-held") return told(`You already hold the ${obj}.`);
-      return told(`Your last attempt reached for the ${obj}, but ${other} is on her feet and keeps it.`);
+      return told(`Your last attempt reached for the ${obj}, but ${other} is on ${otherPronouns.possessive} feet and keeps it.`);
     }
     if (plan.mechanic === "OPEN_GIVE") {
       const given = outcome.result as { given?: boolean; refused?: string };
-      if (given.given === true) return told(`Your last attempt handed the ${obj} to ${other}: she holds it now.`);
+      if (given.given === true) return told(`Your last attempt handed the ${obj} to ${other}: ${otherPronouns.subject} holds it now.`);
       if (given.refused === "recipient-absent") return told(`Your last attempt held out the ${obj} to an empty room: you still hold it.`);
       return told(`Your last attempt held out empty hands: the ${obj} is elsewhere.`);
     }

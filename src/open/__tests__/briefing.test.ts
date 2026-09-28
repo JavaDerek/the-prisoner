@@ -250,7 +250,8 @@ describe("open-mode perception and briefing", () => {
       const self = prisonerView.find((o) => o.id === "prisoner");
       const other = prisonerView.find((o) => o.id === "warden");
       expect(self?.description).toContain("She is on her feet.");
-      expect(other?.description).toContain("She is on her feet.");
+      // The-prisoner#34, changed on purpose: Croft (the OTHER, here) reads in his own declared pronoun.
+      expect(other?.description).toContain("He is on his feet.");
       // And the property the referee would name for an act on that body is the
       // one the world actually built, from the caller's own lookup.
       // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D12): a person declares `sight` beside `posture`.

@@ -13,7 +13,7 @@ import { renderOwnOutcome } from "../perception.js";
 import { renderOpenHalfRound } from "../checkpointTranscript.js";
 import { openConditions } from "../conditions.js";
 import { findProperty, POSTURE_ON_HER_FEET_ABOVE, SIGHT_BLIND_AT_OR_BELOW } from "../scenarioObjects.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, WARDEN_PRONOUNS } from "../../scenario.js";
 import type { Principal } from "../../ledger/beliefs.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
 
@@ -137,7 +137,9 @@ describe("block: the effect key (D4')", () => {
   });
 
   it("describes the attempt, and the precedent text follows from it", () => {
-    expect(describeAttempt("warden", { targetObjectId: "window", effectKind: "block" })).toBe(`${WARDEN_NAME} plants herself in the window.`);
+    // The-prisoner#34, changed on purpose: built from the actor's own declared pronoun now, so the
+    // warden's own attempt reads "himself" (it used to say "herself" whoever planted themselves).
+    expect(describeAttempt("warden", { targetObjectId: "window", effectKind: "block" })).toBe(`${WARDEN_NAME} plants himself in the window.`);
     expect(precedentTextFor({ targetObjectId: "door", effectKind: "block" })).toBe("A prisoner plants herself in the door.");
   });
 });
@@ -192,7 +194,8 @@ describe("a block is an occupation (D4', RED-TEAM.md F11)", () => {
     expect(blocked.plan?.mechanic).toBe("OPEN_BLOCK");
     expect(blockingOf(w, "warden", blocked.t)).toBe(2);
     expect(renderOwnOutcome(blocked)).toContain("You stand in the window; nobody passes while you hold it.");
-    expect(blocked.perceptionForOther).toBe(`${WARDEN_NAME} plants herself in the window.`);
+    // The-prisoner#34, changed on purpose (see "describes the attempt" above).
+    expect(blocked.perceptionForOther).toBe(`${WARDEN_NAME} plants himself in the window.`);
 
     const leave = await act(w, "prisoner", 1, LEAVE_WINDOW);
     expect(leave.outcome?.result.left).toBe(false);
@@ -318,7 +321,8 @@ describe("the block and restore conditions (D4', D4b), asserted against the worl
     const on = openConditions({ block: "on" });
     expect(on.slice(0, openConditions().length)).toEqual(openConditions());
     expect(on.slice(openConditions().length)).toEqual([
-      { when: [`${WARDEN_NAME} stands in a way out`, `${WARDEN_NAME} is on her feet`, `${WARDEN_NAME} can see`], then: `${PRISONER_NAME} cannot leave through it`, for: WARDEN_NAME },
+      // The-prisoner#34, changed on purpose: built from `WARDEN_PRONOUNS` now (discrepancy 8).
+      { when: [`${WARDEN_NAME} stands in a way out`, `${WARDEN_NAME} is on ${WARDEN_PRONOUNS.possessive} feet`, `${WARDEN_NAME} can see`], then: `${PRISONER_NAME} cannot leave through it`, for: WARDEN_NAME },
       { when: ["the bar's integrity is below 100"], then: `${WARDEN_NAME} can mend it`, for: WARDEN_NAME },
       { when: ["the lock's integrity is below 100"], then: `${WARDEN_NAME} can mend it`, for: WARDEN_NAME },
     ]);

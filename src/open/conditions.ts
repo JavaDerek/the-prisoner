@@ -1,5 +1,5 @@
 import { SEARCH_SUSPICION_THRESHOLD, SEARCH_CATCH_LOCK_MAX, SEARCH_CATCH_SPOON_MIN } from "../world/mechanics.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, WARDEN_PRONOUNS } from "../scenario.js";
 import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN, type DoorPriceMode, type WindowMode } from "./world.js";
 import { findProperty } from "./scenarioObjects.js";
 import type { BlockMode } from "./effects.js";
@@ -89,7 +89,9 @@ function blockConditions(weldedWindow: boolean): Condition[] {
     return declared ? [{ when: [`the ${part}'s integrity is below ${declared.max}`], then: `${WARDEN_NAME} can mend it`, for: WARDEN_NAME }] : [];
   };
   return [
-    { when: [`${WARDEN_NAME} stands in a way out`, `${WARDEN_NAME} is on her feet`, `${WARDEN_NAME} can see`], then: `${PRISONER_NAME} cannot leave through it`, for: WARDEN_NAME },
+    // The-prisoner#34: this condition is always about the WARDEN doing the blocking -- built from
+    // `WARDEN_PRONOUNS` now, never the literal "her" it hardcoded before (discrepancy 8).
+    { when: [`${WARDEN_NAME} stands in a way out`, `${WARDEN_NAME} is on ${WARDEN_PRONOUNS.possessive} feet`, `${WARDEN_NAME} can see`], then: `${PRISONER_NAME} cannot leave through it`, for: WARDEN_NAME },
     ...(weldedWindow ? [] : mend("bar")),
     ...mend("lock"),
   ];

@@ -82,7 +82,8 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
       const out = await tsx("checkpoints/2026-09-28-block-reach/probe.mts", "--dry-run");
       expect(out).toContain("3 cells built, no request sent.");
       for (const s of ["warden suspicion: 20.", "warden suspicion: 90.", "warden suspicion: 95."]) expect(out).toContain(s);
-      expect(out).toContain("If Warden Croft stands in a way out, and Warden Croft is on her feet, and Warden Croft can see, then Mara Voss cannot leave through it.");
+      // The-prisoner#34, changed on purpose: Croft's own condition now reads his own declared pronoun.
+      expect(out).toContain("If Warden Croft stands in a way out, and Warden Croft is on his feet, and Warden Croft can see, then Mara Voss cannot leave through it.");
       expect(out).toContain("Mara Voss works to open the window.");
       expect(out).not.toMatch(/[1-9]\d* divergences/);
     },

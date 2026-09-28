@@ -6966,3 +6966,61 @@ saw attempted, as D1 relays it. Two pins in `attemptNotOutcome.test.ts`: a refus
 when a later repeat resolves (refused +0; resolved +10 +30). `precedent.ts`'s header says it is the owner's decision.
 
 The P3 and P5 drafts under `checkpoints/2026-09-28-*` say what these change for them; neither is pre-registered yet.
+
+## 81. One pronoun per principal, and a batch boundary for it (the-prisoner#34, 2026-09-27/28 overnight)
+
+`docs/ARCHITECTURE.md`'s discrepancy 8 was three authors picking three different answers for Warden Croft's own
+pronoun: `scenario.ts`'s `PRISONER_MOTIVE` said "they", the D4' block condition and the D12 sight/posture reading
+bands (`scenarioObjects.ts`) said "her"/"she" for BOTH principals (copied from the prisoner's own bands when a
+person became a second, then a third, targetable thing), and the playtest documents and the owner's own typed
+intent in play ("so he can't see") said "he". None of those three was ever a decision to keep -- each was just
+whoever wrote that particular sentence first, on no evidence the other two existed.
+
+**Decision, taken by the coordinator on the owner's behalf during his overnight delegation:** Warden Croft is
+"he/him/his/himself"; Mara Voss is "she/her/her/herself". The evidence pointing this way was already one-sided --
+CLAUDE.md and every playtest document call Croft "he" throughout, and the owner's own typed intent in the
+2026-09-28 human game did too -- so this is a naming of what the project's own words already agreed on, not a new
+choice imposed on them.
+
+**Implementation.** `scenario.ts` declares one `Pronouns` record per principal (`PRISONER_PRONOUNS`,
+`WARDEN_PRONOUNS`, each `{ subject, object, possessive, reflexive }`) and one lookup, `pronounsFor(principal)`.
+Every site that used to choose a literal pronoun for a sentence about a principal now builds it from there
+instead: `scenarioObjects.ts`'s `posture`/`sight` band builders and its `OPEN_PERSONS` descriptions (via a new
+`personDescription` helper, which `briefing.ts`'s `PRINCIPAL_DESCRIPTION` fallback now reads FROM instead of
+authoring its own second copy -- the two had already drifted once, which is exactly how half of discrepancy 8
+happened), `perception.ts`'s custody outcomes (a refused `take` naming the holder, a resolved `give` naming the
+recipient), `loop.ts`'s `describeAttempt` block case (D4', reflexive), `checkpointTranscript.ts`'s "kept: the
+holder is on \_\_ feet" transcript line, `narrator.ts`'s own instruction line (recovering the principal from
+`selfName`, which is always `PRISONER_NAME` or `WARDEN_NAME`), and `conditions.ts`'s block condition (always about
+the warden, who does the blocking). `referee.ts`'s own prompt text is untouched on purpose -- it was not asked
+for, "actor herself" there is generic wording that never claims a specific principal's pronoun, and OPEN-VARIANT's
+own prompt-stability discipline (§31) means a referee prompt changes only for a reason that earns its own batch,
+which this was not.
+
+**What did NOT change.** Sentences that are invariably about ONE specific principal and already used that
+principal's own now-declared pronoun -- `PRISONER_MOTIVE`'s original "she has escaped" (before this task's own
+fix to its "they"), `mind.ts`'s "Mara Voss escapes... however she gets out", `proseView.ts`'s warden-reading-of-
+the-prisoner suspicion line ("enough to search her cell") -- were left as authored text. They were never wrong
+under the declared set, and rewriting invariant text to route through a helper it does not need would be styling,
+not a fix; CLAUDE.md's "match the surrounding style by hand" cuts against widening this change past the sentences
+that were actually a second, drifted choice of pronoun.
+
+**Batch boundary.** This reaches both prompts (the block condition and both persons' own descriptions are read by
+whichever mind perceives Croft), so it is a boundary the same way D1/D8/D9/D11 were: no arm, because there is no
+sensible "wrong" value to keep byte-identical to, exactly as D13-D16 (§80.7) had none. A transcript from before
+this lands read the warden's own posture/sight bands and the D4' block condition as "her"/"she"; one from after
+reads "his"/"he". `docs/ARCHITECTURE.md`'s discrepancy 8 entry is corrected in the same commit to say this is
+resolved.
+
+**Pin.** `src/__tests__/scenario.test.ts` pins the two declared pronoun sets and `pronounsFor`, and that
+`PRISONER_MOTIVE` builds Croft's pronoun from `WARDEN_PRONOUNS` rather than a literal "they".
+`src/open/__tests__/pronouns.test.ts` renders every site above -- both `OPEN_PERSONS` descriptions, both
+principals' posture and sight bands, `computePerceivedObjects`'s own render, `describeAttempt`'s block case for
+both chairs, a refused custody `take` and a resolved `give` run through the real half-round pipeline in BOTH
+directions (proving the fix is dynamic, not just still hardcoded to the one direction every earlier test happened
+to exercise), the narrator's own instruction line for both chairs, and the block condition -- and asserts each
+rendering carries only the pronoun tokens the OTHER principal's set does not declare. Twelve existing tests across
+seven files (`block.test.ts`, `briefing.test.ts`, `contestLines.test.ts`, `custody.test.ts`, `perception.test.ts`,
+`probes2026-09-28.test.ts`, `sight.test.ts`) had pinned the warden's own sentences at the old, borrowed "her"/
+"she" text; each is updated in the same commit to the now-correct "his"/"he", noted inline at the changed
+assertion.

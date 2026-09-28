@@ -12,7 +12,7 @@ import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
 import { pick, type Verdict } from "mother-of-invention";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, pronounsFor } from "../scenario.js";
 import { SIGHT_BLIND_AT_OR_BELOW } from "./scenarioObjects.js";
 import { HONE_SUSPICION_BUMP, FILE_SUSPICION_BUMP, FAILED_ESCAPE_SUSPICION_BUMP, EVIDENCE_SUSPICION_DIVISOR, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 
@@ -490,7 +490,9 @@ export function describeAttempt(
       return `${actor} holds out the ${obj}.`;
     case "block":
       // PLAYTEST-2026-09-27 D4': the attempt, as every case here since D1.
-      return `${actor} plants herself in the ${obj}.`;
+      // The-prisoner#34: built from `pronounsFor(principal)` now -- this used to say "herself" whoever
+      // planted themselves, which was wrong every time the warden did it.
+      return `${actor} plants ${pronounsFor(principal).reflexive} in the ${obj}.`;
     case "none":
       // Dead in the real pipeline: `runOpenHalfRound` only calls this once
       // `ruling.applicable` is true, which requires `effectKind !== "none"`

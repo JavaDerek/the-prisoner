@@ -512,10 +512,12 @@ file's own update in the next commit corrects.
    (`src/mind/__tests__/seamConformance.*.test.ts`); the open minds are held by the same `Mind<C extends
    InertRecord>` type, by `createLocalMind`'s own `assertInert`, and by `invariants.test.ts`, but no
    test runs mind-seam's suite over them. A gap in coverage, not a known leak.
-8. **The warden's pronoun differs by author.** The scenario refers to Croft as "they"
-   (`PRISONER_MOTIVE`), the playtest documents as "he", and the new block condition and the sight
-   readings as "her" ("Warden Croft is on her feet", "Something covers her head" for either person).
-   The condition line reaches both chairs' prompts.
+8. **RESOLVED** (the-prisoner#34, OPEN-VARIANT.md §81): the warden's pronoun used to differ by author
+   -- the scenario referred to Croft as "they" (`PRISONER_MOTIVE`), the playtest documents as "he", and
+   the block condition and the D12 sight/posture readings as "her" (copied from the prisoner's own
+   bands). `scenario.ts` now declares one `Pronouns` record per principal (`PRISONER_PRONOUNS`,
+   `WARDEN_PRONOUNS`, and `pronounsFor`); Croft is "he/him/his/himself", Voss is "she/her/her/herself",
+   and every site that renders a sentence about a principal builds its pronoun from there.
 9. **README.md is behind the tree** in ways this document does not change: it calls the open variant
    "in design", counts thirty-six transcripts on three models, and its run example pins
    `PRISONER_MODEL=qwen3:14b` on the closed variant, which CLAUDE.md's "a worked example that pins a
