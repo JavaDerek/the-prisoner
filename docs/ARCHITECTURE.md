@@ -448,6 +448,7 @@ restores the 2026-09-26 game.
 | `PRISONER_CONDITIONS` | `both` | `list` (2026-09-17..27), `off` (before) | default since 2026-09-27 (D3); §34, §40 |
 | `PRISONER_DOOR` | `stated` | `unstated` | default since 2026-09-27 (D6'); §46 |
 | `PRISONER_DOOR_PRICE` | `margin` | `free`, `threshold` | default since 2026-09-27 (D6'); §50 |
+| `PRISONER_CONDITION_ORDER` | `window-first` | `door-first` | new; the-prisoner#23 |
 | `PRISONER_BLOCK` | `on` | `off` | new 2026-09-27 (D4', D4b) |
 | `PRISONER_ONE_ACT` | `first` | `checked` (2026-09-22..27), `off` (before) | default since 2026-09-27 (D7); §74.1 |
 | `PRISONER_PERSON_INSTRUMENT` | `off` | `on` | new 2026-09-27 (D12), off pending P3 |

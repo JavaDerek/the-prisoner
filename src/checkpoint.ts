@@ -76,7 +76,7 @@ import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
 import { recordGame, precedentLines, readPrecedentPrice } from "./open/precedent.js";
 import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
-import { openConditions, readConditionsMode, readDoorMode } from "./open/conditions.js";
+import { openConditions, readConditionsMode, readDoorMode, readConditionOrder } from "./open/conditions.js";
 import { readBlockMode } from "./open/effects.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
@@ -208,6 +208,12 @@ const DOOR = readDoorMode(process.env.PRISONER_DOOR);
  *  (`src/open/world.ts`, OPEN-VARIANT.md §50, issue #19). `margin` unless
  *  asked, since 2026-09-27 (PLAYTEST-2026-09-27 D6'); `free` is the arm. */
 const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
+/** Open variant only: which of her two own route conditions the list states
+ *  first (`src/open/conditions.ts`, the-prisoner#23). `window-first` unless
+ *  asked -- byte-identical to every batch before this arm, since her list
+ *  has always named the window first; `door-first` is the arm. Has no effect
+ *  unless the door is `stated` and the window is not `welded`. */
+const CONDITION_ORDER = readConditionOrder(process.env.PRISONER_CONDITION_ORDER);
 /** Open variant only: the welded-window arm (`src/open/world.ts`,
  *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
  *  asked -- an arm, not a new default (the D3 lesson, §40.1). */
@@ -1085,15 +1091,15 @@ async function mainOpen(): Promise<void> {
     WARDEN_MODE === "passive"
       ? passiveWardenMind()
       : PROSE_SEAT === "warden"
-        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) : undefined)
-        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) } : {}) });
-  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) : undefined) : modelWarden();
+        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) : undefined)
+        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) } : {}) });
+  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) : undefined) : modelWarden();
   const prisonerMind =
     SEAT === "prisoner"
-      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }))
+      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }))
       : PROSE_SEAT === "prisoner"
-        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }))
-        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }) }) });
+        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }))
+        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -1179,6 +1185,11 @@ async function mainOpen(): Promise<void> {
       : DOOR_PRICE === "margin"
         ? `Door price: MARGIN (the default since 2026-09-27): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MARGIN} -- the lowest gate that leaves a wear step where the door is openable and the lock is still safe to be found at, which ${OPEN_DOOR_LOCK_MAX} did not (§50.5; PLAYTEST-2026-09-27 D6').`
         : "Door price: FREE (`PRISONER_DOOR_PRICE=free`): the door's passage has no threshold to meet -- every batch before 2026-09-27."
+  );
+  transcript.push(
+    CONDITION_ORDER === "door-first"
+      ? "Condition order: DOOR-FIRST (`PRISONER_CONDITION_ORDER=door-first`): her door condition is stated before her window condition -- every claim, threshold and attribution unchanged, only the order (the-prisoner#23)."
+      : "Condition order: WINDOW-FIRST (the default): her window condition is stated first, as every batch before this arm has stated it."
   );
   transcript.push(
     WINDOW === "welded"
@@ -1366,7 +1377,7 @@ async function mainOpen(): Promise<void> {
     // rendering function being shared, never about the timepoint.
     const t1 = openWorld.base.clock.t0;
     const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE, ABSENCE);
-    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK }));
+    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }));
     strategy = await chooseStrategy({
       context: { situation, objectIds: c1.perceivedObjects.map((o) => o.id) },
       reasoningStrength: STRATEGY_STRENGTH,
