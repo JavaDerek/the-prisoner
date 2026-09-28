@@ -661,8 +661,13 @@ export async function runOpenHalfRound(params: {
   // the precedent ledger would have recorded for that text. A reshaping is
   // not recognised here (it needs the parent's kind, §14.4).
   const recognisedAs = new Map<string, string>();
+  // the-prisoner#5: `context.holding` (`briefing.ts`'s `buildOpenContext`,
+  // docs/CUSTODY-DESIGN.md's own owner reads) is the actor's currently held
+  // objects -- read only under `PRISONER_OPEN_RULES=engine`, to build the
+  // `with` question's closed answer set (`referee.ts`). Absent under
+  // `fixed`: `rule()`'s third argument is optional and unused there.
   const recognise = async (text: string, seen: readonly string[]): Promise<{ verdict: Verdict; as: string }> => {
-    const ruling = await referee.rule(text, context.perceivedObjects);
+    const ruling = await referee.rule(text, context.perceivedObjects, context.holding ?? []);
     if (!ruling.applicable) return { verdict: "unavailable", as: "" };
     const as = precedentTextFor(ruling);
     recognisedAs.set(text, as);
@@ -720,7 +725,7 @@ export async function runOpenHalfRound(params: {
   // what its attempt goes on to do.
   if (proposal.notes) setNotes(openWorld.base.gameId, principal, proposal.notes, roundN);
 
-  let ruling = await referee.rule(proposal.intent, context.perceivedObjects);
+  let ruling = await referee.rule(proposal.intent, context.perceivedObjects, context.holding ?? []);
   // D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): `mind.reconsider`
   // exists only on a human seat (`createHumanSeatMind`, humanSeat.ts) -- a
   // model mind is a plain object with no such property, so this guard is
@@ -736,7 +741,7 @@ export async function runOpenHalfRound(params: {
     if (retype !== undefined) {
       reconsidered = { firstRuling: ruling, firstIntent: proposal.intent };
       proposal = { ...proposal, intent: retype };
-      ruling = await referee.rule(proposal.intent, context.perceivedObjects);
+      ruling = await referee.rule(proposal.intent, context.perceivedObjects, context.holding ?? []);
     }
   }
   const base = { principal, t, roundN, context, pick: picked, reconsidered };

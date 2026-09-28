@@ -148,6 +148,40 @@ describe("runOpenHalfRound (this task's brief: mind -> referee -> resolve())", (
     expect(result.perceptionForOther).toBeNull();
   });
 
+  // the-prisoner#5: `with`'s own closed answer set (`buildQuestions`'s
+  // `heldObjectIds` parameter, `referee.ts`) is built from what the actor
+  // ACTUALLY holds at t, per docs/CUSTODY-DESIGN.md/OPEN_TAKE's own owner
+  // reads -- never every perceived object. `context.holding` is where
+  // `buildOpenContext` (`briefing.ts`) already computes that; this only
+  // proves the loop actually hands it to `referee.rule()`'s third argument.
+  it("the actor's own held objects (context.holding) reach referee.rule()'s third argument", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const mind: OpenMind = scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I file the bar with my spoon." });
+    const recordedHeld: (readonly string[] | undefined)[] = [];
+    const inner = grounderReferee();
+    const referee: Referee = {
+      rule: async (intentText, perceivedObjects, heldObjectIds) => {
+        recordedHeld.push(heldObjectIds);
+        return inner.rule(intentText, perceivedObjects);
+      },
+    };
+
+    await runOpenHalfRound({
+      openWorld,
+      resolver: buildOpenResolver(),
+      referee,
+      principal: "prisoner",
+      roundN: 1,
+      t: openWorld.base.clock.prisonerT(1),
+      context: { ...context(openWorld), holding: ["spoon"] },
+      mind,
+    });
+
+    expect(recordedHeld.length).toBeGreaterThan(0);
+    expect(recordedHeld[0]).toEqual(["spoon"]);
+  });
+
   it("a proposal's notes persist for this principal alone, even when its attempt is ruled impossible", async () => {
     createTestDb();
     const openWorld = buildOpenWorld();
