@@ -7251,3 +7251,216 @@ behind `PRISONER_MODE=enjoyable` exactly as generated descriptions do, and the S
 second mode variable, no second header line -- `enjoyable` is one bucket for "this game's raw material or
 rules varied," and every future addition to it is a new thing `PRISONER_MODE=enjoyable` unlocks, not a
 new switch.
+
+## 84. Open-world rules, step 1: the referee rules in the engine's own terms (the-prisoner#5)
+
+Delivered overnight (2026-09-27/28) by a coder agent under the owner's delegation, per `docs/issues/5.md`
+and its own comments; the coordinating session took the decisions below on the owner's behalf.
+`src/open/openRulesMode.ts`, `src/open/engineRules.ts`, `src/open/referee.ts`, `src/open/engineRulesDryRunCli.ts`;
+wired into `src/checkpoint.ts`. **Only step 1 ("the referee rules in the engine's terms") landed. Step 2
+("objects gain properties nobody declared") is `PRISONER_ELABORATE`, which already exists (§65-§67) and is
+NOT defaulted on here** -- §84.7 says why.
+
+### 84.1 The scope, honestly
+
+The-prisoner#5's own table said the eleven fixed effects (`src/open/effects.ts`) are run-dmcp's five
+`IntendedChange` kinds with names glued on, so a referee that answers `write`/`set`/`transfer`/`create`/
+`destroy` directly, with the identical verbatim-citation grounding, should reach everything the eleven
+names reach and more (`take`/`give`, which the old vocabulary lacked despite the engine always having
+`set`). **This landing scopes that to `PRISONER_MODE=enjoyable` alone.** The benchmark's whole value is
+that every game plays by the identical rulebook (§83.1's own argument, restated for rules rather than
+descriptions): loosening the vocabulary is exactly the kind of change §31 calls a batch boundary, so it
+sits behind the same switch generated descriptions do, per §83.8's own promise that #5 would.
+
+### 84.2 The switch: `PRISONER_OPEN_RULES=fixed|engine`
+
+`PRISONER_OPEN_RULES` (`readOpenRulesMode`, `src/open/openRulesMode.ts`) defaults to `engine` under
+`PRISONER_MODE=enjoyable` and to `fixed` under `PRISONER_MODE=benchmark`, and **refuses `engine` under
+`benchmark`** outright, checked at load, before a database or a model is ever touched -- the identical
+discipline `PRISONER_SCENARIO_FILE` already has to `PRISONER_MODE` (§83.2). `fixed` is not a new arm: it
+is the eleven-effect request `src/open/referee.ts` has always built, and `createReferee`'s own bare
+constructor default stays `"fixed"` regardless of what a real game gets, so every existing unit test and
+every replay of a recorded request is byte-identical (pinned in `referee.test.ts`'s existing fingerprint
+PIN, which this landing left untouched, plus a new test that builds the SAME hash under an explicit
+`readOpenRulesMode(undefined, "benchmark")`). Printed in every open-variant transcript header
+(`openRulesHeaderLine`), immediately after the `Mode:` line:
+
+```
+Open rules: FIXED (`PRISONER_OPEN_RULES=fixed`, the default outside PRISONER_MODE=enjoyable): the eleven named effects (effects.ts), unchanged, exactly as every batch before this switch existed (the-prisoner#5).
+Open rules: ENGINE -- the referee rules in run-dmcp's own change kinds, mapped by code onto this game's mechanics; never pool with a fixed-rules batch (`PRISONER_OPEN_RULES=engine`, default under PRISONER_MODE=enjoyable, the-prisoner#5). See docs/OPEN-VARIANT.md's mapping table.
+```
+
+No second mode variable and no aggregator change: `PRISONER_MODE=enjoyable`'s existing
+`assertBenchmarkTranscript` guard (§83.2) already refuses any transcript whose `Mode:` line reads
+`ENJOYABLE`, and a `fixed`-vs-`engine` transcript is never itself pooled with the other because a batch
+that varies rules is exactly the "raw material or rules varied" bucket §83.8 named in advance.
+
+### 84.3 What changed in the referee's request, and what did not
+
+The `target`, `product`, `magnitude` and `perceptibility` questions are BYTE-IDENTICAL between the two
+modes -- only `effect` and `property` change wording, and three new questions are appended
+(`direction`, `to`, `with`), all built by the SAME `buildQuestions` function on an `openRulesMode`
+branch (`referee.ts`). Under `engine`, `effect`'s answer keys become run-dmcp's own vocabulary, named as
+such to the referee:
+
+```
+write   -- raise or lower a numeric property of the target (direction: up | down)
+set     -- change who holds the target, or -- for a way out -- go out through it (to: actor | other | none)
+transfer -- move a conserved amount from one entity to another
+create  -- make a new thing from part of the target and keep it (same `product` question as `derive` always had)
+destroy -- remove the target from the world outright
+reveal  -- learn a property's true value (no engine change at all -- see §84.5)
+none
+```
+
+`direction`/`to`/`with` are asked in the SAME batch as `effect` (a reader asks every question at once,
+exactly why `magnitude`/`perceptibility` are always asked regardless of what `effect` turns out to be):
+
+- **`direction`** (`up | down | none`): `write`'s own second closed key. Cited from the actor's intent.
+- **`to`** (`actor | other | none`): `set`'s own second closed key, for the custody case -- who ends up
+  holding the thing. Ignored when the target is a way out (going through it moves nobody's holdings).
+- **`with`** (a held object's id, or `none`): the-prisoner#5's own concrete test case (§84.4). Its
+  answer keys are the closed set of objects the actor **currently holds** (`context.holding`,
+  `briefing.ts`'s `buildOpenContext`, already computed for the seat's own "holding: ..." line and for
+  custody's C1 gate) -- never every perceived object, and never every object in the scenario.
+  `loop.ts` now passes `context.holding` as `referee.rule()`'s third argument; `Referee.rule()`'s
+  signature grew that parameter as optional, defaulting to none held, so no existing caller or
+  hand-built test `Referee` needed to change.
+
+`translateEngineEffect` (`src/open/engineRules.ts`) is the pure mapping table from those four answers
+(plus whether the target is a way out or a person) back onto the SAME `EffectKind` `effects.ts` and
+`mechanics.ts` already resolve -- so nothing about HOW an effect plays out changed, only what the
+referee is ASKED and how its answer is read:
+
+| engine `effect` | condition | -> `EffectKind` | which mechanic (unchanged) |
+|---|---|---|---|
+| `write` | `direction=none` (ungrounded) | `none` | -- |
+| `write` | `property=passage`, `direction=up`/`down` | `open` / `close` | `OPEN_PASSAGE` -- D11/D15's key and part-threshold gates untouched |
+| `write` | `property=concealment`, `direction=up`/`down`, target NOT a person | `conceal` / `expose` | `OPEN_RESTORE`/`OPEN_WEAR`, or the container mechanics when the target is a `PERSON_CONTAINERS` member |
+| `write` | any other declared property (`integrity`, `edge`, a person's own `posture`/`sight`), `direction=up`/`down` | `restore` / `wear` | `OPEN_RESTORE`/`OPEN_WEAR` -- the same mechanic a person's own posture/sight already used |
+| `set` | target is a way out | `leave` | `OPEN_LEAVE` -- the block/D12 gates untouched, whatever `to` answered |
+| `set` | target is a person | `none` (unreachable -- §84.5) | -- |
+| `set` | `to=actor` / `to=other` | `take` / `give` | `OPEN_TAKE`/`OPEN_GIVE` -- C1/D12's posture-and-sight gate untouched |
+| `set` | `to=none` | `none` (ungrounded) | -- |
+| `create` | -- | `derive` | `OPEN_DERIVE`, the same `product` question |
+| `destroy` | -- | `none` (unreachable -- §84.5) | -- |
+| `transfer` | -- | `none` (unreachable -- §84.5) | -- |
+| `reveal` | -- | `reveal` (unchanged, not one of the five -- §84.5) | `OPEN_REVEAL` |
+| `none` | -- | `none` | -- |
+
+Every gate the coordinator named as never-bypassable is untouched by construction, not by review: a
+translated ruling walks into the IDENTICAL `planEffect`/`mechanics.ts` code the fixed vocabulary always
+used, because `translateEngineEffect` produces the SAME `EffectKind` string those functions already
+dispatch on. A way out's passage still only moves through `OPEN_PASSAGE` and its part-threshold gate
+(D7a, D11, D15's key check); custody's C1 (posture) and D12 (sight) still gate `OPEN_TAKE`/`OPEN_GIVE`
+exactly as before; nothing new writes a fact outside `resolver.resolve()`.
+
+### 84.4 The concrete test case: a held instrument bumps a write's magnitude
+
+Docs/issues/5.md's own comment names the test this landing had to pass: *"rub the grit into the bar's
+mortar" when the actor HOLDS the grit is a write on the bar conditioned on a held object.* Under the old
+vocabulary this had no expression at all -- "using it on another object has no effect": applying grit to
+the bar read as an ordinary `wear`, identical to using a spoon, and the held grit played no part.
+
+Under `engine` rules it is `write` (target `bar`, property `integrity`, direction `down`, grounded by the
+bar's own "set into old mortar that is dry and cracked"), with `with` naming `grit` -- verified against
+the actor's own intent, and only counted when the actor actually holds it (`with`'s own closed answer
+set, §84.3). **A verified held instrument bumps the write's magnitude one step** (`stepUpMagnitude`,
+`engineRules.ts`: slight -> moderate -> substantial, already at the ceiling stays there) -- one documented
+rule, scoped to `write` alone (an `open`/`close` always goes to the end of its range regardless of
+magnitude, §24, so the bump is inert there, never wrong). An unread or unverified `with` answer is
+treated exactly like `none` -- the safe direction, the same discipline `missingInstrument` already uses
+for the separate `PRISONER_INSTRUMENT` arm (§51, the-prisoner#17; `with` is deliberately a DIFFERENT
+question from `instrument`, because `with`'s answer set is closed to what the actor holds, never
+everything she perceives). Tested with a scripted transport (`referee.test.ts`): the grit case resolves
+`wear`/`integrity`/`substantial` (bumped from a scripted `moderate`); the identical intent with no `with`
+offered stays `moderate`, unbumped.
+
+### 84.5 What stays unreachable under `engine` rules, and why
+
+Nothing below blocks anything else -- an intent that would have used one of these simply rules `none`,
+applying nothing, the same safe default every other ungrounded path in this repository already falls to.
+
+- **`reveal` is not one of the five, on purpose.** `OPEN_REVEAL` and `OPEN_NOISE` (`mechanics.ts`) both
+  resolve with `changes: []` -- an examination and a deliberate sound make no engine-recorded change at
+  all, so neither fits `write`/`set`/`transfer`/`create`/`destroy` by construction. **This is the opposite
+  of docs/issues/5.md's own table**, which put `reveal` under `set` -- that table was written 2026-09-15,
+  before D4'/D9/D12/custody reached their current shape, and the code as it stands today does not agree
+  with it; the code is ground truth here. Losing `reveal` would make the game unplayable (a prisoner who
+  can never examine the bar), so it stays a leaf answer, unchanged in both modes -- this landing loosens
+  the vocabulary of CHANGES, not of reads.
+- **`noise` (a perceptible event with no state change) is the mirror case**, and is genuinely
+  unreachable under `engine` rules this landing, for the identical structural reason: there is no sixth
+  "event" primitive in the engine's own vocabulary, and adding one is a `run-dmcp` change this landing
+  does not make (root CLAUDE.md: "justified on general benefit to that library", not to this game alone).
+  A deliberate sound stays reachable only under `PRISONER_OPEN_RULES=fixed`.
+- **`block` (standing in a way out) is unreachable.** `OPEN_BLOCK` writes the ACTOR's OWN blocking
+  resource while the referee's target is the way out -- not a declared property of the target at all, so
+  neither `write` nor `set` on the named target expresses it without inventing a sixth question this
+  landing does not add. A write on a way out with no property citation (property `none`) simply fails the
+  ordinary declared-property check and rules `none`, the ordinary reason, not a special case.
+- **A search (`expose` on a PERSON) is unreachable, deliberately, not by accident.** `OPEN_SEARCH` fans
+  out over every thing a person holds -- it is not "one column on the target's own row" the way
+  `owner_id`/`owner_type` (custody) or `location_id` (leave) are, so there is no single engine primitive
+  to point it at without inventing one. The obvious LOOPHOLE -- a referee answering `write`, `property:
+  concealment`, `direction: down` with a PERSON as the target -- is closed structurally in
+  `translateEngineEffect`, not left to chance: a person is excluded from the `concealment` branch and
+  falls to the generic `wear`/`restore` bucket instead, where a person's undeclared `concealment`
+  property fails the ordinary "no invented world" check the SAME way it always would. Search therefore
+  refuses for the ordinary reason (no declared property), never by accidentally sailing through the
+  custody exemption that make take/give/leave/block not need one. The engine-mode `effect` question's
+  own person clause says so in words too ("Searching a person ... is not a change this vocabulary can
+  express; answer none for it"), but the structural block is what is actually trusted.
+- **`destroy` is unreachable.** No mechanic in this game accepts a bare removal of a declared object with
+  no authored replacement -- every existing "an object goes away" case (a derive that `replacesParent`)
+  is already reached through `create`, which destroys the parent's resources as part of the SAME
+  resolution (§13.5/§14.2). A destroy that is not part of a create's own replace-parent step would strand
+  every later citation and description that names the removed object, which run-dmcp's own resolve
+  protocol has no machinery to retract; that is future work, not this landing's.
+- **`transfer` is unreachable.** It only ever carries a CONSERVED numeric amount moved between two
+  entities (CLAUDE.md's own "Custody is built" section), and this game has no such conserved quantity --
+  no currency, no shared pool. Nothing here needed one before this landing and nothing added one.
+
+### 84.6 Step 2 (`PRISONER_ELABORATE`): left off, and why
+
+The-prisoner#5's own step 2 -- "objects gain properties nobody declared, when the description grounds
+them" -- is already built, as `PRISONER_ELABORATE=property` (WORLD-ELABORATION-DESIGN.md, §65-§67 above).
+The coordinator's brief asked this landing to default it to "whatever its own measured status supports"
+under `PRISONER_MODE=enjoyable`, and keep it off if it was never shown safe. **It was never shown safe.**
+§66's own sweep (2026-09-19) was explicitly STOPPED by the owner before its central question --
+elasticity, "is there a price a mind will pay?" -- was ever delivered: two of five planned cells never
+ran, the one 30-round cell that did run found the room still had a cheaper unelaborated route (the
+priced door) that the mind took instead, and §66.6's own follow-up found the referee ABSORBING an
+elaboration-shaped intent ("dig under the tile") into the nearest declared key (`reveal`/`concealment`)
+rather than recognising it needed elaboration at all -- a failure mode §66.6 calls structural, not a bug
+to fix with more prompt text. **`PRISONER_ELABORATE`'s default stays `off` in BOTH modes** -- this
+landing changes nothing about it, in either `readElaborateMode` or `checkpoint.ts`'s own wiring, and
+`ARCHITECTURE.md`'s configuration reference now says so explicitly rather than leaving a reader to infer
+it from the arm's own unchanged default. A future landing that wants `property` on by default under
+`PRISONER_MODE=enjoyable` needs §66's own elasticity measurement first, on a room built the way §66.5's
+own "what this costs and what it buys" says one must be -- one with no cheaper unelaborated route left in
+it -- not a status-quo default carried over by this issue.
+
+### 84.7 What is still unmeasured
+
+**No live engine-rules game has been played.** Every test in this landing uses scripted transports
+(CLAUDE.md's TDD discipline). `npm run engine-rules-dry-run -- --dry-run`
+(`src/open/engineRulesDryRunCli.ts`) prints the exact request a real `PRISONER_OPEN_RULES=engine` game
+would send for the issue's own concrete case (the grit, held, acting on the bar's mortar), built entirely
+offline -- no transport is imported, no model is called. The coordinating session is to run one live game
+on doris, all-Muse, `PRISONER_SKIP_VOICE=1`, a short round count; see the coder's own final report for
+the exact command. Unmeasured, specifically:
+
+- Whether a real model actually answers `direction`/`to`/`with` sensibly, or collapses them the way
+  §18.5/§18.7's own history warns closed-key questions can when a prompt gets longer -- this rewrites the
+  `effect` question's own wording substantially (§84.3), and no live row has tested the new prose yet.
+- Whether the `with`-bump (§84.4) fires often enough in practice to be worth the extra question, or
+  whether a real model rarely names a held instrument even when using one -- the entire premise is
+  untested against anything but a hand-scripted transport.
+- Whether `translateEngineEffect`'s person-search exclusion (§84.5) actually stops a real model from
+  reaching for `write`/`concealment` on a person as a substitute for the search it can no longer name, or
+  whether it simply refuses those intents outright with no route to anything -- both are "unreachable",
+  but a player experiences them very differently.
+- Whether the engine-terms `effect` question changes the referee's ANSWER on intents that were fine
+  under the fixed vocabulary -- §84.2's fingerprint PIN only proves `fixed` mode is untouched; it says
+  nothing about whether `engine` mode reads the SAME real games the same way.
