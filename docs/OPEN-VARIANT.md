@@ -7251,3 +7251,41 @@ behind `PRISONER_MODE=enjoyable` exactly as generated descriptions do, and the S
 second mode variable, no second header line -- `enjoyable` is one bucket for "this game's raw material or
 rules varied," and every future addition to it is a new thing `PRISONER_MODE=enjoyable` unlocks, not a
 new switch.
+
+## 84. The MCP seat: a proving caller for run-dmcp#38 (2026-09-28)
+
+The-prisoner#11's MCP half: `npm run mcp-seat` (`src/tools/mcpSeatCli.ts`) starts a thin MCP server
+so a person can play either chair from any MCP client against a model in the other, over the same
+loop, referee and resolver every batch runs. `docs/MCP-SEAT.md` is the detail — the six verbs
+(`new_game`, `my_briefing`, `attempt`, `rules`, `conditions`, `me`), the guard against a client model
+playing for the human (`player_typed`, verbatim echo, tool-description wording, and the transcript's
+own unverifiable-authorship header), how fog is kept (every tool result comes from the player's own
+`OpenPrincipalContext`, never a half-round or the opponent's proposal), and how to connect Claude
+Desktop or Claude Code.
+
+**A seat is a mind, over MCP too.** The terminal half (§47) already proved that a human seat needs no
+new plumbing in the loop, the referee or the resolver — only a new `OpenMind` implementation. The MCP
+seat (`src/open/mcpSeatMind.ts`) is a second one: `consider()` records the open turn and returns a
+promise that resolves only once an `attempt` tool call answers it, arbitrarily far in real time from
+when the question was asked. `runOpenGame` never knows the difference.
+
+**Built and tested with no live model call**, per this landing's own constraint: `server.test.ts`
+and `session.test.ts` drive the real `@modelcontextprotocol/sdk` (`InMemoryTransport`'s linked pair,
+a real `Client`) against a scripted referee and a scripted opponent mind — the same discipline this
+file's own `game.test.ts` already uses for a full game with no network. `src/mcp/liveConfig.ts` is the
+one file that reads `process.env` for a real run, through the identical functions `checkpoint.ts`
+itself reads, so its defaults track CLAUDE.md's "Defaults changed on 2026-09-27" automatically.
+
+**It is a proving caller for run-dmcp#38, not a finished product.** `docs/MCP-SEAT.md`'s own mapping
+table lines up each verb against that issue's proposed engine pieces (#18 per-principal view, #39
+intent-in/ruling-out, #40 a principal is due to act, #41 rules as declared data) and what building
+this taught about each — the clearest of them: `attempt` needed nothing new from the engine-shaped
+intent/ruling boundary at all, because authorship confirmation is entirely a caller concern; and a
+per-principal VIEW (as opposed to a raw context) wants its own turn-to-turn state once a human is
+reading it, which a bare per-principal-context primitive would not give #18 for free.
+
+**What this landing does not build**, named rather than assumed away: no retry-on-ambiguous-target
+(D3's "Hide what?" flow) for this seat; no precedent, pick, play-time elaboration, prose seat,
+narrator or strategy pre-commitment wiring; one game per server process; and process-exit cleanup
+that covers SIGINT/SIGTERM only. `docs/MCP-SEAT.md`'s own "What is out of scope for this landing"
+section is the fuller list.
