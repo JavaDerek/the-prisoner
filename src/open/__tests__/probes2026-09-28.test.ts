@@ -192,6 +192,7 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
       expect(stdout).toMatch(/== A1: env .*PRISONER_BLOCK=on .*PRISONER_ROUNDS=10|== A1: env .*PRISONER_ROUNDS=10 .*PRISONER_BLOCK=on/);
       expect(stdout).toMatch(/== B1: env .*PRISONER_BLOCK=off/);
       expect(stdout).toMatch(/== A1: env -u PRISONER_SKIP_VOICE /);
+      expect(existsSync(join(REPO, "checkpoints/2026-09-28-contest-batch/A"))).toBe(false);
     },
     TIMEOUT
   );

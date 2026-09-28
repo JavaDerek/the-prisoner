@@ -72,7 +72,7 @@ for token in "${TOKENS[@]}"; do
   ARM="${token:0:1}"; N="${token:1}"
   if { [ "$ARM" != "A" ] && [ "$ARM" != "B" ]; } || ! [[ "$N" =~ ^[0-9]+$ ]]; then echo "run-batch: bad token $token (want A1..A6, B1..B6)" >&2; exit 1; fi
   BLOCK=$([ "$ARM" = "A" ] && echo on || echo off)
-  ARMDIR="$HERE/$ARM"; mkdir -p "$ARMDIR"
+  ARMDIR="$HERE/$ARM"
   MARK="$ARMDIR/.game-$N"
   if [ -f "$MARK" ]; then say "== $token already ran ($(cat "$MARK")), skipped"; continue; fi
   LOG="$HERE/logs/$ARM-$N.txt"
@@ -123,6 +123,7 @@ for token in "${TOKENS[@]}"; do
     continue
   fi
 
+  mkdir -p "$ARMDIR"
   env "${GAME_ENV[@]}" npx tsx "$HERE/env-check.mts" --arm="$ARM" > "$LOG" 2>&1 || { cat "$LOG" >&2; exit 1; }
   before="$(ps_names)"
   if [ "$before" != "none" ] && [ "$before" != "$MODEL" ]; then
