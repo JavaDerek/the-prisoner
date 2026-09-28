@@ -5,7 +5,7 @@ import { findObject } from "./scenarioObjects.js";
 import type { Narrator } from "./narrator.js";
 import { renderConditionList, type Condition } from "./conditionList.js";
 import type { ObjectPerception, RefereeRuling } from "./referee.js";
-import type { EffectKind } from "./effects.js";
+import type { EffectKind, HarmMode } from "./effects.js";
 
 /**
  * A PERSON in one of the two chairs (the-prisoner#11, its terminal half).
@@ -115,6 +115,9 @@ export interface CreateHumanSeatOptions {
   /** The condition list, when the game gives this principal one (OPEN-VARIANT.md §34) --
    *  the same list the model in this chair would be shown, never a different one. */
   conditions?: readonly Condition[];
+  /** the-prisoner#1 (`readHarmMode`, `effects.ts`), passed through to `renderSeatSituation`/`proseBlocks`
+   *  unchanged -- absent (`"off"`) leaves every view byte-identical to before this issue landed. */
+  harmMode?: HarmMode;
   /** the-prisoner#21. Unset (or `"raw"`): today's view. `"prose"`: the
    *  fiction view, `proseView.ts`'s `renderProseSituation` over the same
    *  data. `"narrated"`: `narrator.ts`'s model narrator over the same data,
@@ -313,6 +316,8 @@ const RECONSIDER_GERUND: Record<Exclude<EffectKind, "none">, string> = {
   take: "taking something",
   give: "handing something over",
   block: "standing in a way out",
+  // the-prisoner#1.
+  harm: "hurting someone",
 };
 
 /** §1.4's `help`: the command set itself, in the same voice as the prompt's
@@ -468,12 +473,12 @@ export interface PlayView {
   blockText(context: OpenPrincipalContext, kind: ProseBlockKind): string;
 }
 
-export function createPlayView(selfName: string, otherName: string, conditions?: readonly Condition[]): PlayView {
+export function createPlayView(selfName: string, otherName: string, conditions?: readonly Condition[], harmMode?: HarmMode): PlayView {
   const delta = createDeltaView({ keepShownWhileChanged: (key) => findObject(key)?.properties.some((p) => p.key === "passage") ?? false });
   return {
     render: (context, options = {}) =>
-      delta.render(orderForPlay(proseBlocks(selfName, otherName, context, conditions, { newsFilter: options.newsFilter })), { forceShow: forceShowStakes(context) }),
-    blockText: (context, kind) => proseBlocks(selfName, otherName, context, conditions).find((block) => block.kind === kind)?.text ?? "",
+      delta.render(orderForPlay(proseBlocks(selfName, otherName, context, conditions, { newsFilter: options.newsFilter, harmMode })), { forceShow: forceShowStakes(context) }),
+    blockText: (context, kind) => proseBlocks(selfName, otherName, context, conditions, { harmMode }).find((block) => block.kind === kind)?.text ?? "",
   };
 }
 
@@ -563,7 +568,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   // strings it has already shown -- it never reads what they say.
   const delta = createDeltaView({ keepShownWhileChanged: (key) => findObject(key)?.properties.some((p) => p.key === "passage") ?? false });
   const proseSituation = (context: OpenPrincipalContext): string =>
-    delta.render(proseBlocks(selfName, otherName, context, options.conditions), { forceShow: forceShowStakes(context) });
+    delta.render(proseBlocks(selfName, otherName, context, options.conditions, { harmMode: options.harmMode }), { forceShow: forceShowStakes(context) });
   // The play view (2026-09-25): now `createPlayView` (above), extracted so
   // the MCP seat's `my_briefing` (the-prisoner#11) renders the identical
   // thing through the identical function -- see that export's own header.
@@ -574,13 +579,13 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   // D10-4: the ONLY view that filters a news line at all -- `prose`'s own
   // completeness test (proseView.test.ts) stays the guard it was, and
   // `narrated`'s `stateBlocks` (below) is untouched too.
-  const playView = createPlayView(selfName, otherName, options.conditions);
+  const playView = createPlayView(selfName, otherName, options.conditions, options.harmMode);
   const playSituation = (context: OpenPrincipalContext): string => playView.render(context, { newsFilter: (line) => line !== lastNotifiedText });
   // One block of the prose view by kind, for the commands that print a block
   // `play` holds back -- read from the same composer the view itself uses, so
   // `rules` and `me` can never drift into being a second rendering.
   const blockText = (context: OpenPrincipalContext, kind: ProseBlockKind): string =>
-    proseBlocks(selfName, otherName, context, options.conditions).find((block) => block.kind === kind)?.text ?? "";
+    proseBlocks(selfName, otherName, context, options.conditions, { harmMode: options.harmMode }).find((block) => block.kind === kind)?.text ?? "";
   // OPEN-VARIANT.md §61: CODE RENDERS STATE, THE MODEL RENDERS THE ROOM.
   //
   // Everything except the scene -- the conditions, the identity, the clock and
@@ -598,11 +603,11 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   // over a missing "round 1 of 30".
   const stateBlocks = (context: OpenPrincipalContext): string =>
     delta.render(
-      proseBlocks(selfName, otherName, context, options.conditions).filter((b) => b.kind !== ("scene" as ProseBlockKind)),
+      proseBlocks(selfName, otherName, context, options.conditions, { harmMode: options.harmMode }).filter((b) => b.kind !== ("scene" as ProseBlockKind)),
       { forceShow: forceShowStakes(context) }
     );
   const narratedSituation = async (context: OpenPrincipalContext): Promise<string> => {
-    const narration = narrator ? await narrator.narrate(selfName, otherName, context, options.conditions) : null;
+    const narration = narrator ? await narrator.narrate(selfName, otherName, context, options.conditions, options.harmMode) : null;
     if (narration === null) return proseSituation(context);
     return [stateBlocks(context), narration].filter((part) => part.length > 0).join("\n\n");
   };
@@ -653,7 +658,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
             ? proseSituation(context)
             : view === "play"
               ? playSituation(context)
-              : renderSeatSituation(selfName, otherName, context, options.conditions);
+              : renderSeatSituation(selfName, otherName, context, options.conditions, options.harmMode);
       write(situation);
       write("");
       // The one line of the model's prompt that is about the game rather than about
@@ -753,7 +758,7 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
         }
         if (command.command === "raw") {
           write("");
-          write(renderSeatSituation(selfName, otherName, context, options.conditions));
+          write(renderSeatSituation(selfName, otherName, context, options.conditions, options.harmMode));
           write("");
           continue;
         }

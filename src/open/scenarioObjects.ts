@@ -48,7 +48,7 @@ function cap(word: string): string {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage" | "posture" | "sight";
+export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage" | "posture" | "sight" | "condition";
 
 export interface MagnitudeTable {
   slight: number;
@@ -504,6 +504,14 @@ export const POSTURE_ON_HER_FEET_ABOVE = 75;
  *  (`block`), whose gate already reads it: a blocker who cannot see holds nothing, like one who is down. */
 export const SIGHT_BLIND_AT_OR_BELOW = 60;
 
+/** the-prisoner#1 (design: `docs/ISSUE-1-DESIGN.md`): a person's own `condition`, 100 unharmed down to 0 --
+ *  the floor, never a band, so this is a simple `<= 0` check (the property's own `min`). Defined here with
+ *  custody/perception/block's own gates, which all read it beside `posture`/`sight`: a disabled principal
+ *  (condition at or below this) is treated like one who is floored and blind for every purpose those three
+ *  already gate -- she keeps nothing, perceives nothing of the other's acts, and holds no way out. Built only
+ *  under `PRISONER_HARM=on` (`world.ts`), so every batch recorded before this arm is unaffected. */
+export const HARM_DISABLED_AT_OR_BELOW = 0;
+
 const posture = (who: PrincipalId): OpenObjectProperty => {
   // The-prisoner#34: these three bands used to be authored once for the prisoner and reused
   // verbatim for the warden ("She is on her feet." for Croft too) -- built from `pronounsFor` now,
@@ -558,21 +566,61 @@ function personDescription(principal: PrincipalId, name: string, role: string): 
   return `${name}, the ${role}. ${cap(p.subject)} can be seen, heard, spoken to, or touched by anyone who shares this room with ${p.object}.`;
 }
 
+/** the-prisoner#1 (design: `docs/ISSUE-1-DESIGN.md` §3, §4): whether -- and how badly -- a person is hurt. 100
+ *  unharmed, 0 disabled (`HARM_DISABLED_AT_OR_BELOW`). Only the `harm` effect ever lowers it (never `wear`, which
+ *  keeps meaning "put on the floor or covered" for posture/sight); `restore` is tending, SLIGHT-ONLY at every
+ *  magnitude like sight's own recovery, so one substantial harm outlasts one act of tending. Bands authored
+ *  ASCENDING and silent above the first (§9's own convention, D9's bar-integrity bands): unharmed reads nothing
+ *  extra, so a mind is never told a number with no words for what it means.
+ *
+ *  the-prisoner#34 (merged after this property's own design landed, which asked for NAME over pronoun only
+ *  because nothing had centralised one yet): built from `pronounsFor` now, the same as `posture`/`sight` right
+ *  above -- "She is hurt." parallels "She is on her feet." exactly, in the same sentence position, about the
+ *  same body. The design's own "no pronoun" reasoning was about not inventing a SECOND, uncoordinated gender
+ *  choice while `scenario.ts` had none yet; that reason is gone now that one exists to share. */
+const condition = (who: PrincipalId): OpenObjectProperty => {
+  const p = pronounsFor(who);
+  return {
+    key: "condition",
+    resourceName: `${who}_condition`,
+    min: 0,
+    max: 100,
+    initialValue: 100,
+    // §4 Q4 (no dice): slight/moderate/substantial magnitudes, chosen so one substantial act from full health
+    // never disables outright (100 - 40 = 60) -- justified in docs/ISSUE-1-DESIGN.md §3.
+    wear: { slight: 10, moderate: 25, substantial: 40 },
+    restore: { slight: 10, moderate: 10, substantial: 10 },
+    // Silent above the first band (§4 Q5): unharmed (above 70) adds nothing to the description, exactly the
+    // "say what is, never what is absent" rule `describedAsItStands` already applies when no band matches.
+    readRanges: [
+      { atOrBelow: HARM_DISABLED_AT_OR_BELOW, text: `${cap(p.subject)} is down and does not get up.` },
+      { atOrBelow: 40, text: `${cap(p.subject)} is badly hurt and moves slowly.` },
+      { atOrBelow: 70, text: `${cap(p.subject)} is hurt.` },
+    ],
+  };
+};
+
 /** The two principals as perceivable, targetable things (§55 gap 2) that carry
  *  their own declared state (this gap). Shaped exactly like `OPEN_OBJECTS` so
  *  every mechanism that already reads a spec -- `describedAsItStands`,
- *  `declaredProperty`, `planEffect` -- works on a person with no special case. */
+ *  `declaredProperty`, `planEffect` -- works on a person with no special case.
+ *
+ *  `condition` (the-prisoner#1) is declared here UNCONDITIONALLY, the same choice `world.ts`'s own `windowMode`
+ *  makes for the bar's `integrity`: the property is authored content, always true of the scenario, and it is
+ *  `world.ts`'s resource-creation loop -- never this table -- that skips building its resource under
+ *  `PRISONER_HARM=off`, so `declaredProperty`/`declaredPropertyKeys` (which gate on the resource existing) hide
+ *  it exactly as they already hide a welded bar's integrity. */
 export const OPEN_PERSONS: readonly OpenObjectSpec[] = [
   {
     id: "prisoner",
     heldBy: "prisoner",
     description: personDescription("prisoner", PRISONER_NAME, "prisoner"),
-    properties: [posture("prisoner"), sight("prisoner")],
+    properties: [posture("prisoner"), sight("prisoner"), condition("prisoner")],
   },
   {
     id: "warden",
     heldBy: "warden",
     description: personDescription("warden", WARDEN_NAME, "warden"),
-    properties: [posture("warden"), sight("warden")],
+    properties: [posture("warden"), sight("warden"), condition("warden")],
   },
 ];

@@ -43,7 +43,7 @@ import {
   readContainerClauseMode,
   readDeriveRepeatMode,
 } from "../../src/open/referee.js";
-import { readBlockMode } from "../../src/open/effects.js";
+import { readBlockMode, readHarmMode } from "../../src/open/effects.js";
 import { openConditions, readConditionsMode, readDoorMode } from "../../src/open/conditions.js";
 import { buildOpenResolver } from "../../src/open/mechanics.js";
 import { runOpenGame } from "../../src/open/game.js";
@@ -77,6 +77,10 @@ export interface GameArms {
   window: ReturnType<typeof readWindowMode>;
   block: ReturnType<typeof readBlockMode>;
   personInstrument: ReturnType<typeof readPersonInstrumentMode>;
+  /** the-prisoner#1, additive (2026-09-28): a new referee-side arm, the same shape as `block`/`personInstrument`
+   *  above -- read from the same env var `src/checkpoint.ts` reads, so a probe's arm is never a hand-typed guess
+   *  at the game's own default. */
+  harm: ReturnType<typeof readHarmMode>;
   oneAct: ReturnType<typeof readOneActMode>;
   instrument: ReturnType<typeof readInstrumentMode>;
   deriveWording: ReturnType<typeof readDeriveWordingMode>;
@@ -100,6 +104,7 @@ export function gameArms(env: NodeJS.ProcessEnv = process.env, overrides: Partia
     window: readWindowMode(env.PRISONER_WINDOW),
     block: readBlockMode(env.PRISONER_BLOCK),
     personInstrument: readPersonInstrumentMode(env.PRISONER_PERSON_INSTRUMENT),
+    harm: readHarmMode(env.PRISONER_HARM),
     oneAct: readOneActMode(env.PRISONER_ONE_ACT),
     instrument: readInstrumentMode(env.PRISONER_INSTRUMENT),
     deriveWording: readDeriveWordingMode(env.PRISONER_DERIVE_WORDING),
@@ -119,7 +124,7 @@ export function freshWorld(arms: GameArms): any {
     createTestDb();
     dbReady = true;
   }
-  return buildOpenWorld({ doorPrice: arms.doorPrice, presence: arms.presence, window: arms.window });
+  return buildOpenWorld({ doorPrice: arms.doorPrice, presence: arms.presence, window: arms.window, harm: arms.harm });
 }
 
 /** The options `src/checkpoint.ts`'s `mainOpen` passes `createReferee`, bound to THIS world. */
@@ -136,6 +141,7 @@ export function refereeOptions(world: any, arms: GameArms): Record<string, unkno
     oneAct: arms.oneAct,
     blockMode: arms.block,
     personInstrumentMode: arms.personInstrument,
+    harmMode: arms.harm,
   };
 }
 
@@ -143,7 +149,7 @@ export function refereeOptions(world: any, arms: GameArms): Record<string, unkno
  *  `both`, the prisoner under anything but `off`. `undefined` means rule sentences (`mind.ts`'s `stateBasedRules`). */
 export function conditionsFor(principal: Principal, arms: GameArms): any[] | undefined {
   const on = principal === "warden" ? arms.conditions === "both" : arms.conditions !== "off";
-  return on ? openConditions({ door: arms.door, doorPrice: arms.doorPrice, window: arms.window, block: arms.block }) : undefined;
+  return on ? openConditions({ door: arms.door, doorPrice: arms.doorPrice, window: arms.window, block: arms.block, harm: arms.harm }) : undefined;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -705,7 +711,10 @@ export function omitArg(a: ReturnType<typeof args>): { chair: Principal; round: 
 /** A run stops after this many errored samples in a row (every PREDICTION.md's stopping rule). */
 export const MAX_ERRORS_IN_A_ROW = 3;
 
-const WORLD_ARMS: readonly (keyof GameArms)[] = ["presence", "absence", "doorPrice", "window"];
+// the-prisoner#1, additive (2026-09-28): `harm` gates a resource `buildOpenWorld` creates (like the others
+// here), so a probe that varies it -- as this issue's own probe does -- must bust the rebuilt-context cache on
+// it too, or a later arm silently reuses an earlier arm's world (built without the resource it needs).
+const WORLD_ARMS: readonly (keyof GameArms)[] = ["presence", "absence", "doorPrice", "window", "harm"];
 
 async function contextFor(cache: Map<string, RebuiltContext>, item: Item, arms: GameArms, omit: readonly { chair: Principal; round: number }[] = []): Promise<RebuiltContext> {
   const key = `${item.transcript}|${item.chair}|${item.round}|${WORLD_ARMS.map((k) => arms[k]).join(",")}|${JSON.stringify(omit)}`;
@@ -864,7 +873,7 @@ export async function runMindProbe(opts: {
   const arms = gameArms();
   const cache = new Map<string, RebuiltContext>();
   const conditionsOf = (cell: MindCell) =>
-    cell.conditions === "env" ? conditionsFor(cell.chair, arms) : cell.conditions === "list" ? openConditions({ door: arms.door, doorPrice: arms.doorPrice, window: arms.window, block: arms.block }) : undefined;
+    cell.conditions === "env" ? conditionsFor(cell.chair, arms) : cell.conditions === "list" ? openConditions({ door: arms.door, doorPrice: arms.doorPrice, window: arms.window, block: arms.block, harm: arms.harm }) : undefined;
   const omit = omitArg(a);
   const contextOf = async (cell: MindCell) => {
     const built = await contextFor(cache, { id: cell.name, transcript: opts.transcript, chair: cell.chair, round: cell.round, intent: "" }, arms, omit);

@@ -1,5 +1,5 @@
 import { createTurnReader, sourceWords, type ReaderQuestion, type ReaderSource, type ReaderTransport, type ReaderResult, type AnsweredQuestion, type AcceptedCitation } from "run-dmcp";
-import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type BlockMode, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
+import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type BlockMode, type HarmMode, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findObject, OPEN_PERSONS, type OpenObjectSpec, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
 import { ENGINE_CHANGE_KINDS, DIRECTIONS, HOLDER_TARGETS, translateEngineEffect, stepUpMagnitude, type EngineChangeKind, type Direction, type HolderTarget } from "./engineRules.js";
@@ -488,11 +488,17 @@ export function buildQuestions(
   repeatDeriveMode: DeriveRepeatMode,
   blockMode: BlockMode = "off",
   personInstrumentMode: PersonInstrumentMode = "off",
+  harmMode: HarmMode = "off",
   // the-prisoner#5 (`openRulesMode.ts`, `engineRules.ts`): "fixed" (the
   // default) builds the exact eleven-effect question this function has
   // always built, byte for byte -- the branches below never touch that text.
   // "engine" swaps `effect`/`property` for the engine-terms versions and
   // appends `direction`/`to`/`with`, per docs/OPEN-VARIANT.md's new section.
+  // the-prisoner#1's `harm`/`condition` stay unreachable under `engine`
+  // mode this landing (OPEN-VARIANT.md §87): a `write` down on a person's
+  // `condition` has no self-target check the way `harm`'s own plan does, so
+  // rather than build that check twice this arm's vocabulary simply is not
+  // offered when `openRulesMode` is `engine` (see below).
   openRulesMode: OpenRulesMode = "fixed",
   /** The closed set `with`'s answer keys offer -- the actor's own currently
    *  held objects (`context.holding`, `loop.ts`), never every perceived
@@ -532,6 +538,12 @@ export function buildQuestions(
   // PLAYTEST-2026-09-27 D12 (design R3 change 2), `PRISONER_PERSON_INSTRUMENT` (`readPersonInstrumentMode`), off
   // until P3 measures it: an act done to a person WITH a thing names the person.
   const PERSON_INSTRUMENT_CLAUSE = " An act done to a person with a thing -- striking, covering, blinding, restraining, tying -- names the person; the thing is only what it is done with.";
+  // the-prisoner#1 (`docs/ISSUE-1-DESIGN.md` §4), `PRISONER_HARM` (`readHarmMode`): separates a stab from a
+  // shove at THIS question, never at the property question -- both remain wear/posture-shaped acts on a body,
+  // but only one is meant to hurt. Appended to `PERSON_EFFECT_CLAUSE` only under the arm, so `off` (the
+  // default) leaves every earlier clause byte-identical.
+  const PERSON_HARM_CLAUSE =
+    " An act meant to hurt someone -- striking, stabbing, throwing something at them -- is harm on that person; pushing them down or hauling them up is not harm.";
   // HUMAN-INTENTS-DESIGN.md §6.2, D9, the-prisoner#28: the effect half of
   // D9's two clauses, in this question's own house style (a verb list, no
   // object id named -- `PERSON_EFFECT_CLAUSE`'s own shape). `OPEN_CONCEAL_
@@ -554,6 +566,11 @@ export function buildQuestions(
   const CONTAINER_EFFECT_CLAUSE_ENGINE =
     " Getting oneself under or beneath a thing that can conceal a person -- pulling it over the body, drawing it close so it covers her -- is a write raising that thing's concealment (direction up); coming out from under it again, or being uncovered, is a write lowering it (direction down).";
   const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), sight (whether a person can see, 100 clear, 0 blind), ";
+  // the-prisoner#1: a SEPARATE fragment, never folded into `PERSON_PROPERTY_CLAUSE` above -- that constant is
+  // shared with `engine` mode's own property question (below), and `condition` must stay unreachable there
+  // (see this function's own `openRulesMode` parameter comment: a `write` down on `condition` has no self-target
+  // check). Appended only in the FIXED-mode property question, only under the harm arm.
+  const PERSON_PROPERTY_CONDITION_CLAUSE = "condition (how hurt a person is, 100 unharmed, 0 disabled), ";
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
   // in the effect question by example and offered as the product keys. A
@@ -663,6 +680,10 @@ export function buildQuestions(
             "give (hand a thing the actor holds to someone else who is present; the target is the thing), " +
             // PLAYTEST-2026-09-27 D4': offered only under `PRISONER_BLOCK=on`; `off` is every earlier request, byte for byte.
             (blockMode === "on" ? "block (stand in a way out so nobody passes through it; the target is the way out), " : "") +
+            // the-prisoner#1: offered only under `PRISONER_HARM=on` AND with a person in view -- `off` (the
+            // default) is every request recorded before this issue, byte for byte. Unreachable under `engine`
+            // mode this landing (see this function's `openRulesMode` parameter comment above).
+            (harmMode === "on" && personInView ? "harm (hurt another person -- striking, stabbing, throwing something at them; the target is the person), " : "") +
             "or none. " +
             "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
             "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
@@ -679,9 +700,10 @@ export function buildQuestions(
             deriveClarification +
             REPEAT_DERIVE_CLAUSE +
             (personInView ? PERSON_EFFECT_CLAUSE : "") +
+            (personInView && harmMode === "on" ? PERSON_HARM_CLAUSE : "") +
             (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE : "") +
             "Cite the exact words in the actor's intent that describe the action.",
-          answerKeys: EFFECT_KINDS.filter((k) => k !== "block" || blockMode === "on"),
+          answerKeys: EFFECT_KINDS.filter((k) => (k !== "block" || blockMode === "on") && (k !== "harm" || (harmMode === "on" && personInView))),
           safeDefault: "none",
         },
     {
@@ -719,6 +741,9 @@ export function buildQuestions(
             "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
             "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), " +
             (personInView ? PERSON_PROPERTY_CLAUSE : "") +
+            // the-prisoner#1: named only under the harm arm, so `off` leaves this clause byte-identical. Never
+            // reached in `engine` mode's own branch above (see this function's `openRulesMode` param comment).
+            (personInView && harmMode === "on" ? PERSON_PROPERTY_CONDITION_CLAUSE : "") +
             "or none " +
             "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). " +
             "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
@@ -732,7 +757,7 @@ export function buildQuestions(
             "An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). " +
             "Cite the exact words in the TARGET " +
             "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
-          answerKeys: [...rulingPropertyAnswerKeys(personInView)],
+          answerKeys: [...rulingPropertyAnswerKeys(personInView, harmMode)],
           safeDefault: "none",
         },
     {
@@ -1143,6 +1168,10 @@ export function createReferee(
     blockMode?: BlockMode;
     /** PLAYTEST-2026-09-27 D12 (`readPersonInstrumentMode`). Default `"off"`, like its env reader. */
     personInstrumentMode?: PersonInstrumentMode;
+    /** the-prisoner#1 (`readHarmMode`, `effects.ts`). The GAME's default is `"off"` -- this constructor's own
+     *  default is `"off"` too, so a bare referee's request is byte-identical to every recorded batch and the
+     *  fingerprint PIN holds. */
+    harmMode?: HarmMode;
     /** the-prisoner#5 (`openRulesMode.ts`). Default `"fixed"`: a referee
      *  built bare -- every unit test, every replay of a recorded request --
      *  asks the exact eleven-effect request it always has, and the
@@ -1190,6 +1219,7 @@ export function createReferee(
       repeatDeriveMode,
       options.blockMode ?? "off",
       options.personInstrumentMode ?? "off",
+      options.harmMode ?? "off",
       openRulesMode,
       heldObjectIds
     );

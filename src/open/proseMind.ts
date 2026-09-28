@@ -59,6 +59,7 @@ import type { Mind, Proposal, SilenceReason, SilenceDetail } from "mind-seam";
 import { coerceProposal } from "mind-seam";
 import { renderSeatSituation, ONE_ACT_RULE, type OpenPrincipalContext } from "./mind.js";
 import type { Condition } from "./conditionList.js";
+import type { HarmMode } from "./effects.js";
 
 export interface CreateProseMindOptions {
   baseUrl: string;
@@ -73,6 +74,8 @@ export interface CreateProseMindOptions {
   ensureLoaded?: (model: string) => Promise<void>;
   /** OPEN-VARIANT.md §34's condition list, passed through to `renderSeatSituation` unchanged. */
   conditions?: readonly Condition[];
+  /** the-prisoner#1 (`readHarmMode`, `effects.ts`), passed through to `renderSeatSituation` unchanged. */
+  harmMode?: HarmMode;
   fetchFn?: typeof fetch;
   onSilence?: (reason: SilenceReason, context: OpenPrincipalContext, detail?: SilenceDetail) => void;
 }
@@ -80,9 +83,9 @@ export interface CreateProseMindOptions {
 /** The one question. Everything above it is the SAME situation
  *  `buildOpenSingleCallPrompt` renders, so a prose game and a schema game are
  *  comparable in what the seat was shown -- only what it was ASKED differs. */
-export function buildProsePrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): string {
+export function buildProsePrompt(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[], harmMode?: HarmMode): string {
   return [
-    renderSeatSituation(selfName, otherName, context, conditions),
+    renderSeatSituation(selfName, otherName, context, conditions, harmMode),
     "",
     "You may attempt ANYTHING you can plausibly do with what you perceive -- there is no fixed list of moves. " +
       "The world (a referee, never you) decides what actually happens; you only decide what you TRY.",
@@ -141,14 +144,14 @@ export function buildProsePrompt(selfName: string, otherName: string, context: O
 }
 
 export function createProseMind(options: CreateProseMindOptions): Mind<OpenPrincipalContext, Proposal> {
-  const { baseUrl, model, selfName, otherName, conditions, ensureLoaded, onSilence } = options;
+  const { baseUrl, model, selfName, otherName, conditions, harmMode, ensureLoaded, onSilence } = options;
   const temperature = options.temperature ?? 0.9;
   const timeoutMs = options.timeoutMs ?? 12_000;
   const doFetch = options.fetchFn ?? fetch;
 
   return {
     async consider(context: OpenPrincipalContext): Promise<Proposal | null> {
-      const prompt = buildProsePrompt(selfName, otherName, context, conditions);
+      const prompt = buildProsePrompt(selfName, otherName, context, conditions, harmMode);
       if (ensureLoaded) await ensureLoaded(model);
 
       const controller = new AbortController();

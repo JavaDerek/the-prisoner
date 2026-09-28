@@ -13,7 +13,7 @@ import { pick, type Verdict } from "mother-of-invention";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
 import { PRISONER_NAME, WARDEN_NAME, pronounsFor } from "../scenario.js";
-import { SIGHT_BLIND_AT_OR_BELOW } from "./scenarioObjects.js";
+import { SIGHT_BLIND_AT_OR_BELOW, HARM_DISABLED_AT_OR_BELOW } from "./scenarioObjects.js";
 import { HONE_SUSPICION_BUMP, FILE_SUSPICION_BUMP, FAILED_ESCAPE_SUSPICION_BUMP, EVIDENCE_SUSPICION_DIVISOR, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 
 /**
@@ -127,8 +127,10 @@ export interface OpenHalfRoundResult {
    *  every other half-round. */
   blockLapsed?: string;
   /** PLAYTEST-2026-09-27 D5: set when the game skipped this half-round because the principal was out of the
-   *  cell on the absence cadence -- no mind was asked and no referee called (`proposal` is `null`). */
-  skipped?: "absent";
+   *  cell on the absence cadence -- no mind was asked and no referee called (`proposal` is `null`). the-prisoner#1
+   *  adds `"disabled"`: a WARDEN half-round the game skipped because his own `condition` had reached the floor
+   *  (`game.ts`) -- otherwise identical in shape. */
+  skipped?: "absent" | "disabled";
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -216,7 +218,10 @@ export function suspicionEligibleFor(effectKind: EffectKind, targetObjectId: str
  */
 export function laysHandsOnWarden(principal: Principal, effectKind: EffectKind, targetObjectId: string): boolean {
   if (principal !== "prisoner" || targetObjectId !== "warden") return false;
-  return effectKind === "wear" || effectKind === "restore" || effectKind === "conceal" || effectKind === "expose" || effectKind === "take";
+  // the-prisoner#1 (design §4): `harm` joins the set -- a stab or a strike is a hand laid on the warden's own
+  // body exactly as a wear on his posture or sight already is, so it gives grounds the same way, plus the act's
+  // own magnitude bump on top (the same two-leg charge every other member of this set already gets).
+  return effectKind === "wear" || effectKind === "restore" || effectKind === "conceal" || effectKind === "expose" || effectKind === "take" || effectKind === "harm";
 }
 
 /** D13's grounds leg: the amount that lifts `warden_suspicion` at t to `SEARCH_SUSPICION_THRESHOLD`, or 0 when it
@@ -412,21 +417,27 @@ async function tryAcquire(
 }
 
 /**
- * The-prisoner#30: a wear/restore whose target is a PRINCIPAL and whose property is one of the two a
- * person declares (`posture`, `sight`) is described in the room's own words for a PERSON, never
- * furniture's ("Warden Croft works at the warden") -- the same "works to X" bystander frame this
- * module already uses for conceal/expose/open/close/derive, extended to the two person properties.
- * Exhaustive over the two properties x two directions (mirrors `perception.ts`'s own
- * `personEffectPhrase` table in shape, not by import: this function's contract is an ATTEMPT sentence
- * only -- no number, no outcome -- different enough from `perception.ts`'s three sites, which also
- * need the actor's exact numbers, that sharing one table would need a flag neither side otherwise
- * wants). `null` for every other target, effect or property, so callers fall back to the ordinary
- * furniture phrasing unchanged. Reflexive (the actor's own body, #34's own pronoun set) uses "get back
- * up"/"put himself on the floor"/"cover his own eyes", never the actor's own name a second time.
+ * The-prisoner#30: a wear/restore whose target is a PRINCIPAL and whose property is one of the three a
+ * person declares (`posture`, `sight`, and -- the-prisoner#1, `PRISONER_HARM=on` only -- `condition`) is
+ * described in the room's own words for a PERSON, never furniture's ("Warden Croft works at the
+ * warden") -- the same "works to X" bystander frame this module already uses for
+ * conceal/expose/open/close/derive, extended to the three person properties. Exhaustive over the three
+ * properties x two directions (mirrors `perception.ts`'s own `personEffectPhrase` table in shape, not
+ * by import: this function's contract is an ATTEMPT sentence only -- no number, no outcome -- different
+ * enough from `perception.ts`'s three sites, which also need the actor's exact numbers, that sharing one
+ * table would need a flag neither side otherwise wants). `null` for every other target, effect or
+ * property, so callers fall back to the ordinary furniture phrasing unchanged. Reflexive (the actor's own
+ * body, #34's own pronoun set) uses "get back up"/"put himself on the floor"/"cover his own eyes", never
+ * the actor's own name a second time.
+ *
+ * `condition`'s own `wear` direction is reachable only if a ruling somehow paired `wear` with `condition`
+ * (harm's own case -- `describeAttempt`'s `"harm"` switch branch, above -- is the intended, and only
+ * offered, way to lower it); kept here anyway so this table stays genuinely exhaustive rather than
+ * silently falling through to furniture phrasing for a pairing nothing should ever produce.
  */
 function personAttemptPhrase(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind"> & { property?: RefereeRuling["property"] }, actorPrincipal: Principal, direction: "wear" | "restore", actor: string): string | null {
   if (!isPrincipalId(ruling.targetObjectId)) return null;
-  if (ruling.property !== "posture" && ruling.property !== "sight") return null;
+  if (ruling.property !== "posture" && ruling.property !== "sight" && ruling.property !== "condition") return null;
   const targetId = ruling.targetObjectId;
   const reflexive = targetId === actorPrincipal;
   const name = actorName(targetId);
@@ -434,6 +445,12 @@ function personAttemptPhrase(ruling: Pick<RefereeRuling, "targetObjectId" | "eff
   if (ruling.property === "sight") {
     if (direction === "wear") return reflexive ? `${actor} works to cover ${pron.possessive} own eyes.` : `${actor} works to cover ${name}'s eyes.`;
     return reflexive ? `${actor} works to clear ${pron.possessive} own eyes.` : `${actor} works to clear ${pron.possessive} eyes.`;
+  }
+  if (ruling.property === "condition") {
+    // the-prisoner#1: `restore` here is tending -- the reachable direction; `harm` (a separate effect
+    // kind) is what a stab or a strike resolves through, never `wear` on this property.
+    if (direction === "wear") return reflexive ? `${actor} works to hurt ${pron.reflexive}.` : `${actor} works to hurt ${name}.`;
+    return reflexive ? `${actor} works to tend to ${pron.possessive} own wounds.` : `${actor} works to tend to ${pron.possessive} wounds.`;
   }
   // posture: the person as a whole is the direct object, never a possessive.
   if (direction === "wear") return reflexive ? `${actor} works to put ${pron.reflexive} on the floor.` : `${actor} works to put ${name} on the floor.`;
@@ -522,6 +539,11 @@ export function describeAttempt(
       // The-prisoner#34: built from `pronounsFor(principal)` now -- this used to say "herself" whoever
       // planted themselves, which was wrong every time the warden did it.
       return `${actor} plants ${pronounsFor(principal).reflexive} in the ${obj}.`;
+    case "harm":
+      // the-prisoner#1: the target is always the OTHER principal (`effects.ts`'s `planEffect` refuses
+      // self-harm), so this names her by name like `noise`/`expose` already do for a person -- the attempt,
+      // never the outcome (D1): a bystander sees the lunge whether or not it lands.
+      return `${actor} lashes out at ${actorName(ruling.targetObjectId as Principal)}.`;
     case "none":
       // Dead in the real pipeline: `runOpenHalfRound` only calls this once
       // `ruling.applicable` is true, which requires `effectKind !== "none"`
@@ -651,6 +673,15 @@ export async function runOpenHalfRound(params: {
   const otherSightId = resourceIdForProperty(openWorld, other, "sight");
   const otherSight = otherSightId ? readNumericFact({ gameId: openWorld.base.gameId, t, entityId: otherSightId, key: "value" }) : null;
   const otherBlind = otherSight !== null && otherSight <= SIGHT_BLIND_AT_OR_BELOW;
+  // the-prisoner#1 (design §4, Q3): the other principal's own condition, where the harm arm built one --
+  // disabled (at the floor) gates what she perceives the same way blindness does. `null`, so `false`, whenever
+  // the harm arm is off, keeping every batch recorded before this issue byte-identical.
+  const otherConditionId = resourceIdForProperty(openWorld, other, "condition");
+  const otherCondition = otherConditionId ? readNumericFact({ gameId: openWorld.base.gameId, t, entityId: otherConditionId, key: "value" }) : null;
+  const otherDisabled = otherCondition !== null && otherCondition <= HARM_DISABLED_AT_OR_BELOW;
+  // Combined for every "cannot perceive the acting principal" gate below (D12's own `otherBlind` sites): a
+  // disabled principal is treated like a blind one for perception, exactly as `docs/ISSUE-1-DESIGN.md` §4 asks.
+  const otherIncapacitated = otherBlind || otherDisabled;
 
   const considered = await mind.consider(context);
   if (considered === null) {
@@ -753,7 +784,7 @@ export async function runOpenHalfRound(params: {
       ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
       : null;
     const acquired = elaboration
-      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherBlind, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
+      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherIncapacitated, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
       : null;
     return {
       ...base,
@@ -762,7 +793,7 @@ export async function runOpenHalfRound(params: {
       plan: null,
       outcome: acquired?.outcome ?? null,
       refusalError: null,
-      perceptionForOther: otherBlind ? null : (acquired?.perceptionForOther ?? null),
+      perceptionForOther: otherIncapacitated ? null : (acquired?.perceptionForOther ?? null),
       revealFor: null,
       derived: null,
       reshaped: null,
@@ -846,6 +877,13 @@ export async function runOpenHalfRound(params: {
           return resourceId ? [[p === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId, resourceId]] : [];
         })
       ),
+      // the-prisoner#1: each person's condition, where the harm arm built one -- a take reads the holder's.
+      conditionOf: Object.fromEntries(
+        (["prisoner", "warden"] as const).flatMap((p) => {
+          const resourceId = resourceIdForProperty(openWorld, p, "condition");
+          return resourceId ? [[p === "prisoner" ? openWorld.base.prisonerId : openWorld.base.wardenId, resourceId]] : [];
+        })
+      ),
       // HUMAN-INTENTS-DESIGN.md D9 (§6.2): each principal's own containment
       // resource, where the world built one (the presence arm) -- read by
       // `effects.ts`'s `conceal`/`expose` branches for a person-container.
@@ -868,6 +906,8 @@ export async function runOpenHalfRound(params: {
           blockingResourceId: openWorld.blocking[other],
           ...(resourceIdForProperty(openWorld, other, "posture") ? { postureResourceId: resourceIdForProperty(openWorld, other, "posture") } : {}),
           ...(resourceIdForProperty(openWorld, other, "sight") ? { sightResourceId: resourceIdForProperty(openWorld, other, "sight") } : {}),
+          // the-prisoner#1: a disabled blocker holds no way out, where the harm arm built a condition resource.
+          ...(resourceIdForProperty(openWorld, other, "condition") ? { conditionResourceId: resourceIdForProperty(openWorld, other, "condition") } : {}),
         },
       ],
     },
@@ -886,7 +926,7 @@ export async function runOpenHalfRound(params: {
       ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
       : null;
     const acquired = elaboration
-      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherBlind, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
+      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherIncapacitated, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
       : null;
     return {
       ...base,
@@ -895,7 +935,7 @@ export async function runOpenHalfRound(params: {
       plan: null,
       outcome: acquired?.outcome ?? null,
       refusalError: null,
-      perceptionForOther: otherBlind ? null : (acquired?.perceptionForOther ?? null),
+      perceptionForOther: otherIncapacitated ? null : (acquired?.perceptionForOther ?? null),
       revealFor: null,
       derived: null,
       reshaped: null,
@@ -931,7 +971,7 @@ export async function runOpenHalfRound(params: {
   // no approach it recognises (§14.4).
   const knownAs = precedentTextFor(ruling, reshapeOf);
   // D14 (owner, 2026-09-27, §80): a man who cannot see recognises nothing.
-  const known = principal === "prisoner" && seenByOther && !otherBlind ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
+  const known = principal === "prisoner" && seenByOther && !otherIncapacitated ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
   // OPEN-VARIANT.md §55 (issue #22 gap 1): not present at all is not "a
   // reshaping unseen" (`describeUnseenAttempt`'s own vague noise) -- it is
   // nothing perceived whatsoever, the same "the warden hears nothing...
@@ -941,7 +981,7 @@ export async function runOpenHalfRound(params: {
   // `resolve()`, from the ruling alone, so a refused resolution relays
   // exactly what a landed one would -- the bystander saw the reach whether
   // or not the world let it land.
-  const perceptionForOther = !otherPresent || otherBlind ? null : ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
+  const perceptionForOther = !otherPresent || otherIncapacitated ? null : ruling.perceptibility !== "silent" || known ? (seenByOther ? description : describeUnseenAttempt(principal)) : null;
 
   // PLAYTEST-2026-09-27 D4' (RED-TEAM.md F11): a block is an OCCUPATION. Once this turn's ruling applies and its
   // plan is anything but a block on the way out she already stands in, she steps out of it first -- an audited
@@ -989,14 +1029,15 @@ export async function runOpenHalfRound(params: {
     // ("unheard while the warden is away") -- always true under `off`.
     // D14 (owner, 2026-09-27, §80.4 question 1): and on his sight, the same
     // line D12 draws for what he perceives -- a blind warden perceives
-    // nothing, so nothing accrues. `otherBlind` is read at t, before this act,
-    // so the act that blinds him is charged by D13 above, never gated.
+    // nothing, so nothing accrues. the-prisoner#1 extends this to a disabled warden too (`otherIncapacitated`,
+    // above). Read at t, before this act, so the act that blinds or disables him is charged by D13 above, never
+    // gated by it.
     if (laysHandsOnWarden(principal, ruling.effectKind as EffectKind, ruling.targetObjectId)) {
       // D13 (owner, 2026-09-27, §80): grounds at once, then the act's own amount on top. Charged from this
       // half-round's outcome whatever it left of his sight or posture, and whatever its perceptibility: he felt it.
       bumpWardenSuspicion(openWorld, resolver, groundsShortfall(openWorld, t), "The warden has been laid hands on.");
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
-    } else if (principal === "prisoner" && otherPresent && !otherBlind && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
+    } else if (principal === "prisoner" && otherPresent && !otherIncapacitated && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
     }
     if (known) {

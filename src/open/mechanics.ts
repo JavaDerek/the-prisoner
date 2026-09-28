@@ -311,6 +311,8 @@ export interface LeaveBlocker {
   blockingResourceId: string;
   postureResourceId?: string;
   sightResourceId?: string;
+  /** the-prisoner#1: absent unless the harm arm built one. */
+  conditionResourceId?: string;
 }
 
 export interface LeaveParams {
@@ -324,6 +326,9 @@ export interface LeaveParams {
    *  here. */
   standsAbove?: number;
   seesAbove?: number;
+  /** the-prisoner#1: and her condition above `aliveAbove` (`HARM_DISABLED_AT_OR_BELOW`) -- unmodelled (the harm
+   *  arm off) counts as not disabled, the same fallback the other two lines already use. */
+  aliveAbove?: number;
   /** `null` for a route with no explicit "open" step of its own -- an
    *  ELABORABLE_EXITS route (WORLD-ELABORATION-DESIGN.md §4.3): nobody
    *  "opens" a dug hole; it is simply passable once its part's integrity
@@ -358,7 +363,12 @@ export const OPEN_LEAVE: Mechanic = {
       if (here === null || there === null || here !== there) return false;
       const posture = live(b.postureResourceId);
       const sight = live(b.sightResourceId);
-      return (posture === null || posture > (p.standsAbove ?? -Infinity)) && (sight === null || sight > (p.seesAbove ?? -Infinity));
+      const condition = live(b.conditionResourceId);
+      return (
+        (posture === null || posture > (p.standsAbove ?? -Infinity)) &&
+        (sight === null || sight > (p.seesAbove ?? -Infinity)) &&
+        (condition === null || condition > (p.aliveAbove ?? -Infinity))
+      );
     });
     const left = passable && blocker === undefined;
     return {
@@ -429,6 +439,11 @@ export interface TakeParams {
    *  cannot see -- a holder who cannot see keeps nothing. Absent: sight is not modelled. */
   sightOf?: Readonly<Record<string, string>>;
   blindAtOrBelow?: number;
+  /** the-prisoner#1: each person's condition resource by character id, and the line at or below which she is
+   *  disabled -- a holder who is disabled keeps nothing, the same treatment as a blind one. Absent: the harm
+   *  arm is off. */
+  conditionOf?: Readonly<Record<string, string>>;
+  disabledAtOrBelow?: number;
   description: string;
 }
 
@@ -492,7 +507,10 @@ export const OPEN_TAKE: Mechanic = {
       const sightId = p.sightOf?.[holder.id];
       const sight = sightId ? numericFactFrom(input.constraint.mustHonor, sightId, "value") : null;
       const sees = sight === null || p.blindAtOrBelow === undefined || sight > p.blindAtOrBelow;
-      if ((posture === null || posture >= p.keptAtOrAbove) && sees) return refuse("holder-on-her-feet", holder.id);
+      const conditionId = p.conditionOf?.[holder.id];
+      const condition = conditionId ? numericFactFrom(input.constraint.mustHonor, conditionId, "value") : null;
+      const notDisabled = condition === null || p.disabledAtOrBelow === undefined || condition > p.disabledAtOrBelow;
+      if ((posture === null || posture >= p.keptAtOrAbove) && sees && notDisabled) return refuse("holder-on-her-feet", holder.id);
     }
     return {
       changes: setOwner(p.itemId, p.actorId),

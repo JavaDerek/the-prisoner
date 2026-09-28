@@ -2,7 +2,7 @@ import { SEARCH_SUSPICION_THRESHOLD, SEARCH_CATCH_LOCK_MAX, SEARCH_CATCH_SPOON_M
 import { PRISONER_NAME, WARDEN_NAME, WARDEN_PRONOUNS } from "../scenario.js";
 import { OPEN_CATCH_BAR_MAX, OPEN_WINDOW_BAR_MAX, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN, type DoorPriceMode, type WindowMode } from "./world.js";
 import { findProperty } from "./scenarioObjects.js";
-import type { BlockMode } from "./effects.js";
+import type { BlockMode, HarmMode } from "./effects.js";
 import type { Condition } from "./conditionList.js";
 
 /**
@@ -45,7 +45,7 @@ export type ConditionOrder = "window-first" | "door-first";
  *  bar's own catch condition -- matching what `world.ts` no longer enforces
  *  under this arm (no `bar.integrity` resource at all). `"open"` (the
  *  default) is every batch recorded before this arm existed. */
-export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPriceMode; window?: WindowMode; block?: BlockMode; conditionOrder?: ConditionOrder } = {}): Condition[] {
+export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPriceMode; window?: WindowMode; block?: BlockMode; harm?: HarmMode; conditionOrder?: ConditionOrder } = {}): Condition[] {
   const grounds = `warden suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}`;
   const catches = `${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends`;
   const examines = (what: string) => `${WARDEN_NAME} closely examines ${what}`;
@@ -81,6 +81,19 @@ export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPrice
     // holds it (`OPEN_PASSAGE`, `world.ts`'s `keyOf`). Both are true rules of the world, so both chairs read both,
     // whoever holds it now; appended last so every earlier condition keeps its number. The door unstated, neither.
     ...(options.door === "stated" ? keyConditions() : []),
+    // the-prisoner#1: appended last, after the key ring, so every earlier catch number stays put. Off by
+    // default (`options.harm` unset or `"off"`), so a run before this issue is unaffected.
+    ...(options.harm === "on" ? harmConditions() : []),
+  ];
+}
+
+/** the-prisoner#1 (design §4, Q3): the two endings a `harm` effect can reach, stated to both chairs -- a new
+ *  LOSS for the prisoner if her own condition reaches the floor, and a loss of the contest (never an ending)
+ *  for the warden if his does. Asserted against `gameEnd.ts`/`game.ts` in `harm.test.ts`. */
+function harmConditions(): Condition[] {
+  return [
+    { when: [`${PRISONER_NAME}'s condition reaches 0`], then: `the game ends and ${PRISONER_NAME} loses`, for: PRISONER_NAME },
+    { when: [`${WARDEN_NAME}'s condition reaches 0`], then: `${WARDEN_NAME} takes no further turns, and the game continues until ${PRISONER_NAME} escapes or time runs out`, for: WARDEN_NAME },
   ];
 }
 

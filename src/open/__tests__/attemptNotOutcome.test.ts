@@ -141,12 +141,20 @@ const SCENARIOS: Record<Exclude<EffectKind, "none">, Scenario> = {
   give: { ruling: ruling("spoon", "give", "none"), landed: (r) => r.outcome?.result.given === true, fail: [] },
   // PLAYTEST-2026-09-27 D4': a block has no refusal of its own in this world; it meets `refusingResolver`.
   block: { ruling: ruling("window", "block", "none"), landed: (r) => r.outcome?.result.after === 2, fail: [] },
+  // the-prisoner#1: the target is always the OTHER principal -- here, the warden -- and a `harm` is an
+  // ordinary `isWearType` write (`effects.ts`), so it fails on a stale belief exactly the way `wear` does.
+  harm: {
+    ruling: ruling("warden", "harm", "condition"),
+    landed: resolved,
+    fail: [{ why: "a stale belief: expects contradicted", setup: (w) => setBelief(w.base.gameId, "prisoner", "warden_condition", 40, 0), failed: refused }],
+  },
 };
 
 async function half(scenario: Scenario, setup: ((w: OpenWorld) => void) | undefined, resolver?: Resolver): Promise<OpenHalfRoundResult> {
   createTestDb();
   try {
-    const w = buildOpenWorld({ presence: "modelled" });
+    // the-prisoner#1: built ON for every scenario, inert for the fourteen that never target `condition`.
+    const w = buildOpenWorld({ presence: "modelled", harm: "on" });
     setup?.(w);
     const t = w.base.clock.prisonerT(1);
     const referee: Referee = { rule: async () => scenario.ruling };

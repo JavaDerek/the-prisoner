@@ -7625,3 +7625,122 @@ the exact command. Unmeasured, specifically:
 - Whether the engine-terms `effect` question changes the referee's ANSWER on intents that were fine
   under the fixed vocabulary -- §86.2's fingerprint PIN only proves `fixed` mode is untouched; it says
   nothing about whether `engine` mode reads the SAME real games the same way.
+
+## 87. the-prisoner#1 lands: the attack move (2026-09-28)
+
+`docs/ISSUE-1-DESIGN-BRIEF.md` (the owner's Q1-Q5 answers, §4, 2026-09-26 morning) and `docs/ISSUE-1-DESIGN.md`
+(the coordinating session's own decisions on top of them, under the owner's overnight delegation) are the design;
+this section records what landed and points at the tests. TDD throughout -- `src/open/__tests__/harm.test.ts` --
+built the same way §80's own decisions were: fully unit-tested, nothing played.
+
+**The arm.** `PRISONER_HARM=off|on` (`readHarmMode`, `src/open/effects.ts`), default `off`. `off` is
+byte-identical to every batch recorded before this issue: no `condition` resource exists, `harm` never appears in
+any request, the rule lines and condition list carry nothing about it, and the declared-space refusal text
+(`perception.ts`'s `unmodelledPropertySentence`) never mentions it either -- the last of these needed its own
+fix, below ("One fix the 'declare it always, gate the resource' pattern did not give for free").
+
+**The property.** `condition` (`src/open/scenarioObjects.ts`), a person's own bounded state, 100 unharmed to 0
+disabled -- the third instance of the §56/D12 shape after `posture` and `sight`. Declared on `OPEN_PERSONS`
+UNCONDITIONALLY, the same choice §64.3 makes for the bar's `integrity` under `welded`: `buildOpenWorld`'s own
+resource-creation loop, not the declaration, is what skips building it while the harm arm is off. Wear
+10/25/40 (slight/moderate/substantial), chosen so one substantial act from full health never disables outright
+(100 - 40 = 60); restore is tending, 10/10/10 -- slight-only at every magnitude, D12's own choice for `sight`'s
+recovery, reused here for the same reason (one substantial harm should outlast one act of tending). Read in
+bands authored ascending and silent above the first (≤70 "hurt", ≤40 "badly hurt and moves slowly", 0 "down and
+does not get up"). Built by NAME, never a pronoun, when this landed -- §85's pronoun centralisation (the-prisoner#34)
+merged in after, and `condition`'s bands were rebuilt from `pronounsFor` at that merge, the same as `posture`'s
+own bands right beside them ("She is hurt." parallels "She is on her feet." exactly): the design's own "no
+pronoun" reasoning was about not inventing a second, uncoordinated gender choice while `scenario.ts` had none
+yet, which no longer applies once one exists to share. The actor's own outcome sentence stays by name
+(`perception.ts`'s `${who}'s condition went from X to Y.`), since it addresses a specific principal by name the
+same way every other own-outcome sentence in this file already does.
+
+**The effect.** `harm` (`src/open/effects.ts`'s `EffectKind`), whose only property is `condition` -- a SEPARATE
+effect kind from `wear`, not a `wear` on a new property, so the referee separates a stab from a shove at the
+effect question rather than the property question (the same ambiguity `docs/ISSUE-1-DESIGN-BRIEF.md` §3 named:
+"attack"/"stab"/"hit" all landed on `wear`/`posture` before this issue, indistinguishable from a shove). Offered
+in the effect question's answer keys, and `condition` in the property question's, only when the arm is on AND a
+person is in view (`referee.ts`'s `buildQuestions`, mirroring how `block` is gated on its own arm alone and
+`sight`/`posture` on presence alone). Target must be the OTHER principal: `planEffect` (`effects.ts`) refuses a
+self-target as outside what the world models, the identical shape a self-take/self-give already refuses.
+
+**`harm`/`condition` stay unreachable under `PRISONER_OPEN_RULES=engine` (§86, the-prisoner#5), this landing.**
+`engineRules.ts`'s own `translateEngineEffect` maps a `write` down on any person property it is handed straight
+to `wear` -- generic, with no self-target check, because `wear` on `posture`/`sight` is legitimately
+self-directed (collapsing is a person acting on her own body) and that function has no actor-vs-target identity
+to tell the two cases apart. `harm`'s own self-refusal lives entirely in `planEffect`'s dedicated branch, never
+in the generic `wear` path a `write` on `condition` would fall into, so offering `condition` under `engine` mode
+would let a `write` down on one's own `condition` silently succeed as an ordinary `wear` -- exactly the gap the
+fixed-mode `harm` effect exists to close. Rather than build the self-target check twice (once in `planEffect`,
+once in `translateEngineEffect`), `condition` is simply never named in `engine` mode's own property question:
+`referee.ts`'s `PERSON_PROPERTY_CLAUSE` (shared, unchanged, by both modes -- posture/sight only) never gains a
+`condition` clause there, and `rulingPropertyAnswerKeys` is called without `harmMode` in the `engine` branch, so
+its default `"off"` excludes `condition` from the answer keys regardless of the arm. A `write` down on a person
+under `engine` mode therefore still reads `posture`/`sight` only, exactly as `engineRules.ts`'s own header
+already documents for `noise`/`destroy`/`transfer`/`set`-on-a-person: a real, and known, limit of this landing,
+not a silent gap.
+
+**D13 extended, not duplicated.** `loop.ts`'s `laysHandsOnWarden` set (D13, §80.7) gained `harm` as a sixth
+member: a prisoner's harm on the warden gives grounds at once (his suspicion rises to at least the threshold,
+`SEARCH_SUSPICION_THRESHOLD`) then by the act's own magnitude bump, through the identical two-`resolve()`-call
+shape every other member of that set already uses.
+
+**Endings (Q3).** Escape stays the sole win. Two new facts, both read from `condition` alone:
+
+- The PRISONER's own `condition` at 0 is a new ending, `disabled` (`gameEnd.ts`'s `OpenGameEnd`), checked in
+  `checkOpenGameEnd` right after escape and before the catch.
+- The WARDEN's own `condition` at 0 is NOT an ending -- it is his loss of the contest. `game.ts`'s per-round
+  loop now checks `personDisabled(openWorld, "warden", t)` before his half-round even begins; once true, his
+  half is skipped outright (no wits call, no referee call -- `skipped: "disabled"`, the identical shape D5's
+  absence-cadence skip already produces), for the rest of the game, and the game continues until she escapes or
+  time runs out. `personDisabled` is `false` whenever the harm arm never built a `condition` resource, so this
+  new check is a no-op for every earlier batch without a second flag anywhere in the loop.
+
+**A disabled principal is treated like floored/blind, not a fourth mechanism.** Wherever `posture` (floored) or
+`sight` (blind) already gates something, `condition` (disabled) now gates it too, by the identical pattern:
+- **perception**: `loop.ts`'s `otherBlind` gained a sibling `otherDisabled`, combined into `otherIncapacitated`,
+  which is what every "does the other side perceive this" branch reads now;
+- **custody (C1)**: `OPEN_TAKE` (`mechanics.ts`) reads `conditionOf`/`disabledAtOrBelow` beside `postureOf`/
+  `sightOf` -- a holder keeps a thing only while on her feet, able to see, AND not disabled;
+- **block**: `OPEN_LEAVE`'s blocker check gained the identical third clause (`conditionResourceId`/`aliveAbove`).
+
+Every one of these is an optional field, `undefined` (a no-op) whenever the harm arm never built a `condition`
+resource -- the same discipline every arm in this file has kept since §55.
+
+**One fix the "declare it always, gate the resource" pattern did not give for free.** `world.ts`'s
+`declaredPropertyKeys` used to answer "does this person declare X" by checking only the FIRST property's
+resource and returning every key in the static list if so -- sound only because posture/sight were always built
+together. It now filters PER KEY, the same check `declaredProperty` (singular) already made. And
+`perception.ts`'s `unmodelledPropertySentence` -- which has NO world reference at all, only a `RefereeRuling`
+and an `OpenHalfRoundResult` -- could not tell whether `condition`'s resource existed, and a red test caught it
+leaking "hurt or tended" into a person's declared-space refusal with the arm off. Fixed by threading an explicit
+`harmMode` parameter (default `"off"`) through `renderOwnOutcome` and every one of its callers
+(`checkpoint.ts`, `game.ts`, and, for old data with no live world, `checkpointTranscript.ts`/`turnReport.ts`,
+defaulting to `off`). See `docs/ISSUE-1-DESIGN.md` §3 for the full account.
+
+**Merged with §85's pronoun centralisation and #30's person-vocabulary tables (2026-09-28).** `condition`'s
+own bands are now built from `pronounsFor` (`scenarioObjects.ts`), the identical pattern `posture`/`sight`
+already use right beside them ("She is hurt." parallels "She is on her feet." exactly) -- see the property
+paragraph above. `perception.ts`'s `personEffectPhrase` (the-prisoner#30) and `loop.ts`'s `personAttemptPhrase`
+both widen from two person properties to three: `restore` on `condition` (tending) now renders "tend to
+Warden Croft's wounds" rather than furniture's "worked on the warden: its condition went from...", and `wear`
+on `condition` gets a phrase too (never actually reached -- `harm`, a separate effect kind with its own
+dedicated rendering, is what lowers `condition`; kept only so both tables stay genuinely exhaustive over
+every person property rather than silently falling through for a pairing nothing should produce). `harm`
+itself is untouched by either table: its own attempt/outcome sentences were already person-shaped from this
+issue's own first landing (`describeAttempt`'s `"harm"` case, `perception.ts`'s dedicated `${who}'s condition
+went from...` branch), and stay by NAME there, addressing one specific principal, the same way every other
+own-outcome sentence in this file already does.
+
+**Tests**: `src/open/__tests__/harm.test.ts` -- the property's own bounds/bands, the resource gate (per-key,
+both arms), `planEffect`'s self-harm refusal and wrong-property refusal, D13's extension, the referee's
+gating of `harm`/`condition` (arm x person-in-view, all four combinations), the byte-identity regression
+above (arm off vs on), custody/block treating disabled like floored/blind, both endings including a full
+`runOpenGame` play-through (three harms disable the warden; his next half is skipped; the game continues to her
+escape), and the condition-list/rule-line additions. `attemptNotOutcome.test.ts` gained a `harm` row (D1: the
+other side is told the attempt, never the outcome, for this effect kind too).
+
+**Unmeasured**: all of it. `checkpoints/2026-09-28-harm/` is the probe -- the five real human attack intents this
+design brief itself cites (HB-r1, HB-r3, HB-r10, I25-3, I25-5) plus eight controls that must not become harm,
+arm off vs on, N=3. Not run by this task.
+

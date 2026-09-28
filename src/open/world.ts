@@ -255,6 +255,8 @@ export function buildOpenWorld(options: {
   doorPrice?: DoorPriceMode;
   presence?: "off" | "modelled";
   window?: WindowMode;
+  /** the-prisoner#1. Default `"off"`. */
+  harm?: "off" | "on";
   /** the-prisoner#3, enjoyable mode. Default `{}`. */
   descriptionOverrides?: Readonly<Record<string, string>>;
 } = {}): OpenWorld {
@@ -338,6 +340,11 @@ export function buildOpenWorld(options: {
       const characterId = spec.id === "prisoner" ? base.prisonerId : base.wardenId;
       entityIdFor[spec.id] = characterId;
       for (const property of spec.properties) {
+        // the-prisoner#1: `condition` is declared on every person unconditionally (`scenarioObjects.ts`), the
+        // same choice §64.3 makes for the bar's `integrity` -- it is THIS loop, not the declaration, that skips
+        // building a resource for it while the harm arm is off, so `declaredProperty`/`declaredPropertyKeys`
+        // below (which gate on the resource existing) hide it exactly as they already hide a welded bar's own.
+        if (property.key === "condition" && options.harm !== "on") continue;
         const token = propertyToken(spec.id, property.key);
         if (!resourceIdFor[token]) {
           const resource = createResource({ gameId, ownerType: "character", ownerId: characterId, name: property.resourceName, value: property.initialValue, minValue: property.min, maxValue: property.max });
@@ -463,7 +470,11 @@ export function declaredPropertyKeys(world: OpenWorld, objectId: string): string
   const derived = world.derived.find((d) => d.id === objectId);
   if (derived) return derived.properties.map((p) => p.key);
   const person = OPEN_PERSONS.find((p) => p.id === objectId);
-  if (person) return resourceIdForProperty(world, objectId, person.properties[0].key) ? person.properties.map((p) => p.key) : [];
+  // the-prisoner#1: per-key, not per-object -- `posture`/`sight` are always built together under the presence
+  // arm, but `condition` is gated on the SEPARATE harm arm (`buildOpenWorld`), so a person's own declared keys
+  // can no longer be answered from whether the FIRST one has a resource alone (the old shortcut, sound only
+  // while every person property shared one gate). Mirrors `declaredProperty`'s own per-key check below.
+  if (person) return person.properties.map((p) => p.key).filter((key) => resourceIdForProperty(world, objectId, key) !== undefined);
   // §64.3: the same resource-presence gate as `declaredProperty`, above.
   const staticKeys = (OPEN_OBJECTS.find((o) => o.id === objectId)?.properties ?? []).filter((p) => resourceIdForProperty(world, objectId, p.key) !== undefined).map((p) => p.key);
   const acquiredKeys = world.acquired.filter((a) => a.objectId === objectId).map((a) => a.property.key);

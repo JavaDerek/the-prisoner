@@ -40,7 +40,7 @@ export function buildDryRunScenario(): { intent: string; perceivedObjects: reado
  *  build for this exact scenario. */
 export function renderDryRun(): string[] {
   const { intent, perceivedObjects, heldObjectIds } = buildDryRunScenario();
-  const questions = buildQuestions(perceivedObjects, noKinds, scenarioProperties, "off", "baseline", "off", "off", "off", "off", "off", "engine", heldObjectIds);
+  const questions = buildQuestions(perceivedObjects, noKinds, scenarioProperties, "off", "baseline", "off", "off", "off", "off", "off", "off", "engine", heldObjectIds);
   const sources = buildSources(intent, perceivedObjects);
   const lines: string[] = [];
   lines.push(`Intent: "${intent}"`);

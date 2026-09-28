@@ -77,7 +77,7 @@ import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-in
 import { recordGame, precedentLines, readPrecedentPrice } from "./open/precedent.js";
 import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
 import { openConditions, readConditionsMode, readDoorMode, readConditionOrder } from "./open/conditions.js";
-import { readBlockMode } from "./open/effects.js";
+import { readBlockMode, readHarmMode } from "./open/effects.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
 import { readSeatMode, readViewMode, createHumanSeatMind, assertSeatIsPlayable, turnTakenNotice, otherIsThinkingNotice, type HumanSeatMind } from "./open/humanSeat.js";
@@ -288,6 +288,10 @@ const BLOCK = readBlockMode(process.env.PRISONER_BLOCK);
 /** Open variant only: PLAYTEST-2026-09-27 D12 -- the target question reads an act done to a person with a thing
  *  as naming the person (`src/open/referee.ts`). Off until probe P3 lands it. */
 const PERSON_INSTRUMENT = readPersonInstrumentMode(process.env.PRISONER_PERSON_INSTRUMENT);
+/** Open variant only: the-prisoner#1 -- a new `harm` effect on a person's own `condition` (`src/open/effects.ts`,
+ *  `src/open/scenarioObjects.ts`, `src/open/gameEnd.ts`). Off unless asked; `off` (the default) is every earlier
+ *  batch's request, prompt and property list, byte for byte. */
+const HARM = readHarmMode(process.env.PRISONER_HARM);
 /** Open variant only: PLAYTEST-2026-09-27 D5 -- the warden is out of the cell on round 4 and every fourth round
  *  after (`src/open/briefing.ts`, `src/open/game.ts`). Cadence unless asked; it needs presence `modelled`, which
  *  `mainOpen` checks before anything else. `off` is every earlier batch. */
@@ -952,7 +956,7 @@ async function mainOpen(): Promise<void> {
   }
   const descriptionOverrides: Readonly<Record<string, string>> = generatedScenario ? descriptionOverridesFrom(generatedScenario) : {};
 
-  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW, descriptionOverrides });
+  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW, harm: HARM, descriptionOverrides });
   const resolver = buildOpenResolver();
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })],
@@ -969,6 +973,7 @@ async function mainOpen(): Promise<void> {
       oneAct: ONE_ACT,
       blockMode: BLOCK,
       personInstrumentMode: PERSON_INSTRUMENT,
+      harmMode: HARM,
       // the-prisoner#5: `openWorld.exits` is keyed by the way-out object
       // itself and each names its own part (`world.ts`) -- the identical
       // map `planEffect`'s own `open`/`close`/`leave` branches already read,
@@ -1008,6 +1013,7 @@ async function mainOpen(): Promise<void> {
     timeoutMs: THINK_TIMEOUT_MS,
     ensureLoaded,
     thinking: WITS_THINKING.mode,
+    harmMode: HARM,
     onSilence: (reason: string, _context: unknown, detail?: { text?: string; parsed?: unknown }) => {
       lastSilence[principal] = { reason, text: detail?.text, parsed: detail?.parsed };
     },
@@ -1143,6 +1149,7 @@ async function mainOpen(): Promise<void> {
       // eslint-disable-next-line no-console
       write: (text: string) => console.log(text),
       ...(conditions ? { conditions } : {}),
+      harmMode: HARM,
       view: VIEW,
       ...(narrator ? { narrator } : {}),
     });
@@ -1160,6 +1167,7 @@ async function mainOpen(): Promise<void> {
       selfName: principal === "warden" ? WARDEN_NAME : PRISONER_NAME,
       otherName: principal === "warden" ? PRISONER_NAME : WARDEN_NAME,
       timeoutMs: THINK_TIMEOUT_MS,
+      harmMode: HARM,
       ensureLoaded,
       ...(conditions ? { conditions } : {}),
       onSilence: (reason: string, _c: unknown, detail?: { text?: string; parsed?: unknown }) => {
@@ -1171,15 +1179,15 @@ async function mainOpen(): Promise<void> {
     WARDEN_MODE === "passive"
       ? passiveWardenMind()
       : PROSE_SEAT === "warden"
-        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) : undefined)
-        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) } : {}) });
-  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) : undefined) : modelWarden();
+        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) : undefined)
+        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) } : {}) });
+  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) : undefined) : modelWarden();
   const prisonerMind =
     SEAT === "prisoner"
-      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }))
+      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }))
       : PROSE_SEAT === "prisoner"
-        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }))
-        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }) }) });
+        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }))
+        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -1337,6 +1345,11 @@ async function mainOpen(): Promise<void> {
       : "Block: OFF (`PRISONER_BLOCK=off`): the referee is never offered `block` and no block or restore condition is stated, as every batch before 2026-09-27 recorded (PLAYTEST-2026-09-27 D4')."
   );
   transcript.push(
+    HARM === "on"
+      ? "Harm: ON (`PRISONER_HARM=on`): each person carries a bounded `condition` (100 unharmed, 0 disabled); the referee is offered `harm` on the other principal only, and both chairs' rule lines and conditions state it, the disabling endings, and D13's grounds-at-once extended to it (the-prisoner#1)."
+      : "Harm: OFF (the default): no person carries a `condition`, the referee is never offered `harm`, and no rule line or condition mentions it, as every batch before this issue recorded (the-prisoner#1)."
+  );
+  transcript.push(
     DERIVE_WORDING === "sharpened"
       ? "Derive wording: SHARPENED (`PRISONER_DERIVE_WORDING=sharpened`): the effect question adds an explicit keep-the-piece test distinguishing derive from wear (§51, the-prisoner#18)."
       : "Derive wording: BASELINE (the default): the effect question's original derive/wear wording, unchanged (§51, the-prisoner#18)."
@@ -1479,7 +1492,7 @@ async function mainOpen(): Promise<void> {
     // rendering function being shared, never about the timepoint.
     const t1 = openWorld.base.clock.t0;
     const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE, ABSENCE);
-    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, conditionOrder: CONDITION_ORDER }));
+    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }), HARM);
     strategy = await chooseStrategy({
       context: { situation, objectIds: c1.perceivedObjects.map((o) => o.id) },
       reasoningStrength: STRATEGY_STRENGTH,
@@ -1537,6 +1550,7 @@ async function mainOpen(): Promise<void> {
         rounds: ROUNDS,
         presenceMode: PRESENCE,
         absenceMode: ABSENCE,
+        harmMode: HARM,
         ...(strategy ? { strategy: strategy.sentence } : {}),
         ...(elaborationReferee ? { elaborationReferee } : {}),
         ...(ELABORATE_BAND ? { forcedElaborationBand: ELABORATE_BAND } : {}),
@@ -1546,7 +1560,7 @@ async function mainOpen(): Promise<void> {
           const ms = performance.now() - halfStart;
           timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
           const passive = WARDEN_MODE === "passive" && half.principal === "warden" ? { reason: "passive warden (§26)" } : undefined;
-          transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal]), lastVoiceSilence[half.principal], descriptionOverrides));
+          transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal]), lastVoiceSilence[half.principal], descriptionOverrides, HARM));
           lastSilence[half.principal] = undefined;
           lastVoiceSilence[half.principal] = undefined;
           // With a person in a chair the screen must tell them nothing their briefing would
@@ -1571,7 +1585,7 @@ async function mainOpen(): Promise<void> {
             // `renderOwnOutcome`) -- the `play` view's own delta then omits
             // that repeat (`humanSeat.ts`'s `notify`/`playSituation`). Raw
             // view untouched: it never goes through the seat's delta at all.
-            const outcome = renderOwnOutcome(half);
+            const outcome = renderOwnOutcome(half, HARM);
             if (outcome !== null) humanSeat?.notify(outcome);
             humanSeat?.notify(otherIsThinkingNotice(SEAT === "warden" ? PRISONER_NAME : WARDEN_NAME));
           }
