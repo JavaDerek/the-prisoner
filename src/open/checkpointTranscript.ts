@@ -9,6 +9,7 @@ import { findKind } from "./derivedObjects.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
 import { recordIntent, newMeasurements, noteIntent, renderMeasurements } from "./transcript.js";
 import type { Principal } from "../ledger/beliefs.js";
+import { pronounsFor } from "../scenario.js";
 
 /**
  * The open variant's checkpoint transcript (issue #2): everything a reader
@@ -140,7 +141,9 @@ function custodyLine(half: OpenHalfRoundResult): string | null {
   const other: Principal = half.principal === "prisoner" ? "warden" : "prisoner";
   if (mechanic === "OPEN_TAKE") {
     if (result.taken === true) return `  - taken: the ${half.principal} holds the ${obj}`;
-    if (result.refused === "holder-on-her-feet") return `  - kept: the holder is on her feet (the ${other} still holds the ${obj})`;
+    // The-prisoner#34: `other` (the holder who kept it) used to be told with a hardcoded "her feet" --
+    // built from `pronounsFor(other)` now, so the line reads correctly whichever principal held it.
+    if (result.refused === "holder-on-her-feet") return `  - kept: the holder is on ${pronounsFor(other).possessive} feet (the ${other} still holds the ${obj})`;
     return `  - not taken (${result.refused ?? "?"})`;
   }
   if (mechanic === "OPEN_GIVE") {

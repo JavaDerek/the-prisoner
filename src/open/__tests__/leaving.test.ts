@@ -475,14 +475,19 @@ describe("a way out opens only when its part allows it (OPEN-VARIANT.md §24)", 
     });
     // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
     // purpose: every outcome now opens with what was ruled, as fiction --
-    // batch 8 starts after this commit. The ruled TARGET is the bar (not the
-    // window `wayOut` resolves to), matching D1's own worked example's shape
-    // one field over: "You set about opening the window" there, because that
-    // scenario's own ruling named the window; this one names the bar.
+    // batch 8 starts after this commit.
+    //
+    // The-prisoner#33, changed on purpose again: the ruled TARGET was the bar (not the window
+    // `wayOut` resolves to), and the opener used to say "opening the bar" one sentence before the
+    // outcome said "met the window shut" -- disagreeing about what the act was. The opener now names
+    // what the act resolved through (`result.wayOut`) whenever one exists, exactly like the OTHER
+    // scenario's own worked example already did ("You set about opening the window" there, because
+    // that ruling happened to name the window directly); the two are now the same rule; only this
+    // test's own fixture (naming the bar) ever showed the difference.
     //
     // D7a (OPEN-VARIANT.md §76.2), changed on purpose: the refusal also wears
     // the bar (moderate magnitude here, 15) and the outcome says both.
-    expect(renderOwnOutcome(half)).toBe("You set about opening the bar. Your last attempt met the window shut: it will not open yet; the bar's integrity went from 100 to 85.");
+    expect(renderOwnOutcome(half)).toBe("You set about opening the window. Your last attempt met the window shut: it will not open yet; the bar's integrity went from 100 to 85.");
   });
 
   it("once the bar allows it, the same act through the bar tells the actor it opened the window, not the bar (§24; half of #6)", () => {
@@ -565,8 +570,12 @@ describe("a window opened through its bar is told as the bar out of the way (OPE
     // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), changed on
     // purpose: every outcome now opens with what was ruled, as fiction --
     // batch 8 starts after this commit.
-    expect(renderOwnOutcome(await pry(w, 1))).toBe("You set about opening the bar. Your last attempt worked the bar free of the window: the window can be climbed through now.");
-    expect(renderOwnOutcome(await pry(w, 2))).toBe("You set about opening the bar. The bar is already free of the window: the window can be climbed through now.");
+    //
+    // The-prisoner#33, changed on purpose again: the opener now names what the act resolved through
+    // (the window), agreeing with the outcome sentence right after it, rather than the ruled part (the
+    // bar) the opener used to name.
+    expect(renderOwnOutcome(await pry(w, 1))).toBe("You set about opening the window. Your last attempt worked the bar free of the window: the window can be climbed through now.");
+    expect(renderOwnOutcome(await pry(w, 2))).toBe("You set about opening the window. The bar is already free of the window: the window can be climbed through now.");
   });
 
   it("the door, whose lock is not what closes its gap, is still told as opened", async () => {

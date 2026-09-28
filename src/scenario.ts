@@ -25,12 +25,48 @@ export const WARDEN_NAME = "Warden Croft";
 export const PRISONER_SHORT_NAME = PRISONER_NAME.split(" ").pop() as string;
 export const WARDEN_SHORT_NAME = WARDEN_NAME.split(" ").pop() as string;
 
+/**
+ * The-prisoner#34: discrepancy 8 (docs/ARCHITECTURE.md) was two authors picking two different
+ * literal pronouns for the same person -- `PRISONER_MOTIVE` said "they", the D4'/D12 reading bands
+ * (`scenarioObjects.ts`) said "her" for BOTH principals (copied from the prisoner's own bands), and
+ * the playtest documents and the owner's own typed intents ("so he can't see") said "he" for Croft.
+ * One declaration per principal, here, so every generated sentence about a person BUILDS from it --
+ * never a second literal choice made where it happens to be written.
+ *
+ * DECISION (the coordinator, on the owner's behalf, overnight 2026-09-27/28): Warden Croft is
+ * "he/him/his/himself"; Mara Voss is "she/her/her/herself". The owner writes "he" for Croft
+ * throughout CLAUDE.md and the playtest docs and typed "so he can't see" in play; the scenario's own
+ * `PRISONER_MOTIVE` said "they" and the warden's authored person description said "She" -- neither of
+ * those was ever an owner decision to keep, just whoever wrote that sentence first.
+ *
+ * `PrincipalId` duplicates `ledger/beliefs.ts`'s own `Principal` (that file's own comment: "avoids a
+ * `loop.ts` <-> `beliefs.ts` import cycle") rather than importing it, so `scenario.ts` -- imported
+ * from everywhere -- gains no dependency on the ledger at all.
+ */
+export type PrincipalId = "prisoner" | "warden";
+
+export interface Pronouns {
+  readonly subject: string; // she / he
+  readonly object: string; // her / him
+  readonly possessive: string; // her / his
+  readonly reflexive: string; // herself / himself
+}
+
+export const PRISONER_PRONOUNS: Pronouns = { subject: "she", object: "her", possessive: "her", reflexive: "herself" };
+export const WARDEN_PRONOUNS: Pronouns = { subject: "he", object: "him", possessive: "his", reflexive: "himself" };
+
+export function pronounsFor(principal: PrincipalId): Pronouns {
+  return principal === "prisoner" ? PRISONER_PRONOUNS : WARDEN_PRONOUNS;
+}
+
 export const PRISONER_IDENTITY =
   "You are Mara Voss, three years into a sentence for a robbery that went wrong. " +
   "This cell has been the only home you have had since, and Warden Croft is the one who locks it every night.";
 
 export const PRISONER_MOTIVE =
-  "Get out of this cell. Then find Warden Croft, and make sure they never lock a door on you again.";
+  // The-prisoner#34: "they" (every batch before this) is gone -- built from `WARDEN_PRONOUNS` now,
+  // never a second literal choice.
+  `Get out of this cell. Then find Warden Croft, and make sure ${WARDEN_PRONOUNS.subject} never locks a door on you again.`;
 
 export const WARDEN_IDENTITY =
   "You are Warden Croft, who has run this block for eleven years and has never lost a prisoner. " +

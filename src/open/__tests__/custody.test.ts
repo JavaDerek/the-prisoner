@@ -581,11 +581,13 @@ describe("custody through a half-round (docs/CUSTODY-DESIGN.md)", () => {
     expect(result.plan?.mechanic).toBe("OPEN_TAKE");
     expect(result.outcome?.result.taken).toBe(false);
     expect(holderAt(s.w, "key_ring", currentT(s.w.base.gameId))).toBe("warden");
-    // D1, changed on purpose (see the comment above the "visible take" test).
-    expect(renderOwnOutcome(result)).toBe(`You set about taking the key ring. Your last attempt reached for the key ring, but ${WARDEN_NAME} is on her feet and keeps it.`);
+    // D1, changed on purpose (see the comment above the "visible take" test). The-prisoner#34, changed
+    // on purpose again: Croft's own pronoun now (it used to hardcode "her feet" whoever the holder was).
+    expect(renderOwnOutcome(result)).toBe(`You set about taking the key ring. Your last attempt reached for the key ring, but ${WARDEN_NAME} is on his feet and keeps it.`);
     // The reach was still seen: an attempt, like a leave that meets a shut door.
     expect(result.perceptionForOther).toBe(`${PRISONER_NAME} reaches for the key ring.`);
-    expect(renderOpenHalfRound(result).join("\n")).toContain("kept: the holder is on her feet");
+    // The-prisoner#34, changed on purpose: the holder here is Croft, so his own pronoun now.
+    expect(renderOpenHalfRound(result).join("\n")).toContain("kept: the holder is on his feet");
   });
 
   it("PLANTED VIOLATION: a take ruled on a way out plans nothing, and the transcript says what that null establishes", async () => {
@@ -613,8 +615,9 @@ describe("custody through a half-round (docs/CUSTODY-DESIGN.md)", () => {
     expect(holderAt(s.w, "wire", currentT(s.w.base.gameId))).toBe("prisoner");
     const given = await half(s, "prisoner", GIVE_WIRE, 2);
     expect(given.outcome?.result.given).toBe(true);
-    // D1, changed on purpose (see the comment above the "visible take" test).
-    expect(renderOwnOutcome(given)).toBe(`You set about handing over the wire. Your last attempt handed the wire to ${WARDEN_NAME}: she holds it now.`);
+    // D1, changed on purpose (see the comment above the "visible take" test). The-prisoner#34, changed
+    // on purpose again: Croft's own pronoun now (it used to hardcode "she holds it now").
+    expect(renderOwnOutcome(given)).toBe(`You set about handing over the wire. Your last attempt handed the wire to ${WARDEN_NAME}: he holds it now.`);
     expect(holderAt(s.w, "wire", currentT(s.w.base.gameId))).toBe("warden");
 
     const bent = await half(s, "warden", BEND_HOOK, 3);

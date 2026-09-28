@@ -157,10 +157,17 @@ export function principalLocation(openWorld: OpenWorld, principal: Principal, t:
  *  principal's referee call can cite against. Declares no numeric property
  *  on purpose (issue #22's third gap, out of scope here): this grounds only
  *  what any perceivable person supports generically -- being seen, heard,
- *  spoken to, or touched -- never a game-specific state. */
+ *  spoken to, or touched -- never a game-specific state.
+ *
+ *  The-prisoner#34: this used to author its own copy of `OPEN_PERSONS`' own description text, and the
+ *  two had drifted (both said "She", which discrepancy 8, docs/ARCHITECTURE.md, names as one of the
+ *  places the warden's pronoun was decided a second time). Reading `OPEN_PERSONS` here instead means
+ *  there is exactly one authored description per principal, ever -- this fallback (only reached when
+ *  `perceive` below finds no `OPEN_PERSONS` entry for a principal, which never happens: both are
+ *  always declared) can no longer say something different from the one `describedAsItStands` renders. */
 const PRINCIPAL_DESCRIPTION: Record<Principal, string> = {
-  prisoner: `${PRISONER_NAME}, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
-  warden: `${WARDEN_NAME}, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+  prisoner: OPEN_PERSONS.find((p) => p.id === "prisoner")!.description,
+  warden: OPEN_PERSONS.find((p) => p.id === "warden")!.description,
 };
 
 /** OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8: the welded-window

@@ -7289,3 +7289,126 @@ reading it, which a bare per-principal-context primitive would not give #18 for 
 narrator or strategy pre-commitment wiring; one game per server process; and process-exit cleanup
 that covers SIGINT/SIGTERM only. `docs/MCP-SEAT.md`'s own "What is out of scope for this landing"
 section is the fuller list.
+
+## 85. One pronoun per principal, and a batch boundary for it (the-prisoner#34, 2026-09-27/28 overnight)
+
+`docs/ARCHITECTURE.md`'s discrepancy 8 was three authors picking three different answers for Warden Croft's own
+pronoun: `scenario.ts`'s `PRISONER_MOTIVE` said "they", the D4' block condition and the D12 sight/posture reading
+bands (`scenarioObjects.ts`) said "her"/"she" for BOTH principals (copied from the prisoner's own bands when a
+person became a second, then a third, targetable thing), and the playtest documents and the owner's own typed
+intent in play ("so he can't see") said "he". None of those three was ever a decision to keep -- each was just
+whoever wrote that particular sentence first, on no evidence the other two existed.
+
+**Decision, taken by the coordinator on the owner's behalf during his overnight delegation:** Warden Croft is
+"he/him/his/himself"; Mara Voss is "she/her/her/herself". The evidence pointing this way was already one-sided --
+CLAUDE.md and every playtest document call Croft "he" throughout, and the owner's own typed intent in the
+2026-09-28 human game did too -- so this is a naming of what the project's own words already agreed on, not a new
+choice imposed on them.
+
+**Implementation.** `scenario.ts` declares one `Pronouns` record per principal (`PRISONER_PRONOUNS`,
+`WARDEN_PRONOUNS`, each `{ subject, object, possessive, reflexive }`) and one lookup, `pronounsFor(principal)`.
+Every site that used to choose a literal pronoun for a sentence about a principal now builds it from there
+instead: `scenarioObjects.ts`'s `posture`/`sight` band builders and its `OPEN_PERSONS` descriptions (via a new
+`personDescription` helper, which `briefing.ts`'s `PRINCIPAL_DESCRIPTION` fallback now reads FROM instead of
+authoring its own second copy -- the two had already drifted once, which is exactly how half of discrepancy 8
+happened), `perception.ts`'s custody outcomes (a refused `take` naming the holder, a resolved `give` naming the
+recipient), `loop.ts`'s `describeAttempt` block case (D4', reflexive), `checkpointTranscript.ts`'s "kept: the
+holder is on \_\_ feet" transcript line, `narrator.ts`'s own instruction line (recovering the principal from
+`selfName`, which is always `PRISONER_NAME` or `WARDEN_NAME`), and `conditions.ts`'s block condition (always about
+the warden, who does the blocking). `referee.ts`'s own prompt text is untouched on purpose -- it was not asked
+for, "actor herself" there is generic wording that never claims a specific principal's pronoun, and OPEN-VARIANT's
+own prompt-stability discipline (§31) means a referee prompt changes only for a reason that earns its own batch,
+which this was not.
+
+**What did NOT change.** Sentences that are invariably about ONE specific principal and already used that
+principal's own now-declared pronoun -- `PRISONER_MOTIVE`'s original "she has escaped" (before this task's own
+fix to its "they"), `mind.ts`'s "Mara Voss escapes... however she gets out", `proseView.ts`'s warden-reading-of-
+the-prisoner suspicion line ("enough to search her cell") -- were left as authored text. They were never wrong
+under the declared set, and rewriting invariant text to route through a helper it does not need would be styling,
+not a fix; CLAUDE.md's "match the surrounding style by hand" cuts against widening this change past the sentences
+that were actually a second, drifted choice of pronoun.
+
+**Batch boundary.** This reaches both prompts (the block condition and both persons' own descriptions are read by
+whichever mind perceives Croft), so it is a boundary the same way D1/D8/D9/D11 were: no arm, because there is no
+sensible "wrong" value to keep byte-identical to, exactly as D13-D16 (§80.7) had none. A transcript from before
+this lands read the warden's own posture/sight bands and the D4' block condition as "her"/"she"; one from after
+reads "his"/"he". `docs/ARCHITECTURE.md`'s discrepancy 8 entry is corrected in the same commit to say this is
+resolved.
+
+**Pin.** `src/__tests__/scenario.test.ts` pins the two declared pronoun sets and `pronounsFor`, and that
+`PRISONER_MOTIVE` builds Croft's pronoun from `WARDEN_PRONOUNS` rather than a literal "they".
+`src/open/__tests__/pronouns.test.ts` renders every site above -- both `OPEN_PERSONS` descriptions, both
+principals' posture and sight bands, `computePerceivedObjects`'s own render, `describeAttempt`'s block case for
+both chairs, a refused custody `take` and a resolved `give` run through the real half-round pipeline in BOTH
+directions (proving the fix is dynamic, not just still hardcoded to the one direction every earlier test happened
+to exercise), the narrator's own instruction line for both chairs, and the block condition -- and asserts each
+rendering carries only the pronoun tokens the OTHER principal's set does not declare. Twelve existing tests across
+seven files (`block.test.ts`, `briefing.test.ts`, `contestLines.test.ts`, `custody.test.ts`, `perception.test.ts`,
+`probes2026-09-28.test.ts`, `sight.test.ts`) had pinned the warden's own sentences at the old, borrowed "her"/
+"she" text; each is updated in the same commit to the now-correct "his"/"he", noted inline at the changed
+assertion.
+
+### 85.1 A person's properties render in person vocabulary, not furniture's (the-prisoner#30)
+
+D12 gave a person a second declared property (`sight`, beside `posture`), and the three sites that render a
+wear/restore outcome had never been taught that a PRINCIPAL can be the target: a human game
+(`checkpoints/2026-09-28T01-09-16-356Z.md`) read *"You set about wearing at Warden Croft. Your last attempt worked
+on the warden: its sight went from 100 to 50."*, and the warden's own act reached the prisoner as *"Warden Croft
+works to restore the warden."* -- a body rendered in the sentences written for furniture, exactly as OPEN-VARIANT
+§68.7 first flagged for `expose` ("Voss works at the prisoner") before this game modelled a second person-only
+property to expose the same gap on `wear`/`restore` too.
+
+**Implementation.** `perception.ts` gains one small table, `personEffectPhrase` (`posture`/`sight` x
+`wear`/`restore`, reflexive when the actor targets its own body), each cell giving the three shapes its three call
+sites need: a gerund for the D1 opener ("covering Warden Croft's eyes"), an infinitive for the refusal fallback's
+`attemptPhrase` ("as an attempt to cover Warden Croft's eyes"), and a past-tense clause for the resolved outcome's
+own before/after sentence ("covered Warden Croft's eyes: his sight went from 100 to 50" -- the actor's exact
+numbers are kept, because the actor still learns the number it moved; only the words around it change).
+`personEffectPhraseFor` gates all three on the ruling actually being a wear/restore on a principal's own declared
+`posture`/`sight`, returning `null` for every other case so `SET_ABOUT_PHRASE`, `attemptPhrase` and the resolved
+branch all fall back to their unchanged furniture wording with one `?? ...` each. `posture` never takes a
+possessive (the person as a whole is the direct object: "put Voss on the floor," never "put Voss's posture on the
+floor"); `sight` does ("covering Croft's eyes" / "clearing his eyes"), using the target's own name for `wear` and
+its own declared pronoun (#34's `pronounsFor`) for `restore`, matching the two worked examples this issue's brief
+gave verbatim. `loop.ts`'s `describeAttempt` gets its own small table, `personAttemptPhrase`, to the same shape but
+strictly an ATTEMPT ("Mara Voss works to cover Warden Croft's eyes") -- no number, no property name, no outcome,
+D1/R1's own invariant -- built separately from `perception.ts`'s table rather than sharing it, because
+`describeAttempt`'s contract (attempt only) and `perception.ts`'s three sites (which also carry the actor's exact
+numbers) differ enough that one shared table would need a flag neither side otherwise wants. `describeAttempt`'s
+own `ruling` parameter widens to accept an optional `property` (`Pick<..> & { property?: ... }`, never required)
+so every existing call site that never had a property to give (`precedentTextFor`'s own ledger keys, the
+world-elaboration acquire path) keeps compiling unchanged.
+
+**Self-target.** A wear/restore where the actor targets its own body (D5's own posture case, a person dropping to
+the floor) renders reflexively -- "putting yourself on the floor," "clearing your eyes," "getting back up" -- never
+the actor's own name in the second person, and `describeAttempt`'s own reflexive case (a bystander's third-person
+view of the same act) uses the actor's own declared reflexive pronoun ("works to put himself on the floor"),
+exactly the device #34's D4' block case already established.
+
+**Batch boundary, alongside §85's.** This changes what both minds read in an ordinary wear/restore's own outcome
+and refusal text, and what the OTHER principal perceives of it -- no arm, for the same reason §85 has none: there
+is no sensible "wrong" wording worth keeping byte-identical to.
+
+**Pin.** `perception.test.ts` adds a table exhaustive over `posture`/`sight` x `wear`/`restore`, self- and
+other-target, run through the real half-round pipeline (`runOpenHalfRound`) with the resource preset to a known
+starting value where a direction needs one (`restore` never has anything to change at the property's own max), so
+every expected before/after number is exact -- plus one refusal-fallback case, forcing `applicable: false` after a
+real ruling to reach `attemptPhrase`'s own person branch. `attemptNotOutcome.test.ts` adds `describeAttempt`'s own
+exhaustive table (other-target and reflexive, both properties, both directions) and one more row in the SCENARIOS
+invariant this file already enforces -- a person-targeted `wear` on `sight`, landed and refused, relaying the
+identical sentence -- extending D1's own structural pin to the case this issue found broken.
+
+### 85.2 The D1 opener names what an open/close resolved through (the-prisoner#33, part 2)
+
+§19 lets an `open`/`close` ruled on a PART resolve through the way out it belongs to (an `open` ruled on the bar
+resolves through the window); the outcome sentence right after D1's opener already named the way out
+(`result.wayOut`), but the opener itself built its "what" from `ruling.targetObjectId` alone, so a human game
+(`checkpoints/2026-09-28T01-09-16-356Z.md`) read *"You set about opening the bar. Your last attempt met the window
+shut"* -- one sentence disagreeing with the next about what the act was. `renderOwnOutcomeUnflagged` now reads
+`outcome.result.wayOut` for `open`/`close` on a non-person target and, when present, names it instead of the ruled
+part; ruled directly on the way out itself, the two words are the same and nothing changes. No arm: this is D1's
+own rule (name what was ruled, as fiction) applied consistently within the one sentence it already governs, not a
+new decision. Pinned in `perception.test.ts` against `openRefusalWear.test.ts`'s own "a warden's refused open at
+the bar" fixture (the exact shape the human game hit) and against a same-object control (ruled directly on the way
+out). Part 1 of this issue -- the wear/open ruling instability itself -- is P6's own measurement
+(`checkpoints/2026-09-28-texture-replay/`), not a code change; the referee prompt is untouched.

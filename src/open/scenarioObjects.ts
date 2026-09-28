@@ -40,7 +40,13 @@
 
 /** `posture` is issue #22 gap 3's own key -- a person's bounded physical
  *  state, never an object's. */
-import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, pronounsFor, type PrincipalId } from "../scenario.js";
+
+/** The-prisoner#34: capitalises a pronoun for a sentence-initial position ("She is...", "His eyes
+ *  are..."), the only shaping this module ever does to `pronounsFor`'s own words. */
+function cap(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
 
 export type OpenPropertyKey = "integrity" | "edge" | "concealment" | "passage" | "posture" | "sight";
 
@@ -498,41 +504,59 @@ export const POSTURE_ON_HER_FEET_ABOVE = 75;
  *  (`block`), whose gate already reads it: a blocker who cannot see holds nothing, like one who is down. */
 export const SIGHT_BLIND_AT_OR_BELOW = 60;
 
-const posture = (who: string): OpenObjectProperty => ({
-  key: "posture",
-  resourceName: `${who}_posture`,
-  min: POSTURE_LYING,
-  max: POSTURE_STANDING,
-  initialValue: POSTURE_STANDING,
-  // A substantial act puts her all the way down or all the way up; a moderate
-  // one is the crouch between; a slight one is a stumble or a straightening.
-  wear: { slight: 10, moderate: 50, substantial: 100 },
-  restore: { slight: 10, moderate: 50, substantial: 100 },
-  readRanges: [
-    { atOrBelow: 25, text: "She is lying on the floor." },
-    { atOrBelow: POSTURE_ON_HER_FEET_ABOVE, text: "She is crouched low." },
-    { atOrBelow: 100, text: "She is on her feet." },
-  ],
-});
+const posture = (who: PrincipalId): OpenObjectProperty => {
+  // The-prisoner#34: these three bands used to be authored once for the prisoner and reused
+  // verbatim for the warden ("She is on her feet." for Croft too) -- built from `pronounsFor` now,
+  // so each principal's own declared pronoun renders here, never a second literal choice.
+  const p = pronounsFor(who);
+  return {
+    key: "posture",
+    resourceName: `${who}_posture`,
+    min: POSTURE_LYING,
+    max: POSTURE_STANDING,
+    initialValue: POSTURE_STANDING,
+    // A substantial act puts her all the way down or all the way up; a moderate
+    // one is the crouch between; a slight one is a stumble or a straightening.
+    wear: { slight: 10, moderate: 50, substantial: 100 },
+    restore: { slight: 10, moderate: 50, substantial: 100 },
+    readRanges: [
+      { atOrBelow: 25, text: `${cap(p.subject)} is lying on the floor.` },
+      { atOrBelow: POSTURE_ON_HER_FEET_ABOVE, text: `${cap(p.subject)} is crouched low.` },
+      { atOrBelow: 100, text: `${cap(p.subject)} is on ${p.possessive} feet.` },
+    ],
+  };
+};
 
 /** PLAYTEST-2026-09-27 D12 (design R3, RED-TEAM.md F2): whether a person can see. 100 clear, 0 blind; at or
  *  below `SIGHT_BLIND_AT_OR_BELOW` she cannot. Worn like posture (a moderate cover blinds, a substantial one
  *  puts her at 0); restored SLIGHT-ONLY at every magnitude -- the owner's decision, so one substantial cover
  *  outlasts one clearing (F2's table: at equal tables he always clears it before her next turn). Read in
  *  bands authored ascending, because `describedAsItStands` takes the first band the value falls in. */
-const sight = (who: string): OpenObjectProperty => ({
-  key: "sight",
-  resourceName: `${who}_sight`,
-  min: 0,
-  max: 100,
-  initialValue: 100,
-  wear: { slight: 10, moderate: 50, substantial: 100 },
-  restore: { slight: 10, moderate: 10, substantial: 10 },
-  readRanges: [
-    { atOrBelow: SIGHT_BLIND_AT_OR_BELOW, text: "Something covers her head; she cannot see." },
-    { atOrBelow: 100, text: "Her eyes are on the cell." },
-  ],
-});
+const sight = (who: PrincipalId): OpenObjectProperty => {
+  // The-prisoner#34: same fix as `posture` above -- built from `pronounsFor`, not a literal "her"/"she".
+  const p = pronounsFor(who);
+  return {
+    key: "sight",
+    resourceName: `${who}_sight`,
+    min: 0,
+    max: 100,
+    initialValue: 100,
+    wear: { slight: 10, moderate: 50, substantial: 100 },
+    restore: { slight: 10, moderate: 10, substantial: 10 },
+    readRanges: [
+      { atOrBelow: SIGHT_BLIND_AT_OR_BELOW, text: `Something covers ${p.possessive} head; ${p.subject} cannot see.` },
+      { atOrBelow: 100, text: `${cap(p.possessive)} eyes are on the cell.` },
+    ],
+  };
+};
+
+/** The-prisoner#34: one description template, built from `pronounsFor` -- the warden's own
+ *  description used to say "She" (copied from the prisoner's), which is exactly discrepancy 8
+ *  (docs/ARCHITECTURE.md). */
+function personDescription(principal: PrincipalId, name: string, role: string): string {
+  const p = pronounsFor(principal);
+  return `${name}, the ${role}. ${cap(p.subject)} can be seen, heard, spoken to, or touched by anyone who shares this room with ${p.object}.`;
+}
 
 /** The two principals as perceivable, targetable things (§55 gap 2) that carry
  *  their own declared state (this gap). Shaped exactly like `OPEN_OBJECTS` so
@@ -542,13 +566,13 @@ export const OPEN_PERSONS: readonly OpenObjectSpec[] = [
   {
     id: "prisoner",
     heldBy: "prisoner",
-    description: `${PRISONER_NAME}, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+    description: personDescription("prisoner", PRISONER_NAME, "prisoner"),
     properties: [posture("prisoner"), sight("prisoner")],
   },
   {
     id: "warden",
     heldBy: "warden",
-    description: `${WARDEN_NAME}, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+    description: personDescription("warden", WARDEN_NAME, "warden"),
     properties: [posture("warden"), sight("warden")],
   },
 ];
