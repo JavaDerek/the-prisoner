@@ -451,6 +451,7 @@ restores the 2026-09-26 game.
 | `PRISONER_BLOCK` | `on` | `off` | new 2026-09-27 (D4', D4b) |
 | `PRISONER_ONE_ACT` | `first` | `checked` (2026-09-22..27), `off` (before) | default since 2026-09-27 (D7); §74.1 |
 | `PRISONER_PERSON_INSTRUMENT` | `off` | `on` | new 2026-09-27 (D12), off pending P3 |
+| `PRISONER_HARM` | `off` | `on` | new 2026-09-28 (the-prisoner#1), off pending its own probe |
 | `PRISONER_ELISION` | `on` | `off` | default since 2026-09-26; §77 |
 | `PRISONER_CONTAINER_CLAUSE` | `on` | `off` | default since 2026-09-26; §79 |
 | `PRISONER_DERIVE_REPEAT` | `off` | `on` | held off by the owner, 2026-09-26; §79 |
