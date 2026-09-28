@@ -368,6 +368,23 @@ backoff on DeepInfra, the filtered `/api/ps` and the no-op `/api/generate`. It t
 and belongs to neither the engine nor the seam, which is why it lives here. `modelRouter.test.ts`
 pins the routing rule and the child environment.
 
+### 3.5 The MCP seat server (the-prisoner#11, added after this document's own pinned commit)
+
+`npm run mcp-seat` (`src/tools/mcpSeatCli.ts`) is a second process alongside the checkpoint one: a
+thin `@modelcontextprotocol/sdk` server (`src/mcp/server.ts`) exposing `new_game`/`my_briefing`/
+`attempt`/`rules`/`conditions`/`me`, over `src/mcp/session.ts`'s `GameSession`, which plays the
+identical `runOpenGame` loop with `src/open/mcpSeatMind.ts` (a second `OpenMind`, alongside the human
+seat's `humanSeat.ts`) in the player's chair. `src/mcp/liveConfig.ts` is its own analogue of this
+process's top-level env reads -- the one file in the MCP half that builds a real referee, opponent
+mind and `OllamaModelSwapper` from `process.env`, through the identical `read*Mode` functions
+`checkpoint.ts` itself reads. `src/mcp/transcript.ts` writes to `checkpoints/*-mcp.md` through
+`checkpoint.ts`'s own `renderOpenHalfRound`/`renderOpenSummary`, headed `Seat: MCP (client-relayed;
+authorship unverifiable)`. `docs/MCP-SEAT.md` is the full writeup, including its mapping onto
+JavaDerek/run-dmcp#38's proposed engine pieces. Tested exclusively through the SDK's own in-memory
+transport against a scripted referee and opponent mind (`src/mcp/__tests__/server.test.ts`); never a
+live model call, the same discipline every other container on this page follows. Not yet drawn into
+the Level 2 diagram above, which is pinned to the commit named in its own title.
+
 ---
 
 ## Boundaries that are enforced
