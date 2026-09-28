@@ -20,6 +20,7 @@
     "referee-replay": "tsx src/open/refereeReplayCli.ts",
     "price-world": "tsx src/open/priceWorldCli.ts",
     "model-router": "tsx src/tools/modelRouterCli.ts",
+    "mcp-seat": "tsx src/tools/mcpSeatCli.ts",
     "measures": "tsx src/open/batchMeasuresCli.ts"
   },
   "dependencies": {
