@@ -103,6 +103,15 @@ set `PRISONER_CHECKPOINT_DB`.
 On a single consumer GPU you will usually only fit one mid-sized model at a time, so run games one
 after another rather than in parallel.
 
+## The referee's own test cases and training data
+
+Whether this game plays correctly depends partly on which model referees it, not only on the world and
+the prompt. `data/referee/labels.jsonl` ships labelled test cases and the tooling to score any
+OpenAI-compatible endpoint against them, or to render a `train` split into LoRA-trainer chat-messages
+JSONL — for the referee alone, never the prisoner or warden minds (training on their play would make
+this README's own numbers measure the dataset instead of the model). See
+[`docs/REFEREE-DATA.md`](docs/REFEREE-DATA.md).
+
 ## Content note
 
 The prisoner's motive is fictional and violent: to escape and take revenge on the warden. The
