@@ -188,6 +188,10 @@ export function planEffect(params: {
    *  (§17.2), and who is acting -- both needed only by `leave`. */
   exits?: Readonly<Record<string, { passageResourceId: string | null; integrityResourceId: string; destinationId: string; part: string; openWhenPartAtMost: number | null }>>;
   actorId?: string;
+  /** D15 (owner, 2026-09-27, OPEN-VARIANT.md §80): each way out's key item (`world.ts`'s `keyOf`). An open or
+   *  close on a gated way out that has one carries it, with `actorId`, so `OPEN_PASSAGE` lifts the gate when the
+   *  actor holds the key at resolution time. Absent: every way out is gated as before D15. */
+  keyOf?: Readonly<Record<string, string>>;
   /** Which properties an object declares -- the §4.1 table by default; a
    *  caller with a world hands in `declaredProperty` (`world.ts`) so an
    *  object derived in this game (OPEN-VARIANT.md §13.3) takes effects too. */
@@ -322,9 +326,13 @@ export function planEffect(params: {
     // gate: a way out with no threshold has nothing D7a changes.
     const partDeclared = gate && effectKind === "open" ? lookup(gate.part, "integrity") : undefined;
     const wearOnRefusal = gate && partDeclared ? { resourceId: gate.integrityResourceId, amount: partDeclared.wear[magnitude], min: partDeclared.min, max: partDeclared.max } : undefined;
+    // D15 (owner, 2026-09-27, §80): a gated way out with a key names it and the actor; whether she holds it is
+    // the engine's owner column at t, read by the mechanic, never decided here.
+    const keyItemId = params.keyOf?.[exitId];
+    const key = gate && keyItemId && params.actorId ? { itemId: keyItemId, actorId: params.actorId } : undefined;
     return {
       mechanic: "OPEN_PASSAGE",
-      parameters: { resourceId, wayOut: exitId, open: effectKind === "open", min: declared.min, max: declared.max, ...(gate ? { gate } : {}), ...(wearOnRefusal ? { wearOnRefusal } : {}), description },
+      parameters: { resourceId, wayOut: exitId, open: effectKind === "open", min: declared.min, max: declared.max, ...(gate ? { gate } : {}), ...(key ? { key } : {}), ...(wearOnRefusal ? { wearOnRefusal } : {}), description },
       resourceId,
       isWearType: false,
     };

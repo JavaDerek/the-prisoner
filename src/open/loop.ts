@@ -775,6 +775,8 @@ export async function runOpenHalfRound(params: {
     resourceIdFor: openWorld.resourceIdFor,
     exits: openWorld.exits,
     actorId,
+    // D15 (owner, 2026-09-27, §80): the door's key; `OPEN_PASSAGE` reads who holds it at t.
+    keyOf: openWorld.keyOf,
     declaredProperty: (objectId, key) => declaredProperty(openWorld, objectId, key),
     ...(ruling.effectKind === "derive"
       ? {

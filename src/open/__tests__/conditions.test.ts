@@ -105,12 +105,13 @@ describe("the door condition (§46): the cell's other way out, stated", () => {
 
   it("states it as the reader's own, beside the window, with no threshold to meet", () => {
     const conditions = openConditions({ door: "stated" });
-    expect(conditions.length).toBe(7);
+    // Changed on purpose, 2026-09-27 (D15): a stated door also states its key, last -- 7 conditions became 9.
+    expect(conditions.length).toBe(9);
     expect(conditions[1]).toEqual({ when: ["the door is shut"], then: "Mara Voss can open it, with no threshold to meet first", for: "Mara Voss" });
-    // Her own conditions stay together at the top; the catches follow, renumbered 4-7.
-    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft"]);
+    // Her own conditions stay together at the top; the catches follow, renumbered 4-7; the key's two come last.
+    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft", "Mara Voss"]);
     expect(conditions[2]).toEqual(openConditions()[1]);
-    expect(conditions.slice(3)).toEqual(openConditions().slice(2));
+    expect(conditions.slice(3, 7)).toEqual(openConditions().slice(2));
   });
 
   it("says nothing the world does not do: the door's exit declares no threshold", () => {
@@ -131,7 +132,7 @@ describe("the door condition (§46): the cell's other way out, stated", () => {
   // condition 1 names the bar's -- never keep claiming "no threshold to meet".
   it("under doorPrice threshold, names the lock's own threshold, the way condition 1 names the bar's", () => {
     const conditions = openConditions({ door: "stated", doorPrice: "threshold" });
-    expect(conditions.length).toBe(7);
+    expect(conditions.length).toBe(9); // D15's two key conditions, last (changed on purpose, 2026-09-27)
     expect(conditions[1]).toEqual({
       when: [`the lock's integrity is at or below ${OPEN_DOOR_LOCK_MAX}`],
       then: "Mara Voss can open the door",
@@ -158,6 +159,24 @@ describe("the door condition (§46): the cell's other way out, stated", () => {
     createTestDb();
     try {
       expect(buildOpenWorld({ doorPrice: "margin" }).exits.door.openWhenPartAtMost).toBe(OPEN_DOOR_LOCK_MARGIN);
+    } finally {
+      destroyTestDb();
+    }
+  });
+
+  it("D15 (2026-09-27): the key conditions say nothing the world does not do -- the key ring exists, it is the door's key, the door's part is the lock, and the window has no key", () => {
+    expect(openConditions({ door: "stated", doorPrice: "margin" }).slice(-2)).toEqual([
+      { when: ["Warden Croft holds the key ring"], then: "Warden Croft can open the door", for: "Warden Croft" },
+      { when: ["Mara Voss holds the key ring"], then: "Mara Voss can open the door", for: "Mara Voss" },
+    ]);
+    expect(JSON.stringify(openConditions({ door: "unstated" }))).not.toContain("key ring");
+    createTestDb();
+    try {
+      const w = buildOpenWorld({ doorPrice: "margin" });
+      expect(w.entityIdFor.key_ring).toBeTruthy();
+      expect(w.keyOf).toEqual({ door: w.entityIdFor.key_ring });
+      expect(w.exits.door.part).toBe("lock");
+      expect(Object.keys(w.keyOf)).not.toContain("window");
     } finally {
       destroyTestDb();
     }
@@ -222,8 +241,9 @@ describe("openConditions: PRISONER_WINDOW=welded (§64.3)", () => {
 
   it("welded plus a stated door: her own two conditions first (the window-unlock condition is gone, not the door's), then the three remaining catches", () => {
     const conditions = openConditions({ window: "welded", door: "stated" });
-    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft"]);
-    expect(conditions.length).toBe(5);
+    // Changed on purpose, 2026-09-27 (D15): the stated door's key, last, for each holder.
+    expect(conditions.map((c) => c.for)).toEqual(["Mara Voss", "Mara Voss", "Warden Croft", "Warden Croft", "Warden Croft", "Warden Croft", "Mara Voss"]);
+    expect(conditions.length).toBe(7);
   });
 
   it("as rendered text, matches the prompt lab's own numbered list verbatim (CONDITION 1-4)", () => {

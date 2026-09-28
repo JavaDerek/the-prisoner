@@ -246,6 +246,10 @@ export interface PassageParams {
    *  threshold, and for a `gate` that lets the open through this turn (in
    *  which case there is nothing left to wear: the part already frees it). */
   wearOnRefusal?: { resourceId: string; amount: number; min: number; max: number };
+  /** D15, the owner's answer to OPEN-VARIANT.md §80.4 question 2 (RED-TEAM.md F12), 2026-09-27: the way out's key
+   *  and who is acting. When the key item's own `owner_id` at t is the actor (a character), `gate` does not apply
+   *  to this act -- open or close. Absent for a way out with no key or no gate. */
+  key?: { itemId: string; actorId: string };
   description: string;
 }
 
@@ -257,7 +261,11 @@ export const OPEN_PASSAGE: Mechanic = {
   adjudicate(input: AdjudicationInput): Adjudication {
     const p = input.parameters as unknown as PassageParams;
     const before = currentValue(input, p.resourceId);
-    if (p.open && p.gate && currentValue(input, p.gate.integrityResourceId) > p.gate.atMost) {
+    // D15: the key's holder, read like custody reads holders -- the engine's owner columns at t.
+    const keyHolder = p.key ? holderOf(input, p.key.itemId) : null;
+    const keyed = p.key !== undefined && keyHolder !== null && keyHolder.type === "character" && keyHolder.id === p.key.actorId;
+    const gate = keyed ? undefined : p.gate;
+    if (p.open && gate && currentValue(input, gate.integrityResourceId) > gate.atMost) {
       // D7a: the passage itself changes nothing, but the SAME resolution
       // wears the part by the ruled magnitude, exactly as `OPEN_WEAR` would
       // -- a refused pry now progresses the window route instead of
@@ -272,24 +280,24 @@ export const OPEN_PASSAGE: Mechanic = {
       }
       return {
         changes,
-        result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, opened: false, ...(part && p.gate ? { partId: p.gate.part, partBefore: part.before, partAfter: part.after } : {}) },
+        result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, opened: false, ...(part && gate ? { partId: gate.part, partBefore: part.before, partAfter: part.after } : {}) },
         description: p.description,
       };
     }
-    if (!p.open && p.gate && currentValue(input, p.gate.integrityResourceId) <= p.gate.atMost) {
+    if (!p.open && gate && currentValue(input, gate.integrityResourceId) <= gate.atMost) {
       // PLAYTEST-2026-09-27 D11 (RED-TEAM.md F3), 2026-09-27: a part at or under the gate cannot hold the way out
       // shut -- the window's bar is out of it, the door's lock will not hold. Nothing changes, and `result` says
       // which part, so the actor is told.
       return {
         changes: [],
-        result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, shut: false, partId: p.gate.part },
+        result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after: before, shut: false, partId: gate.part },
         description: p.description,
       };
     }
     const after = p.open ? p.max : p.min;
     return {
       changes: [setResource(p.resourceId, after, p.min, p.max)],
-      result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after, ...(p.open ? { opened: true } : {}), ...(p.open && p.gate ? { freedPart: p.gate.part } : {}) },
+      result: { mechanic: "OPEN_PASSAGE", resourceId: p.resourceId, wayOut: p.wayOut, before, after, ...(p.open ? { opened: true } : {}), ...(p.open && gate ? { freedPart: gate.part } : {}), ...(keyed ? { withKey: true } : {}) },
       description: p.description,
     };
   },

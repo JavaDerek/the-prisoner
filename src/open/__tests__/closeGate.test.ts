@@ -78,14 +78,27 @@ describe("close refuses on a spent part (D11, RED-TEAM.md F3)", () => {
     expect(renderOwnOutcome(half)).toContain("Your last attempt shut the window.");
   });
 
-  it("a door under margin with the lock at its gate cannot be bolted", async () => {
+  it("a door under margin with the lock at its gate cannot be bolted -- by a warden who has lost the key ring", async () => {
     const w = world("margin");
     set(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
     open(w, "door");
+    // Changed on purpose, 2026-09-27 (D15, the owner's answer to §80.4 question 2): the key ring lifts the gate
+    // for its holder, and he starts with it on his belt, so this line now needs it out of his hands first.
+    buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_GIVE", parameters: { itemId: w.entityIdFor.key_ring, actorId: w.base.wardenId, recipientId: w.base.prisonerId, description: "set up" } });
     const half = await wardenCloses(w, "door");
     expect(half.outcome?.result).toMatchObject({ shut: false, partId: "lock" });
     expect(getResource(w.exits.door.passageResourceId as string)?.value).toBe(1);
     expect(renderOwnOutcome(half)).toContain("The door cannot be bolted: the lock will not hold.");
+  });
+
+  it("D15: with the key ring on his belt, he bolts it whatever the lock", async () => {
+    const w = world("margin");
+    set(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
+    open(w, "door");
+    const half = await wardenCloses(w, "door");
+    expect(half.outcome?.result.shut).toBeUndefined();
+    expect(half.outcome?.result.withKey).toBe(true);
+    expect(getResource(w.exits.door.passageResourceId as string)?.value).toBe(0);
   });
 
   it("a door under free (no gate) closes as today, whatever the lock", async () => {

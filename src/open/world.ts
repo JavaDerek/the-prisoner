@@ -79,6 +79,10 @@ export interface OpenWorld {
    *  above, never a `set` on the item (run-dmcp refuses a key that is not a live column). Built ALWAYS, not only
    *  under presence: a block needs no person to be perceivable, only a body in a doorway. */
   blocking: Record<Principal, string>;
+  /** D15, the owner's answer to OPEN-VARIANT.md §80.4 question 2 (RED-TEAM.md F12), 2026-09-27: each way out's key,
+   *  way-out id -> the key's item id. Only the door has one (the key ring, on Croft's belt); the window has none.
+   *  Who holds it is never kept here: `OPEN_PASSAGE` reads the item's own `owner_id` at resolution time. */
+  keyOf: Readonly<Record<string, string>>;
 }
 
 /** D4': a way out's fixed 1-based index -- `Object.keys(openWorld.exits)` order, the order the exits were
@@ -385,7 +389,10 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
     blocking[principal] = resource.id;
   }
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode, personHeldIn, blocking };
+  // D15: the door's key is the key ring -- the one item whose holder lifts a way out's gate.
+  const keyOf: Record<string, string> = entityIdFor.key_ring ? { door: entityIdFor.key_ring } : {};
+
+  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode, personHeldIn, blocking, keyOf };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {

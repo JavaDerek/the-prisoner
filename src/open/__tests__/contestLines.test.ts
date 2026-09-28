@@ -333,9 +333,12 @@ describe("close refuses on a spent part (D11, RED-TEAM.md F3), played", () => {
     expect(game.endedAtRound).toBe(2);
   });
 
-  it("the door under margin: her open at lock 60, his bolt refused, she leaves", async () => {
+  it("the door under margin: her open at lock 60, his bolt refused once the ring is off his belt, she leaves", async () => {
     const w = newWorld();
     wearTo(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
+    // Changed on purpose, 2026-09-27 (D15): the key ring lifts the gate for its holder -- see the next line -- so
+    // D11's door line is now the line of a warden who has lost it.
+    buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_GIVE", parameters: { itemId: w.entityIdFor.key_ring, actorId: w.base.wardenId, recipientId: w.base.prisonerId, description: "set up" } });
     const warden = byRound("warden", (n) => (n === 1 ? WAIT : CLOSE_DOOR));
     const prisoner = byRound("prisoner", (n) => (n === 1 ? OPEN_DOOR : LEAVE_DOOR));
     const game = await play(w, warden, prisoner);
@@ -346,6 +349,23 @@ describe("close refuses on a spent part (D11, RED-TEAM.md F3), played", () => {
     expect(suspicionAt(w, close.t)).toBe(suspicionAt(w, half(game, 1, "prisoner").t));
     expect(game.ended).toEqual({ kind: "escaped" });
     expect(game.endedAtRound).toBe(2);
+  });
+
+  it("D15: with the ring on his belt he bolts the door she opened at lock 60 -- F3's loop, open to the key's holder", async () => {
+    // The owner's decision lifts the gate for the holder on close as well as open, so on the door (and only the
+    // door) the open-close exchange D11 closed is his again while he keeps the ring: her open lands, his bolt lands.
+    const w = newWorld();
+    wearTo(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
+    const warden = byRound("warden", (n) => (n === 1 ? WAIT : CLOSE_DOOR));
+    const prisoner = byRound("prisoner", (n) => (n === 1 ? OPEN_DOOR : LEAVE_DOOR));
+    const game = await play(w, warden, prisoner, 2);
+
+    expect(half(game, 1, "prisoner").outcome?.result.opened).toBe(true);
+    const close = half(game, 2, "warden");
+    expect(close.outcome?.result.withKey).toBe(true);
+    expect(valueAt(w, w.exits.door.passageResourceId as string, close.t)).toBe(0);
+    expect(half(game, 2, "prisoner").outcome?.result.left).toBe(false);
+    expect(game.ended).toBeNull();
   });
 
   it("the F3 loop cannot happen: at every bar value, her open lands exactly when his close is refused", async () => {
@@ -420,10 +440,13 @@ describe("the blind line (D12, external review F1), played", () => {
   });
 });
 
-describe("the key ring (RED-TEAM.md F12): the standing gap", () => {
+describe("the key ring (RED-TEAM.md F12), closed by D15 (owner, 2026-09-27)", () => {
   afterEach(() => destroyTestDb());
 
-  it("taken from a crouched warden, it opens nothing: the door is gated on the lock alone", async () => {
+  // Changed on purpose, 2026-09-27 (D15, the owner's answer to §80.4 question 2): both lines here asserted the
+  // standing gap "as built" -- the ring opened nothing, for her or for him. The ring now lifts the door's gate
+  // for whoever holds it, read from the ring's own owner column at resolution time.
+  it("taken from a crouched warden, it opens the door at lock 100, and she is out while he is away", async () => {
     const w = newWorld();
     const warden = byRound("warden", () => WAIT);
     const prisoner = byRound("prisoner", (n) => (n === 1 ? TRIP_HIM : n === 2 ? TAKE_KEYS : n === 3 ? OPEN_DOOR : LEAVE_DOOR));
@@ -431,21 +454,32 @@ describe("the key ring (RED-TEAM.md F12): the standing gap", () => {
 
     expect(valueAt(w, w.resourceIdFor["warden.posture"], half(game, 1, "prisoner").t)).toBe(50);
     expect(half(game, 2, "prisoner").outcome?.result.taken).toBe(true);
-    // STANDING GAP (F12), asserted as built: holding the keys does not lift the door's gate. Her open is refused
-    // (D7a wears the lock by the ruled magnitude instead), and the door stays shut.
-    expect(half(game, 3, "prisoner").outcome?.result.opened).toBe(false);
-    expect(valueAt(w, w.exits.door.passageResourceId as string, half(game, 3, "prisoner").t)).toBe(0);
-    expect(half(game, 4, "prisoner").outcome?.result.left).toBe(false);
-    expect(game.ended).toBeNull();
+    expect(half(game, 3, "prisoner").outcome?.result).toMatchObject({ opened: true, withKey: true });
+    expect(valueAt(w, w.base.resources.lockIntegrity, half(game, 3, "prisoner").t)).toBe(100);
+    // D13: tripping him gave grounds at once (50), the take +10, the open +10 -- a watching warden with a reason
+    // to look, who spent every turn waiting.
+    expect(suspicionAt(w, half(game, 3, "prisoner").t)).toBe(70);
+    expect(half(game, 4, "prisoner").outcome?.result.left).toBe(true);
+    expect(game.ended).toEqual({ kind: "escaped" });
+    expect(game.endedAtRound).toBe(4);
   });
 
-  it("the same gap binds the warden: under margin he cannot open his own door, and trying wears his own lock", async () => {
+  it("the warden, holding it, opens his own door under margin, and the lock is untouched", async () => {
     const w = newWorld();
     const warden = byRound("warden", (n) => (n === 1 ? OPEN_DOOR : WAIT));
     const prisoner = byRound("prisoner", () => null);
     const game = await play(w, warden, prisoner, 1);
-    expect(half(game, 1, "warden").outcome?.result.opened).toBe(false);
-    expect(valueAt(w, w.base.resources.lockIntegrity, half(game, 1, "warden").t)).toBe(80);
+    expect(half(game, 1, "warden").outcome?.result.opened).toBe(true);
+    expect(valueAt(w, w.base.resources.lockIntegrity, half(game, 1, "warden").t)).toBe(100);
+  });
+
+  it("without it she is refused at lock 100, as before (D7a wears the lock instead)", async () => {
+    const w = newWorld();
+    const warden = byRound("warden", () => WAIT);
+    const prisoner = byRound("prisoner", () => OPEN_DOOR);
+    const game = await play(w, warden, prisoner, 1);
+    expect(half(game, 1, "prisoner").outcome?.result.opened).toBe(false);
+    expect(valueAt(w, w.base.resources.lockIntegrity, half(game, 1, "prisoner").t)).toBe(80);
   });
 });
 
@@ -474,7 +508,7 @@ describe("absence and the spoken line (D5, mechanics deviation 5), played", () =
 
   it("a warden who walks out by his own act is seen going; once out, his act and his line do not reach her", async () => {
     const w = newWorld();
-    // The door stands open (under margin he cannot open it himself -- see the key ring gap above).
+    // The door stands open (set up directly; since D15 he could also open it himself with the ring).
     buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_PASSAGE", parameters: { resourceId: w.exits.door.passageResourceId, wayOut: "door", open: true, min: 0, max: 1, description: "set up" } });
     const warden = byRound("warden", (n) => (n === 1 ? { intent: LEAVE_DOOR, line: "Back soon." } : { intent: CLOSE_DOOR, line: "Still here, Voss." }));
     const prisoner = byRound("prisoner", () => null);
@@ -508,15 +542,23 @@ describe("the condition lists both chairs read under the defaults (D3, D6', D4',
       `CONDITION 8 (for ${WARDEN_NAME}): If ${WARDEN_NAME} stands in a way out, and ${WARDEN_NAME} is on her feet, and ${WARDEN_NAME} can see, then ${PRISONER_NAME} cannot leave through it.`,
       `CONDITION 9 (for ${WARDEN_NAME}): If the bar's integrity is below 100, then ${WARDEN_NAME} can mend it.`,
       `CONDITION 10 (for ${WARDEN_NAME}): If the lock's integrity is below 100, then ${WARDEN_NAME} can mend it.`,
+      // D15 (changed on purpose, 2026-09-27): the key ring, stated to both chairs for both holders.
+      `CONDITION 11 (for ${WARDEN_NAME}): If ${WARDEN_NAME} holds the key ring, then ${WARDEN_NAME} can open the door.`,
+      `CONDITION 12 (for you): If ${PRISONER_NAME} holds the key ring, then ${PRISONER_NAME} can open the door.`,
     ]);
   });
 
-  it("the warden's list is the same ten, read from his side", () => {
+  it("the warden's list is the same twelve, read from his side", () => {
     const his = renderConditionList(conditions, { reader: WARDEN_NAME }).filter((l) => l.startsWith("CONDITION "));
-    expect(his).toHaveLength(10);
+    expect(his).toHaveLength(12);
     expect(his[1]).toBe(`CONDITION 2 (for ${PRISONER_NAME}): If the lock's integrity is at or below 60, then ${PRISONER_NAME} can open the door.`);
     expect(his[7]).toBe(`CONDITION 8 (for you): If ${WARDEN_NAME} stands in a way out, and ${WARDEN_NAME} is on her feet, and ${WARDEN_NAME} can see, then ${PRISONER_NAME} cannot leave through it.`);
-    expect(his.slice(8)).toEqual([`CONDITION 9 (for you): If the bar's integrity is below 100, then ${WARDEN_NAME} can mend it.`, `CONDITION 10 (for you): If the lock's integrity is below 100, then ${WARDEN_NAME} can mend it.`]);
+    expect(his.slice(8)).toEqual([
+      `CONDITION 9 (for you): If the bar's integrity is below 100, then ${WARDEN_NAME} can mend it.`,
+      `CONDITION 10 (for you): If the lock's integrity is below 100, then ${WARDEN_NAME} can mend it.`,
+      `CONDITION 11 (for you): If ${WARDEN_NAME} holds the key ring, then ${WARDEN_NAME} can open the door.`,
+      `CONDITION 12 (for ${PRISONER_NAME}): If ${PRISONER_NAME} holds the key ring, then ${PRISONER_NAME} can open the door.`,
+    ]);
   });
 
   it("the catch conditions keep their numbers (4-7) with the block conditions on or off", () => {

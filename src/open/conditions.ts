@@ -62,7 +62,17 @@ export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPrice
     { when: [grounds, examines("the spoon"), "the spoon is out in the open", finds(`its edge at or above ${SEARCH_CATCH_SPOON_MIN}`)], then: catches, for: WARDEN_NAME },
     { when: [grounds, examines("a way out"), finds("it standing open")], then: catches, for: WARDEN_NAME },
     ...(options.block === "on" ? blockConditions(weldedWindow) : []),
+    // D15, the owner's answer to §80.4 question 2 (2026-09-27): the key ring lifts the door's gate for whoever
+    // holds it (`OPEN_PASSAGE`, `world.ts`'s `keyOf`). Both are true rules of the world, so both chairs read both,
+    // whoever holds it now; appended last so every earlier condition keeps its number. The door unstated, neither.
+    ...(options.door === "stated" ? keyConditions() : []),
   ];
+}
+
+/** D15: who holds the key ring can open the door. Asserted against the world in `keyRing.test.ts` (the ring
+ *  exists, it is the door's key, the door's part is the lock). */
+function keyConditions(): Condition[] {
+  return [WARDEN_NAME, PRISONER_NAME].map((holder) => ({ when: [`${holder} holds the key ring`], then: `${holder} can open the door`, for: holder }));
 }
 
 /**
