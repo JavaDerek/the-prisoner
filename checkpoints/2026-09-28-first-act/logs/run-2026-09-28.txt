@@ -1,0 +1,73 @@
+{"type":"meta","probe":"P1 first act","started":"2026-09-28T08:03:56.056Z","revision":"`c2118e8` (clean)","arms":"presence=modelled absence=cadence conditions=both door=stated doorPrice=margin window=open block=on personInstrument=off oneAct=first instrument=off deriveWording=baseline elision=on containerClause=on deriveRepeat=off refereeThinking=off witsThinking=off","omit":[],"cells":[{"name":"first","overrides":{}}],"n":3,"models":["endpoint http://doris:11434/v1; referee muse-glimmer:30b; warden muse-glimmer:30b/muse-glimmer:30b; prisoner muse-glimmer:30b/muse-glimmer:30b","thinking referee=off wits=off; timeouts think=300000 referee=300000","/api/ps at start: muse-glimmer:30b"]}
+[2026-09-28T08:03:56.057Z] INFO  [db] Using database path from DMCP_DB_PATH {"dbPath":":memory:"}
+[2026-09-28T08:03:56.058Z] INFO  [db] Database connection established {"path":":memory:"}
+[1/42] first:HB-r2:1 -> door/open/passage applicable=true first-act="open the door" (64.155s)
+[2/42] first:HB-r2:2 -> door/open/passage applicable=true first-act="open the door and" (90.921s)
+[3/42] first:HB-r2:3 -> door/open/passage applicable=true first-act="open the door and" (73.86s)
+[4/42] first:HB-r10:1 -> warden/wear/posture applicable=true first-act="hit the warden with the meal tray," (81.325s)
+[5/42] first:HB-r10:2 -> warden/wear/posture applicable=true first-act="hit the warden with the meal tray," (76.757s)
+[6/42] first:HB-r10:3 -> warden/wear/posture applicable=true first-act="hit the warden with the meal tray," (76.715s)
+[7/42] first:G27-P8:1 -> window/open/passage applicable=true first-act="Pull the bar out of the window" (66.714s)
+[8/42] first:G27-P8:2 -> bar/open/integrity applicable=true first-act="Pull the bar out of the window" (62.76s)
+[9/42] first:G27-P8:3 -> bar/open/integrity applicable=true first-act="Pull the bar out of the window" (62.716s)
+[10/42] first:B7-P18:1 -> door/reveal/passage applicable=true first-act="study the door's gap" (78.445s)
+[11/42] first:B7-P18:2 -> door/reveal/passage applicable=true first-act="study the door's gap" (69.322s)
+[12/42] first:B7-P18:3 -> door/reveal/passage applicable=true first-act="study the door's gap" (69.294s)
+[13/42] first:B7-P23:1 -> door/reveal/passage applicable=true first-act="look at the door gap" (92.903s)
+[14/42] first:B7-P23:2 -> door/reveal/passage applicable=true first-act="look at the door gap" (81.152s)
+[15/42] first:B7-P23:3 -> door/reveal/passage applicable=true first-act="look at the door gap" (81.177s)
+[16/42] first:B7-P36:1 -> bar/wear/integrity applicable=true (38.941s)
+[17/42] first:B7-P36:2 -> bar/wear/integrity applicable=true (40.926s)
+[18/42] first:B7-P36:3 -> bar/wear/integrity applicable=true (40.847s)
+[19/42] first:B7-P48:1 -> strip/wear/integrity applicable=true (54.949s)
+[20/42] first:B7-P48:2 -> strip/none/none applicable=false (81.175s)
+[21/42] first:B7-P48:3 -> strip/none/none applicable=false (81.081s)
+[22/42] first:B7-P58:1 -> loose_tile/reveal/concealment applicable=true first-act="look at the tile," (65.529s)
+[23/42] first:B7-P58:2 -> loose_tile/reveal/concealment applicable=true first-act="look at the tile," (64.776s)
+[24/42] first:B7-P58:3 -> loose_tile/reveal/concealment applicable=true first-act="look at the tile," (64.784s)
+[25/42] first:B7-P59:1 -> prisoner/wear/posture applicable=true (57.268s)
+[26/42] first:B7-P59:2 -> prisoner/wear/posture applicable=true (42.951s)
+[27/42] first:B7-P59:3 -> prisoner/wear/posture applicable=true (42.948s)
+[28/42] first:B7-P60:1 -> prisoner/wear/posture applicable=true (46.618s)
+[29/42] first:B7-P60:2 -> prisoner/wear/posture applicable=true (39.214s)
+[30/42] first:B7-P60:3 -> prisoner/wear/posture applicable=true (39.215s)
+[31/42] first:B7-P61:1 -> spoon/take/none applicable=true first-act="take the spoon and" (56.15s)
+[32/42] first:B7-P61:2 -> spoon/take/none applicable=true first-act="take the spoon and" (56.256s)
+[33/42] first:B7-P61:3 -> spoon/take/none applicable=true first-act="take the spoon and" (56.13s)
+[34/42] first:B7-W04:1 -> bar/reveal/integrity applicable=true first-act="check the bar," (50.362s)
+[35/42] first:B7-W04:2 -> bar/reveal/integrity applicable=true first-act="check the bar," (47.733s)
+[36/42] first:B7-W04:3 -> bar/reveal/integrity applicable=true first-act="check the bar," (47.699s)
+[37/42] first:B7-W07:1 -> bar/reveal/integrity applicable=true (35.481s)
+[38/42] first:B7-W07:2 -> bar/reveal/integrity applicable=true first-act="check the bar's" (52.876s)
+[39/42] first:B7-W07:3 -> bar/reveal/integrity applicable=true first-act="check the bar's" (53.952s)
+[40/42] first:G27-W7:1 -> loose_tile/reveal/concealment applicable=true first-act="Closely examine the loose_tile to check its concealment" (51.866s)
+[41/42] first:G27-W7:2 -> loose_tile/reveal/concealment applicable=true first-act="Closely examine the loose_tile to check its concealment" (56.418s)
+[42/42] first:G27-W7:3 -> loose_tile/reveal/concealment applicable=true first-act="Closely examine the loose_tile to check its concealment" (56.309s)
+## P1 -- the first act (item verdict = majority of its N=3 samples)
+
+| id | prediction | so far | projected at N | verdict |
+|---|---|---|---|---|
+| 1 | compounds rule the first act after truncation: 3 of 3 | 2 of 3 | 2 of 3 | DEAD |
+| 2 | controls flagged `several` AND the ruling changed: at most 1 (design: of 12; 11 named) | 1 of 11 | 1 of 11 | MET |
+| KILL | controls changed: 3 or more kills (i.e. at most 2 survive) | 1 of 11 | 1 of 11 | MET |
+| STOP | compounds whose truncated ruling was inapplicable: 2 or more stops (at most 1) | 0 of 3 | 0 of 3 | MET |
+| r1 | compounds with no split at all (the reader said one, or cited from word 1) -- reported | 0 of 3 | 0 of 3 | REPORT |
+| r2 | controls flagged `several` whatever happened next -- reported (§74.1's one-in-four) | 7 of 11 | 7 of 11 | REPORT |
+
+**DEAD AT THIS POLL: 1** -- announce it now and apply the stopping rule (the owner, 2026-09-21).
+
+Per item (samples in; first-act keys / truncated text):
+- HB-r2 (compound): 3/3 -- door/open/passage [first: "open the door"]; door/open/passage [first: "open the door and"]; door/open/passage [first: "open the door and"]
+- HB-r10 (compound): 3/3 -- warden/wear/posture [first: "hit the warden with the meal tray,"]; warden/wear/posture [first: "hit the warden with the meal tray,"]; warden/wear/posture [first: "hit the warden with the meal tray,"]
+- G27-P8 (compound): 3/3 -- window/open/passage [first: "Pull the bar out of the window"]; bar/open/integrity [first: "Pull the bar out of the window"]; bar/open/integrity [first: "Pull the bar out of the window"]
+- B7-P18 (control): 3/3 -- door/reveal/passage [first: "study the door's gap"]; door/reveal/passage [first: "study the door's gap"]; door/reveal/passage [first: "study the door's gap"]
+- B7-P23 (control): 3/3 -- door/reveal/passage [first: "look at the door gap"]; door/reveal/passage [first: "look at the door gap"]; door/reveal/passage [first: "look at the door gap"]
+- B7-P36 (control): 3/3 -- bar/wear/integrity; bar/wear/integrity; bar/wear/integrity
+- B7-P48 (control): 3/3 -- strip/wear/integrity; strip/none/none; strip/none/none
+- B7-P58 (control): 3/3 -- loose_tile/reveal/concealment [first: "look at the tile,"]; loose_tile/reveal/concealment [first: "look at the tile,"]; loose_tile/reveal/concealment [first: "look at the tile,"]
+- B7-P59 (control): 3/3 -- prisoner/wear/posture; prisoner/wear/posture; prisoner/wear/posture
+- B7-P60 (control): 3/3 -- prisoner/wear/posture; prisoner/wear/posture; prisoner/wear/posture
+- B7-P61 (control): 3/3 -- spoon/take/none [first: "take the spoon and"]; spoon/take/none [first: "take the spoon and"]; spoon/take/none [first: "take the spoon and"]
+- B7-W04 (control): 3/3 -- bar/reveal/integrity [first: "check the bar,"]; bar/reveal/integrity [first: "check the bar,"]; bar/reveal/integrity [first: "check the bar,"]
+- B7-W07 (control): 3/3 -- bar/reveal/integrity; bar/reveal/integrity [first: "check the bar's"]; bar/reveal/integrity [first: "check the bar's"]
+- G27-W7 (control): 3/3 -- loose_tile/reveal/concealment [first: "Closely examine the loose_tile to check its concealment"]; loose_tile/reveal/concealment [first: "Closely examine the loose_tile to check its concealment"]; loose_tile/reveal/concealment [first: "Closely examine the loose_tile to check its concealment"]
