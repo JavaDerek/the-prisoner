@@ -287,4 +287,20 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
     },
     TIMEOUT
   );
+
+  it(
+    "#35 warden wits time: the dry run rebuilds all 14 contexts (7 rounds x 2 arms), builds 28 requests, and the old arm's prompt is shorter with no divergence through round 5",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-warden-wits-time/probe.mts", "--dry-run");
+      expect(out).toContain("14 contexts x N=2: 28 requests built, none sent.");
+      expect(out).toContain("new:1 sample 1 -- conditions list,");
+      expect(out).toContain("old:1 sample 1 -- conditions sentences,");
+      expect(out).toContain("0 divergences, 0 warnings");
+      // Rounds 6, 7 and 9 diverge under the old arm from round 5 on (the recorded game used `block` and D13's
+      // sight/posture, which do not exist under `PRISONER_BLOCK=off`/`PRISONER_PRESENCE=off`) -- named, not hidden
+      // (PREDICTION.md).
+      expect(out).toContain("DIVERGENCE old:9: round 5 warden: recorded possible, replayed impossible (window/block)");
+    },
+    TIMEOUT
+  );
 });
