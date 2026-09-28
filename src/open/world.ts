@@ -83,6 +83,15 @@ export interface OpenWorld {
    *  way-out id -> the key's item id. Only the door has one (the key ring, on Croft's belt); the window has none.
    *  Who holds it is never kept here: `OPEN_PASSAGE` reads the item's own `owner_id` at resolution time. */
   keyOf: Readonly<Record<string, string>>;
+  /** the-prisoner#3, enjoyable mode: object id -> the description this game
+   *  actually uses in place of `OPEN_OBJECTS`'s own authored text --
+   *  `scenarioGen.ts`'s `descriptionOverridesFrom`. Default `{}`, so a caller
+   *  that never sets it (every game before this issue existed, and every
+   *  benchmark-mode game since) is byte-identical. Read by
+   *  `briefing.ts`'s `authoredDescription`, the SAME seam the welded-window
+   *  arm already swaps two objects' text through -- never a second
+   *  description path. */
+  descriptionOverrides: Readonly<Record<string, string>>;
 }
 
 /** D4': a way out's fixed 1-based index -- `Object.keys(openWorld.exits)` order, the order the exits were
@@ -242,10 +251,19 @@ function doorGate(mode: DoorPriceMode | undefined): number | null {
   return null;
 }
 
-export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: "off" | "modelled"; window?: WindowMode; harm?: "off" | "on" } = {}): OpenWorld {
+export function buildOpenWorld(options: {
+  doorPrice?: DoorPriceMode;
+  presence?: "off" | "modelled";
+  window?: WindowMode;
+  /** the-prisoner#1. Default `"off"`. */
+  harm?: "off" | "on";
+  /** the-prisoner#3, enjoyable mode. Default `{}`. */
+  descriptionOverrides?: Readonly<Record<string, string>>;
+} = {}): OpenWorld {
   const base = buildWorld();
   const gameId = base.gameId;
   const windowMode = options.window ?? "open";
+  const descriptionOverrides = options.descriptionOverrides ?? {};
 
   const entityIdFor: Record<string, string> = {
     bar: base.barId,
@@ -397,7 +415,22 @@ export function buildOpenWorld(options: { doorPrice?: DoorPriceMode; presence?: 
   // D15: the door's key is the key ring -- the one item whose holder lifts a way out's gate.
   const keyOf: Record<string, string> = entityIdFor.key_ring ? { door: entityIdFor.key_ring } : {};
 
-  return { base, entityIdFor, resourceIdFor, resourceNameById, exits, derived: [], destroyed: [], acquired: [], namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id }, windowMode, personHeldIn, blocking, keyOf };
+  return {
+    base,
+    entityIdFor,
+    resourceIdFor,
+    resourceNameById,
+    exits,
+    derived: [],
+    destroyed: [],
+    acquired: [],
+    namedLocations: { corridor: corridor.id, outsideWindow: outsideWindow.id },
+    windowMode,
+    personHeldIn,
+    blocking,
+    keyOf,
+    descriptionOverrides,
+  };
 }
 
 export function resourceIdForProperty(world: OpenWorld, objectId: string, propertyKey: string): string | undefined {

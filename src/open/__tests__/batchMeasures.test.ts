@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { prisonerModeHeaderLine } from "../scenarioMode.js";
 import {
   parseTranscript,
   parseRefereeReplies,
@@ -234,6 +235,29 @@ describe("parseTranscript -- structural lines only", () => {
     expect(t.escaped).toBe(true);
     expect(t.halves[0]).toMatchObject({ round: 1, principal: "warden", silence: true, ruling: null });
     expect(t.halves.filter((h) => h.ruling).length).toBe(3);
+  });
+
+  it("a transcript with no Mode: line (recorded before the-prisoner#3) reads as benchmark", () => {
+    expect(parseTranscript(GAME_A, "X/a.md").mode).toBe("benchmark");
+  });
+});
+
+// the-prisoner#3, CODER-BRIEF decision 1: batchMeasures REFUSES to aggregate
+// an enjoyable transcript -- its object descriptions were generated for that
+// game alone, so pooling it with a benchmark batch is not measuring the same
+// thing twice (§31's "a batch means identical conditions").
+describe("parseTranscript refuses an ENJOYABLE-mode transcript (the-prisoner#3)", () => {
+  it("throws a clear message naming the file, for a game whose header says Mode: ENJOYABLE", () => {
+    const enjoyable = GAME_A.replace("## Rounds", `${prisonerModeHeaderLine("enjoyable")}\n\n## Rounds`);
+    expect(() => parseTranscript(enjoyable, "checkpoints/x/game.md")).toThrow(/checkpoints\/x\/game\.md/);
+    expect(() => parseTranscript(enjoyable, "checkpoints/x/game.md")).toThrow(/enjoyable/i);
+  });
+
+  it("a benchmark-mode header line parses normally and sets .mode", () => {
+    const benchmark = GAME_A.replace("## Rounds", `${prisonerModeHeaderLine("benchmark")}\n\n## Rounds`);
+    const t = parseTranscript(benchmark, "X/a.md");
+    expect(t.mode).toBe("benchmark");
+    expect(t.escaped).toBe(false);
   });
 });
 

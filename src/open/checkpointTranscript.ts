@@ -10,6 +10,7 @@ import { renderOwnOutcome, renderForOther } from "./perception.js";
 import type { HarmMode } from "./effects.js";
 import { recordIntent, newMeasurements, noteIntent, renderMeasurements } from "./transcript.js";
 import type { Principal } from "../ledger/beliefs.js";
+import { pronounsFor } from "../scenario.js";
 
 /**
  * The open variant's checkpoint transcript (issue #2): everything a reader
@@ -141,7 +142,9 @@ function custodyLine(half: OpenHalfRoundResult): string | null {
   const other: Principal = half.principal === "prisoner" ? "warden" : "prisoner";
   if (mechanic === "OPEN_TAKE") {
     if (result.taken === true) return `  - taken: the ${half.principal} holds the ${obj}`;
-    if (result.refused === "holder-on-her-feet") return `  - kept: the holder is on her feet (the ${other} still holds the ${obj})`;
+    // The-prisoner#34: `other` (the holder who kept it) used to be told with a hardcoded "her feet" --
+    // built from `pronounsFor(other)` now, so the line reads correctly whichever principal held it.
+    if (result.refused === "holder-on-her-feet") return `  - kept: the holder is on ${pronounsFor(other).possessive} feet (the ${other} still holds the ${obj})`;
     return `  - not taken (${result.refused ?? "?"})`;
   }
   if (mechanic === "OPEN_GIVE") {
@@ -232,9 +235,17 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
 }
 
 /** The authored description for an object id, or `undefined` for anything this
- *  game derived (OPEN-VARIANT.md §13) -- which therefore always prints. */
-function authoredDescription(objectId: string): string | undefined {
-  return OPEN_OBJECTS.find((o) => o.id === objectId)?.description;
+ *  game derived (OPEN-VARIANT.md §13) -- which therefore always prints.
+ *
+ *  the-prisoner#3, enjoyable mode: `descriptionOverrides` (default `{}`) is
+ *  what THIS game's own briefing actually carried as the object's base text
+ *  (`scenarioGen.ts`'s generated description, or the authored facts text on
+ *  a fallback) -- checked first, so a generated description that has not
+ *  itself changed since the header is not misread as "changed" against the
+ *  benchmark's own static text, which would print noise on every single
+ *  half-round it is perceived. */
+function authoredDescription(objectId: string, descriptionOverrides: Readonly<Record<string, string>> = {}): string | undefined {
+  return descriptionOverrides[objectId] ?? OPEN_OBJECTS.find((o) => o.id === objectId)?.description;
 }
 
 /**
@@ -254,16 +265,28 @@ function authoredDescription(objectId: string): string | undefined {
  * authored one, because the unchanged text is in the header once and repeating
  * eleven objects per half-round would treble a transcript to say nothing new.
  */
-function perceivedLines(half: OpenHalfRoundResult): string[] {
+function perceivedLines(half: OpenHalfRoundResult, descriptionOverrides: Readonly<Record<string, string>> = {}): string[] {
   const objects = half.context.perceivedObjects;
   if (objects.length === 0) return ["**Perceived:** nothing it could act on."];
   const lines = [`**Perceived:** ${objects.map((o) => o.id).join(", ")}`];
-  const changed = objects.filter((o) => o.description !== authoredDescription(o.id));
+  const changed = objects.filter((o) => o.description !== authoredDescription(o.id, descriptionOverrides));
   for (const object of changed) lines.push(`- ${object.id}, as it stands: ${object.description}`);
   return lines;
 }
 
-export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote, voiceSilence?: SilenceNote, harmMode?: HarmMode): string[] {
+/** the-prisoner#3: `descriptionOverrides` (default `{}`, so a benchmark-mode
+ *  transcript is byte-identical to every one recorded before this issue
+ *  existed) is `checkpoint.ts`'s own enjoyable-mode map -- the SAME one
+ *  `buildOpenWorld`/`authoredDescription` (`briefing.ts`) use, so "as it
+ *  stands" compares against the base text THIS game actually played.
+ *  the-prisoner#1's `harmMode` (default `"off"`) is passed straight through to `renderOwnOutcome`, below. */
+export function renderOpenHalfRound(
+  half: OpenHalfRoundResult,
+  silence?: SilenceNote,
+  voiceSilence?: SilenceNote,
+  descriptionOverrides: Readonly<Record<string, string>> = {},
+  harmMode?: HarmMode
+): string[] {
   const lines: string[] = [];
   lines.push(`### Round ${half.roundN} (t=${half.t}) -- the ${half.principal}`);
   lines.push("");
@@ -271,7 +294,7 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   lines.push("```");
   lines.push(half.context.briefing);
   lines.push("```");
-  lines.push(...perceivedLines(half));
+  lines.push(...perceivedLines(half, descriptionOverrides));
 
   const p = half.proposal;
   if (!p) {

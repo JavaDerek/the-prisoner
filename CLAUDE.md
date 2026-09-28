@@ -223,6 +223,21 @@ auditing itself agrees with itself), and `PRISONER_NARRATION_AUDIT=off` restores
 **An auditor is not a licence to put a fabulist in the narrator chair** -- with it attached,
 `ancient-awakening:12b` still loses about half its turns wholesale, and `qwen3:14b` loses none.
 
+## A person can also take a chair over MCP
+
+`npm run mcp-seat` (`src/tools/mcpSeatCli.ts`, the-prisoner#11, `docs/MCP-SEAT.md`) starts a thin MCP
+server exposing `new_game`/`my_briefing`/`attempt`/`rules`/`conditions`/`me` so any MCP client can
+play either chair against a model in the other -- the proving caller for JavaDerek/run-dmcp#38. It is
+the SAME seam as `PRISONER_HUMAN` above: `src/open/mcpSeatMind.ts` is a second `OpenMind`
+implementation whose `consider()` waits on an `attempt` tool call instead of a `readline` prompt, so
+the loop, the referee and the resolver are unchanged. `attempt` requires `player_typed: true` and
+echoes the submitted intent back verbatim, but this server **cannot verify who actually typed it** --
+every transcript it writes says so in its own header (`Seat: MCP (client-relayed; authorship
+unverifiable)`) and must never be pooled with a model batch or trusted as a verified human game, a
+sharper version of the rule just above for a person at a real terminal. Built and tested with the MCP
+SDK's own in-memory transport against a scripted referee and a scripted opponent mind -- no live
+model call, matching every other guard in this file.
+
 ## Never run `npm run format` on this repository
 
 `prettier` is a dependency and `format`/`format:check` exist, but **this code is not

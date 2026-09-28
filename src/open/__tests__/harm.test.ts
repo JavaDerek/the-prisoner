@@ -92,11 +92,21 @@ describe("condition as a person's property (the-prisoner#1)", () => {
     for (const person of OPEN_PERSONS) {
       const condition = person.properties.find((p) => p.key === "condition");
       expect(condition).toMatchObject({ resourceName: `${person.id}_condition`, min: 0, max: 100, initialValue: 100, wear: { slight: 10, moderate: 25, substantial: 40 }, restore: { slight: 10, moderate: 10, substantial: 10 } });
-      expect(condition?.readRanges).toEqual([
-        { atOrBelow: 0, text: `${person.id === "prisoner" ? PRISONER_NAME : WARDEN_NAME} is down and does not get up.` },
-        { atOrBelow: 40, text: `${person.id === "prisoner" ? PRISONER_NAME : WARDEN_NAME} is badly hurt and moves slowly.` },
-        { atOrBelow: 70, text: `${person.id === "prisoner" ? PRISONER_NAME : WARDEN_NAME} is hurt.` },
-      ]);
+      // the-prisoner#34 (merged in after this property's own design landed): built from `pronounsFor`,
+      // the same pattern `posture`/`sight` already use right beside it -- see `sight.test.ts`'s own pin.
+      expect(condition?.readRanges).toEqual(
+        person.id === "warden"
+          ? [
+              { atOrBelow: 0, text: "He is down and does not get up." },
+              { atOrBelow: 40, text: "He is badly hurt and moves slowly." },
+              { atOrBelow: 70, text: "He is hurt." },
+            ]
+          : [
+              { atOrBelow: 0, text: "She is down and does not get up." },
+              { atOrBelow: 40, text: "She is badly hurt and moves slowly." },
+              { atOrBelow: 70, text: "She is hurt." },
+            ]
+      );
     }
     // No dice: one substantial act from full health never disables outright (§4 Q4). `findProperty` only
     // ever reads `OPEN_OBJECTS` (a person's own properties live on `OPEN_PERSONS` instead, above).
@@ -136,15 +146,17 @@ describe("condition as a person's property (the-prisoner#1)", () => {
     const t = w.base.clock.prisonerT(1);
     const fresh = computePerceivedObjects(w, "prisoner", t, "modelled").find((o) => o.id === "warden");
     expect(fresh?.description).not.toContain("hurt");
+    // the-prisoner#34 (merged in after): the warden reads in his own declared pronoun, "He"/"his", never
+    // the prisoner's "She"/"her" (`scenario.ts`'s `pronounsFor` -- see `sight.test.ts`'s own pin).
     setTo(w, w.resourceIdFor["warden.condition"], 60);
     const hurt = computePerceivedObjects(w, "prisoner", t, "modelled").find((o) => o.id === "warden");
-    expect(hurt?.description).toContain(`${WARDEN_NAME} is hurt.`);
+    expect(hurt?.description).toContain("He is hurt.");
     setTo(w, w.resourceIdFor["warden.condition"], 40);
     const badlyHurt = computePerceivedObjects(w, "prisoner", t, "modelled").find((o) => o.id === "warden");
-    expect(badlyHurt?.description).toContain(`${WARDEN_NAME} is badly hurt and moves slowly.`);
+    expect(badlyHurt?.description).toContain("He is badly hurt and moves slowly.");
     setTo(w, w.resourceIdFor["warden.condition"], 0);
     const down = computePerceivedObjects(w, "prisoner", t, "modelled").find((o) => o.id === "warden");
-    expect(down?.description).toContain(`${WARDEN_NAME} is down and does not get up.`);
+    expect(down?.description).toContain("He is down and does not get up.");
     destroyTestDb();
   });
 });

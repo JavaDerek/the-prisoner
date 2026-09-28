@@ -250,7 +250,8 @@ describe("open-mode perception and briefing", () => {
       const self = prisonerView.find((o) => o.id === "prisoner");
       const other = prisonerView.find((o) => o.id === "warden");
       expect(self?.description).toContain("She is on her feet.");
-      expect(other?.description).toContain("She is on her feet.");
+      // The-prisoner#34, changed on purpose: Croft (the OTHER, here) reads in his own declared pronoun.
+      expect(other?.description).toContain("He is on his feet.");
       // And the property the referee would name for an act on that body is the
       // one the world actually built, from the caller's own lookup.
       // Changed on purpose, 2026-09-27 (PLAYTEST-2026-09-27 D12): a person declares `sight` beside `posture`.
@@ -395,5 +396,23 @@ describe("authoredDescription (§64.3): the transcript's own header must name th
       expect(authoredDescription(spec, "welded")).toBe(spec.description);
       expect(authoredDescription(spec, "open")).toBe(spec.description);
     }
+  });
+
+  // the-prisoner#3: enjoyable mode's generated text reaches the minds
+  // and the referee through this SAME seam the welded arm already uses --
+  // never a second description path (CODER-BRIEF: "generated text reaches
+  // the minds only as descriptions, exactly where authored text did").
+  it("an override for an object's id replaces its authored text (enjoyable mode)", () => {
+    const spoon = OPEN_OBJECTS.find((o) => o.id === "spoon");
+    if (!spoon) throw new Error("the scenario declares no spoon");
+    expect(authoredDescription(spoon, "open", { spoon: "A battered pewter spoon, cool to the touch." })).toBe("A battered pewter spoon, cool to the touch.");
+  });
+
+  it("no override for an object's id leaves its authored (or welded) text untouched", () => {
+    const spoon = OPEN_OBJECTS.find((o) => o.id === "spoon");
+    if (!spoon) throw new Error("the scenario declares no spoon");
+    expect(authoredDescription(spoon, "open", { bar: "unrelated" })).toBe(spoon.description);
+    expect(authoredDescription(spoon, "open", {})).toBe(spoon.description);
+    expect(authoredDescription(spoon, "open")).toBe(spoon.description);
   });
 });

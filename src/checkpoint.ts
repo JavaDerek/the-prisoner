@@ -76,7 +76,7 @@ import type { Principal as OpenPrincipal } from "./ledger/beliefs.js";
 import { emptyLedger, beginEpisode, seenBefore, parseLedger } from "mother-of-invention";
 import { recordGame, precedentLines, readPrecedentPrice } from "./open/precedent.js";
 import { KNOWN_APPROACH_SUSPICION_BUMP } from "./open/loop.js";
-import { openConditions, readConditionsMode, readDoorMode } from "./open/conditions.js";
+import { openConditions, readConditionsMode, readDoorMode, readConditionOrder } from "./open/conditions.js";
 import { readBlockMode, readHarmMode } from "./open/effects.js";
 import { readPickCondition } from "./open/pickCondition.js";
 import { readWardenMode, passiveWardenMind } from "./open/passiveWarden.js";
@@ -87,6 +87,10 @@ import type { OpenHalfRoundResult } from "./open/loop.js";
 import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
 import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_FIELD } from "./open/thinking.js";
+import { readPrisonerMode, prisonerModeHeaderLine, resolveScenarioModel, readScenarioTemperature, readScenarioFile } from "./open/scenarioMode.js";
+import { readOpenRulesMode, openRulesHeaderLine } from "./open/openRulesMode.js";
+import { generateScenario, descriptionOverridesFrom, scenarioObjectFacts, type GeneratedScenario } from "./open/scenarioGen.js";
+import { createScenarioGenerationTransport } from "./open/scenarioTransport.js";
 import { readStrategyMode, chooseStrategy, strategyHeaderBlock, revisionWouldFireAt, revisionHeaderLine, type ReasoningStrength, type Strategy } from "./open/strategy.js";
 import { PRISONER_NAME, WARDEN_NAME } from "./scenario.js";
 import { createInterface } from "node:readline/promises";
@@ -182,6 +186,31 @@ const VARIANT = getVariant();
  *  swapped like the other two. */
 const REFEREE_MODEL = resolveRefereeModel(process.env.PRISONER_REFEREE_MODEL);
 const REFEREE_TIMEOUT_MS = process.env.PRISONER_REFEREE_TIMEOUT_MS ? Number(process.env.PRISONER_REFEREE_TIMEOUT_MS) : THINK_TIMEOUT_MS;
+/** the-prisoner#3: `benchmark` (the default -- byte-identical to every game
+ *  this repository has ever run) or `enjoyable` (`src/open/scenarioMode.ts`,
+ *  `src/open/scenarioGen.ts`). Open variant only -- checked below, after
+ *  every mode is read. */
+const MODE = readPrisonerMode(process.env.PRISONER_MODE);
+/** the-prisoner#5: `fixed` (the eleven named effects, unchanged) or `engine`
+ *  (the referee rules in run-dmcp's own change kinds, mapped by code onto
+ *  this game's existing mechanics -- `src/open/engineRules.ts`,
+ *  docs/OPEN-VARIANT.md's new section). Defaults to `engine` under
+ *  `PRISONER_MODE=enjoyable` and refuses `engine` under `benchmark`, the
+ *  same coupling `PRISONER_SCENARIO_FILE` already has to `MODE` -- open-world
+ *  RULES are one more thing `enjoyable` unlocks (§83.8), never a second mode
+ *  variable. Checked here, at load, before a database or a model is ever
+ *  touched, same as every other mode guard. */
+const OPEN_RULES = readOpenRulesMode(process.env.PRISONER_OPEN_RULES, MODE);
+/** the-prisoner#3, enjoyable mode only: which model generates and reviews
+ *  descriptions, defaulting to the referee's own (`scenarioMode.ts`'s own
+ *  comment: obedience over style is exactly what a generator needs too). */
+const SCENARIO_MODEL = resolveScenarioModel(REFEREE_MODEL, process.env.PRISONER_SCENARIO_MODEL);
+/** the-prisoner#3: 0.9 by default -- variety is the point of generation;
+ *  the honesty review always runs at 0, like the referee (§3.5). */
+const SCENARIO_TEMPERATURE = readScenarioTemperature(process.env.PRISONER_SCENARIO_TEMPERATURE);
+/** the-prisoner#3: replays a stored `.scenario.json` exactly, with no
+ *  generation call. */
+const SCENARIO_FILE = readScenarioFile(process.env.PRISONER_SCENARIO_FILE);
 /** Open variant only: the precedent condition (`src/open/precedent.ts`). Set
  *  to a ledger file (created if absent) to show both minds what the warden
  *  has already seen prisoners try in earlier games, and to add this game's
@@ -208,6 +237,12 @@ const DOOR = readDoorMode(process.env.PRISONER_DOOR);
  *  (`src/open/world.ts`, OPEN-VARIANT.md §50, issue #19). `margin` unless
  *  asked, since 2026-09-27 (PLAYTEST-2026-09-27 D6'); `free` is the arm. */
 const DOOR_PRICE = readDoorPrice(process.env.PRISONER_DOOR_PRICE);
+/** Open variant only: which of her two own route conditions the list states
+ *  first (`src/open/conditions.ts`, the-prisoner#23). `window-first` unless
+ *  asked -- byte-identical to every batch before this arm, since her list
+ *  has always named the window first; `door-first` is the arm. Has no effect
+ *  unless the door is `stated` and the window is not `welded`. */
+const CONDITION_ORDER = readConditionOrder(process.env.PRISONER_CONDITION_ORDER);
 /** Open variant only: the welded-window arm (`src/open/world.ts`,
  *  OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8). Open unless
  *  asked -- an arm, not a new default (the D3 lesson, §40.1). */
@@ -319,6 +354,10 @@ const CONFIGURED_MODELS = [
     ...(VARIANT === "open" ? [REFEREE_MODEL] : []),
     ...(NARRATOR_IN_USE ? [NARRATOR_MODEL] : []),
     ...(NARRATION_AUDIT_ON ? [NARRATION_AUDIT_MODEL] : []),
+    // the-prisoner#3: only when a real generation call can happen this run --
+    // MODE is already checked open-variant-only above, and PRISONER_SCENARIO_FILE
+    // means no generation call happens at all, so the model never touches the card.
+    ...(VARIANT === "open" && MODE === "enjoyable" && SCENARIO_FILE === undefined ? [SCENARIO_MODEL] : []),
   ]),
 ];
 const ALLOWED_MODELS = [...new Set([...CONFIGURED_MODELS, ...RESIDENT_MODELS])];
@@ -878,7 +917,46 @@ async function mainOpen(): Promise<void> {
   // this throws naming every acquirable pair -- correct, not a bug.
   if (ELABORATE !== "off") assertElaborationBandsReady();
 
-  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW, harm: HARM });
+  // the-prisoner#3: enjoyable mode regenerates every §4.1 object's physical
+  // DESCRIPTION, before round 1, through the same one-model-at-a-time
+  // swapper every other role uses (`ensureLoaded`, already built above) --
+  // never the object list, ids, properties, starting values, mechanics, the
+  // persons, or their identities/motives. `PRISONER_SCENARIO_FILE` replays a
+  // stored scenario exactly, with no generation call at all (CODER-BRIEF
+  // decision 5). Benchmark mode (the default) does none of this: `openWorld`
+  // below gets `descriptionOverrides: {}`, byte-identical to every game
+  // before this issue existed.
+  let generatedScenario: GeneratedScenario | undefined;
+  if (MODE === "enjoyable") {
+    generatedScenario = SCENARIO_FILE
+      ? (JSON.parse(readFileSync(SCENARIO_FILE, "utf8")) as GeneratedScenario)
+      : await generateScenario({
+          objects: scenarioObjectFacts(),
+          model: SCENARIO_MODEL,
+          generationTemperature: SCENARIO_TEMPERATURE,
+          reviewTemperature: 0,
+          generate: createScenarioGenerationTransport({
+            baseUrl: MODEL_URL,
+            model: SCENARIO_MODEL,
+            temperature: SCENARIO_TEMPERATURE,
+            timeoutMs: REFEREE_TIMEOUT_MS,
+            ensureLoaded,
+            // CODER-BRIEF decision 4: "go through the same thinking/withThinking
+            // path" -- the scenario model defaults to the referee's, so this reuses
+            // the referee's own resolved thinking mode rather than a third variable
+            // nobody asked for.
+            thinking: REFEREE_THINKING.mode,
+          }),
+          // The honesty review is the SAME generic turn-reader transport the
+          // referee uses -- `createRefereeTransport` already sends temperature 0
+          // and knows nothing about this game's vocabulary (CODER-BRIEF decision 3:
+          // "the same closed-key + verbatim-citation machinery the referee uses").
+          reviewTransports: [createRefereeTransport({ baseUrl: MODEL_URL, model: SCENARIO_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })],
+        });
+  }
+  const descriptionOverrides: Readonly<Record<string, string>> = generatedScenario ? descriptionOverridesFrom(generatedScenario) : {};
+
+  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW, harm: HARM, descriptionOverrides });
   const resolver = buildOpenResolver();
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })],
@@ -896,6 +974,14 @@ async function mainOpen(): Promise<void> {
       blockMode: BLOCK,
       personInstrumentMode: PERSON_INSTRUMENT,
       harmMode: HARM,
+      // the-prisoner#5: `openWorld.exits` is keyed by the way-out object
+      // itself and each names its own part (`world.ts`) -- the identical
+      // map `planEffect`'s own `open`/`close`/`leave` branches already read,
+      // reused here so `translateEngineEffect` (`engineRules.ts`) routes a
+      // `write` on a way out's passage, or a `set` on one, through the SAME
+      // gated mechanic those branches always used.
+      openRulesMode: OPEN_RULES,
+      isExit: (objectId) => !!openWorld.exits[objectId] || Object.values(openWorld.exits).some((exit) => exit.part === objectId),
     }
   );
   // WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b: a second, separate referee
@@ -1093,15 +1179,15 @@ async function mainOpen(): Promise<void> {
     WARDEN_MODE === "passive"
       ? passiveWardenMind()
       : PROSE_SEAT === "warden"
-        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM }) : undefined)
-        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM }) } : {}) });
-  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM }) : undefined) : modelWarden();
+        ? proseMindFor("warden", CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) : undefined)
+        : createOpenWardenMind({ ...mindOptions("warden"), ...(CONDITIONS === "both" ? { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) } : {}) });
+  const wardenMind = SEAT === "warden" ? seatMind(WARDEN_NAME, PRISONER_NAME, CONDITIONS === "both" ? openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) : undefined) : modelWarden();
   const prisonerMind =
     SEAT === "prisoner"
-      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM }))
+      ? seatMind(PRISONER_NAME, WARDEN_NAME, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }))
       : PROSE_SEAT === "prisoner"
-        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM }))
-        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM }) }) });
+        ? proseMindFor("prisoner", CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }))
+        : createOpenPrisonerMind({ ...mindOptions("prisoner"), ...(CONDITIONS === "off" ? {} : { conditions: openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }) }) });
 
   const { ps: initialPs, summary: loadedAtStart } = await safePsSummary();
   if (initialPs) assertNoForeignModel(initialPs, ALLOWED_MODELS);
@@ -1119,6 +1205,15 @@ async function mainOpen(): Promise<void> {
   transcript.push("");
   transcript.push(`Generated: ${new Date().toISOString()}`);
   transcript.push("");
+  // the-prisoner#3, CODER-BRIEF decision 1: printed in EVERY transcript
+  // header, first, so a reader (and `batchMeasures.ts`'s own guard) can never
+  // mistake this transcript for the other kind.
+  transcript.push(prisonerModeHeaderLine(MODE));
+  // the-prisoner#5: the same discipline, right after `Mode:` -- a reader (and
+  // a future `batchMeasures.ts`-style guard) must be able to tell a fixed-
+  // vocabulary transcript from an engine-rules one without reading the body.
+  transcript.push(openRulesHeaderLine(OPEN_RULES));
+  transcript.push("");
   transcript.push("## Scenario");
   transcript.push("");
   transcript.push(
@@ -1128,6 +1223,19 @@ async function mainOpen(): Promise<void> {
       "effect resolves through its resolve protocol (docs/OPEN-VARIANT.md). Warden presence is not modelled in O1 (§9.3)."
   );
   transcript.push("");
+  if (MODE === "enjoyable") {
+    const fallbacks = generatedScenario?.objects.filter((o) => !o.accepted).map((o) => o.id) ?? [];
+    transcript.push(
+      `Scenario: GENERATED (the-prisoner#3). ${SCENARIO_FILE ? `Replayed from \`${SCENARIO_FILE}\` -- no generation call this run.` : `Model: \`${SCENARIO_MODEL}\`. Generation temperature: ${SCENARIO_TEMPERATURE}. Review temperature: 0.`} ` +
+        `Full record (every description, every review answer): \`checkpoints/${stamp}.scenario.json\`.`
+    );
+    transcript.push(
+      fallbacks.length > 0
+        ? `Fallback to the authored §4.1 text for: ${fallbacks.map((id) => `\`${id}\``).join(", ")} (every generation attempt was rejected by the honesty review, or came back empty).`
+        : "No object fell back: every description was generated and passed the honesty review."
+    );
+    transcript.push("");
+  }
   transcript.push(...openModelHeaderLines({ prisoner: PRISONER_SEAT, warden: WARDEN_SEAT, refereeModel: REFEREE_MODEL, modelUrl: MODEL_URL }));
   transcript.push(`Think timeout: ${THINK_TIMEOUT_MS ?? "package default (12000ms)"}. Referee timeout: ${REFEREE_TIMEOUT_MS ?? "default (12000ms)"}.`);
   transcript.push(`Rounds (max): ${ROUNDS}.`);
@@ -1187,6 +1295,11 @@ async function mainOpen(): Promise<void> {
       : DOOR_PRICE === "margin"
         ? `Door price: MARGIN (the default since 2026-09-27): the door is gated on the lock's integrity at or below ${OPEN_DOOR_LOCK_MARGIN} -- the lowest gate that leaves a wear step where the door is openable and the lock is still safe to be found at, which ${OPEN_DOOR_LOCK_MAX} did not (§50.5; PLAYTEST-2026-09-27 D6').`
         : "Door price: FREE (`PRISONER_DOOR_PRICE=free`): the door's passage has no threshold to meet -- every batch before 2026-09-27."
+  );
+  transcript.push(
+    CONDITION_ORDER === "door-first"
+      ? "Condition order: DOOR-FIRST (`PRISONER_CONDITION_ORDER=door-first`): her door condition is stated before her window condition -- every claim, threshold and attribution unchanged, only the order (the-prisoner#23)."
+      : "Condition order: WINDOW-FIRST (the default): her window condition is stated first, as every batch before this arm has stated it."
   );
   transcript.push(
     WINDOW === "welded"
@@ -1315,7 +1428,7 @@ async function mainOpen(): Promise<void> {
   // §64.3: under the welded arm the window's and the bar's authored text is
   // not `OPEN_OBJECTS`'s -- ask for the text this run actually played, or this
   // header describes a different room than every perception line below it.
-  for (const object of OPEN_OBJECTS) transcript.push(`- \`${object.id}\`: ${authoredDescription(object, WINDOW)}`);
+  for (const object of OPEN_OBJECTS) transcript.push(`- \`${object.id}\`: ${authoredDescription(object, WINDOW, descriptionOverrides)}`);
   transcript.push("");
   transcript.push("## Rounds");
   transcript.push("");
@@ -1379,7 +1492,7 @@ async function mainOpen(): Promise<void> {
     // rendering function being shared, never about the timepoint.
     const t1 = openWorld.base.clock.t0;
     const c1 = buildOpenContext(openWorld, "prisoner", t1, 1, ROUNDS, precedent ? { standing: precedent.prisoner } : {}, PRESENCE, ABSENCE);
-    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM }), HARM);
+    const situation = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, c1, CONDITIONS === "off" ? undefined : openConditions({ door: DOOR, doorPrice: DOOR_PRICE, window: WINDOW, block: BLOCK, harm: HARM, conditionOrder: CONDITION_ORDER }), HARM);
     strategy = await chooseStrategy({
       context: { situation, objectIds: c1.perceivedObjects.map((o) => o.id) },
       reasoningStrength: STRATEGY_STRENGTH,
@@ -1447,7 +1560,7 @@ async function mainOpen(): Promise<void> {
           const ms = performance.now() - halfStart;
           timings.push(`- round ${half.roundN}, ${half.principal}: ${ms.toFixed(0)}ms${half.proposal ? "" : " (silent)"}`);
           const passive = WARDEN_MODE === "passive" && half.principal === "warden" ? { reason: "passive warden (§26)" } : undefined;
-          transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal]), lastVoiceSilence[half.principal], HARM));
+          transcript.push(...renderOpenHalfRound(half, half.proposal ? undefined : (passive ?? lastSilence[half.principal]), lastVoiceSilence[half.principal], descriptionOverrides, HARM));
           lastSilence[half.principal] = undefined;
           lastVoiceSilence[half.principal] = undefined;
           // With a person in a chair the screen must tell them nothing their briefing would
@@ -1589,6 +1702,15 @@ async function mainOpen(): Promise<void> {
     writeFileSync(file, transcript.join("\n") + "\n");
     written = true;
     writeFileSync(join(dir, `${stamp}.referee.json`), JSON.stringify(refereeRequestsFor(game.halves), null, 2) + "\n");
+    // the-prisoner#3, CODER-BRIEF decision 5: the full generated scenario --
+    // every description, every review answer, the model, the temperatures --
+    // as a sidecar beside the transcript, the same convention `.referee.json`
+    // already sets: it keeps the main transcript readable while still making
+    // the run fully reproducible (`PRISONER_SCENARIO_FILE` reads this exact
+    // file back).
+    if (MODE === "enjoyable" && generatedScenario) {
+      writeFileSync(join(dir, `${stamp}.scenario.json`), JSON.stringify(generatedScenario, null, 2) + "\n");
+    }
     if (SEAT !== "off") {
       // §8.2: the same final rewrite `referee.json` gets, from the game's
       // own authoritative `halves` rather than the per-half `halvesSoFar`
@@ -1650,6 +1772,18 @@ assertSeatIsPlayable(SEAT, { isTty: process.stdin.isTTY === true });
 
 if (SEAT !== "off" && VARIANT !== "open") {
   throw new Error('PRISONER_HUMAN needs PRISONER_VARIANT=open: in the closed variant a mind picks from a move list, so there is nothing for a person to type.');
+}
+
+// the-prisoner#3: enjoyable mode regenerates §4.1 object descriptions, which
+// exist only in the open variant (the closed variant has no scenario
+// descriptions of any kind -- a mind there picks from a move list). Caught
+// here, at load, the same way the human-seat guard above is: a misconfigured
+// value fails immediately, never partway into a game.
+if (MODE === "enjoyable" && VARIANT !== "open") {
+  throw new Error('PRISONER_MODE=enjoyable needs PRISONER_VARIANT=open: the closed variant has no object descriptions to regenerate.');
+}
+if (SCENARIO_FILE !== undefined && MODE !== "enjoyable") {
+  throw new Error(`PRISONER_SCENARIO_FILE needs PRISONER_MODE=enjoyable (it is "${MODE}"): set PRISONER_MODE=enjoyable, or unset PRISONER_SCENARIO_FILE.`);
 }
 
 (VARIANT === "open" ? mainOpen() : main()).catch((err) => {

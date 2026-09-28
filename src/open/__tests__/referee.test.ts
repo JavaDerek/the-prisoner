@@ -15,6 +15,7 @@ import {
   type KindOf,
 } from "../referee.js";
 import { suspicionEligible } from "../loop.js";
+import { readOpenRulesMode } from "../openRulesMode.js";
 
 const BAR: ObjectPerception = {
   id: "bar",
@@ -1446,5 +1447,227 @@ describe("D7 (R5): a several-act intent attempts its FIRST act under `PRISONER_O
     const ruling = await createReferee([transport]).rule(PULL_AND_LEAVE, [WINDOW]);
     expect(requests.length).toBe(1);
     expect(ruling.oneAct).toBeUndefined();
+  });
+});
+
+/**
+ * the-prisoner#5, step 1: `PRISONER_OPEN_RULES=engine` -- the referee rules
+ * in run-dmcp's own change kinds (`engineRules.ts`), mapped by code onto the
+ * SAME `EffectKind`s `effects.ts`/`mechanics.ts` already resolve. Every test
+ * here is scripted (no model call, CLAUDE.md's TDD discipline), and checks
+ * the translated `effectKind`/`applicable`/`magnitude` a real game would then
+ * hand to the unchanged `planEffect` -- never a new mechanic.
+ */
+describe("PRISONER_OPEN_RULES=engine (the-prisoner#5, docs/OPEN-VARIANT.md's new section)", () => {
+  it("PRISONER_MODE=benchmark keeps openRulesMode fixed, and the request is byte-identical to the existing PIN", async () => {
+    const openRulesMode = readOpenRulesMode(undefined, "benchmark");
+    expect(openRulesMode).toBe("fixed");
+    const referee = createReferee([], { openRulesMode });
+    const ruling = await referee.rule("I file the bar with my spoon.", [BAR, LOCK]);
+    expect(ruling.request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility"]);
+    const fingerprint = createHash("sha256").update(JSON.stringify(ruling.request.questions), "utf8").digest("hex");
+    expect(fingerprint).toBe("486c801305674a9987d776eda61913796f3da2f944a656a9950a7f217d90aeef");
+  });
+
+  it("the engine request's own question ids: target, effect, product, property, magnitude, perceptibility, direction, to, with", async () => {
+    const referee = createReferee([], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I file the bar with my spoon.", [BAR, LOCK]);
+    expect(ruling.request.questions.map((q) => q.id)).toEqual(["target", "effect", "product", "property", "magnitude", "perceptibility", "direction", "to", "with"]);
+    expect(ruling.request.questions.find((q) => q.id === "effect")?.answerKeys).toEqual(["write", "set", "transfer", "create", "destroy", "reveal", "none"]);
+  });
+
+  // docs/issues/5.md's own comment, the concrete test case CODER-BRIEF names:
+  // "one object's material acting on another -- rub the grit into the bar's
+  // mortar when the actor HOLDS the grit -- is a write on the bar conditioned
+  // on a held object."
+  const BAR_MORTAR: ObjectPerception = {
+    id: "bar",
+    description: "The iron bar set across the cell's small window, about as thick as a thumb. Rust has pitted it near the bottom, where it is set into old mortar that is dry and cracked.",
+  };
+  const GRIT: ObjectPerception = { id: "grit", description: "A handful of dry grit from the hollow beneath the tile, coarse and sharp-grained." };
+
+  it("rubbing HELD grit into the bar's mortar is a write lowering integrity, its magnitude bumped one step by the held instrument", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "bar", citation: { sourceId: "intent", quote: "the bar's mortar" } },
+      effect: { answerKey: "write", citation: { sourceId: "intent", quote: "rub the grit into" } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "set into old mortar that is dry and cracked" } },
+      direction: { answerKey: "down", citation: { sourceId: "intent", quote: "rub the grit into" } },
+      with: { answerKey: "grit", citation: { sourceId: "intent", quote: "the grit" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "rub" } },
+      perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "rub" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I rub the grit into the bar's mortar.", [BAR_MORTAR, GRIT], ["grit"]);
+
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.targetObjectId).toBe("bar");
+    expect(ruling.effectKind).toBe("wear");
+    expect(ruling.property).toBe("integrity");
+    expect(ruling.withObjectId).toBe("grit");
+    // bumped: moderate -> substantial (`stepUpMagnitude`, `engineRules.ts`).
+    expect(ruling.magnitude).toBe("substantial");
+  });
+
+  it("the SAME intent with no `with` offered is an ordinary write, magnitude unbumped", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "bar", citation: { sourceId: "intent", quote: "the bar's mortar" } },
+      effect: { answerKey: "write", citation: { sourceId: "intent", quote: "scrape at" } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "set into old mortar that is dry and cracked" } },
+      direction: { answerKey: "down", citation: { sourceId: "intent", quote: "scrape at" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "scrape" } },
+      perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "scrape" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I scrape at the bar's mortar.", [BAR_MORTAR, GRIT], ["grit"]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("wear");
+    expect(ruling.withObjectId).toBe("none");
+    expect(ruling.magnitude).toBe("moderate");
+  });
+
+  const WINDOW_EXIT: ObjectPerception = {
+    id: "window",
+    description: "A small window set in the wall at shoulder height. One rusted iron bar, set into the mortar across its middle, closes it: with that bar gone, a person could climb through.",
+  };
+  const isWindowExit = (id: string): boolean => id === "window";
+
+  it("write raising passage is open -- the way out's own mechanic, its gate untouched by this landing", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "window", citation: { sourceId: "intent", quote: "window" } },
+      effect: { answerKey: "write", citation: { sourceId: "intent", quote: "pull the bar out of the window" } },
+      property: { answerKey: "passage", citation: { sourceId: "desc:window", quote: "closes it" } },
+      direction: { answerKey: "up", citation: { sourceId: "intent", quote: "pull the bar out" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "pull" } },
+      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "pull" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine", isExit: isWindowExit });
+    const ruling = await referee.rule("I pull the bar out of the window.", [WINDOW_EXIT]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("open");
+  });
+
+  it("write lowering passage is close", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "window", citation: { sourceId: "intent", quote: "window" } },
+      effect: { answerKey: "write", citation: { sourceId: "intent", quote: "push the bar back" } },
+      property: { answerKey: "passage", citation: { sourceId: "desc:window", quote: "closes it" } },
+      direction: { answerKey: "down", citation: { sourceId: "intent", quote: "push the bar back" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "push" } },
+      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "push" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine", isExit: isWindowExit });
+    const ruling = await referee.rule("I push the bar back into the window.", [WINDOW_EXIT]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("close");
+  });
+
+  it("set on a way out is leave, whatever `to` answered", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "window", citation: { sourceId: "intent", quote: "window" } },
+      effect: { answerKey: "set", citation: { sourceId: "intent", quote: "climb through the window" } },
+      property: { answerKey: "passage", citation: { sourceId: "desc:window", quote: "with that bar gone, a person could climb through" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "climb" } },
+      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "climb" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine", isExit: isWindowExit });
+    const ruling = await referee.rule("I climb through the window.", [WINDOW_EXIT]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("leave");
+  });
+
+  const SPOON: ObjectPerception = { id: "spoon", description: "A dull metal spoon, its handle bent." };
+
+  it("set with to=actor is take", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "spoon", citation: { sourceId: "intent", quote: "the spoon" } },
+      effect: { answerKey: "set", citation: { sourceId: "intent", quote: "pick up the spoon" } },
+      to: { answerKey: "actor", citation: { sourceId: "intent", quote: "I pick up" } },
+      magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "pick up" } },
+      perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "pick up" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I pick up the spoon.", [SPOON]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("take");
+    expect(ruling.to).toBe("actor");
+  });
+
+  it("set with to=other is give", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "spoon", citation: { sourceId: "intent", quote: "the spoon" } },
+      effect: { answerKey: "set", citation: { sourceId: "intent", quote: "hand over the spoon" } },
+      to: { answerKey: "other", citation: { sourceId: "intent", quote: "hand over" } },
+      magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "hand" } },
+      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "hand" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I hand over the spoon.", [SPOON]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("give");
+    expect(ruling.to).toBe("other");
+  });
+
+  it("set with to=none is inapplicable -- ungrounded, never a guess at who", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "spoon", citation: { sourceId: "intent", quote: "the spoon" } },
+      effect: { answerKey: "set", citation: { sourceId: "intent", quote: "do something with the spoon" } },
+      magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "spoon" } },
+      perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "spoon" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I do something with the spoon.", [SPOON]);
+    expect(ruling.effectKind).toBe("none");
+    expect(ruling.applicable).toBe(false);
+  });
+
+  const COT: ObjectPerception = {
+    id: "cot",
+    description:
+      "A narrow cot whose iron frame is bolted to the wall at the head and stands on two legs at the foot. The crossbar is rough with flaking paint, and the springs are held to the frame by twists of wire.",
+  };
+
+  it("create is derive -- the same `product` question, unchanged", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "cot", citation: { sourceId: "intent", quote: "the cot" } },
+      effect: { answerKey: "create", citation: { sourceId: "intent", quote: "pull a wire out of the cot" } },
+      product: { answerKey: "wire", citation: { sourceId: "intent", quote: "a wire" } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:cot", quote: "twists of wire" } },
+      magnitude: { answerKey: "moderate", citation: { sourceId: "intent", quote: "pull" } },
+      perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "pull" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I pull a wire out of the cot.", [COT]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("derive");
+    expect(ruling.product).toBe("wire");
+  });
+
+  it("destroy and transfer resolve to no effect -- unreachable this landing, but still legal, cited answers", async () => {
+    for (const engineEffect of ["destroy", "transfer"] as const) {
+      const transport = scriptedTransport({
+        target: { answerKey: "spoon", citation: { sourceId: "intent", quote: "the spoon" } },
+        effect: { answerKey: engineEffect, citation: { sourceId: "intent", quote: "destroy it utterly" } },
+        magnitude: { answerKey: "substantial", citation: { sourceId: "intent", quote: "destroy" } },
+        perceptibility: { answerKey: "audible", citation: { sourceId: "intent", quote: "destroy" } },
+      });
+      const referee = createReferee([transport], { openRulesMode: "engine" });
+      const ruling = await referee.rule("I destroy the spoon utterly.", [SPOON]);
+      expect(ruling.effectKind).toBe("none");
+      expect(ruling.applicable).toBe(false);
+    }
+  });
+
+  it("reveal still works exactly as under fixed rules -- it is a read, not one of the five change kinds", async () => {
+    const transport = scriptedTransport({
+      target: { answerKey: "bar", citation: { sourceId: "intent", quote: "the bar" } },
+      effect: { answerKey: "reveal", citation: { sourceId: "intent", quote: "examine the bar" } },
+      property: { answerKey: "integrity", citation: { sourceId: "desc:bar", quote: "Rust has pitted it near the bottom" } },
+      magnitude: { answerKey: "slight", citation: { sourceId: "intent", quote: "examine" } },
+      perceptibility: { answerKey: "silent", citation: { sourceId: "intent", quote: "examine" } },
+    });
+    const referee = createReferee([transport], { openRulesMode: "engine" });
+    const ruling = await referee.rule("I examine the bar.", [BAR]);
+    expect(ruling.applicable).toBe(true);
+    expect(ruling.effectKind).toBe("reveal");
   });
 });

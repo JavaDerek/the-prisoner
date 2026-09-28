@@ -19,13 +19,21 @@
     "checkpoint": "tsx src/checkpoint.ts",
     "referee-replay": "tsx src/open/refereeReplayCli.ts",
     "price-world": "tsx src/open/priceWorldCli.ts",
+    "scenario-gen": "tsx src/open/scenarioGenCli.ts",
+    "engine-rules-dry-run": "tsx src/open/engineRulesDryRunCli.ts",
     "model-router": "tsx src/tools/modelRouterCli.ts",
-    "measures": "tsx src/open/batchMeasuresCli.ts"
+    "mcp-seat": "tsx src/tools/mcpSeatCli.ts",
+    "measures": "tsx src/open/batchMeasuresCli.ts",
+    "build-referee-labels": "tsx src/open/refereeData/buildLabelsCli.ts",
+    "render-referee-data": "tsx src/open/refereeData/renderCli.ts",
+    "score-referee": "tsx src/open/refereeData/scorerCli.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.1",
     "mind-seam": "0.5.0",
     "mother-of-invention": "0.1.2",
-    "run-dmcp": "0.10.0"
+    "run-dmcp": "0.10.0",
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

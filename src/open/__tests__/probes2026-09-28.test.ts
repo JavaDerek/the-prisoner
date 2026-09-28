@@ -82,7 +82,8 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
       const out = await tsx("checkpoints/2026-09-28-block-reach/probe.mts", "--dry-run");
       expect(out).toContain("3 cells built, no request sent.");
       for (const s of ["warden suspicion: 20.", "warden suspicion: 90.", "warden suspicion: 95."]) expect(out).toContain(s);
-      expect(out).toContain("If Warden Croft stands in a way out, and Warden Croft is on her feet, and Warden Croft can see, then Mara Voss cannot leave through it.");
+      // The-prisoner#34, changed on purpose: Croft's own condition now reads his own declared pronoun.
+      expect(out).toContain("If Warden Croft stands in a way out, and Warden Croft is on his feet, and Warden Croft can see, then Mara Voss cannot leave through it.");
       expect(out).toContain("Mara Voss works to open the window.");
       expect(out).not.toMatch(/[1-9]\d* divergences/);
     },
@@ -284,6 +285,22 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
+    },
+    TIMEOUT
+  );
+
+  it(
+    "#35 warden wits time: the dry run rebuilds all 14 contexts (7 rounds x 2 arms), builds 28 requests, and the old arm's prompt is shorter with no divergence through round 5",
+    async () => {
+      const out = await tsx("checkpoints/2026-09-28-warden-wits-time/probe.mts", "--dry-run");
+      expect(out).toContain("14 contexts x N=2: 28 requests built, none sent.");
+      expect(out).toContain("new:1 sample 1 -- conditions list,");
+      expect(out).toContain("old:1 sample 1 -- conditions sentences,");
+      expect(out).toContain("0 divergences, 0 warnings");
+      // Rounds 6, 7 and 9 diverge under the old arm from round 5 on (the recorded game used `block` and D13's
+      // sight/posture, which do not exist under `PRISONER_BLOCK=off`/`PRISONER_PRESENCE=off`) -- named, not hidden
+      // (PREDICTION.md).
+      expect(out).toContain("DIVERGENCE old:9: round 5 warden: recorded possible, replayed impossible (window/block)");
     },
     TIMEOUT
   );

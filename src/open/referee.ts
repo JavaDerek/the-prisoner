@@ -2,6 +2,8 @@ import { createTurnReader, sourceWords, type ReaderQuestion, type ReaderSource, 
 import { EFFECT_KINDS, MAGNITUDES, PERCEPTIBILITIES, PERSON_PROPERTY_KEYS, rulingPropertyAnswerKeys, effectRequiresProperty, type BlockMode, type HarmMode, type EffectKind, type Magnitude, type Perceptibility } from "./effects.js";
 import { findObject, OPEN_PERSONS, type OpenObjectSpec, type OpenPropertyKey } from "./scenarioObjects.js";
 import { DERIVABLE_KINDS, parentLabel } from "./derivedObjects.js";
+import { ENGINE_CHANGE_KINDS, DIRECTIONS, HOLDER_TARGETS, translateEngineEffect, stepUpMagnitude, type EngineChangeKind, type Direction, type HolderTarget } from "./engineRules.js";
+import type { OpenRulesMode } from "./openRulesMode.js";
 
 /**
  * The referee (OPEN-VARIANT.md §3, this task's brief "The referee"). A
@@ -89,6 +91,22 @@ export interface RefereeRuling {
    *  -- other agents' files tonight) keeps typechecking without being
    *  touched; `computeRuling` always sets it. */
   instrument?: string;
+  /** the-prisoner#5: present only under `PRISONER_OPEN_RULES=engine` --
+   *  `write`'s own second closed key (`engineRules.ts`'s `Direction`),
+   *  `"none"` when the question was not asked or the effect was not
+   *  `write`. Kept on the ruling (rather than only inside `citations`) so a
+   *  transcript can show it without reaching into `raw`. */
+  direction?: Direction;
+  /** the-prisoner#5: `set`'s own second closed key (`HolderTarget`),
+   *  `"none"` when the question was not asked or the effect was not `set`. */
+  to?: HolderTarget;
+  /** the-prisoner#5, CODER-BRIEF's concrete test case: the held object named
+   *  as a `write`'s material or tool, or `"none"` -- distinct from
+   *  `instrument` (a different arm, #17's own question) even though both
+   *  answer "what tool", because `with` is closed to what the actor
+   *  currently HOLDS (`context.holding`, `loop.ts`), never every perceived
+   *  object. `"none"` when the question was not asked. */
+  withObjectId?: string;
   /** Set when `instrument` is the legal key `"absent"` AND its citation
    *  verified against the actor's own intent -- the referee's own closed-key
    *  judgment that the intent names a tool it does not have, cited verbatim
@@ -136,6 +154,14 @@ export interface RefereeRuling {
     product: CitationCheck;
     /** Optional for the same reason `instrument` (above) is. */
     instrument?: CitationCheck;
+    /** the-prisoner#5: present only under `PRISONER_OPEN_RULES=engine`
+     *  (`openRulesMode.ts`) -- `direction`/`to` are `write`/`set`'s own
+     *  second closed keys, and `with` is the held-instrument answer
+     *  CODER-BRIEF's concrete test case names (`engineRules.ts`). Absent
+     *  under `fixed`, exactly like `instrument` under `PRISONER_INSTRUMENT=off`. */
+    direction?: CitationCheck;
+    to?: CitationCheck;
+    with?: CitationCheck;
   };
   /** The raw reader result, kept for the transcript. */
   raw: ReaderResult;
@@ -416,14 +442,19 @@ export function readDeriveRepeatMode(raw: string | undefined): DeriveRepeatMode 
  * instead of asked again, so it cannot diverge, and anything that is not an
  * exact repeat is judged with no precedent text at all.
  */
-function cacheKeyFor(intentText: string, perceivedObjects: readonly ObjectPerception[]): string {
-  return JSON.stringify({ intentText, perceivedObjects });
+function cacheKeyFor(intentText: string, perceivedObjects: readonly ObjectPerception[], heldObjectIds: readonly string[] = []): string {
+  // the-prisoner#5: `heldObjectIds` joins the key so an exact repeat under
+  // `engine` mode -- where `with`'s own answer set depends on what the actor
+  // holds right now -- is only served from cache when that has not changed
+  // either. Always present (defaulting to `[]`), so a `fixed`-mode key gains
+  // one constant field and stays otherwise exactly what it always was.
+  return JSON.stringify({ intentText, perceivedObjects, heldObjectIds });
 }
 
 /** The recorded kind of an object derived in this game, or `undefined` --
  *  `derivedKindOf` (`world.ts`) for a caller with a world. */
 export type KindOf = (objectId: string) => string | undefined;
-const noKinds: KindOf = () => undefined;
+export const noKinds: KindOf = () => undefined;
 
 /** The §4.1 objects AND the two principals, which are shaped exactly like
  *  objects (`OPEN_PERSONS`) and have been targetable since §55.
@@ -444,9 +475,9 @@ function scenarioSpec(objectId: string): OpenObjectSpec | undefined {
  *  principals by default; a caller with a world hands in one that knows
  *  objects derived in this game. */
 export type PropertiesOf = (objectId: string) => readonly string[];
-const scenarioProperties: PropertiesOf = (objectId) => scenarioSpec(objectId)?.properties.map((p) => p.key) ?? [];
+export const scenarioProperties: PropertiesOf = (objectId) => scenarioSpec(objectId)?.properties.map((p) => p.key) ?? [];
 
-function buildQuestions(
+export function buildQuestions(
   perceivedObjects: readonly ObjectPerception[],
   kindOf: KindOf,
   propertiesOf: PropertiesOf,
@@ -457,8 +488,25 @@ function buildQuestions(
   repeatDeriveMode: DeriveRepeatMode,
   blockMode: BlockMode = "off",
   personInstrumentMode: PersonInstrumentMode = "off",
-  harmMode: HarmMode = "off"
+  harmMode: HarmMode = "off",
+  // the-prisoner#5 (`openRulesMode.ts`, `engineRules.ts`): "fixed" (the
+  // default) builds the exact eleven-effect question this function has
+  // always built, byte for byte -- the branches below never touch that text.
+  // "engine" swaps `effect`/`property` for the engine-terms versions and
+  // appends `direction`/`to`/`with`, per docs/OPEN-VARIANT.md's new section.
+  // the-prisoner#1's `harm`/`condition` stay unreachable under `engine`
+  // mode this landing (OPEN-VARIANT.md §87): a `write` down on a person's
+  // `condition` has no self-target check the way `harm`'s own plan does, so
+  // rather than build that check twice this arm's vocabulary simply is not
+  // offered when `openRulesMode` is `engine` (see below).
+  openRulesMode: OpenRulesMode = "fixed",
+  /** The closed set `with`'s answer keys offer -- the actor's own currently
+   *  held objects (`context.holding`, `loop.ts`), never every perceived
+   *  object: CODER-BRIEF's own wording, "the closed set of objects the actor
+   *  holds". Unused outside `engine` mode. */
+  heldObjectIds: readonly string[] = []
 ): ReaderQuestion[] {
+  const engineMode = openRulesMode === "engine";
   // OPEN-VARIANT.md §24: the property keys are the same for every target, so
   // the question says which ones each object in view actually has.
   const propertyList = perceivedObjects.map((o) => `${o.id}: ${propertiesOf(o.id).join(", ") || "none"}`).join("; ");
@@ -506,10 +554,23 @@ function buildQuestions(
   // clause for.
   const CONTAINER_EFFECT_CLAUSE =
     " Getting oneself under or beneath a thing that can conceal a person -- pulling it over the body, drawing it close so it covers her -- is conceal on that thing; coming out from under it again, or being uncovered, is expose on that thing.";
-  const PERSON_PROPERTY_CLAUSE =
-    "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), sight (whether a person can see, 100 clear, 0 blind), " +
-    // the-prisoner#1: named only under the harm arm, so `off` leaves this clause byte-identical.
-    (harmMode === "on" ? "condition (how hurt a person is, 100 unharmed, 0 disabled), " : "");
+  // the-prisoner#5: the SAME two clauses above, in engine terms -- "wear"/"restore"/"conceal"/"expose" are not
+  // legal `effect` answers under `PRISONER_OPEN_RULES=engine`, so a referee told "is expose on that person" would
+  // be told to answer a key that does not exist. Search stays unreachable under engine rules (docs/OPEN-VARIANT.md's
+  // new section, `engineRules.ts`'s own header): posture/sight still resolve through the SAME person mechanics
+  // (OPEN_WEAR/OPEN_RESTORE) any other property uses, only reached here through `write`+`direction` instead.
+  const PERSON_EFFECT_CLAUSE_ENGINE =
+    " An act that changes how a person's own body is held -- dropping to the floor, collapsing, crouching down, going limp -- is a write lowering her posture (direction down); an act that gets a body back up off the floor is a write raising it (direction up). The body is the target, even when the act is a performance and nothing else in the room changes." +
+    " Searching a person -- patting them down, turning out what they carry -- is not a change this vocabulary can express; answer none for it." +
+    " Covering someone's eyes or head so they cannot see is a write lowering her sight (direction down); clearing one's own eyes or head is a write raising the actor's own sight (direction up).";
+  const CONTAINER_EFFECT_CLAUSE_ENGINE =
+    " Getting oneself under or beneath a thing that can conceal a person -- pulling it over the body, drawing it close so it covers her -- is a write raising that thing's concealment (direction up); coming out from under it again, or being uncovered, is a write lowering it (direction down).";
+  const PERSON_PROPERTY_CLAUSE = "posture (a person's own bounded physical state -- on her feet, crouched low, or lying on the floor), sight (whether a person can see, 100 clear, 0 blind), ";
+  // the-prisoner#1: a SEPARATE fragment, never folded into `PERSON_PROPERTY_CLAUSE` above -- that constant is
+  // shared with `engine` mode's own property question (below), and `condition` must stay unreachable there
+  // (see this function's own `openRulesMode` parameter comment: a `write` down on `condition` has no self-target
+  // check). Appended only in the FIXED-mode property question, only under the harm arm.
+  const PERSON_PROPERTY_CONDITION_CLAUSE = "condition (how hurt a person is, 100 unharmed, 0 disabled), ";
   const targetKeys = [...perceivedObjects.map((o) => o.id), "none"];
   // OPEN-VARIANT.md §13.1: the kinds derivable from a parent in view, named
   // in the effect question by example and offered as the product keys. A
@@ -531,7 +592,7 @@ function buildQuestions(
   // invented. Off (`baseline`) is the pre-existing sentence, unchanged.
   const deriveClarification =
     deriveWording === "sharpened"
-      ? `An act that ends with the actor holding a separate new thing -- ${deriveExamples} -- is derive, whatever verb ` +
+      ? `An act that ends with the actor holding a separate new thing -- ${deriveExamples} -- is ${engineMode ? "create" : "derive"}, whatever verb ` +
         "names how the piece comes free (pull, tear, cut, scrape, untwist, dig): the test is whether a piece is kept " +
         "afterward, not which verb describes taking it. "
       : "";
@@ -545,7 +606,7 @@ function buildQuestions(
   const alreadyDerivedInView = derivable.some((k) => kindsInView.has(k.id));
   const REPEAT_DERIVE_CLAUSE =
     repeatDeriveMode === "on" && alreadyDerivedInView
-      ? " Working the target again for more of a kind of thing it has already yielded here -- tugging, pulling, cutting or scraping out another piece of the same material -- is derive again, a further piece kept, not damage with nothing to show; it is wear only when the act works the piece already taken, not the source it came from."
+      ? ` Working the target again for more of a kind of thing it has already yielded here -- tugging, pulling, cutting or scraping out another piece of the same material -- is ${engineMode ? "create" : "derive"} again, a further piece kept, not damage with nothing to show; it is ${engineMode ? "a write lowering the source's own property" : "wear"} only when the act works the piece already taken, not the source it came from.`
       : "";
   return [
     {
@@ -566,43 +627,85 @@ function buildQuestions(
       answerKeys: targetKeys,
       safeDefault: "none",
     },
-    {
-      id: "effect",
-      prompt:
-        "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise " +
-        "or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose " +
-        "(lower concealment), noise (a perceptible event with no state change), open (make a way out passable in " +
-        "one act -- a door, a window), close (shut a way out), leave (go out through a way out), " +
-        // docs/CUSTODY-DESIGN.md: one clause each, generic -- the target is the thing that changes hands.
-        "take (come to hold a thing that lies here or that someone else holds; the target is the thing), " +
-        "give (hand a thing the actor holds to someone else who is present; the target is the thing), " +
-        // PLAYTEST-2026-09-27 D4': offered only under `PRISONER_BLOCK=on`; `off` is every earlier request, byte for byte.
-        (blockMode === "on" ? "block (stand in a way out so nobody passes through it; the target is the way out), " : "") +
-        // the-prisoner#1: offered only under `PRISONER_HARM=on` AND with a person in view -- `off` (the
-        // default) is every request recorded before this issue, byte for byte.
-        (harmMode === "on" && personInView ? "harm (hurt another person -- striking, stabbing, throwing something at them; the target is the person), " : "") +
-        "or none. " +
-        "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
-        "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
-        "wear is for damage or dulling with no way out as its goal. " +
-        // OPEN-VARIANT.md §18.5: an examination is not the damage it looks for.
-        "An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: " +
-        "examining a bar for signs of damage or wear is reveal, not wear. " +
-        // OPEN-VARIANT.md §17.2, verbatim.
-        "For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. " +
-        // OPEN-VARIANT.md §30: every climb-out in a real game came back as `open`.
-        "Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. " +
-        `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
-        "is to have the piece afterwards; wear is for damage that leaves nothing in hand. " +
-        deriveClarification +
-        REPEAT_DERIVE_CLAUSE +
-        (personInView ? PERSON_EFFECT_CLAUSE : "") +
-        (personInView && harmMode === "on" ? PERSON_HARM_CLAUSE : "") +
-        (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE : "") +
-        "Cite the exact words in the actor's intent that describe the action.",
-      answerKeys: EFFECT_KINDS.filter((k) => (k !== "block" || blockMode === "on") && (k !== "harm" || (harmMode === "on" && personInView))),
-      safeDefault: "none",
-    },
+    engineMode
+      ? {
+          // the-prisoner#5, docs/OPEN-VARIANT.md's new section: run-dmcp's own five
+          // change kinds, named as such, plus `reveal` (no engine change at all --
+          // `engineRules.ts`'s own header explains why it is not forced into one of
+          // the five) and `none`. `direction`/`to`/`with` (below) carry what the old
+          // eleven-name vocabulary packed into the effect key itself; `translateEngineEffect`
+          // (`engineRules.ts`) maps the four answers back onto this repository's
+          // existing mechanics, unchanged.
+          id: "effect",
+          prompt:
+            "What kind of change, if any, does the intent attempt, in the engine's own terms? One of: " +
+            "write (raise or lower a numeric property of the target -- say which way in the 'direction' answer below), " +
+            "set (change who holds the target, or -- for a way out -- go out through it; say who ends up holding it, " +
+            "or answer none for a way out, in the 'to' answer below), " +
+            "transfer (move a conserved amount from one entity to another -- nothing in this game has one, so this " +
+            "always resolves to no effect), " +
+            `create (make a new thing from part of the target and keep it: ${deriveExamples}), ` +
+            "destroy (remove the target from the world outright -- no mechanic here accepts a bare destroy, so this " +
+            "always resolves to no effect), " +
+            "reveal (learn a property's true value -- examining, inspecting, checking; this makes no change at all), " +
+            "or none. " +
+            "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
+            "back, a lock worked, a bar levered from its mortar -- is a write raising its passage (direction up), even " +
+            "when the method is scraping or prying; going out through a way out, once it is passable, is a set, even " +
+            "when it already stands open: climbing through an open window is set, not write. Shutting a way out is a " +
+            "write lowering its passage (direction down). " +
+            "An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: " +
+            "examining a bar for signs of damage or wear is reveal, not write. " +
+            "For a set, the target is the thing that changes hands, or the way out gone through, even when the method " +
+            "works on a part of it such as its lock or a bar. " +
+            "Wear-shaped damage or dulling with no way out as its goal, and no thing kept afterward, is a write lowering " +
+            "the relevant property; restoring, patching, or raising concealment is a write raising it. " +
+            deriveClarification +
+            REPEAT_DERIVE_CLAUSE +
+            (personInView ? PERSON_EFFECT_CLAUSE_ENGINE : "") +
+            (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE_ENGINE : "") +
+            "Cite the exact words in the actor's intent that describe the action.",
+          answerKeys: [...ENGINE_CHANGE_KINDS],
+          safeDefault: "none",
+        }
+      : {
+          id: "effect",
+          prompt:
+            "What kind of effect, if any, does the intent attempt? One of: wear (lower a property), restore (raise " +
+            "or reset a property), reveal (learn a property's true value), conceal (raise concealment), expose " +
+            "(lower concealment), noise (a perceptible event with no state change), open (make a way out passable in " +
+            "one act -- a door, a window), close (shut a way out), leave (go out through a way out), " +
+            // docs/CUSTODY-DESIGN.md: one clause each, generic -- the target is the thing that changes hands.
+            "take (come to hold a thing that lies here or that someone else holds; the target is the thing), " +
+            "give (hand a thing the actor holds to someone else who is present; the target is the thing), " +
+            // PLAYTEST-2026-09-27 D4': offered only under `PRISONER_BLOCK=on`; `off` is every earlier request, byte for byte.
+            (blockMode === "on" ? "block (stand in a way out so nobody passes through it; the target is the way out), " : "") +
+            // the-prisoner#1: offered only under `PRISONER_HARM=on` AND with a person in view -- `off` (the
+            // default) is every request recorded before this issue, byte for byte. Unreachable under `engine`
+            // mode this landing (see this function's `openRulesMode` parameter comment above).
+            (harmMode === "on" && personInView ? "harm (hurt another person -- striking, stabbing, throwing something at them; the target is the person), " : "") +
+            "or none. " +
+            "Judge by the intent's aim, not its method: an act whose aim is to make a way out passable -- a bolt pushed " +
+            "back, a lock worked, a bar levered from its mortar -- is open, even when the method is scraping or prying; " +
+            "wear is for damage or dulling with no way out as its goal. " +
+            // OPEN-VARIANT.md §18.5: an examination is not the damage it looks for.
+            "An act whose aim is to learn -- to examine, inspect or check something -- is reveal, whatever it looks for: " +
+            "examining a bar for signs of damage or wear is reveal, not wear. " +
+            // OPEN-VARIANT.md §17.2, verbatim.
+            "For open, close and leave, the target is the way out (the door, the window), even when the method works on a part of it such as its lock or a bar. " +
+            // OPEN-VARIANT.md §30: every climb-out in a real game came back as `open`.
+            "Going out through a way out is leave, even when it already stands open: climbing through an open window is leave, not open. " +
+            `derive (make a new thing from part of the target and keep it: ${deriveExamples}) is for an act whose aim ` +
+            "is to have the piece afterwards; wear is for damage that leaves nothing in hand. " +
+            deriveClarification +
+            REPEAT_DERIVE_CLAUSE +
+            (personInView ? PERSON_EFFECT_CLAUSE : "") +
+            (personInView && harmMode === "on" ? PERSON_HARM_CLAUSE : "") +
+            (personInView && containerClauseMode === "on" ? CONTAINER_EFFECT_CLAUSE : "") +
+            "Cite the exact words in the actor's intent that describe the action.",
+          answerKeys: EFFECT_KINDS.filter((k) => (k !== "block" || blockMode === "on") && (k !== "harm" || (harmMode === "on" && personInView))),
+          safeDefault: "none",
+        },
     {
       id: "product",
       prompt:
@@ -612,28 +715,51 @@ function buildQuestions(
       answerKeys: [...derivable.map((k) => k.id), "none"],
       safeDefault: "none",
     },
-    {
-      id: "property",
-      prompt:
-        "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
-        "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), " +
-        (personInView ? PERSON_PROPERTY_CLAUSE : "") +
-        "or none " +
-        "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). " +
-        "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
-        "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. " +
-        // OPEN-VARIANT.md §18.5.
-        // `checkpoints/2026-09-22-reveal-edge/`: integrity named alone pulled spoon-sharpening examinations to it.
-        "For reveal, name the property being learned: edge for how sharp a thing is or whether it has been sharpened; integrity for damage, wear, rust or tampering, even when the intent calls it hidden. " +
-        // OPEN-VARIANT.md §24.
-        "Or concealment for what may be hidden in, under or beneath it. " +
-        `The properties each object has: ${propertyList}. Name only a property the target has; if it has none that fits, answer none. ` +
-        "An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). " +
-        "Cite the exact words in the TARGET " +
-        "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
-      answerKeys: [...rulingPropertyAnswerKeys(personInView, harmMode)],
-      safeDefault: "none",
-    },
+    engineMode
+      ? {
+          id: "property",
+          prompt:
+            "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
+            "description -- one of: integrity, edge, concealment, passage (whether a way out is open, moved by a write), " +
+            (personInView ? PERSON_PROPERTY_CLAUSE : "") +
+            "or none " +
+            "(none if the effect needs no property, e.g. a set that names none, or if nothing in the description grounds the effect at all). " +
+            "For a create, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
+            "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. " +
+            "For reveal, name the property being learned: edge for how sharp a thing is or whether it has been sharpened; integrity for damage, wear, rust or tampering, even when the intent calls it hidden. " +
+            "Or concealment for what may be hidden in, under or beneath it. " +
+            `The properties each object has: ${propertyList}. Name only a property the target has; if it has none that fits, answer none. ` +
+            "An answer of none still needs the words in the target's description that make the effect possible. " +
+            "Cite the exact words in the TARGET " +
+            "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+          answerKeys: [...rulingPropertyAnswerKeys(personInView)],
+          safeDefault: "none",
+        }
+      : {
+          id: "property",
+          prompt:
+            "Which property of the target object makes this effect PHYSICALLY POSSIBLE, per the target's own authored " +
+            "description -- one of: integrity, edge, concealment, passage (whether a way out is open, for open and close), " +
+            (personInView ? PERSON_PROPERTY_CLAUSE : "") +
+            // the-prisoner#1: named only under the harm arm, so `off` leaves this clause byte-identical. Never
+            // reached in `engine` mode's own branch above (see this function's `openRulesMode` param comment).
+            (personInView && harmMode === "on" ? PERSON_PROPERTY_CONDITION_CLAUSE : "") +
+            "or none " +
+            "(none if the effect needs no property, e.g. noise or leave, or if nothing in the description grounds the effect at all). " +
+            "For derive, name the property of the target that the new thing is taken from (integrity for a part worked loose; none for loose material " +
+            "that takes nothing from the target, or for a held thing reshaped whole into another), and cite the words naming the part that comes away. " +
+            // OPEN-VARIANT.md §18.5.
+            // `checkpoints/2026-09-22-reveal-edge/`: integrity named alone pulled spoon-sharpening examinations to it.
+            "For reveal, name the property being learned: edge for how sharp a thing is or whether it has been sharpened; integrity for damage, wear, rust or tampering, even when the intent calls it hidden. " +
+            // OPEN-VARIANT.md §24.
+            "Or concealment for what may be hidden in, under or beneath it. " +
+            `The properties each object has: ${propertyList}. Name only a property the target has; if it has none that fits, answer none. ` +
+            "An answer of none still needs the words in the target's description that make the effect possible (for noise, the words saying it makes a sound). " +
+            "Cite the exact words in the TARGET " +
+            "OBJECT'S OWN description (the source labelled desc: followed by that object's id) that make it possible.",
+          answerKeys: [...rulingPropertyAnswerKeys(personInView, harmMode)],
+          safeDefault: "none",
+        },
     {
       id: "magnitude",
       prompt:
@@ -650,6 +776,44 @@ function buildQuestions(
       answerKeys: [...PERCEPTIBILITIES],
       safeDefault: "silent",
     },
+    // the-prisoner#5: `direction`/`to`/`with` exist only under `engine` mode, in the
+    // SAME batch as `effect` (never conditioned on its answer -- a reader asks every
+    // question at once, exactly why `magnitude`/`perceptibility` above are always
+    // asked too). `translateEngineEffect`/`stepUpMagnitude` (`engineRules.ts`) are
+    // the only readers of these three answers.
+    ...(engineMode
+      ? [
+          {
+            id: "direction",
+            prompt:
+              "For a write: does the property rise or fall? Answer up to raise it (restoring, patching, concealing, or " +
+              "making a way out passable) or down to lower it (wearing, damaging, exposing, or shutting a way out). " +
+              "Answer none for every other kind of change. Cite the exact words in the actor's intent that show which way.",
+            answerKeys: [...DIRECTIONS],
+            safeDefault: "none",
+          },
+          {
+            id: "to",
+            prompt:
+              "For a set that moves a thing between hands: who ends up holding it -- actor (the intent's own actor " +
+              "comes to hold it) or other (the actor hands it to the other principal present)? Answer none for a set " +
+              "that goes out through a way out, or for any other kind of change. Cite the exact words in the actor's " +
+              "intent that show who ends up holding it.",
+            answerKeys: [...HOLDER_TARGETS],
+            safeDefault: "none",
+          },
+          {
+            id: "with",
+            prompt:
+              "Does the actor use another object she currently holds as material or a tool for a write -- something " +
+              `worked WITH the target, not the target itself? What she holds right now: ${heldObjectIds.join(", ") || "nothing"}. ` +
+              "Answer with its id if the intent applies it to the target, or none if the intent uses no such held " +
+              "object. Cite the exact words in the actor's intent that name it.",
+            answerKeys: [...heldObjectIds, "none"],
+            safeDefault: "none",
+          },
+        ]
+      : []),
     // OPEN-VARIANT.md §51, the-prisoner#17: asked only under the
     // `PRISONER_INSTRUMENT=checked` arm, so the request every earlier batch
     // recorded is unchanged when it is off. THREE closed keys, all legal:
@@ -677,7 +841,7 @@ function buildQuestions(
   ];
 }
 
-function buildSources(intentText: string, perceivedObjects: readonly ObjectPerception[]): ReaderSource[] {
+export function buildSources(intentText: string, perceivedObjects: readonly ObjectPerception[]): ReaderSource[] {
   const sources: ReaderSource[] = [{ id: INTENT_SOURCE_ID, text: intentText }];
   for (const object of perceivedObjects) {
     sources.push({ id: descriptionSourceId(object.id), text: object.description });
@@ -720,7 +884,21 @@ export function computeRuling(
   isDeclared: DeclaredPropertyCheck = declaredInScenario,
   /** docs/CUSTODY-DESIGN.md: whether a target is a PERSON -- a search is
    *  `expose` on one. Nobody is, by default. */
-  isPerson: (objectId: string) => boolean = () => false
+  isPerson: (objectId: string) => boolean = () => false,
+  /** the-prisoner#5 (`openRulesMode.ts`): "fixed" (the default) computes
+   *  `effectKind` exactly as before, straight from the eleven-name
+   *  vocabulary -- every check below (custody, noise, applicability) was
+   *  written for that vocabulary and stays untouched. "engine" additionally
+   *  reads `direction`/`to`/`with` and translates
+   *  (`translateEngineEffect`, `engineRules.ts`) before any of those checks
+   *  run, so they apply unchanged to the translated result -- this landing
+   *  changes what `effect`/`property` are ASKED, never how a ruling turns
+   *  into a resolution once it has one. */
+  openRulesMode: OpenRulesMode = "fixed",
+  /** Whether a target is a way out, or the part that makes one passable
+   *  (`world.ts`'s own `exits` map) -- `translateEngineEffect`'s own
+   *  `targetIsExit`. Nothing is, by default. */
+  isExit: (objectId: string) => boolean = () => false
 ): RefereeRuling {
   const targetAnswer = answerFor(result, "target");
   const effectAnswer = answerFor(result, "effect");
@@ -734,12 +912,34 @@ export function computeRuling(
   // "the reader is misconfigured" throw, which a genuinely absent
   // (off-arm) question is not.
   const instrumentAnswer = result.answers.find((a) => a.questionId === "instrument");
+  // the-prisoner#5: present only under `PRISONER_OPEN_RULES=engine`
+  // (`buildQuestions`) -- `undefined` under `fixed`, the identical
+  // discipline `instrumentAnswer` above already follows for its own arm.
+  const directionAnswer = result.answers.find((a) => a.questionId === "direction");
+  const toAnswer = result.answers.find((a) => a.questionId === "to");
+  const withAnswer = result.answers.find((a) => a.questionId === "with");
 
   const targetObjectId = targetAnswer.answerKey;
-  const effectKind = effectAnswer.answerKey as EffectKind;
   const property = propertyAnswer.answerKey as OpenPropertyKey | "none";
   const product = productAnswer.answerKey;
   const instrument = instrumentAnswer?.answerKey ?? "none";
+  // the-prisoner#5: under `fixed`, `effectAnswer` already names an `EffectKind`
+  // directly, exactly as before. Under `engine`, it names one of run-dmcp's own
+  // change kinds instead, and `translateEngineEffect` (`engineRules.ts`) maps it,
+  // with `direction`/`to`/the target's own shape, onto the SAME `EffectKind`
+  // vocabulary every check below was written against -- so nothing below this
+  // line needs to know which mode produced it.
+  const effectKind: EffectKind =
+    openRulesMode === "engine"
+      ? translateEngineEffect({
+          engineEffect: effectAnswer.answerKey as EngineChangeKind,
+          direction: (directionAnswer?.answerKey as Direction | undefined) ?? "none",
+          to: (toAnswer?.answerKey as HolderTarget | undefined) ?? "none",
+          property,
+          targetIsExit: targetObjectId !== "none" && isExit(targetObjectId),
+          targetIsPerson: targetObjectId !== "none" && isPerson(targetObjectId),
+        })
+      : (effectAnswer.answerKey as EffectKind);
 
   const targetCitation = citationCheck(targetAnswer, INTENT_SOURCE_ID);
   const effectCitation = citationCheck(effectAnswer, INTENT_SOURCE_ID);
@@ -811,24 +1011,59 @@ export function computeRuling(
     propertyNamedWhenRequired &&
     productNamedWhenRequired;
 
+  // CODER-BRIEF (the-prisoner#5's own concrete test case, docs/issues/5.md's
+  // comment: "rub the grit into the bar's mortar"): a `with` answer counts
+  // only when it names a real held object AND its citation verifies against
+  // the actor's own intent -- an unread or unverified one is treated exactly
+  // like `"none"` (the safe direction, `missingInstrument`'s own discipline
+  // above). Scoped to `write` alone: `stepUpMagnitude` (`engineRules.ts`)
+  // only ever matters to a resolution that reads a magnitude table at all --
+  // `open`/`close` always go to the end of their range regardless (§24),
+  // so the bump would be inert there, never wrong, but this keeps the rule
+  // to exactly the shape the brief describes.
+  const withCitation = withAnswer ? citationCheck(withAnswer, INTENT_SOURCE_ID) : NO_INSTRUMENT_CITATION;
+  const withHeld = withAnswer !== undefined && withAnswer.answerKey !== "none" && withCitation.verified;
+  const baseMagnitude = magnitudeAnswer.answerKey as Magnitude;
+  const magnitude = openRulesMode === "engine" && effectAnswer.answerKey === "write" && withHeld ? stepUpMagnitude(baseMagnitude) : baseMagnitude;
+
   return {
     targetObjectId,
     effectKind,
     property,
-    magnitude: magnitudeAnswer.answerKey as Magnitude,
+    magnitude,
     perceptibility: perceptibilityAnswer.answerKey as Perceptibility,
     product,
     instrument,
+    direction: (directionAnswer?.answerKey as Direction | undefined) ?? "none",
+    to: (toAnswer?.answerKey as HolderTarget | undefined) ?? "none",
+    withObjectId: withAnswer?.answerKey ?? "none",
     missingInstrument,
     applicable,
-    citations: { target: targetCitation, effect: effectCitation, property: propertyCitation, product: productCitation, instrument: instrumentCitation },
+    citations: {
+      target: targetCitation,
+      effect: effectCitation,
+      property: propertyCitation,
+      product: productCitation,
+      instrument: instrumentCitation,
+      // the-prisoner#5: present (non-placeholder) only under `engine` mode,
+      // the same "asked or not" discipline `instrument` above follows.
+      direction: directionAnswer ? citationCheck(directionAnswer, INTENT_SOURCE_ID) : NO_INSTRUMENT_CITATION,
+      to: toAnswer ? citationCheck(toAnswer, INTENT_SOURCE_ID) : NO_INSTRUMENT_CITATION,
+      with: withCitation,
+    },
     raw: result,
     request,
   };
 }
 
 export interface Referee {
-  rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling>;
+  /** `heldObjectIds` (the-prisoner#5): the actor's own currently held
+   *  objects (`context.holding`, `loop.ts`), read only under
+   *  `PRISONER_OPEN_RULES=engine` to build the `with` question's closed
+   *  answer set. Optional, defaulting to none held, so every existing
+   *  caller and every hand-built `Referee` in a test keeps typechecking
+   *  unchanged. */
+  rule(intentText: string, perceivedObjects: readonly ObjectPerception[], heldObjectIds?: readonly string[]): Promise<RefereeRuling>;
 }
 
 /** D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): true exactly
@@ -937,6 +1172,16 @@ export function createReferee(
      *  default is `"off"` too, so a bare referee's request is byte-identical to every recorded batch and the
      *  fingerprint PIN holds. */
     harmMode?: HarmMode;
+    /** the-prisoner#5 (`openRulesMode.ts`). Default `"fixed"`: a referee
+     *  built bare -- every unit test, every replay of a recorded request --
+     *  asks the exact eleven-effect request it always has, and the
+     *  fingerprint PIN holds. */
+    openRulesMode?: OpenRulesMode;
+    /** the-prisoner#5: whether a target is a way out, or the part that makes
+     *  one passable (`world.ts`'s `exits` map) -- `translateEngineEffect`'s
+     *  own `targetIsExit`, read only under `openRulesMode: "engine"`.
+     *  Nothing is a way out by default. */
+    isExit?: (objectId: string) => boolean;
   } = {}
 ): Referee {
   const isDeclared = options.isDeclared ?? declaredInScenario;
@@ -947,15 +1192,20 @@ export function createReferee(
   const elisionMode = options.elisionMode ?? "off";
   const containerClauseMode = options.containerClauseMode ?? "off";
   const repeatDeriveMode = options.repeatDeriveMode ?? "off";
+  const openRulesMode = options.openRulesMode ?? "fixed";
+  const isExit = options.isExit ?? (() => false);
   // docs/CUSTODY-DESIGN.md: a person is whatever declares a person's own key --
   // the same test `buildQuestions` uses, so no scenario import is needed here.
   const isPerson = (objectId: string): boolean => propertiesOf(objectId).some((k) => (PERSON_PROPERTY_KEYS as readonly string[]).includes(k));
   // Two caches under one key scheme: `mainCache` holds the six-question ruling alone, so D7's first act -- ruled
-  // as a fresh intent -- is served from it on an exact repeat; `cache` holds what `rule()` returns.
+  // as a fresh intent -- is served from it on an exact repeat; `cache` holds what `rule()` returns. the-prisoner#5:
+  // the key now also carries `heldObjectIds` -- under `engine` mode the SAME intent against the SAME perceived
+  // objects can still mean something different once the actor holds a new thing (`with`'s own closed set), so an
+  // exact repeat of only the first two is no longer exact.
   const mainCache = new Map<string, RefereeRuling>();
   const cache = new Map<string, RefereeRuling>();
-  const ruleMain = async (intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> => {
-    const key = cacheKeyFor(intentText, perceivedObjects);
+  const ruleMain = async (intentText: string, perceivedObjects: readonly ObjectPerception[], heldObjectIds: readonly string[]): Promise<RefereeRuling> => {
+    const key = cacheKeyFor(intentText, perceivedObjects, heldObjectIds);
     const cached = mainCache.get(key);
     if (cached) return cached;
     const questions = buildQuestions(
@@ -969,7 +1219,9 @@ export function createReferee(
       repeatDeriveMode,
       options.blockMode ?? "off",
       options.personInstrumentMode ?? "off",
-      options.harmMode ?? "off"
+      options.harmMode ?? "off",
+      openRulesMode,
+      heldObjectIds
     );
     const sources = buildSources(intentText, perceivedObjects);
     // OPEN-VARIANT.md §38: each rung's last exchange, for the sidecar. (What each rung OFFERED was
@@ -982,16 +1234,16 @@ export function createReferee(
     });
     const reader = createTurnReader({ questions, transports: recording });
     const result = await reader.read(sources);
-    const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson), exchanges };
+    const ruling = { ...computeRuling(result, { questions, sources }, isDeclared, isPerson, openRulesMode, isExit), exchanges };
     mainCache.set(key, ruling);
     return ruling;
   };
   return {
-    async rule(intentText: string, perceivedObjects: readonly ObjectPerception[]): Promise<RefereeRuling> {
-      const key = cacheKeyFor(intentText, perceivedObjects);
+    async rule(intentText: string, perceivedObjects: readonly ObjectPerception[], heldObjectIds: readonly string[] = []): Promise<RefereeRuling> {
+      const key = cacheKeyFor(intentText, perceivedObjects, heldObjectIds);
       const cached = cache.get(key);
       if (cached) return cached;
-      const full = await ruleMain(intentText, perceivedObjects);
+      const full = await ruleMain(intentText, perceivedObjects, heldObjectIds);
       let ruling: RefereeRuling = full;
       if (options.oneAct === "checked" || options.oneAct === "first") {
         const { oneAct, secondActFrom } = await readOneAct(intentText, transports);
@@ -1004,7 +1256,7 @@ export function createReferee(
         // preparatory step about one time in four -- so a player waits longer on those turns.
         const split = options.oneAct === "first" && secondActFrom !== null ? splitAtSecondAct(intentText, secondActFrom) : null;
         if (split) {
-          const attempted = await ruleMain(split.text, perceivedObjects);
+          const attempted = await ruleMain(split.text, perceivedObjects, heldObjectIds);
           if (attempted.applicable) ruling = { ...attempted, oneAct: { ...oneAct, attempted: split, fullRuling: full } };
         }
       }

@@ -273,7 +273,7 @@ flowchart TB
 | **What each side knows** | `briefing.ts`, `conditions.ts`, `conditionList.ts`, `perception.ts` | The context a mind sees: perceived objects at `t` (presence and ownership read from facts), beliefs with their "as of round N" stamps, news, notes, plan, the rule lines (presence, absence), and the condition list read from its own side. `perception.ts` writes the actor's own outcome and what the other perceives, positively (§2 invariant 7). |
 | **Minds** | `mind.ts`, `proseMind.ts`, `passiveWarden.ts` | `createOpenMind` composes a wits call (the intent, thoughts, notes, plan, candidates) and a voice call (one spoken line that never reaches the referee), through mind-seam. The prose seat asks one question; the passive warden attempts nothing. |
 | **Novelty and elaboration** | `precedent.ts`, `pickCondition.ts`, `strategy.ts`, `elaborationReferee.ts`, `elaborationBands.ts` | Arms, each off by default: what the warden has seen before (and its price), forcing the prisoner off a known approach, one committed strategy line, and the world acquiring a declared property at a pre-priced band. |
-| **Human seat** | `humanSeat.ts`, `proseView.ts`, `deltaView.ts`, `narrator.ts`, `narrationAudit.ts` | How a person sees the same data: raw (the prompt, byte for byte), prose (composed by code), narrated (a model's prose, verified, then audited sentence by sentence), play (news first, standing blocks behind commands). D10 (§80.1): the stakes are a block shown once and again in the last five rounds; beliefs are one item each, held back when unchanged and printed whole by `known`; a belief whose property has readings is shown as the words last read; the player's own outcome is notified at once and its byte-equal news line dropped from `play`. None of it reaches a model prompt; `PLAY_BLOCK_POLICY` is a `Record` over every block kind, so a new kind cannot reach the player undecided. |
+| **Human seat** | `humanSeat.ts`, `proseView.ts`, `deltaView.ts`, `narrator.ts`, `narrationAudit.ts` | How a person sees the same data: raw (the prompt, byte for byte), prose (composed by code), narrated (a model's prose, verified, then audited sentence by sentence), play (news first, standing blocks behind commands). D10 (§80.1): the stakes are a block shown once and again in the last five rounds; beliefs are one item each, held back when unchanged and printed whole by `known`; a belief whose property has readings is shown as the words last read; the player's own outcome is notified at once and its byte-equal news line dropped from `play`. The-prisoner#32 (§81): D5's absence-cadence rule line is recognised the same way as the stakes line (an exact match against `briefing.ts`'s own `absenceRuleLine`) and given its own `absence` block, STANDING and reachable under `rules` -- it used to ride along inside `news` and repeat every turn. None of it reaches a model prompt; `PLAY_BLOCK_POLICY` is a `Record` over every block kind, so a new kind cannot reach the player undecided. |
 | **Record** | `checkpointTranscript.ts`, `transcript.ts`, `turnReport.ts`, `runAbandon.ts` | The per-half-round transcript text, both rulings where two were made (reconsider, first act), §5.2's measurements, the fog audit, the replayable request sidecar, the human-turn rows, and what a game keeps when the player walks away. |
 
 ### 3.2 The shared layer, and the closed variant beside it
@@ -368,6 +368,23 @@ backoff on DeepInfra, the filtered `/api/ps` and the no-op `/api/generate`. It t
 and belongs to neither the engine nor the seam, which is why it lives here. `modelRouter.test.ts`
 pins the routing rule and the child environment.
 
+### 3.5 The MCP seat server (the-prisoner#11, added after this document's own pinned commit)
+
+`npm run mcp-seat` (`src/tools/mcpSeatCli.ts`) is a second process alongside the checkpoint one: a
+thin `@modelcontextprotocol/sdk` server (`src/mcp/server.ts`) exposing `new_game`/`my_briefing`/
+`attempt`/`rules`/`conditions`/`me`, over `src/mcp/session.ts`'s `GameSession`, which plays the
+identical `runOpenGame` loop with `src/open/mcpSeatMind.ts` (a second `OpenMind`, alongside the human
+seat's `humanSeat.ts`) in the player's chair. `src/mcp/liveConfig.ts` is its own analogue of this
+process's top-level env reads -- the one file in the MCP half that builds a real referee, opponent
+mind and `OllamaModelSwapper` from `process.env`, through the identical `read*Mode` functions
+`checkpoint.ts` itself reads. `src/mcp/transcript.ts` writes to `checkpoints/*-mcp.md` through
+`checkpoint.ts`'s own `renderOpenHalfRound`/`renderOpenSummary`, headed `Seat: MCP (client-relayed;
+authorship unverifiable)`. `docs/MCP-SEAT.md` is the full writeup, including its mapping onto
+JavaDerek/run-dmcp#38's proposed engine pieces. Tested exclusively through the SDK's own in-memory
+transport against a scripted referee and opponent mind (`src/mcp/__tests__/server.test.ts`); never a
+live model call, the same discipline every other container on this page follows. Not yet drawn into
+the Level 2 diagram above, which is pinned to the commit named in its own title.
+
 ---
 
 ## Boundaries that are enforced
@@ -424,6 +441,11 @@ column below is what a real game gets.
 | `PRISONER_SKIP_VOICE` | unset | `1` collapses voice onto the wits model. |
 | `PRISONER_PRISONER_MODEL` / `PRISONER_WARDEN_MODEL` | unset (the run's pair) | One chair's whole mind, wits and voice. |
 | `PRISONER_REFEREE_MODEL` | `muse-glimmer:30b` | Empty is unset. |
+| `PRISONER_MODE` | `benchmark` | `benchmark` \| `enjoyable` (the-prisoner#3, `src/open/scenarioMode.ts`). Open variant only. Printed in every open-variant transcript header; `batchMeasures.ts` REFUSES to aggregate an `enjoyable` transcript. |
+| `PRISONER_SCENARIO_MODEL` | the referee model | Enjoyable mode only: which model generates and honesty-reviews descriptions. |
+| `PRISONER_SCENARIO_TEMPERATURE` | `0.9` | Enjoyable mode only: generation temperature. The honesty review always runs at 0. |
+| `PRISONER_SCENARIO_FILE` | unset | Enjoyable mode only: a path to a `.scenario.json` sidecar to replay exactly, with no generation call. Needs `PRISONER_MODE=enjoyable`. |
+| `PRISONER_OPEN_RULES` | `fixed` under `benchmark`, `engine` under `enjoyable` | `fixed` \| `engine` (the-prisoner#5, `src/open/openRulesMode.ts`). Open variant only. `engine`: the referee rules in run-dmcp's own five change kinds (write/set/transfer/create/destroy, plus `reveal`), mapped by code onto this game's existing mechanics (`src/open/engineRules.ts`). Refuses `engine` under `PRISONER_MODE=benchmark`. Printed in every open-variant transcript header, right after `Mode:`. See OPEN-VARIANT.md §86. |
 | `PRISONER_THINK_TIMEOUT_MS` | unset (mind-seam's 12 s; the strategy step's own 300 s) | Mind calls. |
 | `PRISONER_REFEREE_TIMEOUT_MS` | `PRISONER_THINK_TIMEOUT_MS`, else the transport's 12 s | Referee calls. |
 | `PRISONER_REFEREE_THINKING` / `PRISONER_WITS_THINKING` | `off` | `on` \| `off`, per role. |
@@ -448,6 +470,7 @@ restores the 2026-09-26 game.
 | `PRISONER_CONDITIONS` | `both` | `list` (2026-09-17..27), `off` (before) | default since 2026-09-27 (D3); §34, §40 |
 | `PRISONER_DOOR` | `stated` | `unstated` | default since 2026-09-27 (D6'); §46 |
 | `PRISONER_DOOR_PRICE` | `margin` | `free`, `threshold` | default since 2026-09-27 (D6'); §50 |
+| `PRISONER_CONDITION_ORDER` | `window-first` | `door-first` | new; the-prisoner#23 |
 | `PRISONER_BLOCK` | `on` | `off` | new 2026-09-27 (D4', D4b) |
 | `PRISONER_ONE_ACT` | `first` | `checked` (2026-09-22..27), `off` (before) | default since 2026-09-27 (D7); §74.1 |
 | `PRISONER_PERSON_INSTRUMENT` | `off` | `on` | new 2026-09-27 (D12), off pending P3 |
@@ -458,7 +481,7 @@ restores the 2026-09-26 game.
 | `PRISONER_DERIVE_WORDING` | `baseline` | `sharpened` | §51 |
 | `PRISONER_INSTRUMENT` | `off` | `checked` | §51 |
 | `PRISONER_WINDOW` | `open` | `welded` | §64.3 |
-| `PRISONER_ELABORATE` | `off` | `property` | WORLD-ELABORATION-DESIGN §4 |
+| `PRISONER_ELABORATE` | `off`, in EVERY mode including `PRISONER_MODE=enjoyable` | `property` | WORLD-ELABORATION-DESIGN §4; §66.5's sweep was stopped with the elasticity question undelivered, so the-prisoner#5 left this default untouched -- OPEN-VARIANT.md §86 |
 | `PRISONER_ELABORATE_BAND` | unset (the built table) | `trivial`, `hard`, `ruinous`, `impossible` | the §4.8 sweep only |
 | `PRISONER_PRECEDENT_LEDGER` | unset | a JSON file path (created if absent) | §11 |
 | `PRISONER_PRECEDENT_PRICE` | `flat` | `stale` | §42 |
@@ -513,10 +536,12 @@ file's own update in the next commit corrects.
    (`src/mind/__tests__/seamConformance.*.test.ts`); the open minds are held by the same `Mind<C extends
    InertRecord>` type, by `createLocalMind`'s own `assertInert`, and by `invariants.test.ts`, but no
    test runs mind-seam's suite over them. A gap in coverage, not a known leak.
-8. **The warden's pronoun differs by author.** The scenario refers to Croft as "they"
-   (`PRISONER_MOTIVE`), the playtest documents as "he", and the new block condition and the sight
-   readings as "her" ("Warden Croft is on her feet", "Something covers her head" for either person).
-   The condition line reaches both chairs' prompts.
+8. **RESOLVED** (the-prisoner#34, OPEN-VARIANT.md §85): the warden's pronoun used to differ by author
+   -- the scenario referred to Croft as "they" (`PRISONER_MOTIVE`), the playtest documents as "he", and
+   the block condition and the D12 sight/posture readings as "her" (copied from the prisoner's own
+   bands). `scenario.ts` now declares one `Pronouns` record per principal (`PRISONER_PRONOUNS`,
+   `WARDEN_PRONOUNS`, and `pronounsFor`); Croft is "he/him/his/himself", Voss is "she/her/her/herself",
+   and every site that renders a sentence about a principal builds its pronoun from there.
 9. **README.md is behind the tree** in ways this document does not change: it calls the open variant
    "in design", counts thirty-six transcripts on three models, and its run example pins
    `PRISONER_MODEL=qwen3:14b` on the closed variant, which CLAUDE.md's "a worked example that pins a

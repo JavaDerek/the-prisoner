@@ -157,10 +157,17 @@ export function principalLocation(openWorld: OpenWorld, principal: Principal, t:
  *  principal's referee call can cite against. Declares no numeric property
  *  on purpose (issue #22's third gap, out of scope here): this grounds only
  *  what any perceivable person supports generically -- being seen, heard,
- *  spoken to, or touched -- never a game-specific state. */
+ *  spoken to, or touched -- never a game-specific state.
+ *
+ *  The-prisoner#34: this used to author its own copy of `OPEN_PERSONS`' own description text, and the
+ *  two had drifted (both said "She", which discrepancy 8, docs/ARCHITECTURE.md, names as one of the
+ *  places the warden's pronoun was decided a second time). Reading `OPEN_PERSONS` here instead means
+ *  there is exactly one authored description per principal, ever -- this fallback (only reached when
+ *  `perceive` below finds no `OPEN_PERSONS` entry for a principal, which never happens: both are
+ *  always declared) can no longer say something different from the one `describedAsItStands` renders. */
 const PRINCIPAL_DESCRIPTION: Record<Principal, string> = {
-  prisoner: `${PRISONER_NAME}, the prisoner. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
-  warden: `${WARDEN_NAME}, the warden. She can be seen, heard, spoken to, or touched by anyone who shares this room with her.`,
+  prisoner: OPEN_PERSONS.find((p) => p.id === "prisoner")!.description,
+  warden: OPEN_PERSONS.find((p) => p.id === "warden")!.description,
 };
 
 /** OPEN-VARIANT.md §64.3, WORLD-ELABORATION-DESIGN.md §4.8: the welded-window
@@ -183,8 +190,22 @@ const WELDED_DESCRIPTION: Readonly<Record<string, string>> = {
  *  straight, so a welded run's "Objects as authored" section described the
  *  open room the game never played, while all 120 perception lines below it
  *  described the welded one. The descriptions a reader checks a citation
- *  against must be the ones that were cited.  */
-export function authoredDescription(spec: OpenObjectSpec, windowMode: WindowMode): string {
+ *  against must be the ones that were cited.
+ *
+ *  the-prisoner#3, enjoyable mode: `descriptionOverrides` (default `{}`,
+ *  so a caller that never sets it -- every game before this issue existed --
+ *  is byte-identical) is `scenarioGen.ts`'s `descriptionOverridesFrom`, id ->
+ *  the text a generator's own honesty-reviewed attempt produced, or the
+ *  authored facts text when every attempt fell back. Checked FIRST, before
+ *  the welded swap: this is the same seam, generalised, and generated text
+ *  reaches every mind and the referee's own citation source through it,
+ *  exactly where authored text always did -- never a second description
+ *  path. (Enjoyable mode and the welded arm are not run together by this
+ *  landing; an override would win were they combined, since a person
+ *  playing an enjoyable game chose the fresh texture on purpose.) */
+export function authoredDescription(spec: OpenObjectSpec, windowMode: WindowMode, descriptionOverrides: Readonly<Record<string, string>> = {}): string {
+  const override = descriptionOverrides[spec.id];
+  if (override !== undefined) return override;
   return windowMode === "welded" && spec.id in WELDED_DESCRIPTION ? WELDED_DESCRIPTION[spec.id] : spec.description;
 }
 
@@ -232,7 +253,10 @@ function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: numb
   // other object's stays `OPEN_OBJECTS`'s own. The bar's `integrity` reading
   // never fires either way -- `windowMode === "welded"` means `buildOpenWorld`
   // never created a resource for it, so `readings` above already found none.
-  return [authoredDescription(spec, openWorld.windowMode), ...readings].join(" ");
+  // the-prisoner#3: `openWorld.descriptionOverrides` (default `{}`) is what
+  // every mind and the referee's own citation source actually reads under
+  // enjoyable mode -- the identical function the transcript header calls.
+  return [authoredDescription(spec, openWorld.windowMode, openWorld.descriptionOverrides), ...readings].join(" ");
 }
 
 export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number, presenceMode: PresenceMode = "off"): ObjectPerception[] {

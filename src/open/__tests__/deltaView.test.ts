@@ -234,6 +234,45 @@ describe("the delta view: the stakes block is STANDING, with a forced re-show (D
   });
 });
 
+// The-prisoner#32: `checkpoints/2026-09-28T01-09-16-356Z.md` printed D5's
+// absence-cadence rule line as anonymous news nine times, once every turn,
+// because it fell into `other` and rode along inside the `news` block, which
+// is never STANDING. `proseView.ts`'s `parseBriefing` now recognises it by
+// its own literal template and gives it its own `absence` block; this suite
+// pins that the delta treats that block exactly like `stakes` -- shown once,
+// held back after, named in the held-back notice.
+describe("the delta view: the absence-cadence rule is STANDING (the-prisoner#32)", () => {
+  const ABSENCE: ProseBlock = {
+    kind: "absence",
+    text: "Warden Croft is out of the cell on round 4, and every fourth round after; while out, nothing Mara Voss does is seen or heard.",
+  };
+  const turnWithAbsence = (round: number): ProseBlock[] => [...turn(round), ABSENCE];
+
+  it("shows the absence rule once, then holds it back on a later turn while it is unchanged", () => {
+    const view = createDeltaView();
+    const first = view.render(turnWithAbsence(1));
+    expect(first).toContain("is out of the cell on round 4");
+    const second = view.render(turnWithAbsence(2));
+    expect(second).not.toContain("is out of the cell on round 4");
+  });
+
+  it("names the absence rule in the held-back notice", () => {
+    const view = createDeltaView();
+    view.render(turnWithAbsence(1));
+    const second = view.render(turnWithAbsence(2));
+    expect(second).toContain(HELD_BACK_LEAD);
+    expect(second).toMatch(/absence/i);
+  });
+
+  it("shows it again the moment its own words change (e.g. the cadence constant changing scenario text)", () => {
+    const view = createDeltaView();
+    view.render(turnWithAbsence(1));
+    view.render(turnWithAbsence(2));
+    const third = view.render([...turn(3), { kind: "absence", text: "Warden Croft is out of the cell on round 6, and every sixth round after; while out, nothing Mara Voss does is seen or heard." }]);
+    expect(third).toContain("round 6, and every sixth round after");
+  });
+});
+
 // D10-2 (PLAYTEST-2026-09-27-DESIGN.md R7): the motivating transcript's
 // six-line belief block repeated whole every round. `knowledge` is now
 // STANDING and a list block, so an unchanged belief is held back exactly

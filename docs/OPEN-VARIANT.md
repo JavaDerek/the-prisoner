@@ -6967,7 +6967,666 @@ when a later repeat resolves (refused +0; resolved +10 +30). `precedent.ts`'s he
 
 The P3 and P5 drafts under `checkpoints/2026-09-28-*` say what these change for them; neither is pre-registered yet.
 
-## 81. the-prisoner#1 lands: the attack move (2026-09-28)
+## 81. The play view's own boilerplate: the absence-cadence rule line is STANDING now (the-prisoner#32, 2026-09-27/28)
+
+`checkpoints/2026-09-28T01-09-16-356Z.md` (the human playtest under the 2026-09-27 defaults) showed D5's
+absence-cadence rule line -- "Warden Croft is out of the cell on round 4, and every fourth round after; while out,
+nothing Voss does is seen or heard." (`briefing.ts`'s `absenceRuleLine`) -- as anonymous news nine times, once
+every single turn. `buildOpenBriefing` puts it right beside the presence line ("Croft is here with you." /
+"Croft is not here right now."), which DOES change every turn, so the two landed in the same place; `parseBriefing`
+had no template for the absence line, so it fell into `other` and rode along inside the `news` block, which is
+never STANDING (§59, §80's own R7 finding about the `stakes` line -- this is the same bug with a different line).
+It is a rule that never changes for the whole game, exactly the shape D10-1 built the `stakes` block to hold.
+
+**Fix, on the D10-1 pattern exactly:** `proseView.ts`'s `parseBriefing` now recognises the absence line by an exact
+match against `briefing.ts`'s own `absenceRuleLine()` -- this repository's own literal template, never a guess at
+what the line means, the same discipline the stakes recognition already uses -- and gives it its own block
+(`ProseBlockKind` `"absence"`). `deltaView.ts` adds `"absence"` to its `STANDING` set (shown once, held back on a
+later turn while unchanged, named in the held-back notice) and `humanSeat.ts`'s `PLAY_BLOCK_POLICY` maps it to the
+same target as `"rules"` rather than a fifth command -- the `rules` no-turn command now reads every block kind
+mapped to `"rules"`, not only the `rules` kind by name, so a future kind mapped there needs no second change to the
+command handler. Under `play`, `absence` is therefore never shown automatically (like `rules`, `conditions` and
+`identity`), reachable the same keystroke away; under `prose` and the `narrated` fallback it goes through the same
+delta every other standing block does. `PLAY_BLOCK_POLICY` stays a `Record` over every `ProseBlockKind`, so `tsc`
+forced this decision the moment the new kind was added -- the same guard `deltaView.ts`'s own `BLOCK_NAMES` gave it
+a second time.
+
+**D13 checked for the same bug, and does not have it.** D13's laying-hands rule line ("An act on Warden Croft's own
+body gives grounds at once...") is one of `mind.ts`'s `stateBasedRules`, folded into the `rules` block directly --
+it is never rendered through `buildOpenBriefing`/`parseBriefing` at all, so it was already STANDING before this
+task, the same way every other state-based rule sentence already is. `proseView.test.ts` pins this finding rather
+than leaving it a claim in a doc.
+
+**Seat only, no batch impact.** Nothing here touches `buildOpenBriefing`, the model's own prompt, or the referee:
+`renderSeatSituation` (the raw view, byte-identical to the model's prompt) is untouched, and `proseView.test.ts`
+pins that it still carries the absence line exactly where `buildOpenBriefing` put it. This needs no arm and draws
+no new batch boundary -- a model never sees a different prompt because of it, and every existing model batch and
+transcript stays exactly as comparable as before. Pinned by new tests in `proseView.test.ts` (the block is pulled
+out of `news`, still recognised as news when it is absent, still carries in the full prose join, and the raw-view
+pin above), `deltaView.test.ts` (shown once then held back, named in the notice, shown again if the words ever
+change), and `humanSeat.test.ts` (never shown automatically under `play`, surfaced by `rules` alongside the
+mechanics paragraph, and shown-once-then-held-back under `prose`).
+
+## 82. `PRISONER_CONDITION_ORDER` built, the batch scaffolded, neither run (2026-09-27, the-prisoner#23)
+
+§50.7's own last paragraph named a confound running through every one of its twenty-two door-arm games: condition
+1 has always been the window, and she plans the window from round 1 in all twenty-two, whatever the door costs.
+The route named FIRST may be what she plans, not the door's price -- filed as issue #23 rather than built at the
+time, because `conditionList.ts` is shared infrastructure and the list's CONTENT is where D1-D5's decisions live
+(§40). This section is the build half, done under the owner's overnight delegation; the batch that would answer
+the question is scaffolded, not run (§82.2).
+
+### 82.1 The arm
+
+`PRISONER_CONDITION_ORDER=window-first|door-first` (`src/open/conditions.ts`), default `window-first`,
+byte-identical to every batch ever recorded -- her list has always named the window first. `door-first` states
+her door condition before her window condition and changes nothing else: same claims, same thresholds, same
+`(for you)`/`(for <name>)` attributions, only the position of those two conditions swapped. `openConditions`'s
+own array is built from two small blocks (`windowConditions`, `doorConditions`) and the arm decides only which
+comes first; every catch condition, the "a way out stands open" unlock, and D15's key-ring conditions keep their
+existing position untouched. It has no effect unless BOTH of her own route conditions exist -- the door `stated`
+and the window not `welded` (§64.3) -- because with only one of them, that one is already first either way.
+
+**One list, not two**, decided rather than merely defaulted: `src/checkpoint.ts` calls `openConditions()` once
+per side (the prisoner's mind, the warden's mind under `PRISONER_CONDITIONS=both`, and the human seat's own
+render) with the SAME options every time, so the array -- and therefore its order -- is identical for both
+principals. `conditionList.ts`'s own generic `renderConditionList` only marks whose condition each one is from
+the reader's side (§34.3); it does not, and under this arm still does not, take an order of its own. A
+prisoner-only reorder would need a second construction path per principal, which is exactly the divergence
+`conditionList.ts` exists to prevent (it is shared with `brink-workshop`'s rival minds, D4) -- so `door-first`
+reorders both chairs' lists identically. The issue's own question is about her route, and the warden's copy of
+the list carries no unlock for him to act on differently, so this is not read as broadening the experiment.
+
+Tested first (`src/open/__tests__/conditions.test.ts`): `readConditionOrder` defaults and rejects an unrecognised
+value; `window-first` (unset) is byte-identical to today under `door: stated, doorPrice: margin`; `door-first`
+swaps exactly the first two conditions and leaves the rest -- catches, key conditions -- untouched, asserted by
+sorting both arms' conditions into the same order and comparing them equal (the multiset claim the issue asked
+for); `door-first` is a no-op when the door is unstated or the window is welded, because there is only one block
+to place; and the rendered text reads the door's line as `CONDITION 1` for both principals under `door-first`,
+each still from its own side. Named in the transcript header (`Condition order: WINDOW-FIRST` /
+`Condition order: DOOR-FIRST`, beside `Door:` and `Door price:`) and in `docs/ARCHITECTURE.md`'s configuration
+reference.
+
+### 82.2 The batch, scaffolded not run
+
+`checkpoints/2026-09-28-condition-order/` (`run-batch.sh`, `env-check.mts`, `scoreboard.mts`, `PREDICTION.md`,
+`README.md`), modelled on `2026-09-28-contest-batch/`: arm A `window-first` (control), arm B `door-first`, N=4
+each, alternating A1 B1 A2 B2 A3 B3 A4 B4 on one serial driver, from a pinned commit, everything else at today's
+default (door stated, priced at margin; all-Muse; `PRISONER_SKIP_VOICE=1`, since the measures are process
+measures and this is reasoning-only work, CLAUDE.md; ten rounds). D15's key ring is counted as a third door route
+(`door`, `lock`, `key_ring` vs `window`, `bar`), since a held ring now opens the door regardless of the lock and
+§50.7's own corpus predates that gate entirely. `PREDICTION.md` states the issue's own test in its own words:
+order decides if door-first moves her first route ruling to the door in at least 3 of 4 and window-first stays at
+most 1 of 4; price decides after all if both arms stay at most 1 of 4. Per §46.6's own caution about a screen at
+this N -- a control cell there moved from 3/24 to 9/24 with nothing changed between two runs -- anything between
+those two readings is reported as neither confirmed nor refuted, not stretched into a verdict the N cannot carry.
+The scoreboard prints, per game, the round of her first ruling on each route and the count on each, over the
+referee's own closed `target` key only (never English); her round-1 plan is printed VERBATIM for a human to
+read, deliberately not classified in code -- a plan's route is a judgement about prose the referee never ruled
+on, and the issue's own "score the plan, not the intent" lesson (§45, §46.2) is honoured by showing it, not by
+writing a second, unaudited classifier. `run-batch.sh --dry-run` and `scoreboard.mts --dry-run` (against
+`checkpoints/2026-09-28T01-09-16-356Z.md` as a parser fixture, a human-seat game that is not this batch's arm on
+purpose) both exercise the scaffolding without a network call; the fixture confirms the parser finds her first
+door-route ruling (round 7, via `key_ring`) and her first window-route ruling (round 1, via `bar`) correctly.
+
+**Named honestly, not run**: this batch's world is not §50.5/§50.7's -- `block`, modelled presence, the absence
+cadence, `PRISONER_ONE_ACT=first` and `sight` did not exist when those 22 games ran, and `block` in particular
+stays ON here (today's default) rather than being controlled for, so a warden who blocks the window could
+suppress a route ruling on it independently of order. `PREDICTION.md` says so under "What this is not," per
+§80.3's own rule that anything measured after 2026-09-27 against an earlier arm is a near-replication and says
+so. The live command is `cd checkpoints/2026-09-28-condition-order && ./run-batch.sh` (see that directory's
+README for preconditions); nobody has run it.
+
+## 83. Two modes: benchmark (fixed) and enjoyable (generated descriptions), the-prisoner#3
+
+Delivered overnight (2026-09-27/28) by a coder agent under the owner's delegation, per
+`docs/issues/3.md`'s own six open questions; the coordinating session took the decisions below on the
+owner's behalf. `src/open/scenarioMode.ts`, `src/open/scenarioGen.ts`, `src/open/scenarioTransport.ts`,
+`src/open/scenarioGenCli.ts`; wired into `src/checkpoint.ts`'s `mainOpen()`.
+
+### 83.1 Why this exists
+
+The-prisoner#3's own framing: benchmark mode's whole point is that it stays fixed -- same cell, same
+objects, same hand-authored §4.1 descriptions, game after game, which is the only way to compare
+language models or a code change apples to apples. Enjoyable mode is the opposite: an LLM writes fresh
+physical texture for the room, so no two games feel alike. §3.3 already names object descriptions as
+**the referee's main safeguard** -- nothing is ruled possible unless the referee can quote the target's
+authored description verbatim, so a description that implies a use is a use the referee may grant. A
+model writing descriptions therefore sits upstream of that guard, which is exactly why it needed its own
+rules rather than "let a model write the descriptions" (§8.3 deferred this for the identical reason, in
+2026-09-14, before any real game had run).
+
+### 83.2 The switch (decision 1)
+
+`PRISONER_MODE=benchmark|enjoyable`, default `benchmark`. **`benchmark` is not a new arm -- it is the
+name now given to the one behaviour every game before this issue existed already had.** No library
+default moved (`buildOpenWorld`'s own `descriptionOverrides` default is `{}`), so every existing unit
+test, every replay of a recorded request, and every batch ever run is byte-identical. Printed first in
+every open-variant transcript header (`prisonerModeHeaderLine`, `checkpoint.ts`):
+
+```
+Mode: BENCHMARK (`PRISONER_MODE=benchmark`, the default): the fixed, hand-authored §4.1 scenario, unchanged...
+Mode: ENJOYABLE -- generated scenario, never pool with a benchmark batch (`PRISONER_MODE=enjoyable`, the-prisoner#3): ...
+```
+
+`batchMeasures.ts`'s `parseTranscript` reads the line (`parseModeFromTranscript`) and calls
+`assertBenchmarkTranscript` before reading anything else, which **throws, naming the offending file**,
+the moment it sees `Mode: ENJOYABLE`. A transcript recorded before this switch existed carries no `Mode:`
+line at all and is read as `benchmark` by construction -- every batch on record predates this issue. This
+is the only aggregator in `src/` today (`batchMeasuresCli.ts` walks a directory and calls
+`parseTranscript` per file); a later aggregator should call `assertBenchmarkTranscript` the same way.
+`PRISONER_MODE=enjoyable` also refuses to start outside the open variant (the closed variant has no
+scenario descriptions of any kind), and `PRISONER_SCENARIO_FILE` (§83.5) refuses to be set without it --
+both checked at load, before a database or a model is ever touched, the same discipline
+`assertSeatIsPlayable`'s neighbouring check already uses.
+
+### 83.3 What is generated -- start small (decision 2)
+
+Only the physical **description** of each object in the fixed §4.1 list. The object list, ids,
+properties, starting values, mechanics, the two persons, and their identities/motives are all untouched
+-- `scenarioObjectFacts()` reads `OPEN_OBJECTS` for ids and authored text only, never a property or a
+number. The generator is given each object's authored benchmark description as the **facts it must
+preserve** (what is attached to what, what closes what, what a part can do) and is asked to rewrite it
+with fresh physical texture -- material, size, wear, colour, smell -- never a use, never another object's
+name or a plural of one (the-prisoner#26/§76's own lesson, generalised into run-dmcp's
+`docs/AUTHORING-GUIDE.md` per this repository's CLAUDE.md), and never a new object
+(`buildGenerationPrompt`, `scenarioTransport.ts`).
+
+### 83.4 Keeping it honest -- the review pass (decision 3)
+
+A second model call per description, built on the **same machinery the referee is built on**:
+run-dmcp's `createTurnReader`, one closed-key question, verbatim citation required, code verifying only
+that a citation is verbatim and from the right source, never judging whether it justifies the verdict
+(CLAUDE.md's "Never pattern-match meaning", applied here exactly as it is applied to the referee).
+
+The question (`buildHonestyQuestion`, `scenarioGen.ts`) answers one of four closed keys, per the issue's
+own enumeration:
+
+- **`physical-only`** -- the ONLY passing key. States only physical, sensory facts and changes nothing
+  the authored facts state.
+- **`states-a-use`** -- says what the object can be used for, an effect it produces, or a purpose it
+  serves.
+- **`names-another-object`** -- names another object in the scene, singular or plural.
+- **`drops-a-fact`** -- a physical fact the authored text states (including an attachment or what closes
+  what) is missing, changed or contradicted.
+
+Two sources are offered: `generated` (the text just written) and `facts` (the authored benchmark text).
+**Which source a citation is required to come from depends on the answer, an ambiguity worth recording
+exactly as `referee.ts` §9.2 records its own**: `physical-only`, `states-a-use` and
+`names-another-object` all point at something the GENERATED text itself contains, so their citation must
+come from `generated`. `drops-a-fact` is the one exception -- the whole verdict is that the generated
+text does NOT contain the fact, so it cannot be quoted from that text; its citation is required from
+`facts` instead, naming the dropped fact verbatim (`requiredHonestySource`). The review's `safeDefault`
+is `states-a-use` (any of the three failing keys would do; the safe DIRECTION is always rejection, never
+trusting an unreachable or uncertain review as a pass).
+
+A rejection triggers a regeneration, up to **3 attempts** (`MAX_GENERATION_ATTEMPTS`), then falls back to
+the authored benchmark text for that object -- recorded, never silent, both in the transcript header (a
+"Fallback to the authored §4.1 text for: ..." line naming every fallen-back object, or a line saying
+there were none) and in the `.scenario.json` sidecar's own `accepted`/`attempts` fields per object.
+
+### 83.5 Which model, when, and reproducibility (decisions 4 and 5)
+
+At scenario build, before round 1, through the existing one-model-at-a-time swapper
+(`ensureLoaded`) -- the identical GPU-safety discipline every other role already follows. Model:
+`PRISONER_SCENARIO_MODEL`, falling back to the referee's own model (`resolveScenarioModel`) -- the
+referee is already the model measured for obedience over style (§62), which is exactly the property a
+description generator needs. Temperature: `PRISONER_SCENARIO_TEMPERATURE` (new, default **0.9**) for
+generation -- variety is the whole point -- and **0** for the honesty review, matching the referee's own
+§3.5. The review call reuses `createRefereeTransport` unchanged: it is already a generic turn-reader
+transport with no game vocabulary of its own, so a second copy was not written. Muse-on-Ollama's
+`reasoning_effort: "none"` / `stop: ["<|eot|>"]` handling (`thinking.ts`) applies to both calls: the
+scenario role has no thinking variable of its own, since its model already defaults to the referee's --
+it reuses the referee's own resolved `PRISONER_REFEREE_THINKING`/`PRISONER_THINKING` mode rather than a
+third variable nobody asked for.
+
+Reproducibility: the full generated scenario -- every description, every review answer (with its
+citation and whether it verified), the model, both temperatures, a timestamp -- is written to a
+**sidecar file**, `checkpoints/<stamp>.scenario.json`, beside the transcript. **A sidecar was chosen over
+a fenced JSON block in the transcript body** for the same reason `.referee.json` already is one: it
+keeps the (already long) transcript readable while still making the run fully reproducible, and it
+follows an existing convention rather than inventing a second one. `PRISONER_SCENARIO_FILE=<path>` reads
+that exact file back and skips generation entirely (`generatedScenario` is parsed from disk, no model
+call made, no swap), which is how a memorable enjoyable game is replayed exactly, or promoted to a new
+benchmark scenario after a human reviews its `.scenario.json` and copies the chosen text into
+`scenarioObjects.ts` by hand.
+
+**Where generated text actually reaches a mind or the referee: the exact seam authored text always
+used, never a second path.** `briefing.ts`'s `authoredDescription(spec, windowMode, descriptionOverrides)`
+already had one arm-driven override (the welded-window arm's `WELDED_DESCRIPTION`) before this issue; a
+`descriptionOverrides` map (object id -> the text this game actually uses) is now checked first, ahead of
+the welded swap. `OpenWorld.descriptionOverrides` (default `{}`) carries it from `buildOpenWorld` through
+to `describedAsItStands`, which every mind's perceived-object text and every referee `desc:<id>` citation
+source are built from (`computePerceivedObjects`). The transcript's "Objects as authored" header section
+and `checkpointTranscript.ts`'s own "as it stands" comparison read the identical map, so a generated
+description that has not itself changed since the header is never misreported as having changed. This
+generalises cleanly to open-world rules (#5, §83.7): whatever that work adds only needs to read the same
+map, never invent a second description path.
+
+### 83.6 Balance (decision 6)
+
+Accepted as part of the fun, not checked. The argument: only object **textures** change in this
+landing -- the object list, every property, every starting value, and the mechanics that move them are
+byte-identical to the benchmark scenario. A generated description cannot make the bar un-worn-through-able
+or the window un-passable, because nothing about *how* a property moves changed, only *what it is called*.
+The reachability of both endings (escape, catch) is therefore unchanged by construction, which is exactly
+why it was safe to start with descriptions alone rather than the object list or starting values: a future
+landing that DOES vary a starting value or a property's own magnitude table would need this decision
+revisited, because at that point reachability really could move.
+
+### 83.7 What is still unmeasured
+
+**No live enjoyable game has been played.** Every test in this landing uses scripted transports
+(CLAUDE.md's TDD discipline: red for the right reason, then implemented) -- `scenarioGen.test.ts`,
+`scenarioTransport.test.ts` and `scenarioGenCli.test.ts` script the honesty review and the generation
+call, and `scenarioGenCli.ts --dry-run` prints the exact requests a real run would send without sending
+them. The coordinating session is to run one live game on doris, all-Muse, `PRISONER_SKIP_VOICE=1`,
+a short round count -- see the coder's own final report for the exact command. Unmeasured, specifically:
+
+- Whether a real model (Muse-Glimmer or otherwise) actually stays inside the "physical facts only, never
+  a use" instruction often enough for 3 attempts to be enough headroom, or whether the fallback rate is
+  high in practice (§62's own lesson -- obedience over style -- was measured for the referee and the
+  narrator, never yet for a generator).
+- Whether the honesty reviewer catches what a person reading the transcript would catch, the same
+  question §54/§63 ask of the narration auditor -- this review is new machinery, unmeasured against a
+  live model's actual failure modes.
+- Whether the generated texture is different enough, game to game, to be worth the extra model calls at
+  all -- the entire premise of "enjoyable" is a subjective read a transcript alone can partly support and
+  partly not.
+- Whether §33.16-era referee behaviour (fingerprint-sensitive: the request's own text moves a citation's
+  word range, §76's own "word positions moves by two" lesson) is disturbed by a generated description
+  whose wording differs from the authored one in ways this landing's honesty review does not check for
+  (the review checks facts and uses, never phrase length or clause order) -- a live game is the only way
+  to see whether a referee still finds the citations it needs.
+
+### 83.8 How #5 (open-world rules) hangs off the same switch
+
+The-prisoner#5's own text names this directly: "the same `PRISONER_MODE` switch and transcript header
+should cover both." Nothing in this landing's switch is content-specific -- `readPrisonerMode`,
+`prisonerModeHeaderLine`, and `assertBenchmarkTranscript` all operate on the mode value and the header
+line alone, never on what enjoyable mode happens to vary. When #5's own two steps (the referee ruling in
+the engine's generic terms; objects gaining properties nobody declared in advance) land, they belong
+behind `PRISONER_MODE=enjoyable` exactly as generated descriptions do, and the SAME guard
+(`assertBenchmarkTranscript`) already refuses to pool either kind of change into a benchmark batch. No
+second mode variable, no second header line -- `enjoyable` is one bucket for "this game's raw material or
+rules varied," and every future addition to it is a new thing `PRISONER_MODE=enjoyable` unlocks, not a
+new switch.
+
+## 84. The MCP seat: a proving caller for run-dmcp#38 (2026-09-28)
+
+The-prisoner#11's MCP half: `npm run mcp-seat` (`src/tools/mcpSeatCli.ts`) starts a thin MCP server
+so a person can play either chair from any MCP client against a model in the other, over the same
+loop, referee and resolver every batch runs. `docs/MCP-SEAT.md` is the detail — the six verbs
+(`new_game`, `my_briefing`, `attempt`, `rules`, `conditions`, `me`), the guard against a client model
+playing for the human (`player_typed`, verbatim echo, tool-description wording, and the transcript's
+own unverifiable-authorship header), how fog is kept (every tool result comes from the player's own
+`OpenPrincipalContext`, never a half-round or the opponent's proposal), and how to connect Claude
+Desktop or Claude Code.
+
+**A seat is a mind, over MCP too.** The terminal half (§47) already proved that a human seat needs no
+new plumbing in the loop, the referee or the resolver — only a new `OpenMind` implementation. The MCP
+seat (`src/open/mcpSeatMind.ts`) is a second one: `consider()` records the open turn and returns a
+promise that resolves only once an `attempt` tool call answers it, arbitrarily far in real time from
+when the question was asked. `runOpenGame` never knows the difference.
+
+**Built and tested with no live model call**, per this landing's own constraint: `server.test.ts`
+and `session.test.ts` drive the real `@modelcontextprotocol/sdk` (`InMemoryTransport`'s linked pair,
+a real `Client`) against a scripted referee and a scripted opponent mind — the same discipline this
+file's own `game.test.ts` already uses for a full game with no network. `src/mcp/liveConfig.ts` is the
+one file that reads `process.env` for a real run, through the identical functions `checkpoint.ts`
+itself reads, so its defaults track CLAUDE.md's "Defaults changed on 2026-09-27" automatically.
+
+**It is a proving caller for run-dmcp#38, not a finished product.** `docs/MCP-SEAT.md`'s own mapping
+table lines up each verb against that issue's proposed engine pieces (#18 per-principal view, #39
+intent-in/ruling-out, #40 a principal is due to act, #41 rules as declared data) and what building
+this taught about each — the clearest of them: `attempt` needed nothing new from the engine-shaped
+intent/ruling boundary at all, because authorship confirmation is entirely a caller concern; and a
+per-principal VIEW (as opposed to a raw context) wants its own turn-to-turn state once a human is
+reading it, which a bare per-principal-context primitive would not give #18 for free.
+
+**What this landing does not build**, named rather than assumed away: no retry-on-ambiguous-target
+(D3's "Hide what?" flow) for this seat; no precedent, pick, play-time elaboration, prose seat,
+narrator or strategy pre-commitment wiring; one game per server process; and process-exit cleanup
+that covers SIGINT/SIGTERM only. `docs/MCP-SEAT.md`'s own "What is out of scope for this landing"
+section is the fuller list.
+
+## 85. One pronoun per principal, and a batch boundary for it (the-prisoner#34, 2026-09-27/28 overnight)
+
+`docs/ARCHITECTURE.md`'s discrepancy 8 was three authors picking three different answers for Warden Croft's own
+pronoun: `scenario.ts`'s `PRISONER_MOTIVE` said "they", the D4' block condition and the D12 sight/posture reading
+bands (`scenarioObjects.ts`) said "her"/"she" for BOTH principals (copied from the prisoner's own bands when a
+person became a second, then a third, targetable thing), and the playtest documents and the owner's own typed
+intent in play ("so he can't see") said "he". None of those three was ever a decision to keep -- each was just
+whoever wrote that particular sentence first, on no evidence the other two existed.
+
+**Decision, taken by the coordinator on the owner's behalf during his overnight delegation:** Warden Croft is
+"he/him/his/himself"; Mara Voss is "she/her/her/herself". The evidence pointing this way was already one-sided --
+CLAUDE.md and every playtest document call Croft "he" throughout, and the owner's own typed intent in the
+2026-09-28 human game did too -- so this is a naming of what the project's own words already agreed on, not a new
+choice imposed on them.
+
+**Implementation.** `scenario.ts` declares one `Pronouns` record per principal (`PRISONER_PRONOUNS`,
+`WARDEN_PRONOUNS`, each `{ subject, object, possessive, reflexive }`) and one lookup, `pronounsFor(principal)`.
+Every site that used to choose a literal pronoun for a sentence about a principal now builds it from there
+instead: `scenarioObjects.ts`'s `posture`/`sight` band builders and its `OPEN_PERSONS` descriptions (via a new
+`personDescription` helper, which `briefing.ts`'s `PRINCIPAL_DESCRIPTION` fallback now reads FROM instead of
+authoring its own second copy -- the two had already drifted once, which is exactly how half of discrepancy 8
+happened), `perception.ts`'s custody outcomes (a refused `take` naming the holder, a resolved `give` naming the
+recipient), `loop.ts`'s `describeAttempt` block case (D4', reflexive), `checkpointTranscript.ts`'s "kept: the
+holder is on \_\_ feet" transcript line, `narrator.ts`'s own instruction line (recovering the principal from
+`selfName`, which is always `PRISONER_NAME` or `WARDEN_NAME`), and `conditions.ts`'s block condition (always about
+the warden, who does the blocking). `referee.ts`'s own prompt text is untouched on purpose -- it was not asked
+for, "actor herself" there is generic wording that never claims a specific principal's pronoun, and OPEN-VARIANT's
+own prompt-stability discipline (§31) means a referee prompt changes only for a reason that earns its own batch,
+which this was not.
+
+**What did NOT change.** Sentences that are invariably about ONE specific principal and already used that
+principal's own now-declared pronoun -- `PRISONER_MOTIVE`'s original "she has escaped" (before this task's own
+fix to its "they"), `mind.ts`'s "Mara Voss escapes... however she gets out", `proseView.ts`'s warden-reading-of-
+the-prisoner suspicion line ("enough to search her cell") -- were left as authored text. They were never wrong
+under the declared set, and rewriting invariant text to route through a helper it does not need would be styling,
+not a fix; CLAUDE.md's "match the surrounding style by hand" cuts against widening this change past the sentences
+that were actually a second, drifted choice of pronoun.
+
+**Batch boundary.** This reaches both prompts (the block condition and both persons' own descriptions are read by
+whichever mind perceives Croft), so it is a boundary the same way D1/D8/D9/D11 were: no arm, because there is no
+sensible "wrong" value to keep byte-identical to, exactly as D13-D16 (§80.7) had none. A transcript from before
+this lands read the warden's own posture/sight bands and the D4' block condition as "her"/"she"; one from after
+reads "his"/"he". `docs/ARCHITECTURE.md`'s discrepancy 8 entry is corrected in the same commit to say this is
+resolved.
+
+**Pin.** `src/__tests__/scenario.test.ts` pins the two declared pronoun sets and `pronounsFor`, and that
+`PRISONER_MOTIVE` builds Croft's pronoun from `WARDEN_PRONOUNS` rather than a literal "they".
+`src/open/__tests__/pronouns.test.ts` renders every site above -- both `OPEN_PERSONS` descriptions, both
+principals' posture and sight bands, `computePerceivedObjects`'s own render, `describeAttempt`'s block case for
+both chairs, a refused custody `take` and a resolved `give` run through the real half-round pipeline in BOTH
+directions (proving the fix is dynamic, not just still hardcoded to the one direction every earlier test happened
+to exercise), the narrator's own instruction line for both chairs, and the block condition -- and asserts each
+rendering carries only the pronoun tokens the OTHER principal's set does not declare. Twelve existing tests across
+seven files (`block.test.ts`, `briefing.test.ts`, `contestLines.test.ts`, `custody.test.ts`, `perception.test.ts`,
+`probes2026-09-28.test.ts`, `sight.test.ts`) had pinned the warden's own sentences at the old, borrowed "her"/
+"she" text; each is updated in the same commit to the now-correct "his"/"he", noted inline at the changed
+assertion.
+
+### 85.1 A person's properties render in person vocabulary, not furniture's (the-prisoner#30)
+
+D12 gave a person a second declared property (`sight`, beside `posture`), and the three sites that render a
+wear/restore outcome had never been taught that a PRINCIPAL can be the target: a human game
+(`checkpoints/2026-09-28T01-09-16-356Z.md`) read *"You set about wearing at Warden Croft. Your last attempt worked
+on the warden: its sight went from 100 to 50."*, and the warden's own act reached the prisoner as *"Warden Croft
+works to restore the warden."* -- a body rendered in the sentences written for furniture, exactly as OPEN-VARIANT
+§68.7 first flagged for `expose` ("Voss works at the prisoner") before this game modelled a second person-only
+property to expose the same gap on `wear`/`restore` too.
+
+**Implementation.** `perception.ts` gains one small table, `personEffectPhrase` (`posture`/`sight` x
+`wear`/`restore`, reflexive when the actor targets its own body), each cell giving the three shapes its three call
+sites need: a gerund for the D1 opener ("covering Warden Croft's eyes"), an infinitive for the refusal fallback's
+`attemptPhrase` ("as an attempt to cover Warden Croft's eyes"), and a past-tense clause for the resolved outcome's
+own before/after sentence ("covered Warden Croft's eyes: his sight went from 100 to 50" -- the actor's exact
+numbers are kept, because the actor still learns the number it moved; only the words around it change).
+`personEffectPhraseFor` gates all three on the ruling actually being a wear/restore on a principal's own declared
+`posture`/`sight`, returning `null` for every other case so `SET_ABOUT_PHRASE`, `attemptPhrase` and the resolved
+branch all fall back to their unchanged furniture wording with one `?? ...` each. `posture` never takes a
+possessive (the person as a whole is the direct object: "put Voss on the floor," never "put Voss's posture on the
+floor"); `sight` does ("covering Croft's eyes" / "clearing his eyes"), using the target's own name for `wear` and
+its own declared pronoun (#34's `pronounsFor`) for `restore`, matching the two worked examples this issue's brief
+gave verbatim. `loop.ts`'s `describeAttempt` gets its own small table, `personAttemptPhrase`, to the same shape but
+strictly an ATTEMPT ("Mara Voss works to cover Warden Croft's eyes") -- no number, no property name, no outcome,
+D1/R1's own invariant -- built separately from `perception.ts`'s table rather than sharing it, because
+`describeAttempt`'s contract (attempt only) and `perception.ts`'s three sites (which also carry the actor's exact
+numbers) differ enough that one shared table would need a flag neither side otherwise wants. `describeAttempt`'s
+own `ruling` parameter widens to accept an optional `property` (`Pick<..> & { property?: ... }`, never required)
+so every existing call site that never had a property to give (`precedentTextFor`'s own ledger keys, the
+world-elaboration acquire path) keeps compiling unchanged.
+
+**Self-target.** A wear/restore where the actor targets its own body (D5's own posture case, a person dropping to
+the floor) renders reflexively -- "putting yourself on the floor," "clearing your eyes," "getting back up" -- never
+the actor's own name in the second person, and `describeAttempt`'s own reflexive case (a bystander's third-person
+view of the same act) uses the actor's own declared reflexive pronoun ("works to put himself on the floor"),
+exactly the device #34's D4' block case already established.
+
+**Batch boundary, alongside §85's.** This changes what both minds read in an ordinary wear/restore's own outcome
+and refusal text, and what the OTHER principal perceives of it -- no arm, for the same reason §85 has none: there
+is no sensible "wrong" wording worth keeping byte-identical to.
+
+**Pin.** `perception.test.ts` adds a table exhaustive over `posture`/`sight` x `wear`/`restore`, self- and
+other-target, run through the real half-round pipeline (`runOpenHalfRound`) with the resource preset to a known
+starting value where a direction needs one (`restore` never has anything to change at the property's own max), so
+every expected before/after number is exact -- plus one refusal-fallback case, forcing `applicable: false` after a
+real ruling to reach `attemptPhrase`'s own person branch. `attemptNotOutcome.test.ts` adds `describeAttempt`'s own
+exhaustive table (other-target and reflexive, both properties, both directions) and one more row in the SCENARIOS
+invariant this file already enforces -- a person-targeted `wear` on `sight`, landed and refused, relaying the
+identical sentence -- extending D1's own structural pin to the case this issue found broken.
+
+### 85.2 The D1 opener names what an open/close resolved through (the-prisoner#33, part 2)
+
+§19 lets an `open`/`close` ruled on a PART resolve through the way out it belongs to (an `open` ruled on the bar
+resolves through the window); the outcome sentence right after D1's opener already named the way out
+(`result.wayOut`), but the opener itself built its "what" from `ruling.targetObjectId` alone, so a human game
+(`checkpoints/2026-09-28T01-09-16-356Z.md`) read *"You set about opening the bar. Your last attempt met the window
+shut"* -- one sentence disagreeing with the next about what the act was. `renderOwnOutcomeUnflagged` now reads
+`outcome.result.wayOut` for `open`/`close` on a non-person target and, when present, names it instead of the ruled
+part; ruled directly on the way out itself, the two words are the same and nothing changes. No arm: this is D1's
+own rule (name what was ruled, as fiction) applied consistently within the one sentence it already governs, not a
+new decision. Pinned in `perception.test.ts` against `openRefusalWear.test.ts`'s own "a warden's refused open at
+the bar" fixture (the exact shape the human game hit) and against a same-object control (ruled directly on the way
+out). Part 1 of this issue -- the wear/open ruling instability itself -- is P6's own measurement
+(`checkpoints/2026-09-28-texture-replay/`), not a code change; the referee prompt is untouched.
+
+## 86. Open-world rules, step 1: the referee rules in the engine's own terms (the-prisoner#5)
+
+Delivered overnight (2026-09-27/28) by a coder agent under the owner's delegation, per `docs/issues/5.md`
+and its own comments; the coordinating session took the decisions below on the owner's behalf.
+`src/open/openRulesMode.ts`, `src/open/engineRules.ts`, `src/open/referee.ts`, `src/open/engineRulesDryRunCli.ts`;
+wired into `src/checkpoint.ts`. **Only step 1 ("the referee rules in the engine's terms") landed. Step 2
+("objects gain properties nobody declared") is `PRISONER_ELABORATE`, which already exists (§65-§67) and is
+NOT defaulted on here** -- §86.7 says why.
+
+### 86.1 The scope, honestly
+
+The-prisoner#5's own table said the eleven fixed effects (`src/open/effects.ts`) are run-dmcp's five
+`IntendedChange` kinds with names glued on, so a referee that answers `write`/`set`/`transfer`/`create`/
+`destroy` directly, with the identical verbatim-citation grounding, should reach everything the eleven
+names reach and more (`take`/`give`, which the old vocabulary lacked despite the engine always having
+`set`). **This landing scopes that to `PRISONER_MODE=enjoyable` alone.** The benchmark's whole value is
+that every game plays by the identical rulebook (§83.1's own argument, restated for rules rather than
+descriptions): loosening the vocabulary is exactly the kind of change §31 calls a batch boundary, so it
+sits behind the same switch generated descriptions do, per §83.8's own promise that #5 would.
+
+### 86.2 The switch: `PRISONER_OPEN_RULES=fixed|engine`
+
+`PRISONER_OPEN_RULES` (`readOpenRulesMode`, `src/open/openRulesMode.ts`) defaults to `engine` under
+`PRISONER_MODE=enjoyable` and to `fixed` under `PRISONER_MODE=benchmark`, and **refuses `engine` under
+`benchmark`** outright, checked at load, before a database or a model is ever touched -- the identical
+discipline `PRISONER_SCENARIO_FILE` already has to `PRISONER_MODE` (§83.2). `fixed` is not a new arm: it
+is the eleven-effect request `src/open/referee.ts` has always built, and `createReferee`'s own bare
+constructor default stays `"fixed"` regardless of what a real game gets, so every existing unit test and
+every replay of a recorded request is byte-identical (pinned in `referee.test.ts`'s existing fingerprint
+PIN, which this landing left untouched, plus a new test that builds the SAME hash under an explicit
+`readOpenRulesMode(undefined, "benchmark")`). Printed in every open-variant transcript header
+(`openRulesHeaderLine`), immediately after the `Mode:` line:
+
+```
+Open rules: FIXED (`PRISONER_OPEN_RULES=fixed`, the default outside PRISONER_MODE=enjoyable): the eleven named effects (effects.ts), unchanged, exactly as every batch before this switch existed (the-prisoner#5).
+Open rules: ENGINE -- the referee rules in run-dmcp's own change kinds, mapped by code onto this game's mechanics; never pool with a fixed-rules batch (`PRISONER_OPEN_RULES=engine`, default under PRISONER_MODE=enjoyable, the-prisoner#5). See docs/OPEN-VARIANT.md's mapping table.
+```
+
+No second mode variable and no aggregator change: `PRISONER_MODE=enjoyable`'s existing
+`assertBenchmarkTranscript` guard (§83.2) already refuses any transcript whose `Mode:` line reads
+`ENJOYABLE`, and a `fixed`-vs-`engine` transcript is never itself pooled with the other because a batch
+that varies rules is exactly the "raw material or rules varied" bucket §83.8 named in advance.
+
+### 86.3 What changed in the referee's request, and what did not
+
+The `target`, `product`, `magnitude` and `perceptibility` questions are BYTE-IDENTICAL between the two
+modes -- only `effect` and `property` change wording, and three new questions are appended
+(`direction`, `to`, `with`), all built by the SAME `buildQuestions` function on an `openRulesMode`
+branch (`referee.ts`). Under `engine`, `effect`'s answer keys become run-dmcp's own vocabulary, named as
+such to the referee:
+
+```
+write   -- raise or lower a numeric property of the target (direction: up | down)
+set     -- change who holds the target, or -- for a way out -- go out through it (to: actor | other | none)
+transfer -- move a conserved amount from one entity to another
+create  -- make a new thing from part of the target and keep it (same `product` question as `derive` always had)
+destroy -- remove the target from the world outright
+reveal  -- learn a property's true value (no engine change at all -- see §86.5)
+none
+```
+
+`direction`/`to`/`with` are asked in the SAME batch as `effect` (a reader asks every question at once,
+exactly why `magnitude`/`perceptibility` are always asked regardless of what `effect` turns out to be):
+
+- **`direction`** (`up | down | none`): `write`'s own second closed key. Cited from the actor's intent.
+- **`to`** (`actor | other | none`): `set`'s own second closed key, for the custody case -- who ends up
+  holding the thing. Ignored when the target is a way out (going through it moves nobody's holdings).
+- **`with`** (a held object's id, or `none`): the-prisoner#5's own concrete test case (§86.4). Its
+  answer keys are the closed set of objects the actor **currently holds** (`context.holding`,
+  `briefing.ts`'s `buildOpenContext`, already computed for the seat's own "holding: ..." line and for
+  custody's C1 gate) -- never every perceived object, and never every object in the scenario.
+  `loop.ts` now passes `context.holding` as `referee.rule()`'s third argument; `Referee.rule()`'s
+  signature grew that parameter as optional, defaulting to none held, so no existing caller or
+  hand-built test `Referee` needed to change.
+
+`translateEngineEffect` (`src/open/engineRules.ts`) is the pure mapping table from those four answers
+(plus whether the target is a way out or a person) back onto the SAME `EffectKind` `effects.ts` and
+`mechanics.ts` already resolve -- so nothing about HOW an effect plays out changed, only what the
+referee is ASKED and how its answer is read:
+
+| engine `effect` | condition | -> `EffectKind` | which mechanic (unchanged) |
+|---|---|---|---|
+| `write` | `direction=none` (ungrounded) | `none` | -- |
+| `write` | `property=passage`, `direction=up`/`down` | `open` / `close` | `OPEN_PASSAGE` -- D11/D15's key and part-threshold gates untouched |
+| `write` | `property=concealment`, `direction=up`/`down`, target NOT a person | `conceal` / `expose` | `OPEN_RESTORE`/`OPEN_WEAR`, or the container mechanics when the target is a `PERSON_CONTAINERS` member |
+| `write` | any other declared property (`integrity`, `edge`, a person's own `posture`/`sight`), `direction=up`/`down` | `restore` / `wear` | `OPEN_RESTORE`/`OPEN_WEAR` -- the same mechanic a person's own posture/sight already used |
+| `set` | target is a way out | `leave` | `OPEN_LEAVE` -- the block/D12 gates untouched, whatever `to` answered |
+| `set` | target is a person | `none` (unreachable -- §86.5) | -- |
+| `set` | `to=actor` / `to=other` | `take` / `give` | `OPEN_TAKE`/`OPEN_GIVE` -- C1/D12's posture-and-sight gate untouched |
+| `set` | `to=none` | `none` (ungrounded) | -- |
+| `create` | -- | `derive` | `OPEN_DERIVE`, the same `product` question |
+| `destroy` | -- | `none` (unreachable -- §86.5) | -- |
+| `transfer` | -- | `none` (unreachable -- §86.5) | -- |
+| `reveal` | -- | `reveal` (unchanged, not one of the five -- §86.5) | `OPEN_REVEAL` |
+| `none` | -- | `none` | -- |
+
+Every gate the coordinator named as never-bypassable is untouched by construction, not by review: a
+translated ruling walks into the IDENTICAL `planEffect`/`mechanics.ts` code the fixed vocabulary always
+used, because `translateEngineEffect` produces the SAME `EffectKind` string those functions already
+dispatch on. A way out's passage still only moves through `OPEN_PASSAGE` and its part-threshold gate
+(D7a, D11, D15's key check); custody's C1 (posture) and D12 (sight) still gate `OPEN_TAKE`/`OPEN_GIVE`
+exactly as before; nothing new writes a fact outside `resolver.resolve()`.
+
+### 86.4 The concrete test case: a held instrument bumps a write's magnitude
+
+Docs/issues/5.md's own comment names the test this landing had to pass: *"rub the grit into the bar's
+mortar" when the actor HOLDS the grit is a write on the bar conditioned on a held object.* Under the old
+vocabulary this had no expression at all -- "using it on another object has no effect": applying grit to
+the bar read as an ordinary `wear`, identical to using a spoon, and the held grit played no part.
+
+Under `engine` rules it is `write` (target `bar`, property `integrity`, direction `down`, grounded by the
+bar's own "set into old mortar that is dry and cracked"), with `with` naming `grit` -- verified against
+the actor's own intent, and only counted when the actor actually holds it (`with`'s own closed answer
+set, §86.3). **A verified held instrument bumps the write's magnitude one step** (`stepUpMagnitude`,
+`engineRules.ts`: slight -> moderate -> substantial, already at the ceiling stays there) -- one documented
+rule, scoped to `write` alone (an `open`/`close` always goes to the end of its range regardless of
+magnitude, §24, so the bump is inert there, never wrong). An unread or unverified `with` answer is
+treated exactly like `none` -- the safe direction, the same discipline `missingInstrument` already uses
+for the separate `PRISONER_INSTRUMENT` arm (§51, the-prisoner#17; `with` is deliberately a DIFFERENT
+question from `instrument`, because `with`'s answer set is closed to what the actor holds, never
+everything she perceives). Tested with a scripted transport (`referee.test.ts`): the grit case resolves
+`wear`/`integrity`/`substantial` (bumped from a scripted `moderate`); the identical intent with no `with`
+offered stays `moderate`, unbumped.
+
+### 86.5 What stays unreachable under `engine` rules, and why
+
+Nothing below blocks anything else -- an intent that would have used one of these simply rules `none`,
+applying nothing, the same safe default every other ungrounded path in this repository already falls to.
+
+- **`reveal` is not one of the five, on purpose.** `OPEN_REVEAL` and `OPEN_NOISE` (`mechanics.ts`) both
+  resolve with `changes: []` -- an examination and a deliberate sound make no engine-recorded change at
+  all, so neither fits `write`/`set`/`transfer`/`create`/`destroy` by construction. **This is the opposite
+  of docs/issues/5.md's own table**, which put `reveal` under `set` -- that table was written 2026-09-15,
+  before D4'/D9/D12/custody reached their current shape, and the code as it stands today does not agree
+  with it; the code is ground truth here. Losing `reveal` would make the game unplayable (a prisoner who
+  can never examine the bar), so it stays a leaf answer, unchanged in both modes -- this landing loosens
+  the vocabulary of CHANGES, not of reads.
+- **`noise` (a perceptible event with no state change) is the mirror case**, and is genuinely
+  unreachable under `engine` rules this landing, for the identical structural reason: there is no sixth
+  "event" primitive in the engine's own vocabulary, and adding one is a `run-dmcp` change this landing
+  does not make (root CLAUDE.md: "justified on general benefit to that library", not to this game alone).
+  A deliberate sound stays reachable only under `PRISONER_OPEN_RULES=fixed`.
+- **`block` (standing in a way out) is unreachable.** `OPEN_BLOCK` writes the ACTOR's OWN blocking
+  resource while the referee's target is the way out -- not a declared property of the target at all, so
+  neither `write` nor `set` on the named target expresses it without inventing a sixth question this
+  landing does not add. A write on a way out with no property citation (property `none`) simply fails the
+  ordinary declared-property check and rules `none`, the ordinary reason, not a special case.
+- **A search (`expose` on a PERSON) is unreachable, deliberately, not by accident.** `OPEN_SEARCH` fans
+  out over every thing a person holds -- it is not "one column on the target's own row" the way
+  `owner_id`/`owner_type` (custody) or `location_id` (leave) are, so there is no single engine primitive
+  to point it at without inventing one. The obvious LOOPHOLE -- a referee answering `write`, `property:
+  concealment`, `direction: down` with a PERSON as the target -- is closed structurally in
+  `translateEngineEffect`, not left to chance: a person is excluded from the `concealment` branch and
+  falls to the generic `wear`/`restore` bucket instead, where a person's undeclared `concealment`
+  property fails the ordinary "no invented world" check the SAME way it always would. Search therefore
+  refuses for the ordinary reason (no declared property), never by accidentally sailing through the
+  custody exemption that make take/give/leave/block not need one. The engine-mode `effect` question's
+  own person clause says so in words too ("Searching a person ... is not a change this vocabulary can
+  express; answer none for it"), but the structural block is what is actually trusted.
+- **`destroy` is unreachable.** No mechanic in this game accepts a bare removal of a declared object with
+  no authored replacement -- every existing "an object goes away" case (a derive that `replacesParent`)
+  is already reached through `create`, which destroys the parent's resources as part of the SAME
+  resolution (§13.5/§14.2). A destroy that is not part of a create's own replace-parent step would strand
+  every later citation and description that names the removed object, which run-dmcp's own resolve
+  protocol has no machinery to retract; that is future work, not this landing's.
+- **`transfer` is unreachable.** It only ever carries a CONSERVED numeric amount moved between two
+  entities (CLAUDE.md's own "Custody is built" section), and this game has no such conserved quantity --
+  no currency, no shared pool. Nothing here needed one before this landing and nothing added one.
+
+### 86.6 Step 2 (`PRISONER_ELABORATE`): left off, and why
+
+The-prisoner#5's own step 2 -- "objects gain properties nobody declared, when the description grounds
+them" -- is already built, as `PRISONER_ELABORATE=property` (WORLD-ELABORATION-DESIGN.md, §65-§67 above).
+The coordinator's brief asked this landing to default it to "whatever its own measured status supports"
+under `PRISONER_MODE=enjoyable`, and keep it off if it was never shown safe. **It was never shown safe.**
+§66's own sweep (2026-09-19) was explicitly STOPPED by the owner before its central question --
+elasticity, "is there a price a mind will pay?" -- was ever delivered: two of five planned cells never
+ran, the one 30-round cell that did run found the room still had a cheaper unelaborated route (the
+priced door) that the mind took instead, and §66.6's own follow-up found the referee ABSORBING an
+elaboration-shaped intent ("dig under the tile") into the nearest declared key (`reveal`/`concealment`)
+rather than recognising it needed elaboration at all -- a failure mode §66.6 calls structural, not a bug
+to fix with more prompt text. **`PRISONER_ELABORATE`'s default stays `off` in BOTH modes** -- this
+landing changes nothing about it, in either `readElaborateMode` or `checkpoint.ts`'s own wiring, and
+`ARCHITECTURE.md`'s configuration reference now says so explicitly rather than leaving a reader to infer
+it from the arm's own unchanged default. A future landing that wants `property` on by default under
+`PRISONER_MODE=enjoyable` needs §66's own elasticity measurement first, on a room built the way §66.5's
+own "what this costs and what it buys" says one must be -- one with no cheaper unelaborated route left in
+it -- not a status-quo default carried over by this issue.
+
+### 86.7 What is still unmeasured
+
+**No live engine-rules game has been played.** Every test in this landing uses scripted transports
+(CLAUDE.md's TDD discipline). `npm run engine-rules-dry-run -- --dry-run`
+(`src/open/engineRulesDryRunCli.ts`) prints the exact request a real `PRISONER_OPEN_RULES=engine` game
+would send for the issue's own concrete case (the grit, held, acting on the bar's mortar), built entirely
+offline -- no transport is imported, no model is called. The coordinating session is to run one live game
+on doris, all-Muse, `PRISONER_SKIP_VOICE=1`, a short round count; see the coder's own final report for
+the exact command. Unmeasured, specifically:
+
+- Whether a real model actually answers `direction`/`to`/`with` sensibly, or collapses them the way
+  §18.5/§18.7's own history warns closed-key questions can when a prompt gets longer -- this rewrites the
+  `effect` question's own wording substantially (§86.3), and no live row has tested the new prose yet.
+- Whether the `with`-bump (§86.4) fires often enough in practice to be worth the extra question, or
+  whether a real model rarely names a held instrument even when using one -- the entire premise is
+  untested against anything but a hand-scripted transport.
+- Whether `translateEngineEffect`'s person-search exclusion (§86.5) actually stops a real model from
+  reaching for `write`/`concealment` on a person as a substitute for the search it can no longer name, or
+  whether it simply refuses those intents outright with no route to anything -- both are "unreachable",
+  but a player experiences them very differently.
+- Whether the engine-terms `effect` question changes the referee's ANSWER on intents that were fine
+  under the fixed vocabulary -- §86.2's fingerprint PIN only proves `fixed` mode is untouched; it says
+  nothing about whether `engine` mode reads the SAME real games the same way.
+
+## 87. the-prisoner#1 lands: the attack move (2026-09-28)
 
 `docs/ISSUE-1-DESIGN-BRIEF.md` (the owner's Q1-Q5 answers, §4, 2026-09-26 morning) and `docs/ISSUE-1-DESIGN.md`
 (the coordinating session's own decisions on top of them, under the owner's overnight delegation) are the design;
@@ -6978,7 +7637,7 @@ built the same way §80's own decisions were: fully unit-tested, nothing played.
 byte-identical to every batch recorded before this issue: no `condition` resource exists, `harm` never appears in
 any request, the rule lines and condition list carry nothing about it, and the declared-space refusal text
 (`perception.ts`'s `unmodelledPropertySentence`) never mentions it either -- the last of these needed its own
-fix, §81.4 below.
+fix, below ("One fix the 'declare it always, gate the resource' pattern did not give for free").
 
 **The property.** `condition` (`src/open/scenarioObjects.ts`), a person's own bounded state, 100 unharmed to 0
 disabled -- the third instance of the §56/D12 shape after `posture` and `sight`. Declared on `OPEN_PERSONS`
@@ -6988,7 +7647,13 @@ resource-creation loop, not the declaration, is what skips building it while the
 (100 - 40 = 60); restore is tending, 10/10/10 -- slight-only at every magnitude, D12's own choice for `sight`'s
 recovery, reused here for the same reason (one substantial harm should outlast one act of tending). Read in
 bands authored ascending and silent above the first (≤70 "hurt", ≤40 "badly hurt and moves slowly", 0 "down and
-does not get up"), by NAME, never a pronoun.
+does not get up"). Built by NAME, never a pronoun, when this landed -- §85's pronoun centralisation (the-prisoner#34)
+merged in after, and `condition`'s bands were rebuilt from `pronounsFor` at that merge, the same as `posture`'s
+own bands right beside them ("She is hurt." parallels "She is on her feet." exactly): the design's own "no
+pronoun" reasoning was about not inventing a second, uncoordinated gender choice while `scenario.ts` had none
+yet, which no longer applies once one exists to share. The actor's own outcome sentence stays by name
+(`perception.ts`'s `${who}'s condition went from X to Y.`), since it addresses a specific principal by name the
+same way every other own-outcome sentence in this file already does.
 
 **The effect.** `harm` (`src/open/effects.ts`'s `EffectKind`), whose only property is `condition` -- a SEPARATE
 effect kind from `wear`, not a `wear` on a new property, so the referee separates a stab from a shove at the
@@ -6998,6 +7663,22 @@ in the effect question's answer keys, and `condition` in the property question's
 person is in view (`referee.ts`'s `buildQuestions`, mirroring how `block` is gated on its own arm alone and
 `sight`/`posture` on presence alone). Target must be the OTHER principal: `planEffect` (`effects.ts`) refuses a
 self-target as outside what the world models, the identical shape a self-take/self-give already refuses.
+
+**`harm`/`condition` stay unreachable under `PRISONER_OPEN_RULES=engine` (§86, the-prisoner#5), this landing.**
+`engineRules.ts`'s own `translateEngineEffect` maps a `write` down on any person property it is handed straight
+to `wear` -- generic, with no self-target check, because `wear` on `posture`/`sight` is legitimately
+self-directed (collapsing is a person acting on her own body) and that function has no actor-vs-target identity
+to tell the two cases apart. `harm`'s own self-refusal lives entirely in `planEffect`'s dedicated branch, never
+in the generic `wear` path a `write` on `condition` would fall into, so offering `condition` under `engine` mode
+would let a `write` down on one's own `condition` silently succeed as an ordinary `wear` -- exactly the gap the
+fixed-mode `harm` effect exists to close. Rather than build the self-target check twice (once in `planEffect`,
+once in `translateEngineEffect`), `condition` is simply never named in `engine` mode's own property question:
+`referee.ts`'s `PERSON_PROPERTY_CLAUSE` (shared, unchanged, by both modes -- posture/sight only) never gains a
+`condition` clause there, and `rulingPropertyAnswerKeys` is called without `harmMode` in the `engine` branch, so
+its default `"off"` excludes `condition` from the answer keys regardless of the arm. A `write` down on a person
+under `engine` mode therefore still reads `posture`/`sight` only, exactly as `engineRules.ts`'s own header
+already documents for `noise`/`destroy`/`transfer`/`set`-on-a-person: a real, and known, limit of this landing,
+not a silent gap.
 
 **D13 extended, not duplicated.** `loop.ts`'s `laysHandsOnWarden` set (D13, §80.7) gained `harm` as a sixth
 member: a prisoner's harm on the warden gives grounds at once (his suspicion rises to at least the threshold,
@@ -7037,6 +7718,20 @@ leaking "hurt or tended" into a person's declared-space refusal with the arm off
 (`checkpoint.ts`, `game.ts`, and, for old data with no live world, `checkpointTranscript.ts`/`turnReport.ts`,
 defaulting to `off`). See `docs/ISSUE-1-DESIGN.md` §3 for the full account.
 
+**Merged with §85's pronoun centralisation and #30's person-vocabulary tables (2026-09-28).** `condition`'s
+own bands are now built from `pronounsFor` (`scenarioObjects.ts`), the identical pattern `posture`/`sight`
+already use right beside them ("She is hurt." parallels "She is on her feet." exactly) -- see the property
+paragraph above. `perception.ts`'s `personEffectPhrase` (the-prisoner#30) and `loop.ts`'s `personAttemptPhrase`
+both widen from two person properties to three: `restore` on `condition` (tending) now renders "tend to
+Warden Croft's wounds" rather than furniture's "worked on the warden: its condition went from...", and `wear`
+on `condition` gets a phrase too (never actually reached -- `harm`, a separate effect kind with its own
+dedicated rendering, is what lowers `condition`; kept only so both tables stay genuinely exhaustive over
+every person property rather than silently falling through for a pairing nothing should produce). `harm`
+itself is untouched by either table: its own attempt/outcome sentences were already person-shaped from this
+issue's own first landing (`describeAttempt`'s `"harm"` case, `perception.ts`'s dedicated `${who}'s condition
+went from...` branch), and stay by NAME there, addressing one specific principal, the same way every other
+own-outcome sentence in this file already does.
+
 **Tests**: `src/open/__tests__/harm.test.ts` -- the property's own bounds/bands, the resource gate (per-key,
 both arms), `planEffect`'s self-harm refusal and wrong-property refusal, D13's extension, the referee's
 gating of `harm`/`condition` (arm x person-in-view, all four combinations), the byte-identity regression
@@ -7048,3 +7743,4 @@ other side is told the attempt, never the outcome, for this effect kind too).
 **Unmeasured**: all of it. `checkpoints/2026-09-28-harm/` is the probe -- the five real human attack intents this
 design brief itself cites (HB-r1, HB-r3, HB-r10, I25-3, I25-5) plus eight controls that must not become harm,
 arm off vs on, N=3. Not run by this task.
+

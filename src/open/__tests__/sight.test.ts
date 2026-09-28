@@ -70,10 +70,20 @@ describe("sight as a person's property (D12)", () => {
     for (const person of OPEN_PERSONS) {
       const sight = person.properties.find((p) => p.key === "sight");
       expect(sight).toMatchObject({ resourceName: `${person.id}_sight`, min: 0, max: 100, initialValue: 100, wear: { slight: 10, moderate: 50, substantial: 100 }, restore: { slight: 10, moderate: 10, substantial: 10 } });
-      expect(sight?.readRanges).toEqual([
-        { atOrBelow: 60, text: "Something covers her head; she cannot see." },
-        { atOrBelow: 100, text: "Her eyes are on the cell." },
-      ]);
+      // The-prisoner#34, changed on purpose: the warden's own bands used to be a literal copy of the
+      // prisoner's ("her"/"she" for Croft too, discrepancy 8 in docs/ARCHITECTURE.md) -- each principal
+      // now reads in its own declared pronoun (`scenario.ts`'s `pronounsFor`).
+      expect(sight?.readRanges).toEqual(
+        person.id === "warden"
+          ? [
+              { atOrBelow: 60, text: "Something covers his head; he cannot see." },
+              { atOrBelow: 100, text: "His eyes are on the cell." },
+            ]
+          : [
+              { atOrBelow: 60, text: "Something covers her head; she cannot see." },
+              { atOrBelow: 100, text: "Her eyes are on the cell." },
+            ]
+      );
     }
   });
 
@@ -87,10 +97,11 @@ describe("sight as a person's property (D12)", () => {
     expect(getResource(w.resourceIdFor["warden.sight"])?.value).toBe(100);
     const t = w.base.clock.prisonerT(1);
     const warden = computePerceivedObjects(w, "prisoner", t, "modelled").find((o) => o.id === "warden");
-    expect(warden?.description).toContain("Her eyes are on the cell.");
+    // The-prisoner#34, changed on purpose: Croft reads in his own declared pronoun now.
+    expect(warden?.description).toContain("His eyes are on the cell.");
     setTo(w, w.resourceIdFor["warden.sight"], 60);
     const covered = computePerceivedObjects(w, "prisoner", t, "modelled").find((o) => o.id === "warden");
-    expect(covered?.description).toContain("Something covers her head; she cannot see.");
+    expect(covered?.description).toContain("Something covers his head; he cannot see.");
   });
 
   it("the ruling may name sight only when a person is in view", () => {

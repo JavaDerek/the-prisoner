@@ -12,7 +12,7 @@ import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
 import { pick, type Verdict } from "mother-of-invention";
 import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
-import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, pronounsFor } from "../scenario.js";
 import { SIGHT_BLIND_AT_OR_BELOW, HARM_DISABLED_AT_OR_BELOW } from "./scenarioObjects.js";
 import { HONE_SUSPICION_BUMP, FILE_SUSPICION_BUMP, FAILED_ESCAPE_SUSPICION_BUMP, EVIDENCE_SUSPICION_DIVISOR, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 
@@ -416,6 +416,47 @@ async function tryAcquire(
   };
 }
 
+/**
+ * The-prisoner#30: a wear/restore whose target is a PRINCIPAL and whose property is one of the three a
+ * person declares (`posture`, `sight`, and -- the-prisoner#1, `PRISONER_HARM=on` only -- `condition`) is
+ * described in the room's own words for a PERSON, never furniture's ("Warden Croft works at the
+ * warden") -- the same "works to X" bystander frame this module already uses for
+ * conceal/expose/open/close/derive, extended to the three person properties. Exhaustive over the three
+ * properties x two directions (mirrors `perception.ts`'s own `personEffectPhrase` table in shape, not
+ * by import: this function's contract is an ATTEMPT sentence only -- no number, no outcome -- different
+ * enough from `perception.ts`'s three sites, which also need the actor's exact numbers, that sharing one
+ * table would need a flag neither side otherwise wants). `null` for every other target, effect or
+ * property, so callers fall back to the ordinary furniture phrasing unchanged. Reflexive (the actor's own
+ * body, #34's own pronoun set) uses "get back up"/"put himself on the floor"/"cover his own eyes", never
+ * the actor's own name a second time.
+ *
+ * `condition`'s own `wear` direction is reachable only if a ruling somehow paired `wear` with `condition`
+ * (harm's own case -- `describeAttempt`'s `"harm"` switch branch, above -- is the intended, and only
+ * offered, way to lower it); kept here anyway so this table stays genuinely exhaustive rather than
+ * silently falling through to furniture phrasing for a pairing nothing should ever produce.
+ */
+function personAttemptPhrase(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind"> & { property?: RefereeRuling["property"] }, actorPrincipal: Principal, direction: "wear" | "restore", actor: string): string | null {
+  if (!isPrincipalId(ruling.targetObjectId)) return null;
+  if (ruling.property !== "posture" && ruling.property !== "sight" && ruling.property !== "condition") return null;
+  const targetId = ruling.targetObjectId;
+  const reflexive = targetId === actorPrincipal;
+  const name = actorName(targetId);
+  const pron = pronounsFor(targetId);
+  if (ruling.property === "sight") {
+    if (direction === "wear") return reflexive ? `${actor} works to cover ${pron.possessive} own eyes.` : `${actor} works to cover ${name}'s eyes.`;
+    return reflexive ? `${actor} works to clear ${pron.possessive} own eyes.` : `${actor} works to clear ${pron.possessive} eyes.`;
+  }
+  if (ruling.property === "condition") {
+    // the-prisoner#1: `restore` here is tending -- the reachable direction; `harm` (a separate effect
+    // kind) is what a stab or a strike resolves through, never `wear` on this property.
+    if (direction === "wear") return reflexive ? `${actor} works to hurt ${pron.reflexive}.` : `${actor} works to hurt ${name}.`;
+    return reflexive ? `${actor} works to tend to ${pron.possessive} own wounds.` : `${actor} works to tend to ${pron.possessive} wounds.`;
+  }
+  // posture: the person as a whole is the direct object, never a possessive.
+  if (direction === "wear") return reflexive ? `${actor} works to put ${pron.reflexive} on the floor.` : `${actor} works to put ${name} on the floor.`;
+  return reflexive ? `${actor} works to get back up.` : `${actor} works to get ${name} back up.`;
+}
+
 /** One authored, positive sentence per effect kind -- used as BOTH the
  *  resolved mechanic's own `description` (the ledger/transcript record) AND,
  *  when perceptibility allows it, the sentence relayed to the other
@@ -428,7 +469,7 @@ async function tryAcquire(
  *  must outlive this game's characters (`precedent.ts`). */
 export function describeAttempt(
   principal: Principal,
-  ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">,
+  ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind"> & { property?: RefereeRuling["property"] },
   actor: string = actorName(principal),
   /** OPEN-VARIANT.md §14.4: the parent kind's label, when the derive reshapes. */
   reshapeOf?: string
@@ -436,9 +477,9 @@ export function describeAttempt(
   const obj = objectLabel(ruling.targetObjectId);
   switch (ruling.effectKind) {
     case "wear":
-      return `${actor} works at the ${obj}.`;
+      return personAttemptPhrase(ruling, principal, "wear", actor) ?? `${actor} works at the ${obj}.`;
     case "restore":
-      return `${actor} works to restore the ${obj}.`;
+      return personAttemptPhrase(ruling, principal, "restore", actor) ?? `${actor} works to restore the ${obj}.`;
     case "reveal":
       return `${actor} examines the ${obj} closely.`;
     case "conceal":
@@ -495,7 +536,9 @@ export function describeAttempt(
       return `${actor} holds out the ${obj}.`;
     case "block":
       // PLAYTEST-2026-09-27 D4': the attempt, as every case here since D1.
-      return `${actor} plants herself in the ${obj}.`;
+      // The-prisoner#34: built from `pronounsFor(principal)` now -- this used to say "herself" whoever
+      // planted themselves, which was wrong every time the warden did it.
+      return `${actor} plants ${pronounsFor(principal).reflexive} in the ${obj}.`;
     case "harm":
       // the-prisoner#1: the target is always the OTHER principal (`effects.ts`'s `planEffect` refuses
       // self-harm), so this names her by name like `noise`/`expose` already do for a person -- the attempt,
@@ -649,8 +692,13 @@ export async function runOpenHalfRound(params: {
   // the precedent ledger would have recorded for that text. A reshaping is
   // not recognised here (it needs the parent's kind, §14.4).
   const recognisedAs = new Map<string, string>();
+  // the-prisoner#5: `context.holding` (`briefing.ts`'s `buildOpenContext`,
+  // docs/CUSTODY-DESIGN.md's own owner reads) is the actor's currently held
+  // objects -- read only under `PRISONER_OPEN_RULES=engine`, to build the
+  // `with` question's closed answer set (`referee.ts`). Absent under
+  // `fixed`: `rule()`'s third argument is optional and unused there.
   const recognise = async (text: string, seen: readonly string[]): Promise<{ verdict: Verdict; as: string }> => {
-    const ruling = await referee.rule(text, context.perceivedObjects);
+    const ruling = await referee.rule(text, context.perceivedObjects, context.holding ?? []);
     if (!ruling.applicable) return { verdict: "unavailable", as: "" };
     const as = precedentTextFor(ruling);
     recognisedAs.set(text, as);
@@ -708,7 +756,7 @@ export async function runOpenHalfRound(params: {
   // what its attempt goes on to do.
   if (proposal.notes) setNotes(openWorld.base.gameId, principal, proposal.notes, roundN);
 
-  let ruling = await referee.rule(proposal.intent, context.perceivedObjects);
+  let ruling = await referee.rule(proposal.intent, context.perceivedObjects, context.holding ?? []);
   // D3 (HUMAN-INTENTS-DESIGN.md §3.1, §11.5, the-prisoner#27): `mind.reconsider`
   // exists only on a human seat (`createHumanSeatMind`, humanSeat.ts) -- a
   // model mind is a plain object with no such property, so this guard is
@@ -724,7 +772,7 @@ export async function runOpenHalfRound(params: {
     if (retype !== undefined) {
       reconsidered = { firstRuling: ruling, firstIntent: proposal.intent };
       proposal = { ...proposal, intent: retype };
-      ruling = await referee.rule(proposal.intent, context.perceivedObjects);
+      ruling = await referee.rule(proposal.intent, context.perceivedObjects, context.holding ?? []);
     }
   }
   const base = { principal, t, roundN, context, pick: picked, reconsidered };

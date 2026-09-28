@@ -14,7 +14,7 @@ import { renderOpenHalfRound } from "../checkpointTranscript.js";
 import type { Referee, RefereeRuling } from "../referee.js";
 import type { OpenMind, OpenProposal } from "../mind.js";
 import type { OpenHalfRoundResult } from "../loop.js";
-import { PRISONER_NAME, WARDEN_NAME, WARDEN_SHORT_NAME, PRISONER_SHORT_NAME } from "../../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME, WARDEN_SHORT_NAME, PRISONER_SHORT_NAME, WARDEN_PRONOUNS } from "../../scenario.js";
 import { SEARCH_SUSPICION_THRESHOLD } from "../../world/mechanics.js";
 import type { Principal } from "../../ledger/beliefs.js";
 
@@ -539,7 +539,8 @@ describe("the condition lists both chairs read under the defaults (D3, D6', D4',
       `CONDITION 5 (for ${WARDEN_NAME}): If warden suspicion is at or above 40, and ${WARDEN_NAME} closely examines the lock, and ${WARDEN_NAME} finds its integrity at or below 40, then ${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends.`,
       `CONDITION 6 (for ${WARDEN_NAME}): If warden suspicion is at or above 40, and ${WARDEN_NAME} closely examines the spoon, and the spoon is out in the open, and ${WARDEN_NAME} finds its edge at or above 20, then ${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends.`,
       `CONDITION 7 (for ${WARDEN_NAME}): If warden suspicion is at or above 40, and ${WARDEN_NAME} closely examines a way out, and ${WARDEN_NAME} finds it standing open, then ${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends.`,
-      `CONDITION 8 (for ${WARDEN_NAME}): If ${WARDEN_NAME} stands in a way out, and ${WARDEN_NAME} is on her feet, and ${WARDEN_NAME} can see, then ${PRISONER_NAME} cannot leave through it.`,
+      // The-prisoner#34, changed on purpose: built from `WARDEN_PRONOUNS` now (discrepancy 8).
+      `CONDITION 8 (for ${WARDEN_NAME}): If ${WARDEN_NAME} stands in a way out, and ${WARDEN_NAME} is on ${WARDEN_PRONOUNS.possessive} feet, and ${WARDEN_NAME} can see, then ${PRISONER_NAME} cannot leave through it.`,
       `CONDITION 9 (for ${WARDEN_NAME}): If the bar's integrity is below 100, then ${WARDEN_NAME} can mend it.`,
       `CONDITION 10 (for ${WARDEN_NAME}): If the lock's integrity is below 100, then ${WARDEN_NAME} can mend it.`,
       // D15 (changed on purpose, 2026-09-27): the key ring, stated to both chairs for both holders.
@@ -552,7 +553,7 @@ describe("the condition lists both chairs read under the defaults (D3, D6', D4',
     const his = renderConditionList(conditions, { reader: WARDEN_NAME }).filter((l) => l.startsWith("CONDITION "));
     expect(his).toHaveLength(12);
     expect(his[1]).toBe(`CONDITION 2 (for ${PRISONER_NAME}): If the lock's integrity is at or below 60, then ${PRISONER_NAME} can open the door.`);
-    expect(his[7]).toBe(`CONDITION 8 (for you): If ${WARDEN_NAME} stands in a way out, and ${WARDEN_NAME} is on her feet, and ${WARDEN_NAME} can see, then ${PRISONER_NAME} cannot leave through it.`);
+    expect(his[7]).toBe(`CONDITION 8 (for you): If ${WARDEN_NAME} stands in a way out, and ${WARDEN_NAME} is on ${WARDEN_PRONOUNS.possessive} feet, and ${WARDEN_NAME} can see, then ${PRISONER_NAME} cannot leave through it.`);
     expect(his.slice(8)).toEqual([
       `CONDITION 9 (for you): If the bar's integrity is below 100, then ${WARDEN_NAME} can mend it.`,
       `CONDITION 10 (for you): If the lock's integrity is below 100, then ${WARDEN_NAME} can mend it.`,

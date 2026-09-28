@@ -14,7 +14,7 @@ import { readNumericFact } from "../../world/facts.js";
 import { OPEN_OBJECTS, POSTURE_STANDING } from "../scenarioObjects.js";
 import { setBelief } from "../../ledger/beliefs.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
-import { PRISONER_NAME } from "../../scenario.js";
+import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 
 /**
  * PLAYTEST-2026-09-27-DESIGN.md R1 (D1), 2026-09-27: the other side is told
@@ -216,6 +216,45 @@ describe("the other side is told the attempt, never the outcome (PLAYTEST-2026-0
     expect(describeAttempt("prisoner", { targetObjectId: "blanket", effectKind: "conceal" })).toBe(`${PRISONER_NAME} works to hide the blanket.`);
     expect(describeAttempt("prisoner", { targetObjectId: "loose_tile", effectKind: "expose" })).toBe(`${PRISONER_NAME} works to uncover the loose tile.`);
     expect(describeAttempt("prisoner", { targetObjectId: "cot", effectKind: "derive" })).toBe(`${PRISONER_NAME} works to free a piece of the cot.`);
+  });
+
+  /**
+   * The-prisoner#30: a wear/restore on a PRINCIPAL's own posture/sight used to render as furniture
+   * here too ("Warden Croft works to restore the warden"). Person-shaped, exhaustive over the two
+   * person properties x two directions, self-target (reflexive) and other-target -- and still an
+   * ATTEMPT sentence: no number, no outcome, the same "works to X" bystander frame this function
+   * already uses for conceal/expose/open/close/derive.
+   */
+  it("the-prisoner#30: wear/restore on a principal's own posture/sight are person-shaped attempts, other-target", () => {
+    expect(describeAttempt("prisoner", { targetObjectId: "warden", effectKind: "wear", property: "sight" })).toBe(`${PRISONER_NAME} works to cover ${WARDEN_NAME}'s eyes.`);
+    expect(describeAttempt("prisoner", { targetObjectId: "warden", effectKind: "restore", property: "sight" })).toBe(`${PRISONER_NAME} works to clear his eyes.`);
+    expect(describeAttempt("prisoner", { targetObjectId: "warden", effectKind: "wear", property: "posture" })).toBe(`${PRISONER_NAME} works to put ${WARDEN_NAME} on the floor.`);
+    expect(describeAttempt("prisoner", { targetObjectId: "warden", effectKind: "restore", property: "posture" })).toBe(`${PRISONER_NAME} works to get ${WARDEN_NAME} back up.`);
+    expect(describeAttempt("warden", { targetObjectId: "prisoner", effectKind: "wear", property: "sight" })).toBe(`${WARDEN_NAME} works to cover ${PRISONER_NAME}'s eyes.`);
+    expect(describeAttempt("warden", { targetObjectId: "prisoner", effectKind: "restore", property: "posture" })).toBe(`${WARDEN_NAME} works to get ${PRISONER_NAME} back up.`);
+  });
+
+  it("the-prisoner#30: wear/restore on the actor's OWN posture/sight are reflexive attempts, never naming the actor a second time", () => {
+    expect(describeAttempt("prisoner", { targetObjectId: "prisoner", effectKind: "wear", property: "posture" })).toBe(`${PRISONER_NAME} works to put herself on the floor.`);
+    expect(describeAttempt("prisoner", { targetObjectId: "prisoner", effectKind: "restore", property: "posture" })).toBe(`${PRISONER_NAME} works to get back up.`);
+    expect(describeAttempt("warden", { targetObjectId: "warden", effectKind: "restore", property: "sight" })).toBe(`${WARDEN_NAME} works to clear his own eyes.`);
+    expect(describeAttempt("warden", { targetObjectId: "warden", effectKind: "wear", property: "sight" })).toBe(`${WARDEN_NAME} works to cover his own eyes.`);
+  });
+
+  it("the-prisoner#30: a person-targeted wear on posture/sight still lands and fails with the identical sentence (the SCENARIOS invariant, extended)", async () => {
+    const s: Scenario = {
+      ruling: ruling("warden", "wear", "sight"),
+      landed: resolved,
+      fail: [{ why: "a stale belief: expects contradicted", setup: (w) => setBelief(w.base.gameId, "prisoner", w.resourceNameById[w.resourceIdFor["warden.sight"]], 90, 0), failed: refused }],
+    };
+    const landed = await half(s, s.succeed);
+    expect(s.landed(landed)).toBe(true);
+    expect(landed.perceptionForOther).toBe(`${PRISONER_NAME} works to cover ${WARDEN_NAME}'s eyes.`);
+    for (const f of s.fail) {
+      const failed = await half(s, f.setup);
+      expect(f.failed(failed), f.why).toBe(true);
+      expect(failed.perceptionForOther, f.why).toBe(landed.perceptionForOther);
+    }
   });
 });
 
