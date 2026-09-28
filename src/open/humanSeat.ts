@@ -403,6 +403,72 @@ export function otherIsThinkingNotice(otherName: string): string {
   return `(${otherName} is thinking.)`;
 }
 
+/** D10-1: how many rounds remain before the stakes block is worth repeating
+ *  even though it has already been shown -- built from the parsed clock,
+ *  never hard-coded per call site, so `proseSituation`/`playSituation`/
+ *  `stateBlocks` (below, this file's own three renderers) AND `createPlayView`
+ *  (the-prisoner#11's MCP seat's own use of the same blocks) all read the
+ *  identical rule. Module-level (not `createHumanSeatMind`'s own local, as it
+ *  once was) so both callers share one definition rather than two that could
+ *  drift. */
+export const STAKES_REMINDER_WINDOW = 5;
+
+/** Shared by every renderer that holds the standing world back behind a
+ *  delta (`proseSituation`/`playSituation`/`stateBlocks` here, and
+ *  `createPlayView`'s own `render` below): the stakes block is shown again,
+ *  even though it has not changed, once few enough rounds remain. */
+export function forceShowStakes(context: OpenPrincipalContext) {
+  return (kind: ProseBlockKind): boolean => {
+    if (kind !== "stakes") return false;
+    const { roundN, totalRounds } = parseBriefing(context.briefing);
+    return roundN !== undefined && totalRounds !== undefined && totalRounds - roundN <= STAKES_REMINDER_WINDOW;
+  };
+}
+
+/**
+ * The `play` view's own composition (2026-09-25, this file's own header
+ * above), exported standalone so a caller other than the terminal seat can
+ * show the SAME rendering of the SAME blocks -- the-prisoner#11's MCP seat
+ * (`src/mcp/session.ts`'s `my_briefing`) -- never a second, hand-written
+ * rendering of what `play` shows. That issue's own terminal-half comment
+ * names exactly this risk: "my_briefing should return that same render...
+ * or a human game stops saying anything about the game the models play."
+ * `createHumanSeatMind` below now calls this too, so the two seats can
+ * never quietly diverge; `humanSeat.test.ts`'s existing "the play view"
+ * suites are the regression guard that extracting it changed nothing.
+ *
+ * Its own `delta` (turn-to-turn "shown once" state, `deltaView.ts`) is
+ * independent of `createHumanSeatMind`'s -- safe because `PRISONER_VIEW` is
+ * fixed for the life of one game, so `play` and `prose`/`narrated` are never
+ * both live over the same delta's lifetime. A caller that wants one
+ * long-running `play` view (the terminal seat, or one MCP game) constructs
+ * one `PlayView` and keeps calling `render` on it for that game's whole
+ * length; a second, unrelated game needs its OWN instance (see the
+ * `PlayView` test's own "shares no state" case) -- exactly the same rule a
+ * fresh `createHumanSeatMind` call already follows for the terminal seat.
+ */
+export interface PlayView {
+  /** The `play` view of one turn: the same blocks `prose` composes, in
+   *  Infocom's order, through this view's own delta. `newsFilter` is this
+   *  file's own D10-4 de-duplication (a news line already announced at once,
+   *  outside `consider`, is not repeated) -- a caller with no such separate
+   *  announcement (the MCP seat has none: see `src/mcp/session.ts`) simply
+   *  omits it. */
+  render(context: OpenPrincipalContext, options?: { newsFilter?: (line: string) => boolean }): string;
+  /** One block by kind, undelta'd and unfiltered -- the same accessor
+   *  `rules`/`me`/`known` use below to answer a no-turn command. */
+  blockText(context: OpenPrincipalContext, kind: ProseBlockKind): string;
+}
+
+export function createPlayView(selfName: string, otherName: string, conditions?: readonly Condition[]): PlayView {
+  const delta = createDeltaView({ keepShownWhileChanged: (key) => findObject(key)?.properties.some((p) => p.key === "passage") ?? false });
+  return {
+    render: (context, options = {}) =>
+      delta.render(orderForPlay(proseBlocks(selfName, otherName, context, conditions, { newsFilter: options.newsFilter })), { forceShow: forceShowStakes(context) }),
+    blockText: (context, kind) => proseBlocks(selfName, otherName, context, conditions).find((block) => block.kind === kind)?.text ?? "",
+  };
+}
+
 export interface HumanSeatMind extends OpenMind {
   /** A write from OUTSIDE `consider` -- see this interface's own doc
    *  comment. The loop is serial (§3.2, red team point 11.4): the OTHER
@@ -488,31 +554,20 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
   // a door stood open four rounds and was shown once). `deltaView.ts` compares
   // strings it has already shown -- it never reads what they say.
   const delta = createDeltaView({ keepShownWhileChanged: (key) => findObject(key)?.properties.some((p) => p.key === "passage") ?? false });
-  // D10-1: how many rounds remain before the stakes block is worth repeating
-  // even though it has already been shown -- built from the parsed clock,
-  // never hard-coded per call site, so `proseSituation`/`playSituation`/
-  // `stateBlocks` all read the identical rule.
-  const STAKES_REMINDER_WINDOW = 5;
-  const forceShowStakes = (context: OpenPrincipalContext) => (kind: ProseBlockKind): boolean => {
-    if (kind !== "stakes") return false;
-    const { roundN, totalRounds } = parseBriefing(context.briefing);
-    return roundN !== undefined && totalRounds !== undefined && totalRounds - roundN <= STAKES_REMINDER_WINDOW;
-  };
   const proseSituation = (context: OpenPrincipalContext): string =>
     delta.render(proseBlocks(selfName, otherName, context, options.conditions), { forceShow: forceShowStakes(context) });
-  // The play view (2026-09-25): the SAME blocks, through the SAME delta, in
-  // `PLAY_ORDER` and without the three `PLAY_BLOCK_POLICY` puts behind a
-  // command. Composed here rather than in `proseView.ts` because it is a
-  // seat decision about a reader, not a change to what the prose says.
+  // The play view (2026-09-25): now `createPlayView` (above), extracted so
+  // the MCP seat's `my_briefing` (the-prisoner#11) renders the identical
+  // thing through the identical function -- see that export's own header.
+  // Its delta is its OWN, separate from this file's `delta` above: safe
+  // because `PRISONER_VIEW` is fixed for one game, so `play` and
+  // `prose`/`narrated` never share a game's lifetime.
   //
   // D10-4: the ONLY view that filters a news line at all -- `prose`'s own
   // completeness test (proseView.test.ts) stays the guard it was, and
   // `narrated`'s `stateBlocks` (below) is untouched too.
-  const playSituation = (context: OpenPrincipalContext): string =>
-    delta.render(
-      orderForPlay(proseBlocks(selfName, otherName, context, options.conditions, { newsFilter: (line) => line !== lastNotifiedText })),
-      { forceShow: forceShowStakes(context) }
-    );
+  const playView = createPlayView(selfName, otherName, options.conditions);
+  const playSituation = (context: OpenPrincipalContext): string => playView.render(context, { newsFilter: (line) => line !== lastNotifiedText });
   // One block of the prose view by kind, for the commands that print a block
   // `play` holds back -- read from the same composer the view itself uses, so
   // `rules` and `me` can never drift into being a second rendering.

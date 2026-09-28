@@ -23,9 +23,11 @@
     "measures": "tsx src/open/batchMeasuresCli.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.1",
     "mind-seam": "0.5.0",
     "mother-of-invention": "0.1.2",
-    "run-dmcp": "0.10.0"
+    "run-dmcp": "0.10.0",
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
