@@ -19,6 +19,8 @@
 // A half-round with no referee table is a decision silence: reported on its
 // own, never folded into "refused", as count.mts already did.
 
+import { assertBenchmarkTranscript, parseModeFromTranscript, type PrisonerMode } from "./scenarioMode.js";
+
 export type Chair = "warden" | "prisoner";
 export const CHAIRS: readonly Chair[] = ["warden", "prisoner"];
 
@@ -69,6 +71,12 @@ export interface Transcript {
   file: string;
   wits: string;
   referee: string;
+  /** the-prisoner#3: `benchmark` (the default, including every transcript
+   *  recorded before this switch existed) or `enjoyable`. `parseTranscript`
+   *  below REFUSES to return an enjoyable one at all -- this field exists so
+   *  a caller that only ever sees a benchmark `Transcript` (every caller,
+   *  since the throw fires first) never has to guess why. */
+  mode: PrisonerMode;
   escaped: boolean;
   halves: HalfRound[];
   /** The §22 line as printed, so the marker count below can be checked against it. */
@@ -107,6 +115,12 @@ const HEADING = /^### Round (\d+) \(t=\d+\) -- the (warden|prisoner)$/m;
 /** One transcript's structural content. `file` is only carried into the
  *  report rows; nothing here reads the file system. */
 export function parseTranscript(text: string, file = "?"): Transcript {
+  // the-prisoner#3, CODER-BRIEF decision 1: refuse before reading anything
+  // else -- an enjoyable game's object descriptions were generated for that
+  // game alone, so no count taken from it (a citation, a ruling, an escape)
+  // means the same thing as the identical count from a benchmark game.
+  assertBenchmarkTranscript(text, file);
+  const mode = parseModeFromTranscript(text);
   // Two chairs, two models (phase 1 batch 4): a mixed game prints a line per
   // chair and NO single `Wits model:` line, by design -- one wits model named
   // in a two-model game is a claim a reader would act on
@@ -149,7 +163,7 @@ export function parseTranscript(text: string, file = "?"): Transcript {
       ruling: parseRuling(body),
     });
   }
-  return { file, wits, referee, escaped, halves, printedPlans, strategyTargets, revisionWouldHaveFired };
+  return { file, wits, referee, mode, escaped, halves, printedPlans, strategyTargets, revisionWouldHaveFired };
 }
 
 const ROW = /^\| (\w+) \| `([^`]*)` \| (.*) \| (yes|no|n\/a) \|$/gm;
