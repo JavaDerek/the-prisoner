@@ -371,6 +371,41 @@ describe("open checkpoint transcript", () => {
     expect(text).not.toContain("dry and cracked");
   });
 
+  // the-prisoner#3, enjoyable mode: an object's GENERATED text is this game's
+  // own "authored" baseline, so it must not print as "as it stands" on every
+  // single half-round it is perceived -- that would be noise, and would bury
+  // a genuine state-driven change (a reading like "It stands open now")
+  // under a description that has not actually moved since the header.
+  it("with descriptionOverrides, an unchanged GENERATED description is not printed as changed", () => {
+    const generated = "A battered pewter spoon, cool to the touch.";
+    const text = renderOpenHalfRound(
+      {
+        principal: "warden", t: 2, roundN: 1,
+        context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [{ id: "spoon", description: generated }] },
+        proposal: { intent: "I look around." },
+        ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
+        revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null,
+      },
+      undefined,
+      undefined,
+      { spoon: generated }
+    ).join("\n");
+    expect(text).toContain("**Perceived:** spoon");
+    expect(text).not.toContain(generated.split(".")[0]);
+  });
+
+  it("without descriptionOverrides (benchmark mode), the same generated-looking text still prints as changed -- unaffected by this arm", () => {
+    const generated = "A battered pewter spoon, cool to the touch.";
+    const text = renderOpenHalfRound({
+      principal: "warden", t: 2, roundN: 1,
+      context: { principalId: "w", identity: "", motive: "", briefing: "B", perceivedObjects: [{ id: "spoon", description: generated }] },
+      proposal: { intent: "I look around." },
+      ruling: null, plan: null, outcome: null, refusalError: null, perceptionForOther: null,
+      revealFor: null, derived: null, reshaped: null, pick: null, resourceName: null, elaboration: null, acquired: null, reconsidered: null,
+    }).join("\n");
+    expect(text).toContain("cool to the touch");
+  });
+
   it("referee requests: one entry per ruled half-round, labelled, carrying the exact request for replay", async () => {
     const game = await playCatchGame();
     const requests = refereeRequestsFor(game.halves);
