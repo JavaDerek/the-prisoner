@@ -411,6 +411,35 @@ async function tryAcquire(
   };
 }
 
+/**
+ * The-prisoner#30: a wear/restore whose target is a PRINCIPAL and whose property is one of the two a
+ * person declares (`posture`, `sight`) is described in the room's own words for a PERSON, never
+ * furniture's ("Warden Croft works at the warden") -- the same "works to X" bystander frame this
+ * module already uses for conceal/expose/open/close/derive, extended to the two person properties.
+ * Exhaustive over the two properties x two directions (mirrors `perception.ts`'s own
+ * `personEffectPhrase` table in shape, not by import: this function's contract is an ATTEMPT sentence
+ * only -- no number, no outcome -- different enough from `perception.ts`'s three sites, which also
+ * need the actor's exact numbers, that sharing one table would need a flag neither side otherwise
+ * wants). `null` for every other target, effect or property, so callers fall back to the ordinary
+ * furniture phrasing unchanged. Reflexive (the actor's own body, #34's own pronoun set) uses "get back
+ * up"/"put himself on the floor"/"cover his own eyes", never the actor's own name a second time.
+ */
+function personAttemptPhrase(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind"> & { property?: RefereeRuling["property"] }, actorPrincipal: Principal, direction: "wear" | "restore", actor: string): string | null {
+  if (!isPrincipalId(ruling.targetObjectId)) return null;
+  if (ruling.property !== "posture" && ruling.property !== "sight") return null;
+  const targetId = ruling.targetObjectId;
+  const reflexive = targetId === actorPrincipal;
+  const name = actorName(targetId);
+  const pron = pronounsFor(targetId);
+  if (ruling.property === "sight") {
+    if (direction === "wear") return reflexive ? `${actor} works to cover ${pron.possessive} own eyes.` : `${actor} works to cover ${name}'s eyes.`;
+    return reflexive ? `${actor} works to clear ${pron.possessive} own eyes.` : `${actor} works to clear ${pron.possessive} eyes.`;
+  }
+  // posture: the person as a whole is the direct object, never a possessive.
+  if (direction === "wear") return reflexive ? `${actor} works to put ${pron.reflexive} on the floor.` : `${actor} works to put ${name} on the floor.`;
+  return reflexive ? `${actor} works to get back up.` : `${actor} works to get ${name} back up.`;
+}
+
 /** One authored, positive sentence per effect kind -- used as BOTH the
  *  resolved mechanic's own `description` (the ledger/transcript record) AND,
  *  when perceptibility allows it, the sentence relayed to the other
@@ -423,7 +452,7 @@ async function tryAcquire(
  *  must outlive this game's characters (`precedent.ts`). */
 export function describeAttempt(
   principal: Principal,
-  ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind">,
+  ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind"> & { property?: RefereeRuling["property"] },
   actor: string = actorName(principal),
   /** OPEN-VARIANT.md §14.4: the parent kind's label, when the derive reshapes. */
   reshapeOf?: string
@@ -431,9 +460,9 @@ export function describeAttempt(
   const obj = objectLabel(ruling.targetObjectId);
   switch (ruling.effectKind) {
     case "wear":
-      return `${actor} works at the ${obj}.`;
+      return personAttemptPhrase(ruling, principal, "wear", actor) ?? `${actor} works at the ${obj}.`;
     case "restore":
-      return `${actor} works to restore the ${obj}.`;
+      return personAttemptPhrase(ruling, principal, "restore", actor) ?? `${actor} works to restore the ${obj}.`;
     case "reveal":
       return `${actor} examines the ${obj} closely.`;
     case "conceal":

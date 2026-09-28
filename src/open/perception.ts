@@ -51,6 +51,62 @@ function quoted(intent: string): string {
   return `"${intent}"`;
 }
 
+/**
+ * The-prisoner#30: a wear/restore whose target is a PRINCIPAL and whose cited property is one of the
+ * two a person declares (`posture`, `sight`) is a person-shaped act, never a furniture one --
+ * "wearing at Warden Croft"/"its sight went from 100 to 50" was #22's own gap 2 catching up with gap
+ * 3's numbers late. Authored once, exhaustive over the two person properties x the two directions
+ * (a `Record<OpenPropertyKey, ...>` keyed by `wear`/`restore` fails to typecheck here until a new
+ * person property has a phrase), each direction giving the three shapes the three render sites below
+ * need: `gerund` for the D1 opener ("You set about covering Croft's eyes"), `infinitive` for the
+ * refusal fallback's `attemptPhrase` ("as an attempt to cover Croft's eyes"), and `pastTense` for the
+ * resolved outcome's own before/after clause ("covered Croft's eyes: his sight went from..."), which
+ * keeps the actor's exact numbers -- the actor still learns the number it moved, only the words
+ * around it change. `reflexive` is true exactly when the actor targets its own body (the same
+ * exemption §56/D13 already key on), giving "your"/"yourself" instead of the target's name or
+ * pronoun -- an actor is never told its own name in the second person.
+ */
+interface PersonEffectPhrase {
+  readonly gerund: string;
+  readonly infinitive: string;
+  readonly pastTense: string;
+}
+
+function personEffectPhrase(property: "posture" | "sight", direction: "wear" | "restore", targetName: string, targetPossessive: string, reflexive: boolean): PersonEffectPhrase {
+  if (property === "sight") {
+    if (direction === "wear") {
+      return reflexive
+        ? { gerund: "covering your own eyes", infinitive: "cover your own eyes", pastTense: "covered your own eyes" }
+        : { gerund: `covering ${targetName}'s eyes`, infinitive: `cover ${targetName}'s eyes`, pastTense: `covered ${targetName}'s eyes` };
+    }
+    return reflexive
+      ? { gerund: "clearing your eyes", infinitive: "clear your eyes", pastTense: "cleared your eyes" }
+      : { gerund: `clearing ${targetPossessive} eyes`, infinitive: `clear ${targetPossessive} eyes`, pastTense: `cleared ${targetPossessive} eyes` };
+  }
+  // posture: the person as a whole is the direct object, never a possessive -- "put Voss on the
+  // floor," never "put Voss's posture on the floor."
+  if (direction === "wear") {
+    return reflexive
+      ? { gerund: "putting yourself on the floor", infinitive: "put yourself on the floor", pastTense: "put yourself on the floor" }
+      : { gerund: `putting ${targetName} on the floor`, infinitive: `put ${targetName} on the floor`, pastTense: `put ${targetName} on the floor` };
+  }
+  return reflexive
+    ? { gerund: "getting back up", infinitive: "get back up", pastTense: "got back up" }
+    : { gerund: `getting ${targetName} back up`, infinitive: `get ${targetName} back up`, pastTense: `got ${targetName} back up` };
+}
+
+/** `null` unless this ruling is exactly the case `personEffectPhrase` covers -- a wear/restore on a
+ *  principal's own declared `posture`/`sight` -- so every call site can fall back to its ordinary
+ *  furniture phrasing with one `?? ...` rather than re-deriving the gate three times. */
+function personEffectPhraseFor(ruling: Pick<RefereeRuling, "targetObjectId" | "effectKind" | "property">, actorPrincipal: PrincipalId): PersonEffectPhrase | null {
+  if (!isPrincipalTarget(ruling.targetObjectId)) return null;
+  if (ruling.property !== "posture" && ruling.property !== "sight") return null;
+  if (ruling.effectKind !== "wear" && ruling.effectKind !== "restore") return null;
+  const targetId = ruling.targetObjectId as PrincipalId;
+  const reflexive = targetId === actorPrincipal;
+  return personEffectPhrase(ruling.property, ruling.effectKind, principalName(targetId), pronounsFor(targetId).possessive, reflexive);
+}
+
 /** OPUS-FIRST-DESIGN.md §3.4: the effect the ruling read, phrased with the
  *  verb the actor's own outcome already uses for that effect when it
  *  resolves ("showed you the X closely", "made the X ring out", "opened",
@@ -58,13 +114,14 @@ function quoted(intent: string): string {
  *  itself. `what` is the target as this module already names it (a thing
  *  with its article, a person by name), or `null` when the ruling read no
  *  target at all. */
-function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
+function attemptPhrase(ruling: RefereeRuling, what: string | null, actorPrincipal: PrincipalId): string {
   const it = what ?? "something";
+  const person = ruling.effectKind === "wear" || ruling.effectKind === "restore" ? personEffectPhraseFor(ruling, actorPrincipal) : null;
   switch (ruling.effectKind as EffectKind) {
     case "wear":
-      return `wear at ${it}`;
+      return person?.infinitive ?? `wear at ${it}`;
     case "restore":
-      return `restore ${it}`;
+      return person?.infinitive ?? `restore ${it}`;
     case "reveal":
       return `look closely at ${it}`;
     case "conceal":
@@ -106,9 +163,12 @@ function attemptPhrase(ruling: RefereeRuling, what: string | null): string {
  *  renders no opening sentence at all when nothing was ruled), so a new
  *  effect kind fails to typecheck here until it has a phrase -- the same
  *  exhaustiveness device `NOTHING_TO_VERB` already uses for D8. */
-const SET_ABOUT_PHRASE: Record<Exclude<EffectKind, "none">, (ruling: RefereeRuling, what: string | null) => string> = {
-  wear: (_r, what) => `wearing at ${what ?? "something"}`,
-  restore: (_r, what) => `restoring ${what ?? "something"}`,
+const SET_ABOUT_PHRASE: Record<Exclude<EffectKind, "none">, (ruling: RefereeRuling, what: string | null, actorPrincipal: PrincipalId) => string> = {
+  // The-prisoner#30: a person-shaped gerund when the target is a principal's own posture/sight,
+  // `personEffectPhraseFor` returning `null` for every other target or effect leaves the old
+  // furniture phrasing exactly as it was.
+  wear: (r, what, actor) => personEffectPhraseFor(r, actor)?.gerund ?? `wearing at ${what ?? "something"}`,
+  restore: (r, what, actor) => personEffectPhraseFor(r, actor)?.gerund ?? `restoring ${what ?? "something"}`,
   reveal: (_r, what) => `looking closely at ${what ?? "something"}`,
   conceal: (_r, what) => `hiding ${what ?? "something"}`,
   // docs/CUSTODY-DESIGN.md: an expose on a person is a search of her, exactly
@@ -396,7 +456,7 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   // identical fiction via `attemptPhrase` itself ("was refused as an
   // attempt to open the window") -- prefixing it there would say the same
   // thing twice.
-  const setAbout = ruling.effectKind === "none" ? null : `You set about ${SET_ABOUT_PHRASE[ruling.effectKind](ruling, who)}.`;
+  const setAbout = ruling.effectKind === "none" ? null : `You set about ${SET_ABOUT_PHRASE[ruling.effectKind](ruling, who, half.principal)}.`;
   const told = (sentence: string): string => (setAbout ? `${setAbout} ${sentence}` : sentence);
 
   if (refusalError !== null) {
@@ -534,6 +594,22 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
       return told(`Your last attempt made a ${label} from the ${obj}: you hold it now, as ${half.derived?.id ?? ruling.product}.${wear}`);
     }
     if (typeof result.before === "number" && typeof result.after === "number") {
+      // The-prisoner#30: a wear/restore on a PERSON's own posture/sight is a person-shaped sentence,
+      // never furniture's "worked on the warden: its sight went from..." -- the actor still learns the
+      // exact number it moved (§5.3's own rule for the actor), only the words around it change.
+      // Reachable only for wear/restore x posture/sight (`EFFECT_PAIR_PROPERTIES` above pairs every
+      // other property-requiring effect with `integrity`/`concealment`/`passage`, never a person), so
+      // `plan.frees` (a part worn through freeing a way out) never applies to a person either.
+      const personChange = person ? personEffectPhraseFor(ruling, half.principal) : null;
+      if (personChange) {
+        const reflexive = ruling.targetObjectId === half.principal;
+        const possessive = reflexive ? "your" : pronounsFor(ruling.targetObjectId as PrincipalId).possessive;
+        return told(
+          result.before === result.after
+            ? `Your last attempt left ${possessive} ${property} at ${result.after}, where it already stood.`
+            : `Your last attempt ${personChange.pastTense}: ${possessive} ${property} went from ${result.before} to ${result.after}.`,
+        );
+      }
       return told(
         result.before === result.after
           ? `Your last attempt left the ${obj}'s ${property} at ${result.after}, where it already stood.`
@@ -576,7 +652,7 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   // `setAbout` here would say the same thing twice ("You set about opening
   // the window. Your last attempt (...) was refused as an attempt to open
   // the window, ...").
-  const attempt = ruling.effectKind === "none" ? "" : ` as an attempt to ${attemptPhrase(ruling, who)}`;
+  const attempt = ruling.effectKind === "none" ? "" : ` as an attempt to ${attemptPhrase(ruling, who, half.principal)}`;
   const why = refusalWhy(ruling, who ?? "", who === null ? "" : `${who}'s`);
   const refused = `Your last attempt (${quoted(proposal.intent)}) was refused${attempt}, ${why}, and`;
   if (target) {

@@ -7024,3 +7024,53 @@ seven files (`block.test.ts`, `briefing.test.ts`, `contestLines.test.ts`, `custo
 `probes2026-09-28.test.ts`, `sight.test.ts`) had pinned the warden's own sentences at the old, borrowed "her"/
 "she" text; each is updated in the same commit to the now-correct "his"/"he", noted inline at the changed
 assertion.
+
+### 81.1 A person's properties render in person vocabulary, not furniture's (the-prisoner#30)
+
+D12 gave a person a second declared property (`sight`, beside `posture`), and the three sites that render a
+wear/restore outcome had never been taught that a PRINCIPAL can be the target: a human game
+(`checkpoints/2026-09-28T01-09-16-356Z.md`) read *"You set about wearing at Warden Croft. Your last attempt worked
+on the warden: its sight went from 100 to 50."*, and the warden's own act reached the prisoner as *"Warden Croft
+works to restore the warden."* -- a body rendered in the sentences written for furniture, exactly as OPEN-VARIANT
+§68.7 first flagged for `expose` ("Voss works at the prisoner") before this game modelled a second person-only
+property to expose the same gap on `wear`/`restore` too.
+
+**Implementation.** `perception.ts` gains one small table, `personEffectPhrase` (`posture`/`sight` x
+`wear`/`restore`, reflexive when the actor targets its own body), each cell giving the three shapes its three call
+sites need: a gerund for the D1 opener ("covering Warden Croft's eyes"), an infinitive for the refusal fallback's
+`attemptPhrase` ("as an attempt to cover Warden Croft's eyes"), and a past-tense clause for the resolved outcome's
+own before/after sentence ("covered Warden Croft's eyes: his sight went from 100 to 50" -- the actor's exact
+numbers are kept, because the actor still learns the number it moved; only the words around it change).
+`personEffectPhraseFor` gates all three on the ruling actually being a wear/restore on a principal's own declared
+`posture`/`sight`, returning `null` for every other case so `SET_ABOUT_PHRASE`, `attemptPhrase` and the resolved
+branch all fall back to their unchanged furniture wording with one `?? ...` each. `posture` never takes a
+possessive (the person as a whole is the direct object: "put Voss on the floor," never "put Voss's posture on the
+floor"); `sight` does ("covering Croft's eyes" / "clearing his eyes"), using the target's own name for `wear` and
+its own declared pronoun (#34's `pronounsFor`) for `restore`, matching the two worked examples this issue's brief
+gave verbatim. `loop.ts`'s `describeAttempt` gets its own small table, `personAttemptPhrase`, to the same shape but
+strictly an ATTEMPT ("Mara Voss works to cover Warden Croft's eyes") -- no number, no property name, no outcome,
+D1/R1's own invariant -- built separately from `perception.ts`'s table rather than sharing it, because
+`describeAttempt`'s contract (attempt only) and `perception.ts`'s three sites (which also carry the actor's exact
+numbers) differ enough that one shared table would need a flag neither side otherwise wants. `describeAttempt`'s
+own `ruling` parameter widens to accept an optional `property` (`Pick<..> & { property?: ... }`, never required)
+so every existing call site that never had a property to give (`precedentTextFor`'s own ledger keys, the
+world-elaboration acquire path) keeps compiling unchanged.
+
+**Self-target.** A wear/restore where the actor targets its own body (D5's own posture case, a person dropping to
+the floor) renders reflexively -- "putting yourself on the floor," "clearing your eyes," "getting back up" -- never
+the actor's own name in the second person, and `describeAttempt`'s own reflexive case (a bystander's third-person
+view of the same act) uses the actor's own declared reflexive pronoun ("works to put himself on the floor"),
+exactly the device #34's D4' block case already established.
+
+**Batch boundary, alongside §81's.** This changes what both minds read in an ordinary wear/restore's own outcome
+and refusal text, and what the OTHER principal perceives of it -- no arm, for the same reason §81 has none: there
+is no sensible "wrong" wording worth keeping byte-identical to.
+
+**Pin.** `perception.test.ts` adds a table exhaustive over `posture`/`sight` x `wear`/`restore`, self- and
+other-target, run through the real half-round pipeline (`runOpenHalfRound`) with the resource preset to a known
+starting value where a direction needs one (`restore` never has anything to change at the property's own max), so
+every expected before/after number is exact -- plus one refusal-fallback case, forcing `applicable: false` after a
+real ruling to reach `attemptPhrase`'s own person branch. `attemptNotOutcome.test.ts` adds `describeAttempt`'s own
+exhaustive table (other-target and reflexive, both properties, both directions) and one more row in the SCENARIOS
+invariant this file already enforces -- a person-targeted `wear` on `sight`, landed and refused, relaying the
+identical sentence -- extending D1's own structural pin to the case this issue found broken.

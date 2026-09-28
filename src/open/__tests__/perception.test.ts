@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { scriptedMind } from "mind-seam";
-import type { ReaderTransport } from "run-dmcp";
+import { getResource, type ReaderTransport } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, declaredPropertyKeys, type OpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
@@ -816,5 +816,121 @@ describe("a refusal states the why (OPUS-FIRST-DESIGN.md §3.4)", () => {
     const openWorld = buildOpenWorld();
     const result = await half(openWorld, "prisoner", { intent: "I bend the bar with my bare hands." }, [ruling({ ...BAR_WEAR, intentQuote: "bend the bar", descQuote: "made of butter" })]);
     expect(renderOwnOutcome(result)).not.toMatch(/\d/);
+  });
+});
+
+/**
+ * The-prisoner#30: a person's own properties (posture, sight) used to render in object vocabulary --
+ * "You set about wearing at Warden Croft. Your last attempt worked on the warden: its sight went from
+ * 100 to 50." Person-shaped sentences, authored once per (effect, property) on a principal target, at
+ * the three sites `renderOwnOutcome` builds from: the D1 opener (`SET_ABOUT_PHRASE`), the refusal
+ * fallback (`attemptPhrase`), and the resolved outcome's own before/after sentence -- exhaustive over
+ * `posture`/`sight` x `wear`/`restore`, self-target (reflexive) and other-target, using #34's own
+ * declared pronoun set.
+ */
+describe("the-prisoner#30: a person's own properties render in person vocabulary, not furniture's", () => {
+  afterEach(() => destroyTestDb());
+
+  function setResourceTo(w: OpenWorld, resourceId: string, value: number): void {
+    const current = getResource(resourceId)?.value ?? 0;
+    const r = buildOpenResolver();
+    if (value < current) r.resolve({ gameId: w.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId, amount: current - value, min: 0, max: 100, description: "set" } });
+    if (value > current) r.resolve({ gameId: w.base.gameId, mechanic: "OPEN_RESTORE", parameters: { resourceId, amount: value - current, min: 0, max: 100, description: "set" } });
+  }
+
+  async function act(w: OpenWorld, principal: Principal, target: "prisoner" | "warden", effect: "wear" | "restore", property: "posture" | "sight", intentQuote: string, descQuote: string, magnitude = "moderate"): Promise<OpenHalfRoundResult> {
+    const t = principal === "warden" ? w.base.clock.wardenT(1) : w.base.clock.prisonerT(1);
+    return runOpenHalfRound({
+      openWorld: w,
+      resolver: buildOpenResolver(),
+      referee: createReferee([ruling({ target, effect, property, magnitude, intentQuote, descQuote })], { propertiesOf: (id) => declaredPropertyKeys(w, id) }),
+      principal,
+      roundN: 1,
+      t,
+      context: buildOpenContext(w, principal, t, 1, undefined, undefined, "modelled"),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: intentQuote }),
+      presenceMode: "modelled",
+    });
+  }
+
+  it("wear/sight on the OTHER: 'covering Warden Croft's eyes'", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    // sight starts at 100: "His eyes are on the cell." is the citable band text.
+    const result = await act(w, "prisoner", "warden", "wear", "sight", "throw the blanket over Croft's head", "eyes are on the cell");
+    const text = renderOwnOutcome(result) as string;
+    // sight starts at 100; a moderate wear (50) leaves it at 50.
+    expect(text).toBe(`You set about covering ${WARDEN_NAME}'s eyes. Your last attempt covered ${WARDEN_NAME}'s eyes: his sight went from 100 to 50.`);
+  });
+
+  it("restore/sight on the OTHER: 'clearing his eyes'", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setResourceTo(w, w.resourceIdFor["warden.sight"], 40);
+    // sight at 40 (<=60): "Something covers his head; he cannot see." is the citable band text.
+    const result = await act(w, "prisoner", "warden", "restore", "sight", "lift the blanket off Croft's head", "covers his head");
+    const text = renderOwnOutcome(result) as string;
+    // a moderate restore on sight is +10 (D12's own asymmetric table).
+    expect(text).toBe(`You set about clearing his eyes. Your last attempt cleared his eyes: his sight went from 40 to 50.`);
+  });
+
+  it("restore/sight on ONESELF: 'clearing your eyes', never a third-person pronoun", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setResourceTo(w, w.resourceIdFor["warden.sight"], 40);
+    const result = await act(w, "warden", "warden", "restore", "sight", "wipe my own eyes clear", "covers his head");
+    const text = renderOwnOutcome(result) as string;
+    expect(text).toBe(`You set about clearing your eyes. Your last attempt cleared your eyes: your sight went from 40 to 50.`);
+    expect(text).not.toMatch(/\bhis\b|\bher\b/i);
+  });
+
+  it("wear/posture on the OTHER: 'putting Warden Croft on the floor'", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    // posture starts at 100: "He is on his feet." is the citable band text.
+    const result = await act(w, "prisoner", "warden", "wear", "posture", "shove Croft down", "on his feet", "substantial");
+    const text = renderOwnOutcome(result) as string;
+    // posture starts at 100 (standing); a substantial wear (100) leaves it at 0.
+    expect(text).toBe(`You set about putting ${WARDEN_NAME} on the floor. Your last attempt put ${WARDEN_NAME} on the floor: his posture went from 100 to 0.`);
+  });
+
+  it("restore/posture on the OTHER: 'getting Warden Croft back up'", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setResourceTo(w, w.resourceIdFor["warden.posture"], 0);
+    // posture at 0: "He is lying on the floor." is the citable band text.
+    const result = await act(w, "prisoner", "warden", "restore", "posture", "haul Croft to his feet", "lying on the floor", "substantial");
+    const text = renderOwnOutcome(result) as string;
+    expect(text).toBe(`You set about getting ${WARDEN_NAME} back up. Your last attempt got ${WARDEN_NAME} back up: his posture went from 0 to 100.`);
+  });
+
+  it("restore/posture on ONESELF: 'getting back up', never naming yourself in the third person", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setResourceTo(w, w.resourceIdFor["prisoner.posture"], 30);
+    // posture at 30 (>25, <=75): "She is crouched low." is the citable band text.
+    const result = await act(w, "prisoner", "prisoner", "restore", "posture", "get back up off the floor", "crouched low");
+    const text = renderOwnOutcome(result) as string;
+    expect(text).toBe(`You set about getting back up. Your last attempt got back up: your posture went from 30 to 80.`);
+    expect(text).not.toContain(PRISONER_NAME);
+  });
+
+  it("wear/posture on ONESELF: 'putting yourself on the floor'", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    // posture starts at 100: "She is on her feet." is the citable band text.
+    const result = await act(w, "prisoner", "prisoner", "wear", "posture", "drop to the floor and clutch my chest", "on her feet", "substantial");
+    const text = renderOwnOutcome(result) as string;
+    expect(text).toBe(`You set about putting yourself on the floor. Your last attempt put yourself on the floor: your posture went from 100 to 0.`);
+  });
+
+  it("a refused wear/sight on the OTHER still opens with the person-shaped attempt phrase in the refusal fallback", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    const result = await act(w, "prisoner", "warden", "wear", "sight", "stare menacingly at Croft", "eyes are on the cell");
+    // Not grounded in the actor's own words -- refused, and the fallback's attemptPhrase renders it.
+    const unverified: OpenHalfRoundResult = { ...result, ruling: { ...(result.ruling as NonNullable<OpenHalfRoundResult["ruling"]>), applicable: false }, plan: null, outcome: null, perceptionForOther: null, refusalError: null };
+    const text = renderOwnOutcome(unverified) as string;
+    expect(text).toContain(`as an attempt to cover ${WARDEN_NAME}'s eyes`);
   });
 });
