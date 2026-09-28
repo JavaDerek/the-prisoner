@@ -47,8 +47,15 @@ import type { ProseBlock, ProseBlockKind, ProseItem } from "./proseView.js";
  *  the fog it puts a player in is exactly as well served by the SAME
  *  held-back notice every other standing block already uses, since
  *  `knowledge` is a LIST block (`proseView.ts`): a belief that actually
- *  moves still shows, under its own lead line, on the very turn it does. */
-const STANDING: ReadonlySet<ProseBlockKind> = new Set<ProseBlockKind>(["conditions", "identity", "scene", "rules", "stakes", "knowledge"]);
+ *  moves still shows, under its own lead line, on the very turn it does.
+ *
+ *  The-prisoner#32 adds `absence`: D5's absence-cadence rule line never
+ *  changes either, and before this it rode along inside `news` (which is
+ *  NOT standing) beside the presence line, which does change -- so it was
+ *  re-shown as anonymous news every single turn
+ *  (`checkpoints/2026-09-28T01-09-16-356Z.md`, nine times). Same fix as
+ *  `stakes`: its own block, held back here once shown. */
+const STANDING: ReadonlySet<ProseBlockKind> = new Set<ProseBlockKind>(["conditions", "identity", "scene", "rules", "stakes", "knowledge", "absence"]);
 
 /** How a held-back block is named in the notice. Short, and in the player's
  *  own terms rather than this codebase's block kinds. */
@@ -61,6 +68,7 @@ const BLOCK_NAMES: Record<ProseBlockKind, string> = {
   notesAndPlan: "your notes and plan",
   knowledge: "what you know",
   stakes: "what is at stake",
+  absence: "the warden's absence rule",
 };
 
 /** Exported so the test names this line explicitly rather than matching it

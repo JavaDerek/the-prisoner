@@ -6966,3 +6966,43 @@ saw attempted, as D1 relays it. Two pins in `attemptNotOutcome.test.ts`: a refus
 when a later repeat resolves (refused +0; resolved +10 +30). `precedent.ts`'s header says it is the owner's decision.
 
 The P3 and P5 drafts under `checkpoints/2026-09-28-*` say what these change for them; neither is pre-registered yet.
+
+## 81. The play view's own boilerplate: the absence-cadence rule line is STANDING now (the-prisoner#32, 2026-09-27/28)
+
+`checkpoints/2026-09-28T01-09-16-356Z.md` (the human playtest under the 2026-09-27 defaults) showed D5's
+absence-cadence rule line -- "Warden Croft is out of the cell on round 4, and every fourth round after; while out,
+nothing Voss does is seen or heard." (`briefing.ts`'s `absenceRuleLine`) -- as anonymous news nine times, once
+every single turn. `buildOpenBriefing` puts it right beside the presence line ("Croft is here with you." /
+"Croft is not here right now."), which DOES change every turn, so the two landed in the same place; `parseBriefing`
+had no template for the absence line, so it fell into `other` and rode along inside the `news` block, which is
+never STANDING (§59, §80's own R7 finding about the `stakes` line -- this is the same bug with a different line).
+It is a rule that never changes for the whole game, exactly the shape D10-1 built the `stakes` block to hold.
+
+**Fix, on the D10-1 pattern exactly:** `proseView.ts`'s `parseBriefing` now recognises the absence line by an exact
+match against `briefing.ts`'s own `absenceRuleLine()` -- this repository's own literal template, never a guess at
+what the line means, the same discipline the stakes recognition already uses -- and gives it its own block
+(`ProseBlockKind` `"absence"`). `deltaView.ts` adds `"absence"` to its `STANDING` set (shown once, held back on a
+later turn while unchanged, named in the held-back notice) and `humanSeat.ts`'s `PLAY_BLOCK_POLICY` maps it to the
+same target as `"rules"` rather than a fifth command -- the `rules` no-turn command now reads every block kind
+mapped to `"rules"`, not only the `rules` kind by name, so a future kind mapped there needs no second change to the
+command handler. Under `play`, `absence` is therefore never shown automatically (like `rules`, `conditions` and
+`identity`), reachable the same keystroke away; under `prose` and the `narrated` fallback it goes through the same
+delta every other standing block does. `PLAY_BLOCK_POLICY` stays a `Record` over every `ProseBlockKind`, so `tsc`
+forced this decision the moment the new kind was added -- the same guard `deltaView.ts`'s own `BLOCK_NAMES` gave it
+a second time.
+
+**D13 checked for the same bug, and does not have it.** D13's laying-hands rule line ("An act on Warden Croft's own
+body gives grounds at once...") is one of `mind.ts`'s `stateBasedRules`, folded into the `rules` block directly --
+it is never rendered through `buildOpenBriefing`/`parseBriefing` at all, so it was already STANDING before this
+task, the same way every other state-based rule sentence already is. `proseView.test.ts` pins this finding rather
+than leaving it a claim in a doc.
+
+**Seat only, no batch impact.** Nothing here touches `buildOpenBriefing`, the model's own prompt, or the referee:
+`renderSeatSituation` (the raw view, byte-identical to the model's prompt) is untouched, and `proseView.test.ts`
+pins that it still carries the absence line exactly where `buildOpenBriefing` put it. This needs no arm and draws
+no new batch boundary -- a model never sees a different prompt because of it, and every existing model batch and
+transcript stays exactly as comparable as before. Pinned by new tests in `proseView.test.ts` (the block is pulled
+out of `news`, still recognised as news when it is absent, still carries in the full prose join, and the raw-view
+pin above), `deltaView.test.ts` (shown once then held back, named in the notice, shown again if the words ever
+change), and `humanSeat.test.ts` (never shown automatically under `play`, surfaced by `rules` alongside the
+mechanics paragraph, and shown-once-then-held-back under `prose`).

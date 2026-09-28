@@ -18,6 +18,7 @@ import { CONDITION_LIST_OPENING } from "../conditionList.js";
 import type { Narrator } from "../narrator.js";
 import { openConditions } from "../conditions.js";
 import { PRISONER_NAME, WARDEN_NAME, prisonerStakes } from "../../scenario.js";
+import { absenceRuleLine } from "../briefing.js";
 import type { RefereeRuling } from "../referee.js";
 
 const CONTEXT: OpenPrincipalContext = {
@@ -795,6 +796,27 @@ describe("the play view", () => {
     expect(asked.length).toBe(2);
   });
 
+  // The-prisoner#32: the checkpoint transcript this fixes showed D5's
+  // absence-cadence rule line as anonymous news nine times running. It is
+  // STANDING now (`proseView.ts`'s `absence` block), mapped to the same
+  // `PLAY_BLOCK_POLICY` target as `rules` -- never shown automatically on a
+  // turn, reachable the same keystroke away.
+  it('never shows the absence rule automatically on a turn, and "rules" surfaces it alongside the mechanics paragraph', async () => {
+    const contextWithAbsence: OpenPrincipalContext = {
+      ...PLAY_CONTEXT,
+      briefing: [PLAY_CONTEXT.briefing, `${WARDEN_NAME} is here with you.`, absenceRuleLine()].join("\n"),
+    };
+    const onTurn = seat(["I test the bar."], { view: "play", conditions: openConditions() });
+    expect(await onTurn.mind.consider(contextWithAbsence)).toEqual({ intent: "I test the bar." });
+    expect(dewrap(onTurn.written.join("\n"))).not.toContain(absenceRuleLine());
+
+    const onRules = seat(["rules", "I test the bar."], { view: "play", conditions: openConditions() });
+    expect(await onRules.mind.consider(contextWithAbsence)).toEqual({ intent: "I test the bar." });
+    const shown = dewrap(onRules.written.join("\n"));
+    expect(shown).toContain(RULES_PARAGRAPH_LEAD);
+    expect(shown).toContain(absenceRuleLine());
+  });
+
   it('"me" prints who you are and what you want, and costs no turn', async () => {
     const { mind, written, asked } = seat(["me", "I test the bar."], { view: "play", conditions: openConditions() });
     expect(await mind.consider(PLAY_CONTEXT)).toEqual({ intent: "I test the bar." });
@@ -837,6 +859,22 @@ describe("the play view", () => {
     const shown = dewrap(written.join("\n"));
     expect(shown).toContain(CONDITION_LIST_OPENING);
     expect(shown).toContain(RULES_PARAGRAPH_LEAD);
+  });
+
+  // The-prisoner#32: under `prose` (and the `narrated` fallback), the absence
+  // rule now goes through the same delta every other standing block does --
+  // shown the first turn it appears, held back once it repeats unchanged.
+  it("shows the absence rule once under `prose`, then holds it back the next turn while it is unchanged (the-prisoner#32)", async () => {
+    const withAbsence = (context: OpenPrincipalContext): OpenPrincipalContext => ({
+      ...context,
+      briefing: [context.briefing, `${WARDEN_NAME} is here with you.`, absenceRuleLine()].join("\n"),
+    });
+    const { mind, written } = seat(["I test the bar.", "I test it again."], { view: "prose", conditions: openConditions() });
+    await mind.consider(withAbsence(PLAY_CONTEXT));
+    expect(dewrap(written.join("\n"))).toContain(absenceRuleLine());
+    written.length = 0;
+    await mind.consider(withAbsence(LATER_CONTEXT));
+    expect(dewrap(written.join("\n"))).not.toContain(absenceRuleLine());
   });
 });
 
