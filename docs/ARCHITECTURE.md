@@ -428,6 +428,7 @@ column below is what a real game gets.
 | `PRISONER_SCENARIO_MODEL` | the referee model | Enjoyable mode only: which model generates and honesty-reviews descriptions. |
 | `PRISONER_SCENARIO_TEMPERATURE` | `0.9` | Enjoyable mode only: generation temperature. The honesty review always runs at 0. |
 | `PRISONER_SCENARIO_FILE` | unset | Enjoyable mode only: a path to a `.scenario.json` sidecar to replay exactly, with no generation call. Needs `PRISONER_MODE=enjoyable`. |
+| `PRISONER_OPEN_RULES` | `fixed` under `benchmark`, `engine` under `enjoyable` | `fixed` \| `engine` (the-prisoner#5, `src/open/openRulesMode.ts`). Open variant only. `engine`: the referee rules in run-dmcp's own five change kinds (write/set/transfer/create/destroy, plus `reveal`), mapped by code onto this game's existing mechanics (`src/open/engineRules.ts`). Refuses `engine` under `PRISONER_MODE=benchmark`. Printed in every open-variant transcript header, right after `Mode:`. See OPEN-VARIANT.md §84. |
 | `PRISONER_THINK_TIMEOUT_MS` | unset (mind-seam's 12 s; the strategy step's own 300 s) | Mind calls. |
 | `PRISONER_REFEREE_TIMEOUT_MS` | `PRISONER_THINK_TIMEOUT_MS`, else the transport's 12 s | Referee calls. |
 | `PRISONER_REFEREE_THINKING` / `PRISONER_WITS_THINKING` | `off` | `on` \| `off`, per role. |
@@ -462,7 +463,7 @@ restores the 2026-09-26 game.
 | `PRISONER_DERIVE_WORDING` | `baseline` | `sharpened` | §51 |
 | `PRISONER_INSTRUMENT` | `off` | `checked` | §51 |
 | `PRISONER_WINDOW` | `open` | `welded` | §64.3 |
-| `PRISONER_ELABORATE` | `off` | `property` | WORLD-ELABORATION-DESIGN §4 |
+| `PRISONER_ELABORATE` | `off`, in EVERY mode including `PRISONER_MODE=enjoyable` | `property` | WORLD-ELABORATION-DESIGN §4; §66.5's sweep was stopped with the elasticity question undelivered, so the-prisoner#5 left this default untouched -- OPEN-VARIANT.md §84 |
 | `PRISONER_ELABORATE_BAND` | unset (the built table) | `trivial`, `hard`, `ruinous`, `impossible` | the §4.8 sweep only |
 | `PRISONER_PRECEDENT_LEDGER` | unset | a JSON file path (created if absent) | §11 |
 | `PRISONER_PRECEDENT_PRICE` | `flat` | `stale` | §42 |

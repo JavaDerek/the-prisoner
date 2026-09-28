@@ -88,6 +88,7 @@ import { createNarrator, formatViolationTally } from "./open/narrator.js";
 import { createNarrationAuditor, type SentenceVerdict } from "./open/narrationAudit.js";
 import { resolveRefereeThinking, resolveWitsThinking, thinkingHeaderLine, withReasoningStrength, REASONING_FIELD } from "./open/thinking.js";
 import { readPrisonerMode, prisonerModeHeaderLine, resolveScenarioModel, readScenarioTemperature, readScenarioFile } from "./open/scenarioMode.js";
+import { readOpenRulesMode, openRulesHeaderLine } from "./open/openRulesMode.js";
 import { generateScenario, descriptionOverridesFrom, scenarioObjectFacts, type GeneratedScenario } from "./open/scenarioGen.js";
 import { createScenarioGenerationTransport } from "./open/scenarioTransport.js";
 import { readStrategyMode, chooseStrategy, strategyHeaderBlock, revisionWouldFireAt, revisionHeaderLine, type ReasoningStrength, type Strategy } from "./open/strategy.js";
@@ -190,6 +191,16 @@ const REFEREE_TIMEOUT_MS = process.env.PRISONER_REFEREE_TIMEOUT_MS ? Number(proc
  *  `src/open/scenarioGen.ts`). Open variant only -- checked below, after
  *  every mode is read. */
 const MODE = readPrisonerMode(process.env.PRISONER_MODE);
+/** the-prisoner#5: `fixed` (the eleven named effects, unchanged) or `engine`
+ *  (the referee rules in run-dmcp's own change kinds, mapped by code onto
+ *  this game's existing mechanics -- `src/open/engineRules.ts`,
+ *  docs/OPEN-VARIANT.md's new section). Defaults to `engine` under
+ *  `PRISONER_MODE=enjoyable` and refuses `engine` under `benchmark`, the
+ *  same coupling `PRISONER_SCENARIO_FILE` already has to `MODE` -- open-world
+ *  RULES are one more thing `enjoyable` unlocks (§83.8), never a second mode
+ *  variable. Checked here, at load, before a database or a model is ever
+ *  touched, same as every other mode guard. */
+const OPEN_RULES = readOpenRulesMode(process.env.PRISONER_OPEN_RULES, MODE);
 /** the-prisoner#3, enjoyable mode only: which model generates and reviews
  *  descriptions, defaulting to the referee's own (`scenarioMode.ts`'s own
  *  comment: obedience over style is exactly what a generator needs too). */
@@ -958,6 +969,14 @@ async function mainOpen(): Promise<void> {
       oneAct: ONE_ACT,
       blockMode: BLOCK,
       personInstrumentMode: PERSON_INSTRUMENT,
+      // the-prisoner#5: `openWorld.exits` is keyed by the way-out object
+      // itself and each names its own part (`world.ts`) -- the identical
+      // map `planEffect`'s own `open`/`close`/`leave` branches already read,
+      // reused here so `translateEngineEffect` (`engineRules.ts`) routes a
+      // `write` on a way out's passage, or a `set` on one, through the SAME
+      // gated mechanic those branches always used.
+      openRulesMode: OPEN_RULES,
+      isExit: (objectId) => !!openWorld.exits[objectId] || Object.values(openWorld.exits).some((exit) => exit.part === objectId),
     }
   );
   // WORLD-ELABORATION-DESIGN.md §4.2, §9 row P1b: a second, separate referee
@@ -1182,6 +1201,10 @@ async function mainOpen(): Promise<void> {
   // header, first, so a reader (and `batchMeasures.ts`'s own guard) can never
   // mistake this transcript for the other kind.
   transcript.push(prisonerModeHeaderLine(MODE));
+  // the-prisoner#5: the same discipline, right after `Mode:` -- a reader (and
+  // a future `batchMeasures.ts`-style guard) must be able to tell a fixed-
+  // vocabulary transcript from an engine-rules one without reading the body.
+  transcript.push(openRulesHeaderLine(OPEN_RULES));
   transcript.push("");
   transcript.push("## Scenario");
   transcript.push("");
