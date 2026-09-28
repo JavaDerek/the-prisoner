@@ -6966,3 +6966,73 @@ saw attempted, as D1 relays it. Two pins in `attemptNotOutcome.test.ts`: a refus
 when a later repeat resolves (refused +0; resolved +10 +30). `precedent.ts`'s header says it is the owner's decision.
 
 The P3 and P5 drafts under `checkpoints/2026-09-28-*` say what these change for them; neither is pre-registered yet.
+
+## 81. `PRISONER_CONDITION_ORDER` built, the batch scaffolded, neither run (2026-09-27, the-prisoner#23)
+
+§50.7's own last paragraph named a confound running through every one of its twenty-two door-arm games: condition
+1 has always been the window, and she plans the window from round 1 in all twenty-two, whatever the door costs.
+The route named FIRST may be what she plans, not the door's price -- filed as issue #23 rather than built at the
+time, because `conditionList.ts` is shared infrastructure and the list's CONTENT is where D1-D5's decisions live
+(§40). This section is the build half, done under the owner's overnight delegation; the batch that would answer
+the question is scaffolded, not run (§81.2).
+
+### 81.1 The arm
+
+`PRISONER_CONDITION_ORDER=window-first|door-first` (`src/open/conditions.ts`), default `window-first`,
+byte-identical to every batch ever recorded -- her list has always named the window first. `door-first` states
+her door condition before her window condition and changes nothing else: same claims, same thresholds, same
+`(for you)`/`(for <name>)` attributions, only the position of those two conditions swapped. `openConditions`'s
+own array is built from two small blocks (`windowConditions`, `doorConditions`) and the arm decides only which
+comes first; every catch condition, the "a way out stands open" unlock, and D15's key-ring conditions keep their
+existing position untouched. It has no effect unless BOTH of her own route conditions exist -- the door `stated`
+and the window not `welded` (§64.3) -- because with only one of them, that one is already first either way.
+
+**One list, not two**, decided rather than merely defaulted: `src/checkpoint.ts` calls `openConditions()` once
+per side (the prisoner's mind, the warden's mind under `PRISONER_CONDITIONS=both`, and the human seat's own
+render) with the SAME options every time, so the array -- and therefore its order -- is identical for both
+principals. `conditionList.ts`'s own generic `renderConditionList` only marks whose condition each one is from
+the reader's side (§34.3); it does not, and under this arm still does not, take an order of its own. A
+prisoner-only reorder would need a second construction path per principal, which is exactly the divergence
+`conditionList.ts` exists to prevent (it is shared with `brink-workshop`'s rival minds, D4) -- so `door-first`
+reorders both chairs' lists identically. The issue's own question is about her route, and the warden's copy of
+the list carries no unlock for him to act on differently, so this is not read as broadening the experiment.
+
+Tested first (`src/open/__tests__/conditions.test.ts`): `readConditionOrder` defaults and rejects an unrecognised
+value; `window-first` (unset) is byte-identical to today under `door: stated, doorPrice: margin`; `door-first`
+swaps exactly the first two conditions and leaves the rest -- catches, key conditions -- untouched, asserted by
+sorting both arms' conditions into the same order and comparing them equal (the multiset claim the issue asked
+for); `door-first` is a no-op when the door is unstated or the window is welded, because there is only one block
+to place; and the rendered text reads the door's line as `CONDITION 1` for both principals under `door-first`,
+each still from its own side. Named in the transcript header (`Condition order: WINDOW-FIRST` /
+`Condition order: DOOR-FIRST`, beside `Door:` and `Door price:`) and in `docs/ARCHITECTURE.md`'s configuration
+reference.
+
+### 81.2 The batch, scaffolded not run
+
+`checkpoints/2026-09-28-condition-order/` (`run-batch.sh`, `env-check.mts`, `scoreboard.mts`, `PREDICTION.md`,
+`README.md`), modelled on `2026-09-28-contest-batch/`: arm A `window-first` (control), arm B `door-first`, N=4
+each, alternating A1 B1 A2 B2 A3 B3 A4 B4 on one serial driver, from a pinned commit, everything else at today's
+default (door stated, priced at margin; all-Muse; `PRISONER_SKIP_VOICE=1`, since the measures are process
+measures and this is reasoning-only work, CLAUDE.md; ten rounds). D15's key ring is counted as a third door route
+(`door`, `lock`, `key_ring` vs `window`, `bar`), since a held ring now opens the door regardless of the lock and
+§50.7's own corpus predates that gate entirely. `PREDICTION.md` states the issue's own test in its own words:
+order decides if door-first moves her first route ruling to the door in at least 3 of 4 and window-first stays at
+most 1 of 4; price decides after all if both arms stay at most 1 of 4. Per §46.6's own caution about a screen at
+this N -- a control cell there moved from 3/24 to 9/24 with nothing changed between two runs -- anything between
+those two readings is reported as neither confirmed nor refuted, not stretched into a verdict the N cannot carry.
+The scoreboard prints, per game, the round of her first ruling on each route and the count on each, over the
+referee's own closed `target` key only (never English); her round-1 plan is printed VERBATIM for a human to
+read, deliberately not classified in code -- a plan's route is a judgement about prose the referee never ruled
+on, and the issue's own "score the plan, not the intent" lesson (§45, §46.2) is honoured by showing it, not by
+writing a second, unaudited classifier. `run-batch.sh --dry-run` and `scoreboard.mts --dry-run` (against
+`checkpoints/2026-09-28T01-09-16-356Z.md` as a parser fixture, a human-seat game that is not this batch's arm on
+purpose) both exercise the scaffolding without a network call; the fixture confirms the parser finds her first
+door-route ruling (round 7, via `key_ring`) and her first window-route ruling (round 1, via `bar`) correctly.
+
+**Named honestly, not run**: this batch's world is not §50.5/§50.7's -- `block`, modelled presence, the absence
+cadence, `PRISONER_ONE_ACT=first` and `sight` did not exist when those 22 games ran, and `block` in particular
+stays ON here (today's default) rather than being controlled for, so a warden who blocks the window could
+suppress a route ruling on it independently of order. `PREDICTION.md` says so under "What this is not," per
+§80.3's own rule that anything measured after 2026-09-27 against an earlier arm is a near-replication and says
+so. The live command is `cd checkpoints/2026-09-28-condition-order && ./run-batch.sh` (see that directory's
+README for preconditions); nobody has run it.
