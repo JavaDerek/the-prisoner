@@ -1,0 +1,66 @@
+{"type":"meta","probe":"P7 request order","started":"2026-09-28T06:43:33.890Z","revision":"`c2118e8` (clean)","arms":"presence=modelled absence=cadence conditions=both door=stated doorPrice=margin window=open block=on personInstrument=off oneAct=first instrument=off deriveWording=baseline elision=on containerClause=on deriveRepeat=off refereeThinking=off witsThinking=off","omit":[{"chair":"prisoner","round":2}],"cells":[{"name":"intent-first","overrides":{}},{"name":"intent-last","overrides":{}}],"n":1,"models":["endpoint http://doris:11434/v1; referee muse-glimmer:30b; warden muse-glimmer:30b/muse-glimmer:30b; prisoner muse-glimmer:30b/muse-glimmer:30b","thinking referee=off wits=off; timeouts think=300000 referee=300000","/api/ps at start: muse-glimmer:30b"]}
+[2026-09-28T06:43:33.891Z] INFO  [db] Using database path from DMCP_DB_PATH {"dbPath":":memory:"}
+[2026-09-28T06:43:33.893Z] INFO  [db] Database connection established {"path":":memory:"}
+[1/40] intent-first:r1-warden:1 -> bar/reveal/integrity applicable=true (34.563s)
+[2/40] intent-first:r1-prisoner:1 -> blanket/take/none applicable=true (33.662s)
+[3/40] intent-first:r2-warden:1 -> lock/reveal/integrity applicable=true (36.475s)
+[4/40] intent-first:r2-prisoner:1 -> warden/wear/sight applicable=true (41.195s)
+[5/40] intent-first:r3-warden:1 -> bar/reveal/integrity applicable=true (30.612s)
+[6/40] intent-first:r3-prisoner:1 -> key_ring/take/none applicable=true (35.709s)
+[7/40] intent-first:r4-warden:1 -> key_ring/conceal/none applicable=false (37.645s)
+[8/40] intent-first:r4-prisoner:1 -> window/open/passage applicable=true (38.126s)
+[9/40] intent-first:r5-warden:1 -> spoon/reveal/edge applicable=true (41.217s)
+[10/40] intent-first:r5-prisoner:1 -> window/open/passage applicable=true (31.373s)
+[11/40] intent-first:r6-warden:1 -> loose_tile/reveal/concealment applicable=true (41.09s)
+[12/40] intent-first:r6-prisoner:1 -> window/open/passage applicable=true (36.795s)
+[13/40] intent-first:r7-warden:1 -> loose_tile/reveal/concealment applicable=true first-act="Closely examine the loose_tile to check its concealment" (63.916s)
+[14/40] intent-first:r7-prisoner:1 -> window/open/passage applicable=true (44.967s)
+[15/40] intent-first:r8-warden:1 -> bar/reveal/integrity applicable=true (35.52s)
+[16/40] intent-first:r8-prisoner:1 -> bar/open/integrity applicable=true first-act="Pull the bar out of the window" (71.554s)
+[17/40] intent-first:r9-warden:1 -> bar/reveal/integrity applicable=true (38.493s)
+[18/40] intent-first:r9-prisoner:1 -> window/open/passage applicable=true (30.384s)
+[19/40] intent-first:r10-warden:1 -> bar/reveal/integrity applicable=true (36.541s)
+[20/40] intent-first:r10-prisoner:1 -> window/leave/none applicable=true (37.242s)
+[21/40] intent-last:r1-warden:1 -> bar/reveal/integrity applicable=true (25.411s)
+[22/40] intent-last:r1-prisoner:1 -> blanket/take/none applicable=true (27.641s)
+[23/40] intent-last:r2-warden:1 -> lock/reveal/integrity applicable=true (36.473s)
+[24/40] intent-last:r2-prisoner:1 -> warden/wear/sight applicable=true (32.683s)
+[25/40] intent-last:r3-warden:1 -> bar/reveal/integrity applicable=true (21.795s)
+[26/40] intent-last:r3-prisoner:1 -> key_ring/take/none applicable=true (36.951s)
+[27/40] intent-last:r4-warden:1 -> key_ring/conceal/none applicable=false (50.944s)
+[28/40] intent-last:r4-prisoner:1 -> bar/open/integrity applicable=true (35.61s)
+[29/40] intent-last:r5-warden:1 -> spoon/reveal/edge applicable=true (39.219s)
+[30/40] intent-last:r5-prisoner:1 -> bar/open/passage applicable=false (34.675s)
+[31/40] intent-last:r6-warden:1 -> loose_tile/reveal/concealment applicable=true (30.923s)
+[32/40] intent-last:r6-prisoner:1 -> bar/open/integrity applicable=true (36.66s)
+[33/40] intent-last:r7-warden:1 -> loose_tile/reveal/concealment applicable=true first-act="Closely examine the loose_tile to check its concealment" (58.735s)
+[34/40] intent-last:r7-prisoner:1 -> window/open/passage applicable=true (31.615s)
+[35/40] intent-last:r8-warden:1 -> bar/reveal/integrity applicable=true (26.614s)
+[36/40] intent-last:r8-prisoner:1 -> bar/open/integrity applicable=true first-act="Pull the bar out of the window" (63.251s)
+[37/40] intent-last:r9-warden:1 -> bar/reveal/integrity applicable=true (23.175s)
+[38/40] intent-last:r9-prisoner:1 -> bar/open/integrity applicable=true (37.562s)
+[39/40] intent-last:r10-warden:1 -> bar/reveal/integrity applicable=true (20.75s)
+[40/40] intent-last:r10-prisoner:1 -> window/leave/passage applicable=true (26.912s)
+## P7 -- the request order (one ruling per half-round per arm; time = the six-question call's)
+
+| id | prediction | so far | projected at N | verdict |
+|---|---|---|---|---|
+| 1 | intent-last takes at least 20% off the median ruling time | 20 pairs: 14.3% (median 31327 ms -> 26838.5 ms) | - | DEAD |
+| KILL | less than 10% off kills (at least 10% survives) | 20 pairs: 14.3% (median 31327 ms -> 26838.5 ms) | - | MET |
+| HOLD | rulings identical in both orders on all 20 (any difference: the order is a batch boundary and is held) | 10 of 20 | 10 of 20 | DEAD |
+
+**DEAD AT THIS POLL: 1, HOLD** -- announce it now and apply the stopping rule (the owner, 2026-09-21).
+
+Verdicts on the time rows are given only when all 20 pairs are in: a median is not projected.
+
+Differing rulings:
+- r2-prisoner: target warden->warden, effect wear->wear, property sight->sight, product none->none, magnitude moderate->slight, perceptibility visible->visible
+- r3-warden: target bar->bar, effect reveal->reveal, property integrity->integrity, product none->none, magnitude moderate->slight, perceptibility visible->visible
+- r4-prisoner: target window->bar, effect open->open, property passage->integrity, product none->none, magnitude moderate->moderate, perceptibility visible->visible
+- r5-warden: target spoon->spoon, effect reveal->reveal, property edge->edge, product none->none, magnitude moderate->slight, perceptibility visible->visible
+- r5-prisoner: target window->bar, effect open->open, property passage->passage, product none->none, magnitude moderate->moderate, perceptibility visible->visible
+- r6-prisoner: target window->bar, effect open->open, property passage->integrity, product none->none, magnitude moderate->moderate, perceptibility visible->audible
+- r7-prisoner: target window->window, effect open->open, property passage->passage, product none->none, magnitude slight->moderate, perceptibility visible->visible
+- r8-warden: target bar->bar, effect reveal->reveal, property integrity->integrity, product none->none, magnitude moderate->slight, perceptibility visible->visible
+- r9-prisoner: target window->bar, effect open->open, property passage->integrity, product none->none, magnitude moderate->moderate, perceptibility visible->visible
+- r10-prisoner: target window->window, effect leave->leave, property none->passage, product none->none, magnitude moderate->slight, perceptibility visible->visible
