@@ -78,7 +78,7 @@ describe("close refuses on a spent part (D11, RED-TEAM.md F3)", () => {
     expect(renderOwnOutcome(half)).toContain("Your last attempt shut the window.");
   });
 
-  it("a door under margin with the lock at its gate cannot be bolted -- by a warden who has lost the key ring", async () => {
+  it("a door under margin with the lock at its gate cannot be bolted -- even by a warden who has lost the key ring, the same as with it", async () => {
     const w = world("margin");
     set(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
     open(w, "door");
@@ -91,14 +91,14 @@ describe("close refuses on a spent part (D11, RED-TEAM.md F3)", () => {
     expect(renderOwnOutcome(half)).toContain("The door cannot be bolted: the lock will not hold.");
   });
 
-  it("D15: with the key ring on his belt, he bolts it whatever the lock", async () => {
+  it("D15, corrected 2026-09-27: the key ring lifts the OPEN gate only -- with it on his belt he still cannot bolt a lock at the gate", async () => {
     const w = world("margin");
     set(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
     open(w, "door");
     const half = await wardenCloses(w, "door");
-    expect(half.outcome?.result.shut).toBeUndefined();
-    expect(half.outcome?.result.withKey).toBe(true);
-    expect(getResource(w.exits.door.passageResourceId as string)?.value).toBe(0);
+    expect(half.outcome?.result).toMatchObject({ shut: false, partId: "lock" });
+    expect(half.outcome?.result.withKey).toBeUndefined();
+    expect(getResource(w.exits.door.passageResourceId as string)?.value).toBe(1);
   });
 
   it("a door under free (no gate) closes as today, whatever the lock", async () => {

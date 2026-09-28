@@ -351,9 +351,9 @@ describe("close refuses on a spent part (D11, RED-TEAM.md F3), played", () => {
     expect(game.endedAtRound).toBe(2);
   });
 
-  it("D15: with the ring on his belt he bolts the door she opened at lock 60 -- F3's loop, open to the key's holder", async () => {
-    // The owner's decision lifts the gate for the holder on close as well as open, so on the door (and only the
-    // door) the open-close exchange D11 closed is his again while he keeps the ring: her open lands, his bolt lands.
+  it("D15, corrected 2026-09-27: the ring lifts the OPEN gate only -- his bolt of the door she opened at lock 60 is refused, F3's loop stays closed", async () => {
+    // The owner's answer was "a held ring opens the door", not "bolts it": D11's close gate binds the key's holder
+    // like anyone else, so her open lands, his bolt is refused, and she leaves.
     const w = newWorld();
     wearTo(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
     const warden = byRound("warden", (n) => (n === 1 ? WAIT : CLOSE_DOOR));
@@ -362,10 +362,10 @@ describe("close refuses on a spent part (D11, RED-TEAM.md F3), played", () => {
 
     expect(half(game, 1, "prisoner").outcome?.result.opened).toBe(true);
     const close = half(game, 2, "warden");
-    expect(close.outcome?.result.withKey).toBe(true);
-    expect(valueAt(w, w.exits.door.passageResourceId as string, close.t)).toBe(0);
-    expect(half(game, 2, "prisoner").outcome?.result.left).toBe(false);
-    expect(game.ended).toBeNull();
+    expect(close.outcome?.result).toMatchObject({ shut: false, partId: "lock" });
+    expect(valueAt(w, w.exits.door.passageResourceId as string, close.t)).toBe(1);
+    expect(half(game, 2, "prisoner").outcome?.result.left).toBe(true);
+    expect(game.ended?.kind).toBe("escaped");
   });
 
   it("the F3 loop cannot happen: at every bar value, her open lands exactly when his close is refused", async () => {

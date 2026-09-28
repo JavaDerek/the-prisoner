@@ -6948,17 +6948,17 @@ he is blind leaves him at 50, where §80.4 asserted +10 "as built".
 **D15: a held key ring opens the door for whoever holds it** (question 2, *yes*). `world.ts`'s `keyOf` names each
 way out's key -- the door's is the key ring; the window has none. `planEffect` hands `OPEN_PASSAGE` the key and the
 actor for a gated way out, and the mechanic reads the ring's own `owner_id`/`owner_type` at resolution time, as
-`OPEN_TAKE` reads a holder: when the actor holds it the gate does not apply, to an open or a close, and the result
-says `withKey`. Everyone else is gated as before, and the catch on the lock is unchanged. Under a stated door both
+`OPEN_TAKE` reads a holder: when the actor holds it the gate does not apply to an OPEN, and the result says
+`withKey`. It never lifts D11's close gate (corrected the same evening: the owner's answer was "opens the door",
+not "bolts it"; a lock worn past its gate holds no bolt whoever has the key, so F3's exchange stays closed on
+the door too). Everyone else is gated as before, and the catch on the lock is unchanged. Under a stated door both
 chairs read two conditions, appended last so every earlier number holds (catches still 4-7): "If Warden Croft holds
 the key ring, then Warden Croft can open the door" and the same for Mara Voss; `unstated` renders neither. Pinned by
-`keyRing.test.ts` (he opens at lock 100 and bolts at 60; she is refused without it; she opens once she has taken it
+`keyRing.test.ts` (he opens at lock 100 and is still refused a bolt at 60; she is refused without it; she opens once she has taken it
 from a crouched warden, and he is then gated; the window is not the ring's) and `conditions.test.ts` (the conditions
-asserted against `keyOf` and the door's part). **One consequence to read before P5**: he starts with the ring, so
-while he keeps it D11's refused close does not bind him on the door -- the open-close exchange D11 removed (F3) is
-his again on the door, and only there (`contestLines.test.ts`, "F3's loop, open to the key's holder"). The key ring
-lines in `contestLines.test.ts` flipped, and D11's door line now takes the ring off him first (as does
-`closeGate.test.ts`'s).
+asserted against `keyOf` and the door's part). The key ring lines in `contestLines.test.ts` flipped; its D11 door
+line, `closeGate.test.ts`'s and the corrected "his bolt is refused, she leaves" line together pin that the ring
+changes nothing about closing.
 
 **D16: a refused visible attempt counts as seen** (question 3, *attempted*). No change: the ledger records what he
 saw attempted, as D1 relays it. Two pins in `attemptNotOutcome.test.ts`: a refused, perceptible attempt is in

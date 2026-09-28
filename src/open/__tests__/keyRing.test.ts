@@ -18,7 +18,7 @@ import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 /**
  * D15, the owner's answer to OPEN-VARIANT.md §80.4 question 2 (RED-TEAM.md F12), 2026-09-27: a held key ring
  * lifts the door's gate for whoever holds it. The holder is read at resolution time from the ring's own
- * `owner_id`/`owner_type` -- the engine's columns, as custody reads them -- so the key opens (and bolts) the door
+ * `owner_id`/`owner_type` -- the engine's columns, as custody reads them -- so the key opens the door (never bolts it: D11's close gate stands, corrected 2026-09-27)
  * whatever the lock's integrity; everyone else is gated as before. The window has no key.
  */
 
@@ -77,13 +77,13 @@ describe("D15: the key ring lifts the door's gate for whoever holds it", () => {
     expect(valueAt(w, w.base.resources.lockIntegrity, open.t)).toBe(100);
   });
 
-  it("the warden, holding the ring, bolts the door even with the lock at the gate (D11 lifted for the holder)", async () => {
+  it("the warden, holding the ring, still cannot bolt a door whose lock is at the gate: the key lifts the OPEN gate only (D11 stands)", async () => {
     const w = marginWorld();
     wearTo(w, w.base.resources.lockIntegrity, OPEN_DOOR_LOCK_MARGIN);
     buildOpenResolver().resolve({ gameId: w.base.gameId, mechanic: "OPEN_PASSAGE", parameters: { resourceId: w.exits.door.passageResourceId, wayOut: "door", open: true, min: 0, max: 1, description: "set up" } });
     const close = await act(w, "warden", 1, ruling("door", "close", "passage"));
-    expect(close.outcome?.result.shut).not.toBe(false);
-    expect(valueAt(w, w.exits.door.passageResourceId as string, close.t)).toBe(0);
+    expect(close.outcome?.result).toMatchObject({ shut: false, partId: "lock" });
+    expect(valueAt(w, w.exits.door.passageResourceId as string, close.t)).toBe(1);
   });
 
   it("the prisoner without it is refused at lock 100, as before (D7a wears the lock instead)", async () => {

@@ -78,9 +78,9 @@ referee's `reveal` on that way out.
   +10 while he was blind; it is +0). Blinding him is no longer free: it hands him grounds, and it pays only if she
   finishes before he can see and look. (b) **The key ring gap is closed** (D15): whoever holds the ring opens the
   door at any lock, so taking it from a crouched or blinded warden is a door route in two acts, and a hand on him to
-  get there gives grounds at once (D13). (c) **The warden's ring lets him bolt a door she opened** at the gate
-  (D15 lifts D11's close gate for the holder), so on the door, while he keeps the ring, the open-close exchange
-  D11 removed is his again. Nothing in predictions 1-9 is renumbered or reworded: none of them names this
+  get there gives grounds at once (D13). (c) **The warden's ring does NOT let him bolt a door she opened** at the
+  gate (D15 lifts the open gate only; D11's close gate binds the holder too, corrected 2026-09-27), so the
+  open-close exchange D11 removed stays closed on the door. Nothing in predictions 1-9 is renumbered or reworded: none of them names this
   arithmetic, and the kills measure the rules as built. Reported, no weight, read by hand from the referee's keys:
   games in which the key ring changes hands (`key_ring` / `take` that lands), and games in which the prisoner's act
   is on the warden (`warden` as the target, any effect) -- prediction 8 counts the latter too.

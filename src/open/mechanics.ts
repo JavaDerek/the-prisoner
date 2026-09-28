@@ -248,7 +248,9 @@ export interface PassageParams {
   wearOnRefusal?: { resourceId: string; amount: number; min: number; max: number };
   /** D15, the owner's answer to OPEN-VARIANT.md §80.4 question 2 (RED-TEAM.md F12), 2026-09-27: the way out's key
    *  and who is acting. When the key item's own `owner_id` at t is the actor (a character), `gate` does not apply
-   *  to this act -- open or close. Absent for a way out with no key or no gate. */
+   *  to an OPEN. It never lifts D11's close gate: a lock worn past its gate holds no bolt whoever has the key, so
+   *  the open-close exchange F3 closed stays closed on the door too (the owner's answer was "open the door", not
+   *  "bolt it"; corrected 2026-09-27). Absent for a way out with no key or no gate. */
   key?: { itemId: string; actorId: string };
   description: string;
 }
@@ -264,7 +266,7 @@ export const OPEN_PASSAGE: Mechanic = {
     // D15: the key's holder, read like custody reads holders -- the engine's owner columns at t.
     const keyHolder = p.key ? holderOf(input, p.key.itemId) : null;
     const keyed = p.key !== undefined && keyHolder !== null && keyHolder.type === "character" && keyHolder.id === p.key.actorId;
-    const gate = keyed ? undefined : p.gate;
+    const gate = keyed && p.open ? undefined : p.gate;
     if (p.open && gate && currentValue(input, gate.integrityResourceId) > gate.atMost) {
       // D7a: the passage itself changes nothing, but the SAME resolution
       // wears the part by the ruled magnitude, exactly as `OPEN_WEAR` would
