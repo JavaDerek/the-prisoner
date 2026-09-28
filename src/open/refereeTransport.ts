@@ -81,7 +81,13 @@ function numberedWords(text: string): string {
     .join(" ");
 }
 
-function buildPrompt(request: ReadRequest): string {
+/** Exported for `refereeData/render.ts` (the-prisoner#10): the LoRA
+ *  renderer builds its training PROMPT (the user turn) through this exact
+ *  function -- never a copy of its text -- so a rendered example is
+ *  byte-identical to what a real referee call would have sent for the same
+ *  request. Nothing else about this function changes: it is still this
+ *  repository's own text, never read back by `run-dmcp`. */
+export function buildPrompt(request: ReadRequest): string {
   // OPEN-VARIANT.md §18.6/§18.7: this used to split off any `precedent:`
   // source into a separate "EARLIER RULINGS ... for consistency only" block.
   // The referee copied one intent's ruling onto a different one just
