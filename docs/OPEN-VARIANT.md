@@ -7744,3 +7744,88 @@ other side is told the attempt, never the outcome, for this effect kind too).
 design brief itself cites (HB-r1, HB-r3, HB-r10, I25-3, I25-5) plus eight controls that must not become harm,
 arm off vs on, N=3. Not run by this task.
 
+## 88. The key ring's authored belt is gone; a held thing's holder is stated by code, from the engine (2026-09-28, the-prisoner#31)
+
+**The bug.** `checkpoints/2026-09-28T01-09-16-356Z.md`, round 8: the status line read `holding: spoon,
+blanket, key_ring` while the scene still read *"The key ring: A heavy iron ring on Croft's belt holding
+four keys..."* -- custody had moved the ring to the prisoner in round 7 (`OPEN_TAKE`), and the room's own
+prose kept naming Croft as its holder forever after. `docs/CUSTODY-DESIGN.md` already made this the wrong
+place to say who holds a thing: `OWNER_OF` is authoring-only, and every read of custody during play is
+`ownershipAt`, from the engine's own `owner_id`/`owner_type` at t. The key ring's authored `description`
+was the one place that still spoke as though `OWNER_OF` were live. The spoon had the identical exposure in
+the other direction (nothing in its own text said who held it, so a warden who ever took it from the
+prisoner would read no holder sentence either way) -- not because its prose was wrong, but because no
+object's prose could ever say the CURRENT holder, only whatever an author typed once at build.
+
+**The fix, decided by the coordinator on the owner's behalf: strip the holder from authored text, and
+append a holder reading in code.** `briefing.ts`'s `describedAsItStands` -- the same function that already
+appends a `reads`/`readRanges` band to an object's authored text (§33.8) -- now also appends who holds the
+thing NOW, read from `ownershipAt` at the same `t` every other custody-aware mechanism reads (never
+recomputed a second time per object: the holder `computePerceivedObjects` already reads for `owner`/
+`heldIn` is passed straight into the same call, so the two can never disagree, and `ownershipAt`'s own "one
+replay" promise holds). The sentence: **"You hold it."** when the caller knows who is asking and that
+principal IS the holder; otherwise **third person by short name** -- "Voss holds it." / "Croft holds it."
+(`perception.ts`'s own derive-holder line already used this exact shape; issue #31 makes it the general
+rule rather than a one-off). No pronoun is used (`he`/`she`): `src/scenario.ts` is centralising Croft's and
+Voss's pronouns in a separate task, and a name-only sentence merges cleanly with that either way.
+
+**Nothing is said when nobody holds the thing.** `holder` is `null` for every object still owned by its own
+location (every one of `OPEN_OBJECTS` but a taken spoon or key ring today -- `world.ts`'s `ensureItem`) and
+for a PERSON (`ownershipAt` returns null for `"prisoner"`/`"warden"` outright, by an explicit early return).
+Both stay silent rather than invent "it lies on the floor": most of the scenario is bolted to a wall or set
+in the floor (the door, the window, the bar, the lock, the cot), and stating a location for those would be
+false or redundant with what their own authored text already says. Only a holder is ever worth stating, and
+only two objects have ever had one.
+
+**The audit.** Every object in `scenarioObjects.ts` was read for authored text naming a holder or a
+location custody can change. Only the key ring's did:
+
+> A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink
+> against each other when Croft walks.
+
+became
+
+> A heavy iron ring holding four keys, one of them long-shanked and brass. The keys clink against each
+> other when it is carried.
+
+The spoon's own text never named a holder in prose (only its `heldBy: "Voss"` field did, which is
+authoring-only metadata -- see below -- and was never rendered to a mind or the referee), so nothing in it
+needed to change; it gets the same appended holder reading as every other object, which is the "mirror
+problem" the issue named: before this fix, taking the spoon left its description equally silent about who
+held it, in either direction. `heldBy` itself (a documentation field naming where each object starts --
+"the cell wall", "the floor", "Croft's belt", "Voss") is untouched everywhere, including the key ring's own
+`"Croft's belt"`: it is never surfaced to a mind, a referee, or a transcript's own prose, only asserted
+non-empty by `scenarioObjects.test.ts`, so leaving it as authoring history creates no exposure to fix.
+
+**Every existing citation survives.** `elaborationBands.ts` holds four rows against the key ring's own
+description, cited `"heavy iron"`, `"iron ring"` and `"heavy iron ring"` -- all three phrases open the new
+text exactly as they opened the old, unmoved. Removing the description's own holder still changed its
+`descriptionHash` (§27/§76's own consequence: any edit to an authored description invalidates the rows
+priced against it), so the four key_ring rows were hand-converted to `bandSource: "author"` with a fresh
+hash, band carried over unchanged, each `comment` saying so and asking for a fresh `npm run price-world` to
+supersede it -- the identical treatment §76 gave the window's and bar's six rows the last time an authored
+description changed. `elaborationBandProblems()` checks the hash, not the citation, so this is what keeps
+`assertElaborationBandsReady()` green against the real scenario without a model call.
+
+**No citation of the removed words is required anywhere.** D15 (§80.7) reads a held key ring from
+`keyOf`/`ownershipAt`, never from this description; `keyRing.test.ts`, `closeGate.test.ts`,
+`contestLines.test.ts` and `custody.test.ts` build their own independent literal `ObjectPerception`
+fixtures for referee-only tests (never asserted against `OPEN_OBJECTS`'s real text) and needed no change.
+`perception.test.ts`'s own `desc()` helper reads the description live from `computePerceivedObjects`
+precisely so the authored text stays free to change here, and its assertions moved for free.
+
+**This is a scenario change and a batch boundary, like §27 and §76.** Every request the referee is sent for
+the key ring, or for any object once it is ever taken, now carries a few more words than before -- the
+appended holder sentence, and the key ring's shorter lead-in. `src/open/__tests__/briefing.test.ts` gains
+the new coverage (the key ring's text is holder-free; the holder reading appears, by short name or "You",
+at t0 and after an `OPEN_GIVE`; an unowned object like the door carries no holder sentence) and the
+`welded` describe block's spoon spot-check now expects the prisoner's own "You hold it." (she holds it from
+the start, unaffected by the window arm).
+
+**Replay, P6's pattern: `checkpoints/2026-09-28-keyring-text/`.** Every recorded ruling that targeted the
+key ring or the spoon in the two named transcripts, plus the D11 corpus's own take intents on them,
+rebuilt on their own contexts and ruled twice -- old text (the pre-#31 authored key_ring description,
+literally, with every holder-reading suffix this fix appends stripped from every object) vs new (as the
+game builds it today). Scaffolded 2026-09-28, **NOT RUN**: nothing here has called a model. `--dry-run`
+rebuilt every item with 0 replay divergences and built its requests; the live command is in that
+directory's own `README.md`.

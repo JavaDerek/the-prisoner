@@ -1,0 +1,43 @@
+{"type":"meta","probe":"the-prisoner#31 key ring text replay","started":"2026-09-28T06:15:18.641Z","revision":"`7662a4b` (clean)","arms":"presence=modelled absence=cadence conditions=both door=stated doorPrice=margin window=open block=on personInstrument=off oneAct=first instrument=off deriveWording=baseline elision=on containerClause=on deriveRepeat=off refereeThinking=off witsThinking=off","omit":[],"cells":[{"name":"old","overrides":{}},{"name":"new","overrides":{}}],"n":3,"models":["endpoint http://doris:11434/v1; referee muse-glimmer:30b; warden muse-glimmer:30b/muse-glimmer:30b; prisoner muse-glimmer:30b/muse-glimmer:30b","thinking referee=off wits=off; timeouts think=300000 referee=300000","/api/ps at start: muse-glimmer:30b"]}
+[2026-09-28T06:15:18.642Z] INFO  [db] Using database path from DMCP_DB_PATH {"dbPath":":memory:"}
+[2026-09-28T06:15:18.644Z] INFO  [db] Database connection established {"path":":memory:"}
+[1/24] old:T28-r7:1 -> none/take/none applicable=false (51.738s)
+[2/24] old:T28-r7:2 -> key_ring/take/none applicable=true (40.538s)
+[3/24] old:T28-r7:3 -> key_ring/take/none applicable=true (40.396s)
+[4/24] old:G27-r3:1 -> key_ring/take/none applicable=true (38.551s)
+[5/24] old:G27-r3:2 -> key_ring/take/none applicable=true (33.543s)
+[6/24] old:G27-r3:3 -> key_ring/take/none applicable=true (33.467s)
+[7/24] old:B7-P14:1 -> blanket/none/none applicable=false (83.411s)
+[8/24] old:B7-P14:2 -> blanket/none/none applicable=false (59.804s)
+[9/24] old:B7-P14:3 -> blanket/none/none applicable=false (59.714s)
+[10/24] old:B7-P27:1 -> spoon/take/none applicable=true (38.609s)
+[11/24] old:B7-P27:2 -> spoon/take/none applicable=true (33.793s)
+[12/24] old:B7-P27:3 -> spoon/take/none applicable=true (33.743s)
+[13/24] new:T28-r7:1 -> key_ring/take/none applicable=true (21.892s)
+[14/24] new:T28-r7:2 -> key_ring/take/none applicable=true (21.141s)
+[15/24] new:T28-r7:3 -> key_ring/take/none applicable=true (21.068s)
+[16/24] new:G27-r3:1 -> key_ring/take/none applicable=true (26.993s)
+[17/24] new:G27-r3:2 -> key_ring/take/none applicable=true (27.453s)
+[18/24] new:G27-r3:3 -> key_ring/take/none applicable=true (27.361s)
+[19/24] new:B7-P14:1 -> blanket/conceal/concealment applicable=true (71.124s)
+[20/24] new:B7-P14:2 -> key_ring/take/none applicable=true (64.351s)
+[21/24] new:B7-P14:3 -> key_ring/take/none applicable=true (64.285s)
+[22/24] new:B7-P27:1 -> spoon/take/none applicable=true (36.553s)
+[23/24] new:B7-P27:2 -> spoon/take/none applicable=true (31.312s)
+[24/24] new:B7-P27:3 -> spoon/take/none applicable=true (31.272s)
+## the-prisoner#31 -- the key ring text replay, old vs new (an item's keys = the majority of its N=3)
+
+| id | prediction | so far | projected at N | verdict |
+|---|---|---|---|---|
+| 1 | rows whose target or effect changes: 0 | 1 of 4 | 1 of 4 | DEAD |
+| 2 | rows whose property (only) changes: at most 2 | 0 of 4 | 0 of 4 | MET |
+| KILL | 3 or more rows change target or effect -- the appended text moves what the referee thinks an act IS | 1 of 4 | 1 of 4 | MET |
+| r1 | rows with no majority in an arm (counted as a change above) -- reported | 0 of 4 | 0 of 4 | REPORT |
+
+**DEAD AT THIS POLL: 1** -- announce it now and apply the stopping rule (the owner, 2026-09-21).
+
+Per item: old -> new (target/effect/property majority):
+- T28-r7 [recorded-take]: key_ring/take/none -> key_ring/take/none
+- G27-r3 [recorded-take]: key_ring/take/none -> key_ring/take/none
+- B7-P14 [corpus-take]: blanket/none/none -> key_ring/take/none
+- B7-P27 [corpus-take]: spoon/take/none -> spoon/take/none
