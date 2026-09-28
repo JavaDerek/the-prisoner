@@ -386,9 +386,10 @@ describe("the blind line (D12, external review F1), played", () => {
     const open = half(game, 2, "prisoner");
     expect(open.outcome?.result.opened).toBe(true);
     expect(open.perceptionForOther).toBeNull();
-    // OWNER DECISION, asserted as built: blindness does not stop suspicion. Her open is +10 while he cannot see it,
-    // because the bump is gated on presence alone (loop.ts, `otherPresent`), not on his sight.
-    expect(suspicionAt(w, open.t)).toBe(60);
+    // Changed on purpose, 2026-09-27 (D14, the owner's answer to §80.4 question 1): a blind warden perceives
+    // nothing, so nothing accrues -- her open adds nothing to the 50 his covering gave him. This asserted +10
+    // "as built", when the bump read presence alone.
+    expect(suspicionAt(w, open.t)).toBe(50);
     // Round 3: his second clearing takes him to 70 -- he can see -- but that was his act; she leaves.
     expect(valueAt(w, sight, half(game, 3, "warden").t)).toBe(70);
     expect(game.ended).toEqual({ kind: "escaped" });

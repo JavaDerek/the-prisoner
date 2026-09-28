@@ -717,7 +717,7 @@ export async function runOpenHalfRound(params: {
       ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
       : null;
     const acquired = elaboration
-      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
+      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherBlind, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
       : null;
     return {
       ...base,
@@ -848,7 +848,7 @@ export async function runOpenHalfRound(params: {
       ? await considerElaboration(openWorld, params.elaborationReferee, ruling.targetObjectId, proposal, context.perceivedObjects)
       : null;
     const acquired = elaboration
-      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
+      ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherBlind, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
       : null;
     return {
       ...base,
@@ -892,7 +892,8 @@ export async function runOpenHalfRound(params: {
   // A known approach is known on sight: a reshaping the warden cannot see is
   // no approach it recognises (§14.4).
   const knownAs = precedentTextFor(ruling, reshapeOf);
-  const known = principal === "prisoner" && seenByOther ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
+  // D14 (owner, 2026-09-27, §80): a man who cannot see recognises nothing.
+  const known = principal === "prisoner" && seenByOther && !otherBlind ? ((params.knownApproaches ?? []).find((k) => k.text === knownAs) ?? null) : null;
   // OPEN-VARIANT.md §55 (issue #22 gap 1): not present at all is not "a
   // reshaping unseen" (`describeUnseenAttempt`'s own vague noise) -- it is
   // nothing perceived whatsoever, the same "the warden hears nothing...
@@ -948,12 +949,16 @@ export async function runOpenHalfRound(params: {
     // OPEN-VARIANT.md §55 (issue #22 gap 1): gated on `otherPresent`, exactly
     // the closed variant's own `WARDEN_PRESENCE`/`wardenPresent` rule
     // ("unheard while the warden is away") -- always true under `off`.
+    // D14 (owner, 2026-09-27, §80.4 question 1): and on his sight, the same
+    // line D12 draws for what he perceives -- a blind warden perceives
+    // nothing, so nothing accrues. `otherBlind` is read at t, before this act,
+    // so the act that blinds him is charged by D13 above, never gated.
     if (laysHandsOnWarden(principal, ruling.effectKind as EffectKind, ruling.targetObjectId)) {
       // D13 (owner, 2026-09-27, §80): grounds at once, then the act's own amount on top. Charged from this
       // half-round's outcome whatever it left of his sight or posture, and whatever its perceptibility: he felt it.
       bumpWardenSuspicion(openWorld, resolver, groundsShortfall(openWorld, t), "The warden has been laid hands on.");
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
-    } else if (principal === "prisoner" && otherPresent && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
+    } else if (principal === "prisoner" && otherPresent && !otherBlind && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
     }
     if (known) {

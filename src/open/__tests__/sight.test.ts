@@ -15,7 +15,9 @@ import { renderOpenHalfRound } from "../checkpointTranscript.js";
 import { findProperty, OPEN_PERSONS, SIGHT_BLIND_AT_OR_BELOW, POSTURE_ON_HER_FEET_ABOVE } from "../scenarioObjects.js";
 import type { Principal } from "../../ledger/beliefs.js";
 import type { PresenceMode } from "../briefing.js";
-import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
+import { renderSeatSituation, type OpenPrincipalContext, type OpenProposal } from "../mind.js";
+import { precedentTextFor, KNOWN_APPROACH_SUSPICION_BUMP } from "../loop.js";
+import { PRISONER_NAME, WARDEN_NAME } from "../../scenario.js";
 
 /**
  * PLAYTEST-2026-09-27 D12 (design R3, RED-TEAM.md F2): a person's `sight`. Covering someone's head is a wear on
@@ -182,6 +184,62 @@ describe("what blindness does (D12 a-d)", () => {
     setTo(w, w.resourceIdFor["warden.sight"], SIGHT_BLIND_AT_OR_BELOW + 1);
     const leave = await act(w, "prisoner", 1, ruling("window", "leave"));
     expect(leave.outcome?.result.left).toBe(false);
+  });
+});
+
+describe("D14: no suspicion accrues while the warden is blind (owner, 2026-09-27, §80)", () => {
+  afterEach(() => destroyTestDb());
+  const suspicion = (w: OpenWorld, t: number) => readNumericFact({ gameId: w.base.gameId, t, entityId: w.base.resources.wardenSuspicion, key: "value" }) ?? 0;
+
+  it("the act that blinds him is charged in full (he felt it); her dig on the next half-round adds nothing", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    const cover = await act(w, "prisoner", 1, COVER_WARDEN);
+    expect(sightOf(w, "warden", cover.t)).toBe(0);
+    expect(suspicion(w, cover.t)).toBe(70);
+    const dig = await act(w, "prisoner", 2, ruling("bar", "wear", "integrity", "substantial"));
+    expect(dig.outcome).not.toBeNull();
+    expect(suspicion(w, dig.t)).toBe(70);
+  });
+
+  it("the gate is the same line as perception: at SIGHT_BLIND_AT_OR_BELOW nothing accrues, one point above it the bump lands", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setTo(w, w.resourceIdFor["warden.sight"], SIGHT_BLIND_AT_OR_BELOW);
+    const blind = await act(w, "prisoner", 1, ruling("bar", "wear", "integrity"));
+    expect(suspicion(w, blind.t)).toBe(0);
+    setTo(w, w.resourceIdFor["warden.sight"], SIGHT_BLIND_AT_OR_BELOW + 1);
+    const seen = await act(w, "prisoner", 2, ruling("bar", "wear", "integrity"));
+    expect(suspicion(w, seen.t)).toBe(10);
+  });
+
+  it("a known approach is not recognised by a man who cannot see it", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setTo(w, w.resourceIdFor["warden.sight"], SIGHT_BLIND_AT_OR_BELOW);
+    const dig = ruling("bar", "wear", "integrity", "slight");
+    const t = w.base.clock.prisonerT(1);
+    const h = await runOpenHalfRound({
+      openWorld: w,
+      resolver: buildOpenResolver(),
+      referee: { rule: async () => dig },
+      principal: "prisoner",
+      roundN: 1,
+      t,
+      context: buildOpenContext(w, "prisoner", t, 1, 12, {}, "modelled"),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I do it." }),
+      presenceMode: "modelled",
+      knownApproaches: [{ text: precedentTextFor(dig), suspicionBump: KNOWN_APPROACH_SUSPICION_BUMP }],
+    });
+    expect(h.outcome).not.toBeNull();
+    expect(suspicion(w, h.t)).toBe(0);
+  });
+
+  it("both chairs are told: while he cannot see, nothing she does is seen", () => {
+    const context: OpenPrincipalContext = { principalId: "p1", identity: "x", motive: "x", briefing: "Round 1 of 12.", perceivedObjects: [] };
+    for (const [self, other] of [[PRISONER_NAME, WARDEN_NAME], [WARDEN_NAME, PRISONER_NAME]] as const) {
+      expect(renderSeatSituation(self, other, context).split("\n")).toContain(`While ${WARDEN_NAME} cannot see, nothing ${PRISONER_NAME} does is seen.`);
+    }
   });
 });
 

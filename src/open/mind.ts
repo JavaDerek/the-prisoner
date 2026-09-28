@@ -193,6 +193,8 @@ function stateBasedRules(conditions?: readonly Condition[]): string[] {
       `by ${HONE_SUSPICION_BUMP} for a slight act, ${FILE_SUSPICION_BUMP} for a moderate one, ${FAILED_ESCAPE_SUSPICION_BUMP} for a substantial one.`,
     // D13, the owner's decision of 2026-09-27 on OPEN-VARIANT.md §80: `loop.ts`'s `laysHandsOnWarden`.
     `An act on ${WARDEN_NAME}'s own body gives grounds at once: warden suspicion rises to at least ${SEARCH_SUSPICION_THRESHOLD}, then by the act's own amount.`,
+    // D14 (owner, 2026-09-27, §80): mirrors the absence line (`briefing.ts`'s `absenceRuleLine`).
+    `While ${WARDEN_NAME} cannot see, nothing ${PRISONER_NAME} does is seen.`,
     `When ${WARDEN_NAME} examines something closely and finds it more worn than ${WARDEN_NAME} last believed, warden suspicion ` +
       `rises by the unexplained drop divided by ${EVIDENCE_SUSPICION_DIVISOR}, rounded down -- finding damage is evidence.`,
     // OPEN-VARIANT.md §12: escape is leaving the cell, however it comes about.
