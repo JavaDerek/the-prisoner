@@ -22,7 +22,12 @@ import { findKind } from "./derivedObjects.js";
  * ruled impossible, or done while he was away) was never seen, so it is never
  * recorded. A REFUSED attempt he could perceive is recorded since 2026-09-27:
  * PLAYTEST-2026-09-27-DESIGN.md R1 (D1) relays it to him as the attempt it
- * was, so he saw the reach whether or not the world let it land.
+ * was, so he saw the reach whether or not the world let it land. That is the
+ * owner's decision (D16, 2026-09-27, OPEN-VARIANT.md §80.4 question 3): the
+ * ledger records what he saw attempted, not only what landed. A known
+ * approach still costs suspicion only when a later repeat RESOLVES (`loop.ts`
+ * charges it after `resolve()`); both halves are pinned in
+ * `attemptNotOutcome.test.ts`.
  */
 
 export function recordGame(ledger: Ledger, episode: string, halves: readonly OpenHalfRoundResult[]): Ledger {

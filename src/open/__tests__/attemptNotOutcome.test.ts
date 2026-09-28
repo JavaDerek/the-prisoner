@@ -8,7 +8,9 @@ import { buildOpenResolver } from "../mechanics.js";
 import { buildOpenContext } from "../briefing.js";
 import { EFFECT_KINDS, type EffectKind } from "../effects.js";
 import type { Referee, RefereeRuling } from "../referee.js";
-import { runOpenHalfRound, describeAttempt, precedentTextFor, type OpenHalfRoundResult } from "../loop.js";
+import { runOpenHalfRound, describeAttempt, precedentTextFor, KNOWN_APPROACH_SUSPICION_BUMP, type KnownApproach, type OpenHalfRoundResult } from "../loop.js";
+import { seenAttempts } from "../precedent.js";
+import { readNumericFact } from "../../world/facts.js";
 import { OPEN_OBJECTS, POSTURE_STANDING } from "../scenarioObjects.js";
 import { setBelief } from "../../ledger/beliefs.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
@@ -217,5 +219,55 @@ describe("the precedent ledger speaks the sentences this code writes (PLAYTEST-2
     const texts = [...new Set(ledger.accounts.map((a) => a.text))];
     expect(texts.length).toBeGreaterThan(0);
     expect(texts.filter((text) => !producible.has(text))).toEqual([]);
+  });
+});
+
+describe("D16: a refused visible attempt counts as seen -- the owner's decision, 2026-09-27 (§80.4 question 3)", () => {
+  afterEach(() => destroyTestDb());
+
+  const DIG = ruling("bar", "wear", "integrity");
+
+  async function dig(w: OpenWorld, roundN: number, knownApproaches: readonly KnownApproach[]): Promise<OpenHalfRoundResult> {
+    const t = w.base.clock.prisonerT(roundN);
+    return runOpenHalfRound({
+      openWorld: w,
+      resolver: buildOpenResolver(),
+      referee: { rule: async () => DIG },
+      principal: "prisoner",
+      roundN,
+      t,
+      context: buildOpenContext(w, "prisoner", t, roundN, 12, {}, "modelled"),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: "I do it." }),
+      presenceMode: "modelled",
+      knownApproaches,
+    });
+  }
+  const suspicion = (w: OpenWorld, t: number) => readNumericFact({ gameId: w.base.gameId, t, entityId: w.base.resources.wardenSuspicion, key: "value" }) ?? 0;
+
+  it("a refused, perceptible prisoner attempt is recorded as an approach he knows", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    setBelief(w.base.gameId, "prisoner", "bar_integrity", 40, 0); // a stale belief: expects contradicted
+    const refusedDig = await dig(w, 1, []);
+    expect(refused(refusedDig)).toBe(true);
+    expect(refusedDig.perceptionForOther).toBe(describeAttempt("prisoner", DIG));
+    expect(seenAttempts([refusedDig])).toEqual([precedentTextFor(DIG)]);
+    // Refused, it cost her nothing.
+    expect(suspicion(w, refusedDig.t)).toBe(0);
+  });
+
+  it("the known-approach bump still fires only when a later repeat RESOLVES", async () => {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled" });
+    const known: KnownApproach[] = [{ text: precedentTextFor(DIG), suspicionBump: KNOWN_APPROACH_SUSPICION_BUMP }];
+    // A repeat that is refused (her belief is stale again): known, but no bump.
+    setBelief(w.base.gameId, "prisoner", "bar_integrity", 40, 0);
+    const refusedRepeat = await dig(w, 1, known);
+    expect(refused(refusedRepeat)).toBe(true);
+    expect(suspicion(w, refusedRepeat.t)).toBe(0);
+    // The refusal told her the truth (100); the repeat now resolves: the ordinary +10 and the known approach's +30.
+    const landedRepeat = await dig(w, 2, known);
+    expect(resolved(landedRepeat)).toBe(true);
+    expect(suspicion(w, landedRepeat.t)).toBe(10 + KNOWN_APPROACH_SUSPICION_BUMP);
   });
 });
