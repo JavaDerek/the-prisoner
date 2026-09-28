@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { openConditions, readConditionsMode, readDoorMode } from "../conditions.js";
+import { openConditions, readConditionsMode, readDoorMode, readConditionOrder } from "../conditions.js";
 import { buildOpenWorld, OPEN_DOOR_LOCK_MAX, OPEN_DOOR_LOCK_MARGIN } from "../world.js";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { createOpenMind, type OpenPrincipalContext } from "../mind.js";
@@ -254,5 +254,61 @@ describe("openConditions: PRISONER_WINDOW=welded (§64.3)", () => {
       "CONDITION 2 (for Warden Croft): If warden suspicion is at or above 40, and Warden Croft closely examines the lock, and Warden Croft finds its integrity at or below 40, then Warden Croft catches Mara Voss and the game ends."
     );
     expect(rendered.join("\n")).not.toContain("the bar");
+  });
+});
+
+// the-prisoner#23: in every one of §50.7's twenty-two door-arm games, condition 1 is the window, and
+// she plans the window from round 1 in all of them whatever the door costs. The confound is that the
+// route named FIRST may be the route she plans, not the door's price. This arm tests it against
+// `margin`: state the door's condition before the window's and change nothing else. Both minds share
+// one `openConditions()` array (`checkpoint.ts` calls it once per side with the same options), so
+// reordering it reorders BOTH principals' lists identically -- there is no separate prisoner-only
+// list to reorder without a second construction path, which would stop being the shared
+// infrastructure `conditionList.ts`'s own generic renderer is built to stay.
+describe("PRISONER_CONDITION_ORDER (#23): reordering changes only the order, never the claims", () => {
+  it("is window-first unless asked; door-first is the arm; anything else stops the run", () => {
+    expect(readConditionOrder(undefined)).toBe("window-first");
+    expect(readConditionOrder("")).toBe("window-first");
+    expect(readConditionOrder("window-first")).toBe("window-first");
+    expect(readConditionOrder("door-first")).toBe("door-first");
+    expect(() => readConditionOrder("bar-first")).toThrow(/PRISONER_CONDITION_ORDER/);
+    expect(() => readConditionOrder("bar-first")).toThrow(/"window-first"/);
+  });
+
+  it("window-first (unset) is byte-identical to today, door stated and priced at margin", () => {
+    expect(openConditions({ door: "stated", doorPrice: "margin" })).toEqual(openConditions({ door: "stated", doorPrice: "margin", conditionOrder: "window-first" }));
+  });
+
+  it("door-first swaps the window and door conditions and changes nothing else -- same claims, same thresholds, same attributions", () => {
+    const before = openConditions({ door: "stated", doorPrice: "margin" });
+    const after = openConditions({ door: "stated", doorPrice: "margin", conditionOrder: "door-first" });
+    // The multiset of conditions is identical: the same nine conditions, just two of them swapped.
+    const bySort = (list: typeof before) => [...list].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    expect(bySort(after)).toEqual(bySort(before));
+    expect(after.length).toBe(before.length);
+    expect(after[0]).toEqual(before[1]); // the door's own condition, now first
+    expect(after[1]).toEqual(before[0]); // the window's own condition, now second
+    expect(after.slice(2)).toEqual(before.slice(2)); // every catch and the key conditions: untouched
+    expect(after[0]).toEqual({ when: [`the lock's integrity is at or below 60`], then: "Mara Voss can open the door", for: "Mara Voss" });
+    expect(after[1]).toEqual({ when: ["the bar's integrity is at or below 50"], then: "Mara Voss can open the window", for: "Mara Voss" });
+  });
+
+  it("door-first with the door unstated changes nothing: there is no door condition to move first", () => {
+    expect(openConditions({ door: "unstated", conditionOrder: "door-first" })).toEqual(openConditions({ door: "unstated" }));
+  });
+
+  it("door-first with the window welded changes nothing: the door is already the only route condition (§64.3)", () => {
+    expect(openConditions({ door: "stated", window: "welded", conditionOrder: "door-first" })).toEqual(openConditions({ door: "stated", window: "welded" }));
+  });
+
+  it("rendered for both principals: the door's line reads first, the attributions are unchanged", () => {
+    const doorFirst = openConditions({ door: "stated", doorPrice: "margin", conditionOrder: "door-first" });
+    const hers = renderConditionList(doorFirst, { reader: "Mara Voss" });
+    expect(hers).toContain("CONDITION 1 (for you): If the lock's integrity is at or below 60, then Mara Voss can open the door.");
+    expect(hers).toContain("CONDITION 2 (for you): If the bar's integrity is at or below 50, then Mara Voss can open the window.");
+    // The warden reads the identical, reordered list from his own side (§34.3): her unlocks stay hers.
+    const his = renderConditionList(doorFirst, { reader: "Warden Croft" });
+    expect(his).toContain("CONDITION 1 (for Mara Voss): If the lock's integrity is at or below 60, then Mara Voss can open the door.");
+    expect(his).toContain("CONDITION 2 (for Mara Voss): If the bar's integrity is at or below 50, then Mara Voss can open the window.");
   });
 });

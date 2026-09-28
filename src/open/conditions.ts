@@ -14,6 +14,16 @@ import type { Condition } from "./conditionList.js";
  */
 export type DoorMode = "unstated" | "stated";
 
+/** the-prisoner#23: which of her two own route conditions the list states first. `window-first` is
+ *  the default and is byte-identical to every batch ever recorded -- her list has always named the
+ *  window first (§46.1). `door-first` states the door's own condition before the window's and
+ *  changes nothing else, to test §50.7's confound: in all twenty-two of that section's door-arm
+ *  games condition 1 is the window, and she plans the window from round 1 in every one of them,
+ *  whatever the door costs -- so the operative cause may be the ORDER her list names a route in,
+ *  not the door's price. Has no effect unless both her own route conditions exist (the door
+ *  `stated` and the window not `welded`): with only one of them, that one is already first. */
+export type ConditionOrder = "window-first" | "door-first";
+
 /** §46: `stated` adds one true condition for the cell's OTHER way out. Her list
  *  has always named one way to win -- the window, gated on the bar -- while the
  *  door's part, the lock, appears only in a condition that catches her, so the
@@ -35,7 +45,7 @@ export type DoorMode = "unstated" | "stated";
  *  bar's own catch condition -- matching what `world.ts` no longer enforces
  *  under this arm (no `bar.integrity` resource at all). `"open"` (the
  *  default) is every batch recorded before this arm existed. */
-export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPriceMode; window?: WindowMode; block?: BlockMode } = {}): Condition[] {
+export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPriceMode; window?: WindowMode; block?: BlockMode; conditionOrder?: ConditionOrder } = {}): Condition[] {
   const grounds = `warden suspicion is at or above ${SEARCH_SUSPICION_THRESHOLD}`;
   const catches = `${WARDEN_NAME} catches ${PRISONER_NAME} and the game ends`;
   const examines = (what: string) => `${WARDEN_NAME} closely examines ${what}`;
@@ -48,13 +58,18 @@ export function openConditions(options: { door?: DoorMode; doorPrice?: DoorPrice
     doorGate !== null
       ? { when: [`the lock's integrity is at or below ${doorGate}`], then: `${PRISONER_NAME} can open the door`, for: PRISONER_NAME }
       : { when: ["the door is shut"], then: `${PRISONER_NAME} can open it, with no threshold to meet first`, for: PRISONER_NAME };
+  // §64.3: welded, the bar can never be worn loose, so this unlock is never
+  // true and stating it would be a claim `world.ts` cannot honour.
+  const windowConditions: Condition[] = weldedWindow ? [] : [{ when: [`the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}`], then: `${PRISONER_NAME} can open the window`, for: PRISONER_NAME }];
+  const doorConditions: Condition[] = options.door === "stated" ? [doorCondition] : [];
+  // the-prisoner#23: `door-first` swaps which of these two blocks comes first and changes nothing
+  // else -- same claims, same thresholds, same attributions, just reordered. With only one of the
+  // two blocks non-empty (the door unstated, or the window welded), swapping is a no-op: that one
+  // block is already first either way.
+  const doorFirst = options.conditionOrder === "door-first";
   return [
-    // §64.3: welded, the bar can never be worn loose, so this unlock is
-    // never true and stating it would be a claim `world.ts` cannot honour.
-    ...(weldedWindow ? [] : [{ when: [`the bar's integrity is at or below ${OPEN_WINDOW_BAR_MAX}`], then: `${PRISONER_NAME} can open the window`, for: PRISONER_NAME }]),
-    // Kept beside the window so everything the reader can do stays together at
-    // the top of the list; under this arm the catch conditions are 4-7.
-    ...(options.door === "stated" ? [doorCondition] : []),
+    ...(doorFirst ? doorConditions : windowConditions),
+    ...(doorFirst ? windowConditions : doorConditions),
     { when: ["a way out stands open"], then: `${PRISONER_NAME} can leave the cell through it, and she has escaped`, for: PRISONER_NAME },
     // §64.3: welded, the bar has no integrity to be found worn at all.
     ...(weldedWindow ? [] : [{ when: [grounds, examines("the bar"), finds(`its integrity at or below ${OPEN_CATCH_BAR_MAX}`)], then: catches, for: WARDEN_NAME }]),
@@ -122,4 +137,14 @@ export function readDoorMode(raw: string | undefined): DoorMode {
   if (raw === undefined || raw === "") return "stated";
   if (raw === "unstated" || raw === "stated") return raw;
   throw new Error(`PRISONER_DOOR: unrecognised value ${JSON.stringify(raw)} -- must be "stated" (the default) or "unstated"`);
+}
+
+/** the-prisoner#23: `window-first` unless asked -- her list has always named the window first, so
+ *  this is byte-identical to every batch before this arm. `door-first` is the arm the issue's own
+ *  batch runs against `margin`. Anything else stops the run rather than guessing (the D3 lesson,
+ *  §40.1). */
+export function readConditionOrder(raw: string | undefined): ConditionOrder {
+  if (raw === undefined || raw === "") return "window-first";
+  if (raw === "window-first" || raw === "door-first") return raw;
+  throw new Error(`PRISONER_CONDITION_ORDER: unrecognised value ${JSON.stringify(raw)} -- must be "window-first" (the default) or "door-first"`);
 }
