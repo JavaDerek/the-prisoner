@@ -1,6 +1,6 @@
 # P5 -- the contest batch: predictions
 
-**DRAFT -- not pre-registered until committed unchanged before the first call, by the owner.** Scaffolded
+**Pre-registered 2026-09-27 (night) by Claude under the owner's overnight delegation** ("you have exclusive use of the 4090, to do with as you wish ... don't ask questions"). Every decision below was taken as the scaffolding recommended; nothing else in this file was changed after the draft. Decision: **yes, all-Muse**, as the spec says; a 0-escape result reads as "the Muse prisoner, or the arithmetic". Draft text follows unchanged. Scaffolded
 2026-09-27 against the tree at `ac47293`, the commit that made every default the build landed (D1-D12, the spec's
 decisions) the game's default. No game has run: `run-batch.sh --dry-run` printed every game's environment and
 `env-check.mts` confirmed, through the game's own readers, that each arm reads what this file says;

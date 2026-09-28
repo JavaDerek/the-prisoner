@@ -1,6 +1,6 @@
 # P7 -- the request order (optional, last): predictions
 
-**DRAFT -- not pre-registered until committed unchanged before the first call, by the owner.** Scaffolded
+**Pre-registered 2026-09-27 (night) by Claude under the owner's overnight delegation** ("you have exclusive use of the 4090, to do with as you wish ... don't ask questions"). Every decision below was taken as the scaffolding recommended; nothing else in this file was changed after the draft. Decision: twenty different rulings (the playtest's twenty), each once per order, as scaffolded; `--omit=prisoner:2`, as P2 decided. Shep's bridge is quiet tonight (the owner gave this session the card). Draft text follows unchanged. Scaffolded
 2026-09-27 against the tree at `ac47293`. Optional and last, as the design orders it: run it after P1-P6, or not
 at all. No model has been called: `probe.mts --dry-run` rebuilt the playtest's twenty contexts (0 replay
 divergences) and built 80 requests, showing the source order each arm would send.

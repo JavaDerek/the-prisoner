@@ -1,6 +1,6 @@
 # P4 -- R4 x R1, the 2x2: predictions
 
-**DRAFT -- not pre-registered until committed unchanged before the first call, by the owner.** Scaffolded
+**Pre-registered 2026-09-27 (night) by Claude under the owner's overnight delegation** ("you have exclusive use of the 4090, to do with as you wish ... don't ask questions"). Every decision below was taken as the scaffolding recommended; nothing else in this file was changed after the draft. Decision: **yes, `--with-round6`**, pre-registered as prediction 4b: in the round-6 pair the outcome line puts "opened" in his notes in at least 8 of 10 and the attempt line in at most 2 of 10 (M2's numbers). `--omit=prisoner:2`, as P2 decided. The labels are the owner's, by hand, in the morning. Draft text follows unchanged. Scaffolded
 2026-09-27 against the tree at `ac47293` (D1 `728c9ff`, D3 in the defaults commit). No model has been called:
 `probe.mts --dry-run --with-round6` rebuilt the round-10 and round-6 warden contexts (0 replay divergences) and
 printed all six prompts verbatim. Change a number here only before the first call.

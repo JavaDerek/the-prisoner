@@ -1,6 +1,6 @@
 # P2 -- R2, reach: predictions
 
-**DRAFT -- not pre-registered until committed unchanged before the first call, by the owner.** Scaffolded
+**Pre-registered 2026-09-27 (night) by Claude under the owner's overnight delegation** ("you have exclusive use of the 4090, to do with as you wish ... don't ask questions"). Every decision below was taken as the scaffolding recommended; nothing else in this file was changed after the draft. Decision: **yes, `--omit=prisoner:2`** (round 2 replayed as silent), and every probe that asks follows it. Draft text follows unchanged. Scaffolded
 2026-09-27 against the tree at `ac47293` (D4'/D4b `3f69a06`, D11 `966abce`, D12 `924947f`, D5 `108d02d`, the
 defaults `ac47293`). No model has been called: `probe.mts --dry-run` rebuilt all three contexts with 0 replay
 divergences and printed the warden's prompt for each, verbatim. Change a number here only before the first call.

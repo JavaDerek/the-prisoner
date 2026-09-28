@@ -1,6 +1,6 @@
 # P1 -- R5, the first act: predictions
 
-**DRAFT -- not pre-registered until committed unchanged before the first call, by the owner.** Scaffolded
+**Pre-registered 2026-09-27 (night) by Claude under the owner's overnight delegation** ("you have exclusive use of the 4090, to do with as you wish ... don't ask questions"). Every decision below was taken as the scaffolding recommended; nothing else in this file was changed after the draft. Decision: no twelfth control is named; prediction 2 is "at most 1 of 11". Draft text follows unchanged. Scaffolded
 2026-09-27 against the tree at `ac47293` (D7 landed: `acc0c2a`, `17d4fcd`, `0dc49a5`). No model has been called:
 `probe.mts` has run in `--dry-run` only, which rebuilt all 14 contexts with 0 replay divergences and built 28
 requests without sending one. If the owner changes a number below, change it here and commit before the first

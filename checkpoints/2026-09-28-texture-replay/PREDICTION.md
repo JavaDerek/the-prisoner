@@ -1,6 +1,6 @@
 # P6 -- R7's texture and the window line, replayed: predictions
 
-**DRAFT -- not pre-registered until committed unchanged before the first call, by the owner.** Scaffolded
+**Pre-registered 2026-09-27 (night) by Claude under the owner's overnight delegation** ("you have exclusive use of the 4090, to do with as you wish ... don't ask questions"). Every decision below was taken as the scaffolding recommended; nothing else in this file was changed after the draft. Decision: **yes, `--with-at-band`**, pre-registered as 1b (0 of the at-band rows change target or effect) and 2b (at most 2 change property), scored separately from 1 and 2. `--omit=prisoner:2`, as P2 decided. Draft text follows unchanged. Scaffolded
 2026-09-27 against the tree at `ac47293`. D9 (`6995117`) landed with this replay PENDING -- the design's landing
 order had it gate D9, and the build spec landed D9 first and left P6 to be run. No model has been called:
 `probe.mts --dry-run --with-at-band` rebuilt all 34 contexts (0 replay divergences) and built 136 requests.

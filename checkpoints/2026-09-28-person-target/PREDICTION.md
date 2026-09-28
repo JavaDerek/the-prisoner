@@ -1,6 +1,6 @@
 # P3 -- R3, the person: predictions
 
-**DRAFT -- not pre-registered until committed unchanged before the first call, by the owner.** Scaffolded
+**Pre-registered 2026-09-27 (night) by Claude under the owner's overnight delegation** ("you have exclusive use of the 4090, to do with as you wish ... don't ask questions"). Every decision below was taken as the scaffolding recommended; nothing else in this file was changed after the draft. Decision: `--omit=prisoner:2`, as P2 decided. Draft text follows unchanged. Scaffolded
 2026-09-27 against the tree at `ac47293` (D12 `924947f` is in: `sight` exists, the person effect and property
 clauses name it, and `PRISONER_PERSON_INSTRUMENT` is the arm, default `off`). No model has been called:
 `probe.mts --dry-run` rebuilt all 11 contexts (0 replay divergences) and built 44 requests; the target question
