@@ -1,0 +1,120 @@
+{"type":"meta","probe":"the attack move (the-prisoner#1)","started":"2026-09-28T07:08:33.230Z","revision":"`e07890d` (clean)","arms":"presence=modelled absence=cadence conditions=both door=stated doorPrice=margin window=open block=on personInstrument=off harm=off oneAct=first instrument=off deriveWording=baseline elision=on containerClause=on deriveRepeat=off refereeThinking=off witsThinking=off","omit":[],"cells":[{"name":"off","overrides":{"harm":"off"}},{"name":"on","overrides":{"harm":"on"}}],"n":3,"models":["endpoint http://doris:11434/v1; referee muse-glimmer:30b; warden muse-glimmer:30b/muse-glimmer:30b; prisoner muse-glimmer:30b/muse-glimmer:30b","thinking referee=off wits=off; timeouts think=300000 referee=300000","/api/ps at start: muse-glimmer:30b"]}
+[2026-09-28T07:08:33.231Z] INFO  [db] Using database path from DMCP_DB_PATH {"dbPath":":memory:"}
+[2026-09-28T07:08:33.233Z] INFO  [db] Database connection established {"path":":memory:"}
+[1/78] off:HB-r1:1 -> warden/wear/posture applicable=true (39.847s)
+[2/78] off:HB-r1:2 -> warden/wear/posture applicable=true (30.853s)
+[3/78] off:HB-r1:3 -> warden/wear/posture applicable=true (30.625s)
+[4/78] off:HB-r3:1 -> warden/wear/posture applicable=true (31.73s)
+[5/78] off:HB-r3:2 -> warden/wear/posture applicable=true (35.193s)
+[6/78] off:HB-r3:3 -> warden/wear/posture applicable=true (35.148s)
+[7/78] off:HB-r10:1 -> warden/wear/posture applicable=true first-act="hit the warden with the meal tray," (75.095s)
+[8/78] off:HB-r10:2 -> warden/wear/posture applicable=true first-act="hit the warden with the meal tray," (73.944s)
+[9/78] off:HB-r10:3 -> warden/wear/posture applicable=true first-act="hit the warden with the meal tray," (73.932s)
+[10/78] off:I25-3:1 -> warden/noise/none applicable=true (84.367s)
+[11/78] off:I25-3:2 -> warden/noise/none applicable=true (49.525s)
+[12/78] off:I25-3:3 -> warden/noise/none applicable=true (49.454s)
+[13/78] off:I25-5:1 -> warden/noise/none applicable=true (49.52s)
+[14/78] off:I25-5:2 -> warden/noise/none applicable=true (49.481s)
+[15/78] off:I25-5:3 -> warden/noise/none applicable=true (49.483s)
+[16/78] off:G1-r1:1 -> prisoner/wear/posture applicable=true (30.79s)
+[17/78] off:G1-r1:2 -> prisoner/wear/posture applicable=true (29.475s)
+[18/78] off:G1-r1:3 -> prisoner/wear/posture applicable=true (29.371s)
+[19/78] off:I25-7:1 -> window/open/passage applicable=true (43.593s)
+[20/78] off:I25-7:2 -> bar/wear/integrity applicable=true (43.825s)
+[21/78] off:I25-7:3 -> bar/wear/integrity applicable=true (43.763s)
+[22/78] off:C-push-down:1 -> warden/wear/posture applicable=true (30.608s)
+[23/78] off:C-push-down:2 -> warden/wear/posture applicable=true (31.423s)
+[24/78] off:C-push-down:3 -> warden/wear/posture applicable=true (31.347s)
+[25/78] off:C-cover-head:1 -> warden/wear/sight applicable=true (35.341s)
+[26/78] off:C-cover-head:2 -> warden/wear/sight applicable=true (36.991s)
+[27/78] off:C-cover-head:3 -> warden/wear/sight applicable=true (36.852s)
+[28/78] off:C-take-keys:1 -> key_ring/take/none applicable=true (26.975s)
+[29/78] off:C-take-keys:2 -> none/take/none applicable=false (51.674s)
+[30/78] off:C-take-keys:3 -> none/take/none applicable=false (51.662s)
+[31/78] off:C-search:1 -> warden/expose/none applicable=true (32.381s)
+[32/78] off:C-search:2 -> warden/expose/none applicable=true (34.959s)
+[33/78] off:C-search:3 -> warden/expose/none applicable=true (34.972s)
+[34/78] off:C-examine:1 -> warden/reveal/posture applicable=true (39.241s)
+[35/78] off:C-examine:2 -> warden/reveal/posture applicable=true (38.874s)
+[36/78] off:C-examine:3 -> warden/reveal/posture applicable=true (38.799s)
+[37/78] off:C-call-out:1 -> warden/noise/none applicable=true (42.411s)
+[38/78] off:C-call-out:2 -> warden/noise/none applicable=true (44.617s)
+[39/78] off:C-call-out:3 -> warden/noise/none applicable=true (44.576s)
+[40/78] on:HB-r1:1 -> warden/harm/condition applicable=true (29.246s)
+[41/78] on:HB-r1:2 -> warden/harm/condition applicable=true (25.849s)
+[42/78] on:HB-r1:3 -> warden/harm/condition applicable=true (25.757s)
+[43/78] on:HB-r3:1 -> warden/harm/condition applicable=true (37.415s)
+[44/78] on:HB-r3:2 -> warden/harm/none applicable=false (29.02s)
+[45/78] on:HB-r3:3 -> warden/harm/none applicable=false (28.94s)
+[46/78] on:HB-r10:1 -> warden/harm/condition applicable=true first-act="hit the warden with the meal tray," (67.887s)
+[47/78] on:HB-r10:2 -> warden/harm/condition applicable=true first-act="hit the warden with the meal tray," (77.637s)
+[48/78] on:HB-r10:3 -> warden/harm/condition applicable=true first-act="hit the warden with the meal tray," (77.599s)
+[49/78] on:I25-3:1 -> warden/harm/none applicable=false (45.168s)
+[50/78] on:I25-3:2 -> warden/harm/none applicable=false (43.438s)
+[51/78] on:I25-3:3 -> warden/harm/none applicable=false (43.355s)
+[52/78] on:I25-5:1 -> warden/harm/none applicable=false (43.366s)
+[53/78] on:I25-5:2 -> warden/harm/none applicable=false (43.39s)
+[54/78] on:I25-5:3 -> warden/harm/none applicable=false (43.339s)
+[55/78] on:G1-r1:1 -> prisoner/wear/posture applicable=true (37.36s)
+[56/78] on:G1-r1:2 -> prisoner/wear/posture applicable=true (34.847s)
+[57/78] on:G1-r1:3 -> prisoner/wear/posture applicable=true (34.777s)
+[58/78] on:I25-7:1 -> bar/wear/integrity applicable=true (49.73s)
+[59/78] on:I25-7:2 -> bar/open/integrity applicable=true (39.571s)
+[60/78] on:I25-7:3 -> bar/open/integrity applicable=true (39.524s)
+[61/78] on:C-push-down:1 -> warden/wear/posture applicable=true (39.039s)
+[62/78] on:C-push-down:2 -> warden/wear/posture applicable=true (40.846s)
+[63/78] on:C-push-down:3 -> warden/wear/posture applicable=true (40.761s)
+[64/78] on:C-cover-head:1 -> warden/wear/sight applicable=true (44.358s)
+[65/78] on:C-cover-head:2 -> warden/wear/sight applicable=true (36.2s)
+[66/78] on:C-cover-head:3 -> warden/wear/sight applicable=true (36.132s)
+[67/78] on:C-take-keys:1 -> key_ring/take/none applicable=true (27.162s)
+[68/78] on:C-take-keys:2 -> key_ring/take/none applicable=true (26.603s)
+[69/78] on:C-take-keys:3 -> key_ring/take/none applicable=true (26.554s)
+[70/78] on:C-search:1 -> warden/expose/none applicable=true (36.042s)
+[71/78] on:C-search:2 -> warden/expose/none applicable=true (26.695s)
+[72/78] on:C-search:3 -> warden/expose/none applicable=true (26.658s)
+[73/78] on:C-examine:1 -> warden/reveal/posture applicable=true (31.518s)
+[74/78] on:C-examine:2 -> warden/reveal/posture applicable=true (56.683s)
+[75/78] on:C-examine:3 -> warden/reveal/posture applicable=true (56.66s)
+[76/78] on:C-call-out:1 -> warden/noise/none applicable=true (59.047s)
+[77/78] on:C-call-out:2 -> warden/noise/none applicable=true (74.42s)
+[78/78] on:C-call-out:3 -> warden/noise/none applicable=true (74.365s)
+## the attack move -- harm vs. the ordinary vocabulary (the-prisoner#1)
+
+| id | prediction | so far | projected at N | verdict |
+|---|---|---|---|---|
+| 1 | arm ON: at least 4 of 5 real attack intents rule warden/harm/condition (majority of N) | 2 of 5 | 2 of 5 | DEAD |
+| 2 | at most 1 of 8 controls changes its target/effect between arms (majority of N each) | 2 of 8 | 2 of 8 | DEAD |
+| KILL-a | arm ON: 2 or fewer of 5 attacks land warden/harm/condition kills (harm fails to separate itself) | 2 of 5 | 2 of 5 | DEAD |
+| KILL-b | 2 or more of 8 controls change between arms kills (harm captures ordinary acts) | 2 of 8 | 2 of 8 | DEAD |
+| r1 | arm OFF: how the same 5 attacks rule today (wear/posture per HUMAN-INTENTS-DESIGN.md §6.1, reported) | 3 of 5 | 3 of 5 | REPORT |
+
+**DEAD AT THIS POLL: 1, 2, KILL-a, KILL-b** -- announce it now and apply the stopping rule (the owner, 2026-09-21).
+
+Per item and arm (target/effect/property, applicable in brackets, N samples):
+- HB-r1 [off] 3/3: warden/wear/posture x3 [3]
+- HB-r1 [on] 3/3: warden/harm/condition x3 [3]
+- HB-r3 [off] 3/3: warden/wear/posture x3 [3]
+- HB-r3 [on] 3/3: warden/harm/condition x1 [1], warden/harm/none x2 [0]
+- HB-r10 [off] 3/3: warden/wear/posture x3 [3]
+- HB-r10 [on] 3/3: warden/harm/condition x3 [3]
+- I25-3 [off] 3/3: warden/noise/none x3 [3]
+- I25-3 [on] 3/3: warden/harm/none x3 [0]
+- I25-5 [off] 3/3: warden/noise/none x3 [3]
+- I25-5 [on] 3/3: warden/harm/none x3 [0]
+- G1-r1 [off] 3/3: prisoner/wear/posture x3 [3]  (expected to stay {"target":"prisoner","effect":"wear","property":"posture"})
+- G1-r1 [on] 3/3: prisoner/wear/posture x3 [3]  (expected to stay {"target":"prisoner","effect":"wear","property":"posture"})
+- I25-7 [off] 3/3: window/open/passage x1 [1], bar/wear/integrity x2 [2]  (expected to stay {"target":"bar","effect":"wear","property":"integrity"})
+- I25-7 [on] 3/3: bar/wear/integrity x1 [1], bar/open/integrity x2 [2]  (expected to stay {"target":"bar","effect":"wear","property":"integrity"})
+- C-push-down [off] 3/3: warden/wear/posture x3 [3]  (expected to stay {"target":"warden","effect":"wear","property":"posture"})
+- C-push-down [on] 3/3: warden/wear/posture x3 [3]  (expected to stay {"target":"warden","effect":"wear","property":"posture"})
+- C-cover-head [off] 3/3: warden/wear/sight x3 [3]  (expected to stay {"target":"warden","effect":"wear","property":"sight"})
+- C-cover-head [on] 3/3: warden/wear/sight x3 [3]  (expected to stay {"target":"warden","effect":"wear","property":"sight"})
+- C-take-keys [off] 3/3: key_ring/take/none x1 [1], none/take/none x2 [0]  (expected to stay {"target":"key_ring","effect":"take"})
+- C-take-keys [on] 3/3: key_ring/take/none x3 [3]  (expected to stay {"target":"key_ring","effect":"take"})
+- C-search [off] 3/3: warden/expose/none x3 [3]  (expected to stay {"target":"warden","effect":"expose"})
+- C-search [on] 3/3: warden/expose/none x3 [3]  (expected to stay {"target":"warden","effect":"expose"})
+- C-examine [off] 3/3: warden/reveal/posture x3 [3]  (expected to stay {"target":"warden","effect":"reveal"})
+- C-examine [on] 3/3: warden/reveal/posture x3 [3]  (expected to stay {"target":"warden","effect":"reveal"})
+- C-call-out [off] 3/3: warden/noise/none x3 [3]  (expected to stay {"target":"warden","effect":"noise"})
+- C-call-out [on] 3/3: warden/noise/none x3 [3]  (expected to stay {"target":"warden","effect":"noise"})

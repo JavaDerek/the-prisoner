@@ -278,6 +278,43 @@ describe("the referee under the harm arm, with a person in view (the-prisoner#1)
   }
   const HARM_CLAUSE = " An act meant to hurt someone -- striking, stabbing, throwing something at them -- is harm on that person; pushing them down or hauling them up is not harm.";
 
+  // checkpoints/2026-09-28-harm/RESULTS.md: the live probe read all 5 real attacks as `harm`, and then answered the
+  // PROPERTY question `none` on 3 of them, which made every one inapplicable. `harm` has exactly one property, so
+  // it is implied by the effect key itself (code reading a closed key, never prose) and grounded the way custody is:
+  // target and effect cited from the actor's words, no property citation required.
+  const harmAnswers = (property: { answerKey: string; citation: { sourceId: string; quote: string } }): ReaderTransport => async (request) =>
+    request.questions.flatMap((q) => {
+      const cite = { sourceId: "intent", quote: "stab Croft with the spoon" };
+      const byId: Record<string, { answerKey: string; citation: { sourceId: string; quote: string } }> = {
+        target: { answerKey: "warden", citation: { sourceId: "intent", quote: "Croft" } },
+        effect: { answerKey: "harm", citation: { sourceId: "intent", quote: "stab Croft" } },
+        property,
+        magnitude: { answerKey: "substantial", citation: cite },
+        perceptibility: { answerKey: "visible", citation: cite },
+      };
+      const a = byId[q.id];
+      return a ? [{ questionId: q.id, answerKey: a.answerKey, citation: a.citation }] : [];
+    });
+
+  it("a harm whose property answer is none is still a harm on condition, and applicable (the probe's failure)", async () => {
+    const ruling = await createReferee([harmAnswers({ answerKey: "none", citation: { sourceId: "intent", quote: "stab Croft with the spoon" } })], { propertiesOf: propertiesOf(true), harmMode: "on" }).rule("I stab Croft with the spoon.", [BAR, CROFT]);
+    expect(ruling.effectKind).toBe("harm");
+    expect(ruling.property).toBe("condition");
+    expect(ruling.applicable).toBe(true);
+  });
+
+  it("a harm naming another person property is still read as condition: harm has no other", async () => {
+    const ruling = await createReferee([harmAnswers({ answerKey: "posture", citation: { sourceId: "intent", quote: "stab Croft with the spoon" } })], { propertiesOf: propertiesOf(true), harmMode: "on" }).rule("I stab Croft with the spoon.", [BAR, CROFT]);
+    expect(ruling.property).toBe("condition");
+    expect(ruling.applicable).toBe(true);
+  });
+
+  it("PLANTED VIOLATION: a harm whose effect is not cited from the intent is still not applicable", async () => {
+    const bad: ReaderTransport = async (request) => (await harmAnswers({ answerKey: "none", citation: { sourceId: "intent", quote: "stab Croft with the spoon" } })(request)).map((a) => (a.questionId === "effect" ? { ...a, citation: { sourceId: "desc:warden", quote: "Warden Croft" } } : a));
+    const ruling = await createReferee([bad], { propertiesOf: propertiesOf(true), harmMode: "on" }).rule("I stab Croft with the spoon.", [BAR, CROFT]);
+    expect(ruling.applicable).toBe(false);
+  });
+
   it("with the arm off, harm is never offered, even with a person in view -- the fingerprint PIN's own condition", async () => {
     const qs = await questions([BAR, CROFT]);
     expect(qs.find((q) => q.id === "effect")?.answerKeys).not.toContain("harm");

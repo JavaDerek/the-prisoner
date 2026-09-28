@@ -940,6 +940,11 @@ export function computeRuling(
           targetIsPerson: targetObjectId !== "none" && isPerson(targetObjectId),
         })
       : (effectAnswer.answerKey as EffectKind);
+  // the-prisoner#1 (`checkpoints/2026-09-28-harm/RESULTS.md`): `harm` has exactly one property, `condition`, so
+  // the effect key implies it -- a closed key read from a closed key, never prose. The live probe read all five
+  // real attacks as `harm` and then answered the property question `none` on three, which refused every one.
+  // `effectKind` stays the referee's own answer; only the property it could not have meant otherwise is filled in.
+  const ruledProperty: OpenPropertyKey | "none" = effectKind === "harm" ? "condition" : property;
 
   const targetCitation = citationCheck(targetAnswer, INTENT_SOURCE_ID);
   const effectCitation = citationCheck(effectAnswer, INTENT_SOURCE_ID);
@@ -977,7 +982,10 @@ export function computeRuling(
   // PLAYTEST-2026-09-27 D4': a block stands in a way out, which is no property of it either -- grounded the same
   // way, by the effect and the named target, both cited from the actor's words.
   const custody = effectKind === "take" || effectKind === "give" || effectKind === "block" || search;
-  const propertyNamedWhenRequired = custody || !effectRequiresProperty(effectKind) || (property !== "none" && isDeclared(targetObjectId, property));
+  // the-prisoner#1: a harm is grounded like custody -- target and effect cited from the actor's words -- because its
+  // property is implied above rather than answered, so no property citation can be required of it.
+  const impliedProperty = effectKind === "harm";
+  const propertyNamedWhenRequired = custody || !effectRequiresProperty(effectKind) || (ruledProperty !== "none" && isDeclared(targetObjectId, ruledProperty));
   // OPEN-VARIANT.md §13.1: a derive names a declared product, cited from the
   // intent. Whether that product's parent is the target is `effects.ts`'s
   // check, as every "declared in the scenario" check is.
@@ -1007,7 +1015,7 @@ export function computeRuling(
     instrument !== "absent" &&
     (targetCitation.verified || (noise && targetObjectId === "none")) &&
     effectCitation.verified &&
-    (propertyCitation.verified || noise || custody) &&
+    (propertyCitation.verified || noise || custody || impliedProperty) &&
     propertyNamedWhenRequired &&
     productNamedWhenRequired;
 
@@ -1029,7 +1037,7 @@ export function computeRuling(
   return {
     targetObjectId,
     effectKind,
-    property,
+    property: ruledProperty,
     magnitude,
     perceptibility: perceptibilityAnswer.answerKey as Perceptibility,
     product,
