@@ -5,6 +5,7 @@ import { openConditions } from "../conditions.js";
 import type { Condition } from "../conditionList.js";
 import { PRISONER_NAME, WARDEN_NAME, prisonerStakes, wardenStakes } from "../../scenario.js";
 import { OPEN_OBJECTS } from "../scenarioObjects.js";
+import { absenceRuleLine } from "../briefing.js";
 
 /**
  * The-prisoner#21: a human-fiction view of a turn, for the player only, that
@@ -251,6 +252,71 @@ describe("D10-1: the stakes line is its own block, recognised by this repository
   it("still carries the stakes sentence in the full prose join -- completeness, never dropped by moving it to its own block", () => {
     const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, CONTEXT, openConditions());
     expect(prose).toContain(prisonerStakes(30));
+  });
+});
+
+/**
+ * The-prisoner#32: `checkpoints/2026-09-28T01-09-16-356Z.md` printed D5's
+ * absence-cadence rule line ("Warden Croft is out of the cell on round 4,
+ * and every fourth round after; while out, nothing Voss does is seen or
+ * heard.", `briefing.ts`'s `absenceRuleLine`) as anonymous news NINE times --
+ * once every turn -- because `buildOpenBriefing` puts it right beside the
+ * presence line (which DOES change every turn) and `parseBriefing` had no
+ * template for it, so it fell into `other`. It is a standing rule and never
+ * changes for the whole game, exactly the shape D10-1 built the `stakes`
+ * block to hold. Recognised here the same way: by exact match against this
+ * repository's own literal function output, never a guess at what the line
+ * means.
+ */
+describe("the-prisoner#32: the absence-cadence rule line is its own STANDING block", () => {
+  it("pulls the absence rule out of the news paragraph and into its own `absence` block", () => {
+    const context: OpenPrincipalContext = {
+      ...CONTEXT,
+      briefing: ["Round 4 of 30.", `${WARDEN_NAME} is here with you.`, absenceRuleLine(), "bar integrity: 92 (as of round 2)."].join("\n"),
+    };
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, context, undefined);
+    const absence = blocks.find((b) => b.kind === "absence");
+    expect(absence?.text).toBe(absenceRuleLine());
+    const news = blocks.find((b) => b.kind === "news");
+    expect(news?.text).not.toContain("is out of the cell on round");
+    // The line that DOES change every turn stays in `news`, exactly as before.
+    expect(news?.text).toContain(`${WARDEN_NAME} is here with you.`);
+  });
+
+  it("a briefing with no absence line at all has no `absence` block", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, CONTEXT, undefined);
+    expect(blocks.find((b) => b.kind === "absence")).toBeUndefined();
+  });
+
+  it("still carries the absence line in the full prose join -- completeness, never dropped by moving it to its own block", () => {
+    const context: OpenPrincipalContext = { ...CONTEXT, briefing: [CONTEXT.briefing, absenceRuleLine()].join("\n") };
+    const prose = renderProseSituation(PRISONER_NAME, WARDEN_NAME, context, openConditions());
+    expect(prose).toContain(absenceRuleLine());
+  });
+
+  it("does not touch the raw view: the model's own prompt still carries the absence line exactly where `buildOpenBriefing` put it", () => {
+    const context: OpenPrincipalContext = { ...CONTEXT, briefing: [CONTEXT.briefing, absenceRuleLine()].join("\n") };
+    const raw = renderSeatSituation(PRISONER_NAME, WARDEN_NAME, context, openConditions());
+    expect(raw).toContain(absenceRuleLine());
+  });
+});
+
+/**
+ * The-prisoner#32 also asks whether D13's laying-hands rule line has the
+ * same problem. It does not: D13's line ("An act on Warden Croft's own body
+ * gives grounds at once...") is one of `mind.ts`'s `stateBasedRules`, folded
+ * into the `rules` block below -- never rendered through `buildOpenBriefing`
+ * or `parseBriefing` at all -- so it was already STANDING before this task,
+ * the same way every other state-based rule sentence is. This test pins that
+ * finding rather than leaving it undocumented.
+ */
+describe("the-prisoner#32: D13's laying-hands rule line was never the same bug", () => {
+  it("is part of the `rules` block, not `news` or any per-turn block", () => {
+    const blocks = proseBlocks(PRISONER_NAME, WARDEN_NAME, CONTEXT, undefined);
+    const rules = blocks.find((b) => b.kind === "rules");
+    expect(rules?.text).toContain("own body gives grounds at once");
+    const news = blocks.find((b) => b.kind === "news");
+    expect(news?.text ?? "").not.toContain("own body gives grounds at once");
   });
 });
 
