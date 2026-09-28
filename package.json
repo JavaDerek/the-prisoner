@@ -21,7 +21,10 @@
     "price-world": "tsx src/open/priceWorldCli.ts",
     "scenario-gen": "tsx src/open/scenarioGenCli.ts",
     "model-router": "tsx src/tools/modelRouterCli.ts",
-    "measures": "tsx src/open/batchMeasuresCli.ts"
+    "measures": "tsx src/open/batchMeasuresCli.ts",
+    "build-referee-labels": "tsx src/open/refereeData/buildLabelsCli.ts",
+    "render-referee-data": "tsx src/open/refereeData/renderCli.ts",
+    "score-referee": "tsx src/open/refereeData/scorerCli.ts"
   },
   "dependencies": {
     "mind-seam": "0.5.0",
