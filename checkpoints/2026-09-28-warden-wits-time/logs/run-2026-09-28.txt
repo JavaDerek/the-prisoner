@@ -1,0 +1,42 @@
+{"type":"meta","probe":"the-prisoner#35 warden wits time","started":"2026-09-28T06:31:52.188Z","revision":"`842241b` (clean)","transcript":"checkpoints/2026-09-28T01-09-16-356Z.md","rounds":[1,2,3,5,6,7,9],"n":2,"oldOverrides":{"presence":"off","absence":"off","conditions":"list","door":"unstated","doorPrice":"free","block":"off","oneAct":"checked"},"models":"wits muse-glimmer:30b, voice muse-glimmer:30b (single-call path expected: they are equal)","psAtStart":["muse-glimmer:30b"]}
+[2026-09-28T06:31:52.190Z] INFO  [db] Using database path from DMCP_DB_PATH {"dbPath":":memory:"}
+[2026-09-28T06:31:52.192Z] INFO  [db] Database connection established {"path":":memory:"}
+[1/28] new:1:1 -> 16109ms usage={"prompt_tokens":2042,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":749,"total_tokens":2791} visible=1653 (16.112s)
+[2/28] new:1:2 -> 18078ms usage={"prompt_tokens":2042,"prompt_tokens_details":{"cached_tokens":2037},"completion_tokens":870,"total_tokens":2912} visible=1614 (18.081s)
+[3/28] new:2:1 -> 24858ms usage={"prompt_tokens":2189,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":1164,"total_tokens":3353} visible=1606 (24.86s)
+[4/28] new:2:2 -> 25717ms usage={"prompt_tokens":2189,"prompt_tokens_details":{"cached_tokens":2184},"completion_tokens":1237,"total_tokens":3426} visible=1691 (25.718s)
+[5/28] new:3:1 -> 38092ms usage={"prompt_tokens":2198,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":1803,"total_tokens":4001} visible=1652 (38.094s)
+[6/28] new:3:2 -> 24070ms usage={"prompt_tokens":2198,"prompt_tokens_details":{"cached_tokens":2193},"completion_tokens":1160,"total_tokens":3358} visible=1549 (24.072s)
+[7/28] new:5:1 -> 54964ms usage={"prompt_tokens":2172,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":2607,"total_tokens":4779} visible=2308 (54.965s)
+[8/28] new:5:2 -> 44472ms usage={"prompt_tokens":2172,"prompt_tokens_details":{"cached_tokens":2167},"completion_tokens":2150,"total_tokens":4322} visible=1957 (44.474s)
+[9/28] new:6:1 -> 48103ms usage={"prompt_tokens":2195,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":2308,"total_tokens":4503} visible=1894 (48.106s)
+[10/28] new:6:2 -> 54104ms usage={"prompt_tokens":2195,"prompt_tokens_details":{"cached_tokens":2190},"completion_tokens":2627,"total_tokens":4822} visible=2427 (54.105s)
+[11/28] new:7:1 -> 53007ms usage={"prompt_tokens":2205,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":2546,"total_tokens":4751} visible=1989 (53.009s)
+[12/28] new:7:2 -> 38465ms usage={"prompt_tokens":2205,"prompt_tokens_details":{"cached_tokens":2200},"completion_tokens":1869,"total_tokens":4074} visible=1678 (38.466s)
+[13/28] new:9:1 -> 21426ms usage={"prompt_tokens":2154,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":1009,"total_tokens":3163} visible=1722 (21.427s)
+[14/28] new:9:2 -> 24750ms usage={"prompt_tokens":2154,"prompt_tokens_details":{"cached_tokens":2149},"completion_tokens":1203,"total_tokens":3357} visible=1516 (24.751s)
+[15/28] old:1:1 -> 20468ms usage={"prompt_tokens":1488,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":977,"total_tokens":2465} visible=1833 (20.469s)
+[16/28] old:1:2 -> 17066ms usage={"prompt_tokens":1488,"prompt_tokens_details":{"cached_tokens":1483},"completion_tokens":834,"total_tokens":2322} visible=1699 (17.068s)
+[17/28] old:2:1 -> 14242ms usage={"prompt_tokens":1635,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":671,"total_tokens":2306} visible=1579 (14.244s)
+[18/28] old:2:2 -> 13335ms usage={"prompt_tokens":1635,"prompt_tokens_details":{"cached_tokens":1630},"completion_tokens":650,"total_tokens":2285} visible=1466 (13.336s)
+[19/28] old:3:1 -> 13358ms usage={"prompt_tokens":1644,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":629,"total_tokens":2273} visible=1509 (13.36s)
+[20/28] old:3:2 -> 11292ms usage={"prompt_tokens":1644,"prompt_tokens_details":{"cached_tokens":1639},"completion_tokens":551,"total_tokens":2195} visible=1517 (11.293s)
+[21/28] old:5:1 -> 15894ms usage={"prompt_tokens":1618,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":752,"total_tokens":2370} visible=1648 (15.896s)
+[22/28] old:5:2 -> 13772ms usage={"prompt_tokens":1618,"prompt_tokens_details":{"cached_tokens":1613},"completion_tokens":673,"total_tokens":2291} visible=1604 (13.774s)
+[23/28] old:6:1 -> 22054ms usage={"prompt_tokens":1725,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":1050,"total_tokens":2775} visible=1529 (22.055s)
+[24/28] old:6:2 -> 16730ms usage={"prompt_tokens":1725,"prompt_tokens_details":{"cached_tokens":1720},"completion_tokens":815,"total_tokens":2540} visible=1931 (16.731s)
+[25/28] old:7:1 -> 13931ms usage={"prompt_tokens":1639,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":656,"total_tokens":2295} visible=1653 (13.932s)
+[26/28] old:7:2 -> 13144ms usage={"prompt_tokens":1639,"prompt_tokens_details":{"cached_tokens":1634},"completion_tokens":642,"total_tokens":2281} visible=1646 (13.145s)
+[27/28] old:9:1 -> 17757ms usage={"prompt_tokens":1608,"prompt_tokens_details":{"cached_tokens":52},"completion_tokens":844,"total_tokens":2452} visible=1468 (17.759s)
+[28/28] old:9:2 -> 10098ms usage={"prompt_tokens":1608,"prompt_tokens_details":{"cached_tokens":1603},"completion_tokens":492,"total_tokens":2100} visible=1388 (10.099s)
+## the-prisoner#35 -- warden wits call: ms / prompt_tokens / completion_tokens / visible chars
+
+| arm | n | median ms | median prompt_tokens | median completion_tokens | median visible chars |
+|---|---|---|---|---|---|
+| new | 14 | 31904.5 | 2189 | 1520 | 1684.5|
+| old | 14 | 14086.5 | 1635 | 672 | 1591.5|
+
+Errors: 0.
+
+new/old ratios: ms x2.26, prompt_tokens x1.34, completion_tokens x2.26, visible chars x1.06.
+PREDICTION: MET as hidden reasoning -- completion tokens grew >=1.5x while visible chars grew <1.2x.
