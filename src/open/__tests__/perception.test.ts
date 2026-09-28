@@ -934,3 +934,38 @@ describe("the-prisoner#30: a person's own properties render in person vocabulary
     expect(text).toContain(`as an attempt to cover ${WARDEN_NAME}'s eyes`);
   });
 });
+
+/**
+ * The-prisoner#33: when an `open`/`close` is ruled on a PART (§19) and resolves through its own way
+ * out, the D1 opener used to name the ruling's own target ("opening the bar") while the outcome
+ * sentence right after it named the way out it actually resolved through ("met the window shut") --
+ * the opener and the outcome disagreeing about what the act was even though `renderOwnOutcome` is one
+ * sentence. `openRefusalWear.test.ts`'s own "a warden's refused open at the bar" fixture is the exact
+ * shape this reproduces: `target: "bar", effect: "open", property: "integrity"`, which `effects.ts`
+ * resolves through the window regardless (`result.wayOut`).
+ */
+describe("the-prisoner#33: the D1 opener names what an open/close resolved through, not the ruled part", () => {
+  afterEach(() => destroyTestDb());
+
+  it("open ruled on the bar (the window's part) opens with 'opening the window', matching the outcome that follows it", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const intent = "I examine and pry at the bar.";
+    // §19: a target named as the PART cites the part's own declared property (integrity, never
+    // "passage", which the part does not declare) -- effects.ts resolves through the window regardless.
+    const result = await half(openWorld, "warden", { intent }, [ruling({ target: "bar", effect: "open", property: "integrity", magnitude: "slight", intentQuote: "pry at the bar", descQuote: "about as thick as a thumb" })]);
+    expect(result.outcome?.result).toEqual(expect.objectContaining({ opened: false, partId: "bar", partBefore: 100, partAfter: 92 }));
+    const text = renderOwnOutcome(result) as string;
+    expect(text.startsWith("You set about opening the window.")).toBe(true);
+    expect(text).not.toContain("opening the bar");
+    expect(text).toBe("You set about opening the window. Your last attempt met the window shut: it will not open yet; the bar's integrity went from 100 to 92.");
+  });
+
+  it("open ruled directly on the way out itself is unchanged: the target and the way out are the same word", async () => {
+    createTestDb();
+    const openWorld = buildOpenWorld();
+    const result = await half(openWorld, "prisoner", { intent: "I pry at the bar to force the window." }, [ruling({ target: "window", effect: "open", property: "passage", intentQuote: "pry at the bar", descQuote: "One rusted iron bar, set into the mortar across its middle, closes it" })]);
+    const text = renderOwnOutcome(result) as string;
+    expect(text.startsWith("You set about opening the window.")).toBe(true);
+  });
+});

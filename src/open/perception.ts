@@ -444,7 +444,18 @@ function renderOwnOutcomeUnflagged(half: OpenHalfRoundResult): string | null {
   // immediately below) and the bottom refusal fallback's `attemptPhrase`
   // call, which used to compute the identical pair itself.
   const person = isPrincipalTarget(ruling.targetObjectId);
-  const who = ruling.targetObjectId === "none" ? null : person ? principalName(ruling.targetObjectId) : `the ${obj}`;
+  let who = ruling.targetObjectId === "none" ? null : person ? principalName(ruling.targetObjectId) : `the ${obj}`;
+
+  // The-prisoner#33: §19 lets `open`/`close` resolve through the way out even when the referee named
+  // its PART (an `open` ruled on the bar resolves through the window) -- `outcomeLines`'s own comment
+  // in checkpointTranscript.ts and this module's own `wayOut` variable below already know this, but the
+  // D1 opener built its "what" from `ruling.targetObjectId` alone, so it said "opening the bar" one
+  // sentence before the outcome said "met the window shut." Naming the way out here, when the outcome
+  // actually resolved through one, keeps the opener and the outcome agreeing about what the act was.
+  if ((ruling.effectKind === "open" || ruling.effectKind === "close") && !person) {
+    const wayOutId = (outcome?.result as { wayOut?: string } | undefined)?.wayOut;
+    if (wayOutId) who = `the ${wayOutId.replace(/_/g, " ")}`;
+  }
 
   // D1 (HUMAN-INTENTS-DESIGN.md §2, §11.1, the-prisoner#26), a batch
   // boundary: every outcome sentence opens with what was ruled, as FICTION

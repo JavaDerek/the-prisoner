@@ -7074,3 +7074,18 @@ real ruling to reach `attemptPhrase`'s own person branch. `attemptNotOutcome.tes
 exhaustive table (other-target and reflexive, both properties, both directions) and one more row in the SCENARIOS
 invariant this file already enforces -- a person-targeted `wear` on `sight`, landed and refused, relaying the
 identical sentence -- extending D1's own structural pin to the case this issue found broken.
+
+### 81.2 The D1 opener names what an open/close resolved through (the-prisoner#33, part 2)
+
+§19 lets an `open`/`close` ruled on a PART resolve through the way out it belongs to (an `open` ruled on the bar
+resolves through the window); the outcome sentence right after D1's opener already named the way out
+(`result.wayOut`), but the opener itself built its "what" from `ruling.targetObjectId` alone, so a human game
+(`checkpoints/2026-09-28T01-09-16-356Z.md`) read *"You set about opening the bar. Your last attempt met the window
+shut"* -- one sentence disagreeing with the next about what the act was. `renderOwnOutcomeUnflagged` now reads
+`outcome.result.wayOut` for `open`/`close` on a non-person target and, when present, names it instead of the ruled
+part; ruled directly on the way out itself, the two words are the same and nothing changes. No arm: this is D1's
+own rule (name what was ruled, as fiction) applied consistently within the one sentence it already governs, not a
+new decision. Pinned in `perception.test.ts` against `openRefusalWear.test.ts`'s own "a warden's refused open at
+the bar" fixture (the exact shape the human game hit) and against a same-object control (ruled directly on the way
+out). Part 1 of this issue -- the wear/open ruling instability itself -- is P6's own measurement
+(`checkpoints/2026-09-28-texture-replay/`), not a code change; the referee prompt is untouched.
