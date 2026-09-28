@@ -1,18 +1,11 @@
-<!-- A COMMENT on run-dmcp #43, not a new issue. NOT YET POSTED -- see the
-     honesty note at the top before anyone does. Drafted from
+<!-- A COMMENT on run-dmcp #43, not a new issue. READY, NOT POSTED: its gate (a live game's rows labelled) is met by
+     checkpoints/2026-09-28-live-rows-audit/LABELS.md; posting to run-dmcp was not permitted to the overnight session, so it is the owner's to post. Drafted from
      docs/HUMAN-INTENTS-DESIGN.md §8 (D12) and checkpoints/2026-09-26-human-intents/
      (D11), commits 876e87a and 45d2cf6. -->
 
-**Read this paragraph before posting it.** The design behind this comment says the report
-shape should go over the wall after one *labelled audit of a game's own rows* — a caller
-that has actually read a row back and called it right, wrong, or a gap it cannot yet fill.
-What ran tonight is that audit, but against a **replayed corpus** (95 requests rebuilt from
-recorded turns and paraphrases, one process, thinking off, never a live session), not
-against a person's own rows from a live game with another principal actually answering
-back. The first live game meant to carry this — a second human-played session — has not
-been played yet. So: this comment is ready, and I think the corpus below is informative
-enough to post now, but the more conservative reading is to wait for that live game's own
-rows to be labelled first. Your call; I'd rather flag the gap than paper over it.
+The design behind this comment said the report shape should go over the wall after one labelled audit of a
+game's *own* rows, read back by the caller from live play. That has now happened (section "The live audit" at the
+end), so this goes up as the design intended rather than on the replayed corpus alone.
 
 ## What we built
 
@@ -131,3 +124,30 @@ or even a well-labelled misread/unmodelled split, would never surface on its own
 Full per-row detail lives in our own repository; I've kept this comment to the counts and the
 two findings that seemed likely to matter to anyone building the collector this issue
 describes.
+
+## The live audit: two played sessions' own rows
+
+Nineteen rows from two sessions a person played against a model in the other seat, labelled by the caller after
+the fact with the same four labels (correct / misread / unmodelled / ambiguous), each label decided from the row's
+own answer keys and the caller's code path, never from re-reading the actor's prose with code:
+
+- **16 correct, 2 misread, 1 unmodelled, 0 ambiguous.**
+- Both misreads are on the *effect* question, never the target, which is the same family the corpus audit found.
+  One is a two-act intent whose *later* act was the one ruled; the caller has since changed its own rule so the
+  first act is attempted and the actor is told which. The other is the same words, typed three turns running,
+  answered with one effect twice and a different one the third time -- after the target's own description had
+  grown by one appended sentence (its state reading). The citation check passed every time; only the row's keys
+  side by side show it, which is an argument for keeping the full request in the row (the description that grew
+  is visible there, and nowhere else).
+- The one unmodelled row is an act on the other principal's body that the world had no property for at the time.
+  It has one now. A report row that only said "that's not what I meant" would have pooled it with the misreads.
+- What made the labelling cheap: the row carries the request, so the vocabulary and every description in force are
+  there without consulting the code at that revision; and the caller's own "outcome wording read" field was needed
+  twice, because the actor's opening sentence changed between the two sessions.
+
+What this adds to the shape above: nothing new for the engine. It confirms the split the corpus suggested -- the
+reader's result is yours, the per-question source bookkeeping and the label are ours -- and it adds one caution for
+a collector: **a live row set this small is dominated by who played**. Both sessions were one experienced person,
+who had been reading the caller's fiction-shaped reading of each ruling and so had learned its verbs. Rates from
+rows like these are not rates for a first-time actor, and a collector that pools across players should keep the
+player as a field.
