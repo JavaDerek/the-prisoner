@@ -7,6 +7,7 @@ import type { OpenGameResult } from "./game.js";
 import { findProperty, OPEN_OBJECTS } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
 import { renderOwnOutcome, renderForOther } from "./perception.js";
+import type { HarmMode } from "./effects.js";
 import { recordIntent, newMeasurements, noteIntent, renderMeasurements } from "./transcript.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -262,7 +263,7 @@ function perceivedLines(half: OpenHalfRoundResult): string[] {
   return lines;
 }
 
-export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote, voiceSilence?: SilenceNote): string[] {
+export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote, voiceSilence?: SilenceNote, harmMode?: HarmMode): string[] {
   const lines: string[] = [];
   lines.push(`### Round ${half.roundN} (t=${half.t}) -- the ${half.principal}`);
   lines.push("");
@@ -275,7 +276,9 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   const p = half.proposal;
   if (!p) {
     // PLAYTEST-2026-09-27 D5: a half-round the absence cadence skipped says so, the way `passive` does.
-    lines.push(`**Silence.** SilenceReason: \`${half.skipped === "absent" ? "absent (cadence)" : (silence?.reason ?? "unknown")}\`.`);
+    lines.push(
+      `**Silence.** SilenceReason: \`${half.skipped === "absent" ? "absent (cadence)" : half.skipped === "disabled" ? "disabled (condition 0)" : (silence?.reason ?? "unknown")}\`.`
+    );
     // D4' on the cadence's move out: the block he stood in lapsed as he left (game.ts).
     if (half.blockLapsed) lines.push(`Resolved \`OPEN_BLOCK\` first: the ${half.principal} steps out of the ${half.blockLapsed.replace(/_/g, " ")} (${half.principal}_blocking -> 0).`);
     if (silence?.text !== undefined) {
@@ -400,7 +403,7 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
       lines.push("  - nothing acquired.");
     }
   }
-  const learns = renderOwnOutcome(half);
+  const learns = renderOwnOutcome(half, harmMode);
   if (learns) lines.push(`**Actor learns:** ${learns}`);
   const perceived = renderForOther(half);
   if (perceived.length > 0) lines.push(`**Other perceives:** ${perceived.join(" ")}`);
@@ -492,6 +495,8 @@ export function renderOpenSummary(game: OpenGameResult, rounds?: number): string
   lines.push("");
   if (game.ended?.kind === "escaped") lines.push(`**The prisoner escaped, at round ${game.endedAtRound}.**`);
   else if (game.ended?.kind === "caught") lines.push(`**The warden caught the prisoner, at round ${game.endedAtRound}.**`);
+  // the-prisoner#1 (design §4, Q3): a new loss for the prisoner, distinct from being caught.
+  else if (game.ended?.kind === "disabled") lines.push(`**The prisoner was disabled, at round ${game.endedAtRound}.**`);
   else lines.push(`**Timeout after ${rounds ?? Math.max(0, ...game.halves.map((h) => h.roundN))} rounds -- the warden wins by default.**`);
   lines.push("");
 

@@ -1,5 +1,6 @@
 import { targetUnreadWithEffectCited, type RefereeRuling } from "./referee.js";
 import { renderOwnOutcome } from "./perception.js";
+import type { HarmMode } from "./effects.js";
 import type { OpenHalfRoundResult } from "./loop.js";
 import type { Principal } from "../ledger/beliefs.js";
 
@@ -115,11 +116,11 @@ function rulingForRow(ruling: RefereeRuling | null): HumanTurnRow["ruling"] {
   return { request: ruling.request, raw: ruling.raw, citations: ruling.citations };
 }
 
-export function buildHumanTurnRow(half: OpenHalfRoundResult, versions: TurnReportVersions): HumanTurnRow {
+export function buildHumanTurnRow(half: OpenHalfRoundResult, versions: TurnReportVersions, harmMode?: HarmMode): HumanTurnRow {
   return {
     intent: half.proposal?.intent ?? "",
     ruling: rulingForRow(half.ruling),
-    reasonTold: renderOwnOutcome(half),
+    reasonTold: renderOwnOutcome(half, harmMode),
     captured: classifyCapture(half),
     outcomeWordingRead: "post-D1",
     versions,

@@ -1,5 +1,6 @@
 import { CONDITION_LIST_OPENING, type Condition } from "./conditionList.js";
 import { seatSituationParts, type OpenPrincipalContext } from "./mind.js";
+import type { HarmMode } from "./effects.js";
 import { prisonerStakes, wardenStakes } from "../scenario.js";
 import { OPEN_OBJECT_IDS, findObject, findProperty, type OpenObjectProperty } from "./scenarioObjects.js";
 
@@ -351,6 +352,9 @@ function listBlock(kind: ProseBlockKind, lead: string, items: readonly ProseItem
  *  different kind of caller-supplied exception. */
 export interface ProseBlocksOptions {
   readonly newsFilter?: (line: string) => boolean;
+  /** the-prisoner#1 (`readHarmMode`, `effects.ts`), passed through to `seatSituationParts`'s own rule lines
+   *  unchanged. Absent (`"off"`): this view's `rules` block is byte-identical to before this issue landed. */
+  readonly harmMode?: HarmMode;
 }
 
 export function proseBlocks(
@@ -428,7 +432,7 @@ export function proseBlocks(
   for (const belief of parsed.beliefs) knowledgeItems.push({ key: belief.label, text: beliefSentence(belief) });
   if (knowledgeItems.length > 0) blocks.push(listBlock("knowledge", KNOWLEDGE_LEAD, knowledgeItems));
 
-  const parts = seatSituationParts(selfName, otherName, context, conditions);
+  const parts = seatSituationParts(selfName, otherName, context, conditions, options.harmMode);
   const rules = rulesParagraph(parts.ruleLines);
   if (rules.length > 0) blocks.push({ kind: "rules", text: rules });
 

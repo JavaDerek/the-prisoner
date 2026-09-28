@@ -5,6 +5,7 @@ import { parseBriefing, type ParsedBriefing } from "./proseView.js";
 import type { ObjectPerception } from "./referee.js";
 import type { Condition } from "./conditionList.js";
 import type { NarrationAuditor, SentenceVerdict } from "./narrationAudit.js";
+import type { HarmMode } from "./effects.js";
 
 /**
  * The-prisoner#21 route 2 (D3, 2026-09-18): a narrator model, deferred at
@@ -70,9 +71,9 @@ export interface NarratorFacts {
   readonly conditions: readonly Condition[];
 }
 
-export function buildNarratorFacts(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): NarratorFacts {
+export function buildNarratorFacts(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[], harmMode?: HarmMode): NarratorFacts {
   return {
-    parts: seatSituationParts(selfName, otherName, context, conditions),
+    parts: seatSituationParts(selfName, otherName, context, conditions, harmMode),
     parsed: parseBriefing(context.briefing),
     objects: context.perceivedObjects,
     conditions: conditions ?? [],
@@ -611,14 +612,14 @@ export interface Narrator {
    *  (`humanSeat.ts`) falls back to the deterministic prose view. Never
    *  throws: a bad narrator is a reason to fall back, never a reason to end
    *  the player's turn. */
-  narrate(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[]): Promise<string | null>;
+  narrate(selfName: string, otherName: string, context: OpenPrincipalContext, conditions?: readonly Condition[], harmMode?: HarmMode): Promise<string | null>;
 }
 
 export function createNarrator(options: CreateNarratorOptions): Narrator {
   const ensureLoaded = options.ensureLoaded ?? (async () => {});
   return {
-    async narrate(selfName, otherName, context, conditions) {
-      const facts = buildNarratorFacts(selfName, otherName, context, conditions);
+    async narrate(selfName, otherName, context, conditions, harmMode) {
+      const facts = buildNarratorFacts(selfName, otherName, context, conditions, harmMode);
       const localMind = createLocalMind<OpenPrincipalContext, NarratorReply>({
         baseUrl: options.baseUrl,
         model: options.model,
