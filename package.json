@@ -19,6 +19,7 @@
     "checkpoint": "tsx src/checkpoint.ts",
     "referee-replay": "tsx src/open/refereeReplayCli.ts",
     "price-world": "tsx src/open/priceWorldCli.ts",
+    "scenario-gen": "tsx src/open/scenarioGenCli.ts",
     "model-router": "tsx src/tools/modelRouterCli.ts",
     "measures": "tsx src/open/batchMeasuresCli.ts"
   },

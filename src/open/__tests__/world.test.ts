@@ -128,6 +128,23 @@ describe("buildOpenWorld (OPEN-VARIANT.md §1: everything the closed variant bui
 // and its condition removed -- everything else untouched": no resource for
 // the bar's integrity at all, so nothing can wear it, reveal it, or gate the
 // window's own passage on it.
+describe("buildOpenWorld: descriptionOverrides (the-prisoner#3, enjoyable mode)", () => {
+  afterEach(() => destroyTestDb());
+
+  it("defaults to {}, unset -- byte-identical to every game before this issue existed", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    expect(world.descriptionOverrides).toEqual({});
+  });
+
+  it("carries whatever is passed in, unchanged", () => {
+    createTestDb();
+    const overrides = { spoon: "A battered pewter spoon." };
+    const world = buildOpenWorld({ descriptionOverrides: overrides });
+    expect(world.descriptionOverrides).toEqual(overrides);
+  });
+});
+
 describe("buildOpenWorld: PRISONER_WINDOW=welded (§64.3)", () => {
   afterEach(() => destroyTestDb());
 

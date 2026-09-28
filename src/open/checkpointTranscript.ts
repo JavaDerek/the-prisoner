@@ -231,9 +231,17 @@ function outcomeLines(half: OpenHalfRoundResult): string[] {
 }
 
 /** The authored description for an object id, or `undefined` for anything this
- *  game derived (OPEN-VARIANT.md §13) -- which therefore always prints. */
-function authoredDescription(objectId: string): string | undefined {
-  return OPEN_OBJECTS.find((o) => o.id === objectId)?.description;
+ *  game derived (OPEN-VARIANT.md §13) -- which therefore always prints.
+ *
+ *  the-prisoner#3, enjoyable mode: `descriptionOverrides` (default `{}`) is
+ *  what THIS game's own briefing actually carried as the object's base text
+ *  (`scenarioGen.ts`'s generated description, or the authored facts text on
+ *  a fallback) -- checked first, so a generated description that has not
+ *  itself changed since the header is not misread as "changed" against the
+ *  benchmark's own static text, which would print noise on every single
+ *  half-round it is perceived. */
+function authoredDescription(objectId: string, descriptionOverrides: Readonly<Record<string, string>> = {}): string | undefined {
+  return descriptionOverrides[objectId] ?? OPEN_OBJECTS.find((o) => o.id === objectId)?.description;
 }
 
 /**
@@ -253,16 +261,21 @@ function authoredDescription(objectId: string): string | undefined {
  * authored one, because the unchanged text is in the header once and repeating
  * eleven objects per half-round would treble a transcript to say nothing new.
  */
-function perceivedLines(half: OpenHalfRoundResult): string[] {
+function perceivedLines(half: OpenHalfRoundResult, descriptionOverrides: Readonly<Record<string, string>> = {}): string[] {
   const objects = half.context.perceivedObjects;
   if (objects.length === 0) return ["**Perceived:** nothing it could act on."];
   const lines = [`**Perceived:** ${objects.map((o) => o.id).join(", ")}`];
-  const changed = objects.filter((o) => o.description !== authoredDescription(o.id));
+  const changed = objects.filter((o) => o.description !== authoredDescription(o.id, descriptionOverrides));
   for (const object of changed) lines.push(`- ${object.id}, as it stands: ${object.description}`);
   return lines;
 }
 
-export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote, voiceSilence?: SilenceNote): string[] {
+/** the-prisoner#3: `descriptionOverrides` (default `{}`, so a benchmark-mode
+ *  transcript is byte-identical to every one recorded before this issue
+ *  existed) is `checkpoint.ts`'s own enjoyable-mode map -- the SAME one
+ *  `buildOpenWorld`/`authoredDescription` (`briefing.ts`) use, so "as it
+ *  stands" compares against the base text THIS game actually played. */
+export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: SilenceNote, voiceSilence?: SilenceNote, descriptionOverrides: Readonly<Record<string, string>> = {}): string[] {
   const lines: string[] = [];
   lines.push(`### Round ${half.roundN} (t=${half.t}) -- the ${half.principal}`);
   lines.push("");
@@ -270,7 +283,7 @@ export function renderOpenHalfRound(half: OpenHalfRoundResult, silence?: Silence
   lines.push("```");
   lines.push(half.context.briefing);
   lines.push("```");
-  lines.push(...perceivedLines(half));
+  lines.push(...perceivedLines(half, descriptionOverrides));
 
   const p = half.proposal;
   if (!p) {
