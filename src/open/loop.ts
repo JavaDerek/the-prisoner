@@ -14,7 +14,7 @@ import { setBelief, getBelief, type Principal } from "../ledger/beliefs.js";
 import { setNotes } from "../ledger/notes.js";
 import { PRISONER_NAME, WARDEN_NAME } from "../scenario.js";
 import { SIGHT_BLIND_AT_OR_BELOW } from "./scenarioObjects.js";
-import { HONE_SUSPICION_BUMP, FILE_SUSPICION_BUMP, FAILED_ESCAPE_SUSPICION_BUMP, EVIDENCE_SUSPICION_DIVISOR } from "../world/mechanics.js";
+import { HONE_SUSPICION_BUMP, FILE_SUSPICION_BUMP, FAILED_ESCAPE_SUSPICION_BUMP, EVIDENCE_SUSPICION_DIVISOR, SEARCH_SUSPICION_THRESHOLD } from "../world/mechanics.js";
 
 /**
  * The open variant's half-round (this task's brief: mind -> referee ->
@@ -199,10 +199,31 @@ export function suspicionEligible(effectKind: EffectKind): boolean {
  * own mind's business: she perceives it (§55) and decides, which is the whole
  * shape of SOCIAL-INTENTS.md's reframe -- truth in the world, judgement in the
  * mind, never a belief written by the actor.
+ *
+ * Still true of the ORDINARY bump since D13 (2026-09-27): a hand on the warden's own body is charged by
+ * `laysHandsOnWarden` below instead -- grounds, then the magnitude bump -- never through this function.
  */
 export function suspicionEligibleFor(effectKind: EffectKind, targetObjectId: string | null): boolean {
   if (targetObjectId === "prisoner" || targetObjectId === "warden") return false;
   return suspicionEligible(effectKind);
+}
+
+/**
+ * D13, the owner's decision of 2026-09-27 on OPEN-VARIANT.md §80: an act by the PRISONER on the WARDEN's own body
+ * -- a wear, restore, conceal, expose (a search) or take whose target is the warden himself -- gives grounds at
+ * once. The §56 exemption above stays for the actor's OWN body (her collapse damages nothing), and the warden
+ * acting on hers never touches his own number. Read from ruling keys alone: principal and target id.
+ */
+export function laysHandsOnWarden(principal: Principal, effectKind: EffectKind, targetObjectId: string): boolean {
+  if (principal !== "prisoner" || targetObjectId !== "warden") return false;
+  return effectKind === "wear" || effectKind === "restore" || effectKind === "conceal" || effectKind === "expose" || effectKind === "take";
+}
+
+/** D13's grounds leg: the amount that lifts `warden_suspicion` at t to `SEARCH_SUSPICION_THRESHOLD`, or 0 when it
+ *  is already there. The magnitude bump is charged separately, after this. */
+function groundsShortfall(openWorld: OpenWorld, t: number): number {
+  const now = readNumericFact({ gameId: openWorld.base.gameId, t, entityId: openWorld.base.resources.wardenSuspicion, key: "value" }) ?? 0;
+  return Math.max(0, SEARCH_SUSPICION_THRESHOLD - now);
 }
 
 /** Applies ONE further, audited `resolve()` call against `warden_suspicion`
@@ -927,7 +948,12 @@ export async function runOpenHalfRound(params: {
     // OPEN-VARIANT.md §55 (issue #22 gap 1): gated on `otherPresent`, exactly
     // the closed variant's own `WARDEN_PRESENCE`/`wardenPresent` rule
     // ("unheard while the warden is away") -- always true under `off`.
-    if (principal === "prisoner" && otherPresent && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
+    if (laysHandsOnWarden(principal, ruling.effectKind as EffectKind, ruling.targetObjectId)) {
+      // D13 (owner, 2026-09-27, §80): grounds at once, then the act's own amount on top. Charged from this
+      // half-round's outcome whatever it left of his sight or posture, and whatever its perceptibility: he felt it.
+      bumpWardenSuspicion(openWorld, resolver, groundsShortfall(openWorld, t), "The warden has been laid hands on.");
+      bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
+    } else if (principal === "prisoner" && otherPresent && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
     }
     if (known) {

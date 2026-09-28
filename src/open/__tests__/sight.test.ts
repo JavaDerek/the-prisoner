@@ -96,12 +96,14 @@ describe("sight as a person's property (D12)", () => {
     expect(rulingPropertyAnswerKeys(true)).toContain("sight");
   });
 
-  it("covering her head is a wear on her sight, and raises no suspicion", async () => {
+  it("covering his head is a wear on his sight, and gives grounds at once (D13)", async () => {
     createTestDb();
     const w = buildOpenWorld({ presence: "modelled" });
     const cover = await act(w, "prisoner", 1, COVER_WARDEN);
     expect(sightOf(w, "warden", cover.t)).toBe(0);
-    expect(readNumericFact({ gameId: w.base.gameId, t: cover.t, entityId: w.base.resources.wardenSuspicion, key: "value" })).toBe(0);
+    // Changed on purpose, 2026-09-27 (D13, the owner's answer to §80): an act on the warden's own body gives
+    // grounds (40) and then its own substantial bump (+30). This asserted 0 under the §56 person exemption.
+    expect(readNumericFact({ gameId: w.base.gameId, t: cover.t, entityId: w.base.resources.wardenSuspicion, key: "value" })).toBe(70);
   });
 
   it("recovery is slight only: one clearing after a substantial cover leaves her blind", async () => {

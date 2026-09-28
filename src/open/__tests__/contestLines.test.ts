@@ -378,8 +378,9 @@ describe("the blind line (D12, external review F1), played", () => {
     const game = await play(w, warden, prisoner);
 
     expect(valueAt(w, sight, half(game, 1, "prisoner").t)).toBe(50);
-    // A wear on a person raises nothing (the person rule).
-    expect(suspicionAt(w, half(game, 1, "prisoner").t)).toBe(0);
+    // Changed on purpose, 2026-09-27 (D13, the owner's answer to §80): a hand on his body gives grounds at once,
+    // 40, then the moderate +10. This asserted 0 under the §56 person rule.
+    expect(suspicionAt(w, half(game, 1, "prisoner").t)).toBe(50);
     // Restore is slight only: +10 -> 60, which is still blind (<= SIGHT_BLIND_AT_OR_BELOW).
     expect(valueAt(w, sight, half(game, 2, "warden").t)).toBe(60);
     const open = half(game, 2, "prisoner");
@@ -387,7 +388,7 @@ describe("the blind line (D12, external review F1), played", () => {
     expect(open.perceptionForOther).toBeNull();
     // OWNER DECISION, asserted as built: blindness does not stop suspicion. Her open is +10 while he cannot see it,
     // because the bump is gated on presence alone (loop.ts, `otherPresent`), not on his sight.
-    expect(suspicionAt(w, open.t)).toBe(10);
+    expect(suspicionAt(w, open.t)).toBe(60);
     // Round 3: his second clearing takes him to 70 -- he can see -- but that was his act; she leaves.
     expect(valueAt(w, sight, half(game, 3, "warden").t)).toBe(70);
     expect(game.ended).toEqual({ kind: "escaped" });
