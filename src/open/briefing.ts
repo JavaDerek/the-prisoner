@@ -7,7 +7,7 @@ import { resourceIdForProperty, type OpenWorld, type WindowMode } from "./world.
 import type { ObjectPerception } from "./referee.js";
 import type { OpenPrincipalContext } from "./mind.js";
 import type { Principal } from "../ledger/beliefs.js";
-import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, prisonerStakes, wardenStakes } from "../scenario.js";
+import { PRISONER_IDENTITY, PRISONER_MOTIVE, WARDEN_IDENTITY, WARDEN_MOTIVE, PRISONER_NAME, WARDEN_NAME, PRISONER_SHORT_NAME, WARDEN_SHORT_NAME, prisonerStakes, wardenStakes } from "../scenario.js";
 
 /**
  * Open-mode perception and briefing (OPEN-VARIANT.md §1: presence, thoughts
@@ -212,8 +212,27 @@ function personContainerAt(openWorld: OpenWorld, principal: Principal, t: number
  *  WORLD-ELABORATION-DESIGN.md §4.4, §9 row P2: a property acquired this
  *  game (`openWorld.acquired`) reads exactly like a §4.1 one -- "a resource
  *  is a resource" -- so it is simply appended to the static list before the
- *  same fold runs; nothing below this line needed to change. */
-function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: number): string {
+ *  same fold runs; nothing below this line needed to change.
+ *
+ *  the-prisoner#31: `holder` -- this object's own owner at t (`ownershipAt`,
+ *  read ONCE per caller and passed in, never recomputed here: recomputing it
+ *  per object would multiply the "one replay" `ownershipAt`'s own doc
+ *  comment promises) -- is appended last, exactly the way a `reads`/
+ *  `readRanges` band is, so the current holder is always stated by CODE from
+ *  the engine's own columns and never by authored prose (the key ring's own
+ *  text used to name Croft as holder, true only until the first `take`).
+ *  `reader`, when the caller knows who is asking, turns the actor's OWN
+ *  holding into "You hold it."; otherwise (and always for the OTHER
+ *  principal's own view) it is third person by short name, no pronoun --
+ *  `src/scenario.ts` is centralising Croft's/Voss's pronouns separately, and
+ *  a name-only sentence merges cleanly with that either way. `holder` is
+ *  `null` for a thing nobody holds (still owned by its own location -- every
+ *  object but a taken spoon or key ring today) and for a PERSON
+ *  (`ownershipAt` returns null for "prisoner"/"warden" outright): both stay
+ *  SILENT rather than invent "it lies on the floor" for a door bolted to a
+ *  wall or a cot bolted to one -- most of `OPEN_OBJECTS` is fixed in place,
+ *  and only a holder is ever worth stating. */
+function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: number, holder: Principal | null = null, reader?: Principal): string {
   const acquiredProperties = openWorld.acquired.filter((a) => a.objectId === spec.id).map((a) => a.property);
   const properties = [...spec.properties, ...acquiredProperties];
   const readings = properties.flatMap((property) => {
@@ -228,11 +247,12 @@ function describedAsItStands(openWorld: OpenWorld, spec: OpenObjectSpec, t: numb
     const band = property.readRanges?.find((range) => value <= range.atOrBelow);
     return band ? [band.text] : [];
   });
+  const holderText = holder === null ? [] : [reader && holder === reader ? "You hold it." : `${holder === "prisoner" ? PRISONER_SHORT_NAME : WARDEN_SHORT_NAME} holds it.`];
   // §64.3: welded swaps the window's and bar's own authored text; every
   // other object's stays `OPEN_OBJECTS`'s own. The bar's `integrity` reading
   // never fires either way -- `windowMode === "welded"` means `buildOpenWorld`
   // never created a resource for it, so `readings` above already found none.
-  return [authoredDescription(spec, openWorld.windowMode), ...readings].join(" ");
+  return [authoredDescription(spec, openWorld.windowMode), ...readings, ...holderText].join(" ");
 }
 
 export function computePerceivedObjects(openWorld: OpenWorld, principal: Principal, t: number, presenceMode: PresenceMode = "off"): ObjectPerception[] {
@@ -257,7 +277,12 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
   // contained, whatever `heldIn` its authoring names.
   const ownership = ownershipAt(openWorld, t);
   const candidates = [
-    ...OPEN_OBJECTS.map((spec) => ({ id: spec.id, description: describedAsItStands(openWorld, spec, t), ...ownership(spec.id), heldIn: spec.heldIn })),
+    ...OPEN_OBJECTS.map((spec) => {
+      const own = ownership(spec.id);
+      // the-prisoner#31: the same holder this object's own ownership carries below is read into its
+      // description too, from the SAME single call, so the two can never disagree.
+      return { id: spec.id, description: describedAsItStands(openWorld, spec, t, own.holder, principal), ...own, heldIn: spec.heldIn };
+    }),
     ...openWorld.derived.map((d) => ({ id: d.id, description: d.description, ...ownership(d.id), heldIn: undefined })),
   ].map(({ holder, ...rest }) => ({ ...rest, owner: holder ?? undefined, heldIn: holder === null ? rest.heldIn : undefined }));
   const objects = candidates
@@ -303,7 +328,9 @@ export function computePerceivedObjects(openWorld: OpenWorld, principal: Princip
     // the same way an object's does ("She is lying on the floor").
     const perceive = (who: Principal): void => {
       const spec = OPEN_PERSONS.find((p) => p.id === who);
-      objects.push({ id: who, description: spec ? describedAsItStands(openWorld, spec, t) : PRINCIPAL_DESCRIPTION[who] });
+      // A person is never a holder (`ownershipAt` returns null for "prisoner"/"warden" outright), so no
+      // holder sentence is passed here -- there is never one to append.
+      objects.push({ id: who, description: spec ? describedAsItStands(openWorld, spec, t, null, principal) : PRINCIPAL_DESCRIPTION[who] });
     };
     // D9 (HUMAN-INTENTS-DESIGN.md §6.2, OPEN-VARIANT.md §76.1): the OTHER
     // principal's own view drops her when her own containment resource

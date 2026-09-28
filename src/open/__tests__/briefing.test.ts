@@ -348,9 +348,11 @@ describe("open-mode perception and briefing", () => {
       const described = (id: string) => computePerceivedObjects(world, "prisoner", world.base.clock.t0).find((o) => o.id === id)?.description;
       expect(described("window")).toBe("A small window set high in the wall, barely a hand across. Its iron bars are set flush into the stone and welded at every crossing.");
       expect(described("bar")).toBe("An iron bar welded into the window's grid, set flush in sound stone. It does not move.");
-      // Every other object is untouched -- spot-check one.
+      // Every other object is untouched -- spot-check one. The prisoner holds the spoon from the start
+      // (OWNER_OF), so her own reading now carries the holder sentence the-prisoner#31 added; the welded
+      // arm changes nothing about that.
       const authored = OPEN_OBJECTS.find((o) => o.id === "spoon")?.description;
-      expect(described("spoon")).toBe(authored);
+      expect(described("spoon")).toBe(`${authored} You hold it.`);
     });
 
     it("welded: no bar_integrity belief line, even when the shared belief store has one seeded (the closed variant's own resource, untouched); lock_integrity still renders", () => {
@@ -370,6 +372,66 @@ describe("open-mode perception and briefing", () => {
       expect(briefing).toMatch(/bar integrity: 100/);
       expect(briefing).toMatch(/lock integrity: 100/);
     });
+  });
+});
+
+// the-prisoner#31: the current holder of a §4.1 object is stated by CODE, appended after any state reading
+// exactly the way `reads`/`readRanges` append a property's own current value (§33.8) -- never by authored
+// prose. The key ring's own text used to name its STARTING holder ("on Croft's belt"), which is exactly
+// what `docs/CUSTODY-DESIGN.md` made `OWNER_OF` for: authoring only, never read again once a `take` moves a
+// thing. Every object gets the same treatment (`describedAsItStands`, from `ownershipAt`); only the key
+// ring's authored text needed anything removed.
+describe("the current holder, stated by code, never by authored text (the-prisoner#31)", () => {
+  afterEach(() => destroyTestDb());
+
+  it("the key ring's authored text no longer names Croft as its holder", () => {
+    const keyRing = OPEN_OBJECTS.find((o) => o.id === "key_ring");
+    expect(keyRing?.description).not.toMatch(/Croft/);
+    // Every citation `elaborationBands.ts` already holds against this text survives verbatim.
+    expect(keyRing?.description).toContain("heavy iron ring");
+  });
+
+  it('at t0: the key ring (held by Croft, OWNER_OF) reads "Croft holds it." to the prisoner and "You hold it." to the warden', () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const t0 = world.base.clock.t0;
+    const authored = OPEN_OBJECTS.find((o) => o.id === "key_ring")?.description;
+    expect(computePerceivedObjects(world, "prisoner", t0).find((o) => o.id === "key_ring")?.description).toBe(`${authored} Croft holds it.`);
+    expect(computePerceivedObjects(world, "warden", t0).find((o) => o.id === "key_ring")?.description).toBe(`${authored} You hold it.`);
+  });
+
+  it("the spoon reads the mirror of that, held by the prisoner at t0", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const t0 = world.base.clock.t0;
+    const authored = OPEN_OBJECTS.find((o) => o.id === "spoon")?.description;
+    expect(computePerceivedObjects(world, "prisoner", t0).find((o) => o.id === "spoon")?.description).toBe(`${authored} You hold it.`);
+    expect(computePerceivedObjects(world, "warden", t0).find((o) => o.id === "spoon")?.description).toBe(`${authored} Voss holds it.`);
+  });
+
+  it("an object nobody holds (still owned by its own location) carries no holder sentence -- the door stays exactly as authored", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    const t0 = world.base.clock.t0;
+    const authored = OPEN_OBJECTS.find((o) => o.id === "door")?.description;
+    expect(computePerceivedObjects(world, "prisoner", t0).find((o) => o.id === "door")?.description).toBe(authored);
+  });
+
+  // The bug this issue fixes, reproduced directly: #31 was filed against a transcript where custody moved
+  // (`OPEN_TAKE`, round 7) and the room's own prose still read "on Croft's belt" forever after. Here the
+  // ring changes hands by `OPEN_GIVE` (no posture gate to stage) and the stated holder moves with it.
+  it("once the key ring changes hands, its stated holder changes with it -- the authored text is never read again", () => {
+    createTestDb();
+    const world = buildOpenWorld();
+    buildOpenResolver().resolve({
+      gameId: world.base.gameId,
+      mechanic: "OPEN_GIVE",
+      parameters: { itemId: world.entityIdFor.key_ring, actorId: world.base.wardenId, recipientId: world.base.prisonerId, description: "handed over" },
+    });
+    const t = world.base.clock.wardenT(1);
+    const authored = OPEN_OBJECTS.find((o) => o.id === "key_ring")?.description;
+    expect(computePerceivedObjects(world, "prisoner", t).find((o) => o.id === "key_ring")?.description).toBe(`${authored} You hold it.`);
+    expect(computePerceivedObjects(world, "warden", t).find((o) => o.id === "key_ring")?.description).toBe(`${authored} Voss holds it.`);
   });
 });
 

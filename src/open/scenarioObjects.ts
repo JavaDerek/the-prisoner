@@ -401,8 +401,16 @@ export const OPEN_OBJECTS: readonly OpenObjectSpec[] = [
   },
   {
     id: "key_ring",
+    // `heldBy` is authoring-only metadata (`docs/CUSTODY-DESIGN.md`), never rendered to a mind or the
+    // referee -- unlike `description` below, so it is left naming where the ring starts.
     heldBy: "Croft's belt",
-    description: "A heavy iron ring on Croft's belt holding four keys, one of them long-shanked and brass. The keys clink against each other when Croft walks.",
+    // the-prisoner#31: this text used to say "on Croft's belt... when Croft walks" -- true only until the
+    // first `take`, after which the room's own prose kept naming Croft as holder while the status line
+    // said otherwise. The current holder is now stated by CODE (`briefing.ts`'s `describedAsItStands`,
+    // from `ownershipAt`), appended after this text exactly the way a `reads`/`readRanges` band is; this
+    // description states only what never changes. Every existing citation ("heavy iron", "iron ring",
+    // "heavy iron ring": `elaborationBands.ts`) survives verbatim, unmoved.
+    description: "A heavy iron ring holding four keys, one of them long-shanked and brass. The keys clink against each other when it is carried.",
     // No numeric property in O1 -- taking or copying a key is custody
     // (`move`), out of scope (OPEN-VARIANT.md §7). Legal `reveal`/`noise`
     // target only.
