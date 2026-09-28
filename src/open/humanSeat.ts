@@ -348,6 +348,13 @@ const HELP_TEXT = [
  * warden's own win conditions in thresholds), the mechanics paragraph, and
  * who you are. A model is given all three every turn because it has no
  * memory between turns; a person has one.
+ *
+ * The-prisoner#32 adds `absence`, mapped to the SAME target as `rules`
+ * rather than a fifth command: it is another standing mechanical fact
+ * (D5's absence-cadence rule), never shown automatically, and the `rules`
+ * command below now reads every block kind mapped to `"rules"` -- not only
+ * the `rules` kind by name -- so a future kind mapped here needs no second
+ * change to the command handler.
  */
 export const PLAY_BLOCK_POLICY: Record<ProseBlockKind, "shown" | "conditions" | "rules" | "me"> = {
   news: "shown",
@@ -363,6 +370,7 @@ export const PLAY_BLOCK_POLICY: Record<ProseBlockKind, "shown" | "conditions" | 
   conditions: "conditions",
   rules: "rules",
   identity: "me",
+  absence: "rules",
 };
 
 /** Reading order for the blocks `PLAY_BLOCK_POLICY` shows: what happened,
@@ -707,9 +715,17 @@ export function createHumanSeatMind(options: CreateHumanSeatOptions): HumanSeatM
           continue;
         }
         if (command.command === "rules") {
-          // The prose view's own rules paragraph, which `play` holds back --
-          // `blockText` reads it from `proseBlocks`, never a second rendering.
-          const rules = blockText(context, "rules");
+          // The prose view's own rules paragraph, plus any other block
+          // `PLAY_BLOCK_POLICY` maps to this same command (the-prisoner#32
+          // adds `absence`, D5's absence-cadence rule, on the exact pattern
+          // this loop generalises rather than hard-coding a second kind) --
+          // `blockText` reads each from `proseBlocks`, never a second
+          // rendering.
+          const kinds = (Object.keys(PLAY_BLOCK_POLICY) as ProseBlockKind[]).filter((kind) => PLAY_BLOCK_POLICY[kind] === "rules");
+          const rules = kinds
+            .map((kind) => blockText(context, kind))
+            .filter((text) => text.length > 0)
+            .join("\n\n");
           write(rules.length > 0 ? rules : "This cell has no standing rules beyond what you can see.");
           continue;
         }

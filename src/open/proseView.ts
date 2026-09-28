@@ -2,6 +2,7 @@ import { CONDITION_LIST_OPENING, type Condition } from "./conditionList.js";
 import { seatSituationParts, type OpenPrincipalContext } from "./mind.js";
 import { prisonerStakes, wardenStakes } from "../scenario.js";
 import { OPEN_OBJECT_IDS, findObject, findProperty, type OpenObjectProperty } from "./scenarioObjects.js";
+import { absenceRuleLine } from "./briefing.js";
 
 /**
  * The-prisoner#21: a human-fiction view of a turn, for the PLAYER only, that
@@ -82,6 +83,15 @@ export interface ParsedBriefing {
    *  parsed before it), in which case it is kept in `other` instead of being
    *  silently dropped. */
   readonly stakes?: string;
+  /** The-prisoner#32: D5's absence-cadence rule line (`briefing.ts`'s
+   *  `absenceRuleLine`), recognised by exact match against that repository
+   *  literal -- the same "never a guess at what it means" discipline
+   *  `stakes` above uses. `buildOpenBriefing` renders it right beside the
+   *  presence line, which DOES change every turn, so without this it fell
+   *  into `other` and was re-shown as anonymous news every single turn
+   *  (`checkpoints/2026-09-28T01-09-16-356Z.md`, nine times). `undefined`
+   *  when the line is absent (`PRISONER_ABSENCE=off`, or no round yet). */
+  readonly absenceRule?: string;
   /** Everything this parser does not recognise a fixed template for --
    *  the outcome of the actor's own last attempt, what it perceived of the
    *  other principal, and standing/precedent news. Each is already a
@@ -114,6 +124,11 @@ export function parseBriefing(briefing: string): ParsedBriefing {
   let suspicion: number | undefined;
   let hasGrounds = false;
   let stakes: string | undefined;
+  let absenceRule: string | undefined;
+  // The-prisoner#32: computed once, outside the loop -- `absenceRuleLine()`
+  // takes no argument (unlike the stakes templates, it does not depend on
+  // `totalRounds`), so it needs no round line parsed first either.
+  const absenceLine = absenceRuleLine();
 
   for (const line of briefing.split("\n")) {
     if (line.length === 0) continue;
@@ -128,6 +143,10 @@ export function parseBriefing(briefing: string): ParsedBriefing {
     // (briefing.ts) puts the round line first, before this one.
     if (totalRounds !== undefined && (line === prisonerStakes(totalRounds) || line === wardenStakes(totalRounds))) {
       stakes = line;
+      continue;
+    }
+    if (line === absenceLine) {
+      absenceRule = line;
       continue;
     }
     const suspicionMatch = SUSPICION_LINE.exec(line);
@@ -157,7 +176,7 @@ export function parseBriefing(briefing: string): ParsedBriefing {
     other.push(line);
   }
 
-  return { roundN, totalRounds, beliefs, notes, plan, suspicion, hasGrounds, stakes, other };
+  return { roundN, totalRounds, beliefs, notes, plan, suspicion, hasGrounds, stakes, absenceRule, other };
 }
 
 function spacedLabel(id: string): string {
@@ -293,7 +312,7 @@ export function isExemptFromLineLength(line: string): boolean {
  * SAY so, in a field, rather than for another module to match its finished
  * prose with a regular expression and guess.
  */
-export type ProseBlockKind = "conditions" | "identity" | "scene" | "news" | "notesAndPlan" | "knowledge" | "rules" | "stakes";
+export type ProseBlockKind = "conditions" | "identity" | "scene" | "news" | "notesAndPlan" | "knowledge" | "rules" | "stakes" | "absence";
 
 /**
  * One block of the prose view, with its kind and -- for the two blocks that
@@ -398,6 +417,13 @@ export function proseBlocks(
   // holds it back after the first turn instead of repeating it as anonymous
   // news every round (the motivating transcript's rounds 5-10).
   if (parsed.stakes !== undefined) blocks.push({ kind: "stakes", text: parsed.stakes });
+
+  // The-prisoner#32: the absence-cadence rule (D5) is STANDING for the same
+  // reason -- it never changes for the whole game -- so it gets the same
+  // treatment as `stakes` immediately above: its own block, held back by
+  // `deltaView.ts` once shown, instead of riding along in `news` (which
+  // repeats every turn) beside the presence line, which does change.
+  if (parsed.absenceRule !== undefined) blocks.push({ kind: "absence", text: parsed.absenceRule });
 
   const notesAndPlan: string[] = [];
   if (parsed.notes !== undefined) notesAndPlan.push(`You'd made a note to yourself last round: ${parsed.notes}`);
