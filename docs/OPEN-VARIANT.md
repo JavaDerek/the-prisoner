@@ -6966,3 +6966,178 @@ saw attempted, as D1 relays it. Two pins in `attemptNotOutcome.test.ts`: a refus
 when a later repeat resolves (refused +0; resolved +10 +30). `precedent.ts`'s header says it is the owner's decision.
 
 The P3 and P5 drafts under `checkpoints/2026-09-28-*` say what these change for them; neither is pre-registered yet.
+
+## 81. Two modes: benchmark (fixed) and enjoyable (generated descriptions), the-prisoner#3
+
+Delivered overnight (2026-09-27/28) by a coder agent under the owner's delegation, per
+`docs/issues/3.md`'s own six open questions; the coordinating session took the decisions below on the
+owner's behalf. `src/open/scenarioMode.ts`, `src/open/scenarioGen.ts`, `src/open/scenarioTransport.ts`,
+`src/open/scenarioGenCli.ts`; wired into `src/checkpoint.ts`'s `mainOpen()`.
+
+### 81.1 Why this exists
+
+The-prisoner#3's own framing: benchmark mode's whole point is that it stays fixed -- same cell, same
+objects, same hand-authored §4.1 descriptions, game after game, which is the only way to compare
+language models or a code change apples to apples. Enjoyable mode is the opposite: an LLM writes fresh
+physical texture for the room, so no two games feel alike. §3.3 already names object descriptions as
+**the referee's main safeguard** -- nothing is ruled possible unless the referee can quote the target's
+authored description verbatim, so a description that implies a use is a use the referee may grant. A
+model writing descriptions therefore sits upstream of that guard, which is exactly why it needed its own
+rules rather than "let a model write the descriptions" (§8.3 deferred this for the identical reason, in
+2026-09-14, before any real game had run).
+
+### 81.2 The switch (decision 1)
+
+`PRISONER_MODE=benchmark|enjoyable`, default `benchmark`. **`benchmark` is not a new arm -- it is the
+name now given to the one behaviour every game before this issue existed already had.** No library
+default moved (`buildOpenWorld`'s own `descriptionOverrides` default is `{}`), so every existing unit
+test, every replay of a recorded request, and every batch ever run is byte-identical. Printed first in
+every open-variant transcript header (`prisonerModeHeaderLine`, `checkpoint.ts`):
+
+```
+Mode: BENCHMARK (`PRISONER_MODE=benchmark`, the default): the fixed, hand-authored §4.1 scenario, unchanged...
+Mode: ENJOYABLE -- generated scenario, never pool with a benchmark batch (`PRISONER_MODE=enjoyable`, the-prisoner#3): ...
+```
+
+`batchMeasures.ts`'s `parseTranscript` reads the line (`parseModeFromTranscript`) and calls
+`assertBenchmarkTranscript` before reading anything else, which **throws, naming the offending file**,
+the moment it sees `Mode: ENJOYABLE`. A transcript recorded before this switch existed carries no `Mode:`
+line at all and is read as `benchmark` by construction -- every batch on record predates this issue. This
+is the only aggregator in `src/` today (`batchMeasuresCli.ts` walks a directory and calls
+`parseTranscript` per file); a later aggregator should call `assertBenchmarkTranscript` the same way.
+`PRISONER_MODE=enjoyable` also refuses to start outside the open variant (the closed variant has no
+scenario descriptions of any kind), and `PRISONER_SCENARIO_FILE` (§81.5) refuses to be set without it --
+both checked at load, before a database or a model is ever touched, the same discipline
+`assertSeatIsPlayable`'s neighbouring check already uses.
+
+### 81.3 What is generated -- start small (decision 2)
+
+Only the physical **description** of each object in the fixed §4.1 list. The object list, ids,
+properties, starting values, mechanics, the two persons, and their identities/motives are all untouched
+-- `scenarioObjectFacts()` reads `OPEN_OBJECTS` for ids and authored text only, never a property or a
+number. The generator is given each object's authored benchmark description as the **facts it must
+preserve** (what is attached to what, what closes what, what a part can do) and is asked to rewrite it
+with fresh physical texture -- material, size, wear, colour, smell -- never a use, never another object's
+name or a plural of one (the-prisoner#26/§76's own lesson, generalised into run-dmcp's
+`docs/AUTHORING-GUIDE.md` per this repository's CLAUDE.md), and never a new object
+(`buildGenerationPrompt`, `scenarioTransport.ts`).
+
+### 81.4 Keeping it honest -- the review pass (decision 3)
+
+A second model call per description, built on the **same machinery the referee is built on**:
+run-dmcp's `createTurnReader`, one closed-key question, verbatim citation required, code verifying only
+that a citation is verbatim and from the right source, never judging whether it justifies the verdict
+(CLAUDE.md's "Never pattern-match meaning", applied here exactly as it is applied to the referee).
+
+The question (`buildHonestyQuestion`, `scenarioGen.ts`) answers one of four closed keys, per the issue's
+own enumeration:
+
+- **`physical-only`** -- the ONLY passing key. States only physical, sensory facts and changes nothing
+  the authored facts state.
+- **`states-a-use`** -- says what the object can be used for, an effect it produces, or a purpose it
+  serves.
+- **`names-another-object`** -- names another object in the scene, singular or plural.
+- **`drops-a-fact`** -- a physical fact the authored text states (including an attachment or what closes
+  what) is missing, changed or contradicted.
+
+Two sources are offered: `generated` (the text just written) and `facts` (the authored benchmark text).
+**Which source a citation is required to come from depends on the answer, an ambiguity worth recording
+exactly as `referee.ts` §9.2 records its own**: `physical-only`, `states-a-use` and
+`names-another-object` all point at something the GENERATED text itself contains, so their citation must
+come from `generated`. `drops-a-fact` is the one exception -- the whole verdict is that the generated
+text does NOT contain the fact, so it cannot be quoted from that text; its citation is required from
+`facts` instead, naming the dropped fact verbatim (`requiredHonestySource`). The review's `safeDefault`
+is `states-a-use` (any of the three failing keys would do; the safe DIRECTION is always rejection, never
+trusting an unreachable or uncertain review as a pass).
+
+A rejection triggers a regeneration, up to **3 attempts** (`MAX_GENERATION_ATTEMPTS`), then falls back to
+the authored benchmark text for that object -- recorded, never silent, both in the transcript header (a
+"Fallback to the authored §4.1 text for: ..." line naming every fallen-back object, or a line saying
+there were none) and in the `.scenario.json` sidecar's own `accepted`/`attempts` fields per object.
+
+### 81.5 Which model, when, and reproducibility (decisions 4 and 5)
+
+At scenario build, before round 1, through the existing one-model-at-a-time swapper
+(`ensureLoaded`) -- the identical GPU-safety discipline every other role already follows. Model:
+`PRISONER_SCENARIO_MODEL`, falling back to the referee's own model (`resolveScenarioModel`) -- the
+referee is already the model measured for obedience over style (§62), which is exactly the property a
+description generator needs. Temperature: `PRISONER_SCENARIO_TEMPERATURE` (new, default **0.9**) for
+generation -- variety is the whole point -- and **0** for the honesty review, matching the referee's own
+§3.5. The review call reuses `createRefereeTransport` unchanged: it is already a generic turn-reader
+transport with no game vocabulary of its own, so a second copy was not written. Muse-on-Ollama's
+`reasoning_effort: "none"` / `stop: ["<|eot|>"]` handling (`thinking.ts`) applies to both calls: the
+scenario role has no thinking variable of its own, since its model already defaults to the referee's --
+it reuses the referee's own resolved `PRISONER_REFEREE_THINKING`/`PRISONER_THINKING` mode rather than a
+third variable nobody asked for.
+
+Reproducibility: the full generated scenario -- every description, every review answer (with its
+citation and whether it verified), the model, both temperatures, a timestamp -- is written to a
+**sidecar file**, `checkpoints/<stamp>.scenario.json`, beside the transcript. **A sidecar was chosen over
+a fenced JSON block in the transcript body** for the same reason `.referee.json` already is one: it
+keeps the (already long) transcript readable while still making the run fully reproducible, and it
+follows an existing convention rather than inventing a second one. `PRISONER_SCENARIO_FILE=<path>` reads
+that exact file back and skips generation entirely (`generatedScenario` is parsed from disk, no model
+call made, no swap), which is how a memorable enjoyable game is replayed exactly, or promoted to a new
+benchmark scenario after a human reviews its `.scenario.json` and copies the chosen text into
+`scenarioObjects.ts` by hand.
+
+**Where generated text actually reaches a mind or the referee: the exact seam authored text always
+used, never a second path.** `briefing.ts`'s `authoredDescription(spec, windowMode, descriptionOverrides)`
+already had one arm-driven override (the welded-window arm's `WELDED_DESCRIPTION`) before this issue; a
+`descriptionOverrides` map (object id -> the text this game actually uses) is now checked first, ahead of
+the welded swap. `OpenWorld.descriptionOverrides` (default `{}`) carries it from `buildOpenWorld` through
+to `describedAsItStands`, which every mind's perceived-object text and every referee `desc:<id>` citation
+source are built from (`computePerceivedObjects`). The transcript's "Objects as authored" header section
+and `checkpointTranscript.ts`'s own "as it stands" comparison read the identical map, so a generated
+description that has not itself changed since the header is never misreported as having changed. This
+generalises cleanly to open-world rules (#5, §81.7): whatever that work adds only needs to read the same
+map, never invent a second description path.
+
+### 81.6 Balance (decision 6)
+
+Accepted as part of the fun, not checked. The argument: only object **textures** change in this
+landing -- the object list, every property, every starting value, and the mechanics that move them are
+byte-identical to the benchmark scenario. A generated description cannot make the bar un-worn-through-able
+or the window un-passable, because nothing about *how* a property moves changed, only *what it is called*.
+The reachability of both endings (escape, catch) is therefore unchanged by construction, which is exactly
+why it was safe to start with descriptions alone rather than the object list or starting values: a future
+landing that DOES vary a starting value or a property's own magnitude table would need this decision
+revisited, because at that point reachability really could move.
+
+### 81.7 What is still unmeasured
+
+**No live enjoyable game has been played.** Every test in this landing uses scripted transports
+(CLAUDE.md's TDD discipline: red for the right reason, then implemented) -- `scenarioGen.test.ts`,
+`scenarioTransport.test.ts` and `scenarioGenCli.test.ts` script the honesty review and the generation
+call, and `scenarioGenCli.ts --dry-run` prints the exact requests a real run would send without sending
+them. The coordinating session is to run one live game on doris, all-Muse, `PRISONER_SKIP_VOICE=1`,
+a short round count -- see the coder's own final report for the exact command. Unmeasured, specifically:
+
+- Whether a real model (Muse-Glimmer or otherwise) actually stays inside the "physical facts only, never
+  a use" instruction often enough for 3 attempts to be enough headroom, or whether the fallback rate is
+  high in practice (§62's own lesson -- obedience over style -- was measured for the referee and the
+  narrator, never yet for a generator).
+- Whether the honesty reviewer catches what a person reading the transcript would catch, the same
+  question §54/§63 ask of the narration auditor -- this review is new machinery, unmeasured against a
+  live model's actual failure modes.
+- Whether the generated texture is different enough, game to game, to be worth the extra model calls at
+  all -- the entire premise of "enjoyable" is a subjective read a transcript alone can partly support and
+  partly not.
+- Whether §33.16-era referee behaviour (fingerprint-sensitive: the request's own text moves a citation's
+  word range, §76's own "word positions moves by two" lesson) is disturbed by a generated description
+  whose wording differs from the authored one in ways this landing's honesty review does not check for
+  (the review checks facts and uses, never phrase length or clause order) -- a live game is the only way
+  to see whether a referee still finds the citations it needs.
+
+### 81.8 How #5 (open-world rules) hangs off the same switch
+
+The-prisoner#5's own text names this directly: "the same `PRISONER_MODE` switch and transcript header
+should cover both." Nothing in this landing's switch is content-specific -- `readPrisonerMode`,
+`prisonerModeHeaderLine`, and `assertBenchmarkTranscript` all operate on the mode value and the header
+line alone, never on what enjoyable mode happens to vary. When #5's own two steps (the referee ruling in
+the engine's generic terms; objects gaining properties nobody declared in advance) land, they belong
+behind `PRISONER_MODE=enjoyable` exactly as generated descriptions do, and the SAME guard
+(`assertBenchmarkTranscript`) already refuses to pool either kind of change into a benchmark batch. No
+second mode variable, no second header line -- `enjoyable` is one bucket for "this game's raw material or
+rules varied," and every future addition to it is a new thing `PRISONER_MODE=enjoyable` unlocks, not a
+new switch.

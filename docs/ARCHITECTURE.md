@@ -424,6 +424,10 @@ column below is what a real game gets.
 | `PRISONER_SKIP_VOICE` | unset | `1` collapses voice onto the wits model. |
 | `PRISONER_PRISONER_MODEL` / `PRISONER_WARDEN_MODEL` | unset (the run's pair) | One chair's whole mind, wits and voice. |
 | `PRISONER_REFEREE_MODEL` | `muse-glimmer:30b` | Empty is unset. |
+| `PRISONER_MODE` | `benchmark` | `benchmark` \| `enjoyable` (the-prisoner#3, `src/open/scenarioMode.ts`). Open variant only. Printed in every open-variant transcript header; `batchMeasures.ts` REFUSES to aggregate an `enjoyable` transcript. |
+| `PRISONER_SCENARIO_MODEL` | the referee model | Enjoyable mode only: which model generates and honesty-reviews descriptions. |
+| `PRISONER_SCENARIO_TEMPERATURE` | `0.9` | Enjoyable mode only: generation temperature. The honesty review always runs at 0. |
+| `PRISONER_SCENARIO_FILE` | unset | Enjoyable mode only: a path to a `.scenario.json` sidecar to replay exactly, with no generation call. Needs `PRISONER_MODE=enjoyable`. |
 | `PRISONER_THINK_TIMEOUT_MS` | unset (mind-seam's 12 s; the strategy step's own 300 s) | Mind calls. |
 | `PRISONER_REFEREE_TIMEOUT_MS` | `PRISONER_THINK_TIMEOUT_MS`, else the transport's 12 s | Referee calls. |
 | `PRISONER_REFEREE_THINKING` / `PRISONER_WITS_THINKING` | `off` | `on` \| `off`, per role. |
