@@ -48,6 +48,9 @@ and 2026-09-27 is a batch boundary for both chairs. A run with no variables set 
 `cadence` (out every fourth round), and one act `first`; `PRISONER_PERSON_INSTRUMENT` stays `off`. Every old
 value is still an arm, named in the transcript header. D1 (the other side is told the attempt), D8, D9's
 scenario text and D11 have no arm, so a replication of an earlier batch is a near-replication and says so.
+The owner's answers to §80's three open questions landed the same day, with no arm (§80.7): a hand on the warden's
+own body gives grounds at once (D13), nothing accrues while he cannot see (D14), and a held key ring opens the door
+for whoever holds it (D15); a refused visible attempt still counts as seen (D16, pinned only).
 What landed, the arms, the boundary and what is still unmeasured: `docs/OPEN-VARIANT.md` §80. Every variable
 and its current default: `docs/ARCHITECTURE.md`, "Configuration reference".
 

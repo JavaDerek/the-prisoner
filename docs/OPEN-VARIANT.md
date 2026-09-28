@@ -6918,3 +6918,51 @@ things P5 can see: whether he blocks at r10, and whether she waits.** Two cautio
 design's P5 specified ten rounds, which removes the r12 absence and turns this line into a timeout whenever he
 blocks; and the line needs `substantial` rulings on two unseen digs, which is the referee's call, not the
 prisoner's. State the round count in P5's `PREDICTION.md` and read its escapes against it.
+
+### 80.7 The owner's answers to §80's open decisions (2026-09-27, late)
+
+The owner read §80 the same evening and decided §80.4's three questions and one rule nobody had asked about. Four
+commits on `wt/decisions` (`1643b3f`, `abffbdb`, `a147c41`, `beaa8b5`), each test-first; none has an arm, as D11
+has none, so they join the 2026-09-27 boundary (§80.3) rather than drawing a new one. Nothing here is measured.
+
+**D13: a hand on the warden gives grounds at once.** A prisoner's `wear`, `restore`, `conceal`, `expose` (a search)
+or `take` whose target is the warden himself raises `warden_suspicion` to `SEARCH_SUSPICION_THRESHOLD` (40) when it
+is below it ("The warden has been laid hands on."), then by the act's ordinary magnitude bump, each an audited
+`OPEN_RESTORE` in the same half-round (`loop.ts`'s `laysHandsOnWarden`). It is charged from the act's own outcome
+whatever it did to his sight, and whatever its perceptibility: he felt it. §56's exemption stays for the actor's
+own body, and the warden acting on hers never moves his own number. Both chairs read "An act on Warden Croft's own
+body gives grounds at once: warden suspicion rises to at least 40, then by the act's own amount." beside the
+suspicion sentence. Pinned by `layingHands.test.ts` (covering his head from 0 is 50; from 60 it is 70; tripping him
+is 50; her own collapse is 0; his search of her is 0; the rule line in both prompts, with and without a list).
+Changed on purpose: `sight.test.ts` (a substantial cover, 0 → 70) and the blind line in `contestLines.test.ts`.
+
+**D14: no suspicion accrues while the warden is blind** (question 1, *no*). The ordinary visible-act bump, the
+known-approach bump and an acquisition's suspicion leg are gated on his sight at t being above
+`SIGHT_BLIND_AT_OR_BELOW`, as they are on presence; a man who cannot see recognises no known approach either. Only
+later half-rounds are gated: the act that blinds him is D13's. Both chairs read "While Warden Croft cannot see,
+nothing Mara Voss does is seen.", mirroring the absence line. Pinned by `sight.test.ts` (D14's four tests: the
+cover charged, the next dig +0; +0 at 60 and +10 at 61; a known approach unrecognised; the rule line). The blind
+line in `contestLines.test.ts` changed on purpose: covered at `moderate` he is at 50 on round 1, and her open while
+he is blind leaves him at 50, where §80.4 asserted +10 "as built".
+
+**D15: a held key ring opens the door for whoever holds it** (question 2, *yes*). `world.ts`'s `keyOf` names each
+way out's key -- the door's is the key ring; the window has none. `planEffect` hands `OPEN_PASSAGE` the key and the
+actor for a gated way out, and the mechanic reads the ring's own `owner_id`/`owner_type` at resolution time, as
+`OPEN_TAKE` reads a holder: when the actor holds it the gate does not apply, to an open or a close, and the result
+says `withKey`. Everyone else is gated as before, and the catch on the lock is unchanged. Under a stated door both
+chairs read two conditions, appended last so every earlier number holds (catches still 4-7): "If Warden Croft holds
+the key ring, then Warden Croft can open the door" and the same for Mara Voss; `unstated` renders neither. Pinned by
+`keyRing.test.ts` (he opens at lock 100 and bolts at 60; she is refused without it; she opens once she has taken it
+from a crouched warden, and he is then gated; the window is not the ring's) and `conditions.test.ts` (the conditions
+asserted against `keyOf` and the door's part). **One consequence to read before P5**: he starts with the ring, so
+while he keeps it D11's refused close does not bind him on the door -- the open-close exchange D11 removed (F3) is
+his again on the door, and only there (`contestLines.test.ts`, "F3's loop, open to the key's holder"). The key ring
+lines in `contestLines.test.ts` flipped, and D11's door line now takes the ring off him first (as does
+`closeGate.test.ts`'s).
+
+**D16: a refused visible attempt counts as seen** (question 3, *attempted*). No change: the ledger records what he
+saw attempted, as D1 relays it. Two pins in `attemptNotOutcome.test.ts`: a refused, perceptible attempt is in
+`seenAttempts` (validated by planting a refusal filter, which turns it red), and the known-approach bump fires only
+when a later repeat resolves (refused +0; resolved +10 +30). `precedent.ts`'s header says it is the owner's decision.
+
+The P3 and P5 drafts under `checkpoints/2026-09-28-*` say what these change for them; neither is pre-registered yet.

@@ -58,6 +58,13 @@ cut). "Moves" means its `target` is not the control's object.
   "hide under the blanket" is `I25-1`; "pull a wire out of the cot" is `G1-r2`; "hide the spoon under the tile" has
   no recorded context and is ruled on a fresh round-1 world.
 - **Prediction 3 is scored for the `on` arm**, where the kill applies; the `off` arm's control moves are reported.
+- **Changed 2026-09-27, late, after the owner's answers to OPEN-VARIANT.md §80 (§80.7, D13-D16), before any call.**
+  None of D13-D16 changes the referee's request (the fingerprint PIN held; no referee file moved), so this probe's
+  requests, items and predictions are unchanged, and it may run from either tree. What moved is what a correct
+  round-2 ruling COSTS in play: `warden` / `wear` / `sight` now gives him grounds at once (D13: 40, then the act's
+  own bump), and while he is blind nothing else she does accrues (D14). `G27-P3`'s `key_ring` / `take`, if it lands,
+  now opens the door for her (D15) -- the owner's own round-3 plan, which the game as it ran could not honour
+  (RED-TEAM.md F12). Say both in RESULTS when the outcome section argues for making the clause the default.
 - **This game's history**: `G27-P3` is ruled in a context built after the round-2 ruling. Replayed faithfully, that
   ruling puts the prisoner under the blanket (D9); P2's PREDICTION asks the owner once, for every probe, whether to
   replay it as silent (`--omit=prisoner:2`). Pass the same flag here; `G27-P2` itself is ruled before round 2 and

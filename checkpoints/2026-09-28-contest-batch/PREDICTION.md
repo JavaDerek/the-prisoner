@@ -70,6 +70,20 @@ referee's `reveal` on that way out.
   the transcript's header names the chair); the warden and referee stay Muse, and this file says which in its arms
   table before the first game. Either way, comparing this batch with a llama-server batch (b3-b7) is a runtime
   change, not a replication (CLAUDE.md).
+- **Changed 2026-09-27, late, after the owner's answers to OPEN-VARIANT.md §80 (§80.7, D13-D16), before any game.**
+  This draft was scaffolded at `ac47293`; the batch must run from a commit that includes D13-D15, and the header
+  cannot name them (they have no arm), so RESULTS names the commit. What moved: (a) **the blind line's suspicion
+  arithmetic** -- covering his head now gives grounds at once (D13: to 40, then +10 at `moderate`, so 50 on the
+  round she does it), and nothing she does while he cannot see adds to it (D14: §80.4's review asserted her open at
+  +10 while he was blind; it is +0). Blinding him is no longer free: it hands him grounds, and it pays only if she
+  finishes before he can see and look. (b) **The key ring gap is closed** (D15): whoever holds the ring opens the
+  door at any lock, so taking it from a crouched or blinded warden is a door route in two acts, and a hand on him to
+  get there gives grounds at once (D13). (c) **The warden's ring lets him bolt a door she opened** at the gate
+  (D15 lifts D11's close gate for the holder), so on the door, while he keeps the ring, the open-close exchange
+  D11 removed is his again. Nothing in predictions 1-9 is renumbered or reworded: none of them names this
+  arithmetic, and the kills measure the rules as built. Reported, no weight, read by hand from the referee's keys:
+  games in which the key ring changes hands (`key_ring` / `take` that lands), and games in which the prisoner's act
+  is on the warden (`warden` as the target, any effect) -- prediction 8 counts the latter too.
 - **Arms alternate on one driver**: b6's two drivers are why CLAUDE.md forbids interleaving drivers; alternating
   games on ONE serial driver is not that, and it spreads Shep's traffic and the card's drift over both arms.
 
