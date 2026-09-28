@@ -86,6 +86,12 @@ export class GameSession {
   private readonly playView: PlayView;
   private readonly gamePromise: Promise<OpenGameResult>;
   private ended: OpenGameResult | null = null;
+  /** The last context this seat was actually shown -- kept so `meText`/`rulesText`/
+   *  `conditionsText` (below) can still answer between two turns, while the opponent's
+   *  half-round is in flight and `pendingContext()` is `null`. Identity, the rules and the
+   *  condition list never change turn to turn, so answering from the last-seen one rather
+   *  than refusing until the next turn opens costs nothing true. */
+  private lastContext: OpenPrincipalContext | null = null;
 
   constructor(config: GameSessionConfig) {
     this.side = config.side;
@@ -125,10 +131,12 @@ export class GameSession {
    *  ended (whichever happens first) -- see this class's own header. */
   async waitForNext(): Promise<SessionEvent> {
     if (this.ended) return { kind: "ended", result: this.ended };
-    return Promise.race([
+    const event = await Promise.race([
       this.seat.waitForTurn().then((context): SessionEvent => ({ kind: "turn", context })),
       this.gamePromise.then((result): SessionEvent => ({ kind: "ended", result })),
     ]);
+    if (event.kind === "turn") this.lastContext = event.context;
+    return event;
   }
 
   /** This seat's own currently open context, or `null` between turns (the
@@ -157,6 +165,32 @@ export class GameSession {
     if (context) return this.playView.render(context);
     if (this.ended) return endingText(this.side, this.ended);
     return `Waiting on ${this.otherName}'s turn to finish -- call my_briefing again shortly.`;
+  }
+
+  /** `me`/`rules`/`conditions`: the no-turn commands `PLAY_BLOCK_POLICY` (`humanSeat.ts`) holds
+   *  the identity/rules/condition-list blocks behind, mirroring the terminal seat's own
+   *  `me`/`rules`/`conditions` tokens exactly -- same accessor (`PlayView.blockText`), same
+   *  fallback wording, so an MCP game and a terminal game answer these identically. Answered
+   *  from `lastContext` (see its own comment) so a call between two turns still works. */
+  meText(): string {
+    const context = this.pendingContext() ?? this.lastContext;
+    if (!context) return "No game in progress yet -- call new_game first.";
+    const identity = this.playView.blockText(context, "identity");
+    return identity.length > 0 ? identity : `You are ${this.selfName}.`;
+  }
+
+  rulesText(): string {
+    const context = this.pendingContext() ?? this.lastContext;
+    if (!context) return "No game in progress yet -- call new_game first.";
+    const rules = this.playView.blockText(context, "rules");
+    return rules.length > 0 ? rules : "This cell has no standing rules beyond what you can see.";
+  }
+
+  conditionsText(): string {
+    const context = this.pendingContext() ?? this.lastContext;
+    if (!context) return "No game in progress yet -- call new_game first.";
+    const conditions = this.playView.blockText(context, "conditions");
+    return conditions.length > 0 ? conditions : "This chair has no condition list.";
   }
 
   /** `attempt`'s own write path: answers the currently open turn with

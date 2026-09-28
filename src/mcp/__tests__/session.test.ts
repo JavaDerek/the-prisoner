@@ -155,4 +155,33 @@ describe("createGameSession: the engine underneath the MCP seat", () => {
     if (event.kind === "turn") expect(event.context.principalId).toBe(openWorld.base.wardenId);
     expect(session.briefingText()).toContain("This is round 1 of 8");
   });
+
+  it("meText()/rulesText()/conditionsText() answer the no-turn commands the play view holds back", async () => {
+    const { openWorld, resolver, referee } = setup();
+    const session = createGameSession({ side: "prisoner", rounds: 8, openWorld, resolver, referee, opponentMind: repeating({ intent: WAIT }) });
+    await session.waitForNext();
+    expect(session.meText()).toContain("Mara Voss");
+    expect(session.rulesText().length).toBeGreaterThan(0);
+    // No `conditions` were configured for this session, so the fallback line applies.
+    expect(session.conditionsText()).toBe("This chair has no condition list.");
+  });
+
+  it("meText()/rulesText() still answer from the last-seen context between turns (the opponent's half-round in flight)", async () => {
+    const { openWorld, resolver, referee } = setup();
+    const session = createGameSession({ side: "prisoner", rounds: 8, openWorld, resolver, referee, opponentMind: repeating({ intent: WAIT }) });
+    await session.waitForNext();
+    session.submitAttempt(OPEN_DOOR);
+    // Between this submit and the next `waitForNext`, no turn is pending -- but `me`/`rules`
+    // should still answer from the last turn this seat actually saw, not go blank.
+    expect(session.pendingContext()).toBeNull();
+    expect(session.meText()).toContain("Mara Voss");
+  });
+
+  it("meText()/rulesText()/conditionsText() before any turn has ever been open say so plainly", () => {
+    const { openWorld, resolver, referee } = setup();
+    const session = createGameSession({ side: "prisoner", rounds: 8, openWorld, resolver, referee, opponentMind: repeating({ intent: WAIT }) });
+    expect(session.meText()).toMatch(/no game in progress/i);
+    expect(session.rulesText()).toMatch(/no game in progress/i);
+    expect(session.conditionsText()).toMatch(/no game in progress/i);
+  });
 });
