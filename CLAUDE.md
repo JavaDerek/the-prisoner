@@ -392,7 +392,9 @@ ruling (run-dmcp 0.11.0's `improvisedRulingMechanic`) on a value declared `impro
 and a confirmation from a separate call on the top tier. Only an act the fiction cannot hold is refused,
 and its attempt is still narrated. The values that decide escape are never declared improvisable. Here that is
 the `PRISONER_IMPROVISE=suspicion` arm (default `off`, `src/open/improvisedRuling.ts`): only `warden_suspicion`,
-raise only (declared monotonic), from a separate reading of what the warden can perceive -- never from talk
+raise only (declared monotonic), for acts no listed rule charges (either null path, or a `noise` that charged no suspicion
+-- added 2026-10-16 after `checkpoints/2026-10-16-improvise-suspicion/` found 13 of 20 perceivable acts ruled `noise`),
+from a separate reading of what the warden can perceive -- never from talk
 lowering it, which is SOCIAL-INTENTS.md's refused belief-write and stays refused.
 
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,

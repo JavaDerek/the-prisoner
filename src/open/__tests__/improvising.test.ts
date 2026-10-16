@@ -5,7 +5,7 @@ import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, declaredProperty, resourceIdForProperty, type OpenWorld } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
 import { createReferee, type Referee, type RefereeRuling } from "../referee.js";
-import { runOpenHalfRound, type OpenHalfRoundResult } from "../loop.js";
+import { runOpenHalfRound, precedentTextFor, type OpenHalfRoundResult, type KnownApproach } from "../loop.js";
 import { runOpenGame } from "../game.js";
 import { buildOpenContext } from "../briefing.js";
 import { createSuspicionImproviser, improviseHeaderLine, type SuspicionImproviser } from "../improvisedRuling.js";
@@ -166,6 +166,130 @@ describe("runOpenHalfRound with an improviser (PRISONER_IMPROVISE=suspicion)", (
     expect(result.improvised?.refusal).not.toBeNull();
     expect(result.refusalError).toBeNull();
     expect(suspicion(w)).toBe(0);
+  });
+});
+
+/**
+ * "Acts no listed rule CHARGES" (owner, 2026-10-16, after checkpoints/2026-10-16-improvise-suspicion/: 13 of 20
+ * perceivable acts -- talk, shouting, threats, spitting -- were ruled `noise`, which is applicable, has a plan, and is
+ * not suspicion-eligible, so they took neither null path and moved nothing). Under the arm, a prisoner's act ruled
+ * `noise` that charged nothing this half-round is offered to the same reading, through the same perceive gate.
+ */
+describe("a noise act that charged nothing is offered to the reading too", () => {
+  afterEach(() => destroyTestDb());
+
+  const SHOUT = "I shout every insult I know at the warden.";
+  const SHOUT_QUOTE = "shout every insult I know at the warden";
+  const SHOUT_RULING: ScriptedRuling = { target: "warden", effect: "noise", property: "none", magnitude: "slight", perceptibility: "audible", intentQuote: SHOUT_QUOTE, descQuote: "" };
+  const HISS = "I hiss an insult at the warden under my breath.";
+  const HISS_RULING: ScriptedRuling = { target: "warden", effect: "noise", property: "none", magnitude: "slight", perceptibility: "silent", intentQuote: "hiss an insult at the warden", descQuote: "" };
+  const NOISY = { ...TABLE, [SHOUT]: SHOUT_RULING, [HISS]: HISS_RULING };
+
+  function noisySetup(improvise: "off" | "suspicion" = "suspicion") {
+    createTestDb();
+    const openWorld = buildOpenWorld({ presence: "modelled", improvise });
+    const resolver = buildOpenResolver();
+    const referee = createReferee([scriptedReferee(NOISY)], { isDeclared: (objectId, key) => declaredProperty(openWorld, objectId, key) !== undefined });
+    return { w: openWorld, resolver, referee };
+  }
+
+  it("a noise-ruled shouted insult now raises suspicion by its tier, and the noise itself still resolves", async () => {
+    const { w, resolver, referee } = noisySetup();
+    const before = snapshot(w);
+    const transport = scriptedReading({ suspicion: { key: "serious", quote: SHOUT_QUOTE } });
+    const result = await half(w, resolver, referee, "prisoner", SHOUT, createSuspicionImproviser([transport]));
+    expect(result.ruling?.effectKind).toBe("noise");
+    expect(result.ruling?.applicable).toBe(true);
+    expect(result.plan).not.toBeNull();
+    expect(result.outcome).not.toBeNull();
+    expect(transport.calls).toBe(1);
+    expect(result.improvised?.asked).toBe(true);
+    expect(result.improvised?.tier).toBe("serious");
+    expect(suspicion(w)).toBe(5);
+    expect({ ...snapshot(w), [suspicionKey(w)]: before[suspicionKey(w)] }).toEqual(before);
+  });
+
+  it("an outrage on a noise act still needs its confirmation: unconfirmed, it is ruled serious", async () => {
+    const { w, resolver, referee } = noisySetup();
+    const transport = scriptedReading({ suspicion: { key: "outrage", quote: SHOUT_QUOTE }, outrage: { key: "lesser", quote: SHOUT_QUOTE } });
+    const result = await half(w, resolver, referee, "prisoner", SHOUT, createSuspicionImproviser([transport]));
+    expect(transport.calls).toBe(2);
+    expect(result.improvised?.tier).toBe("serious");
+    expect(suspicion(w)).toBe(5);
+  });
+
+  it("a noise act already charged this half-round (a known approach) is not charged twice: nothing is asked", async () => {
+    const { w, resolver, referee } = noisySetup();
+    const ruling = await referee.rule(SHOUT, buildOpenContext(w, "prisoner", w.base.clock.prisonerT(1), 1, undefined, undefined, "modelled").perceivedObjects);
+    const known: KnownApproach[] = [{ text: precedentTextFor(ruling), suspicionBump: 7 }];
+    const transport = scriptedReading({ suspicion: { key: "serious", quote: SHOUT_QUOTE } });
+    const t = w.base.clock.prisonerT(1);
+    const result = await runOpenHalfRound({
+      openWorld: w,
+      resolver,
+      referee,
+      principal: "prisoner",
+      roundN: 1,
+      t,
+      context: buildOpenContext(w, "prisoner", t, 1, undefined, undefined, "modelled"),
+      mind: scriptedMind<OpenPrincipalContext, OpenProposal>({ intent: SHOUT }),
+      presenceMode: "modelled",
+      knownApproaches: known,
+      improviser: createSuspicionImproviser([transport]),
+    });
+    expect(transport.calls).toBe(0);
+    expect(result.improvised).toBeUndefined();
+    expect(suspicion(w)).toBe(7);
+  });
+
+  it("the perceive gate still closes: a noise ruled silent, the warden out, or the warden blind -- nothing asked", async () => {
+    const silent = noisySetup();
+    const t1 = scriptedReading({ suspicion: { key: "serious", quote: "hiss an insult at the warden" } });
+    const r1 = await half(silent.w, silent.resolver, silent.referee, "prisoner", HISS, createSuspicionImproviser([t1]));
+    expect(r1.ruling?.effectKind).toBe("noise");
+    expect(t1.calls).toBe(0);
+    expect(r1.improvised?.asked).toBe(false);
+    expect(suspicion(silent.w)).toBe(0);
+    destroyTestDb();
+
+    const away = noisySetup();
+    away.resolver.resolve({ gameId: away.w.base.gameId, mechanic: "OPEN_MOVE", parameters: { characterId: away.w.base.wardenId, destinationId: away.w.namedLocations.corridor, description: "The warden steps out of the cell." } });
+    const t2 = scriptedReading({ suspicion: { key: "serious", quote: SHOUT_QUOTE } });
+    await half(away.w, away.resolver, away.referee, "prisoner", SHOUT, createSuspicionImproviser([t2]));
+    expect(t2.calls).toBe(0);
+    expect(suspicion(away.w)).toBe(0);
+    destroyTestDb();
+
+    const blind = noisySetup();
+    const sight = resourceIdForProperty(blind.w, "warden", "sight") as string;
+    blind.resolver.resolve({ gameId: blind.w.base.gameId, mechanic: "OPEN_WEAR", parameters: { resourceId: sight, amount: 100, min: 0, max: 100, description: "blinded" } });
+    const t3 = scriptedReading({ suspicion: { key: "serious", quote: SHOUT_QUOTE } });
+    await half(blind.w, blind.resolver, blind.referee, "prisoner", SHOUT, createSuspicionImproviser([t3]));
+    expect(t3.calls).toBe(0);
+    expect(suspicion(blind.w)).toBe(0);
+  });
+
+  it("the warden's own noise never touches his own suspicion", async () => {
+    const { w, resolver, referee } = noisySetup();
+    const transport = scriptedReading({ suspicion: { key: "serious", quote: SHOUT_QUOTE } });
+    const result = await half(w, resolver, referee, "warden", SHOUT, createSuspicionImproviser([transport]));
+    expect(transport.calls).toBe(0);
+    expect(result.improvised).toBeUndefined();
+  });
+
+  it("arm off: a noise half-round carries no `improvised` field, moves no suspicion, and renders exactly as with no improviser", async () => {
+    const off = noisySetup("off");
+    const offResult = await half(off.w, off.resolver, off.referee, "prisoner", SHOUT);
+    expect("improvised" in offResult).toBe(false);
+    expect(suspicion(off.w)).toBe(0);
+    const offText = renderOpenHalfRound(offResult).join("\n");
+    const offRequest = JSON.stringify(offResult.ruling?.request);
+    destroyTestDb();
+    const on = noisySetup("suspicion");
+    const onResult = await half(on.w, on.resolver, on.referee, "prisoner", SHOUT, createSuspicionImproviser([scriptedReading({ suspicion: { key: "serious", quote: SHOUT_QUOTE } })]));
+    expect(JSON.stringify(onResult.ruling?.request)).toBe(offRequest);
+    const { improvised: _i, ...onWithoutField } = onResult;
+    expect(renderOpenHalfRound(onWithoutField).join("\n")).toBe(offText);
   });
 });
 

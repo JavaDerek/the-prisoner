@@ -23,7 +23,9 @@ import { PRISONER_SHORT_NAME, WARDEN_NAME, PRISONER_PRONOUNS, WARDEN_PRONOUNS } 
  * brink-workshop's OPEN-WORLD-RULINGS-DESIGN.md §4-§5): an act the referee rules onto nothing -- target `none`, or a
  * ruling `planEffect` finds no plan for -- still happens. Today it touches nothing and is remembered. Under
  * `PRISONER_IMPROVISE=suspicion` it may ALSO receive one bounded improvised ruling, through run-dmcp 0.11.0's
- * `improvisedRulingMechanic`, on exactly one value: `warden_suspicion`.
+ * `improvisedRulingMechanic`, on exactly one value: `warden_suspicion`. Since 2026-10-16 (owner, after
+ * `checkpoints/2026-10-16-improvise-suspicion/`) a prisoner act ruled `noise` that charged no suspicion is offered too:
+ * "acts no listed rule CHARGES", since `noise` is listed but charges nothing. The reading's own questions are unchanged.
  *
  * WHY ONLY SUSPICION, AND ONLY UP. SOCIAL-INTENTS.md's gap 3 refused, by name, any effect that writes the warden's
  * mind from the prisoner's say-so: "a prisoner who can write the warden's beliefs can win by assertion". This does
@@ -57,7 +59,7 @@ export function readImproviseMode(raw: string | undefined): ImproviseMode {
 export function improviseHeaderLine(mode: ImproviseMode): string | null {
   if (mode === "off") return null;
   return (
-    "Improvise: suspicion (`PRISONER_IMPROVISE=suspicion`): a prisoner act no listed mechanic covers (ruled onto nothing, or with no plan) " +
+    "Improvise: suspicion (`PRISONER_IMPROVISE=suspicion`): a prisoner act no listed rule charges (ruled onto nothing, with no plan, or a noise that charged no suspicion) " +
     "that the warden can perceive is read by a separate one-question call -- none / minor / serious / outrage, cited verbatim from the intent -- " +
     "and may raise `warden_suspicion` by one improvised ruling (run-dmcp's `improvised_ruling`) capped at 2 / 5 / 10; an outrage needs a second, " +
     "separate call to confirm it, else it is ruled serious. `warden_suspicion` is declared improvisable and monotonic; nothing else is improvisable."
@@ -94,7 +96,7 @@ function capOf(tier: SuspicionTier): number {
 
 /** The rationale recorded on the resolution, built by code from keys alone -- never from the actor's words. */
 export function suspicionRationale(tier: SuspicionTier, note?: string): string {
-  return `The warden grows more suspicious (improvised ruling, tier ${tier}): no listed mechanic covers this act, and a separate reading of what he perceives of it ruled it ${tier}${note ? `; ${note}` : ""}.`;
+  return `The warden grows more suspicious (improvised ruling, tier ${tier}): no listed rule charges this act, and a separate reading of what he perceives of it ruled it ${tier}${note ? `; ${note}` : ""}.`;
 }
 
 /**
@@ -243,7 +245,8 @@ export interface ImprovisedSuspicionResult {
 }
 
 /**
- * Asks the separate reading about an act no listed mechanic covered and, when it names a grounded tier, resolves ONE
+ * Asks the separate reading about an act no listed rule charged (`loop.ts`: either null path, or a noise that charged
+ * nothing) and, when it names a grounded tier, resolves ONE
  * improvised ruling raising `warden_suspicion` -- through `resolver.resolve()`, the one write path. `perceivable` is
  * the caller's (`loop.ts`'s) presence/sight/condition/perceptibility gate: an act the warden cannot perceive is never
  * even read. A tier whose citation does not verify is `none` (fail-safe, as everywhere in this game). An `outrage`

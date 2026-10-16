@@ -133,7 +133,8 @@ export interface OpenHalfRoundResult {
    *  (`game.ts`) -- otherwise identical in shape. */
   skipped?: "absent" | "disabled";
   /** `PRISONER_IMPROVISE=suspicion` (`improvisedRuling.ts`): set only on a PRISONER half-round whose act no listed
-   *  mechanic covered (an inapplicable ruling, or no plan) and that nothing acquired -- what the separate reading
+   *  rule charged -- an inapplicable ruling or no plan that nothing acquired, or (2026-10-16) a `noise` that charged
+   *  no suspicion -- what the separate reading
    *  found and the one improvised ruling it resolved, if any. Absent whenever the arm is off. */
   improvised?: ImprovisedSuspicionResult;
 }
@@ -624,7 +625,9 @@ function updateActorBelief(openWorld: OpenWorld, principal: Principal, plan: Eff
 /**
  * "Unlisted is not impossible" (`improvisedRuling.ts`): on either of §1.4's two null paths, AFTER the elaboration
  * route has had its turn exactly as before, a PRISONER's act that nothing acquired is offered to the separate
- * suspicion reading. Only what the warden can perceive can raise his suspicion, by the same gates every other bump
+ * suspicion reading -- and, since 2026-10-16, a prisoner's act ruled `noise` that charged nothing this half-round
+ * (the success path below): "acts no listed rule CHARGES", not only acts no listed rule covers
+ * (`checkpoints/2026-10-16-improvise-suspicion/`: 13 of 20 perceivable acts were ruled `noise` and moved nothing). Only what the warden can perceive can raise his suspicion, by the same gates every other bump
  * uses: he shares her location (§55), can see and is not disabled (D12, D14, the-prisoner#1), and the referee did
  * not rule the act `silent`. The warden's own unlisted act never touches his own number.
  */
@@ -637,9 +640,10 @@ async function improviseUnlisted(
   ruling: RefereeRuling,
   t: number,
   otherPerceives: boolean,
-  acquired: unknown
+  /** Truthy when something else already handled the act this half-round (an acquisition, or a suspicion charge). */
+  handled: unknown
 ): Promise<{ improvised: ImprovisedSuspicionResult } | Record<string, never>> {
-  if (!improviser || principal !== "prisoner" || acquired) return {};
+  if (!improviser || principal !== "prisoner" || handled) return {};
   const improvised = await improviseSuspicion({ openWorld, resolver, improviser, intentText, t, perceivable: otherPerceives && ruling.perceptibility !== "silent" });
   return { improvised };
 }
@@ -1067,17 +1071,26 @@ export async function runOpenHalfRound(params: {
     // nothing, so nothing accrues. the-prisoner#1 extends this to a disabled warden too (`otherIncapacitated`,
     // above). Read at t, before this act, so the act that blinds or disables him is charged by D13 above, never
     // gated by it.
+    // `PRISONER_IMPROVISE=suspicion` only: whether anything below charges suspicion for this act -- a noise that
+    // charged nothing is offered to the improviser after them (never twice for one act).
+    let charged = false;
     if (laysHandsOnWarden(principal, ruling.effectKind as EffectKind, ruling.targetObjectId)) {
+      charged = true;
       // D13 (owner, 2026-09-27, §80): grounds at once, then the act's own amount on top. Charged from this
       // half-round's outcome whatever it left of his sight or posture, and whatever its perceptibility: he felt it.
       bumpWardenSuspicion(openWorld, resolver, groundsShortfall(openWorld, t), "The warden has been laid hands on.");
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
     } else if (principal === "prisoner" && otherPresent && !otherIncapacitated && suspicionEligibleFor(ruling.effectKind, ruling.targetObjectId) && ruling.perceptibility !== "silent") {
+      charged = true;
       bumpWardenSuspicion(openWorld, resolver, SUSPICION_BUMP_FOR_MAGNITUDE[ruling.magnitude], "The warden grows more suspicious.");
     }
     if (known) {
+      charged = true;
       bumpWardenSuspicion(openWorld, resolver, known.suspicionBump, "The warden recognises a known approach.");
     }
+    // "Acts no listed rule charges" (2026-10-16): a noise is listed but charges nothing, so under the arm it goes to
+    // the same reading through the same gate. Absent improviser (arm off): no call, no field -- byte-identical.
+    const improvised = ruling.effectKind === "noise" ? await improviseUnlisted(params.improviser, openWorld, resolver, principal, proposal.intent, ruling, t, otherPresent && !otherIncapacitated, charged) : {};
 
     let revealFor: OpenHalfRoundResult["revealFor"] = null;
     if (ruling.effectKind === "reveal" && typeof outcome.result.value === "number") {
@@ -1091,7 +1104,7 @@ export async function runOpenHalfRound(params: {
       }
     }
 
-    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName, elaboration: null, acquired: null, ...lapse };
+    return { ...base, proposal, ruling, plan, outcome, refusalError: null, perceptionForOther, revealFor, derived, reshaped, resourceName, elaboration: null, acquired: null, ...lapse, ...improvised };
   } catch (err) {
     if (err instanceof ResolveProtocolError || err instanceof ConstraintViolationError) {
       if (plan.resourceId) revealBeliefFromRefusal(openWorld, principal, plan.resourceId, err, roundN);

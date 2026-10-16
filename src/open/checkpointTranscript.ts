@@ -441,7 +441,7 @@ export function renderOpenHalfRound(
     }
   }
   // `PRISONER_IMPROVISE=suspicion` (`improvisedRuling.ts`): present only under the arm, on a prisoner half-round
-  // whose act no listed mechanic covered -- so an arm-off transcript has no such line at all.
+  // whose act no listed rule charged -- so an arm-off transcript has no such line at all.
   if (half.improvised) lines.push(improvisedLine(half.improvised));
   const learns = renderOwnOutcome(half, harmMode);
   if (learns) lines.push(`**Actor learns:** ${learns}`);
