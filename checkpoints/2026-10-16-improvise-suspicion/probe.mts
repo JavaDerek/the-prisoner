@@ -25,6 +25,11 @@
 //   npx tsx checkpoints/2026-10-16-improvise-suspicion/probe.mts --rehearse --out=/tmp/x
 //   DMCP_DB_PATH=:memory: PRISONER_MODEL_URL=<url>/v1 npx tsx checkpoints/2026-10-16-improvise-suspicion/probe.mts --live
 //   npx tsx checkpoints/2026-10-16-improvise-suspicion/probe.mts --score
+//
+// ADDENDUM (PREDICTION-2.md, after commit 3033712 offers a `noise` act that charged nothing to the improviser):
+//   ... probe.mts --live --phase=g2    each item once through the real loop with the REAL main referee AND the REAL
+//                                      improviser -- reach measured on real rulings, the reading asked in-game.
+//   ... probe.mts --score --phase=g2
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -282,12 +287,48 @@ export function score(rows: any[]): string[] {
   return lines;
 }
 
+/** PREDICTION-2.md's scoreboard over the G2 rows: reach (asked in-game) and agreement on what was asked. */
+export function score2(rows: any[]): string[] {
+  const G2 = rows.filter((r) => r.phase === "G2" && !r.error);
+  const open = ITEMS.filter((i) => i.gate === "open");
+  const closed = ITEMS.filter((i) => i.gate !== "open");
+  const labelOf = (id: string) => ITEMS.find((i) => i.id === id)!.label;
+  const seenOpen = G2.filter((r) => open.some((i) => i.id === r.item));
+  const asked = seenOpen.filter((r) => r.improvised?.asked);
+  const exact = asked.filter((r) => r.improvised.reading?.answer === labelOf(r.item)).length;
+  const direction = asked.filter((r) => rise(r.improvised.reading?.answer) === rise(labelOf(r.item))).length;
+  const seenClosed = G2.filter((r) => closed.some((i) => i.id === r.item));
+  const closedOk = seenClosed.filter((r) => !r.improvised?.asked).length;
+  // Exact/direction bounds are over the acts that reach the reading; they cannot die before reach is known, so their
+  // denominator is the predicted 16 until the pass completes, then what actually reached.
+  const reachTotal = seenOpen.length === open.length ? asked.length : 16;
+  const lines = renderScoreboard("ADDENDUM -- noise routed to the reading, measured on real rulings (G2)", [
+    { id: "A1", text: "reach: perceivable acts asked in-game (predicted 16 of 20; holds at >= 14)", hits: asked.length, seen: seenOpen.length, total: open.length, bound: { atLeast: 14 } },
+    { id: "A2", text: "exact agreement on the acts asked (predicted 12 of 16; holds at >= 11)", hits: exact, seen: asked.length, total: reachTotal, bound: { atLeast: 11 } },
+    { id: "A3", text: "direction agreement on the acts asked (predicted 16 of 16; holds at >= 15)", hits: direction, seen: asked.length, total: reachTotal, bound: { atLeast: 15 } },
+    { id: "A4", text: "the four imperceptible / silent setups (G21-G24) never asked (4 of 4)", hits: closedOk, seen: seenClosed.length, total: closed.length, bound: { atLeast: closed.length } },
+  ]);
+  lines.push("", "Per item (G2: ruling target/effect/perceptibility; asked; reading [tier]; suspicion before -> after):");
+  for (const i of ITEMS) {
+    const r = G2.find((x) => x.item === i.id);
+    if (!r) continue;
+    const im = r.improvised;
+    lines.push(`- ${i.id} (${i.label}) ${r.keys.target}/${r.keys.effect}/${r.keys.perceptibility} applicable=${r.keys.applicable} | ${im ? (im.asked ? `asked: ${im.reading?.answer} "${im.reading?.quote ?? ""}"${im.reading?.verified ? "" : " !unverified"}${im.confirmation ? ` {conf:${im.confirmation.answer}${im.confirmation.confirmed ? "+" : ""}}` : ""} [${im.tier ?? "none"}]` : "offered, gate closed") : "not offered"} | susp ${r.suspicionBefore} -> ${r.suspicionAfter}`);
+  }
+  return lines;
+}
+
 // ---------------------------------------------------------------------------------------------------------------
 
 async function main(argv: readonly string[]): Promise<void> {
   const a = args(argv);
   const arms = gameArms();
+  const g2 = a.get("phase") === "g2";
   if (a.has("score")) {
+    if (g2) {
+      for (const line of score2(resultsFile(a.get("out") ?? DIR).rows())) console.log(line);
+      return;
+    }
     for (const line of score(resultsFile(a.get("out") ?? DIR).rows())) console.log(line);
     return;
   }
@@ -349,6 +390,34 @@ async function main(argv: readonly string[]): Promise<void> {
       errorsInARow = row.error ? errorsInARow + 1 : 0;
       if (errorsInARow >= 3) throw new Error("3 errors in a row: stopped (PREDICTION.md). Check /api/ps and the endpoint, then rerun to resume.");
     };
+
+    // ADDENDUM: phase G2 only -- the real loop, the real main referee, the real improviser.
+    if (g2) {
+      for (const [k, item] of ITEMS.entries()) {
+        const sampleId = `G2:${item.id}`;
+        if (done.has(sampleId)) continue;
+        const { transport: tracedRef, trace } = tracing(transport());
+        const { transport: tracedImp, trace: impTrace } = tracing(transport());
+        sent.length = 0;
+        const t0 = Date.now();
+        let row: any;
+        try {
+          const { half, world, suspicionBefore } = await playItem(item, arms, (w) => createReferee([tracedRef], refereeOptions(w, arms) as any), createSuspicionImproviser([tracedImp]));
+          const after = getResource(world.base.resources.wardenSuspicion)?.value ?? null;
+          row = { sampleId, phase: "G2", item: item.id, at: new Date().toISOString(), intent: item.intent, label: item.label, keys: keysOf(half.ruling), oneAct: oneActOf(half.ruling), hasPlan: half.plan !== null, improvised: improvisedSummary(half.improvised), suspicionBefore, suspicionAfter: after, ruling: half.ruling, trace, impTrace, sentBodies: [...sent], secs: (Date.now() - t0) / 1000 };
+        } catch (err) {
+          if (err instanceof GuardStop) throw err;
+          row = { sampleId, phase: "G2", item: item.id, at: new Date().toISOString(), error: String(err).slice(0, 500), trace, secs: (Date.now() - t0) / 1000 };
+        }
+        results.append(row);
+        const im = row.improvised;
+        log(`[G2 ${k + 1}/${ITEMS.length}] ${item.id} (${item.label}) -> ${row.error ? `ERROR ${row.error}` : `${row.keys.target}/${row.keys.effect}/${row.keys.perceptibility} applicable=${row.keys.applicable} ${im ? (im.asked ? `asked ${im.reading?.answer} "${im.reading?.quote ?? ""}" verified=${im.reading?.verified}${im.confirmation ? ` confirm=${im.confirmation.answer}/${im.confirmation.confirmed}` : ""} tier=${im.tier ?? "-"}` : "offered, gate closed") : "not offered"} susp ${row.suspicionBefore}->${row.suspicionAfter}`} (${row.secs}s)`);
+        note(row);
+        if ((k + 1) % 8 === 0) for (const line of score2(results.rows()).slice(0, 10)) log(line);
+      }
+      for (const line of score2(results.rows())) log(line);
+      return;
+    }
 
     // Phase G
     for (const [k, item] of ITEMS.entries()) {
