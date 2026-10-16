@@ -390,7 +390,10 @@ The guide's 2026-10-16 lesson, "unlisted is not impossible", is this game's #16 
 mechanic lists still happens -- it touches nothing and is remembered, or it receives a bounded improvised
 ruling (run-dmcp 0.11.0's `improvisedRulingMechanic`) on a value declared `improvisable`, with per-tier caps
 and a confirmation from a separate call on the top tier. Only an act the fiction cannot hold is refused,
-and its attempt is still narrated. The values that decide escape are never declared improvisable.
+and its attempt is still narrated. The values that decide escape are never declared improvisable. Here that is
+the `PRISONER_IMPROVISE=suspicion` arm (default `off`, `src/open/improvisedRuling.ts`): only `warden_suspicion`,
+raise only (declared monotonic), from a separate reading of what the warden can perceive -- never from talk
+lowering it, which is SOCIAL-INTENTS.md's refused belief-write and stays refused.
 
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
 D12). One: measure the referee on the population that will write to it. Every referee number before

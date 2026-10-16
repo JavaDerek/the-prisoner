@@ -64,6 +64,7 @@ import { buildOpenResolver } from "./open/mechanics.js";
 import { OPEN_OBJECTS } from "./open/scenarioObjects.js";
 import { createReferee, readPersonInstrumentMode, readInstrumentMode, readDeriveWordingMode, readOneActMode, readElisionMode, readContainerClauseMode, readDeriveRepeatMode } from "./open/referee.js";
 import { createElaborationReferee, readElaborateMode, elaborationHeaderLine } from "./open/elaborationReferee.js";
+import { createSuspicionImproviser, readImproviseMode, improviseHeaderLine } from "./open/improvisedRuling.js";
 import { assertElaborationBandsReady, readElaborateBandMode } from "./open/elaborationBands.js";
 import { readPresenceMode, readAbsenceMode, checkAbsenceMode, authoredDescription, ownershipAt, buildOpenContext } from "./open/briefing.js";
 import { currentT } from "./world/clock.js";
@@ -280,6 +281,10 @@ const ELABORATE = readElaborateMode(process.env.PRISONER_ELABORATE);
  *  elaboration applies, for the §4.8 sweep -- unset (the default) means the
  *  built table's own reading always applies. */
 const ELABORATE_BAND = readElaborateBandMode(process.env.PRISONER_ELABORATE_BAND);
+/** Open variant only: "unlisted is not impossible" (`src/open/improvisedRuling.ts`, run-dmcp 0.11.0's improvised
+ *  ruling). Off unless asked -- the same D3 lesson every arm here follows. `suspicion`: a perceivable prisoner act no
+ *  listed mechanic covers is read by a separate call and may raise `warden_suspicion` by a capped tier. */
+const IMPROVISE = readImproviseMode(process.env.PRISONER_IMPROVISE);
 const PRESENCE = readPresenceMode(process.env.PRISONER_PRESENCE);
 /** Open variant only: PLAYTEST-2026-09-27 D4'/D4b -- the referee is offered `block`, and both chairs' conditions
  *  state the block and the two restores (`src/open/effects.ts`, `src/open/conditions.ts`). On unless asked;
@@ -956,7 +961,7 @@ async function mainOpen(): Promise<void> {
   }
   const descriptionOverrides: Readonly<Record<string, string>> = generatedScenario ? descriptionOverridesFrom(generatedScenario) : {};
 
-  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW, harm: HARM, descriptionOverrides });
+  const openWorld = buildOpenWorld({ doorPrice: DOOR_PRICE, presence: PRESENCE, window: WINDOW, harm: HARM, descriptionOverrides, improvise: IMPROVISE });
   const resolver = buildOpenResolver();
   const referee = createReferee(
     [createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })],
@@ -993,6 +998,10 @@ async function mainOpen(): Promise<void> {
   // instance keeps the two referees from any accidental coupling).
   const elaborationReferee =
     ELABORATE === "off" ? undefined : createElaborationReferee([createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })]);
+  // `PRISONER_IMPROVISE=suspicion`: the separate suspicion reading and its confirming call -- the referee's model and
+  // transport shape, its own instance (as the elaboration referee above is), never a question added to the referee.
+  const improviser =
+    IMPROVISE === "off" ? undefined : createSuspicionImproviser([createRefereeTransport({ baseUrl: MODEL_URL, model: REFEREE_MODEL, timeoutMs: REFEREE_TIMEOUT_MS, ensureLoaded, thinking: REFEREE_THINKING.mode })]);
 
   const lastSilence: Record<OpenPrincipal, SilenceNote | undefined> = { warden: undefined, prisoner: undefined };
   // the-prisoner#20: this variant never passed `onVoiceSilence` at all, so a
@@ -1383,6 +1392,9 @@ async function mainOpen(): Promise<void> {
   // "the built table," which needs no line of its own (every per-half-round
   // acquisition line already names its own built band, `checkpointTranscript.ts`).
   if (ELABORATE_BAND) transcript.push(`Elaboration band override: forced \`${ELABORATE_BAND}\` for every acquisition this game (\`PRISONER_ELABORATE_BAND=${ELABORATE_BAND}\`).`);
+  // `PRISONER_IMPROVISE`: like the elaboration line above, `off` prints NO line, so an off transcript is unchanged.
+  const improviseLine = improviseHeaderLine(IMPROVISE);
+  if (improviseLine) transcript.push(improviseLine);
   if (PROSE_SEAT !== "off") {
     transcript.push(
       `PROSE SEAT (\`PRISONER_PROSE_SEAT=${PROSE_SEAT}\`): the ${PROSE_SEAT}'s mind was asked ONE question -- "What do you try this turn?" -- ` +
@@ -1553,6 +1565,7 @@ async function mainOpen(): Promise<void> {
         harmMode: HARM,
         ...(strategy ? { strategy: strategy.sentence } : {}),
         ...(elaborationReferee ? { elaborationReferee } : {}),
+        ...(improviser ? { improviser } : {}),
         ...(ELABORATE_BAND ? { forcedElaborationBand: ELABORATE_BAND } : {}),
         ...(precedent ? { precedent } : {}),
         ...(PICK ? { pick: PICK } : {}),

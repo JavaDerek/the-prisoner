@@ -52,6 +52,18 @@ export function readImproviseMode(raw: string | undefined): ImproviseMode {
   throw new Error(`PRISONER_IMPROVISE: unrecognised value ${JSON.stringify(raw)} -- must be "suspicion" or "off" (the default)`);
 }
 
+/** The transcript header line under the arm, or `null` under `off` -- literally no line, so an `off` transcript stays
+ *  byte-identical to every one recorded before this arm existed (`elaborationHeaderLine`'s own rule). */
+export function improviseHeaderLine(mode: ImproviseMode): string | null {
+  if (mode === "off") return null;
+  return (
+    "Improvise: suspicion (`PRISONER_IMPROVISE=suspicion`): a prisoner act no listed mechanic covers (ruled onto nothing, or with no plan) " +
+    "that the warden can perceive is read by a separate one-question call -- none / minor / serious / outrage, cited verbatim from the intent -- " +
+    "and may raise `warden_suspicion` by one improvised ruling (run-dmcp's `improvised_ruling`) capped at 2 / 5 / 10; an outrage needs a second, " +
+    "separate call to confirm it, else it is ruled serious. `warden_suspicion` is declared improvisable and monotonic; nothing else is improvisable."
+  );
+}
+
 /** The tiers a reading may name, besides `none` (which rules nothing). */
 export type SuspicionTier = "minor" | "serious" | "outrage";
 

@@ -8,7 +8,8 @@ import { createReferee, type Referee, type RefereeRuling } from "../referee.js";
 import { runOpenHalfRound, type OpenHalfRoundResult } from "../loop.js";
 import { runOpenGame } from "../game.js";
 import { buildOpenContext } from "../briefing.js";
-import { createSuspicionImproviser, type SuspicionImproviser } from "../improvisedRuling.js";
+import { createSuspicionImproviser, improviseHeaderLine, type SuspicionImproviser } from "../improvisedRuling.js";
+import { renderOpenHalfRound, refereeRequestsFor } from "../checkpointTranscript.js";
 import { createElaborationReferee } from "../elaborationReferee.js";
 import type { ElaborationBandRow } from "../elaborationBands.js";
 import type { OpenPrincipalContext, OpenProposal } from "../mind.js";
@@ -277,5 +278,42 @@ describe("end to end: runOpenGame against a throwaway in-memory DB, scripted thr
     // The warden examined the bar every round, including at 40 and 50 -- it is sound, so there is no evidence.
     expect(game.halves.filter((h) => h.principal === "warden" && h.revealFor).length).toBe(6);
     expect(game.ended).toBeNull();
+  });
+});
+
+describe("the transcript and the replay sidecar", () => {
+  afterEach(() => destroyTestDb());
+
+  it("the header names the arm when on, and prints NO line when off", () => {
+    expect(improviseHeaderLine("off")).toBeNull();
+    expect(improviseHeaderLine("suspicion")).toMatch(/^Improvise: suspicion \(`PRISONER_IMPROVISE=suspicion`\)/);
+  });
+
+  it("a half-round's improvised ruling is rendered: the reading, the cited words, the tier and the amount", async () => {
+    const { w, resolver, referee } = setup();
+    const transport = scriptedReading({ suspicion: { key: "outrage", quote: INSULT_QUOTE }, outrage: { key: "lesser", quote: INSULT_QUOTE } });
+    const result = await half(w, resolver, referee, "prisoner", INSULT, createSuspicionImproviser([transport]));
+    const text = renderOpenHalfRound(result).join("\n");
+    expect(text).toContain("**Improvised ruling:** reading `outrage`");
+    expect(text).toContain(INSULT_QUOTE);
+    expect(text).toContain("confirmation `lesser` -- not confirmed, ruled serious");
+    expect(text).toContain("warden_suspicion +5 (tier `serious`)");
+  });
+
+  it("an unperceived act says so, and an arm-off half-round renders exactly as before (no line at all)", async () => {
+    const { w, resolver, referee } = setup();
+    const silent = await half(w, resolver, referee, "prisoner", MUTTER, createSuspicionImproviser([scriptedReading({})]));
+    expect(renderOpenHalfRound(silent).join("\n")).toContain("**Improvised ruling:** not asked -- the warden could not perceive the act.");
+    const { improvised: _improvised, ...withoutField } = silent;
+    expect(renderOpenHalfRound(withoutField).join("\n")).not.toContain("Improvised ruling");
+  });
+
+  it("each separate reading is its own replayable sidecar entry, labelled distinctly", async () => {
+    const { w, resolver, referee } = setup();
+    const transport = scriptedReading({ suspicion: { key: "outrage", quote: INSULT_QUOTE }, outrage: { key: "outrage", quote: INSULT_QUOTE } });
+    const result = await half(w, resolver, referee, "prisoner", INSULT, createSuspicionImproviser([transport]));
+    const labels = refereeRequestsFor([result]).map((e) => e.label);
+    expect(labels).toContain(`round 1, prisoner, improvised reading: ${INSULT}`);
+    expect(labels).toContain(`round 1, prisoner, outrage confirmation: ${INSULT}`);
   });
 });

@@ -47,6 +47,20 @@ const INSTRUMENT_QUESTION_ID = "instrument" as const;
  *  it -- which, cited by range, has no quote, because since 0.10.0 only the
  *  engine rebuilds one, and only for an offer it accepts. An accepted citation
  *  renders byte-identically to every transcript before the re-pin. */
+/** One line for a half-round's improvisation: what the separate reading said, with its cited words, what the
+ *  confirming call said where one was asked, and what (if anything) the engine recorded. */
+function improvisedLine(i: NonNullable<OpenHalfRoundResult["improvised"]>): string {
+  if (!i.asked || !i.reading) return "**Improvised ruling:** not asked -- the warden could not perceive the act.";
+  const parts = [`reading \`${i.reading.answer}\`, ${citationCell(i.reading.citation.citation)} (${i.reading.citation.verified ? "verified" : "not verified"})`];
+  if (i.confirmation) parts.push(`confirmation \`${i.confirmation.answer}\` -- ${i.confirmation.confirmed ? `confirmed (${i.confirmation.id})` : "not confirmed, ruled serious"}`);
+  const amount = i.parameters?.targets[0]?.amount;
+  if (i.outcome && amount !== undefined) parts.push(`warden_suspicion +${amount} (tier \`${i.tier}\`).`);
+  else if (i.refusal) parts.push(`refused by the engine (${i.refusal instanceof ResolveProtocolError ? i.refusal.reason : `${i.refusal.constraintKind}${i.refusal.improvisation ? `/${i.refusal.improvisation.rule}` : ""}`}); nothing moved.`);
+  else if (i.tier) parts.push("no headroom left; nothing moved.");
+  else parts.push("nothing ruled.");
+  return `**Improvised ruling:** ${parts.join("; ")}`;
+}
+
 function citationCell(citation: CitedSpan | AcceptedCitation | TransportAnswer["citation"] | null | undefined): string {
   if (!citation) return "(none)";
   const c = citation as { sourceId: string; quote?: unknown; from?: unknown; to?: unknown; range?: { from: number; to: number } };
@@ -426,6 +440,9 @@ export function renderOpenHalfRound(
       lines.push("  - nothing acquired.");
     }
   }
+  // `PRISONER_IMPROVISE=suspicion` (`improvisedRuling.ts`): present only under the arm, on a prisoner half-round
+  // whose act no listed mechanic covered -- so an arm-off transcript has no such line at all.
+  if (half.improvised) lines.push(improvisedLine(half.improvised));
   const learns = renderOwnOutcome(half, harmMode);
   if (learns) lines.push(`**Actor learns:** ${learns}`);
   const perceived = renderForOther(half);
@@ -459,6 +476,9 @@ export function refereeRequestsFor(halves: readonly OpenHalfRoundResult[]): { la
         replies: h.elaboration.exchanges ?? [],
       });
     }
+    // `PRISONER_IMPROVISE=suspicion`: each separate reading is its own request, so its own replayable entry.
+    if (h.improvised?.reading && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}, improvised reading: ${h.proposal.intent}`, request: h.improvised.reading.request as ReadRequest, replies: h.improvised.reading.exchanges });
+    if (h.improvised?.confirmation && h.proposal) entries.push({ label: `round ${h.roundN}, ${h.principal}, outrage confirmation: ${h.proposal.intent}`, request: h.improvised.confirmation.request as ReadRequest, replies: h.improvised.confirmation.exchanges });
     return entries;
   });
 }
