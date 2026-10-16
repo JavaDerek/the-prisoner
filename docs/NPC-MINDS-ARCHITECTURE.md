@@ -26,6 +26,25 @@ the rules (detail: the Brink design doc, §4–§5).
 The single failure behind the September work: one model call per turn was asked to sit on the boundary *and*
 decide inside the model *and* act, with no loop.
 
+## 2a. The second axis: does the world wait? (Derek, 2026-10-16)
+
+The open / closed / mixed split is about *what a mind can know about an action's effect*. The other axis is
+**time and reversibility**, and it decides whether trial and error is even allowed:
+
+| | **timeless** — a failed attempt costs nothing, the world waits | **timed and irreversible** — every attempt is a real move |
+|---|---|---|
+| examples | the MacGyver puzzles as measured | Brink (a clock that only moves forward); The Prisoner (rounds, suspicion, a warden who reacts) |
+| retries | real, and cheap: plan-act-observe converges ("it gets there in 4 turns") | real retries are expensive or fatal; the other side answers every failure |
+| where the retries go | into the world | **into imagination**: a forward model (Brink's rollback probe; a referee ruling candidate acts inside a probe) lets the mind try, see the consequence and undo it before committing one move |
+| what to measure | solved-by-attempt-N | **first-try** quality, or cost-weighted outcome; Gemma's physical numbers are 18/24 first try vs 22/24 by the fourth, and only the first is a timed-world number |
+
+This is why lookahead was the whole win in Brink (§3, finding 3): the planner moved the retries from the
+world into simulation. And it is why the mixed-world mind (§2, the Prisoner row) must rule candidate acts in
+a rolled-back probe before committing one: the puzzles' "try again" loop does not survive contact with a
+warden. Corollaries: irreversibility also binds improvised rulings (a ruling, once applied, is precedent and
+history, not a draft), and a mind in a timed world needs a horizon long enough for delayed consequences to
+show (Brink: 12 turns; one move of lookahead saw every seizure as worthless).
+
 ## 3. Findings that should not have to be rediscovered
 
 1. **Plan–act–observe with honest consequences is the mechanism** for open worlds. Feedback added 4–7 solves
