@@ -418,7 +418,7 @@ terms.
 
 ## Custody is built, through the one write path
 
-`run-dmcp`'s `IntendedChange` (`src/timeline/resolve.ts`, this repo pinned at `run-dmcp@0.10.0`) is no
+`run-dmcp`'s `IntendedChange` (`src/timeline/resolve.ts`, this repo pinned at `run-dmcp@0.11.0`) is no
 longer numeric-only. Alongside `write` (a numeric fact key, delta or set) and `transfer` (a conserved
 numeric amount moved between two entities), `set`, `create` and `destroy` shipped in 0.7.0 and 0.8.0
 (engine issues #32, #34): `set` changes a non-numeric column on an entity's own projected row, and the

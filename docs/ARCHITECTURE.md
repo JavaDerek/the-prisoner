@@ -63,7 +63,7 @@ C4Context
   System_Ext(ollama, "Model server on doris", "Ollama on one shared RTX 4090 over Tailscale. muse-glimmer:30b in every chair by default; shared with another tenant's production.")
   System_Ext(claude, "Claude CLI", "Subscription-authenticated, print mode. Reached only through the model router.")
   System_Ext(deepinfra, "DeepInfra", "OpenAI-compatible hosted models by org/model id. Reached only through the model router.")
-  System_Ext(rundmcp, "run-dmcp 0.10.0", "npm, exact pin. Engine: resolve protocol, constrained writes, timeline, turn reader, citations.")
+  System_Ext(rundmcp, "run-dmcp 0.11.0", "npm, exact pin. Engine: resolve protocol, constrained writes, timeline, turn reader, citations.")
   System_Ext(seam, "mind-seam 0.5.0", "npm, exact pin. Mind contract, local-model wire, conformance suite.")
   System_Ext(moi, "mother-of-invention 0.1.2", "npm, exact pin. Novelty mechanisms: precedent ledger, pick.")
   System_Ext(git, "GitHub: JavaDerek/the-prisoner", "Commits, issues. Engine issues filed from here go to run-dmcp in neutral words.")
@@ -127,7 +127,7 @@ C4Container
   System_Ext(ollama, "Model server on doris", "Ollama, one 4090. Chairs by role: prisoner wits+voice, warden wits+voice, referee, narrator, narration audit.")
   System_Ext(claude, "Claude CLI", "subscription only")
   System_Ext(deepinfra, "DeepInfra", "DEEPINFRA_API_KEY")
-  System_Ext(rundmcp, "run-dmcp 0.10.0", "library")
+  System_Ext(rundmcp, "run-dmcp 0.11.0", "library")
   System_Ext(seam, "mind-seam 0.5.0", "library")
   System_Ext(moi, "mother-of-invention 0.1.2", "library")
 
