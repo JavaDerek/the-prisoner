@@ -386,6 +386,11 @@ property a mind works on over several turns should read differently as it moves,
 authored ascending and silent above the first, which every principal who can see the object reads. The
 playtest's D1 (`describeAttempt`'s perception sentences) and D9 (the bar's `integrity` reading bands)
 are where this game follows them.
+The guide's 2026-10-16 lesson, "unlisted is not impossible", is this game's #16 generalised: an act no
+mechanic lists still happens -- it touches nothing and is remembered, or it receives a bounded improvised
+ruling (run-dmcp 0.11.0's `improvisedRulingMechanic`) on a value declared `improvisable`, with per-tier caps
+and a confirmation from a separate call on the top tier. Only an act the fiction cannot hold is refused,
+and its attempt is still narrated. The values that decide escape are never declared improvisable.
 
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
 D12). One: measure the referee on the population that will write to it. Every referee number before
