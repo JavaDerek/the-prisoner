@@ -1,5 +1,6 @@
 import { createItem, createLocation, createResource, declareBoundedConstraint, declareResolveOnlyConstraint, type Outcome } from "run-dmcp";
 import { buildWorld, type World } from "../world/setup.js";
+import { declareImprovisableSuspicion, type ImproviseMode } from "./improvisedRuling.js";
 import { OPEN_OBJECTS, findProperty, type OpenObjectSpec, type OpenObjectProperty, type OpenPropertyKey, OPEN_PERSONS, PERSON_CONTAINERS } from "./scenarioObjects.js";
 import { findKind } from "./derivedObjects.js";
 import { ELABORABLE_EXITS } from "./acquirableProperties.js";
@@ -259,9 +260,13 @@ export function buildOpenWorld(options: {
   harm?: "off" | "on";
   /** the-prisoner#3, enjoyable mode. Default `{}`. */
   descriptionOverrides?: Readonly<Record<string, string>>;
+  /** `PRISONER_IMPROVISE` (`improvisedRuling.ts`). Default `"off"`: nothing new is declared. `"suspicion"` declares
+   *  `warden_suspicion` improvisable under the three tiers, and monotonic non-decreasing -- and nothing else. */
+  improvise?: ImproviseMode;
 } = {}): OpenWorld {
   const base = buildWorld();
   const gameId = base.gameId;
+  if (options.improvise === "suspicion") declareImprovisableSuspicion(gameId, base.resources.wardenSuspicion);
   const windowMode = options.window ?? "open";
   const descriptionOverrides = options.descriptionOverrides ?? {};
 

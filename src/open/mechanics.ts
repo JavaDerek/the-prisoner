@@ -1,4 +1,4 @@
-import { createResolver, type Mechanic, type AdjudicationInput, type Adjudication, type IntendedWrite, type IntendedChange, type EntityRef, type Resolver } from "run-dmcp";
+import { createResolver, improvisedRulingMechanic, type Mechanic, type AdjudicationInput, type Adjudication, type IntendedWrite, type IntendedChange, type EntityRef, type Resolver } from "run-dmcp";
 import { numericFactFrom } from "../world/facts.js";
 
 /**
@@ -700,6 +700,8 @@ export const OPEN_DERIVE: Mechanic = {
 
 export function buildOpenResolver(): Resolver {
   return createResolver({
-    mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH, OPEN_CONCEAL_CONTAINER, OPEN_EXPOSE_CONTAINER, OPEN_BLOCK, OPEN_MOVE],
+    // run-dmcp 0.11.0's improvised ruling (`improvisedRuling.ts`): registered always and inert unless called -- it can
+    // move only a value declared improvisable, and nothing is declared unless `PRISONER_IMPROVISE=suspicion`.
+    mechanics: [OPEN_WEAR, OPEN_RESTORE, OPEN_REVEAL, OPEN_NOISE, OPEN_PASSAGE, OPEN_LEAVE, OPEN_DERIVE, OPEN_ACQUIRE, OPEN_TAKE, OPEN_GIVE, OPEN_SEARCH, OPEN_CONCEAL_CONTAINER, OPEN_EXPOSE_CONTAINER, OPEN_BLOCK, OPEN_MOVE, improvisedRulingMechanic()],
   });
 }
