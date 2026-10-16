@@ -62,13 +62,17 @@ describe.concurrent("2026-09-28 probes (scaffolding only -- no model, no network
     "P1 first act: a rehearsal of the live path writes a meta line and N=3 rows per item to --out, never beside the probe",
     async () => {
       const dir = mkdtempSync(join(tmpdir(), "p1-rehearsal-"));
+      // The real run's results.jsonl is committed beside the probe since e0e71dc, so "never beside the probe" is
+      // checked as "leaves whatever is there byte-identical", not as "nothing is there".
+      const beside = join(REPO, "checkpoints/2026-09-28-first-act/results.jsonl");
+      const before = existsSync(beside) ? readFileSync(beside, "utf8") : null;
       try {
         const out = await tsx("checkpoints/2026-09-28-first-act/probe.mts", "--rehearse", `--out=${dir}`, "--only=HB-r2,G27-W7");
         const rows = rehearsalRows(dir);
         expect(rows[0].type).toBe("meta");
         expect(rows.filter((r) => r.sampleId)).toHaveLength(6);
         expect(out).toContain("## P1 -- the first act");
-        expect(existsSync(join(REPO, "checkpoints/2026-09-28-first-act/results.jsonl"))).toBe(false);
+        expect(existsSync(beside) ? readFileSync(beside, "utf8") : null).toBe(before);
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
