@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { ConstraintViolationError, getResource, listConstraints, type ImprovisedRulingParameters } from "run-dmcp";
+import { ConstraintViolationError, getResource, listConstraints, type ImprovisedRulingParameters, type ReaderTransport, type ReadRequest } from "run-dmcp";
 import { createTestDb, destroyTestDb } from "../../world/testDb.js";
 import { buildOpenWorld, resourceIdForProperty } from "../world.js";
 import { buildOpenResolver } from "../mechanics.js";
@@ -8,6 +8,8 @@ import {
   SUSPICION_TIERS,
   SUSPICION_IMPROVISED_RULING,
   improvisedSuspicionParameters,
+  createSuspicionImproviser,
+  improviseSuspicion,
 } from "../improvisedRuling.js";
 
 /**
@@ -168,5 +170,155 @@ describe("the engine holds the declaration (run-dmcp 0.11.0's improvised_ruling,
       expect(id, `${object}.${key}`).toBeTruthy();
       expect(refusal(() => rule(resolver, w.base.gameId, { targets: [{ entityId: id, tier: "minor", amount: 1 }], rationale: "r", citedAct: "a" })).improvisation?.rule).toBe("not-improvisable");
     }
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// The separate reading (the project's measured lesson: reading works only as a SEPARATE small call) and the
+// orchestration that turns it into at most one ruling.
+// ---------------------------------------------------------------------------------------------------------------
+
+const INSULT = "I grip the bars and shout every insult I know at Warden Croft.";
+const INSULT_QUOTE = "shout every insult I know at Warden Croft";
+
+type Scripted = { key: string; quote: string };
+/** A scripted transport for the improvisation readers: answers each question by its id from a table the TEST wrote,
+ *  cited from the intent -- and counts how often it was asked. */
+function scriptedReading(byQuestion: Record<string, Scripted>): ReaderTransport & { calls: number; requests: ReadRequest[] } {
+  const transport = (async (request: ReadRequest) => {
+    transport.calls += 1;
+    transport.requests.push(request);
+    return request.questions.flatMap((q) => {
+      const s = byQuestion[q.id];
+      return s ? [{ questionId: q.id, answerKey: s.key, citation: { sourceId: "intent", quote: s.quote } }] : [];
+    });
+  }) as unknown as ReaderTransport & { calls: number; requests: ReadRequest[] };
+  transport.calls = 0;
+  transport.requests = [];
+  return transport;
+}
+
+describe("createSuspicionImproviser -- two separate one-question reads, the intent the only source", () => {
+  it("asks ONE question with the four closed keys, safe default none, and nothing but the intent as a source", async () => {
+    const transport = scriptedReading({ suspicion: { key: "serious", quote: INSULT_QUOTE } });
+    const reading = await createSuspicionImproviser([transport]).read(INSULT, 7);
+    expect(transport.calls).toBe(1);
+    const request = transport.requests[0];
+    expect(request.questions.map((q) => q.id)).toEqual(["suspicion"]);
+    expect(request.questions[0].answerKeys).toEqual(["none", "minor", "serious", "outrage"]);
+    expect(request.questions[0].safeDefault).toBe("none");
+    expect(request.sources).toEqual([{ id: "intent", text: INSULT }]);
+    expect(reading.answer).toBe("serious");
+    expect(reading.citation.verified).toBe(true);
+    expect(reading.citation.citation?.quote).toBe(INSULT_QUOTE);
+    expect(reading.id).toBe("improvise:t=7:suspicion");
+  });
+
+  it("a citation that is not the actor's verbatim words does not verify", async () => {
+    const transport = scriptedReading({ suspicion: { key: "serious", quote: "threatens to kill him" } });
+    const reading = await createSuspicionImproviser([transport]).read(INSULT, 7);
+    expect(reading.citation.verified).toBe(false);
+  });
+
+  it("the confirmation is its own call with its own question, outrage or lesser, safe default lesser", async () => {
+    const transport = scriptedReading({ outrage: { key: "outrage", quote: INSULT_QUOTE } });
+    const confirmation = await createSuspicionImproviser([transport]).confirm(INSULT, 7);
+    const request = transport.requests[0];
+    expect(request.questions.map((q) => q.id)).toEqual(["outrage"]);
+    expect(request.questions[0].answerKeys).toEqual(["outrage", "lesser"]);
+    expect(request.questions[0].safeDefault).toBe("lesser");
+    expect(request.sources).toEqual([{ id: "intent", text: INSULT }]);
+    expect(confirmation.confirmed).toBe(true);
+    expect(confirmation.id).toBe("improvise:t=7:outrage");
+  });
+
+  it("an unverified outrage does not confirm", async () => {
+    const confirmation = await createSuspicionImproviser([scriptedReading({ outrage: { key: "outrage", quote: "not in the intent" } })]).confirm(INSULT, 7);
+    expect(confirmation.confirmed).toBe(false);
+  });
+});
+
+describe("improviseSuspicion -- at most one ruling, raise only, never a crash", () => {
+  afterEach(() => destroyTestDb());
+
+  function setup(options: { improvise?: "off" | "suspicion" } = { improvise: "suspicion" }) {
+    createTestDb();
+    const w = buildOpenWorld({ presence: "modelled", ...options });
+    return { w, resolver: buildOpenResolver() };
+  }
+  const suspicion = (w: ReturnType<typeof buildOpenWorld>) => getResource(w.base.resources.wardenSuspicion)?.value;
+  const run = (w: ReturnType<typeof buildOpenWorld>, resolver: ReturnType<typeof buildOpenResolver>, transport: ReaderTransport, perceivable = true) =>
+    improviseSuspicion({ openWorld: w, resolver, improviser: createSuspicionImproviser([transport]), intentText: INSULT, t: w.base.clock.prisonerT(1), perceivable });
+
+  it("an act the warden cannot perceive raises nothing -- and no model is even asked", async () => {
+    const { w, resolver } = setup();
+    const transport = scriptedReading({ suspicion: { key: "outrage", quote: INSULT_QUOTE }, outrage: { key: "outrage", quote: INSULT_QUOTE } });
+    const result = await run(w, resolver, transport, false);
+    expect(transport.calls).toBe(0);
+    expect(result).toEqual(expect.objectContaining({ asked: false, reading: null, tier: null, outcome: null, refusal: null }));
+    expect(suspicion(w)).toBe(0);
+  });
+
+  it("none resolves nothing", async () => {
+    const { w, resolver } = setup();
+    const result = await run(w, resolver, scriptedReading({ suspicion: { key: "none", quote: INSULT_QUOTE } }));
+    expect(result.asked).toBe(true);
+    expect(result.tier).toBeNull();
+    expect(result.outcome).toBeNull();
+    expect(suspicion(w)).toBe(0);
+  });
+
+  it("an ungrounded tier (citation not verbatim) resolves nothing", async () => {
+    const { w, resolver } = setup();
+    const result = await run(w, resolver, scriptedReading({ suspicion: { key: "serious", quote: "words she never wrote" } }));
+    expect(result.tier).toBeNull();
+    expect(suspicion(w)).toBe(0);
+  });
+
+  it("minor raises by 2 and serious by 5, recording the cited act and rationale on the resolution", async () => {
+    const minor = setup();
+    const m = await run(minor.w, minor.resolver, scriptedReading({ suspicion: { key: "minor", quote: INSULT_QUOTE } }));
+    expect(m.tier).toBe("minor");
+    expect(suspicion(minor.w)).toBe(2);
+    expect(m.outcome?.result).toEqual(expect.objectContaining({ citedAct: INSULT_QUOTE, confirmation: null, precedentKey: null }));
+    expect(String(m.outcome?.result.rationale)).toMatch(/tier minor/);
+    destroyTestDb();
+    const serious = setup();
+    await run(serious.w, serious.resolver, scriptedReading({ suspicion: { key: "serious", quote: INSULT_QUOTE } }));
+    expect(suspicion(serious.w)).toBe(5);
+  });
+
+  it("outrage CONFIRMED by the second call raises by 10, passing the confirming reading's id as the confirmation", async () => {
+    const { w, resolver } = setup();
+    const transport = scriptedReading({ suspicion: { key: "outrage", quote: INSULT_QUOTE }, outrage: { key: "outrage", quote: INSULT_QUOTE } });
+    const result = await run(w, resolver, transport);
+    expect(transport.calls).toBe(2);
+    expect(result.tier).toBe("outrage");
+    expect(result.confirmation?.confirmed).toBe(true);
+    expect(result.outcome?.result.confirmation).toBe(result.confirmation?.id);
+    expect(suspicion(w)).toBe(10);
+  });
+
+  it("outrage NOT confirmed falls back to serious (+5), and says so in the rationale", async () => {
+    const { w, resolver } = setup();
+    const transport = scriptedReading({ suspicion: { key: "outrage", quote: INSULT_QUOTE }, outrage: { key: "lesser", quote: INSULT_QUOTE } });
+    const result = await run(w, resolver, transport);
+    expect(transport.calls).toBe(2);
+    expect(result.confirmation?.confirmed).toBe(false);
+    expect(result.tier).toBe("serious");
+    expect(result.outcome?.result.confirmation).toBeNull();
+    expect(String(result.outcome?.result.rationale)).toMatch(/not confirmed/);
+    expect(suspicion(w)).toBe(5);
+  });
+
+  it("an engine refusal is recorded, not thrown: the turn goes on and nothing moved", async () => {
+    // A world built with the arm OFF declares nothing improvisable, so the engine refuses the ruling outright.
+    const { w, resolver } = setup({ improvise: "off" });
+    const result = await run(w, resolver, scriptedReading({ suspicion: { key: "serious", quote: INSULT_QUOTE } }));
+    expect(result.tier).toBe("serious");
+    expect(result.outcome).toBeNull();
+    expect(result.refusal).toBeInstanceOf(ConstraintViolationError);
+    expect((result.refusal as ConstraintViolationError).improvisation?.rule).toBe("not-improvisable");
+    expect(suspicion(w)).toBe(0);
   });
 });
