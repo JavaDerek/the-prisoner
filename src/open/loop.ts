@@ -6,6 +6,7 @@ import { bandNumbersFor } from "./acquirableProperties.js";
 import { computePerceivedObjects, principalLocation, holderAt, type PresenceMode } from "./briefing.js";
 import { targetUnreadWithEffectCited, type Referee, type RefereeRuling, type ObjectPerception } from "./referee.js";
 import type { ElaborationReferee, ElaborationRuling } from "./elaborationReferee.js";
+import { improviseSuspicion, type SuspicionImproviser, type ImprovisedSuspicionResult } from "./improvisedRuling.js";
 import { ELABORATION_BANDS, type ElaborationBandRow, type DifficultyBand } from "./elaborationBands.js";
 import { planEffect, type EffectPlan, type EffectKind, type Magnitude, type DerivedParent, PROPERTY_KEYS } from "./effects.js";
 import type { OpenMind, OpenPrincipalContext, OpenProposal } from "./mind.js";
@@ -131,6 +132,10 @@ export interface OpenHalfRoundResult {
    *  adds `"disabled"`: a WARDEN half-round the game skipped because his own `condition` had reached the floor
    *  (`game.ts`) -- otherwise identical in shape. */
   skipped?: "absent" | "disabled";
+  /** `PRISONER_IMPROVISE=suspicion` (`improvisedRuling.ts`): set only on a PRISONER half-round whose act no listed
+   *  mechanic covered (an inapplicable ruling, or no plan) and that nothing acquired -- what the separate reading
+   *  found and the one improvised ruling it resolved, if any. Absent whenever the arm is off. */
+  improvised?: ImprovisedSuspicionResult;
 }
 
 /** OPEN-VARIANT.md §9.3: "grounds accrue... generalised past FILE/HONE/
@@ -616,6 +621,29 @@ function updateActorBelief(openWorld: OpenWorld, principal: Principal, plan: Eff
   if (resourceName && typeof outcome.result.value === "number") setBelief(openWorld.base.gameId, principal, resourceName, outcome.result.value, roundN);
 }
 
+/**
+ * "Unlisted is not impossible" (`improvisedRuling.ts`): on either of §1.4's two null paths, AFTER the elaboration
+ * route has had its turn exactly as before, a PRISONER's act that nothing acquired is offered to the separate
+ * suspicion reading. Only what the warden can perceive can raise his suspicion, by the same gates every other bump
+ * uses: he shares her location (§55), can see and is not disabled (D12, D14, the-prisoner#1), and the referee did
+ * not rule the act `silent`. The warden's own unlisted act never touches his own number.
+ */
+async function improviseUnlisted(
+  improviser: SuspicionImproviser | undefined,
+  openWorld: OpenWorld,
+  resolver: Resolver,
+  principal: Principal,
+  intentText: string,
+  ruling: RefereeRuling,
+  t: number,
+  otherPerceives: boolean,
+  acquired: unknown
+): Promise<{ improvised: ImprovisedSuspicionResult } | Record<string, never>> {
+  if (!improviser || principal !== "prisoner" || acquired) return {};
+  const improvised = await improviseSuspicion({ openWorld, resolver, improviser, intentText, t, perceivable: otherPerceives && ruling.perceptibility !== "silent" });
+  return { improvised };
+}
+
 export async function runOpenHalfRound(params: {
   openWorld: OpenWorld;
   resolver: Resolver;
@@ -659,6 +687,9 @@ export async function runOpenHalfRound(params: {
    *  elaboration applies, for the §4.8 sweep -- absent (the default) means
    *  the built table's own reading always applies. */
   forcedElaborationBand?: DifficultyBand;
+  /** `PRISONER_IMPROVISE=suspicion` (`improvisedRuling.ts`): the separate reading an unlisted act is offered to.
+   *  Absent (the default) means it is never called, which keeps `off` byte-identical to every recorded half-round. */
+  improviser?: SuspicionImproviser;
 }): Promise<OpenHalfRoundResult> {
   const { openWorld, resolver, referee, principal, roundN, t, context, mind } = params;
   const presenceMode = params.presenceMode ?? "off";
@@ -786,6 +817,7 @@ export async function runOpenHalfRound(params: {
     const acquired = elaboration
       ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherIncapacitated, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
       : null;
+    const improvised = await improviseUnlisted(params.improviser, openWorld, resolver, principal, proposal.intent, ruling, t, otherPresent && !otherIncapacitated, acquired);
     return {
       ...base,
       proposal,
@@ -800,6 +832,7 @@ export async function runOpenHalfRound(params: {
       resourceName: acquired?.result?.resourceName ?? null,
       elaboration,
       acquired: acquired?.result ?? null,
+      ...improvised,
     };
   }
 
@@ -928,6 +961,7 @@ export async function runOpenHalfRound(params: {
     const acquired = elaboration
       ? await tryAcquire(openWorld, resolver, elaboration, ruling, principal, otherPresent && !otherIncapacitated, roundN, params.forcedElaborationBand, params.elaborationBands ?? ELABORATION_BANDS)
       : null;
+    const improvised = await improviseUnlisted(params.improviser, openWorld, resolver, principal, proposal.intent, ruling, t, otherPresent && !otherIncapacitated, acquired);
     return {
       ...base,
       proposal,
@@ -942,6 +976,7 @@ export async function runOpenHalfRound(params: {
       resourceName: acquired?.result?.resourceName ?? null,
       elaboration,
       acquired: acquired?.result ?? null,
+      ...improvised,
     };
   }
 

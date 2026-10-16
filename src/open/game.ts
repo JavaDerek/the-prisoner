@@ -2,6 +2,7 @@ import { getResource, type Resolver } from "run-dmcp";
 import { wayOutAt, type OpenWorld } from "./world.js";
 import type { Referee } from "./referee.js";
 import type { ElaborationReferee } from "./elaborationReferee.js";
+import type { SuspicionImproviser } from "./improvisedRuling.js";
 import type { ElaborationBandRow, DifficultyBand } from "./elaborationBands.js";
 import type { OpenMind } from "./mind.js";
 import { runOpenHalfRound, type OpenHalfRoundResult, type KnownApproach } from "./loop.js";
@@ -81,6 +82,9 @@ export async function runOpenGame(params: {
    *  is the one exception, needed only because `renderOwnOutcome`'s declared-space refusal text has no world
    *  reference to check that against. Absent (`"off"`): byte-identical to before this issue landed. */
   harmMode?: HarmMode;
+  /** `PRISONER_IMPROVISE=suspicion` (`improvisedRuling.ts`): passed through to every half-round unchanged. Absent
+   *  (the default): byte-identical to every game recorded before the arm existed. */
+  improviser?: SuspicionImproviser;
 }): Promise<OpenGameResult> {
   const { openWorld, resolver, referee, rounds } = params;
   const presenceMode = params.presenceMode ?? "off";
@@ -174,6 +178,7 @@ export async function runOpenGame(params: {
         mind: minds[principal],
         presenceMode,
         ...(params.elaborationReferee ? { elaborationReferee: params.elaborationReferee } : {}),
+        ...(params.improviser ? { improviser: params.improviser } : {}),
         ...(params.elaborationBands ? { elaborationBands: params.elaborationBands } : {}),
         ...(params.forcedElaborationBand ? { forcedElaborationBand: params.forcedElaborationBand } : {}),
         ...(params.precedent ? { knownApproaches: params.precedent.known } : {}),
