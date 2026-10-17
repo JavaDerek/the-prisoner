@@ -39,3 +39,7 @@ As in PREDICTION.md: the prompt is not changed; the run stops at once if `/api/p
 `muse-glimmer:30b` alone, or after three errors in a row (resumable). A dead prediction is announced at the poll it dies
 (a scoreboard is logged every 8 items) and in RESULTS.md; the pass still finishes (it is one pass, and the per-item record
 is owed), and is never extended, re-run or re-scored to rescue a number.
+
+---
+**Not run (2026-10-16).** The owner stopped this phase before it ran: it used a local referee, and the NPC work
+moved to proving the pattern on generic puzzles first (open-world-npc). No results exist for this prediction.
