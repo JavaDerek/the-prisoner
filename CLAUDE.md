@@ -396,6 +396,15 @@ raise only (declared monotonic), for acts no listed rule charges (either null pa
 -- added 2026-10-16 after `checkpoints/2026-10-16-improvise-suspicion/` found 13 of 20 perceivable acts ruled `noise`),
 from a separate reading of what the warden can perceive -- never from talk
 lowering it, which is SOCIAL-INTENTS.md's refused belief-write and stays refused.
+The guide's 2026-10-17 lesson, "a goal is an aim, declared once, that the world's own changes can reach",
+came from worlds a model authors from short problem texts; this game's scenarios are written by hand, so
+here it is a check for whoever authors the next one, not a change. Declare each thing once (an opening is
+one object, never an object and a location both). The fourth point is the one that bites here: an obstacle
+a principal is meant to work through (the bar and its `integrity`) must be changeable by a listed mechanic,
+because the values that decide escape stay off `improvisable` (above), and a number nothing can move reads
+to the referee as permanent. The lesson behind its five points travels too: a correction to an authored
+scenario goes into the guide or this repository's docs as a rule the next scenario is held to, never as a
+fix to one fixture alone.
 
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
 D12). One: measure the referee on the population that will write to it. Every referee number before
