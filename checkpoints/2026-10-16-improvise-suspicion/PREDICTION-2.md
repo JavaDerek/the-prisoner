@@ -42,4 +42,5 @@ is owed), and is never extended, re-run or re-scored to rescue a number.
 
 ---
 **Not run (2026-10-16).** The owner stopped this phase before it ran: it used a local referee, and the NPC work
-moved to proving the pattern on generic puzzles first (open-world-npc). No results exist for this prediction.
+moved to proving the pattern on generic puzzles first, in a separate game-independent repository (see
+`docs/NPC-MINDS.md`). No results exist for this prediction.

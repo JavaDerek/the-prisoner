@@ -19,8 +19,8 @@ import type { OpenWorld } from "./world.js";
 import { PRISONER_SHORT_NAME, WARDEN_NAME, PRISONER_PRONOUNS, WARDEN_PRONOUNS } from "../scenario.js";
 
 /**
- * "Unlisted is not impossible" (run-dmcp's `docs/AUTHORING-GUIDE.md`, 2026-10-16; NPC-MINDS-ARCHITECTURE.md §3.5;
- * brink-workshop's OPEN-WORLD-RULINGS-DESIGN.md §4-§5): an act the referee rules onto nothing -- target `none`, or a
+ * "Unlisted is not impossible" (run-dmcp's `docs/AUTHORING-GUIDE.md`, 2026-10-16; this repo's `docs/NPC-MINDS.md`):
+ * an act the referee rules onto nothing -- target `none`, or a
  * ruling `planEffect` finds no plan for -- still happens. Today it touches nothing and is remembered. Under
  * `PRISONER_IMPROVISE=suspicion` it may ALSO receive one bounded improvised ruling, through run-dmcp 0.11.0's
  * `improvisedRulingMechanic`, on exactly one value: `warden_suspicion`. Since 2026-10-16 (owner, after

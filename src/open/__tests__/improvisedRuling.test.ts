@@ -13,7 +13,7 @@ import {
 } from "../improvisedRuling.js";
 
 /**
- * "Unlisted is not impossible" (run-dmcp's AUTHORING-GUIDE.md, NPC-MINDS-ARCHITECTURE.md §3.5): an act the referee
+ * "Unlisted is not impossible" (run-dmcp's AUTHORING-GUIDE.md, docs/NPC-MINDS.md): an act the referee
  * rules onto nothing may still receive a bounded improvised ruling -- here, on `warden_suspicion` alone, raise only,
  * with the owner's caps (minor 2 / serious 5 / outrage 10, outrage confirmed by a second call). These tests pin the
  * DATA and the MAPPING; the separate reading and the half-round wiring have their own describe blocks below.
