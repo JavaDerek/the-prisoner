@@ -406,6 +406,13 @@ to the referee as permanent. The lesson behind its five points travels too: a co
 scenario goes into the guide or this repository's docs as a rule the next scenario is held to, never as a
 fix to one fixture alone.
 
+The guide's 2026-10-18 lesson, "a condition is a value, and a lesson about prose needs a reader that is not
+the author", applies to hand-written scenarios as a check: a condition a principal could change (a bar's
+give, a door's state) is a value an act can move, never words in a name or a description that will still say
+it after the act; and a fact no act could undo may stay in words. Its second half applies to any checklist
+this game keeps: a person reading a sample is not an enforcement, and a checklist line is read literally, so
+word it for what it forbids, not by example words that also name innocent things.
+
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
 D12). One: measure the referee on the population that will write to it. Every referee number before
 then was measured on intents a model typed with the answer keys in its prompt, which is an upper bound;
