@@ -413,6 +413,12 @@ it after the act; and a fact no act could undo may stay in words. Its second hal
 this game keeps: a person reading a sample is not an enforcement, and a checklist line is read literally, so
 word it for what it forbids, not by example words that also name innocent things.
 
+The guide's 2026-10-19 lesson, "a state is a condition too; a substance the actor uses is an object; a length that
+can grow says how far", extends that check: a state a principal could change is a condition even when it is not a
+defect (a lamp lit, a bucket full, a door open), the water a principal might pour is an object of its own, and a
+value that can grow is shown with its limit. Its last note is for the referee seat: a veto-only judge errs strict,
+and only asking the scoring judge about its vetoes shows how much.
+
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
 D12). One: measure the referee on the population that will write to it. Every referee number before
 then was measured on intents a model typed with the answer keys in its prompt, which is an upper bound;
