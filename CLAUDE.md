@@ -419,6 +419,10 @@ defect (a lamp lit, a bucket full, a door open), the water a principal might pou
 value that can grow is shown with its limit. Its last note is for the referee seat: a veto-only judge errs strict,
 and only asking the scoring judge about its vetoes shows how much.
 
+The guide's 2026-10-19 afternoon lesson, "write an authoring rule by what a thing is, never by how the actor might
+use it", applies to every rule this game keeps for its scenarios: a rule phrased by use asks its author to foresee the
+solution and quietly marks the intended object; a rule by kind (every pliable thing declares that it bends) does not.
+
 **Two more lessons went to the guide from this game on 2026-09-26** (`docs/HUMAN-INTENTS-DESIGN.md` §8,
 D12). One: measure the referee on the population that will write to it. Every referee number before
 then was measured on intents a model typed with the answer keys in its prompt, which is an upper bound;
